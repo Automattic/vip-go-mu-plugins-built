@@ -1,0 +1,60 @@
+{
+  "name": "vip-dashboard",
+  "version": "0.0.1",
+  "author": "Filipe Varela",
+  "homepage": "http://vip.wordpress.com",
+  "description": "A new Dashboard for VIP and VIPv2.",
+  "scripts": {
+    "test": "export NODE_ENV=test; jshint components"
+  },
+  "authors": [
+    "Filipe Varela <filipe@a8c.com>",
+    "WordPress.com VIP <vip@matticspace.com>"
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "devDependencies": {
+    "browser-sync": "^2.5.3",
+    "browserify": "^9.0.8",
+    "gulp": "^3.8.11",
+    "gulp-autoprefixer": "^2.1.0",
+    "gulp-check-unused-css": "^2.1.3",
+    "gulp-concat": "^2.5.2",
+    "gulp-config-sync": "^1.0.1",
+    "gulp-csscomb": "^3.0.3",
+    "gulp-filter": "^2.0.2",
+    "gulp-imagemin": "^2.2.1",
+    "gulp-jshint": "^1.11.0",
+    "gulp-minify-css": "^1.0.0",
+    "gulp-parker": "^0.1.2",
+    "gulp-plumber": "^1.0.0",
+    "gulp-react": "^3.0.1",
+    "gulp-sass": "^1.0.1",
+    "gulp-sourcemaps": "^1.5.1",
+    "gulp-uglify": "^1.2.0",
+    "gulp-util": "^3.0.4",
+    "gulp-watch": "^4.2.2",
+    "jshint": "^2.5.10",
+    "jshint-jsx": "^0.4.1",
+    "jshint-stylish": "^2.0.0",
+    "reactify": "^1.1.0",
+    "should": "5.0.x",
+    "should-http": "0.0.2",
+    "supertest": "0.15.x",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "dependencies": {
+    "chart.js": "^1.0.2",
+    "classnames": "^2.1.1",
+    "debug": "^2.2.0",
+    "events": "^1.0.2",
+    "jed": "^1.1.0",
+    "lodash": "^3.8.0",
+    "moment": "^2.10.3",
+    "react": "^0.13.3",
+    "react-chartjs": "^0.6.0",
+    "superagent": "^1.2.0"
+  }
+}

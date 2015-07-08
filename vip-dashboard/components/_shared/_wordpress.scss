@@ -1,0 +1,27 @@
+/**
+ * wp-admin specific stlyes
+ * to be removed when these tools get merged with calypso
+ */
+
+#wpbody-content,
+body.toplevel_page_vip-dashboard {
+	background: #edf3f7;
+}
+
+body.toplevel_page_vip-dashboard #wpcontent {
+	padding-left: 0;
+}
+
+body.toplevel_page_vip-dashboard #vp-notice {
+	display: none;
+}
+
+@media screen and (max-width: 782px) {
+	.auto-fold #wpcontent {
+		padding-left: 0;
+	}
+}
+
+.toplevel_page_vip-dashboard ul#adminmenu>li.current>a.current:after {
+	border-right-color: $graphite-dark-var;
+}

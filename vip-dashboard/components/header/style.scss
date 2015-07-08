@@ -1,0 +1,17 @@
+/**
+ * Top Header
+ */
+.top-header {
+	padding: .225em 2em;
+	background: $graphite-dark-var;
+}
+
+.top-header h1 {
+	margin: .75em 0 .3125em;
+}
+
+.top-header__logo {
+	width: 85px;
+	height: auto;
+	margin: 0;
+}
