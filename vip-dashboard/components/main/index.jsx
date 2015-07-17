@@ -11,7 +11,7 @@ var React = require( 'react' ),
 /**
  * Widget Component
  */
-Main = React.createClass( {
+var Main = React.createClass( {
 	render: function() {
 		return (
 			<main className={ joinClasses( this.props.className, 'main' ) } role="main">

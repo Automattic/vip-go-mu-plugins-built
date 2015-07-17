@@ -12,7 +12,7 @@ CounTo = require( '../count');
 /**
  * Stats Number Component
  */
-Stats_Numbers = React.createClass( {
+var Stats_Numbers = React.createClass( {
 	getInitialState: function() {
 		return {
 			value: this.props.value,
@@ -37,9 +37,9 @@ Stats_Numbers = React.createClass( {
 		} else {
 			trend = 'trend-neutral';
 		}
-		
+
 		if ( this.state.type == 'chart' ) {
-			
+
 			return (
 				<div className={ this.props.className } onClick={this.spin}>
 					<span className="numbers__value">{ this.state.value + '%' }</span>
@@ -47,7 +47,7 @@ Stats_Numbers = React.createClass( {
 					<span className={ joinClasses( trend, 'numbers__trend trend-center' )}>{ this.state.trend + '%' }</span>
 				</div>
 			);
-			
+
 		} else {
 
 			return (
@@ -58,7 +58,7 @@ Stats_Numbers = React.createClass( {
 				</div>
 			);
 		}
-		
+
 	}
 } );
 module.exports = Stats_Numbers;

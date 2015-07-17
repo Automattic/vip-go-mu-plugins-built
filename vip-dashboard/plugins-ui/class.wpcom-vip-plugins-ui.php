@@ -539,12 +539,27 @@ class WPCOM_VIP_Plugins_UI {
 	/**
 	 * Validates a plugin slug.
 	 *
-	 * @todo Remove - use core's validate_plugin()
 	 * @param string $plugin The slug of the VIP plugin to validate.
 	 * @return bool True if valid, false if not.
 	 */
 	public function validate_plugin( $plugin ) {
-		return ( 0 === validate_file( $plugin ) && file_exists( $this->plugin_folder . '/' . $plugin . '/' . $plugin . '.php' ) );
+		if ( 0 !== validate_file( $plugin ) ) {
+			return false;
+		}
+
+		$shared_plugins = $this->get_shared_plugins();
+
+		// The $plugin param passed here is just the slug - the plugin folder...
+		// but $this->get_shared_plugins() returns an array of $plugin_file => info
+		// The plugin files don't necessarily match their folder
+
+		foreach( $shared_plugins as $plugin_file => $plugin_info ) {
+			if ( $plugin === dirname( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -555,14 +570,14 @@ class WPCOM_VIP_Plugins_UI {
 	 */
 	public function activate_plugin( $plugin ) {
 		if ( ! $this->validate_plugin( $plugin ) ) {
-			return false;
+			return new WP_Error( 'activation', __( 'Invalid plugin' ) );
 		}
 
 		$plugins = $this->get_active_plugins_option();
 
 		// Don't add it twice
 		if ( in_array( $plugin, $plugins ) ) {
-			return false;
+			return new WP_Error( 'activation', __( 'Plugin already activated' ) );
 		}
 
 		$plugins[] = $plugin;

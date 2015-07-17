@@ -11,7 +11,7 @@ var React = require( 'react' ),
 /**
  * Widget Component
  */
-Widget = React.createClass( {
+var Widget = React.createClass( {
 	maybeRenderTitle: function() {
 		if ( this.props.title ) {
 			return <h2 className="widget__title">{this.props.title}</h2>;

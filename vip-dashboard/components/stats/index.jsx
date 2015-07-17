@@ -11,7 +11,7 @@ var React = require( 'react' ),
 /**
  * Widget Component
  */
-Stats = React.createClass( {
+var Stats = React.createClass( {
 	render: function() {
 		return (
 			<div className={ joinClasses( this.props.className, 'stats' ) }>

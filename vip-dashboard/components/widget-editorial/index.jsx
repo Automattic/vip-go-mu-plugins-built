@@ -11,7 +11,7 @@ var Widget = require( '../widget' );
 /**
  * Editorial Widget Component
  */
-Widget_Editorial = React.createClass( {
+var Widget_Editorial = React.createClass( {
 	render: function() {
 		return (
 			<Widget className="widget-small widget__tips" title="Editorial Tips">

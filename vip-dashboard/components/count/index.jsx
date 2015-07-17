@@ -10,7 +10,7 @@ var React = require( 'react' );
 /**
  * Counter component
  */
-CountTo = React.createClass({
+var CountTo = React.createClass({
 	propTypes: {
 		from: React.PropTypes.number,
 		to: React.PropTypes.number.isRequired,

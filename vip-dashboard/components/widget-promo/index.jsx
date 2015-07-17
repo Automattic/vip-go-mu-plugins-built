@@ -12,7 +12,7 @@ var Config = require( '../config.js' ),
 /**
  * Promo Widget Component
  */
-Widget_Promo = React.createClass( {
+var Widget_Promo = React.createClass( {
 	render: function() {
 		return (
 			<Widget className="widget-small widget__promo">

@@ -14,7 +14,7 @@ var Config = require( '../config.js' );
 /**
  * Contact Widget Component
  */
-Widget_Contact = React.createClass( {
+var Widget_Contact = React.createClass( {
 	getInitialState: function() {
 		return {
 			user: Config.user,

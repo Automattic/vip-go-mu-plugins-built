@@ -11,7 +11,7 @@ var Config = require( '../config.js' );
 /**
  * Navigation component
  */
-Nav = React.createClass( {
+var Nav = React.createClass( {
 	getInitialState: function(){
 		return {
 			focused: 0

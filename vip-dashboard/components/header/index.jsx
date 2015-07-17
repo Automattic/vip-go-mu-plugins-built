@@ -13,7 +13,7 @@ var Config = require( '../config.js' ),
 /**
  * Header Component
  */
-Header = React.createClass( {
+var Header = React.createClass( {
 	getInitialState: function() {
 		{
 		// to-do: 'User Management', 'SVN Access', 'Revisions', 'Support', 'Billing'

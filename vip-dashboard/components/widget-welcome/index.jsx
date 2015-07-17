@@ -11,7 +11,7 @@ var Widget = require( '../widget' );
 /**
  * Welcome Widget Component
  */
-Widget_Welcome = React.createClass( {
+var Widget_Welcome = React.createClass( {
 	render: function() {
 		return (
 			<Widget className="widget__welcome" title="Welcome to WordPress.com VIP">
