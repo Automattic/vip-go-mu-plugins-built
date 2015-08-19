@@ -378,10 +378,13 @@ class Jetpack {
 			}
 
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
-			if ( ! get_option( 'jetpack_unique_connection' ) ) {
+			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
+			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
+			if ( ! $is_unique_connection ) {
 				$jetpack_unique_connection = array(
-					'connected' => 1,
-					'disconnected' => 0,
+					'connected'     => 1,
+					'disconnected'  => -1,
+					'version'       => '3.6.1'
 				);
 				update_option( 'jetpack_unique_connection', $jetpack_unique_connection );
 			}
@@ -407,7 +410,7 @@ class Jetpack {
 	/**
 	 * Constructor.  Initializes WordPress hooks
 	 */
-	private function Jetpack() {
+	private function __construct() {
 		/*
 		 * Check for and alert any deprecated hooks
 		 */
@@ -451,7 +454,8 @@ class Jetpack {
 			'stylesheet',
 			"theme_mods_{$theme_slug}",
 			'jetpack_sync_non_public_post_stati',
-			'jetpack_options'
+			'jetpack_options',
+			'site_icon' // (int) - ID of core's Site Icon attachment ID
 		);
 
 		foreach( Jetpack_Options::get_option_names( 'non-compact' ) as $option ) {
@@ -466,7 +470,6 @@ class Jetpack {
 		$this->sync->mock_option( 'is_multi_site', array( $this, 'is_multisite' ) );
 		$this->sync->mock_option( 'main_network_site', array( $this, 'jetpack_main_network_site_option' ) );
 		$this->sync->mock_option( 'single_user_site', array( 'Jetpack', 'is_single_user_site' ) );
-
 
 		/**
 		 * Trigger an update to the main_network_site when we update the blogname of a site.
@@ -586,6 +589,34 @@ class Jetpack {
 		if( !is_admin() ) {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
+		}
+
+		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.  
+		add_action( 'add_option_site_icon',    array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
+		add_action( 'jetpack_heartbeat',       array( $this, 'jetpack_sync_core_icon' ) );
+
+	}
+
+	/*
+	 * Make sure any site icon added to core can get
+	 * synced back to dotcom, so we can display it there.
+	 */
+	function jetpack_sync_core_icon() {
+		if ( function_exists( 'get_site_icon_url' ) ) {
+			$url = get_site_icon_url();
+		} else {
+			return;
+		}
+
+		require_once( JETPACK__PLUGIN_DIR . 'modules/site-icon/site-icon-functions.php' );
+		// If there's a core icon, maybe update the option.  If not, fall back to Jetpack's.
+		if ( ! empty( $url ) && $url !== jetpack_site_icon_url() ) {
+			// This is the option that is synced with dotcom
+			Jetpack_Options::update_option( 'site_icon_url', $url );
+		} else if ( empty( $url ) && did_action( 'delete_option_site_icon' ) ) {
+			Jetpack_Options::delete_option( 'site_icon_url' );
 		}
 	}
 
@@ -736,6 +767,11 @@ class Jetpack {
 			case 'jetpack_admin_page' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
+					break;
+				}
+
+				if ( ! self::is_active() && ! current_user_can( 'jetpack_connect' ) ) {
+					$caps = array( 'do_not_allow' );
 					break;
 				}
 				/**
@@ -964,8 +1000,14 @@ class Jetpack {
 				$notice = __( 'In Development Mode, via the jetpack_development_mode filter.', 'jetpack' );
 			}
 
-			$output = '<div class="error"><p>' . $notice . '</p></div>';
-			echo $output;
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		}
+
+		// Throw up a notice if using a development version and as for feedback.
+		if ( Jetpack::is_development_version() ) {
+			$notice = sprintf( _x( 'You are currently running a development version of Jetpack.  %1s Submit your feedback. %2s', '%1s & %2s are HTML tags', 'jetpack' ), '<a href="https://jetpack.me/contact-support/beta-group/" target="_blank">', '</a>' );
+
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 	}
 
@@ -2302,17 +2344,21 @@ p {
 
 		$jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' );
 		// Check then record unique disconnection if site has never been disconnected previously
-		if ( $jetpack_unique_connection['disconnected'] < 1 ) {
+		if ( -1 == $jetpack_unique_connection['disconnected'] ) {
+			$jetpack_unique_connection['disconnected'] = 1;
+		}
+		else {
+			if ( 0 == $jetpack_unique_connection['disconnected'] ) {
+				//track unique disconnect
+				$jetpack = Jetpack::init();
 
-			//track unique disconnect
-			$jetpack = Jetpack::init();
-
-			$jetpack->stat( 'connections', 'unique-disconnect' );
-			$jetpack->do_stats( 'server_side' );
+				$jetpack->stat( 'connections', 'unique-disconnect' );
+				$jetpack->do_stats( 'server_side' );
+			}
+			// increment number of times disconnected
+			$jetpack_unique_connection['disconnected'] += 1;
 		}
 
-		// increment number of times disconnected
-		$jetpack_unique_connection['disconnected'] += 1;
 		Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 
 		// Disable the Heartbeat cron
@@ -2981,7 +3027,7 @@ p {
 						<?php _e( 'You have successfully disconnected Jetpack.', 'jetpack' ); ?>
 						<br />
 						<?php echo sprintf(
-							__( 'Would you tell us why? Just <a href="%s" target="%s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
+							__( 'Would you tell us why? Just <a href="%1$s" target="%2$s">answering two simple questions</a> would help us improve Jetpack.', 'jetpack' ),
 							'https://jetpack.me/survey-disconnected/',
 							'_blank'
 						); ?>
@@ -3069,6 +3115,10 @@ p {
 				$client_server->authorize();
 				exit;
 			case 'register' :
+				if ( ! current_user_can( 'jetpack_connect' ) ) {
+					$error = 'cheatin';
+					break;
+				}
 				check_admin_referer( 'jetpack-register' );
 				Jetpack::log( 'register' );
 				Jetpack::maybe_set_version_option();
@@ -3400,8 +3450,11 @@ p {
 			global $current_user;
 			$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 			$master_userdata = get_userdata( Jetpack_Options::get_option( 'master_user' ) );
-			$user = $is_master_user ? _x( 'yourself', 'Read as: You have successfully set yourself as the primary user', 'jetpack' ) : $master_userdata->user_login;
-			$this->message = sprintf( __( '<strong>You have successfully set %s as Jetpack’s primary user.</strong>', 'jetpack' ), $user );
+			if ( $is_master_user ) {
+				$this->message = __( 'You have successfully set yourself as Jetpack’s primary user.', 'jetpack' );
+			} else {
+				$this->message = sprintf( _x( 'You have successfully set %s as Jetpack’s primary user.', '%s is a username', 'jetpack' ), $master_userdata->user_login );
+			}
 			break;
 		}
 
@@ -5910,7 +5963,7 @@ p {
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		} elseif ( ! self::is_development_mode() ) {
+		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
 			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
 		}
 
@@ -6003,6 +6056,9 @@ p {
 	}
 
 	public function dashboard_widget_connect_to_wpcom() {
+		if ( Jetpack::is_active() || Jetpack::is_development_mode() || ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
 		?>
 		<div class="wpcom-connect">
 			<div class="jp-emblem">
@@ -6025,6 +6081,55 @@ p {
 			</div>
 		</div>
 		<?php
+	}
+
+	/*
+	 * A graceful transition to using Core's site icon.
+	 *
+	 * All of the hard work has already been done with the image
+	 * in all_done_page(). All that needs to be done now is update
+	 * the option and display proper messaging.
+	 *
+	 * @todo remove when WP 4.3 is minimum
+	 *
+	 * @since 3.6.1
+	 *
+	 * @return bool false = Core's icon not available || true = Core's icon is available
+	 */
+	public static function jetpack_site_icon_available_in_core() {
+		global $wp_version;
+		$core_icon_available = function_exists( 'has_site_icon' ) && version_compare( $wp_version, '4.3-beta' ) >= 0;
+
+		if ( ! $core_icon_available ) {
+			return false;
+		}
+
+		// No need for Jetpack's site icon anymore if core's is already set
+		if ( has_site_icon() ) {
+			if ( Jetpack::is_module_active( 'site-icon' ) ) {
+				Jetpack::log( 'deactivate', 'site-icon' );
+				Jetpack::deactivate_module( 'site-icon' );
+			}
+			return true;
+		}
+
+		// Transfer Jetpack's site icon to use core.
+		$site_icon_id = Jetpack::get_option( 'site_icon_id' );
+		if ( $site_icon_id ) {
+			// Update core's site icon
+			update_option( 'site_icon', $site_icon_id );
+
+			// Delete Jetpack's icon option. We still want the blavatar and attached data though.
+			delete_option( 'site_icon_id' );
+		}
+
+		// No need for Jetpack's site icon anymore
+		if ( Jetpack::is_module_active( 'site-icon' ) ) {
+			Jetpack::log( 'deactivate', 'site-icon' );
+			Jetpack::deactivate_module( 'site-icon' );
+		}
+
+		return true;
 	}
 
 }
