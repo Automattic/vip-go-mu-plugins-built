@@ -19,15 +19,20 @@ Domain Path: /languages/
  */
 function vip_dashboard_init() {
 
+	require __DIR__ . '/plugins-ui/plugins-ui.php';
+
 	// admin only
 	if ( ! is_admin() )
 		return;
 
-	require __DIR__ . '/plugins-ui/plugins-ui.php';
-
 	// Enable menu for all sites using a VIP and a8c sites
 	add_action( 'admin_menu', 'wpcom_vip_admin_menu', 5 );
 	add_action( 'admin_menu', 'wpcom_vip_rename_vip_menu_to_dashboard', 50 );
+
+	// Remove standard WP plugins screen
+	add_action( 'admin_menu', 'vip_dashboard_remove_menu_pages' );
+	add_action( 'load-plugins.php', 'vip_dashboard_prevent_admin_access' );
+
 }
 add_action( 'plugins_loaded', 'vip_dashboard_init' );
 
@@ -49,6 +54,32 @@ function vip_dashboard_admin_styles() {
 function vip_dashboard_admin_scripts() {
 	wp_register_script( 'vip-dashboard-script', plugins_url( '/assets/js/vip-dashboard.js', __FILE__ ), array( 'jquery' ), '1.0', true );
 	wp_enqueue_script( 'vip-dashboard-script' );
+}
+
+/**
+ * Remove plugins menu item for all but vip_support
+ *
+ * @return void
+ */
+function vip_dashboard_remove_menu_pages() {
+	$user = wp_get_current_user();
+
+	if ( ! in_array( 'vip_support', $user->roles ) ) {
+		remove_menu_page( 'plugins.php' );
+	}
+}
+
+/**
+ * Limit plugins.php access to vip_support role
+ *
+ * @return void
+ */
+function vip_dashboard_prevent_admin_access() {
+	$user = wp_get_current_user();
+
+	if ( ! in_array( 'vip_support', $user->roles ) ) {
+		wp_safe_redirect( esc_url( add_query_arg( array( 'page' => 'vip-plugins'), admin_url( 'admin.php' ) ) ) );
+	}
 }
 
 /**
@@ -322,7 +353,7 @@ function wpcom_vip_rename_vip_menu_to_dashboard() {
 	global $submenu;
 
 	// Rename the first (auto-added) entry in the Dashboard. Kinda hacky, but the menu doesn't have any filters
-	if( isset( $submenu['vip-dashboard'][0][0] ) )
+	if ( isset( $submenu['vip-dashboard'][0][0] ) )
 		$submenu['vip-dashboard'][0][0] = __( 'Dashboard' );
 }
 
@@ -344,7 +375,7 @@ function wpcom_vip_menu_order( $menu_ord ) {
 			$vip_order[] = $vip_dash;
 			$vip_order[] = $item;
 			unset( $menu_ord[$vip_dash] );
-		} elseif( $item != $vip_dash ) {
+		} elseif ( $item != $vip_dash ) {
 			$vip_order[] = $item;
 		}
 
