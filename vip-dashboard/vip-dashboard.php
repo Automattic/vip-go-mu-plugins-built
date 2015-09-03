@@ -62,11 +62,7 @@ function vip_dashboard_admin_scripts() {
  * @return void
  */
 function vip_dashboard_remove_menu_pages() {
-	$user = wp_get_current_user();
-
-	if ( ! in_array( 'vip_support', $user->roles ) ) {
-		remove_menu_page( 'plugins.php' );
-	}
+	remove_menu_page( 'plugins.php' );
 }
 
 /**

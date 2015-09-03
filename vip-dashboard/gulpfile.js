@@ -1,11 +1,4 @@
 /**
- * Forked from Scott's Glug
- *
- * https://github.com/scottsweb/glug
- */
-
-
-/**
  * Settings
  *
  * Setup your project paths and requirements here
@@ -57,6 +50,7 @@ var settings = {
 var	gulp = require('gulp'),
 
 	// Plugins
+	assign = require('lodash.assign'),
 	autoprefixer = require('gulp-autoprefixer'),
 	browserify = require( 'browserify' ),
 	browsersync = require('browser-sync'),
@@ -66,6 +60,7 @@ var	gulp = require('gulp'),
 	csscomb = require('gulp-csscomb'),
 	filter = require('gulp-filter'),
 	imagemin = require('gulp-imagemin'),
+	install = require("gulp-install"),
 	jshint = require('gulp-jshint'),
 	minifycss = require('gulp-minify-css'),
 	parker = require('gulp-parker'),
@@ -78,7 +73,8 @@ var	gulp = require('gulp'),
 	sync = require('gulp-config-sync'),
 	uglify = require('gulp-uglify'),
 	util = require('gulp-util'),
-	watch = require('gulp-watch');
+	watch = require('gulp-watch'),
+	watchify = require('watchify');
 
 /**
  * Generic error handler used by plumber
@@ -100,6 +96,9 @@ var onError = function(err) {
  * Watch for changes and run tasks
  */
 gulp.task('default', function() {
+
+	// Install
+	gulp.start('install');
 
 	// Compile Styles on start
 	gulp.start('styles');
@@ -144,6 +143,15 @@ gulp.task('default', function() {
 });
 
 /**
+ * Install Task
+ * Ensure our packages are upto date
+ */
+gulp.task('install', function() {
+	gulp.src(['./package.json'])
+		.pipe( install() );
+});
+
+/**
  * Stylesheet Task
  *
  * SCSS -> CSS
@@ -176,27 +184,37 @@ gulp.task('styles', function() {
  *
  * Compile JSX etc
  */
-gulp.task('react', ['lint'], function () {
+ var reactopts = {
+ 	entries: [settings.js],
+ 	debug: true,
+ 	extensions: ['.jsx']
+ };
+ var opts = assign({}, watchify.args, reactopts);
+ var b = watchify(browserify(opts));
+ b.transform(reactify);
+ //b.on('log', util.log); // output build logs to terminal
 
-	// set up the browserify instance on a task basis
-	var b = browserify({
-		entries: settings.js,
-		debug: true,
-		// defining transforms here will avoid crashing the stream
-		transform: [reactify],
-		extensions: ['.jsx']
-	});
+gulp.task('react', ['lint'], function () {
 
 	return b.bundle()
 		.on('error', onError)
 		.pipe(source('vip-dashboard.js'))
 		.pipe(buffer())
 		.pipe(sourcemaps.init({loadMaps: true}))
-			.pipe(uglify())
+		//.pipe(uglify())
 		.pipe(sourcemaps.write('./'))
 		.pipe(gulp.dest(settings.jspath))
 		.pipe(browsersync.reload({stream: true}));
 });
+
+/**
+ * Compress the JS
+ */
+ gulp.task('compress', function() {
+	return gulp.src( settings.jspath + 'vip-dashboard.js')
+		.pipe(uglify())
+		.pipe(gulp.dest(settings.jspath));
+ });
 
 /**
  * Lint Task

@@ -38,6 +38,14 @@ gulp
 
 The default task watches for changes to files and re-compiles assets when a change is detected. Your browser window will also automatically be refreshed with each change. We also check for JS errors so keep an eye on your console and fix any reported issues.
 
+Before deploying you may wish to run:
+
+```
+gulp compress
+```
+
+This will generate minified versions of the JavaScript ready for production.
+
 ## Testing
 
 Run

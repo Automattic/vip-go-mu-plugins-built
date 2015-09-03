@@ -318,13 +318,13 @@ class WPCOM_VIP_Plugins_UI {
 	 */
 	public function action_admin_menu_add_menu_item() {
 		if ( $this->parent_menu_slug == 'plugins.php' ) {
-			$page_title = __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' );
-			$menu_label = __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' );
+			$page_title = esc_html__( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' );
+			$menu_label = esc_html__( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' );
 		} else {
-			$page_title = __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' );
-			$menu_label = __( 'Plugins & Services', 'wpcom-vip-plugins-ui' );
+			$page_title = esc_html__( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' );
+			$menu_label = esc_html__( 'Plugins', 'wpcom-vip-plugins-ui' );
 		}
-		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
+		$this->hook_suffix = add_menu_page( $page_title, $menu_label, $this->capability, 'vip-plugins', array( $this, 'display_menu_page' ), 'dashicons-admin-plugins', 64 );
 
 		// This is required because WPCOM_VIP_Plugins_UI_List_Table() is defined inside of a function
 		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPCOM_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
