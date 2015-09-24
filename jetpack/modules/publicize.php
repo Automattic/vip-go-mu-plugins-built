@@ -1,19 +1,19 @@
 <?php
 /**
  * Module Name: Publicize
- * Module Description: Share new posts on social media networks automatically.
+ * Module Description: Automatically promote content.
  * Sort Order: 10
  * Recommendation Order: 7
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
- * Feature: Recommended
+ * Feature: Recommended, Traffic
  */
 
 class Jetpack_Publicize {
 
-	var $in_jetpack = true;
+	public $in_jetpack = true;
 
 	function __construct() {
 		global $publicize_ui;
@@ -289,8 +289,7 @@ class Publicize_Util {
 		}
 		$done[$post_id] = true;
 
-		if ( function_exists( 'bump_stats_extras' ) )
-			bump_stats_extras( 'publicize_url', $bin );
+		do_action( 'jetpack_bump_stats_extras', 'publicize_url', $bin );
 	}
 
 	public static function build_sprintf( $args ) {

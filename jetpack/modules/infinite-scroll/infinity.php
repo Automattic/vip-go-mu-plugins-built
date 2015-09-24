@@ -1020,7 +1020,9 @@ class The_Neverending_Home_Page {
 			// Fire wp_head to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
 			ob_start();
 			wp_head();
-			ob_end_clean();
+			while ( ob_get_length() ) {
+				ob_end_clean();
+			}
 
 			$results['type'] = 'success';
 
@@ -1055,7 +1057,9 @@ class The_Neverending_Home_Page {
 			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
 			ob_start();
 			wp_footer();
-			ob_end_clean();
+			while ( ob_get_length() ) {
+				ob_end_clean();
+			}
 
 			if ( 'success' == $results['type'] ) {
 				global $currentday;
@@ -1212,8 +1216,14 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	private function default_footer() {
-		$credits = '<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a> ';
-		$credits .= sprintf( __( 'Theme: %1$s.', 'jetpack' ), function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme() );
+		$credits = sprintf(
+			'<a href="http://wordpress.org/" rel="generator">%1$s</a> ',
+			__( 'Proudly powered by WordPress', 'jetpack' )
+		);
+		$credits .= sprintf(
+			__( 'Theme: %1$s.', 'jetpack' ),
+			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
+		);
 		$credits = apply_filters( 'infinite_scroll_credit', $credits );
 
 		?>

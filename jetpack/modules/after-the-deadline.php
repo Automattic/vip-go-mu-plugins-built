@@ -17,7 +17,7 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	}
 	add_filter( 'atd_http_post_timeout', 'AtD_http_post_timeout_action' );
 	function AtD_http_post_error_action( $code ) {
-		bump_stats_extras( 'atd-remote-error', $code );
+		do_action( 'jetpack_bump_stats_extras', 'atd-remote-error', $code );
 	}
 	add_action( 'atd_http_post_error', 'AtD_http_post_error_action' );
 	function AtD_service_domain_action() {
@@ -63,7 +63,7 @@ include( dirname( __FILE__ ) . '/after-the-deadline/config-options.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/config-unignore.php' );
 include( dirname( __FILE__ ) . '/after-the-deadline/proxy.php' );
 
-define( 'ATD_VERSION', '20150708' );
+define( 'ATD_VERSION', '20150715' );
 
 /*
  * Display the AtD configuration options

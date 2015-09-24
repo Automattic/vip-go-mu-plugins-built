@@ -6,61 +6,92 @@ abstract class Publicize_Base {
 	* Services that are currently connected to the given user
 	* through publicize.
 	*/
-	var $connected_services = array();
+	public $connected_services = array();
 
 	/**
 	* Sservices that are supported by publicize. They don't
 	* neccessarly need to be connected to the current user.
 	*/
-	var $services;
+	public $services;
 
 	/**
 	* key names for post meta
 	*/
-	var $ADMIN_PAGE        = 'wpas';
-	var $POST_MESS         = '_wpas_mess';
-	var $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
-	var $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
-	var $USER_AUTH         = 'wpas_authorize';
-	var $USER_OPT          = 'wpas_';
-	var $PENDING           = '_publicize_pending'; // ready for Publicize to do its thing
-	var $POST_SERVICE_DONE = '_publicize_done_external'; // array of external ids where we've Publicized
+	public $ADMIN_PAGE        = 'wpas';
+	public $POST_MESS         = '_wpas_mess';
+	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
+	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
+	public $USER_AUTH         = 'wpas_authorize';
+	public $USER_OPT          = 'wpas_';
+	public $PENDING           = '_publicize_pending'; // ready for Publicize to do its thing
+	public $POST_SERVICE_DONE = '_publicize_done_external'; // array of external ids where we've Publicized
 
 	/**
 	* default pieces of the message used in constructing the
 	* content pushed out to other social networks
 	*/
-	var $default_prefix  = '';
-	var $default_message = '%title%';
-	var $default_suffix  = '';
+
+	public $default_prefix  = '';
+	public $default_message = '%title%';
+	public $default_suffix  = ' ';
 
 	/**
 	 * What WP capability is require to create/delete global connections?
 	 * All users with this cap can unglobalize all other global connections, and globalize any of their own
 	 * Globalized connections cannot be unselected by users without this capability when publishing
 	 */
-	var $GLOBAL_CAP = 'edit_others_posts';
+	public $GLOBAL_CAP = 'edit_others_posts';
 
 	/**
 	* Sets up the basics of Publicize
 	*/
 	function __construct() {
 		$this->default_message = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the default Publicize message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_message Publicize's default message. Default is the post title.
+			 */
 			apply_filters( 'wpas_default_message', $this->default_message ),
 			'title',
 			'url',
 		) );
 
 		$this->default_prefix = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the message prepended to the Publicize custom message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_prefix String prepended to the Publicize custom message.
+			 */
 			apply_filters( 'wpas_default_prefix', $this->default_prefix ),
 			'url',
 		) );
 
 		$this->default_suffix = Publicize_Util::build_sprintf( array(
+			/**
+			 * Filter the message appended to the Publicize custom message.
+			 *
+			 * @since 2.0.0
+			 *
+			 * @param string $this->default_suffix String appended to the Publicize custom message.
+			 */
 			apply_filters( 'wpas_default_suffix', $this->default_suffix ),
 			'url',
 		) );
 
+		/**
+		 * Filter the capability to change global Publicize connection options.
+		 * All users with this cap can unglobalize all other global connections, and globalize any of their own
+		 * Globalized connections cannot be unselected by users without this capability when publishing.
+		 *
+		 * @since 2.2.1
+		 *
+		 * @param string $this->GLOBAL_CAP default capability in control of global Publicize connection options. Default to edit_others_posts.
+		 */
 		$this->GLOBAL_CAP = apply_filters( 'jetpack_publicize_global_connections_cap', $this->GLOBAL_CAP );
 
 		// stage 1 and 2 of 3-stage Publicize. Flag for Publicize on creation, save meta,
@@ -288,8 +319,13 @@ abstract class Publicize_Base {
 		// Did this request happen via wp-admin?
 		$from_web = 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$this->ADMIN_PAGE] );
 
-		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && !empty( $_POST['wpas_title'] ) )
-			update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $_POST['wpas_title'] ) ) );
+		if ( ( $from_web || defined( 'POST_BY_EMAIL' ) ) && isset( $_POST['wpas_title'] ) ) {
+			if ( empty( $_POST['wpas_title'] ) ) {
+				delete_post_meta( $post_id, $this->POST_MESS );
+			} else {
+				update_post_meta( $post_id, $this->POST_MESS, trim( stripslashes( $_POST['wpas_title'] ) ) );
+			}
+		}
 
 		// change current user to provide context for get_services() if we're running during cron
 		if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
@@ -309,6 +345,7 @@ abstract class Publicize_Base {
 				elseif ( ! empty( $connection['connection_data'] ) )
 					$connection_data = $connection['connection_data'];
 
+				/** This action is documented in modules/publicize/ui.php */
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
@@ -323,7 +360,7 @@ abstract class Publicize_Base {
 				if ( $from_web ) {
 					// delete stray service-based post meta
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
-	
+
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition
 					if ( empty( $_POST[$this->ADMIN_PAGE]['submit'][$unique_id] ) ) {
 						// Also make sure that the service-specific input isn't there.
@@ -343,8 +380,18 @@ abstract class Publicize_Base {
 					}
 				}
 
-				// Users may hook in here and do anything else they need to after meta is written,
-				// and before the post is processed for Publicize.
+				/**
+				 * Fires right before the post is processed for Publicize.
+				 * Users may hook in here and do anything else they need to after meta is written,
+				 * and before the post is processed for Publicize.
+				 *
+				 * @since 2.1.2
+				 *
+				 * @param bool $submit_post Should the post be publicized.
+				 * @param int $post->ID Post ID.
+				 * @param string $service_name Service name.
+				 * @param array $connection Array of connection details.
+				 */
 				do_action( 'publicize_save_meta', $submit_post, $post_id, $service_name, $connection );
 			}
 		}

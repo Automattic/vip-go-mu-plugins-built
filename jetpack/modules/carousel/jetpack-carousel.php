@@ -16,13 +16,13 @@ GNU General Public License for more details.
 */
 class Jetpack_Carousel {
 
-	var $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
+	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
-	var $first_run = true;
+	public $first_run = true;
 
-	var $in_gallery = false;
+	public $in_gallery = false;
 
-	var $in_jetpack = true;
+	public $in_jetpack = true;
 
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
@@ -147,7 +147,7 @@ class Jetpack_Carousel {
 			);
 
 			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {
-				// We're not using Jetpack comments after all, so fallback to standard local comments.
+				// We're not using Comments after all, so fallback to standard local comments.
 
 				if ( $is_logged_in ) {
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
@@ -299,7 +299,7 @@ class Jetpack_Carousel {
 
 		/**
 		 * Allows for the checking of privileges of the blog user before comments
-		 * are packaged as JSON and sent back from the get_attachment_comments 
+		 * are packaged as JSON and sent back from the get_attachment_comments
 		 * AJAX endpoint
 		 *
 		 * @duplicate yes

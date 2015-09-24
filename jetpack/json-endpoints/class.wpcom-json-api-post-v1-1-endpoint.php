@@ -1,7 +1,7 @@
 <?php
 
 abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
-	var $post_object_format = array(
+	public $post_object_format = array(
 		// explicitly document and cast all output
 		'ID'                => '(int) The post ID.',
 		'site_ID'		    => '(int) The site ID.',
@@ -52,7 +52,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		'capabilities'      => '(object) List of post-specific permissions for the user; publish_post, edit_post, delete_post',
 	);
 
-	// var $response_format =& $this->post_object_format;
+	// public $response_format =& $this->post_object_format;
 
 	function __construct( $args ) {
 		if ( is_array( $this->post_object_format ) && isset( $this->post_object_format['format'] ) ) {
@@ -72,7 +72,8 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		$whitelisted_meta = array( '_thumbnail_id' );
 
 		// whitelist of metadata that can be accessed
- 		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
+		/** This filter is documented in json-endpoints/class.wpcom-json-api-post-endpoint.php */
+		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
 			return true;
 
 		if ( 0 === strpos( $key, 'geo_' ) )
@@ -81,8 +82,8 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		if ( 0 === strpos( $key, '_wpas_' ) )
 			return true;
 
- 		return false;
- 	}
+		return false;
+	}
 
 	function the_password_form() {
 		return __( 'This post is password protected.', 'jetpack' );
@@ -99,6 +100,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 	function get_post_by( $field, $field_value, $context = 'display' ) {
 		global $blog_id;
 
+		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
@@ -272,6 +274,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 				);
 				break;
 			case 'likes_enabled' :
+				/** This filter is documented in modules/likes.php */
 				$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 				$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
 				$post_likes_enabled = $sitewide_likes_enabled;
@@ -459,6 +462,14 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 						'likes'   => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'likes/' ),
 					),
 				);
+
+				// add autosave link if a more recent autosave exists
+				if ( 'edit' === $context ) {
+					$autosave = wp_get_post_autosave( $post_id );
+					if ( $autosave && $autosave->post_modified > $post->post_modified )
+						$response[$key]->links->autosave = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $autosave->ID );
+				}
+
 				break;
 			case 'capabilities' :
 				$response[$key] = $capabilities;
@@ -612,6 +623,7 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			$result['duration'] = (int) $metadata['duration'];
 		}
 
+		/** This filter is documented in class.jetpack-sync.php */
 		return (object) apply_filters( 'get_attachment', $result );
 	}
 

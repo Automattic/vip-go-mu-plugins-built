@@ -6,7 +6,7 @@ define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
 class Sharing_Service {
 	private $global = false;
-	var $default_sharing_label = '';
+	public $default_sharing_label = '';
 
 	public function __construct() {
 		$this->default_sharing_label = __( 'Share this:', 'jetpack' );
@@ -410,10 +410,10 @@ class Sharing_Service {
 }
 
 class Sharing_Service_Total {
-	var $id 		= '';
-	var $name 		= '';
-	var $service	= '';
-	var $total 		= 0;
+	public $id 		= '';
+	public $name 		= '';
+	public $service	= '';
+	public $total 		= 0;
 
 	public function __construct( $id, $total ) {
 		$services 		= new Sharing_Service();
@@ -432,10 +432,10 @@ class Sharing_Service_Total {
 }
 
 class Sharing_Post_Total {
-	var $id		= 0;
-	var $total	= 0;
-	var $title 	= '';
-	var $url	= '';
+	public $id    = 0;
+	public $total = 0;
+	public $title = '';
+	public $url   = '';
 
 	public function __construct( $id, $total ) {
 		$this->id 		= (int) $id;
@@ -503,25 +503,10 @@ function sharing_add_footer() {
 		if ( apply_filters( 'jetpack_sharing_counts', true ) && is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
 			if ( $sharing_post_urls ) :
-
-				/**
-				 * Defines whether a blog is a Jetpack site.
-				 *
-				 * @since 3.6.0
-				 *
-				 * @param bool false    Assumption on whether a blog is a Jetpack site.
-				 * @param int  $blog_id A blog ID to check.
-				 */
-				$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
-				$site_id = $is_jetpack ? Jetpack_Options::get_option( 'id' ) : get_current_blog_id();
 ?>
 
 	<script type="text/javascript">
 		window.WPCOM_sharing_counts = <?php echo json_encode( array_flip( $sharing_post_urls ) ); ?>;
-		window.WPCOM_jetpack = <?php echo var_export( $is_jetpack, true ); ?>;
-		<?php if ( is_int( $site_id ) ): ?>
-		window.WPCOM_site_ID = <?php echo $site_id ?>;
-		<?php endif; ?>
 	</script>
 <?php
 			endif;
@@ -620,7 +605,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( !is_feed() ) {
 		if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
 			$show = true;
-		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
+		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
 			$show = true;
 		}
 	}

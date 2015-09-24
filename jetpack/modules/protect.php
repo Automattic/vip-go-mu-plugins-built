@@ -1,14 +1,14 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Adds brute force protection to your login page. Formerly BruteProtect.
+ * Module Description: Prevent brute force attacks.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Recommended
- * Feature: Recommended
+ * Feature: Recommended, Performance-Security
  */
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -150,7 +150,7 @@ class Jetpack_Protect_Module {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
- 
+
 			if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 			}
@@ -186,8 +186,8 @@ class Jetpack_Protect_Module {
 		<div id="message" class="updated jetpack-message jp-banner is-opt-in protect-error" style="display:block !important;">
 			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>" title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
 			<div class="jp-banner__content">
-				<h4><?php esc_html_e( 'Jetpack Protect cannot keep your site secure.', 'jetpack' ); ?></h4>
-				<p><?php printf( __( 'Thanks for activating Jetpack Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>
+				<h4><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h4>
+				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.me/support/multisite-protect' ); ?></p>
 			</div>
 			<div class="jp-banner__action-container is-opt-in">
 				<a href="<?php echo network_admin_url('plugins.php'); ?>" class="jp-banner__button" id="wpcom-connect"><?php _e( 'View Network Admin', 'jetpack' ); ?></a>
@@ -282,7 +282,7 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string jetpack_protect_get_ip IP stored by Jetpack Protect.
+		 * @param string jetpack_protect_get_ip IP stored by Protect.
 		 */
 		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
 
@@ -340,7 +340,9 @@ class Jetpack_Protect_Module {
 		
 		if( ! $allow_login ) {
 			$this->block_with_math();
-		} else if ( 1 == $use_math && isset( $_POST['log'] ) ) {
+		}
+		
+		if ( 1 == $use_math && isset( $_POST['log'] ) ) {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
@@ -478,13 +480,13 @@ class Jetpack_Protect_Module {
 	
 	function block_with_math() {
 		/**
-		 * By default, Jetpack Protect will allow a user who has been blocked for too
+		 * By default, Protect will allow a user who has been blocked for too
 		 * many failed logins to start answering math questions to continue logging in
 		 *
-		 * For added security, you can disable this 
+		 * For added security, you can disable this
 		 *
 		 * @since 3.6
-		 * 
+		 *
 		 * @param bool Whether to allow math for blocked users or not.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
@@ -506,7 +508,7 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string $ip IP flagged by Jetpack Protect.
+		 * @param string $ip IP flagged by Protect.
 		 */
 		do_action( 'jpp_kill_login', $ip );
 		$help_url = 'http://jetpack.me/support/security/';
