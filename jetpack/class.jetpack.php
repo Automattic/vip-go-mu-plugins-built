@@ -389,7 +389,6 @@ class Jetpack {
 				 */
 				do_action( 'jetpack_sync_all_registered_options' );
 			}
-
 			//if Jetpack is connected check if jetpack_unique_connection exists and if not then set it
 			$jetpack_unique_connection = get_option( 'jetpack_unique_connection' );
 			$is_unique_connection = $jetpack_unique_connection && array_key_exists( 'version', $jetpack_unique_connection );
@@ -904,6 +903,13 @@ class Jetpack {
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_network_admin_page':
+			case 'jetpack_network_settings_page':
+				$caps = array( 'manage_network_plugins' );
+				break;
+			case 'jetpack_network_sites_page':
+				$caps = array( 'manage_sites' );
+				break;
 			case 'jetpack_admin_page' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
@@ -1206,6 +1212,9 @@ class Jetpack {
 		if ( ! function_exists( 'get_filesystem_method' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/file.php' );
 		}
+
+		require_once( ABSPATH . 'wp-admin/includes/template.php' );
+
 		$filesystem_method = get_filesystem_method();
 		if ( $filesystem_method === 'direct' ) {
 			return 1;
@@ -1214,7 +1223,7 @@ class Jetpack {
 		ob_start();
 		$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 		ob_end_clean();
-		if( $filesystem_credentials_are_stored ) {
+		if ( $filesystem_credentials_are_stored ) {
 			return 1;
 		}
 		return 0;
@@ -4334,7 +4343,7 @@ p {
 	}
 
 	function build_connect_url( $raw = false, $redirect = false ) {
-		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
@@ -5893,6 +5902,12 @@ p {
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
+		// @todo temporary copout for dealing with domain mapping
+		// @see https://github.com/Automattic/jetpack/issues/2702
+		if ( is_multisite() && defined( 'SUNRISE' ) && ! Jetpack::is_development_version() ) {
+			return;
+		}
+
 		if ( ! current_user_can( 'jetpack_disconnect' ) ) {
 			return;
 		}
@@ -5982,7 +5997,7 @@ p {
 						<p><?php printf(
 							/* translators: %1$s, %2$s and %3$s are URLs */
 							__(
-								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%$3s"><em>What does this mean?</em></a>',
+								'Are <strong> %2$s </strong> and <strong> %1$s </strong> two completely separate websites? If so we should create a new connection, which will reset your followers and linked services. <a href="%3$s"><em>What does this mean?</em></a>',
 								'jetpack'
 							),
 							$errors[ $key ],

@@ -321,6 +321,14 @@
 			}
 		}
 
+		.unavailable {
+			opacity: 0.5;
+
+			.act {
+				display: none;
+			}
+		}
+
 		.paid {
 			top: 4px;
 			margin-left: 12px;
@@ -420,8 +428,13 @@
 			} 
 
 			.button {
+				height: auto;
+				min-height: 28px;
+				line-height: 18px;
+				white-space: normal;
 				max-width: 200px;
 				margin-bottom: 0;
+				padding-top: 2px;
 			}
 			.feat {
 				@include vertalign;
