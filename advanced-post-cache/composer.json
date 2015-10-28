@@ -1,0 +1,21 @@
+{
+	"name"       : "automattic/advanced-post-cache",
+	"description": "Cache post queries for WordPress",
+	"homepage"   : "http://wordpress.org/plugins/advanced-caching/",
+	"type"       : "wordpress-plugin",
+	"license"    : "GPL-2.0+",
+	"authors"    : [
+		{
+			"name"    : "Automattic",
+			"homepage": "http://automattic.com/"
+		}
+	],
+	"support"    : {
+			"issues": "https://github.com/Automattic/advanced-post-cache/issues",
+			"source": "https://github.com/Automattic/advanced-post-cache",
+			"forum": "http://wordpress.org/support/plugin/advanced-caching"
+	},
+	"require": {
+		"composer/installers": "~1.0"
+	}
+}
