@@ -11,7 +11,7 @@ class WPCOM_VIP_Support_User {
 	 * GET parameter for a message: We blocked this user from the
 	 * support role because they're not an A12n.
 	 */
-	const MSG_BLOCK_UPGRADE_NON_A12N     = 'vip_support_msg_1';
+	const MSG_BLOCK_UPGRADE_NON_A11N     = 'vip_support_msg_1';
 
 	/**
 	 * GET parameter for a message: We blocked this user from the
@@ -40,9 +40,21 @@ class WPCOM_VIP_Support_User {
 	const MSG_MADE_VIP                   = 'vip_support_msg_5';
 
 	/**
+	 * GET parameter for a message: We downgraded this user from
+	 * the support role because their email address is no longer
+	 * verified.
+	 */
+	const MSG_DOWNGRADE_VIP_USER = 'vip_support_msg_6';
+
+	/**
 	 * Meta key for the email verification data.
 	 */
 	const META_VERIFICATION_DATA = '_vip_email_verification_data';
+
+	/**
+	 * Meta key flag that this user needs verification
+	 */
+	const META_EMAIL_NEEDS_VERIFICATION = '_vip_email_needs_verification';
 
 	/**
 	 * Meta key for the email which HAS been verified.
@@ -85,7 +97,7 @@ class WPCOM_VIP_Support_User {
 	 *
 	 * @var bool
 	 */
-	protected $registering_a12n;
+	protected $registering_a11n;
 
 	/**
 	 * Initiate an instance of this class if one doesn't
@@ -120,13 +132,14 @@ class WPCOM_VIP_Support_User {
 		add_action( 'load-profile.php',   array( $this, 'action_load_profile' ) );
 		add_action( 'profile_update',     array( $this, 'action_profile_update' ) );
 		add_action( 'admin_head',         array( $this, 'action_admin_head' ) );
+		add_action( 'password_reset',     array( $this, 'action_password_reset' ) );
 
 		add_filter( 'wp_redirect',          array( $this, 'filter_wp_redirect' ) );
 		add_filter( 'removable_query_args', array( $this, 'filter_removable_query_args' ) );
 
 		$this->reverting_role   = false;
 		$this->message_replace  = false;
-		$this->registering_a12n  = false;
+		$this->registering_a11n  = false;
 	}
 
 	// HOOKS
@@ -231,7 +244,7 @@ class WPCOM_VIP_Support_User {
 			}
 
 			switch ( $update ) {
-				case self::MSG_BLOCK_UPGRADE_NON_A12N :
+				case self::MSG_BLOCK_UPGRADE_NON_A11N :
 					$error_html = __( 'Only users with a recognised Automattic email address can be assigned the VIP Support role.', 'vip-support' );
 					break;
 				case    self::MSG_BLOCK_UPGRADE_VERIFY_EMAIL :
@@ -243,6 +256,9 @@ class WPCOM_VIP_Support_User {
 					break;
 				case self::MSG_BLOCK_DOWNGRADE :
 					$error_html = __( 'VIP Support users can only be assigned the VIP Support role, or deleted.', 'vip-support' );
+					break;
+				case self::MSG_DOWNGRADE_VIP_USER :
+					$error_html = __( 'This user’s email address has changed, and as a result they are no longer in the VIP Support role. Once the user has verified their new email address they will have the VIP Support role restored.', 'vip-support' );
 					break;
 				default:
 					break;
@@ -271,7 +287,7 @@ class WPCOM_VIP_Support_User {
 				$user_id = absint( $_GET['user_id'] );
 				$user = get_user_by( 'id', $user_id );
 				$resend_link = $this->get_trigger_resend_verification_url();
-				if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user->ID ) ) {
+				if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user->ID ) && $this->user_has_vip_support_role( $user->ID ) ) {
 					$error_html = sprintf( __( 'This user’s Automattic email address is not verified, <a href="%s">re-send verification email</a>.', 'vip-support' ), esc_url( $resend_link ) );
 				}
 			}
@@ -306,32 +322,30 @@ class WPCOM_VIP_Support_User {
 
 		// Try to make the conditional checks clearer
 		$becoming_support         = ( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE == $role );
-		$leaving_support          = ( in_array( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE, $old_roles ) && ! $becoming_support );
 		$valid_and_verified_email = ( $this->is_a8c_email( $user->user_email ) && $this->user_has_verified_email( $user_id ) );
 
 		if ( $becoming_support && ! $valid_and_verified_email ) {
 			$this->reverting_role = true;
+			// @FIXME This could be expressed more simply, probably :|
 			if ( ! is_array( $old_roles ) || ! isset( $old_roles[0] ) ) {
-				$revert_role_to = 'subscriber';
+				if ( $this->is_a8c_email( $user->user_email ) ) {
+					$revert_role_to = WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE;
+				} else {
+					$revert_role_to = 'subscriber';
+				}
 			} else {
 				$revert_role_to = $old_roles[0];
 			}
 			$user->set_role( $revert_role_to );
 			if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user_id ) ) {
 				$this->message_replace = self::MSG_BLOCK_UPGRADE_VERIFY_EMAIL;
+				$this->send_verification_email( $user_id );
 			} else {
-				$this->message_replace = self::MSG_BLOCK_UPGRADE_NON_A12N;
+				$this->message_replace = self::MSG_BLOCK_UPGRADE_NON_A11N;
 			}
 			$this->reverting_role = false;
 		}
 
-
-		if ( $leaving_support && $this->is_a8c_email( $user->user_email ) && $valid_and_verified_email ) {
-			$this->reverting_role = true;
-			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
-			$this->message_replace = self::MSG_BLOCK_DOWNGRADE;
-			$this->reverting_role = false;
-		}
 	}
 
 	/**
@@ -345,14 +359,14 @@ class WPCOM_VIP_Support_User {
 	 * @return string
 	 */
 	public function filter_wp_redirect( $location ) {
-		if ( ! $this->message_replace && ! $this->registering_a12n ) {
+		if ( ! $this->message_replace && ! $this->registering_a11n ) {
 			return $location;
 		}
 		if ( $this->message_replace ) {
 			$location = add_query_arg( array( 'update' => rawurlencode( $this->message_replace ) ), $location );
 			$location = esc_url_raw( $location );
 		}
-		if ( $this->registering_a12n ) {
+		if ( $this->registering_a11n ) {
 			$location = add_query_arg( array( 'update' => rawurlencode( self::MSG_MADE_VIP ) ), $location );
 			$location = esc_url_raw( $location );
 		}
@@ -364,24 +378,72 @@ class WPCOM_VIP_Support_User {
 	 * A12n, and so need an email verification. Also checks if the registered
 	 * user cannot be set to VIP Support role (as not an A12n).
 	 *
+	 * When a user is registered we reset VIP Support role to inactive, then
+	 * wait until they recover their password to mark their role as active.
+	 *
+	 * If they do not go through password recovery then we send the verification
+	 * email when they first log in.
+	 *
 	 * @param int $user_id The ID of the user which has been registered.
 	 */
 	public function action_user_register( $user_id ) {
 		$user = new WP_User( $user_id );
-		if ( $this->is_a8c_email( $user->user_email ) ) {
-			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
-			$this->registering_a12n = true;
-			update_user_meta( $user_id, self::META_EMAIL_VERIFIED, false );
+		if ( $this->is_a8c_email( $user->user_email ) && $this->user_has_vip_support_role( $user->ID ) ) {
+			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+			$this->registering_a11n = true;
+			// @TODO Abstract this into an UNVERIFY method
+			$this->mark_user_email_unverified( $user_id );
 			$this->send_verification_email( $user_id );
 		} else {
-			if ( self::MSG_BLOCK_UPGRADE_NON_A12N == $this->message_replace ) {
+			if ( self::MSG_BLOCK_UPGRADE_NON_A11N == $this->message_replace ) {
 				$this->message_replace = self::MSG_BLOCK_NEW_NON_VIP_USER;
 			}
 		}
 	}
 
 	/**
+	 * Hooks the profile_update action to delete the email verification meta
+	 * when the user's email address changes.
+	 *
+	 * @param int $user_id The ID of the user whose profile was just updated
+	 */
+	public function action_profile_update( $user_id ) {
+		$user = new WP_User( $user_id );
+		$verified_email = get_user_meta( $user_id, self::META_EMAIL_VERIFIED, true );
+		if ( $user->user_email != $verified_email && $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE ) ) {
+			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+			$this->message_replace = self::MSG_DOWNGRADE_VIP_USER;
+			delete_user_meta( $user_id, self::META_EMAIL_VERIFIED );
+			delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
+			if ( $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE ) || $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE ) ) {
+				$this->send_verification_email( $user_id );
+			}
+		}
+	}
+
+	/**
+	 * @param object $user A WP_User object
+	 */
+	public function action_password_reset( $user ) {
+		if ( '/wp-login.php' !== $_SERVER['PHP_SELF'] ) {
+			return;
+		}
+		if ( ! $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE ) ) {
+			return;
+		}
+		if ( ! get_user_meta( $user->ID, self::META_EMAIL_NEEDS_VERIFICATION ) ) {
+			return;
+		}
+
+		$this->mark_user_email_verified( $user->ID, $user->user_email );
+		$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+	}
+
+	/**
 	 * Hooks the parse_request action to do any email verification.
+	 *
+	 * @TODO Abstract all the verification stuff into a utility method for clarity
+	 *
 	 */
 	public function action_parse_request() {
 		if ( ! isset( $_GET[self::GET_EMAIL_VERIFY] ) ) {
@@ -420,8 +482,7 @@ class WPCOM_VIP_Support_User {
 		}
 
 		// It's all looking good. Verify the email.
-		update_user_meta( $user->ID, self::META_EMAIL_VERIFIED, $user->user_email );
-		delete_user_meta( $user->ID, self::META_VERIFICATION_DATA );
+		$this->mark_user_email_verified( $user->ID, $user->user_email );
 
 		// If the user is an A12n, add them to the support role
 		if ( $this->is_a8c_email( $user->user_email ) ) {
@@ -446,24 +507,6 @@ class WPCOM_VIP_Support_User {
 		return $args;
 	}
 
-	/**
-	 * Hooks the profile_update action to delete the email verification meta
-	 * when the user's email address changes.
-	 *
-	 * @param int $user_id The ID of the user whose profile was just updated
-	 */
-	public function action_profile_update( $user_id ) {
-		$user = new WP_User( $user_id );
-		$verified_email = get_user_meta( $user_id, self::META_EMAIL_VERIFIED, true );
-		if ( $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE ) ) {
-			$user->set_role( 'subscriber' );
-		}
-		if ( $user->user_email != $verified_email ) {
-			delete_user_meta( $user_id, self::META_EMAIL_VERIFIED );
-			delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
-		}
-	}
-
 	// UTILITIES
 	// =========
 
@@ -478,10 +521,12 @@ class WPCOM_VIP_Support_User {
 	protected function send_verification_email( $user_id ) {
 		// @FIXME: Should the verification code expire?
 
+
 		$verification_code = $this->get_user_email_verification_code( $user_id );
 
 		$user = new WP_User( $user_id );
 		$hash = $this->create_check_hash( $user_id, $verification_code, $user->user_email );
+		error_log( "Sending verification email to {$user->user_email}" );
 
 		$hash              = urlencode( $hash );
 		$user_id           = absint( $user_id );
@@ -528,8 +573,6 @@ class WPCOM_VIP_Support_User {
 	/**
 	 * Is a provided string an email address using an A8c domain.
 	 *
-	 * @TODO Needs unit tests
-	 *
 	 * @param string $email An email address to check
 	 *
 	 * @return bool True if the string is an email with an A8c domain
@@ -555,10 +598,12 @@ class WPCOM_VIP_Support_User {
 	 *
 	 * Checks their email address as well as their email address verification status
 	 *
+	 * @TODO Check the A11n is also proxxied
+	 *
 	 * @param int The WP User id to check
 	 * @return bool Boolean indicating if the account is a valid Automattician
 	 */
-	public static function is_valid_automattician( $user_id ) {
+	public static function is_verified_automattician( $user_id ) {
 		$user = new WP_User( $user_id );
 
 		if ( ! $user || ! $user->ID ) {
@@ -571,6 +616,16 @@ class WPCOM_VIP_Support_User {
 		$email_verified = $instance->user_has_verified_email( $user->ID );
 
 		return ( $is_a8c_email && $email_verified );
+	}
+
+	public function user_has_vip_support_role( $user_id ) {
+		$user = new WP_User( $user_id );
+
+		if ( ! $user || ! $user->ID ) {
+			return false;
+		}
+
+		return user_can( $user_id, WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
 	}
 
 	/**
@@ -629,6 +684,26 @@ class WPCOM_VIP_Support_User {
 	 */
 	protected function create_check_hash( $user_id, $verification_code, $user_email ) {
 		return wp_hash( $user_id . $verification_code . $user_email );
+	}
+
+	/**
+	 * @TODO Write a method description
+	 *
+	 * @param int $user_id The ID of the user to mark as having a verified email
+	 * @param string $user_email The email which has been verified
+	 */
+	public function mark_user_email_verified( $user_id, $user_email ) {
+		update_user_meta( $user_id, self::META_EMAIL_VERIFIED, $user_email );
+		delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
+		delete_user_meta( $user_id, self::META_EMAIL_NEEDS_VERIFICATION );
+	}
+
+	/**
+	 * @param int $user_id The ID of the user to mark as NOT (any longer) having a verified email
+	 */
+	protected function mark_user_email_unverified( $user_id ) {
+		update_user_meta( $user_id, self::META_EMAIL_VERIFIED, false );
+		update_user_meta( $user_id, self::META_EMAIL_NEEDS_VERIFICATION, false );
 	}
 
 }

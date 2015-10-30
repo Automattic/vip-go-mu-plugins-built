@@ -7,13 +7,21 @@
  **/
 class WPCOM_VIP_Support_Role {
 
+	/**
+	 * The name of the ACTIVE VIP Support role
+	 */
 	const VIP_SUPPORT_ROLE = 'vip_support';
+
+	/**
+	 * The name of the INACTIVE VIP Support role
+	 */
+	const VIP_SUPPORT_INACTIVE_ROLE = 'vip_support_inactive';
 
 	/**
 	 * A version used to determine any necessary
 	 * update routines to be run.
 	 */
-	const VERSION = 1;
+	const VERSION = 2;
 
 	/**
 	 * Initiate an instance of this class if one doesn't
@@ -53,7 +61,7 @@ class WPCOM_VIP_Support_Role {
 	 * where we should be using `wpcom_vip_add_role`.
 	 */
 	public function action_init() {
-		$this->add_role();
+		self::add_role();
 	}
 
 	/**
@@ -96,9 +104,13 @@ class WPCOM_VIP_Support_Role {
 	 * @return array An array of WP role data
 	 */
 	public function filter_editable_roles( array $roles ) {
-		$vip_support_role = array( self::VIP_SUPPORT_ROLE => $roles[self::VIP_SUPPORT_ROLE] );
+		$vip_support_roles = array(
+			self::VIP_SUPPORT_INACTIVE_ROLE => $roles[self::VIP_SUPPORT_INACTIVE_ROLE],
+			self::VIP_SUPPORT_ROLE => $roles[self::VIP_SUPPORT_ROLE],
+		);
+		unset( $roles[self::VIP_SUPPORT_INACTIVE_ROLE] );
 		unset( $roles[self::VIP_SUPPORT_ROLE] );
-		$roles = array_merge( $vip_support_role, $roles );
+		$roles = array_merge( $vip_support_roles, $roles );
 		return $roles;
 	}
 
@@ -110,18 +122,20 @@ class WPCOM_VIP_Support_Role {
 	 *
 	 * @param string $message The message to log
 	 */
-	protected function error_log( $message ) {
+	protected static function error_log( $message ) {
 		if ( defined( 'WP_DEBUG' ) || WP_DEBUG ) {
 			error_log( $message );
 		}
 
 	}
 
-	protected function add_role() {
+	protected static function add_role() {
 		if ( function_exists( 'wpcom_vip_add_role' ) ) {
 			wpcom_vip_add_role( self::VIP_SUPPORT_ROLE, __( 'VIP Support', 'a8c_vip_support' ), array( 'read' => true ) );
+			wpcom_vip_add_role( self::VIP_SUPPORT_INACTIVE_ROLE, __( 'VIP Support (inactive)', 'a8c_vip_support' ), array( 'read' => true ) );
 		} else {
 			add_role( self::VIP_SUPPORT_ROLE, __( 'VIP Support', 'a8c_vip_support' ), array( 'read' => true ) );
+			add_role( self::VIP_SUPPORT_INACTIVE_ROLE, __( 'VIP Support (inactive)', 'a8c_vip_support' ), array( 'read' => true ) );
 		}
 	}
 
@@ -139,8 +153,8 @@ class WPCOM_VIP_Support_Role {
 		}
 
 		if ( $version < 1 && function_exists( 'wpcom_vip_add_role' ) ) {
-			$this->add_role();
-		    $this->error_log( "VIP Support Role: Added VIP Support role " );
+			self::add_role();
+			self::error_log( "VIP Support Role: Added VIP Support role " );
 		}
 
 		// N.B. Remember to increment self::VERSION above when you add a new IF
