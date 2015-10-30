@@ -6,6 +6,10 @@ Manages the WordPress.com Support Users on your site.
 
 ## Changelog
 
+### 2.0.1
+
+* Remove stray error_log call
+
 ### 2.0
 
 * Allow users with Automattic email addresses to not be a support user

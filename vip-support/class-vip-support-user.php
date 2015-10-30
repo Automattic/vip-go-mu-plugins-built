@@ -526,7 +526,6 @@ class WPCOM_VIP_Support_User {
 
 		$user = new WP_User( $user_id );
 		$hash = $this->create_check_hash( $user_id, $verification_code, $user->user_email );
-		error_log( "Sending verification email to {$user->user_email}" );
 
 		$hash              = urlencode( $hash );
 		$user_id           = absint( $user_id );
