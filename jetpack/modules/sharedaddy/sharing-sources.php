@@ -8,6 +8,17 @@ abstract class Sharing_Source {
 
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
+		/**
+		 * Filter the way sharing links open.
+		 *
+		 * By default, sharing links open in a new window.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param bool true Should Sharing links open in a new window. Default to true.
+		 */
 		$this->open_link_in_new = apply_filters( 'jetpack_open_sharing_in_new_window', true );
 
 		if ( isset( $settings['button_style'] ) )
@@ -30,11 +41,33 @@ abstract class Sharing_Source {
 	}
 
 	public function get_share_url( $post_id ) {
+		/**
+		 * Filter the sharing permalink.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 1.2.0
+		 *
+		 * @param string get_permalink( $post_id ) Post Permalink.
+		 * @param int $post_id Post ID.
+		 * @param int $this->id Sharing ID.
+		 */
 		return apply_filters( 'sharing_permalink', get_permalink( $post_id ), $post_id, $this->id );
 	}
 
 	public function get_share_title( $post_id ) {
 		$post = get_post( $post_id );
+		/**
+		 * Filter the sharing title.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $post->post_title Post Title.
+		 * @param int $post_id Post ID.
+		 * @param int $this->id Sharing ID.
+		 */
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
 		return html_entity_decode( wp_kses( $title, null ) );
@@ -59,9 +92,56 @@ abstract class Sharing_Source {
 				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
+		/**
+		 * Filter the sharing display ID.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param int|false $id Sharing ID.
+		 * @param object $this Sharing service properties.
+		 * @param array $args Array of sharing service options.
+		 */
 		$id = apply_filters( 'jetpack_sharing_display_id', $id, $this, $args );
+		/**
+		 * Filter the sharing display link.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $url Post URL.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$url = apply_filters( 'sharing_display_link', $url, $this, $id, $args ); // backwards compatibility
+		/**
+		 * Filter the sharing display link.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $url Post URL.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$url = apply_filters( 'jetpack_sharing_display_link', $url, $this, $id, $args );
+		/**
+		 * Filter the sharing display query.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $query Sharing service URL parameter.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$query = apply_filters( 'jetpack_sharing_display_query', $query, $this, $id, $args );
 
 		if ( !empty( $query ) ) {
@@ -74,8 +154,44 @@ abstract class Sharing_Source {
 		if ( 'text' == $this->button_style )
 			$klasses[] = 'no-icon';
 
+		/**
+		 * Filter the sharing display classes.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param array $klasses Sharing service classes.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$klasses = apply_filters( 'jetpack_sharing_display_classes', $klasses, $this, $id, $args );
+		/**
+		 * Filter the sharing display title.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string $title Sharing service title.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$title = apply_filters( 'jetpack_sharing_display_title', $title, $this, $id, $args );
+		/**
+		 * Filter the sharing display text.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 3.4.0
+		 *
+		 * @param string $text Sharing service text.
+		 * @param object $this Sharing service properties.
+		 * @param int|false $id Sharing ID.
+		 * @param array $args Array of sharing service options.
+		 */
 		$text = apply_filters( 'jetpack_sharing_display_text', $text, $this, $id, $args );
 
 		return sprintf(
@@ -183,6 +299,15 @@ abstract class Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
+		/**
+		 * Fires when a post is shared via one of the sharing buttons.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 1.1.0
+		 *
+		 * @param array $args Aray of information about the sharing service.
+		 */
 		do_action( 'sharing_bump_stats', array( 'service' => $this, 'post' => $post ) );
 	}
 
@@ -271,6 +396,17 @@ class Share_Email extends Sharing_Source {
 		// Test email
 		$error = 1;   // Failure in data
 		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
+			/**
+			 * Allow plugins to stop the email sharing button from running the shared message through Akismet.
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 1.1.0
+			 *
+			 * @param bool true Should we check if the message isn't spam?
+			 * @param object $post Post information.
+			 * @param array $post_data Information about the shared message.
+			 */
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
 					'post'   => $post,
@@ -279,10 +415,28 @@ class Share_Email extends Sharing_Source {
 					'name'   => $source_name
 				);
 				// todo: implement an error message when email doesn't get sent.
+				/**
+				 * Filter whether an email can be sent from the Email sharing button.
+				 *
+				 * @module sharedaddy
+				 *
+				 * @since 1.1.0
+				 *
+				 * @param array $data Array of information about the shared message.
+				 */
 				if ( ( $data = apply_filters( 'sharing_email_can_send', $data ) ) !== false ) {
 					// Record stats
 					parent::process_request( $data['post'], $post_data );
 
+					/**
+					 * Fires when an email is sent via the Email sharing button.
+					 *
+					 * @module sharedaddy
+					 *
+					 * @since 1.1.0
+					 *
+					 * @param array $data Array of information about the shared message.
+					 */
 					do_action( 'sharing_email_send_post', $data );
 				}
 
@@ -344,7 +498,18 @@ class Share_Email extends Sharing_Source {
 			<?php endif; ?>
 			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
 			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
-			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
+			<?php
+				/**
+				 * Fires when the Email sharing dialog is loaded.
+				 *
+				 * @module sharedaddy
+				 *
+				 * @since 1.1.0
+				 *
+				 * @param string jetpack Eail sharing source.
+				 */
+				do_action( 'sharing_email_dialog', 'jetpack' );
+			?>
 
 			<img style="float: right; display: none" class="loading" src="<?php
 			/** This filter is documented in modules/shortcodes/audio.php */
@@ -392,6 +557,8 @@ class Share_Twitter extends Sharing_Source {
 		/**
 		 * Allow third-party plugins to customize the Twitter username used as "twitter:site" Twitter Card Meta Tag.
 		 *
+		 * @module sharedaddy
+		 *
 		 * @since 3.0.0
 		 *
 		 * @param string $string Twitter Username.
@@ -411,6 +578,8 @@ class Share_Twitter extends Sharing_Source {
 		/**
 		 * Filters the Twitter username used as "via" in the Twitter sharing button.
 		 *
+		 * @module sharedaddy
+		 *
 		 * @since 1.7.0
 		 *
 		 * @param string $twitter_site_tag_value Twitter Username.
@@ -424,7 +593,16 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function get_related_accounts( $post ) {
-		// Format is 'username' => 'Optional description'
+		/**
+		 * Filter the list of related Twitter accounts added to the Twitter sharing button.
+		 *
+		 * @module sharedaddy
+		 *
+		 * @since 1.7.0
+		 *
+		 * @param array $args Array of Twitter usernames. Format is 'username' => 'Optional description'
+		 * @param int $post->ID Post ID.
+		 */
 		$related_accounts = apply_filters( 'jetpack_sharing_twitter_related', array(), $post->ID );
 
 		// Example related string: account1,account2:Account 2 description,account3
@@ -460,7 +638,20 @@ class Share_Twitter extends Sharing_Source {
 			$post_title = $this->get_share_title( $post->ID );
 			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( get_permalink( $post->ID ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
-			if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' ) ) {
+			if (
+				/**
+				 * Allow plugins to disable sharing counts for specific sharing services.
+				 *
+				 * @module sharedaddy
+				 *
+				 * @since 3.0.0
+				 *
+				 * @param bool true Should sharing counts be enabled for this specific service. Default to true.
+				 * @param int $post->ID Post ID.
+				 * @param string $str Sharing service name.
+				 */
+				apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' )
+			) {
 				sharing_register_post_for_share_counts( $post->ID );
 			}
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Twitter', 'share to', 'jetpack' ), __( 'Click to share on Twitter', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
@@ -506,7 +697,7 @@ class Share_Twitter extends Sharing_Source {
 
 		$url = $post_link;
 		$twitter_url = add_query_arg(
-			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
+			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
 			'https://twitter.com/intent/tweet'
 		);
 
@@ -590,6 +781,7 @@ class Share_LinkedIn extends Sharing_Source {
 			$display = $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
 		}
 
+		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -706,6 +898,8 @@ class Share_Facebook extends Sharing_Source {
 			/**
 			 * Filter the output of the Facebook Sharing button.
 			 *
+			 * @module sharedaddy
+			 *
 			 * @since 3.6.0
 			 *
 			 * @param string $fb_share_html Facebook Sharing button HTML.
@@ -714,6 +908,7 @@ class Share_Facebook extends Sharing_Source {
 			return apply_filters( 'jetpack_sharing_facebook_official_button_output', $fb_share_html, $share_url );
 		}
 
+		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -738,7 +933,29 @@ class Share_Facebook extends Sharing_Source {
 			if ( ! $locale ) {
 				$locale = 'en_US';
 			}
-			?><div id="fb-root"></div><script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1&appId=249643311490&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script><?php
+			/**
+			 * Filter the App ID used in the official Facebook Share button.
+			 *
+			 * @since 3.8.0
+			 *
+			 * @param int $fb_app_id Facebook App ID. Default to 249643311490 (WordPress.com's App ID).
+			 */
+			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+			if ( is_numeric( $fb_app_id ) ) {
+				$fb_app_id = '&appId=' . $fb_app_id;
+			} else {
+				$fb_app_id = '';
+			}
+			?><div id="fb-root"></div>
+			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = '//connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+			<script>
+			jQuery( document.body ).on( 'post-load', function() {
+				if ( 'undefined' !== typeof FB ) {
+					FB.XFBML.parse();
+				}
+			} );
+			</script>
+			<?php
 		}
 	}
 }
@@ -880,12 +1097,36 @@ class Share_GooglePlus1 extends Sharing_Source {
 		global $post;
 
 		if ( $this->smart ) { ?>
-			<script type="text/javascript">
-			  (function() {
-			    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-			    po.src = 'https://apis.google.com/js/plusone.js';
-			    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-			  })();
+			<script>
+			function renderGooglePlus1() {
+				if ( 'undefined' === typeof gapi ) {
+					return;
+				}
+
+				jQuery( '.g-plus' ).each(function() {
+					var $button = jQuery( this );
+
+					if ( ! $button.data( 'gplus-rendered' ) ) {
+						gapi.plusone.render( this, {
+							href: $button.attr( 'data-href' ),
+							size: $button.attr( 'data-size' ),
+							annotation: $button.attr( 'data-annotation' )
+						});
+
+						$button.data( 'gplus-rendered', true );
+					}
+				});
+			}
+
+			(function() {
+				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+				po.src = 'https://apis.google.com/js/plusone.js';
+				po.innerHTML = '{"parsetags": "explicit"}';
+				po.onload = renderGooglePlus1;
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+			})();
+
+			jQuery( document.body ).on( 'post-load', renderGooglePlus1 );
 			</script>
 			<?php
 		} else {
@@ -1163,7 +1404,9 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filters the default image used by the Pinterest Pin It share button.
 		 *
-		 * @since 3.6
+		 * @module sharedaddy
+		 *
+		 * @since 3.6.0
 		 *
 		 * @param string $url Default image URL.
 		 */
@@ -1171,12 +1414,14 @@ class Share_Pinterest extends Sharing_Source {
 	}
 
 	public function get_external_url( $post ) {
-		$url = '//www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
+		$url = 'https://www.pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&media=' . rawurlencode( $this->get_image( $post ) ) . '&description=' . rawurlencode( $post->post_title );
 
 		/**
 		 * Filters the Pinterest share URL used in sharing button output.
 		 *
-		 * @since 3.6
+		 * @module sharedaddy
+		 *
+		 * @since 3.6.0
 		 *
 		 * @param string $url Pinterest share URL.
 		 */
@@ -1187,9 +1432,11 @@ class Share_Pinterest extends Sharing_Source {
 		/**
 		 * Filters the Pinterest widget type.
 		 *
-		 * @since 3.6
+		 * @see https://business.pinterest.com/en/widget-builder
 		 *
-		 * @link https://business.pinterest.com/en/widget-builder
+		 * @module sharedaddy
+		 *
+		 * @since 3.6.0
 		 *
 		 * @param string $type Pinterest widget type. Default of 'buttonPin' for single-image selection. 'buttonBookmark' for multi-image modal.
 		 */
@@ -1209,6 +1456,7 @@ class Share_Pinterest extends Sharing_Source {
 			$display = $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest', 'sharing-pinterest-' . $post->ID );
 		}
 
+		/** This filter is already documented in modules/sharedaddy/sharing-sources.php */
 		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
 		}
@@ -1232,6 +1480,8 @@ class Share_Pinterest extends Sharing_Source {
 	public function display_footer() {
 		/**
 		 * Filter the Pin it button appearing when hovering over images when using the official button style.
+		 *
+		 * @module sharedaddy
 		 *
 		 * @since 3.6.0
 		 *

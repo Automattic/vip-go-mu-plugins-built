@@ -342,6 +342,8 @@ class Jetpack_Widget_Conditions {
 			/**
 			 * Fires after the widget visibility conditions are saved.
 			 *
+			 * @module widget-visibility
+			 *
 			 * @since 2.4.0
 			 */
 			do_action( 'widget_conditions_save' );
@@ -350,6 +352,8 @@ class Jetpack_Widget_Conditions {
 
 			/**
 			 * Fires after the widget visibility conditions are deleted.
+			 *
+			 * @module widget-visibility
 			 *
 			 * @since 2.4.0
 			 */
@@ -521,7 +525,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = true;
 							} else {
 								$tag = get_tag( $rule['minor'] );
-								if ( $tag && ! is_wp_error( $tag ) && is_tag( $tag->slug ) ) {
+								if ( $tag && is_tag( $tag->slug ) ) {
 									$condition_result = true;
 								}
 							}

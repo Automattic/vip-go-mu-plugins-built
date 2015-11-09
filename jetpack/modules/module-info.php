@@ -5,8 +5,6 @@
  * jetpack_module_more_info_<module-slug> hooks are for pre-connection information
  * jetpack_module_more_info_connected_<module-slug> hooks are used once the user
  * 		is connected to show them links to admin panels, usage info etc.
- * jetpack_search_terms_<module-slug> filters are searchable from the settings page.
- *      Separate your search terms by comma, and please send translation context with _x()
  */
 
 // VaultPress (stub)
@@ -212,11 +210,6 @@ function stats_load_more_link( $description ) {
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
-function jetpack_stats_search_terms( $terms ) {
-	$terms = _x( 'statistics, tracking, analytics, views, traffic', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_stats', 'jetpack_stats_search_terms' );
 
 // Publicize
 function publicize_more_info() { ?>
@@ -476,11 +469,6 @@ function jetpack_protect_more_link() {
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
-function jetpack_protect_search_terms( $terms ) {
-	$terms = _x( 'security, secure, protection, botnet, brute force', 'search terms', 'jetpack' );
-	return $terms;
-}
-add_filter( 'jetpack_search_terms_protect', 'jetpack_protect_search_terms' );
 
 // JSON API
 function jetpack_json_api_more_info() { ?>
@@ -927,7 +915,7 @@ add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' )
 // Site Verification Tools: START
 function jetpack_verification_tools_more_info() { ?>
 	<p><?php esc_html_e( 'Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest.', 'jetpack' ); ?></p>
-	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
+	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, Google Search Console, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );

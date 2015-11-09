@@ -1,104 +1,131 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
+Contributors: automattic, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, ChrissiePollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, enej, eoigal, ethitter, gcorne, gedex, georgestephanis, gibrown, hew, hugobaeta, iammattthomas, iandunn, jasmussen, jblz, jeffgolenski, jeherve, jenia, jessefriedman, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, MichaelArestad, migueluy, mikeyarce, mjangda, mkaz, mtias, nickmomrik, obenland, paulschreiber, pento, professor44, rase-, RCowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, xyu, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.7.1
+Stable tag: 3.7.2
 Requires at least: 4.2
 Tested up to: 4.3.1
 
-Your WordPress, Streamlined.
+Your WordPress, Simplified.
 
 == Description ==
 
-[Jetpack](http://jetpack.me/) adds powerful features previously only available to WordPress.com users including customization, traffic, mobile, content, and performance tools.
+Jetpack simplifies managing WordPress sites by giving you visitor stats, security services, speeding up images, and helping you get more traffic. Jetpack is a free plugin.
 
-**Features include:**
+= Traffic Growth & Insights =
+Jetpack tells you how many visits your site gets and helps you **get more traffic** with tools like Related Posts, Publicize, Enhanced Distribution, and Sharing.
 
-* **Customization.** Make your WordPress site uniquely yours with *Custom CSS*, *Carousels*, spam-free *Contact Forms*, *Sidebar Widgets*, *Infinite Scroll*, and *Tiled Galleries*.
-* **Mobile theme.** Instant and customizable lightweight responsive theme designed for phones and tablets.
-* **Content tools.** Create and publish richer content with *Post by Email*, *Shortcode Embeds*, *Markdown*, *Beautiful Math*, *Spelling*, and *VideoPress*.
-* **Visitor engagement.** Increase your traffic and keep visitors coming back with *Enhanced Distribution*, spam-free *Comments*, *Shortlinks*, *Likes*, *Notifications*, *Related Posts*, *Publicize*, *Social Sharing*, *Subscriptions*, and *Site Verification Tools*.
-* **Site performance.** Speed up image delivery with the *Photon CDN* and access to visitor *Stats*.
-* **Security.** Keep your WordPress site up, safe, and protected with *Single Sign On*, *Jetpack Monitor*, and *Akismet* anti-spam.
+= Security =
+Jetpack **protects your site** against brute force attacks and unauthorised logins. We also monitor your site for downtime and keep your plugins updated.
 
-**Our users love:**
+= Image Performance =
+Jetpack automatically **optimizes and speeds up** images using the global WordPress.com content delivery network. This saves you hosting costs by reducing bandwidth.
 
-* Simple, concise stats with no additional load on your server.
-* Email subscriptions for your blog's posts and your post's comments.
-* Social networking enabled comment system.
-* Likes, allowing your readers to show their appreciation of your posts.
-* Monitor and manage your site's activity with Notifications.
-* Simple, Akismet-backed contact forms.
-* The WP.me URL shortener.
-* Hovercard popups for your commenters via Gravatar.
-* Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
-* The ability to post to your blog from any email client.
-* Integration with social networks including Twitter, Facebook, Tumblr, Path, and LinkedIn.
-* For the Math geeks, a simple way to include beautiful mathematical expressions.
-* A widget for displaying recent tweets.
-* Your readers can easily share your posts via email or their favorite social networks.
-* Improved writing thanks to an AI-based spell, style, and grammar checker.
-* Turn WordPress  galleries into a gorgeous full-screen photo browsing experience.
-* A CSS editor that lets you customize your site design without modifying your theme.
-* A mobile theme that automatically streamlines your site for visitors on mobile devices.
-* Mobile push notifications for new comments via WordPress mobile apps.
-* Allowing applications to securely authenticate and access your site with your permission.
-* Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
-* Add post sliders and other highlights to your theme with Featured Content.
-* Omnisearch: Search posts, pages, comments, media, and plugins from one search box.
-* Configure widgets to appear only on certain pages.
-* Upload and insert videos into your posts thanks to VideoPress.
-* Link WordPress and your Google+ Profile to add multiple Google features to your site.
-* Sign in to your self-hosted WordPress site using your WordPress.com account.
-* Receive alerts the moment that site downtime is detected.
+= Centralized Management =
+With Jetpack comes a **centralized dashboard** on WordPress.com. Manage plugins and menus, publish posts, and view enhanced site stats for all of your sites.
 
-**New features**
-We're always improving Jetpack based on your feedback and WordPress development. [Subscribe to our mailing list](http://jetpack.me/coming-soon/) to get notified of new developments.
+= A few more things that our users love =
+Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.me/features).
 
+= Dedicated Support =
+We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.me/contact-support).
 
+= Contributing to Jetpack =
+
+Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, bug report, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
 == Installation ==
 
-1. Install Jetpack either via the WordPress.org plugin directory, or by uploading the files to your server.
-2. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
-3. Click the Connect button and log in to a WordPress.com account to authorize the Jetpack connection.
-4. If you don't yet have a WordPress.com account, you can quickly create one after clicking the Connect button.
-5. That's it.  You're ready to go!
+[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by typing in your site address. 
 
-If you need additional help [read our detailed instructions, including a video walkthrough](http://jetpack.me/support/installing-jetpack/).
+Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
+
+If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.me/support/installing-jetpack/).
 
 
 == Frequently Asked Questions ==
 
-= I already have a WordPress account, but it's not working, what's going on? =
+= Is Jetpack free? =
 
-Jetpack requires a connection to [WordPress.com](http://wordpress.com/) to enable all features. This is a different account than the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com, then you already have a WordPress.com account. If you can't, then you can easily create one as part of the installation of Jetpack.
+Yes! The core features of Jetpack are and always will be free. Jetpack also integrates with paid services like Akismet (anti-spam), VaultPress (backups), and VideoPress (video hosting) but these are not required for Jetpack to function.
+
+= Why do I need a WordPress.com account? =
+
+Many of our core features (like Photon, Stats, and Protect) make use of the WordPress.com cloud. For this to happen Jetpack requires a (free) WordPress.com account. If you don't have one already you can easily create one during Jetpack's connection process. 
+
+= I already have a WordPress account, but it's not working. What's going on? =
+
+A WordPress.com account is different to the one you use to log into your self-hosted WordPress. If you can log into http://wordpress.com then you already have a WordPress.com account. If you can't, you can easily create one during Jetpack's connection process.
 
 = How do I view my stats? =
 
-Once you've installed Jetpack, your stats will be available via the "Site Stats" menu which appears in the new Jetpack menu (under your Dashboard menu within WordPress).
+Once you've installed Jetpack your stats will be available via "Site Stats" which appears in the Jetpack menu (under your Dashboard menu within WordPress).
 
 = How do I contribute to Jetpack? =
 
-Easy! There are opportunities for developers at all levels to contribute:
+There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
 
-* Join our Beta Test group.
-* Give us a hand answering questions in our [support forum](http://wordpress.org/support/plugin/jetpack).
-* Report bugs, with reproduction steps, or post patches on [GitHub](https://github.com/Automattic/Jetpack).
-
-Learn more (and get detailed instructions) in our [contribute guide](http://jetpack.me/contribute/).
 
 == Screenshots ==
 
-1. Stats chart.
-2. Sharing buttons.
-3. Subscriptions widget.
-4. Gravatar Hovercards settings.
-5. Spelling and Grammar demo.
-6. Gallery Carousel.
-7. CSS Editor
-8. Mobile Theme
+1. Jetpack Dashboard.
+2. Site Stats.
+3. Plugin Bulk Management.
+4. Publicize.
+5. Related Posts.
 
 == Changelog ==
+= 3.8.0 =
+Release date: Nov 4th, 2015
+Release post: http://wp.me/p1moTy-1VN
+
+We're happy to introduce Jetpack 3.8, which has significant contributions from the Jetpack community. Read more about it here: http://wp.me/p1moTy-1VN
+
+Feature enhancements:
+
+* New Google+ Badge Widget. Display your profile, page, or community Google+ badge.
+* New twitch.tv shortcode embeds. Display a Twitch.tv stream in your posts.
+* Accessibility enhancements.
+* A handful of new filters to allow further customization of Jetpack.
+
+Other enhancements:
+
+* Carousel: Added support to retrieve image dimensions from an image url.
+* Carousel: Simpler algorithm to detect shutter speeds.
+* Contact Form: New "Checkbox with Multiple Items" field available in the Contact Form.
+* Contact Form: Allow pre-filling form fields with URL parameters.
+* Contact Form: Better styling of the emailed form responses.
+* Performance: Replaced some custom-built functions with core's native functions.
+* Related Posts: New filter to add post classes to post's container class.
+* Sharing: New filter to choose if sharing meta box should be shown.
+* Sharing: New filter to allow sharing button markup to be editable.
+* Sharing: New filter to allow you to specify a custom Facebook app ID.
+* Social Media Icons Widget: Added option for YouTube username as well as Channel ID.
+* Social Media Icons Widget: Added Google+ icon.
+* Social Media Icons Widget: New filter to allow you to add your own social media icons and links.
+* Subscriptions: Better errors to your visitors if their subscription sign-up fails.
+* Subscriptions: Removed "widget" class from Subs shortcode form.
+
+
+Bug fixes:
+
+* Carousel: Fixed browser back/forward button behavior.
+* Contact Form: Allow the email field to be set to empty when building form in post editor.
+* Facebook Likebox Widget: Fixed an issue where some languages were not translating.
+* Facebook Likebox Widget: Return a language when none found.
+* General: Fixed some minor styling issues in the Jetpack admin areas.
+* General: Add missing parameter to the_title filter call.
+* General: Prevent scrolling of body when the Jetpack admin modals are opened.
+* General: Update doc to reflect that Open Graph filter jetpack_enable_opengraph has been deprecated in favor of jetpack_enable_open_graph.
+* Infinite Scroll: Fixed an error that sometimes occurred that would stop posts from loading.
+* JSON API: Fixed some undefined notices when publishing a post with the API.
+* Open Graph: Fixed bug where facebook description content was sometimes being polluted by a filter.
+* Sharing: Use full SSL Pinterest url instead of protocol relative.
+* Sharing: Fixed plus signs appearing in tweets shared from iOS.
+* Shortcodes: Prefer HTTPS for video embeds to avoid mixed content warnings.
+* Subscriptions Widget: Fix HTML Validation error.
+* Theme Tools: Check oEmbeds for the presence of a video before adding the responsive videos filter.
+* Tiled Galleries: Add image alt attribute if there is a title set. This was breaking some screen reader functionality.
+
 = 3.7.2 =
 Release date: September 29th, 2015
 
@@ -180,10 +207,9 @@ Additional changes:
 * Bug Fix: Sharing: Fixed Twitter Cards tags escaping
 * Bug Fix: Sharing: Made OpenGraph tags for title and description use proper punctuation
 * Bug Fix: Sharing: Made sure Likes can be disabled on the front page
-* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the scipt in the footer
+* Bug Fix: Shortcodes: Fixed Facebook embeds by placing the script in the footer
 * Bug Fix: Shortcodes: Fixed PollDaddy shortcode issues over SSL connections
 * Bug Fix: Shortcodes: Made responsive video wrappers only wrap video embeds
 * Bug Fix: Shortcodes: Made SoundCloud accept percents for dimensions
 * Bug Fix: Social Links: Fixed a possible conflict with another class
 * Bug Fix: Stats: Made sure the Stats URL is always escaped properly
-

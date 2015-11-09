@@ -58,6 +58,9 @@ class Jetpack_Photon {
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
+		// Responsive image srcset substitution
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ) );
+
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 	}
@@ -154,6 +157,8 @@ class Jetpack_Photon {
 				/**
 				 * Allow specific images to be skipped by Photon.
 				 *
+				 * @module photon
+				 *
 				 * @since 2.0.3
 				 *
 				 * @param bool false Should Photon ignore this image. Default to false.
@@ -209,6 +214,8 @@ class Jetpack_Photon {
 							0 === strpos( $src, $upload_dir['baseurl'] ) ||
 							/**
 							 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
+							 *
+							 * @module photon
 							 *
 							 * @since 2.0.3
 							 *
@@ -308,6 +315,8 @@ class Jetpack_Photon {
 					 * Filter the array of Photon arguments added to an image when it goes through Photon.
 					 * By default, only includes width and height values.
 					 * @see https://developer.wordpress.com/docs/photon/api/
+					 *
+					 * @module photon
 					 *
 					 * @since 2.0.0
 					 *
@@ -413,6 +422,8 @@ class Jetpack_Photon {
 			/**
 			 * Provide plugins a way of preventing Photon from being applied to images retrieved from WordPress Core.
 			 *
+			 * @module photon
+			 *
 			 * @since 2.0.0
 			 *
 			 * @param bool false Stop Photon from being applied to the image. Default to false.
@@ -484,6 +495,8 @@ class Jetpack_Photon {
 				 * Filter the Photon Arguments added to an image when going through Photon, when that image size is a string.
 				 * Image size will be a string (e.g. "full", "medium") when it is known to WordPress.
 				 *
+				 * @module photon
+				 *
 				 * @since 2.0.0
 				 *
 				 * @param array $photon_args Array of Photon arguments.
@@ -524,6 +537,8 @@ class Jetpack_Photon {
 				 * Filter the Photon Arguments added to an image when going through Photon,
 				 * when the image size is an array of height and width values.
 				 *
+				 * @module photon
+				 *
 				 * @since 2.0.0
 				 *
 				 * @param array $photon_args Array of Photon arguments.
@@ -548,6 +563,33 @@ class Jetpack_Photon {
 		}
 
 		return $image;
+	}
+
+	/**
+	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
+	 *
+	 * @since 3.8.0
+	 * @param array $sources An array of image urls and widths.
+	 * @uses self::validate_image_url, jetpack_photon_url
+	 * @return array An array of Photon image urls and widths.
+	 */
+	public function filter_srcset_array( $sources ) {
+		foreach ( $sources as $i => $source ) {
+			if ( ! self::validate_image_url( $source['url'] ) ) {
+				continue;
+			}
+
+			$url = Jetpack_Photon::strip_image_dimensions_maybe( $source['url'] );
+
+			$args = array();
+			if ( 'w' === $source['descriptor'] ) {
+				$args['w'] = $source['value'];
+			}
+
+			$sources[ $i ]['url'] = jetpack_photon_url( $url, $args );
+		}
+
+		return $sources;
 	}
 
 	/**
@@ -582,6 +624,8 @@ class Jetpack_Photon {
 			/**
 			 * Allow Photon to fetch images that are served via HTTPS.
 			 *
+			 * @module photon
+			 *
 			 * @since 2.4.0
 			 *
 			 * @param bool true Should Photon ignore images using the HTTPS scheme. Default to true.
@@ -611,6 +655,8 @@ class Jetpack_Photon {
 		// But let folks filter to decline if they prefer.
 		/**
 		 * Overwrite the results of the validation steps an image goes through before to be considered valid to be used by Photon.
+		 *
+		 * @module photon
 		 *
 		 * @since 3.0.0
 		 *

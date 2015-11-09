@@ -9,6 +9,7 @@
  * Auto Activate: Yes
  * Module Tags: Social, Recommended
  * Feature: Recommended, Traffic
+ * Additional Search Queries: facebook, twitter, google+, googleplus, google, path, tumblr, linkedin, social, tweet, connections, sharing
  */
 
 class Jetpack_Publicize {
@@ -289,6 +290,7 @@ class Publicize_Util {
 		}
 		$done[$post_id] = true;
 
+		/** This action is documented in modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'publicize_url', $bin );
 	}
 
@@ -336,4 +338,3 @@ function publicize_init() {
 }
 
 }
-
