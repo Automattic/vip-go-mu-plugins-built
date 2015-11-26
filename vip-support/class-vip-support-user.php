@@ -410,12 +410,12 @@ class WPCOM_VIP_Support_User {
 	public function action_profile_update( $user_id ) {
 		$user = new WP_User( $user_id );
 		$verified_email = get_user_meta( $user_id, self::META_EMAIL_VERIFIED, true );
-		if ( $user->user_email != $verified_email && $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE ) ) {
+		if ( $user->user_email !== $verified_email && $this->user_has_vip_support_role( $user_id ) ) {
 			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
 			$this->message_replace = self::MSG_DOWNGRADE_VIP_USER;
 			delete_user_meta( $user_id, self::META_EMAIL_VERIFIED );
 			delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
-			if ( $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE ) || $user->has_cap( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE ) ) {
+			if ( $this->user_has_vip_support_role( $user_id ) || $this->user_has_vip_support_role( $user_id, false ) ) {
 				$this->send_verification_email( $user_id );
 			}
 		}
@@ -617,14 +617,24 @@ class WPCOM_VIP_Support_User {
 		return ( $is_a8c_email && $email_verified );
 	}
 
-	public function user_has_vip_support_role( $user_id ) {
+	public function user_has_vip_support_role( $user_id, $active_role = true ) {
 		$user = new WP_User( $user_id );
 
 		if ( ! $user || ! $user->ID ) {
 			return false;
 		}
 
-		return user_can( $user_id, WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+		$wp_roles = wp_roles();
+
+		// Filter out caps that are not role names and assign to $user_roles
+		if ( is_array( $user->caps ) )
+			$user_roles = array_filter( array_keys( $user->caps ), array( $wp_roles, 'is_role' ) );
+		
+		if ( false === $active_role) {
+			return in_array( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE, $user_roles, true );
+		}
+
+		return in_array( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE, $user_roles, true );
 	}
 
 	/**

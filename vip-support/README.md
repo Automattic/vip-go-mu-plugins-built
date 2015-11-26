@@ -6,6 +6,12 @@ Manages the WordPress.com Support Users on your site.
 
 ## Changelog
 
+### 2.0.2
+
+Thursday 26 November 2015
+
+* Bugfix: Refactor the role check to actually check the user's roles, ratherz than rely on Core `user_can` functions/methods
+
 ### 2.0.1
 
 * Remove stray error_log call
