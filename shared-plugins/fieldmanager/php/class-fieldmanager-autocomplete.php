@@ -32,12 +32,6 @@ class Fieldmanager_Autocomplete extends Fieldmanager_Field {
 	 * The function signature should be query_callback( $match, $args );
 	 */
 	public $query_callback = Null;
-	
-	/**
-	 * @var string
-	 * Javascript trigger to handle adding custom args
-	 */
-	public $custom_args_js_event = Null;
 
 	/**
 	 * @var boolean
@@ -116,10 +110,9 @@ class Fieldmanager_Autocomplete extends Fieldmanager_Field {
 		}
 
 		$element = sprintf(
-			'<input class="fm-autocomplete fm-element fm-incrementable" type="text" id="%s" value="%s"%s %s />',
+			'<input class="fm-autocomplete fm-element fm-incrementable" type="text" id="%s" value="%s" %s />',
 			esc_attr( $this->get_element_id() ),
 			esc_attr( $display_value ),
-			( ! empty( $this->custom_args_js_event ) ) ? ' data-custom-args-js-event="' . esc_attr( $this->custom_args_js_event ) . '"' : '',
 			$this->get_element_attributes()
 		);
 

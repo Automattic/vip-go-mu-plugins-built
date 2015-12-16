@@ -43,13 +43,12 @@ class Fieldmanager_Checkbox extends Fieldmanager_Field {
 	 */
 	public function form_element( $value = NULL ) {
 		return sprintf(
-			'<input type="hidden" name="%1$s" value="%6$s" /><input class="fm-element" type="checkbox" name="%1$s" value="%2$s" %3$s %4$s id="%5$s" />',
+			'<input class="fm-element" type="checkbox" name="%1$s" value="%2$s" %3$s %4$s id="%5$s" />',
 			esc_attr( $this->get_form_name() ),
 			esc_attr( (string) $this->checked_value ),
 			$this->get_element_attributes(),
 			( $value == $this->checked_value ) ? 'checked="checked"' : "",
-			esc_attr( $this->get_element_id() ),
-			$this->unchecked_value
+			esc_attr( $this->get_element_id() )
 		);
 	}
 
@@ -59,9 +58,10 @@ class Fieldmanager_Checkbox extends Fieldmanager_Field {
 	 * @return mixed proper value
 	 */
 	public function presave( $value = NULL, $current_value = array() ) {
-		if ( $value == $this->checked_value || $value === $this->unchecked_value ) {
+		if ( $value == $this->checked_value ) {
 			return $value;
-		} elseif ( empty( $value ) ) {
+		}
+		elseif ( empty( $value ) ) {
 			return $this->unchecked_value;
 		}
 		else {

@@ -298,7 +298,7 @@ function fm_calculate_context() {
 			if ( $submenus ) {
 				foreach ( $submenus as $submenu ) {
 					if ( $script == $submenu[0] || ( 'admin.php' == $script && $page == $submenu[4] ) ) {
-						return array( 'submenu', $page );
+						return array( 'submenu', sanitize_text_field( $page ) );
 					}
 				}
 			}
@@ -505,11 +505,6 @@ add_action( 'admin_menu', '_fm_add_submenus', 15 );
 function fm_sanitize_textarea( $value ) {
 	return implode( "\n", array_map( 'sanitize_text_field', explode( "\n", $value ) ) );
 }
-
-/**
- * Stripslashes_deep for submenu data.
- */
-add_filter( 'fm_submenu_presave_data', 'stripslashes_deep' );
 
 /**
  * Exception class for Fieldmanager's fatal errors.
