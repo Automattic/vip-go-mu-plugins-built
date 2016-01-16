@@ -34,7 +34,3 @@ script:
 
   # Run behat tests.
   - ${WORDPRESS_SITE_DIR}/wp-content/mu-plugins/${WORDPRESS_TEST_SUBJECT}/vendor/bin/behat -c $WORDPRESS_SITE_DIR/wp-content/mu-plugins/${WORDPRESS_TEST_SUBJECT}/behat.yml
-
-notifications:
-
-  slack: a8c:rdeQR68xgiffkssb1ZNw5P1c
