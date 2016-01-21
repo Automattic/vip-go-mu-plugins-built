@@ -22,8 +22,7 @@ class Jetpack_Debugger {
 		if ( ! current_user_can( 'manage_options' ) )
 			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
 
-		global $current_user;
-		get_currentuserinfo();
+		$current_user = wp_get_current_user();
 
 		$user_id = get_current_user_id();
 		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
@@ -169,7 +168,19 @@ class Jetpack_Debugger {
 				<ol>
 					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s">known conflicts</a> with Jetpack – check the <a href="%2$s">list</a>. (You can also browse the <a href="%3$s">Jetpack support pages</a> or <a href="%4$s">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.me/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.me/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.me/support/', 'http://wordpress.org/support/plugin/jetpack' ); ?></li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
-					<li><b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "If your problem isn't known or caused by a plugin, try activating Twenty Fifteen (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?></li>
+					<li>
+						<b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>
+						<?php
+							$default_theme = wp_get_theme( WP_DEFAULT_THEME );
+
+							if ( $default_theme->exists() ) {
+								echo esc_html( sprintf( __( "If your problem isn't known or caused by a plugin, try activating %s (the default WordPress theme).", 'jetpack' ), $default_theme->get( 'Name' ) ) );
+							} else {
+								esc_html_e( "If your problem isn't known or caused by a plugin, try activating the default WordPress theme.", 'jetpack' );
+							}
+						?>
+						<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
+					</li>
 					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ), site_url( 'xmlrpc.php' ) ); ?>
 						<ul>
 							<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
@@ -201,7 +212,22 @@ class Jetpack_Debugger {
 
 					<input type="hidden" name="contact_form" id="contact_form" value="1">
 					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
-					<input type="hidden" name="subject" id="subject" value="from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
+					<?php
+						$subject_line = sprintf(
+							/* translators: %s is the URL of the site */
+							_x( 'from: %s Jetpack contact form', 'Support request email subject line', 'jetpack' ),
+							esc_attr( site_url() )
+						);
+
+						if ( Jetpack::is_development_version() ) {
+							$subject_line = 'BETA ' . $subject_line;
+						}
+
+						$subject_line_input = printf(
+							'<input type="hidden" name="subject" id="subject" value="%s"">',
+							$subject_line
+						);
+					?>
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
