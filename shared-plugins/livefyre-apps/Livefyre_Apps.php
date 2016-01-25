@@ -3,14 +3,24 @@
 if(!defined('LFAPPS__PLUGIN_PATH')) 
     die('Bye');
 
-require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Livefyre.php';
-require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Core/Network.php';
-require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Core/Site.php';
-require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Utils/IDNA.php';
-require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Utils/JWT.php';
-
+if(!class_exists('Livefyre\Livefyre')) {
+    require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Livefyre.php';
+}
+if(!class_exists('Livefyre\Core\Network')) {
+    require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Core/Network.php';
+}
+if(!class_exists('Livefyre\Core\Site')) {
+    require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Core/Site.php';
+}
+if(!class_exists('Livefyre\Utils\IDNA')) {
+    require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Utils/IDNA.php';
+}
+if(!class_exists('Livefyre\Utils\JWT')) {
+    require_once LFAPPS__PLUGIN_PATH . 'libs/php/Livefyre/Utils/JWT.php';
+}
 require_once LFAPPS__PLUGIN_PATH . 'libs/php/LFAPPS_View.php';
 require_once(LFAPPS__PLUGIN_PATH . "libs/php/LFAPPS_JWT.php");
+require_once(LFAPPS__PLUGIN_PATH . "libs/php/LFAPPS_Http_Extension.php");
 
 use Livefyre\Livefyre;
 
@@ -43,7 +53,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
                 self::$initiated = true;
                 self::set_default_options();
                 self::init_hooks();
-                self::init_apps();                
+                self::init_apps(); 
             }
         }
         
@@ -254,18 +264,32 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @param string $name
          * @return string
          */
-        public static function get_package_reference($name) {
+        public static function get_package_reference() {
             $enterprise = get_option('livefyre_apps-package_type') == 'enterprise';
             $uat = get_option('livefyre_apps-livefyre_environment') == 'staging';
-            switch($name) {
-                case 'sidenotes':
-                    return 'sidenotes#' . (($uat && $enterprise) ? 'uat' : 'v1');
-                break;
-                case 'fyre.conv':
-                    return 'fyre.conv#' . (($uat && $enterprise) ? 'uat' : '3');
-                break;
+            return (($uat && $enterprise) ? 'uat' : null);       
+        }
+        
+        /**
+         * Get list of available package versions for a given package
+         * @param string $package name of package
+         * @return array list of versions
+         */
+        public static function get_available_package_versions($package) {
+            $url = 'http://cdn.livefyre.com/packages.json';
+            $versions = array();
+            
+            $http = new LFAPPS_Http_Extension;
+            $resp = $http->request($url, array( 'timeout' => 5 ));
+            
+            if (!is_wp_error( $resp ) ) {
+                $body = $resp['body'];
+                $data = json_decode($body, true);
+                if(isset($data[$package]) && isset($data[$package]['versions'])) {
+                    return $data[$package]['versions'];
+                }
             }
-            return '';
+            return $versions;
         }
         
         /**
@@ -281,6 +305,41 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
                 }
             }
             return $plugins;
+        }
+        
+        /**
+         * Get the ActivityStream for current LF credentials
+         * 
+         */
+        public static function get_activity_stream() {
+            $api_urn = 'urn:livefyre:api:core=GetActivityStream';
+            $expiration = time() + (1000 * 60 * 5); //5 mins
+            $network_urn = 'urn:livefyre:' . get_option('livefyre_apps-livefyre_domain_name');
+            
+            $data = array(
+                'iss'   => $network_urn,
+                'aud'   => $network_urn,
+                'sub'   => $network_urn,
+                'scope' => $api_urn,
+                'exp'   => $expiration
+            );
+            $token = LFAPPS_JWT::encode($data, get_option('livefyre_apps-livefyre_domain_key'));
+            
+            $header = array(
+                'Authorization' => 'Bearer ' . $token
+            );
+            
+            $domain = get_option('livefyre_apps-livefyre_domain_name');
+            $domain_part = substr($domain, 0, strpos($domain, '.'));
+            $url = 'https://'.$domain_part.'.bootstrap.fyre.co/api/v3.1/activity/?resource=urn:livefyre:umg.fyre.co&since=0';
+            
+            $http = new LFAPPS_Http_Extension;
+            $resp = $http->request($url, array( 'timeout' => 5, 'headers' => $header));
+            if(isset($resp['body'])) {
+                $body = json_decode($resp['body'], true);
+                return $body;
+            }
+            return null;
         }
     }
 }

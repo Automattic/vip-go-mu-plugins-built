@@ -87,17 +87,13 @@ class LFAPPS_Comments_Core {
      */
     function require_subclasses() {
 
-        require_once( dirname( __FILE__ ) . '/display/LFAPPS_Comments_Display.php' );
+        require_once( dirname( __FILE__ ) . '/LFAPPS_Comments_Display.php' );
         require_once( dirname( __FILE__ ) . '/import/LFAPPS_Comments_Import_Impl.php' );
         require_once( dirname( __FILE__ ) . '/LFAPPS_Comments_Activation.php' );
-        require_once( dirname( __FILE__ ) . '/LFAPPS_Comments_Utility.php' );
-        require_once( dirname( __FILE__ ) . '/sync/LFAPPS_Comments_Sync_Impl.php' );
 
         $this->Activation = new LFAPPS_Comments_Activation( $this );
-        $this->Sync = new LFAPPS_Comments_Sync_Impl( $this );
         $this->Import = new LFAPPS_Comments_Import_Impl( $this );
         $this->Display = new LFAPPS_Comments_Display( $this );
-        $this->Livefyre_Utility = new LFAPPS_Comments_Utility( $this );
     }
 
 } //  Livefyre_core

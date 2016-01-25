@@ -1,0 +1,40 @@
+=== Livefyre ===
+
+== Description ==
+
+= Enterprise =
+
+Livefyre helps companies engage consumers through a combination of real-time content, conversation and social curation. Livefyre is powering real-time content marketing experiences for over 1,500 leading brands including AOL, Bravo, CBS, Conde Nast, Cox Media Group, Dow Jones/WSJ, FOX Sports, Mashable, NASCAR, Showtime, Sony PlayStation, Sports Illustrated, Sears, Dell and Universal Music Group.
+
+The Livefyre Apps Plugin enables you to build community and drive engagement around your content with real-time applications including Comments, Live Blog, Chat and Sidenotes. All of the following apps require a Livefyre subscription, with the exception of Free Community Comments.
+
+*Comments™*
+
+Turn every piece of content into a real-time conversation with Livefyre Comments. Livefyre leads the market with a robust feature set including truly real-time posts, mobile compatibility, SEO optimized content, social login, listener count and a comment notifier. And with media-rich embedding options, users can post most videos, songs, images and more, right into the comment stream.
+
+*Live Blog™*
+
+Become the live news source.
+
+Turn your site into a real-time news source with Live Blog. Cover live events by posting a real-time stream of photos, videos and text and publish that content instantly to your site. Multiple editors can collaborate on event coverage such as reveals, award programs, television premieres, sporting events and press conferences. For the new XBox launch, Gamespot had on-location bloggers post real-time updates, photos and analysis from the event, earning over 30,000 listeners for their coverage of the announcement.
+
+*Chat™*
+
+Let your readers engage in real-time conversation about breaking news, live events, sports and entertainment. Content appears as a continuous, real-time stream of unthreaded conversation, similar to a chat room.
+
+*Sidenotes™*
+
+Focused comments. In context. Anywhere on the page.
+
+Sidenotes inspires more focused conversations by allowing readers to chat with each other about a specific piece of content — a quote, a paragraph, an image — anywhere on a page. By inviting readers to interact with and share specific pieces of content as they read, Sidenotes lowers the barrier for engagement and increases time on site. Sidenotes is mobile-ready, SEO optimized, and is included with every subscription to Livefyre Comments and Community Comments.
+
+= Community =
+
+Livefyre Community Comments replaces the default comments on your blog with real-time conversations. Our social features automatically curate conversations on about your content from Twitter and Facebook and integrate it into the comment stream to show higher activity levels. Readers can also tag their friends on social networks and pull them into the conversation. Livefyre’s Free Community Comments plug-in also contains Sidenotes.
+
+== Frequently Asked Questions ==
+
+For Enterprise, check out [Livefyre Docs](http://docs.livefyre.com)
+
+For Community, visit the [Livefyre FAQ](http://support.livefyre.com) or e-mail us at
+support@livefyre.com.

@@ -35,11 +35,12 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
         /**
          * Initialise admin menu items
          */
-        public static function init_admin_menu() {
+        public static function init_admin_menu() {            
             add_submenu_page( 'livefyre_apps', 'General', 'General', "manage_options", 'livefyre_apps', array('Livefyre_Apps_Admin', 'menu_general'));
             add_menu_page('Livefyre Apps', 'Livefyre Apps', 'manage_options', 'livefyre_apps', array('Livefyre_Apps_Admin', 'menu_general'), LFAPPS__PLUGIN_URL."assets/img/livefyre-icon_x16.png"); 
             //community authentication page (invisible and only handles data sent back from livefyre.com)
-            add_submenu_page( null, 'Livefyre', 'Livefyre', "manage_options", 'livefyre', array('Livefyre_Apps_Admin', 'menu_general'));            
+            add_submenu_page( null, 'Livefyre', 'Livefyre', "manage_options", 'livefyre', array('Livefyre_Apps_Admin', 'menu_general'));
+            
         }
         
         
@@ -143,12 +144,21 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
                 $post_type_name = 'livefyre_apps-livefyre_display_' .$post_type;
                 register_setting('livefyre_apps_settings_comments', $post_type_name);
             } 
+            register_setting('livefyre_apps_settings_comments', 'livefyre_apps-livefyre_comments_version');       
             
             //LiveChat
             foreach ($post_types as $post_type ) {
                 $post_type_name = 'livefyre_apps-livefyre_chat_display_' .$post_type;
                 register_setting('livefyre_apps_settings_chat', $post_type_name);
             } 
+            register_setting('livefyre_apps_settings_chat', 'livefyre_apps-livefyre_chat_version');
+            
+            //LiveBlog
+            foreach ($post_types as $post_type ) {
+                $post_type_name = 'livefyre_apps-livefyre_blog_display_' .$post_type;
+                register_setting('livefyre_apps_settings_blog', $post_type_name);
+            } 
+            register_setting('livefyre_apps_settings_blog', 'livefyre_apps-livefyre_blog_version');
             
             //Sidenotes
             foreach ($post_types as $post_type ) {
@@ -156,6 +166,7 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
                 register_setting('livefyre_apps_settings_sidenotes', $post_type_name);
             } 
             register_setting('livefyre_apps_settings_sidenotes', 'livefyre_apps-livefyre_sidenotes_selectors');
+            register_setting('livefyre_apps_settings_sidenotes', 'livefyre_apps-livefyre_sidenotes_version');
         }
         
         public static function menu_plugin_conflict() {
@@ -173,7 +184,7 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             }
                         
             //process data returned from livefyre.com community sign up
-            if(self::verified_blog()) {
+            if(self::verified_blog() && current_user_can('administrator')) {
                 update_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
                 update_option('livefyre_apps-livefyre_site_id', sanitize_text_field( $_GET["site_id"] ));
                 update_option('livefyre_apps-livefyre_site_key', sanitize_text_field( $_GET["secretkey"] ));

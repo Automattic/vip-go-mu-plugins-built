@@ -18,12 +18,14 @@ require_once LFAPPS__PLUGIN_PATH . 'libs/php/LFAPPS_View.php';
 
 if ( ! class_exists( 'LFAPPS_Blog' ) ) {
     class LFAPPS_Blog {
+        public static $default_package_version = '3.0.0';
         private static $initiated = false;
         
         public static function init() {
             if ( ! self::$initiated ) {
                 self::$initiated = true;
-                self::init_hooks();                
+                self::init_hooks();    
+                self::set_default_options();
             }
         }
                 
@@ -35,8 +37,16 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
                 add_shortcode('livefyre_liveblog', array('LFAPPS_Blog', 'init_shortcode'));
         }
         
+        public static function set_default_options() {
+            if(get_option('livefyre_apps-livefyre_blog_version', '') === '') {
+                update_option('livefyre_apps-livefyre_blog_version', 'latest');
+            }            
+        }
+        
         public static function init_shortcode($atts=array()) {
-            
+            if(!self::show_blog()) {
+                return;
+            }
             if(isset($atts['article_id'])) {
                 $articleId = $atts['article_id'];
                 $title = isset($pagename) ? $pagename : 'Comments (ID: ' . $atts['article_id'];
@@ -86,6 +96,65 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
          */
         public static function blog_active() {
             return ( Livefyre_Apps::active());
+        }
+        
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_blog_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Blog::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
+        }
+        
+        /*
+         * Handles the toggles on the settings page that decide which post types should be shown.
+         * Also prevents comments from appearing on non single items and previews.
+         *
+         */
+
+        public static function show_blog() {
+
+            global $post;
+            /* Is this a post and is the settings checkbox on? */
+            $display_posts = ( is_single() && get_option('livefyre_apps-livefyre_blog_display_post'));
+            /* Is this a page and is the settings checkbox on? */
+            $display_pages = ( is_page() && get_option('livefyre_apps-livefyre_blog_display_page'));
+            /* Are comments open on this post/page? */
+            $comments_open = ( $post->comment_status == 'open' );
+
+            $display = $display_posts || $display_pages;
+            $post_type = get_post_type();
+            if ($post_type != 'post' && $post_type != 'page') {
+
+                $post_type_name = 'livefyre_blog_display_' . $post_type;
+                $display = ( get_option('livefyre_apps-'.$post_type_name, 'true') == 'true' );
+                if($post_type === false) {
+                    $display = true;
+                }
+            }
+            return $display 
+                && Livefyre_Apps::is_app_enabled('blog')
+                && !is_preview();
         }
     }
 }

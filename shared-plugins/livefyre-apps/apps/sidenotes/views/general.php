@@ -54,6 +54,30 @@
                                     <textarea id='livefyre_apps-livefyre_sidenotes_selectors' name='livefyre_apps-livefyre_sidenotes_selectors' cols='60' rows='6'><?php echo esc_html(get_option('livefyre_apps-livefyre_sidenotes_selectors')); ?></textarea>
                                 </td>
                             </tr>
+                            <tr>                               
+                                <?php
+                                $available_versions = Livefyre_Apps::get_available_package_versions('sidenotes');
+                                if (empty($available_versions)) {
+                                    $available_versions = array(LFAPPS_Chat::$default_package_version);
+                                }
+                                $available_versions['latest'] = 'latest';
+                                $available_versions = array_reverse($available_versions);
+                                ?>
+                                <th align="left" scope="row">
+                                    <?php esc_html_e('Package version', 'lfapps-chat'); ?><br/>
+                                    <span class="info"><?php esc_html_e('(If necessary you can revert back to an older version if available)', 'lfapps-chat'); ?></span>
+                                </th>
+                                <td align="left" valign="top">
+                                    <select name="livefyre_apps-livefyre_sidenotes_version">
+                                        <?php foreach ($available_versions as $available_version): ?>
+                                            <?php $selected_version = get_option('livefyre_apps-livefyre_sidenotes_version', 'latest') == $available_version ? 'selected="selected"' : ''; ?>
+                                            <option value="<?php echo esc_attr($available_version); ?>" <?php echo esc_html($selected_version); ?>>
+                                                <?php echo ucfirst(esc_html($available_version)); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>  
                             <tr>
                                 <td colspan='2'>
                                     <strong>Sidenotes Configuration Options:</strong>
@@ -65,8 +89,8 @@
                                          </script>"); ?>                                            
                                     </blockquote>
                                     <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full explanation of Livefyre Sidenotes options.</p>
-                                    <strong>Sidenotes String Customizations:</strong>
-                                    <p>String customizations are possible as well through applying WordPress filters. Information on how to implement this is <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
+                                    <strong>Sidenotes Customizations:</strong>
+                                    <p>Additional customizations are possible through applying WordPress filters. Information on how to implement these are <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                                 </td>
                             </tr>
                             <?php endif; ?>                            

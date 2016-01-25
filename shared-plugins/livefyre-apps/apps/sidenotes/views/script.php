@@ -26,14 +26,21 @@ $strings = apply_filters( 'livefyre_custom_sidenotes_strings', null );
 $conv_config_str = json_encode($conv_config);
 ?>
 <script type="text/javascript">
-Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('sidenotes'); ?>'], function (Sidenotes) {
+Livefyre.require(['<?php echo LFAPPS_Sidenotes::get_package_reference(); ?>'], function (Sidenotes) {
     load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
     convConfigSidenotes['network'] = "<?php echo esc_js($network_name); ?>";
     <?php echo isset( $strings ) ? "convConfigSidenotes['strings'] = " . json_encode($strings) . ';' : ''; ?>
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {
-        convConfigSidenotes = lf_extend(convConfigSidenotes, livefyreSidenotesConfig);
+        convConfigSidenotes = Livefyre.LFAPPS.lfExtend(convConfigSidenotes, livefyreSidenotesConfig);
     }
-    new Sidenotes(convConfigSidenotes);
+    var sidenotesApp = new Sidenotes(convConfigSidenotes);
+    var sidenotesListeners = Livefyre.LFAPPS.getAppEventListeners('sidenotes');
+    if(sidenotesListeners.length > 0) {
+        for(var i=0; i<sidenotesListeners.length; i++) {
+            var sidenotesListener = sidenotesListeners[i];
+            sidenotesApp.once(sidenotesListener.eventName, sidenotesListener.callback);
+        }
+    }
 });
 </script>

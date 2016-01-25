@@ -17,7 +17,7 @@ use Livefyre\Livefyre;
 if (!class_exists('LFAPPS_Chat')) {
 
     class LFAPPS_Chat {
-
+        public static $default_package_version = '3.0.0';
         private static $initiated = false;
 
         public static function init() {
@@ -161,10 +161,10 @@ if (!class_exists('LFAPPS_Chat')) {
 
         public static function comments_number($count) {
 
-            global $post;
-            return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '')) . '" class="livefyre-commentcount">' . (int) $count . '</span>';
+            $articleId = apply_filters('livefyre_article_id', get_the_ID());
+            return '<span data-lf-article-id="' . esc_attr($articleId) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '')) . '" class="livefyre-commentcount">' . (int) $count . '</span>';
         }
-
+        
         /**
          * First time load set default Livefyre Comments options
          * + import previous Livefyre plugin options
@@ -172,6 +172,9 @@ if (!class_exists('LFAPPS_Chat')) {
         private static function set_default_options() {
             //set default display options
             //self::set_display_options();
+            if(get_option('livefyre_apps-livefyre_chat_version', '') === '') {
+                update_option('livefyre_apps-livefyre_chat_version', 'latest');
+            }            
         }
 
         /**
@@ -198,6 +201,7 @@ if (!class_exists('LFAPPS_Chat')) {
                     $display = true;
                 }
                 update_option('livefyre_apps-'.$post_type_name_chat, $display);
+                
             }
         }
 
@@ -248,6 +252,33 @@ if (!class_exists('LFAPPS_Chat')) {
             return ( Livefyre_Apps::active());
         }
 
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_chat_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Chat::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
+        }
     }
 
 }

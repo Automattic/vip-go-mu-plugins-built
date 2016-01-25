@@ -159,11 +159,11 @@ if (!class_exists('LFAPPS_Comments_Admin')) {
             $used_types = array();
             if(Livefyre_Apps::is_app_enabled('chat')) {
                 $excludes = array( '_builtin' => false );
-                $post_types = get_post_types( $args = $excludes );
+                $post_types = get_post_types($excludes );
                 $post_types = array_merge(array('post'=>'post', 'page'=>'page'), $post_types);
                 foreach ($post_types as $post_type ) {
                     $post_type_name = 'livefyre_chat_display_' .$post_type;
-                    if(get_option('livefyre_apps-'.$post_type_name) === true) {
+                    if(get_option('livefyre_apps-'.$post_type_name) === true || get_option('livefyre_apps-'.$post_type_name) === 'true') {
                         $used_types[$post_type_name] = $post_type_name;
                     } 
                 }

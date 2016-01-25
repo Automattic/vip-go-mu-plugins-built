@@ -22,8 +22,9 @@
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
-                                <th align="left" scope="row">
-                                    <?php esc_html_e('Enable Comments on', 'lfapps-comments'); ?>
+                                <th align="left" scope="row" style="width:40%">
+                                    <?php esc_html_e('Enable Comments on', 'lfapps-comments'); ?><br/>
+                                    <span class="info"><?php esc_html_e('(Select the types of posts on which you wish to enable LiveComments. Note: Only LiveChat or LiveComments may be enabled for each of these options.)', 'lfapps-chat'); ?></span>
                                 </th>
                                 <td align="left" valign="top">
                                     <?php
@@ -37,7 +38,7 @@
                                         if(get_option($post_type_name) == '1' || get_option($post_type_name) == 'true') {
                                             $checked = 'checked';
                                         } 
-                                        $post_type_name_chat = 'livefyre_apps-livefyre_chat_display_' .$post_type;
+                                        $post_type_name_chat = 'livefyre_chat_display_' .$post_type;
                                         $disabled = false;
                                         if(isset($used_types[$post_type_name_chat])) {
                                             $disabled = true;
@@ -50,10 +51,30 @@
                                     ?>
                                 </td>
                             </tr>
-                            <tr>
-                                <td colspan='2'>
-                                    <?php esc_html_e('(Select the types of posts on which you wish to enable Comments. Note: Only Chat or Comments may be enabled for each of these options.)', 'lfapps-chat'); ?>
-                            </tr>
+                            <tr>                               
+                                <?php esc_html_e('(Select the types of posts on which you wish to enable Comments. Note: Only Chat or Comments may be enabled for each of these options.)', 'lfapps-chat'); ?>
+                                <?php 
+                                $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+                                if(empty($available_versions)) {
+                                    $available_versions = array(LFAPPS_Comments::$default_package_version);
+                                }
+                                $available_versions['latest'] = 'latest';
+                                $available_versions = array_reverse($available_versions);
+                                ?>
+                                <th align="left" scope="row">
+                                    <?php esc_html_e('Package version', 'lfapps-comments'); ?><br/>
+                                    <span class="info"><?php esc_html_e('(If necessary you can revert back to an older version if available)', 'lfapps-comments'); ?></span>
+                                </th>
+                                <td align="left" valign="top">
+                                    <select name="livefyre_apps-livefyre_comments_version">
+                                        <?php foreach($available_versions as $available_version): ?>
+                                        <?php $selected_version = get_option('livefyre_apps-livefyre_comments_version', 'latest') == $available_version ? 'selected="selected"' : ''; ?>
+                                        <option value="<?php echo esc_attr($available_version); ?>" <?php echo esc_html($selected_version); ?>>
+                                            <?php echo ucfirst(esc_html($available_version)); ?>
+                                        </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                            </tr>                            
                             <tr>
                                 <td colspan='2'>
                                     <br />
@@ -66,8 +87,8 @@
                                          </script>"); ?>                                            
                                     </blockquote>
                                     <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/comments/#convConfigObject">Click here</a> for a full explanation of Comments options.</p>
-                                    <strong>Comments String Customizations:</strong>
-                                    <p>String customizations are possible as well through applying WordPress filters. Information on how to implement this is <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
+                                    <strong>Comments Customizations:</strong>
+                                    <p>Additional customizations are possible through applying WordPress filters. Information on how to implement these are <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                                 </td>
                             </tr>
                         </table>

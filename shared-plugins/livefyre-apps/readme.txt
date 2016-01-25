@@ -1,11 +1,11 @@
-=== Livefyre Apps ===
+﻿=== Livefyre Apps ===
 Contributors: Livefyre
 Donate link: http://livefyre.com/
 Tags: comments, widget, plugin, community, social, profile,
 moderation, engagement, twitter, facebook, conversation
 Requires at least: 3.9
 Tested up to: 4.1
-Stable tag: 1.0
+Stable tag: 1.2
 
 From Community to Enterprise, the Livefyre Apps Plugin infuses your website with real-time social content to increase engagement and drive traffic.
 
@@ -86,9 +86,15 @@ support@livefyre.com.
 = 1.1 =
 * Patch an issue with Chat colliding with Comments.
 * Patch issue with collections not updating when changed in Livefyre Settings
+= 1.2 =
+* Added version pinning to each app. Now select which versions of the app you would like to run. Adds flexibility in upgrades.
+* Added JS events to each app. Check http://answers.livefyre.com/developers/reference/javascript-events/ for more details on which events and http://answers.livefyre.com/developers/cms-plugins/wordpress/ for implementation details.
+* Checks for valid PHP compatibility to alleviate version problems.
+* Fixed error reporting for http requests.
+* Fixed issue with Enterprise installation steps.
+* Fixed comment count issues when using custom article_id filter.
 
 == Upgrade Notice ==
 
 = 1.0 =
-Upgrade from previous versions of the Livefyre Comments and Livefyre Sidenotes plugins.
-
+* Upgrade from previous versions of the Livefyre Comments and Livefyre Sidenotes plugins.

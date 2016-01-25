@@ -1,5 +1,5 @@
 <?php $import_status = get_option('livefyre_apps-livefyre_import_status'); ?>
-<?php if ($import_status !== 'complete'): ?>
+<?php if ($import_status !== 'complete' && get_option('livefyre_apps-package_type') === 'community'): ?>
     <?php LFAPPS_View::render_partial('import_script', array(), 'comments'); ?>
     <div class="postbox-container postbox-large">
         <div id="normal-sortables" class="meta-box-sortables ui-sortable">

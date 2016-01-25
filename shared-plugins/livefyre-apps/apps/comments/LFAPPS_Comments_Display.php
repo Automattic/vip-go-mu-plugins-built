@@ -95,33 +95,6 @@ class LFAPPS_Comments_Display {
     }
 
     /*
-     * Debug script that will point customers to what could be potential issues.
-     *
-     */
-    function lf_debug() {
-        return false;
-        global $post;
-        $post_type = get_post_type( $post );
-        $article_id = $post->ID;
-        $site_id = get_option('livefyre_apps-livefyre_site_id', '' );
-        $display_posts = get_option('livefyre_apps-livefyre_display_posts', 'true' );
-        $display_pages = get_option('livefyre_apps-livefyre_display_pages', 'true' );
-        echo "\n";
-        ?>
-            <!-- LF DEBUG
-            site-id: <?php echo esc_html($site_id) . "\n"; ?>
-            article-id: <?php echo esc_html($article_id) . "\n"; ?>
-            post-type: <?php echo esc_html($post_type) . "\n"; ?>
-            comments-open: <?php echo esc_html(comments_open() ? "true\n" : "false\n"); ?>
-            is-single: <?php echo is_single() ? "true\n" : "false\n"; ?>
-            display-posts: <?php echo esc_html($display_posts) . "\n"; ?>
-            display-pages: <?php echo esc_html($display_pages) . "\n"; ?>
-            -->
-        <?php
-        
-    }
-
-    /*
      * The template for the Livefyre div element.
      *
      */
@@ -129,7 +102,7 @@ class LFAPPS_Comments_Display {
         if(class_exists('LFAPPS_Chat') && !self::livefyre_show_comments() && LFAPPS_Chat::show_chat()) {
             return LFAPPS_Chat::comments_template();
         }
-        return dirname( __FILE__ ) . '/comments-template.php';        
+        return dirname( __FILE__ ) . '/views/comments-template.php';        
     }
 
     /*
@@ -168,11 +141,11 @@ class LFAPPS_Comments_Display {
      */
     function livefyre_comments_number( $count ) {
 
-        global $post;
-        return '<span data-lf-article-id="' . esc_attr($post->ID) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
+        $articleId = apply_filters('livefyre_article_id', get_the_ID());
+        return '<span data-lf-article-id="' . esc_attr($articleId) . '" data-lf-site-id="' . esc_attr(get_option('livefyre_apps-livefyre_site_id', '' )) . '" class="livefyre-commentcount">'.esc_html($count).'</span>';
 
     }
-    
+
     /**
      * Run shortcode [livecomments]
      * @param array $atts array of attributes passed to shortcode

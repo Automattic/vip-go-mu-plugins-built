@@ -13,12 +13,21 @@
     };
     
     if(typeof(liveBlogConfig) !== 'undefined') {
-        convConfigBlog<?php echo esc_js($articleId); ?> = lf_extend(liveBlogConfig, convConfigBlog<?php echo esc_js($articleId); ?>);
+        convConfigBlog<?php echo esc_js($articleId); ?> = Livefyre.LFAPPS.lfExtend(liveBlogConfig, convConfigBlog<?php echo esc_js($articleId); ?>);
     }
 
-    Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('fyre.conv'); ?>'], function(ConvBlog) {
+    Livefyre.require(['<?php echo LFAPPS_Blog::get_package_reference(); ?>'], function(ConvBlog) {
         load_livefyre_auth();
-        new ConvBlog(networkConfigBlog, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {            
-        }());
+        new ConvBlog(networkConfigBlog, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {  
+            if(typeof blogWidget !== "undefined") {
+                var liveblogListeners = Livefyre.LFAPPS.getAppEventListeners('liveblog');
+                if(liveblogListeners.length > 0) {
+                    for(var i=0; i<liveblogListeners.length; i++) {
+                        var liveblogListener = liveblogListeners[i];
+                        blogWidget.on(liveblogListener.event_name, liveblogListener.callback);
+                    }
+                }
+            }
+        });
     });
 </script>

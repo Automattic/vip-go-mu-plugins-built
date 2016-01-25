@@ -21,10 +21,12 @@ define( 'LFAPPS_AMETA_PREFIX', 'livefyre_amap_' );
 define( 'LFAPPS_DEFAULT_HTTP_LIBRARY', 'LFAPPS_Http_Extension' );
 define( 'LFAPPS_NOTIFY_SETTING_PREFIX', 'livefyre_notify_' );
 
-require_once( dirname( __FILE__ ) . "/src/LFAPPS_Comments_Core.php" );
+require_once( dirname( __FILE__ ) . "/LFAPPS_Comments_Core.php" );
 
 if ( ! class_exists( 'LFAPPS_Comments' ) ) {
     class LFAPPS_Comments {
+        public static $default_package_version = '3.0.0';
+        
         private static $initiated = false;
         
         public static function init() {
@@ -56,6 +58,9 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
             }
             
             
+            if(get_option('livefyre_apps-livefyre_comments_version', '') === '') {
+                update_option('livefyre_apps-livefyre_comments_version', 'latest');
+            }
             
             if(get_option('livefyre_apps-livefyre_import_status', '') === '') {
                 update_option('livefyre_apps-livefyre_import_status', 'uninitialized');
@@ -138,6 +143,34 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
          */
         public static function comments_active() {
             return ( Livefyre_Apps::active());
+        }
+        
+        /**
+         * Get the Livefyre.require package reference name and version
+         * @return string
+         */
+        public static function get_package_reference() {
+            $option_version = get_option('livefyre_apps-livefyre_comments_version');
+            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
+            if(empty($available_versions)) {
+                $available_versions = array(LFAPPS_Comments::$default_package_version);
+            }
+            $required_version = Livefyre_Apps::get_package_reference();
+            if(is_null($required_version)) {
+                if($option_version == 'latest') {
+                    //get latest version
+                    $latest_version = array_pop($available_versions);
+                    if(strpos($latest_version, '.') !== false) {
+                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                    } else {
+                        $required_version = $latest_version;
+                    }
+                } else {
+                    $required_version = $option_version;
+                }
+            }
+            
+            return 'fyre.conv#'.$required_version;
         }
     }
 }
