@@ -5,7 +5,7 @@
  * Plugin URI: https://github.com/Automattic/vipv2-mu-plugins/blob/master/jetpack-mandatory.php
  * Description: VIP-specific customisations to Jetpack.
  * Author: Automattic
- * Version: 1.0
+ * Version: 1.0.1
  * License: GPL2+
  */
 
@@ -28,5 +28,12 @@ add_filter( 'jetpack_get_available_modules', function( $modules ) {
  * On VIP Go, we always want to use the Go Photon service, instead of WordPress.com's
  */
 add_filter( 'jetpack_photon_domain', function( $domain, $image_url ) {
-	return home_url();
+	// only apply to photon images
+	if ( preg_match( '|^https?://i[0-9]+.wp.com$|', $domain ) ) {
+		return home_url();
+	}
+
+	// return all other images
+	$url = wp_parse_url( $image_url );
+	return $url['host'];
 }, 2, 9999 );
