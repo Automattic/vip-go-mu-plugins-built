@@ -31,8 +31,6 @@ function vip_dashboard_init() {
 
 	// Remove standard WP plugins screen
 	add_action( 'admin_menu', 'vip_dashboard_remove_menu_pages' );
-	add_action( 'load-plugins.php', 'vip_dashboard_prevent_admin_access' );
-
 }
 add_action( 'plugins_loaded', 'vip_dashboard_init' );
 
@@ -63,20 +61,6 @@ function vip_dashboard_admin_scripts() {
  */
 function vip_dashboard_remove_menu_pages() {
 	remove_menu_page( 'plugins.php' );
-}
-
-/**
- * Limit plugins.php access to vip_support role
- *
- * @return void
- */
-function vip_dashboard_prevent_admin_access() {
-	$user = wp_get_current_user();
-
-	if ( ! in_array( 'vip_support', $user->roles ) ) {
-		wp_safe_redirect( esc_url( add_query_arg( array( 'page' => 'vip-plugins'), admin_url( 'admin.php' ) ) ) );
-		exit;
-	}
 }
 
 /**
