@@ -1,5 +1,7 @@
 ![VIP Dashboard](http://cloud.scott.ee/images/vip-dashboard.png)
 
+See also: [README-PUBLIC.md](README-PUBLIC.md)
+
 # VIP Dashboard
 
 WordPress plugin that provides a new dashboard for VIP and VIPv2 clients. The new interface features statistics and a new suite of tools for v2.

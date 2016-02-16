@@ -28,4 +28,4 @@ script:
   - find . -name \*.php -not -path "./vendor/*" -print0 | xargs -0 -n 1 -P 4 php -d display_errors=stderr -l > /dev/null
 
 notifications:
-  slack: a8c:rdeQR68xgiffkssb1ZNw5P1c
+  slack: a8c:Hhd7rqdnXOFQgEU4HNZvkGs7
