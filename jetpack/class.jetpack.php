@@ -398,6 +398,14 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
+
+				// Check which active modules actually exist and remove others from active_modules list
+				$unfiltered_modules = Jetpack::get_active_modules();
+				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
+				if ( array_diff( $unfiltered_modules, $modules ) ) {
+					Jetpack_Options::update_option( 'active_modules', $modules );
+				}
+
 				add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 				/**
 				 * Fires when synchronizing all registered options and constants.
@@ -1520,6 +1528,13 @@ class Jetpack {
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
+		// Throw up a notice if using staging mode
+		if ( Jetpack::is_staging_site() ) {
+			/* translators: %s is a URL */
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', jetpack ), 'https://jetpack.me/support/staging-sites/' );
+
+			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
+		}
 	}
 
 	/**
@@ -1601,6 +1616,7 @@ class Jetpack {
 		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
 		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
 		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
+		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
 	}
 
 	/**
@@ -1694,7 +1710,7 @@ class Jetpack {
 
 		$is_development_mode = Jetpack::is_development_mode();
 
-		foreach ( $modules as $module ) {
+		foreach ( $modules as $index => $module ) {
 			// If we're in dev mode, disable modules requiring a connection
 			if ( $is_development_mode ) {
 				// Prime the pump if we need to
@@ -1711,7 +1727,12 @@ class Jetpack {
 				continue;
 			}
 
-			require Jetpack::get_module_path( $module );
+			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+				unset( $modules[ $index ] );
+				Jetpack_Options::update_option( 'active_modules', array_values( $modules ) );
+				continue;
+			}
+
 			/**
 			 * Fires when a specific module is loaded.
 			 * The dynamic part of the hook, $module, is the module slug.
@@ -2537,10 +2558,38 @@ class Jetpack {
 		return $data;
 	}
 
-	public static function translate_module_tag( $untranslated_tag ) {
-		// Tags are aggregated by tools/build-module-headings-translations.php
-		// and output in modules/module-headings.php
-		return _x( $untranslated_tag, 'Module Tag', 'jetpack' );
+	/**
+	 * Return translated module tag.
+	 *
+	 * @param string $tag Tag as it appears in each module heading.
+	 *
+	 * @return mixed
+	 */
+	public static function translate_module_tag( $tag ) {
+		return jetpack_get_module_i18n_tag( $tag );
+	}
+
+	/**
+	 * Return module name translation. Uses matching string created in modules/module-headings.php.
+	 *
+	 * @since 3.9.2
+	 *
+	 * @param array $modules
+	 *
+	 * @return string|void
+	 */
+	public static function get_translated_modules( $modules ) {
+		foreach ( $modules as $index => $module ) {
+			$i18n_module = jetpack_get_module_i18n( $module['module'] );
+			if ( isset( $module['name'] ) ) {
+				$modules[ $index ]['name'] = $i18n_module['name'];
+			}
+			if ( isset( $module['description'] ) ) {
+				$modules[ $index ]['description'] = $i18n_module['description'];
+				$modules[ $index ]['short_description'] = $i18n_module['description'];
+			}
+		}
+		return $modules;
 	}
 
 	/**
@@ -6035,6 +6084,7 @@ p {
 				),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',
+				'JETPACK_STAGING_MODE',
 				)
 			);
 		/**
