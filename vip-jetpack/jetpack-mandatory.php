@@ -17,10 +17,8 @@ class WPCOM_VIP_Jetpack_Mandatory {
 	 * @var array
 	 */
 	protected $mandatory_modules = array(
-		'json-api',
 		'manage',
 		'monitor',
-		'photon',
 		'protect',
 		'sso',
 		'stats',
