@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -64,15 +64,14 @@ class QM_Backtrace {
 		), $args );
 		$this->trace = debug_backtrace( false );
 		$this->ignore( 1 ); # Self-awareness
-		
+
 		/**
 		 * If error_handler() is in the trace, QM fails later when it tries
 		 * to get $lowest['file'] in get_filtered_trace()
-		 */ 
+		 */
 		if ( $this->trace[0]['function'] === 'error_handler' ) {
 			$this->ignore( 1 );
 		}
-
 
 		if ( $args['ignore_items'] ) {
 			$this->ignore( $args['ignore_items'] );
@@ -240,8 +239,9 @@ class QM_Backtrace {
 				} else {
 					$args = array();
 					for ( $i = 0; $i < $show; $i++ ) {
-						if ( isset( $trace['args'][$i] ) )
+						if ( isset( $trace['args'][$i] ) ) {
 							$args[] = '\'' . $trace['args'][$i] . '\'';
+						}
 					}
 					$return['id']      = $trace['function'] . '()';
 					$return['display'] = $trace['function'] . '(' . implode( ',', $args ) . ')';

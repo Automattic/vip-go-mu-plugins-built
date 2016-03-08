@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -160,7 +160,15 @@ class QM_Output_Html_DB_Queries extends QM_Output_Html {
 
 		if ( !empty( $db->rows ) ) {
 
-			if ( ! $db->has_trace && ( '$wpdb' === $name ) ) {
+			/**
+			 * Filter whether to show the QM extended query information prompt.
+			 *
+			 * By default QM shows a prompt to install the QM db.php drop-in,
+			 * this filter allows a dev to choose not to show the prompt.
+			 *
+			 * @param bool $show_prompt Whether to show the prompt.
+			 */
+			if ( apply_filters( 'qm/show_extended_query_prompt', true ) && ! $db->has_trace && ( '$wpdb' === $name ) ) {
 				echo '<tr>';
 				echo '<td colspan="' . absint( $span ) . '" class="qm-warn">';
 				echo wp_kses( sprintf(
@@ -287,7 +295,7 @@ class QM_Output_Html_DB_Queries extends QM_Output_Html {
 
 		$sql = self::format_sql( $row['sql'] );
 
-		if ( 'SELECT' != $row['type'] ) {
+		if ( 'SELECT' !== $row['type'] ) {
 			$sql = "<span class='qm-nonselectsql'>{$sql}</span>";
 		}
 

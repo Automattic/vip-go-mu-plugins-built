@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,10 +14,12 @@ GNU General Public License for more details.
 
 */
 
-if ( !defined( 'SAVEQUERIES' ) )
+if ( !defined( 'SAVEQUERIES' ) ) {
 	define( 'SAVEQUERIES', true );
-if ( !defined( 'QM_DB_EXPENSIVE' ) )
+}
+if ( !defined( 'QM_DB_EXPENSIVE' ) ) {
 	define( 'QM_DB_EXPENSIVE', 0.05 );
+}
 
 class QM_Collector_DB_Queries extends QM_Collector {
 

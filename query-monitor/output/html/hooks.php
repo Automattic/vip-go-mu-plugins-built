@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ class QM_Output_Html_Hooks extends QM_Output_Html {
 
 					if ( $first ) {
 
-						echo "<th rowspan='" . absint( $rowspan ) . "'>";
+						echo "<th rowspan='" . absint( $rowspan ) . "' class='qm-nowrap'>";
 						echo $hook_name; // WPCS: XSS ok.
 						if ( 'all' === $hook['name'] ) {
 							echo '<br><span class="qm-warn">';
@@ -118,7 +118,7 @@ class QM_Output_Html_Hooks extends QM_Output_Html {
 					}
 
 					echo '<td class="qm-num">' . intval( $action['priority'] ) . '</td>';
-					echo '<td class="qm-ltr qm-nowrap">';
+					echo '<td class="qm-ltr qm-wrap">';
 
 					if ( isset( $action['callback']['file'] ) ) {
 						echo self::output_filename( $action['callback']['name'], $action['callback']['file'], $action['callback']['line'] ); // WPCS: XSS ok.
@@ -145,7 +145,7 @@ class QM_Output_Html_Hooks extends QM_Output_Html {
 
 			} else {
 				echo "<tr{$attr}>"; // WPCS: XSS ok.
-				echo "<th>";
+				echo '<th>';
 				echo $hook_name; // WPCS: XSS ok.
 				echo '</th>';
 				echo '<td colspan="3">&nbsp;</td>';

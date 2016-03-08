@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@ class Debug_Bar {
 	public function ensure_ajaxurl() {
 		?>
 		<script type="text/javascript">
-		var ajaxurl = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
+		var ajaxurl = '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>';
 		</script>
 		<?php
 	}

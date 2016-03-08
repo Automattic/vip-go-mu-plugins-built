@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -94,11 +94,11 @@ class QM_Output_Html_Admin extends QM_Output_Html {
 				$cols = $data['current_screen']->id;
 			}
 
-			if ( 'edit-comments' == $col ) {
+			if ( 'edit-comments' === $col ) {
 				$col = 'comments';
-			} else if ( 'upload' == $col ) {
+			} else if ( 'upload' === $col ) {
 				$col = 'media';
-			} else if ( 'link-manager' == $col ) {
+			} else if ( 'link-manager' === $col ) {
 				$col = 'link';
 			}
 

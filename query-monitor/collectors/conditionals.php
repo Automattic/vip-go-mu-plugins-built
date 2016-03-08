@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,6 @@ class QM_Collector_Conditionals extends QM_Collector {
 			'is_blog_admin',
 			'is_category',
 			'is_comment_feed',
-			'is_comments_popup',
 			'is_customize_preview',
 			'is_date',
 			'is_day',
@@ -71,7 +70,7 @@ class QM_Collector_Conditionals extends QM_Collector {
 		foreach ( $conds as $cond ) {
 			if ( function_exists( $cond ) ) {
 
-				if ( ( 'is_sticky' == $cond ) and !get_post( $id = null ) ) {
+				if ( ( 'is_sticky' === $cond ) and !get_post( $id = null ) ) {
 					# Special case for is_sticky to prevent PHP notices
 					$false[] = $cond;
 				} else if ( ! is_multisite() and in_array( $cond, array( 'is_main_network', 'is_main_site' ) ) ) {

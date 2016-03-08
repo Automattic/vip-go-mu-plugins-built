@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -154,7 +154,7 @@ abstract class QM_Output_Html extends QM_Output {
 	 * @return string      The URL formatted with markup.
 	 */
 	public static function format_url( $url ) {
-		return str_replace( '&amp;', '<br>&amp;', esc_html( $url ) );
+		return str_replace( array( '?', '&amp;' ), array( '<br>?', '<br>&amp;' ), esc_html( $url ) );
 	}
 
 	/**
@@ -167,7 +167,7 @@ abstract class QM_Output_Html extends QM_Output {
 	 * Otherwise, the display text and file details such as this is returned:
 	 *
 	 *     {text}<br>{file}:{line}
-	 * 
+	 *
 	 * @param  string $text The display text, such as a function name or file name.
 	 * @param  string $file The full file path and name.
 	 * @param  int    $line Optional. A line number, if appropriate.
@@ -197,7 +197,7 @@ abstract class QM_Output_Html extends QM_Output {
 				$fallback .= ':' . $line;
 			}
 			$return = esc_html( $text );
-			if ( $fallback != $text ) {
+			if ( $fallback !== $text ) {
 				$return .= '<br><span class="qm-info">&nbsp;' . esc_html( $fallback ) . '</span>';
 			}
 			return $return;

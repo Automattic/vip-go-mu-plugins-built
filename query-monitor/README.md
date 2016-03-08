@@ -2,7 +2,7 @@
 [![License](https://img.shields.io/badge/license-GPL_v2%2B-blue.svg?style=flat-square)](http://opensource.org/licenses/GPL-2.0)
 [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg?style=flat-square)](https://docs.querymonitor.com/en/stable/)
 [![WordPress Tested](https://img.shields.io/wordpress/v/query-monitor.svg?style=flat-square)](https://wordpress.org/plugins/query-monitor/)
-[![Build Status](https://img.shields.io/travis/johnbillion/query-monitor.svg?style=flat-square)](https://travis-ci.org/johnbillion/query-monitor)
+[![Build Status](https://img.shields.io/travis/johnbillion/query-monitor/master.svg?style=flat-square)](https://travis-ci.org/johnbillion/query-monitor)
 
 # Query Monitor #
 
@@ -12,7 +12,7 @@ Query Monitor adds a toolbar menu showing an overview of the current page. Compl
 
 Here's an example of Query Monitor's output. This is the panel showing aggregate database queries grouped by component, allowing you to see which plugins are spending the most time on database queries.
 
-![Aggregate Database Queries by Component](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-2.png)
+![Aggregate Database Queries by Component](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-2.png)
 
 ---
 
@@ -22,6 +22,7 @@ Here's an example of Query Monitor's output. This is the panel showing aggregate
     * [Theme](#theme)
     * [PHP Errors](#php-errors)
     * [Request](#request)
+    * [Rewrite Rules](#rewrite-rules)
     * [Scripts & Styles](#scripts--styles)
     * [Languages](#languages)
     * [HTTP Requests](#http-requests)
@@ -36,6 +37,7 @@ Here's an example of Query Monitor's output. This is the panel showing aggregate
     * [Implementation](#a-note-on-query-monitors-implementation)
  * [Screenshots](#screenshots)
  * [FAQ](#frequently-asked-questions)
+ * [Related Tools](#related-tools)
  * [Contributing](#contributing)
  * [License](#license-gplv2)
 
@@ -79,6 +81,10 @@ Filtering queries by component or calling function makes it easy to see which pl
  * Shows **query vars** for the current request, and highlights **custom query vars**
  * Shows the **queried object** details
  * Shows details of the **current blog** (multisite only) and **current site** (multi-network only)
+
+## Rewrite Rules ##
+
+ * Shows **all matching rewrite rules** for a given request
 
 ## Scripts & Styles ##
 
@@ -163,41 +169,41 @@ If your `WP_CONTENT_DIR` isn't writable and therefore the symlink for `db.php` c
 
 ### Admin Toolbar Menu ###
 
-![Admin Menu](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-1.png)
+![Admin Menu](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-1.png)
 
 ### Database Queries ###
 
 Database listing panel showing all queries, and the controls for filtering by query type, caller, and component
 
-![Database Queries](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-4.png)
+![Database Queries](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-4.png)
 
 A slow database query (over 0.05s by default) that has been highlighted in a separate panel
 
-![Slow Database Queries](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-3.png)
+![Slow Database Queries](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-3.png)
 
 ### Aggregate Database Queries by Component ###
 
 Ordered by most time spent
 
-![Aggregate Database Queries by Component](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-2.png)
+![Aggregate Database Queries by Component](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-2.png)
 
 ### Aggregate Database Queries by Calling Function ###
 
 Ordered by most time spent
 
-![Aggregate Database Queries by Calling Function](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-7.png)
+![Aggregate Database Queries by Calling Function](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-7.png)
 
 ### Hooks ###
 
 Hook listing panel showing all hooks, and the controls for filtering by name and component
 
-![Hooks](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-5.png)
+![Hooks](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-5.png)
 
 ### HTTP Requests ###
 
 Showing an HTTP request with an error
 
-![HTTP](https://raw.github.com/johnbillion/QueryMonitor/master/assets-wp-repo/screenshot-6.png)
+![HTTP](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-6.png)
 
 # Frequently Asked Questions #
 
@@ -225,6 +231,12 @@ In addition, Query Monitor transparently supports add-ons for the Debug Bar plug
 
 Please use [the issue tracker on Query Monitor's GitHub repo](https://github.com/johnbillion/query-monitor/issues) as it's easier to keep track of issues there, rather than on the wordpress.org support forums.
 
+## Is Query Monitor available on WordPress.com VIP Go? ##
+
+Yep! You just need to add `define( 'WPCOM_VIP_QM_ENABLE', true );` to your `vip-config/vip-config.php` file.
+
+(It's not available on standard WordPress.com VIP though.)
+
 ## I'm using multiple instances of `wpdb`. How do I get my additional instances to show up in Query Monitor? ##
 
 You'll need to hook into the `qm/collect/db_objects` filter and add an item to the array with your connection name as the key and the `wpdb` instance as the value. Your `wpdb` instance will then show up as a separate panel, and the query time and query count will show up separately in the admin toolbar menu. Aggregate information (queries by caller and component) will not be separated.
@@ -232,6 +244,20 @@ You'll need to hook into the `qm/collect/db_objects` filter and add an item to t
 ## Do you accept donations? ##
 
 No, I do not accept donations. If you like the plugin, I'd love for you to [leave a review](https://wordpress.org/support/view/plugin-reviews/query-monitor). Tell all your friends about the plugin too!
+
+# Related Tools #
+
+Debugging is rarely done with just one tool. Along with Query Monitor, you should be aware of other plugins and tools which aid in debugging and profiling your website. Here are some examples:
+
+ * [XHProf](https://github.com/facebook/xhprof) for low level profiling of PHP.
+ * [Xdebug](https://xdebug.org/) for a host of PHP debugging tools.
+ * [P3 Profiler](https://wordpress.org/plugins/p3-profiler/) for performance trend analysis of the plugins in use on your site.
+ * [Time Stack](https://github.com/joehoyle/Time-Stack) for WordPress-specific operation profiling.
+ * [New Relic](https://newrelic.com/) for complete software performance analytics.
+
+Query Monitor also has [several add-on plugins](https://github.com/johnbillion/query-monitor/wiki/Query-Monitor-Add-on-Plugins) which extend its functionality, and transparently supports add-ons for the Debug Bar plugin (see the FAQ for more info).
+
+See also my list of [WordPress Developer Plugins](https://johnblackbourn.com/wordpress-developer-plugins).
 
 # Contributing #
 

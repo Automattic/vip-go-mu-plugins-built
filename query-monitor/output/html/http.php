@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright 2009-2015 John Blackbourn
+Copyright 2009-2016 John Blackbourn
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -146,8 +146,8 @@ class QM_Output_Html_HTTP extends QM_Output_Html {
 				);
 				printf(
 					'<td class="qm-nowrap qm-ltr">%s</td>',
-					implode( '<br>', $stack ) // WPCS: XSS ok.
-				);
+					implode( '<br>', $stack )
+				); // WPCS: XSS ok.
 				printf(
 					'<td class="qm-nowrap">%s</td>',
 					esc_html( $component->name )
