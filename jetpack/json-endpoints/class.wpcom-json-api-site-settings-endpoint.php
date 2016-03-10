@@ -83,12 +83,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public function get_settings_response() {
 
-		$response_format = self::$site_format;
+		// Allow update in later versions
+		/**
+		 * Filter the structure of site settings to return.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.9.3
+		 *
+		 * @param array $site_format Data structure.
+		 */
+		$response_format = apply_filters( 'site_settings_site_format', self::$site_format );
+
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 		/** This filter is documented in class.json-api-endpoints.php */
 		$is_jetpack = true === apply_filters( 'is_jetpack_site', false, $blog_id );
 
 		foreach ( array_keys( $response_format ) as $key ) {
+
+			// refactoring to change lang parameter to locale in 1.2
+			if ( $lang_or_locale = $this->get_locale( $key ) ) {
+				$response[$key] = $lang_or_locale;
+				continue;
+			}
+
 			switch ( $key ) {
 			case 'ID' :
 				$response[$key] = $blog_id;
@@ -101,9 +119,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'URL' :
 				$response[$key] = (string) home_url();
-				break;
-			case 'lang' :
-				$response[$key] = (string) get_bloginfo( 'language' );
 				break;
 			case 'settings':
 
@@ -131,7 +146,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
 				}
 
-				$response[$key] = array(
+				$response[ $key ] = array(
 
 					// also exists as "options"
 					'admin_url'               => get_admin_url(),
@@ -180,6 +195,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'holidaysnow'             => $holiday_snow
 				);
 
+				//allow future versions of this endpoint to support additional settings keys
+				/**
+				 * Filter the current site setting in the returned response.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.9.3
+				 *
+				 * @param mixed $response_item A single site setting.
+				 */
+				$response[ $key ] = apply_filters( 'site_settings_endpoint_get', $response[ $key ] );
+
 				if ( class_exists( 'Sharing_Service' ) ) {
 					$ss = new Sharing_Service();
 					$sharing = $ss->get_global_options();
@@ -202,6 +229,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $response;
 
 	}
+
+	protected function get_locale( $key ) {
+		if ( 'lang' == $key ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				return (string) get_blog_lang_code();
+			} else {
+				return get_locale();
+			}
+		}
+
+		return false;
+	}
+
 
 	/**
 	 * Updates site settings for authorized users
@@ -348,8 +388,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				// no worries, we've already whitelisted and casted arguments above
+
 				default:
+					//allow future versions of this endpoint to support additional settings keys
+					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
+						/**
+						 * Filter current site setting value to be updated.
+						 *
+						 * @module json-api
+						 *
+						 * @since 3.9.3
+						 *
+						 * @param mixed $response_item A single site setting value.
+						 */
+						$value = apply_filters( 'site_settings_endpoint_update_' . $key, $value );
+						$updated[ $key ] = $value;
+						continue;
+					}
+
+					// no worries, we've already whitelisted and casted arguments above
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
 					}

@@ -597,21 +597,22 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			return false;
 		}
 
-		/**
-		 * If Jetpack is not active or in development mode, we don't want to update widget data.
-		 */
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-			return false;
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			/**
+			 * If Jetpack is not active or in development mode, we don't want to update widget data.
+			 */
+			if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+				return false;
+			}
+
+			/**
+			 * If Extra Sidebar Widgets module is not active, we don't need to update widget data.
+			 */
+			if ( ! Jetpack::is_module_active( 'widgets' ) ) {
+				return false;
+			}
 		}
-
-		/**
-		 * If Extra Sidebar Widgets module is not active, we don't need to update widget data.
-		 */
-		if ( ! Jetpack::is_module_active( 'widgets' ) ) {
-			return false;
-		}
-
-
+		
 		/**
 		 * If none of the above checks failed, then we definitely want to update widget data.
 		 */
@@ -790,7 +791,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				echo '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
@@ -926,7 +927,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</i>
 			<?php
-			if ( empty( $url ) ) {
+			/**
+			 * Show an error if the URL field was left empty.
+			 *
+			 * The error is shown only when the widget was already saved.
+			 */
+			if ( empty( $url ) && ! preg_match( '/__i__|%i%/', $this->id ) ) {
 				?>
 				<br />
 				<i class="error-message"><?php echo __( 'You must specify a valid blog URL!', 'jetpack' ); ?></i>

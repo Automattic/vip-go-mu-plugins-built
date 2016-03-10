@@ -56,7 +56,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		global $wpdb, $wp_version;
 
-		$response_format = self::$site_format;
+		// Allow update in later versions
+		/**
+		 * Filter the structure of information about the site to return.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.9.3
+		 *
+		 * @param array $site_format Data structure.
+		 */
+		$response_format = apply_filters( 'sites_site_format', self::$site_format );
 
 		$is_user_logged_in = is_user_logged_in();
 
@@ -84,6 +94,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		foreach ( array_keys( $response_format ) as $key ) {
+
+			// refactoring to change parameter to locale in 1.2
+			if ( $lang_or_locale = $this->process_locale( $key, $is_user_logged_in ) ) {
+				$response[$key] = $lang_or_locale;
+				continue;
+			}
+
 			switch ( $key ) {
 			case 'ID' :
 				$response[$key] = $blog_id;
@@ -125,10 +142,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in )
 					$response[$key] = (int) $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish'");
 				break;
-			case 'lang' :
-				if ( $is_user_logged_in )
-					$response[$key] = (string) get_bloginfo( 'language' );
-				break;
 			case 'icon' :
 				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
 					$domain = blavatar_domain( home_url() );
@@ -139,7 +152,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						);
 					} else {
                         // This is done so that we can access the updated blavatar on .com via the /me/sites endpoint
-                        if( is_jetpack_site() ) {
+                        if( $is_jetpack ) {
 
 							$site_icon_url = get_option( 'jetpack_site_icon_url' );
 							if( $site_icon_url ) {
@@ -447,6 +460,18 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		return $response;
 
+	}
+
+	protected function process_locale( $key, $is_user_logged_in ) {
+		if ( $is_user_logged_in && 'lang' == $key ) {
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( ! is_jetpack_site() ) {
+					return (string) get_blog_lang_code();
+				}
+			}
+			return (string) get_bloginfo( 'language' );
+		}
+		return false;
 	}
 
 	function force_http( $url, $scheme, $orig_scheme ) {
