@@ -133,6 +133,7 @@ class WPCOM_VIP_Support_User {
 		add_action( 'profile_update',     array( $this, 'action_profile_update' ) );
 		add_action( 'admin_head',         array( $this, 'action_admin_head' ) );
 		add_action( 'password_reset',     array( $this, 'action_password_reset' ) );
+		add_action( 'wp_login',           array( $this, 'action_wp_login' ), 10, 2 );
 
 		add_filter( 'wp_redirect',          array( $this, 'filter_wp_redirect' ) );
 		add_filter( 'removable_query_args', array( $this, 'filter_removable_query_args' ) );
@@ -336,7 +337,7 @@ class WPCOM_VIP_Support_User {
 			} else {
 				$revert_role_to = $old_roles[0];
 			}
-			$user->set_role( $revert_role_to );
+			$this->demote_user_from_vip_support_to( $user->ID, $revert_role_to );
 			if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user_id ) ) {
 				$this->message_replace = self::MSG_BLOCK_UPGRADE_VERIFY_EMAIL;
 				$this->send_verification_email( $user_id );
@@ -389,7 +390,7 @@ class WPCOM_VIP_Support_User {
 	public function action_user_register( $user_id ) {
 		$user = new WP_User( $user_id );
 		if ( $this->is_a8c_email( $user->user_email ) && $this->user_has_vip_support_role( $user->ID ) ) {
-			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+			$this->demote_user_from_vip_support_to( $user->ID, WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
 			$this->registering_a11n = true;
 			// @TODO Abstract this into an UNVERIFY method
 			$this->mark_user_email_unverified( $user_id );
@@ -411,7 +412,7 @@ class WPCOM_VIP_Support_User {
 		$user = new WP_User( $user_id );
 		$verified_email = get_user_meta( $user_id, self::META_EMAIL_VERIFIED, true );
 		if ( $user->user_email !== $verified_email && $this->user_has_vip_support_role( $user_id ) ) {
-			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+			$this->demote_user_from_vip_support_to( $user->ID, WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
 			$this->message_replace = self::MSG_DOWNGRADE_VIP_USER;
 			delete_user_meta( $user_id, self::META_EMAIL_VERIFIED );
 			delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
@@ -436,7 +437,7 @@ class WPCOM_VIP_Support_User {
 		}
 
 		$this->mark_user_email_verified( $user->ID, $user->user_email );
-		$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+		$this->promote_user_to_vip_support( $user->ID );
 	}
 
 	/**
@@ -486,7 +487,7 @@ class WPCOM_VIP_Support_User {
 
 		// If the user is an A12n, add them to the support role
 		if ( $this->is_a8c_email( $user->user_email ) ) {
-			$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+			$this->promote_user_to_vip_support( $user->ID );
 		}
 
 		$message = sprintf( __( 'Your email has been verified as %s', 'vip-support' ), $user->user_email );
@@ -505,6 +506,55 @@ class WPCOM_VIP_Support_User {
 	public function filter_removable_query_args( $args ) {
 		$args[] = self::GET_TRIGGER_RESEND_VERIFICATION;
 		return $args;
+	}
+
+	/**
+	 * Hooks the wp_login action to make any verified VIP Support user
+	 * a Super Admin!
+	 *
+	 * @param $user_login The login for the logging in user
+	 * @param WP_User $user The WP_User object for the logging in user
+	 *
+	 * @return void
+	 */
+	public function action_wp_login( $user_login, WP_User $user ) {
+		if ( ! is_multisite() ) {
+			return;
+		}
+		// If the user:
+		// * Is an inactive support user
+		// * Is a super admin
+		// …revoke their powers
+		if ( $this->user_has_vip_support_role( $user->ID, false ) && is_super_admin( $user->ID ) ) {
+			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
+			revoke_super_admin( $user->ID );
+			return;
+		}
+		if ( ! $this->user_has_vip_support_role( $user->ID ) ){
+			// If the user is a super admin, but has been demoted to
+			// the inactive VIP Support role, we should remove
+			// their super powers
+			if ( is_super_admin( $user->ID )
+			     && $this->user_has_vip_support_role( $user->ID, false ) ) {
+				// This user is NOT VIP Support, remove
+				// their powers forthwith
+				require_once( ABSPATH . '/wp-admin/includes/ms.php' );
+				revoke_super_admin( $user->ID );
+			}
+			return;
+		}
+		if ( ! $this->user_has_verified_email( $user->ID ) ) {
+			return;
+		}
+		if ( is_super_admin( $user->ID ) ) {
+			return;
+		}
+		if ( ! is_super_admin( $user->ID ) ) {
+			// This user is VIP Support, verified, let's give them
+			// great power and responsibility
+			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
+			grant_super_admin( $user->ID );
+		}
 	}
 
 	// UTILITIES
@@ -659,7 +709,6 @@ class WPCOM_VIP_Support_User {
 		if ( ! $verification_data ) {
 			$verification_data = array(
 				'touch' => current_time( 'timestamp', true ), // GPL timestamp
-				'email' => $user->user_email,
 			);
 			$generate_new_code = true;
 		}
@@ -672,6 +721,10 @@ class WPCOM_VIP_Support_User {
 			$verification_data['code']  = bin2hex( openssl_random_pseudo_bytes( 16 ) );
 			$verification_data['touch'] = current_time( 'timestamp', true );
 		}
+
+		// Refresh the email, in case it changed since we created the meta
+		// (this can happen if a user changes their email 1+ times)
+		$verification_data['email'] = $user->user_email;
 
 		update_user_meta( $user_id, self::META_VERIFICATION_DATA, $verification_data );
 
@@ -713,6 +766,36 @@ class WPCOM_VIP_Support_User {
 	protected function mark_user_email_unverified( $user_id ) {
 		update_user_meta( $user_id, self::META_EMAIL_VERIFIED, false );
 		update_user_meta( $user_id, self::META_EMAIL_NEEDS_VERIFICATION, false );
+	}
+
+	/**
+	 * 
+	 *
+	 * @param $user_id
+	 */
+	protected function promote_user_to_vip_support( $user_id ) {
+		$user = new WP_User( $user_id );
+		$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+		if ( is_multisite() ) {
+			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
+			grant_super_admin( $user_id );
+		}
+		update_user_meta( $user->ID, $GLOBALS['wpdb']->get_blog_prefix() . 'user_level', 10 );
+	}
+
+	/**
+	 * Demote a user to a
+	 *
+	 * @param $user_id
+	 * @param $revert_role_to
+	 */
+	protected function demote_user_from_vip_support_to( $user_id, $revert_role_to ) {
+		$user = new WP_User( $user_id );
+		$user->set_role( $revert_role_to );
+		if ( is_multisite() ) {
+			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
+			revoke_super_admin( $user_id );
+		}
 	}
 
 }

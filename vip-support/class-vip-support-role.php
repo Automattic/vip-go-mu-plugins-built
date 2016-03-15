@@ -123,7 +123,7 @@ class WPCOM_VIP_Support_Role {
 	 * @param string $message The message to log
 	 */
 	protected static function error_log( $message ) {
-		if ( defined( 'WP_DEBUG' ) || WP_DEBUG ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			error_log( $message );
 		}
 

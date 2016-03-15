@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  WordPress.com VIP Support
  * Description:  Manages the WordPress.com Support Users on your site
- * Version:      2.0.2
+ * Version:      3.0.0
  * Author:       <a href="http://automattic.com">Automattic</a>
  * License:      GPLv2 or later
  */
