@@ -9,13 +9,18 @@
  */
 
 global $socialflow;
+
+$form_messages = $data['form_messages'];
+$last_sent     = $data['last_sent'];
+$post_id       = $data['post_id'];
+
 $i = 0;
 if ( !empty( $form_messages ) ) : ?>
 <table cellspacing="0" class="wp-list-table widefat fixed sf-statistics">
 	<tbody class="list:statistics">
 		<tr>
 			<th colspan="2">
-				<a href="#" class="sf-js-update-multiple-messages clickable"><?php _e( 'Refresh Stats', 'socialflow' ) ?></a>
+				<a href="#" class="sf-js-update-multiple-messages clickable"><?php esc_html_e( 'Refresh Stats', 'socialflow' ) ?></a>
 			</th>
 			<th class="refresh-column"></th>
 		</tr>
@@ -30,7 +35,7 @@ if ( !empty( $form_messages ) ) : ?>
 
 				// In queue status
 				if ( isset( $message['is_published'] ) ) {
-					$queue_status = ( 0 == $message['is_published'] ) ? __( 'In Queue', 'socialflow' ) : __( 'Published', 'socialflow' );
+					$queue_status = ( 0 == $message['is_published'] ) ?  esc_attr__( 'In Queue', 'socialflow' ) :  esc_attr__( 'Published', 'socialflow' );
 				} else {
 					$queue_status = '';
 				}
@@ -50,7 +55,9 @@ if ( !empty( $form_messages ) ) : ?>
 					<td class="column-status">
 						<span class="status">
 							<?php echo esc_attr( $message['status'] ); ?>
-							<?php echo esc_attr( $queue_status ); ?>
+							<?php if ( $queue_status ): ?>
+								&rarr; <span style="display:inline-block;"><?php echo wp_kses_post( $queue_status ); ?></span>
+							<?php endif ?>
 						</span>
 					</td>
 					<td class="refresh-column">
@@ -62,4 +69,4 @@ if ( !empty( $form_messages ) ) : ?>
 		<?php endforeach ?>
 	</tbody>
 </table>
-<?php endif; // we have statuses ! ?>
+<?php endif; // we have statuses !
