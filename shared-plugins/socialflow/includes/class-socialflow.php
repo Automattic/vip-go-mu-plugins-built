@@ -13,7 +13,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access private
 	 * @var object SocialFlow api
 	 */
-	var $api;
+	public $api;
 
 	/**
 	 * Holds options object
@@ -22,7 +22,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var object
 	 */
-	var $options;
+	public $options;
 
 	/**
 	 * Holds array of admin page names
@@ -32,7 +32,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $pages;
+	public $pages;
 
 	/**
 	 * Holds array of WP_Error objects
@@ -41,7 +41,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $errors;
+	public $errors;
 
 	/**
 	 * Holds default plugin options
@@ -50,11 +50,13 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $default_options = array(
+	public $default_options = array(
 		'initial_nag' => 1,
 		'accounts' => array(),
 		'shorten_links' => 1,
-		'post_type' => array( 'post' )
+		'post_type' => array( 'post' ),
+		'publish_option' => 'optimize',
+		'optimize_period' => 'anytime'
 	);
 
 	/**
@@ -69,7 +71,7 @@ class SocialFlow extends SocialFlow_Methods {
 		$this->init_options();
 
 		// Load sub classes
-		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -78,7 +80,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @since 2.0
 	 * @access public
 	 */
-	function plugins_loaded() {
+	function init() {
 
 		// Initialize admin only objects
 		if ( is_admin() ) {

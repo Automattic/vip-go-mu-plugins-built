@@ -100,7 +100,12 @@ jQuery(function($){
 			// Succefull ajax callback
 			var success_callback = function( data ) {
 				if ( 1 == data.status ) {
-					account.remove()
+					if ( 0 == account.siblings().length ) {
+						// remove full row
+						account.closest( '.alternate' ).remove();
+					} else {
+						account.remove();
+					}
 				}
 			}
 
@@ -204,4 +209,4 @@ jQuery(function($){
 		
 	}) // Post edit page
 
-});// jQuery shell function
+});

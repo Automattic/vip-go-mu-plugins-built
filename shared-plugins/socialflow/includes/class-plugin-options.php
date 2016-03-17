@@ -13,7 +13,7 @@ class SF_Plugin_Options {
 	 * @access public
 	 * @var array
 	 */
-	var $options = array();
+	public $options = array();
 
 	/**
 	 * Holds options key
@@ -22,7 +22,7 @@ class SF_Plugin_Options {
 	 * @access public
 	 * @var string
 	 */
-	var $db_key = '';
+	public $db_key = '';
 
 	/**
 	 * Loads options from DB
