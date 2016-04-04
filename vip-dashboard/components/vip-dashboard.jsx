@@ -89,11 +89,11 @@ var VIPdashboard = React.createClass({
 
 					<Widget_Contact />
 
-					{
-					//<Widget_Promo />
+					{/*
+					<Widget_Promo />
 
-					//<Widget_Editorial />
-					}
+					<Widget_Editorial />
+					*/}
 				</div>
 
 			</Main>

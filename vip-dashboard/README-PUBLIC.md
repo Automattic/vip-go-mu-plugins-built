@@ -4,6 +4,13 @@ WordPress plugin that provides a new dashboard for VIP and VIPv2 clients. The ne
 
 ## Changelog
 
+### 2.0.2
+
+Monday 04 April 2016
+
+* Fixes issue with compiled file, training days should really
+  be gone now
+
 ### 2.0.1
 
 Monday 04 April 2016

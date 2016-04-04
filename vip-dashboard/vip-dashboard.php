@@ -4,7 +4,7 @@ Plugin Name: VIP Dashboard
 Plugin URI: http://vip.wordpress.com
 Description: WordPress VIP Dashboard
 Author: Scott Evans, Filipe Varela
-Version: 2.0.1
+Version: 2.0.2
 Author URI: http://vip.wordpress.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
