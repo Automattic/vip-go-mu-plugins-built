@@ -4,6 +4,12 @@ WordPress plugin that provides a new dashboard for VIP and VIPv2 clients. The ne
 
 ## Changelog
 
+### 2.0.1
+
+Monday 04 April 2016
+
+* Removes VIP training days promo
+
 ### 2.0
 
 Thursday 24 September 2015
