@@ -1,3 +1,45 @@
+## 3.9.5
+
+[WordPress 4.5 will be released in a few weeks](https://wordpress.org/news/2016/03/wordpress-4-5-release-candidate/). Do you use the [WordPress Beta Tester plugin](https://wordpress.org/plugins/wordpress-beta-tester/) to test the future versions of WordPress? Excellent! You will also be able to check if Jetpack is compatible with the upcoming WordPress release.
+
+In Jetpack 3.9.5 we fixed a few bugs, and we made a lot of changes to the way our features work in the customizer.
+
+**Whether you run WordPress 4.4.2 or WordPress 4.5 RC, go to Appearance > Customize to start testing!** If you find any bugs or have remarks, do not hesitate to [send us an email](http://jetpack.com/contact-support/beta-group/).
+
+### Customizer
+
+- We added **Infinite Scroll support**. To test:
+	1. Enable a theme that supports Infinite Scroll, like Twenty Fifteen.
+	2. Go to Appearance > Customize, scroll down, and make sure Infinite Scroll works.
+- We added **[Selective Refresh](https://make.wordpress.org/core/2016/02/16/selective-refresh-in-the-customizer/) support** to 4 of our widgets: Contact Info, Social Media Icons, Facebook Page Plugin, and Twitter Timeline. To test:
+	1. Install WordPress 4.5
+	2. Go to Jetpack > Settings, and activate Extra Sidebar Widgets
+	3. Go to Appearance > Customize
+	4. Set up the 4 widgets mentioned above
+	5. Change their settings, and make sure the changes are immediately reflected in the customizer, without the whole view reloading.
+	6. Make sure your changes can be saved, and viewed on your site. All widgets should still work properly.
+	7. You can also check Appearance > Widgets to make sure everything still works there.
+- We fixed **PHP notices when managing Widget Visibility** via the Customizer. To test:
+	1. Enable `WP_DEBUG` on your site.
+	2. Add New Widgets.
+	3. Edit existing widgets.
+	4. Change Visibility settings for your widgets.
+
+### Shortcodes
+
+- **Gist:** we fixed [Gist](http://gist.github.com/) embeds. To test, try embedding gists on your site, either using the `[gist]` shortcode, or [by pasting a Gist URL on its own line](https://en.support.wordpress.com/gist/).
+- **Vimeo:** it is now possible to include multiple embeds in a comment. To test, you can try leaving a comment using the test content in [this issue](https://github.com/Automattic/jetpack/issues/3534).
+- **Youtube:** We fixed some invalid HTML5 markup in the Youtube embed code.
+
+### SSO
+
+- Do you use [filters to customize how SSO works on your site](https://kraft.im/2015/12/two-factor-authentication-jetpack/)? The checkboxes available under Settings > General should now respect the settings you've changed via filters.
+
+
+------------------
+
+# Past Releases
+
 ## 3.9.2
 
 ### Custom Content Types
@@ -40,7 +82,7 @@ We synchronized all API endpoints to match WordPress.com. To test, try using dif
 
 If you use a backup or cloning plugin to make copies of your site and create a staging site, you can now use the `JETPACK_STAGING_MODE` constant in `wp-config.php` to let Jetpack know a site is a staging site.
 
-While in [Staging Mode](http://jetpack.me/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
+While in [Staging Mode](http://jetpack.com/support/staging-sites/), you staging site will act like your production site in virtually all ways except no data is passed up to WordPress.com and you cannot disconnect the staging site (to prevent an issue that would lead to problems with your production site).
 
 ### Widget Visibility
 

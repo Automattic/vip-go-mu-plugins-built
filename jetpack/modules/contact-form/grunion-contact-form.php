@@ -655,19 +655,6 @@ class Grunion_Contact_Form_Plugin {
 		foreach ( $post_ids as $post_id ) {
 
 			/**
-			 * Fetch post meta data.
-			 */
-			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id );
-
-			/**
-			 * If `$post_meta_data` is not an array or if it is empty, then there is no
-			 * feedback to work with. Skip it.
-			 */
-			if ( ! is_array( $post_meta_data ) || empty( $post_meta_data ) ) {
-				continue;
-			}
-
-			/**
 			 * Fetch post main data, because we need the subject and author data for the feedback form.
 			 */
 			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
@@ -693,6 +680,19 @@ class Grunion_Contact_Form_Plugin {
 			 * Map parsed fields to proper field names
 			 */
 			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data );
+
+			/**
+			 * Fetch post meta data.
+			 */
+			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id );
+
+			/**
+			 * If `$post_meta_data` is not an array or if it is empty, then there is no
+			 * extra feedback to work with. Create an empty array.
+			 */
+			if ( ! is_array( $post_meta_data ) || empty( $post_meta_data ) ) {
+				$post_meta_data = array();
+			}
 
 			/**
 			 * Prepend the feedback subject to the list of fields.
@@ -1789,6 +1789,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		foreach ( array_merge( $field_ids['all'], $field_ids['extra'] ) as $field_id ) {
 			$field = $this->fields[$field_id];
+
+			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
+			// from a spam-filtering point of view.
+			if ( in_array( $field->get_attribute( 'type' ), array( 'select', 'checkbox', 'checkbox-multiple', 'radio' ) ) ) {
+				continue;
+			}
 
 			// Normalize the label into a slug.
 			$field_slug = trim( // Strip all leading/trailing dashes.

@@ -25,31 +25,31 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Twitter Timeline', 'jetpack' ) ),
 			array(
 				'classname' => 'widget_twitter_timeline',
-				'description' => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' )
+				'description' => __( 'Display an official Twitter Embedded Timeline widget.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
-		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
-			add_action( 'wp_footer', array( $this, 'library' ) );
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		}
 	}
 
 	/**
-	 * Enqueue Twitter's widget library
+	 * Enqueue scripts.
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_script( 'jetpack-twitter-timeline' );
+	}
+
+	/**
+	 * Enqueue Twitter's widget library.
+	 *
+	 * @deprecated
 	 */
 	public function library() {
-		?>
-		<script type="text/javascript">
-			!function(d,s,id){
-				var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';
-				if(!d.getElementById(id)){
-					js=d.createElement(s);
-					js.id=id;js.src=p+"://platform.twitter.com/widgets.js";
-					fjs.parentNode.insertBefore(js,fjs);
-				}
-			}(document,"script","twitter-wjs");
-		</script>
-		<?php
+		_deprecated_function( __METHOD__, '3.10' );
+		wp_print_scripts( array( 'jetpack-twitter-timeline' ) );
 	}
 
 	/**
@@ -203,7 +203,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php esc_html_e( 'Width (px):', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'width' ); ?>"><?php esc_html_e( 'Maximum Width (px):', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'width' ); ?>" name="<?php echo $this->get_field_name( 'width' ); ?>" type="text" value="<?php echo esc_attr( $instance['width'] ); ?>" />
 		</p>
 

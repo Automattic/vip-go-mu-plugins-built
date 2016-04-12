@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.9.2
+Stable tag: 3.9.5
 Requires at least: 4.3
-Tested up to: 4.4
+Tested up to: 4.5
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -24,22 +24,22 @@ Jetpack automatically **optimizes and speeds up** images using the global WordPr
 With Jetpack comes a **centralized dashboard** on WordPress.com. Manage plugins and menus, publish posts, and view enhanced site stats for all of your sites.
 
 = A few more things that our users love =
-Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.me/features).
+Jetpack includes other features that help you customize your site including Custom CSS, Contact Forms, Galleries and Carousels, Notifications and Subscriptions, Configurable Widgets, and [many more](https://jetpack.com/features).
 
 = Dedicated Support =
-We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.me/contact-support).
+We have an entire team of happiness engineers ready to help you.  Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Contributing to Jetpack =
 
-Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, bug report, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
+Jetpack is open-source and we actively encourage community contributions: whether it's a compliment, bug report, code, or an idea we welcome it with open arms! [Learn about contributing](https://jetpack.com/contribute) or consider [joining our beta program](https://jetpack.com/beta).
 
 == Installation ==
 
-[Install Jetpack from our site](https://jetpack.me/install?from=wporg) by typing in your site address.
+[Install Jetpack from our site](https://jetpack.com/install?from=wporg) by typing in your site address.
 
 Alternatively install Jetpack via the plugin directory, or by uploading the files manually to your server. After activating Jetpack, connect to WordPress.com to enable the Jetpack features.
 
-If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.me/support/installing-jetpack/).
+If you need additional help [read our detailed instructions (including a video walkthrough)](http://jetpack.com/support/installing-jetpack/).
 
 
 == Frequently Asked Questions ==
@@ -62,7 +62,7 @@ Once you've installed Jetpack your stats will be available via "Site Stats" whic
 
 = How do I contribute to Jetpack? =
 
-There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.me/contribute) or consider [joining our beta program](https://jetpack.me/beta).
+There are opportunities for developers at all levels to contribute. [Learn more about contributing to Jetpack](https://jetpack.com/contribute) or consider [joining our beta program](https://jetpack.com/beta).
 
 
 == Screenshots ==
@@ -74,6 +74,24 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 3.9.6 =
+Release date: March 31st, 2016
+
+Bug fix: Shortcodes: fixed incorrect Vimeo embed logic.
+
+= 3.9.5 =
+Release date: March 31st, 2016
+
+This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
+
+Other enhancements and bug fixes:
+
+* Contact Form: no longer calling the datepicker method if it's not available.
+* SSO: settings checkboxes now honor filters and constants that restrict certain sign-in modes.
+* Shortcodes: fixed a problem with Gist fetching.
+* Shortcodes: fixed invalid HTML5 markup in YouTube embed code.
+* Shortcodes: made the Vimeo links work properly in case of multiple mixed uses in one post.
 
 = 3.9.4 =
 Release date: March 10th, 2016
