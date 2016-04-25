@@ -25,8 +25,6 @@ class Jetpack_VideoPress {
 		add_action( 'init', array( $this, 'on_init' ) );
 		add_action( 'jetpack_activate_module_videopress', array( $this, 'jetpack_module_activated' ) );
 		add_action( 'jetpack_deactivate_module_videopress', array( $this, 'jetpack_module_deactivated' ) );
-
-		require_once( dirname( __FILE__ ) . '/shortcode.php' );
 	}
 
 	/**
@@ -428,7 +426,6 @@ class Jetpack_VideoPress {
 			return wp_send_json_error( 'xml rpc request error' );
 
 		$items = $result;
-		$shortcode_handler = Jetpack_VideoPress_Shortcode::init();
 
 		foreach ( $items as $key => $item ) {
 
@@ -447,7 +444,7 @@ class Jetpack_VideoPress {
 			if ( ! empty( $item['vp_nonces']['delete'] ) )
 				$item['nonces']['delete'] = wp_create_nonce( 'delete-videopress-post_' . $item['id'] );
 
-			$item['vp_embed'] = $shortcode_handler->shortcode_callback( array(
+			$item['vp_embed'] = videopress_shortcode_callback( array(
 				$item['vp_guid'],
 				'autoplay' => true,
 				'flashonly' => true,
@@ -578,7 +575,7 @@ class Jetpack_VideoPress {
 		if ( did_action( 'videopress_enqueue_admin_scripts' ) )
 			return;
 
-		wp_enqueue_script( 'videopress-admin', plugins_url( 'videopress-admin.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), $this->version );
+		wp_enqueue_script( 'videopress-admin', plugins_url( 'js/videopress-admin.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), $this->version );
 		wp_enqueue_style( 'videopress-admin', plugins_url( 'videopress-admin.css', __FILE__ ), array(), $this->version );
 
 		$caps = array();
@@ -733,6 +730,7 @@ class Jetpack_VideoPress {
 
 		return $options;
 	}
+
 }
 
 // Initialize the module.

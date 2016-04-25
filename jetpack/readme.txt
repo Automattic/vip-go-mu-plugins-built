@@ -1,8 +1,8 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cfinke, chaselivingston, chellycat, christinepollock, csonnek, danielbachhuber, daniloercoli, designsimply, dllh, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, HypertextRanch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michaeldcain, michael-arestad, migueluy, mikeyarce, mjangda, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, sdquirk, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 3.9.5
-Requires at least: 4.3
+Stable tag: 4.0
+Requires at least: 4.4
 Tested up to: 4.5
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
@@ -74,6 +74,42 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+= 4.0.2 =
+Release date: April 21st, 2016
+
+Bug Fix:
+
+* Addresses an issue where Jetpack 4.0 caused a fatal error on sites with specific configurations.
+
+= 4.0 =
+Release date: April 20th, 2016
+
+Performance Enhancements:
+
+* Protect: the routine that verifies your site is protected from brute-force attacks got some love and is more efficient.
+* Contact Forms: cleaning the database of spam form submission records is more efficient.
+
+Feature Improvements:
+
+* VideoPress: edit your VideoPress shortcode in the editor with a fancy new modal options window.
+* Custom Content Types are now classier: a new CSS class on Testimonial featured images — has-testimonial-thumbnail — allows you to customize Jetpack custom post types as you see fit.
+* Sharing: social icons are now placed under the "add to cart” singular product views in WooCommerce, making it easier for customers to share your products on social media.
+* Theme Tools: search engines will now have an easier time knowing what page they are on, and how that page relates to the other pages in your site hierarchy with improved schema.org microdata for breadcrumbs.
+* Widget Visibility: now you can select widgets and when to show or hide them right from custom post type single and archive views.
+
+Jetpack UI Improvements:
+
+* What’s in it for me? We’ve done a better job explaining the benefits of Jetpack and connecting it to WordPress.com.
+* Shortcodes: handy links to shortcode documentation convey the types of media you can quickly and safely embed.
+* Widgets: As of WordPress 4.5, Jetpack widgets now refresh in the customizer without making you refresh the entire page. Live previews, yes indeed.
+
+Bug Fixes:
+
+* Comments: we fixed a mistake where a comment subscription checkbox appeared on custom post types — despite the fact you couldn’t actually subscribe to those types of comments. Our bad.
+* Contact Forms: we fixed a bug where the telephone field (which can only be added manually) rendered incorrectly — breaking some forms in the process.
+* General: we blocked direct access to the Jetpack_IXR_Client class which caused fatal PHP errors in some server setups.
+* Shortcodes: we removed the frameborder attribute in the YouTube embed code. It was deprecated in HTML 5.
+* Unminified responsive-videos.min.js in order to address a false positive virus alert in ClamAV. Expect it to be re-minified in 4.0.3 once we resolve the issue with ClamAV.
 
 = 3.9.6 =
 Release date: March 31st, 2016
@@ -81,7 +117,7 @@ Release date: March 31st, 2016
 Bug fix: Shortcodes: fixed incorrect Vimeo embed logic.
 
 = 3.9.5 =
-Release date: March 31st, 2016
+Release date:
 
 This release features several WordPress 4.5 compatibility changes that make several Jetpack features work properly in the Customizer view. Big thanks to @westonruter for contributing the code!
 
