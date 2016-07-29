@@ -947,6 +947,10 @@ jQuery(document).ready(function($) {
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
 				medium_height     = parseInt( medium_size_parts[1], 10 );
 
+			// Assign max width and height.
+			args.orig_max_width  = args.max_width;
+			args.orig_max_height = args.max_height;
+
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ( 'undefined' !== typeof window.devicePixelRatio && window.devicePixelRatio > 1 ) {
 				args.max_width  = args.max_width * window.devicePixelRatio;
@@ -968,6 +972,11 @@ jQuery(document).ready(function($) {
 				var origPhotonUrl = args.large_file;
 				if ( -1 !== largeFileIndex ) {
 					origPhotonUrl = args.large_file.substring( 0, largeFileIndex );
+					// If we have a really large image load a smaller version
+					// that is closer to the viewable size
+					if ( args.orig_width > args.max_width || args.orig_height > args.max_height ) {
+						origPhotonUrl += '?fit=' + args.orig_max_width + '%2C' + args.orig_max_height;
+					}
 				}
 				return origPhotonUrl;
 			}
@@ -1083,8 +1092,8 @@ jQuery(document).ready(function($) {
 			desc  = gallery.jp_carousel('parseTitleDesc', data.desc)  || '';
 
 			if ( title.length || desc.length ) {
-				// $('<div />').text(sometext).html() is a trick to go to HTML to plain text (including HTML entities decode, etc)
-				if ( $('<div />').text(title).html() === $('<div />').text(desc).html() ) {
+				// Convert from HTML to plain text (including HTML entities decode, etc)
+				if ( $('<div />').html( title ).text() === $('<div />').html( desc ).text() ) {
 					title = '';
 				}
 
@@ -1398,8 +1407,8 @@ jQuery(document).ready(function($) {
 			matches, attachmentId, galleries, selectedThumbnail;
 
 		if ( ! window.location.hash || ! hashRegExp.test( window.location.hash ) ) {
-			if ( gallery.opened ) {
-				container.jp_carousel('close');
+			if ( gallery && gallery.opened ) {
+				container.jp_carousel( 'close' );
 			}
 
 			return;

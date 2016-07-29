@@ -19,7 +19,7 @@ Jetpack::dns_prefetch( array(
 ) );
 
 class Jetpack_Likes {
-	public $version = '20151215';
+	public $version = '20160429';
 
 	public static function init() {
 		static $instance = NULL;
@@ -320,7 +320,7 @@ class Jetpack_Likes {
 			header = table.prevAll( 'h3:first' ),
 			newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
 
-		if ( !table.size() || !header.size() || !newParent.size() ) {
+		if ( !table.length || !header.length || !newParent.length ) {
 			return;
 		}
 

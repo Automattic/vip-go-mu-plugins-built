@@ -17,15 +17,33 @@ if ( ! defined( 'FILE_SERVICE_ENDPOINT' ) )
 
 define( 'LOCAL_UPLOADS', '/tmp/uploads' );
 
+define( 'ALLOW_UNFILTERED_UPLOADS', false );
+
 class A8C_Files {
 
 	function __construct() {
+		
+		// Upload size limit is 1GB
+		add_filter( 'upload_size_limit', function() {
+			return 1073741824; // pow( 2, 30 )
+		});
+		
 		// Hooks for the mu-plugin WordPress Importer
 		add_filter( 'load-importer-wordpress', array( &$this, 'check_to_download_file' ), 10 );
 		add_filter( 'wp_insert_attachment_data', array( &$this, 'check_to_upload_file' ), 10, 2 );
 
-		add_filter( 'wp_handle_upload_prefilter', array( &$this, 'get_unique_filename' ), 10, 1 );
-		add_filter( 'wp_handle_sideload_prefilter', array( &$this, 'get_unique_filename' ), 10, 1 );
+		// WP 4.5 introduced a new filter, which simplifies how we generate unique filenames
+		// We retain test sites on the version that precedes the current stable release, making this necessary
+		global $wp_version;
+
+		if ( version_compare( $wp_version, '4.5', '>=' ) ) {
+			add_filter( 'wp_unique_filename', array( $this, 'filter_unique_filename' ), 10, 4 );
+			add_filter( 'wp_check_filetype_and_ext', array( $this, 'filter_filetype_check' ), 10, 4 );
+		} else {
+			add_filter( 'wp_handle_upload_prefilter', array( &$this, 'get_unique_filename' ), 10, 1 );
+			add_filter( 'wp_handle_sideload_prefilter', array( &$this, 'get_unique_filename' ), 10, 1 );
+		}
+
 		add_filter( 'upload_dir', array( &$this, 'get_upload_dir' ), 10, 1 );
 
 		add_filter( 'wp_handle_upload', array( &$this, 'upload_file' ), 10, 2 );
@@ -173,6 +191,54 @@ class A8C_Files {
 		return ( 200 == $http_code );
 	}
 
+	/**
+	 * Filter's the return value of `wp_unique_filename()`
+	 */
+	public function filter_unique_filename( $filename, $ext, $dir, $unique_filename_callback ) {
+		if ( '.tmp' === $ext || '/tmp/' === $dir ) {
+			return $filename;
+		}
+
+		$ext = strtolower( $ext );
+
+		$filename = $this->_sanitize_filename( $filename, $ext );
+
+		$check = $this->_check_uniqueness_with_backend( $filename );
+
+		if ( 200 == $check['http_code'] ) {
+			$obj = json_decode( $check['content'] );
+			if ( isset(  $obj->filename ) && basename( $obj->filename ) != basename( $post_url ) ) {
+				$filename = $obj->filename;
+			}
+		}
+
+		return $filename;
+	}
+
+	/**
+	 * Check filetype support against Mogile
+	 *
+	 * Leverages Mogile backend, which will return a 406 or other non-200 code if the filetype is unsupported
+	 */
+	public function filter_filetype_check( $filetype_data, $file, $filename, $mimes ) {
+		$filename = $this->_sanitize_filename( $filename, '.' . pathinfo( $filename, PATHINFO_EXTENSION ) );
+
+		$check = $this->_check_uniqueness_with_backend( $filename );
+
+		// Setting `ext` and `type` to empty will fail the upload because Go doesn't allow unfiltered uploads
+		// See `_wp_handle_upload()`
+		if ( 200 != $check['http_code'] ) {
+			$filetype_data['ext']             = '';
+			$filetype_data['type']            = '';
+			$filetype_data['proper_filename'] = false; // Never set this true, which leaves filename changing to dedicated methods in this class
+		}
+
+		return $filetype_data;
+	}
+
+	/**
+	 * Ensure filename uniqueness prior to WP 4.5's wp_unique_filename filter
+	 */
 	function get_unique_filename( $file ) {
 		$filename = strtolower( $file['name'] );
 		$info = pathinfo( $filename );
@@ -187,14 +253,44 @@ class A8C_Files {
 		else
 			$ext = strtolower( ".$ext" );
 
+		$filename = $this->_sanitize_filename( $filename, $ext );
+
+		$check = $this->_check_uniqueness_with_backend( $filename );
+
+		if ( 200 == $check['http_code'] ) {
+			$obj = json_decode( $check['content'] );
+			if ( isset(  $obj->filename ) && basename( $obj->filename ) != basename( $post_url ) )
+				$file['name'] = $obj->filename;
+		} else if ( 406 == $check['http_code'] ) {
+			$file['error'] = __( 'The file type you uploaded is not supported.' );
+		} else {
+			$file['error'] = sprintf( __( 'Error getting the file name from the remote servers: Code %d' ), $check['http_code'] );
+		}
+
+		return $file;
+	}
+
+	/**
+	 * Ensure consistent filename sanitization
+	 *
+	 * Eventually, this should be `sanitize_file_name()` instead, but for legacy reasons, we go through this process
+	 */
+	private function _sanitize_filename( $filename, $ext ) {
 		$filename = str_replace( $ext, '', $filename );
 		$filename = str_replace( '%', '', sanitize_title_with_dashes( $filename ) ) . $ext;
 
+		return $filename;
+	}
+
+	/**
+	 * Common method to check Mogile backend for filename uniqueness
+	 */
+	private function _check_uniqueness_with_backend( $filename ) {
 		$headers = array(
-					'X-Client-Site-ID: ' . constant( 'FILES_CLIENT_SITE_ID' ),
-					'X-Access-Token: ' . constant( 'FILES_ACCESS_TOKEN' ),
-					'X-Action: unique_filename',
-				);
+			'X-Client-Site-ID: ' . constant( 'FILES_CLIENT_SITE_ID' ),
+			'X-Access-Token: ' . constant( 'FILES_ACCESS_TOKEN' ),
+			'X-Action: unique_filename',
+		);
 
 		if ( ! ( ( $uploads = wp_upload_dir() ) && false === $uploads['error'] ) ) {
 			$file['error'] = $uploads['error'];
@@ -224,17 +320,7 @@ class A8C_Files {
 		$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
 		curl_close( $ch );
 
-		if ( 200 == $http_code ) {
-			$obj = json_decode( $content );
-			if ( isset(  $obj->filename ) && basename( $obj->filename ) != basename( $post_url ) )
-				$file['name'] = $obj->filename;
-		} else if ( 406 == $http_code ) {
-			$file['error'] = __( 'The file type you uploaded is not supported.' );
-		} else {
-			$file['error'] = sprintf( __( 'Error getting the file name from the remote servers: Code %d' ), $http_code );
-		}
-
-		return $file;
+		return compact( 'http_code', 'content' );
 	}
 
 	function upload_file( $details, $upload_type ) {
@@ -464,6 +550,7 @@ class A8C_Files {
 
 		$content_width = isset( $GLOBALS['content_width'] ) ? $GLOBALS['content_width'] : null;
 		$crop = false;
+		$args = array();
 
 		// For resize requests coming from an image's attachment page, override
 		// the supplied $size and use the user-defined $content_width if the
@@ -521,6 +608,14 @@ class A8C_Files {
 		$resized = false;
 		$img_url = wp_get_attachment_url( $id );
 
+		/**
+		 * Filter the original image Photon-compatible parameters before changes are 
+		 *
+		 * @param array|string $args Array of Photon-compatible arguments.
+		 * @param string $image_url Image URL.
+		 */
+		$args = apply_filters( 'vip_go_image_resize_pre_args', $args, $image_url );
+
 		if ( ! $crop ) {
 			$imagedata = wp_get_attachment_metadata( $id );
 
@@ -567,18 +662,31 @@ class A8C_Files {
 			if ( $constrain )
 				list( $w, $h ) = wp_constrain_dimensions( $w, $h, $_max_w, $_max_h );
 
-			$img_url = add_query_arg( 'w', $w, $img_url );
-			$img_url = add_query_arg( 'h', $h, $img_url );
+			$args['w'] = $w;
+			$args['h'] = $h;
 
-			$img_url = add_query_arg( 'crop', '1', $img_url );
+			$args['crop'] = '1';
 			$resized = true;
 		}
 		// we want users to be able to resize full size images with tinymce.
 		// the image_add_wh() filter will add the ?w= query string at display time.
 		elseif ( 'full' != $size ) {
-			$img_url = add_query_arg( 'w', $w, $img_url );
+			$args['w'] = $w;
 			$resized = true;
 		}
+
+		if ( is_array( $args ) ) {
+			// Convert values that are arrays into strings
+			foreach ( $args as $arg => $value ) {
+				if ( is_array( $value ) ) {
+					$args[ $arg ] = implode( ',', $value );
+				}
+			}
+			// Encode values
+			// See http://core.trac.wordpress.org/ticket/17923
+			$args = rawurlencode_deep( $args );
+		}
+		$img_url = add_query_arg( $args, $img_url );
 
 		return array( $img_url, $w, $h, $resized );
 	}
@@ -595,7 +703,7 @@ function a8c_files_init() {
  * Function name parallels wpcom's implementation to accommodate existing code
  */
 function wpcom_intermediate_sizes( $sizes ) {
-	__return_empty_array();
+	return __return_empty_array();
 }
 
 if ( defined( 'FILES_CLIENT_SITE_ID' ) && defined( 'FILES_ACCESS_TOKEN' ) ) {

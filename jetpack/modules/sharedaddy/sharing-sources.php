@@ -512,7 +512,7 @@ class Share_Email extends Sharing_Source {
 			?>
 
 			<img style="float: right; display: none" class="loading" src="<?php
-			/** This filter is documented in modules/shortcodes/audio.php */
+			/** This filter is documented in modules/stats.php */
 			echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php esc_attr_e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
 			<a rel="nofollow" href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
@@ -1600,6 +1600,49 @@ class Share_Pocket extends Sharing_Source {
 
 	}
 
+}
+
+class Share_Telegram extends Sharing_Source {
+	public $shortname = 'telegram';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'Telegram', 'jetpack' );
+	}
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
+		wp_redirect( $telegram_url );
+		exit;
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Telegram', 'share to', 'jetpack' ), __( 'Click to share on Telegram', 'jetpack' ), 'share=telegram' );
+	}
+
+	function display_footer() {
+		$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
+	}
+}
+
+class Jetpack_Share_WhatsApp extends Sharing_Source {
+	public $shortname = 'jetpack-whatsapp';
+
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+	}
+
+	public function get_name() {
+		return __( 'WhatsApp', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( get_permalink( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+	}
 }
 
 class Share_Skype extends Sharing_Source {

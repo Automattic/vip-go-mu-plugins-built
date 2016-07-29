@@ -9,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Social, Writing, Appearance
- * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, blip.tv, dailymotion, digg, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
+ * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, blip.tv, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
  */
 
 /**
@@ -59,32 +59,68 @@ function jetpack_load_shortcodes() {
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
-		if ( version_compare( $wp_version, '3.6-z', '>=' ) && stristr( $include, 'audio.php' ) ) {
-			continue;
-		}
-
 		include $include;
 	}
 }
 
-global $wp_version;
-
-if ( version_compare( $wp_version, '3.6-z', '>=' ) ) {
-	add_filter( 'shortcode_atts_audio', 'jetpack_audio_atts_handler', 10, 3 );
-
-	function jetpack_audio_atts_handler( $out, $pairs, $atts ) {
-		if( isset( $atts[0] ) )
-			$out['src'] = $atts[0];
-
-		return $out;
+/**
+ * Runs preg_replace so that replacements don't happen within open tags.
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
 	}
 
-	function jetpack_shortcode_get_audio_id( $atts ) {
-		if ( isset( $atts[ 0 ] ) )
-			return $atts[ 0 ];
-		else
-			return 0;
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
 	}
+
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace( $pattern, $replacement, $element );
+	}
+
+	return join( $textarr );
+}
+
+/**
+ * Runs preg_replace_callback so that replacements don't happen within open tags.
+ * Parameters are the same as preg_replace, with an added optional search param for improved performance
+ *
+ * @param String $pattern
+ * @param String $replacement
+ * @param String $content
+ * @param String $search
+ * @return String $content
+ */
+function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $content, $search = null ) {
+	if( ! function_exists( 'wp_html_split' ) ) {
+		return $content;
+	}
+
+	if ( $search && false === strpos( $content, $search ) ) {
+		return $content;
+	}
+
+	$textarr = wp_html_split( $content );
+	unset( $content );
+	foreach( $textarr as &$element ) {
+	    if ( '' === $element || '<' === $element{0} )
+	        continue;
+	    $element = preg_replace_callback( $pattern, $callback, $element );
+	}
+
+	return join( $textarr );
 }
 
 if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {

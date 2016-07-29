@@ -1,0 +1,10 @@
+{
+    "name"       : "automattic/nginx-http-concat",
+    "description": "WP.com plugin to perform CSS and Javascript concatenation of individual scripts into a single script.",
+    "homepage"   : "https://github.com/Automattic/nginx-http-concat",
+    "type"       : "wordpress-plugin",
+    "license"    : "GPL-2.0+",
+    "require"    : {
+        "composer/installers": "~1.0"
+    }
+}

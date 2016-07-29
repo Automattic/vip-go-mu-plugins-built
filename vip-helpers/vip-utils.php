@@ -1118,3 +1118,48 @@ function wpcom_vip_disable_new_relic_js() {
 		newrelic_disable_autorum();
 	}
 }
+
+/**
+ * Add the exact URI to NewRelic tracking but only if we're not in the admin
+ */
+function wpcom_vip_add_URI_to_newrelic(){
+	if ( ! is_admin() && function_exists( 'newrelic_add_custom_parameter' ) ){
+		newrelic_add_custom_parameter ('REQUEST_URI', $_SERVER['REQUEST_URI']);
+		newrelic_add_custom_parameter ('HTTP_REFERER', $_SERVER['HTTP_REFERER']);
+		newrelic_add_custom_parameter ('HTTP_USER_AGENT', $_SERVER['HTTP_USER_AGENT']);
+	}
+}
+add_action( 'muplugins_loaded', 'wpcom_vip_add_URI_to_newrelic' );
+
+function wpcom_vip_save_query_callback( $query, $elapsed, $backtrace, &$wpdb ) {
+	if ( ! $wpdb->save_queries ) {
+		return;
+	}
+
+	$host            = $wpdb->current_host;
+	$microtime       = microtime();
+	$callback_result = $wpdb->callback_result;
+	$connection      = $wpdb->last_connection;
+
+	if ( isset( $backtrace ) && is_array( $backtrace ) ) {
+		// Convert debug_backtrace array (large) into trac links (smaller).
+		// Moved from admin-bar-debug.php to reduce peak memory usage.
+		$backtrace = array_reverse( $backtrace );
+		$folder    = 'trunk';
+
+		foreach ( (array) $backtrace as $call ) {
+			$line     = isset( $call['line'] ) ? $call['line'] : '';
+			$function = $call['function'];
+
+			if ( isset( $call['class'] ) ) {
+				$function = $call['class'] . "->$function";
+			}
+
+			$debug[] = $function;
+		}
+
+		$debug = join( ', ', $debug );
+	}
+
+	return compact('elapsed', 'host', 'microtime', 'debug', 'query', 'dbhname', 'dataset', 'callback_result', 'connection');
+}
