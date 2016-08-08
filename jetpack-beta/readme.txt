@@ -3,7 +3,7 @@ Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, an
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
 Stable tag: 4.1.1
 Requires at least: 4.4
-Tested up to: 4.5.3
+Tested up to: 4.6
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -79,15 +79,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 Bug Fixes:
 
+* Compatibility: avoid PHP notices in the Woocommerce plugin wizard screen. #4473
 * Infinite Scroll: do not load theme compatibility stylesheets on the default theme's singular views. #4236
 * General: make sure Debug tests are sent along to the Jetpack support team when using the contact form in the Jetpack Debug menu. #4398
 * Notifications: avoid PHP notices when moderating comments. #4208
 * Publicize: fix PHP notices when publishing posts via Cron. #4524
+* Security: more changes to harden Jetpack security by implementing the `hash_equals()` function in an effort to avoid timing attacks when comparing strings. #4531
 * Sharing: we fixed inconsistent horizontal spacing between the buttons when using the official buttons. #4317
 * Shortcodes: we updated the Cartodb shortcode to match the new product name, Carto. #4351
 * Shortcodes: When using the YouTube shortcode, we now use the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress. #4420
 * Sitemaps: we fixed some PHP warnings in the sitemaps' stylesheets. #4362
 * Theme Tools: avoid warnings when Tonesque processes a file which claims to be one filetype, but are actually another. #3741
+* Theme Tools: avoid PHP notices when using Random Redirect, and when the author wasn't set. #4584
 
 Enhancements:
 
@@ -101,7 +104,7 @@ Enhancements:
 * Performance: we've improved the way Jetpack queried for information about module data, to execute less queries to get Jetpack options. #4315
 * Staging: Added WP Stagecoach as a known staging site provider so those staging sites will not impact production sites. #4518
 * Shortcodes: new parameters for the Dailymotion shortcode. #4103
-* Widgets: do not display any map if no Google Maps API Key is defined. #4242
+* Widgets: allow site owners to enter a Google Maps API Key in the Contact Info Widget settings. This is now required by Google if one wants to display a map. More info [here](https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/). #4242 and #4562
 
 = 4.1.1 =
 
@@ -215,7 +218,7 @@ Bug Fixes:
 * We accidentally removed the ability for Open Graph to select images from slideshows, it’s up and running again.
 * There was an issue where Open Graph meta tags weren’t being set when your homepage is a “Static Front Page”, it’s working again.
 * In rare cases when developers were customizing Photon they were seeing a PHP notice when arguments were passed as a string rather than an array. This has been fixed.
-* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom frontend login forms.
+* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom front end login forms.
 * When setting up WooCommerce you might have seen a Related Posts notice which didn’t belong. We’ve eliminated them.
 * If you’ve been using our sharing tool with unofficial sharing buttons you might have noticed your sharing numbers were missing. They’re now back.
 * In unique situations where special characters were used in sitemap stylesheets an error would occur; that has been remedied.

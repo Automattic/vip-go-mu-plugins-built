@@ -1,4 +1,5 @@
 <?php
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -17,6 +18,12 @@ class Jetpack_Sync_Actions {
 
 		// On jetpack authorization, schedule a full sync
 		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
+		
+		// When imports are finished, schedule a full sync
+		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
+
+		// When importing via cron, do not sync
+		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
 		// Sync connected user role changes to .com
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-users.php';
@@ -100,13 +107,18 @@ class Jetpack_Sync_Actions {
 			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
-	static function send_data( $data, $codec_name, $sent_timestamp ) {
+	static function set_is_importing_true() {
+		Jetpack_Sync_Settings::set_importing( true );
+	}
+
+	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id ) {
 		Jetpack::load_xml_rpc_client();
 
 		$url = add_query_arg( array(
 			'sync'      => '1', // add an extra parameter to the URL so we can tell it's a sync action
 			'codec'     => $codec_name, // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
+			'queue'     => $queue_id, // sync or full_sync
 		), Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
@@ -128,12 +140,33 @@ class Jetpack_Sync_Actions {
 		// we need this function call here because we have to run this function 
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
-		self::schedule_full_sync( array( 'options', 'network_options', 'functions', 'constants' ) );
+		self::schedule_full_sync( array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => true ) );
 	}
 
 	static function schedule_full_sync( $modules = null ) {
-		wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		if ( $modules ) {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_full', array( $modules ) );
+		} else {
+			wp_schedule_single_event( time() + 1, 'jetpack_sync_full' );
+		}
+
 		spawn_cron();
+	}
+
+	static function is_scheduled_full_sync( $modules = null ) {
+		if ( is_null( $modules ) ) {
+			$crons = _get_cron_array();
+			
+			foreach ( $crons as $timestamp => $cron ) {
+				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		return wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
 	}
 
 	static function do_full_sync( $modules = null ) {
@@ -167,7 +200,7 @@ class Jetpack_Sync_Actions {
 		self::initialize_sender();
 		
 		do {
-			$next_sync_time = self::$sender->next_sync_time();
+			$next_sync_time = self::$sender->get_next_sync_time();
 			
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
@@ -204,7 +237,7 @@ class Jetpack_Sync_Actions {
 		self::$sender = Jetpack_Sync_Sender::get_instance();
 
 		// bind the sending process
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 3 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 4 );
 	}
 }
 

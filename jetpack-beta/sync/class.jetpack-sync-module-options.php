@@ -18,13 +18,14 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
-		// full sync
-		add_action( 'jetpack_full_sync_options', $callable );
-
 		$whitelist_option_handler = array( $this, 'whitelist_options' );
 		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_added_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
+	}
+
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_options', $callable );
 	}
 
 	public function init_before_send() {
@@ -36,7 +37,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		$this->update_options_whitelist();
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all options to the server
 		 *
@@ -47,6 +48,10 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_options', true );
 
 		return 1; // The number of actions enqueued
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
 	}
 
 	function get_full_sync_actions() {

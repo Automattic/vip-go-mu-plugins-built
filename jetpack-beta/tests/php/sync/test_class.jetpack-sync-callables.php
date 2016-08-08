@@ -61,6 +61,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'is_version_controlled'            => Jetpack_Sync_Functions::is_version_controlled(),
 			'taxonomies'                       => Jetpack_Sync_Functions::get_taxonomies(),
 			'post_types'                       => Jetpack_Sync_Functions::get_post_types(),
+			'post_type_features'               => Jetpack_Sync_Functions::get_post_type_features(),
 			'rest_api_allowed_post_types'      => Jetpack_Sync_Functions::rest_api_allowed_post_types(),
 			'rest_api_allowed_public_metadata' => Jetpack_Sync_Functions::rest_api_allowed_public_metadata(),
 			'sso_is_two_step_required'         => Jetpack_SSO_Helpers::is_two_step_required(),
@@ -126,6 +127,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+	}
+
+	function test_sync_always_sync_changes_to_modules_right_away() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		$this->setSyncClientDefaults();
+		Jetpack::update_active_modules( array( 'stats' ) );
+
+		$this->sender->do_sync();
+		
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals(  array( 'stats' ), $synced_value  );
+
+		$this->server_replica_storage->reset();
+
+		Jetpack::update_active_modules( array( 'json-api' ) );
+		$this->sender->do_sync();
+
+		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
+		$this->assertEquals( array( 'json-api' ), $synced_value );
 	}
 
 	function test_scheme_switching_does_not_cause_sync() {

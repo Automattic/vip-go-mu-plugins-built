@@ -12,13 +12,16 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Sender {
 
 	const SYNC_THROTTLE_OPTION_NAME = 'jetpack_sync_min_wait';
-	const LAST_SYNC_TIME_OPTION_NAME = 'jetpack_last_sync_time';
+	const NEXT_SYNC_TIME_OPTION_NAME = 'jetpack_next_sync_time';
+	const WPCOM_ERROR_SYNC_DELAY = 60;
 
 	private $dequeue_max_bytes;
 	private $upload_max_bytes;
 	private $upload_max_rows;
 	private $sync_wait_time;
+	private $sync_wait_threshold;
 	private $sync_queue;
+	private $full_sync_queue;
 	private $codec;
 
 	// singleton functions
@@ -44,11 +47,12 @@ class Jetpack_Sync_Sender {
 		}
 	}
 
-	public function next_sync_time() {
-		$sync_wait = $this->get_sync_wait_time();
-		$last_sync = $this->get_last_sync_time();
-		$next_sync_time = ( $last_sync && $sync_wait ) ? $last_sync + $sync_wait : 0;
-		return $next_sync_time;
+	public function get_next_sync_time() {
+		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME, 0 );
+	}
+
+	public function set_next_sync_time( $time ) {
+		return update_option( self::NEXT_SYNC_TIME_OPTION_NAME, $time, true );
 	}
 
 	public function do_sync() {
@@ -58,15 +62,36 @@ class Jetpack_Sync_Sender {
 		}
 
 		// don't sync if we are throttled
-		if ( $this->next_sync_time() > microtime( true ) ) {
+		if ( $this->get_next_sync_time() > microtime( true ) ) {
 			return false;
 		}
 
-		$this->set_last_sync_time();
+		$start_time = microtime( true );
+		
+		$full_sync_result = $this->do_sync_for_queue( $this->full_sync_queue );
+		$sync_result      = $this->do_sync_for_queue( $this->sync_queue );
 
-		do_action( 'jetpack_sync_before_send' );
+		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
 
-		if ( $this->sync_queue->size() === 0 ) {
+		if ( is_wp_error( $full_sync_result ) || is_wp_error( $sync_result ) ) {
+			$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY );
+			$full_sync_result = false;
+			$sync_result      = false;
+		} elseif ( $exceeded_sync_wait_threshold ) {
+			// if we actually sent data and it took a while, wait before sending again
+			$this->set_next_sync_time( time() + $this->get_sync_wait_time() );
+		}
+
+		// we use OR here because if either one returns true then the caller should
+		// be allowed to call do_sync again, as there may be more items
+		return $full_sync_result || $sync_result;
+	}
+
+	public function do_sync_for_queue( $queue ) {
+
+		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
+
+		if ( $queue->size() === 0 ) {
 			return false;
 		}
 
@@ -77,7 +102,7 @@ class Jetpack_Sync_Sender {
 			ignore_user_abort( true );
 		}
 
-		$buffer = $this->sync_queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
+		$buffer = $queue->checkout_with_memory_limit( $this->dequeue_max_bytes, $this->upload_max_rows );
 
 		if ( ! $buffer ) {
 			// buffer has no items
@@ -109,6 +134,7 @@ class Jetpack_Sync_Sender {
 			 * @since 4.2.0
 			 *
 			 * @param array The action parameters
+			 * @param int The ID of the user who triggered the action
 			 */
 			$item[1] = apply_filters( 'jetpack_sync_before_send_' . $item[0], $item[1], $item[2] );
 
@@ -131,17 +157,37 @@ class Jetpack_Sync_Sender {
 		 * @since 4.2.0
 		 *
 		 * @param array $data The action buffer
+		 * @param string $codec The codec name used to encode the data
+		 * @param double $time The current time
+		 * @param string $queue The queue used to send ('sync' or 'full_sync')
 		 */
-		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ) );
+		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id );
 
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
-			$processed_item_ids = $this->sync_queue->checkin( $buffer );
+			$checked_in_item_ids = $queue->checkin( $buffer );
+
+			if ( is_wp_error( $checked_in_item_ids ) ) {
+				error_log( 'Error checking in buffer: ' . $checked_in_item_ids->get_error_message() );
+				$queue->force_checkin();
+			}
 
 			if ( is_wp_error( $processed_item_ids ) ) {
-				error_log( 'Error checking in buffer: ' . $processed_item_ids->get_error_message() );
-				$this->sync_queue->force_checkin();
+				return $processed_item_ids;
 			}
+
+			// returning a WP_Error is a sign to the caller that we should wait a while
+			// before syncing again
+			return new WP_Error( 'server_error' );
+			
 		} else {
+
+			// detect if the last item ID was an error
+			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
+
+			if ( $had_wp_error ) {
+				$wp_error = array_pop( $processed_item_ids );
+			}
+
 			$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
 
 			/**
@@ -154,7 +200,13 @@ class Jetpack_Sync_Sender {
 			 */
 			do_action( 'jetpack_sync_processed_actions', $processed_items );
 
-			$this->sync_queue->close( $buffer, $processed_item_ids );
+			$queue->close( $buffer, $processed_item_ids );
+
+			// returning a WP_Error is a sign to the caller that we should wait a while
+			// before syncing again
+			if ( $had_wp_error ) {
+				return $wp_error;
+			} 
 		}
 		
 		return true;
@@ -162,6 +214,10 @@ class Jetpack_Sync_Sender {
 
 	function get_sync_queue() {
 		return $this->sync_queue;
+	}
+
+	function get_full_sync_queue() {
+		return $this->full_sync_queue;
 	}
 
 	function get_codec() {
@@ -175,7 +231,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	function reset_sync_queue() {
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->clear_status();
 		$this->sync_queue->reset();
 	}
 
@@ -202,24 +257,28 @@ class Jetpack_Sync_Sender {
 		return $this->sync_wait_time;
 	}
 
-	private function get_last_sync_time() {
-		return (double) get_option( self::LAST_SYNC_TIME_OPTION_NAME );
+	// in seconds
+	function set_sync_wait_threshold( $seconds ) {
+		$this->sync_wait_threshold = $seconds;
 	}
 
-	private function set_last_sync_time() {
-		return update_option( self::LAST_SYNC_TIME_OPTION_NAME, microtime( true ), true );
+	function get_sync_wait_threshold() {
+		return $this->sync_wait_threshold;
 	}
 
 	function set_defaults() {
 		$this->sync_queue = new Jetpack_Sync_Queue( 'sync' );
+		$this->full_sync_queue = new Jetpack_Sync_Queue( 'full_sync' );
 		$this->codec      = new Jetpack_Sync_JSON_Deflate_Codec();
 
 		// saved settings
+		Jetpack_Sync_Settings::set_importing( null );
 		$settings = Jetpack_Sync_Settings::get_settings();
 		$this->set_dequeue_max_bytes( $settings['dequeue_max_bytes'] );
 		$this->set_upload_max_bytes( $settings['upload_max_bytes'] );
 		$this->set_upload_max_rows( $settings['upload_max_rows'] );
 		$this->set_sync_wait_time( $settings['sync_wait_time'] );
+		$this->set_sync_wait_threshold( $settings['sync_wait_threshold'] );
 	}
 
 	function reset_data() {
@@ -230,7 +289,7 @@ class Jetpack_Sync_Sender {
 		}
 
 		delete_option( self::SYNC_THROTTLE_OPTION_NAME );
-		delete_option( self::LAST_SYNC_TIME_OPTION_NAME );
+		delete_option( self::NEXT_SYNC_TIME_OPTION_NAME );
 
 		Jetpack_Sync_Settings::reset_data();
 	}

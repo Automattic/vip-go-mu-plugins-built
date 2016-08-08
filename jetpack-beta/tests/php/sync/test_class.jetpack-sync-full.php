@@ -8,6 +8,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
 	private $full_sync_end_checksum;
+	private $full_sync_start_config;
 
 	function setUp() {
 		parent::setUp();
@@ -40,19 +41,22 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 	}
 
-	function test_full_sync_wont_start_twice() {
-		$this->started_sync_count = 0;
-
-		add_action( 'jetpack_full_sync_start', array( $this, 'count_full_sync_start' ) );
-
+	function test_sync_start_resets_previous_sync_and_sends_full_sync_cancelled() {
+		$this->factory->post->create();
 		$this->full_sync->start();
 
-		$this->assertEquals( 1, $this->started_sync_count );
+		$initial_full_sync_queue_size = $this->sender->get_full_sync_queue()->size();
 
-		// trying to start again shouldn't enqueue twice
+		// if we start again, it should reset the queue back to its original state,
+		// plus a "full_sync_cancelled" action
 		$this->full_sync->start();
 
-		$this->assertEquals( 1, $this->started_sync_count );
+		$this->assertEquals( $initial_full_sync_queue_size + 1, $this->sender->get_full_sync_queue()->size() );
+		$this->sender->do_sync();
+		
+		$cancelled_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_cancelled' );
+
+		$this->assertTrue( $cancelled_event !== false );
 	}
 
 	function test_full_sync_lock_has_one_hour_timeout() {
@@ -65,7 +69,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 1, $this->started_sync_count );
 
 		// fake the last sync being over an hour ago
-		$this->full_sync->update_status( array( 'started' => ( time() - 3700 ) ) );
+		$prefix = Jetpack_Sync_Module_Full_Sync::STATUS_OPTION_PREFIX;
+		update_option( "{$prefix}_started", time() - 3700 );
 
 		$this->full_sync->start();
 
@@ -81,7 +86,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->reset_data();
 		$this->factory->post->create();
 
-		$this->full_sync->start( array( 'options' ) );
+		$this->full_sync->start( array( 'options' => true ) );
 
 		$this->sender->do_sync();
 
@@ -323,20 +328,24 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
+		add_post_meta( $post_id, 'test_meta_array', array( 'foo', 'bar' ) );
 
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+		$this->assertEquals( array( 'foo', 'bar' ), $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
 
 		$this->full_sync->start();
 		$this->sender->do_sync();
 
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_key', true ) );
+		$this->assertEquals( array( 'foo', 'bar' ), $this->server_replica_storage->get_metadata( 'post', $post_id, 'test_meta_array', true ) );
 	}
 
 	function test_full_sync_sends_all_post_terms() {
@@ -409,6 +418,13 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		}
 		
 		$this->assertEquals( $local_option, $remote_option );
+
+		$synced_theme_caps_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_theme_data' );
+		$synced_theme_caps = $synced_theme_caps_event->args[0];
+
+		$this->assertTrue( $synced_theme_caps['post-thumbnails'] );
+
+		$this->assertTrue( $this->server_replica_storage->current_theme_supports( 'post-thumbnails' ) );
 	}
 
 	function test_full_sync_sends_plugin_updates() {
@@ -496,6 +512,21 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $updates->last_checked > strtotime( "-10 seconds" ) );
 	}
 
+	function test_full_sync_start_sends_configuration() {
+		// this is so that on WPCOM we can tell what has been synchronized in the past
+		add_action( 'jetpack_full_sync_start', array( $this, 'record_full_sync_start_config' ), 10, 1 );
+
+		$this->full_sync->start();
+
+		$this->assertEquals( null, $this->full_sync_start_config );
+
+		$custom_config = array( 'posts' => array( 1, 2, 3, ) );
+
+		$this->full_sync->start( $custom_config );
+
+		$this->assertEquals( $custom_config, $this->full_sync_start_config );
+	}
+
 	function test_full_sync_end_sends_checksums() {
 		add_action( 'jetpack_full_sync_end', array( $this, 'record_full_sync_end_checksum' ), 10, 1 );
 
@@ -513,8 +544,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync_end_checksum = $checksum;
 	}
 
-	function create_dummy_data_and_empty_the_queue() {
+	function record_full_sync_start_config( $modules ) {
+		$this->full_sync_start_config = $modules;
+	}
 
+	function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
 		for ( $i = 0; $i < 20; $i += 1 ) {
 			$post = $this->factory->post->create();
@@ -538,8 +572,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'queue_finished' => null,
 				'sent_started'   => null,
 				'finished'       => null,
+				'total'          => array(),
 				'sent'           => array(),
 				'queue'          => array(),
+				'config'         => array(),
 			)
 		);
 	}
@@ -561,14 +597,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'themes'    => 1,
 				'updates'   => 1,
 				'users'     => 1,
-				'terms'     => 1
+				'terms'     => 1,
 			),
+			'config' => array(
+				'constants' => true,
+				'functions' => true,
+				'options'   => true,
+				'posts'     => true,
+				'comments'  => true,
+				'themes'    => true,
+				'updates'   => true,
+				'users'     => true,
+				'terms'     => true,
+			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
+			$should_be_status['config']['network_options'] = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
+		$this->assertEquals( $full_sync_status['config'], $should_be_status['config'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertNull( $full_sync_status['sent_started'] );
@@ -619,7 +668,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
 		$this->assertInternalType( 'int', $full_sync_status['finished'] );
-
 	}
 
 	function test_full_sync_respects_post_and_comment_filters() {
@@ -638,6 +686,83 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 		$blocked_post = $this->server_replica_storage->get_post( $post_id );
 		$this->assertEquals( 'jetpack_sync_blocked', $blocked_post->post_status );
+	}
+
+	function test_full_sync_do_not_sync_events_if_no_data_to_sync() {
+		$non_existent_id      = 123123123123123213;
+		$non_existent_post    = get_post( $non_existent_id );
+		$non_existent_comment = get_comment( $non_existent_id );
+		$non_existent_user    = get_user_by( 'id', $non_existent_id );
+
+		$this->assertTrue( empty( $non_existent_post ) );
+		$this->assertTrue( empty( $non_existent_comment ) );
+		$this->assertTrue( empty( $non_existent_user ) );
+
+		$this->full_sync->start( array( 'posts' => array( $non_existent_id ), 'comments' => array( $non_existent_id ), 'users' => array( $non_existent_id ) )  );
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' ) );
+	}
+
+	function test_full_sync_can_sync_individual_posts() {
+		$sync_post_id    = $this->factory->post->create();
+		$sync_post_id_2  = $this->factory->post->create();
+		$no_sync_post_id = $this->factory->post->create();
+
+		$this->full_sync->start( array( 'posts' => array( $sync_post_id, $sync_post_id_2 ) ) );
+		$this->sender->do_sync();
+
+		$synced_posts_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_posts' );
+
+		$posts = $synced_posts_event->args[0];
+
+		$this->assertEquals( 2, count( $posts ) );
+		$this->assertEquals( $sync_post_id, $posts[0]->ID );
+		$this->assertEquals( $sync_post_id_2, $posts[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_post_id, $sync_post_id_2 ), $sync_status['config']['posts'] );
+	}
+
+	function test_full_sync_can_sync_individual_comments() {
+		$post_id = $this->factory->post->create();
+		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
+
+		$this->full_sync->start( array( 'comments' => array( $sync_comment_id, $sync_comment_id_2 ) ) );
+		$this->sender->do_sync();
+
+		$synced_comments_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_comments' );
+
+		$comments = $synced_comments_event->args[0];
+
+		$this->assertEquals( 2, count( $comments ) );
+		$this->assertEquals( $sync_comment_id, $comments[0]->comment_ID );
+		$this->assertEquals( $sync_comment_id_2, $comments[1]->comment_ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_comment_id, $sync_comment_id_2 ), $sync_status['config']['comments'] );
+	}
+
+	function test_full_sync_can_sync_individual_users() {
+		$sync_user_id = $this->factory->user->create();
+		$sync_user_id_2 = $this->factory->user->create();
+		$no_sync_user_id = $this->factory->user->create();
+
+		$this->full_sync->start( array( 'users' => array( $sync_user_id, $sync_user_id_2) ) );
+		$this->sender->do_sync();
+
+		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
+
+		$users = $synced_users_event->args;
+
+		$this->assertEquals( 2, count( $users ) );
+		$this->assertEquals( $sync_user_id, $users[0]->ID );
+		$this->assertEquals( $sync_user_id_2, $users[1]->ID );
+
+		$sync_status = $this->full_sync->get_status();
+		$this->assertEquals( array( $sync_user_id, $sync_user_id_2 ), $sync_status['config']['users'] );
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
@@ -702,7 +827,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_status_with_a_small_queue() {
 
-		$this->sender->set_dequeue_max_bytes( 1500 ); // process 0.0015MB of items at a time\
+		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();
 
@@ -710,11 +835,11 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertEquals( 0, $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
 		$full_sync_status = $this->full_sync->get_status();
-		$this->assertNull( $full_sync_status['finished'] );
+		$this->assertEquals( 0, $full_sync_status['finished'] );
 
 		$this->sender->do_sync();
 
@@ -742,15 +867,28 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 				'updates'   => 1,
 				'users'     => 1,
 				'terms'     => 1
+			),
+			'total' => array(
+				'constants' => 1,
+				'functions' => 1,
+				'options'   => 1,
+				'posts'     => 2,
+				'comments'  => 2,
+				'themes'    => 1,
+				'updates'   => 1,
+				'users'     => 1,
+				'terms'     => 1
 			)
 		);
 		if ( is_multisite() ) {
 			$should_be_status['queue']['network_options'] = 1;
 			$should_be_status['sent']['network_options']  = 1;
+			$should_be_status['total']['network_options']  = 1;
 		}
 
 		$this->assertEquals( $full_sync_status['queue'], $should_be_status['queue'] );
 		$this->assertEquals( $full_sync_status['sent'], $should_be_status['sent'] );
+		$this->assertEquals( $full_sync_status['total'], $should_be_status['total'] );
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertInternalType( 'int', $full_sync_status['queue_finished'] );
 		$this->assertInternalType( 'int', $full_sync_status['sent_started'] );
@@ -758,6 +896,34 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// Reset all the defaults
 		$this->setSyncClientDefaults();
+	}
+
+	function test_sync_modules_can_estimate_total_actions() {
+
+		// make some stuff
+		foreach( range( 0, 25 ) as $number ) {
+			$post_id = $this->factory->post->create();
+			$this->factory->user->create();
+			$this->factory->comment->create_post_comments( $post_id, 2 );
+		}
+		
+		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$module_name = $module->name();
+			$estimate    = $module->estimate_full_sync_actions( true );
+			$actual      = $module->enqueue_full_sync_actions( true );
+
+			$this->assertSame( $estimate, $actual );
+		}
+	}
+
+	function test_sync_call_ables_does_not_modify_globals() {
+		global $wp_taxonomies;
+		// assert that $wp_taxonomy object stays an array. 
+		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+		$this->setSyncClientDefaults();
+		$this->full_sync->start();
+		$this->sender->do_sync();
+		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {

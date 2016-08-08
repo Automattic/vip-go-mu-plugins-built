@@ -43,7 +43,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->users           = array();
 	}
 
-	function full_sync_start() {
+	function full_sync_start( $config ) {
 		$this->reset();
 	}
 
@@ -77,7 +77,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		// append fields
 		$value = '';
 		foreach ( $this->checksum_fields as $field ) {
-			$value .= $post->{$field};
+			$value .= preg_replace( '/[^\x20-\x7E]/','', $post->{ $field } );
 		}
 		return $carry ^ sprintf( '%u', crc32( $value ) ) + 0;
 	}
@@ -121,7 +121,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function comments_checksum( $min_id = null, $max_id = null ) {
-		return $this->calculate_checksum( $this->comments, 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+		return $this->calculate_checksum( array_filter( $this->comments, array( $this, 'is_not_spam' ) ), 'comment_ID', $min_id, $max_id, Jetpack_Sync_Defaults::$default_comment_checksum_columns );
+	}
+
+	function is_not_spam( $comment ) {
+		return $comment->comment_approved !== 'spam';
 	}
 
 	function filter_comment_status( $comment ) {
@@ -489,8 +493,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'options'  => $this->options_checksum(),
+			'comments' => $this->comments_checksum()
 		);
 	}
 

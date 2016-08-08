@@ -6,13 +6,16 @@ class Jetpack_Sync_Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	static $valid_settings = array(
-		'dequeue_max_bytes' => true,
-		'upload_max_bytes'  => true,
-		'upload_max_rows'   => true,
-		'sync_wait_time'    => true,
-		'max_queue_size'    => true,
-		'max_queue_lag'     => true,
+		'dequeue_max_bytes'   => true,
+		'upload_max_bytes'    => true,
+		'upload_max_rows'     => true,
+		'sync_wait_time'      => true,
+		'sync_wait_threshold' => true,
+		'max_queue_size'      => true,
+		'max_queue_lag'       => true,
 	);
+
+	static $is_importing;
 
 	static function get_settings() {
 		$settings = array();
@@ -54,5 +57,19 @@ class Jetpack_Sync_Settings {
 		foreach ( $valid_settings as $option => $value ) {
 			delete_option( $settings_prefix . $option );
 		}
+		self::set_importing( null );
+	}
+
+	static function set_importing( $is_importing ) {
+		// set to NULL to revert to WP_IMPORTING, the standard behaviour
+		self::$is_importing = $is_importing;
+	}
+
+	static function is_importing() {
+		if ( ! is_null( self::$is_importing ) ) {
+			return self::$is_importing;
+		}
+
+		return defined( 'WP_IMPORTING' ) && WP_IMPORTING;
 	}
 }

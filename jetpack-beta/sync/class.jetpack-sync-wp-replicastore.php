@@ -1,6 +1,7 @@
 <?php
 
-require_once 'interface.jetpack-sync-replicastore.php';
+require_once dirname( __FILE__ ) . '/interface.jetpack-sync-replicastore.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
 
 /**
  * An implementation of iJetpack_Sync_Replicastore which returns data stored in a WordPress.org DB.
@@ -31,7 +32,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE meta_key NOT LIKE '\_%'" );
 	}
 
-	function full_sync_start() {
+	function full_sync_start( $config ) {
 		$this->reset();
 	}
 
@@ -268,7 +269,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function comments_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->comments, Jetpack_Sync_Defaults::$default_comment_checksum_columns, 'comment_ID', '1=1', $min_id, $max_id );
+		return $this->table_checksum( $wpdb->comments, Jetpack_Sync_Defaults::$default_comment_checksum_columns, 'comment_ID', "comment_approved <> 'spam'", $min_id, $max_id );
 	}
 
 	public function options_checksum() {
@@ -572,8 +573,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 	public function checksum_all() {
 		return array(
 			'posts'    => $this->posts_checksum(),
-			'comments' => $this->comments_checksum(),
-			'options'  => $this->options_checksum(),
+			'comments' => $this->comments_checksum()
 		);
 	}
 
@@ -604,7 +604,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		}
 
 		$bucket_size  = intval( ceil( $object_count / $buckets ) );
-		$query_offset = 0;
+		$previous_max_id = 0;
 		$histogram    = array();
 
 		$where = '1=1';
@@ -619,7 +619,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 		do {
 			list( $first_id, $last_id ) = $wpdb->get_row(
-				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where ORDER BY $id_field ASC LIMIT $query_offset, $bucket_size ) as ids",
+				"SELECT MIN($id_field) as min_id, MAX($id_field) as max_id FROM ( SELECT $id_field FROM $object_table WHERE $where AND $id_field > $previous_max_id ORDER BY $id_field ASC LIMIT $bucket_size ) as ids",
 				ARRAY_N
 			);
 
@@ -638,7 +638,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 				$histogram[ "{$first_id}-{$last_id}" ] = $value;
 			}
 
-			$query_offset += $bucket_size;
+			$previous_max_id = $last_id;
 		} while ( true );
 
 		return $histogram;
@@ -648,7 +648,8 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		// sanitize to just valid MySQL column names
-		$columns_sql = implode( ',', preg_grep ( '/^[0-9,a-z,A-Z$_]+$/i', $columns ) );
+		$sanitized_columns = preg_grep ( '/^[0-9,a-z,A-Z$_]+$/i', $columns );
+		$columns_sql = implode( ',', array_map( array( $this, 'strip_non_ascii_sql' ), $sanitized_columns ) );
 
 		if ( $min_id !== null ) {
 			$min_id = intval( $min_id );
@@ -674,6 +675,15 @@ ENDSQL;
 
 		return $result;
 
+	}
+
+	/**
+	 * Wraps a column name in SQL which strips non-ASCII chars.
+	 * This helps normalize data to avoid checksum differences caused by
+	 * badly encoded data in the DB
+	 */
+	function strip_non_ascii_sql( $column_name ) {
+		return "REPLACE( CONVERT( $column_name USING ascii ), '?', '' )";
 	}
 
 	private function invalid_call() {

@@ -4,29 +4,32 @@
 class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
+	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+		parent::validate_call( $_blog_id, $capability, false );
+	}
+
 	protected function result() {
 		$args = $this->input();
 
 		$modules = null;
 
-		if ( isset( $args['clear'] ) && $args['clear'] ) {
-			// clear sync queue
-			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-
-			$sender = Jetpack_Sync_Sender::get_instance();
-			$sender->reset_sync_queue();
+		// convert list of modules in comma-delimited format into an array
+		// of "$modulename => true"
+		if ( isset( $args['modules'] ) && ! empty( $args['modules'] ) ) {
+			$modules = array_map( '__return_true', array_flip( array_map( 'trim', explode( ',', $args['modules'] ) ) ) );
 		}
 
-		if ( isset( $args['force'] ) && $args['force'] ) {
-			// reset full sync lock
-			require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
-
-			$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
-			$sync_module->clear_status();
+		foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
+			if ( isset( $args[ $module_name ] ) ) {
+				$ids = explode( ',', $args[ $module_name ] );
+				if ( count( $ids ) > 0 ) {
+					$modules[ $module_name ] = $ids;
+				}
+			}
 		}
 
-		if ( isset( $args['modules'] ) && !empty( $args['modules'] ) ) {
-			$modules = array_map('trim', explode( ',', $args['modules'] ) );
+		if ( empty( $modules ) ) {
+			$modules = null;
 		}
 
 		Jetpack_Sync_Actions::schedule_full_sync( $modules );
@@ -36,51 +39,53 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 // GET /sites/%s/sync/status
-class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Status_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-modules.php';
-		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-modules.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
-		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sender      = Jetpack_Sync_Sender::get_instance();
+		$queue       = $sender->get_sync_queue();
+		$full_queue  = $sender->get_full_sync_queue();
 
 		return array_merge(
 			$sync_module->get_status(),
-			array( 
-				'is_scheduled' => (bool) wp_next_scheduled( 'jetpack_sync_full' ), 
-				'queue_size' => $queue->size(),
-				'queue_lag' => $queue->lag()
+			array(
+				'is_scheduled'    => Jetpack_Sync_Actions::is_scheduled_full_sync(),
+				'queue_size'      => $queue->size(),
+				'queue_lag'       => $queue->lag(),
+				'full_queue_size' => $full_queue->size(),
+				'full_queue_lag'  => $full_queue->lag()
 			)
 		);
 	}
 }
 
 // GET /sites/%s/data-check
-class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
-		$sender = Jetpack_Sync_Sender::get_instance();
+		$sender     = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
 
 		// lock sending from the queue while we compare checksums with the server
 		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
 
-		if ( !$result ) {
+		if ( ! $result ) {
 			$sync_queue->unlock();
+
 			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
 		}
 
 		if ( is_wp_error( $result ) ) {
 			$sync_queue->unlock();
+
 			return $result;
 		}
 
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -94,37 +99,37 @@ class Jetpack_JSON_API_Sync_Check_Endpoint extends Jetpack_JSON_API_Endpoint {
 }
 
 // GET /sites/%s/data-histogram
-class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-sender.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-sender.php';
 
-		$sender = Jetpack_Sync_Sender::get_instance();
+		$sender     = Jetpack_Sync_Sender::get_instance();
 		$sync_queue = $sender->get_sync_queue();
 
 		// lock sending from the queue while we compare checksums with the server
 		$result = $sync_queue->lock( 30 ); // tries to acquire the lock for up to 30 seconds
 
-		if ( !$result ) {
+		if ( ! $result ) {
 			$sync_queue->unlock();
+
 			return new WP_Error( 'unknown_error', 'Unknown error trying to lock the sync queue' );
 		}
 
 		if ( is_wp_error( $result ) ) {
 			$sync_queue->unlock();
+
 			return $result;
 		}
 
 		$args = $this->query_args();
 
 		if ( isset( $args['columns'] ) ) {
-			$columns = array_map('trim', explode( ',', $args['columns'] ) );
+			$columns = array_map( 'trim', explode( ',', $args['columns'] ) );
 		} else {
 			$columns = null; // go with defaults
 		}
 
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-wp-replicastore.php';
 
 		$store = new Jetpack_Sync_WP_Replicastore();
 
@@ -138,17 +143,15 @@ class Jetpack_JSON_API_Sync_Histogram_Endpoint extends Jetpack_JSON_API_Endpoint
 }
 
 // POST /sites/%s/sync/settings
-class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
 		$args = $this->input();
 
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-settings.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-settings.php';
 
 		$sync_settings = Jetpack_Sync_Settings::get_settings();
 
-		foreach( $args as $key => $value ) {
+		foreach ( $args as $key => $value ) {
 			if ( $value !== false ) {
 				if ( is_numeric( $value ) ) {
 					$value = (int) $value;
@@ -165,11 +168,10 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_En
 }
 
 // GET /sites/%s/sync/settings
-class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Endpoint {
-	protected $needed_capabilities = 'manage_options';
-
+class Jetpack_JSON_API_Sync_Get_Settings_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
-		require_once dirname(__FILE__) . '/../../sync/class.jetpack-sync-settings.php';
+		require_once dirname( __FILE__ ) . '/../../sync/class.jetpack-sync-settings.php';
+
 		return Jetpack_Sync_Settings::get_settings();
 	}
 }

@@ -10,9 +10,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_action( 'set_site_transient_update_themes', $callable, 10, 1 );
 		add_action( 'set_site_transient_update_core', $callable, 10, 1 );
 
-		// full sync
-		add_action( 'jetpack_full_sync_updates', $callable );
-
 		add_filter( 'jetpack_sync_before_enqueue_set_site_transient_update_plugins', array(
 			$this,
 			'filter_update_keys',
@@ -23,12 +20,16 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		), 10, 2 );
 	}
 
+	public function init_full_sync_listeners( $callable ) {
+		add_action( 'jetpack_full_sync_updates', $callable );
+	}
+
 	public function init_before_send() {
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all updates to the server
 		 *
@@ -39,6 +40,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_updates', true );
 
 		return 1; // The number of actions enqueued
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		return 1;
 	}
 
 	function get_full_sync_actions() {

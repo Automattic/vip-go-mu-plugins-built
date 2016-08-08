@@ -12,6 +12,9 @@ abstract class Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 	}
 
+	public function init_full_sync_listeners( $callable ) {
+	}
+
 	public function init_before_send() {
 	}
 
@@ -21,8 +24,13 @@ abstract class Jetpack_Sync_Module {
 	public function reset_data() {
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
 		// in subclasses, return the number of items enqueued
+		return 0;
+	}
+
+	public function estimate_full_sync_actions( $config ) {
+		// in subclasses, return the number of items yet to be enqueued
 		return 0;
 	}
 
@@ -57,7 +65,7 @@ abstract class Jetpack_Sync_Module {
 		$page           = 1;
 		$chunk_count    = 0;
 		$previous_id    = 0;
-		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > $previous_id ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
+		while ( $ids = $wpdb->get_col( "SELECT {$id_field} FROM {$table_name} WHERE {$where_sql} AND {$id_field} > {$previous_id} ORDER BY {$id_field} ASC LIMIT {$items_per_page}" ) ) {
 			// Request posts in groups of N for efficiency
 			$chunked_ids = array_chunk( $ids, self::ARRAY_CHUNK_SIZE );
 
@@ -88,12 +96,20 @@ abstract class Jetpack_Sync_Module {
 			return array();
 		}
 
-		return $wpdb->get_results( "SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT );
+		return array_map( 
+			array( $this, 'unserialize_meta' ), 
+			$wpdb->get_results( "SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT ) 
+		);
 	}
 
 	protected function get_term_relationships( $ids ) {
 		global $wpdb;
 
 		return $wpdb->get_results( "SELECT object_id, term_taxonomy_id FROM $wpdb->term_relationships WHERE object_id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )', OBJECT );
+	}
+
+	public function unserialize_meta( $meta ) {
+		$meta->meta_value = maybe_unserialize( $meta->meta_value );
+		return $meta;
 	}
 }

@@ -124,6 +124,7 @@ class Jetpack_Sync_Defaults {
 		'WP_HTTP_BLOCK_EXTERNAL',
 		'WP_ACCESSIBLE_HOSTS',
 		'JETPACK__VERSION',
+		'IS_PRESSABLE',
 	);
 
 	static $default_callable_whitelist = array(
@@ -139,6 +140,7 @@ class Jetpack_Sync_Defaults {
 		'is_version_controlled'            => array( 'Jetpack_Sync_Functions', 'is_version_controlled' ),
 		'taxonomies'                       => array( 'Jetpack_Sync_Functions', 'get_taxonomies' ),
 		'post_types'                       => array( 'Jetpack_Sync_Functions', 'get_post_types' ),
+		'post_type_features'               => array( 'Jetpack_Sync_Functions', 'get_post_type_features' ),
 		'rest_api_allowed_post_types'      => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_post_types' ),
 		'rest_api_allowed_public_metadata' => array( 'Jetpack_Sync_Functions', 'rest_api_allowed_public_metadata' ),
 		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
@@ -152,7 +154,7 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static $blacklisted_post_types = array(
-		'ai1ec_event' // https://irc.automattic.com/chanlog.php?channel=jetpack&day=2014-05-29&sort=asc#m71850
+		'ai1ec_event'
 	);
 
 	static $default_post_checksum_columns = array(
@@ -245,6 +247,7 @@ class Jetpack_Sync_Defaults {
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
 	static $default_upload_max_rows = 500;
 	static $default_sync_wait_time = 10; // seconds, between syncs
+	static $default_sync_wait_threshold = 5; // only wait before next send if the current send took more than X seconds
 	static $default_max_queue_size = 1000;
 	static $default_max_queue_lag = 900; // 15 minutes
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again

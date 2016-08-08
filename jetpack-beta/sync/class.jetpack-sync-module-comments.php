@@ -21,8 +21,9 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				add_action( $comment_action_name, $callable, 10, 2 );
 			}
 		}
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_comments', $callable ); // also send comments meta
 	}
 
@@ -43,10 +44,31 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_comments', array( $this, 'expand_comment_ids' ) );
 	}
 
-	public function enqueue_full_sync_actions() {
+	public function enqueue_full_sync_actions( $config ) {
+		global $wpdb;
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', $this->get_where_sql( $config ) );
+	}
+
+	public function estimate_full_sync_actions( $config ) {
 		global $wpdb;
 
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_comments', $wpdb->comments, 'comment_ID', null );
+		$query = "SELECT count(*) FROM $wpdb->comments";
+		
+		if ( $where_sql = $this->get_where_sql( $config ) ) {
+			$query .= ' WHERE ' . $where_sql;
+		}
+
+		$count = $wpdb->get_var( $query );
+
+		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
+	}
+
+	private function get_where_sql( $config ) {
+		if ( is_array( $config ) ) {
+			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		} 
+
+		return null;
 	}
 
 	public function get_full_sync_actions() {

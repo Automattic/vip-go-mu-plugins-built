@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-defaults.php';
+
 class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 	const CONSTANTS_CHECKSUM_OPTION_NAME = 'jetpack_constants_sync_checksum';
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
@@ -16,13 +18,14 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_constant', $callable, 10, 2 );
+	}
 
-		// full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_constants', $callable );
 	}
 
 	public function init_before_send() {
-		add_action( 'jetpack_sync_before_send', array( $this, 'maybe_sync_constants' ) );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_constants' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_constants', array( $this, 'expand_constants' ) );
@@ -41,13 +44,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		return $this->constants_whitelist;
 	}
 
-	function force_sync_constants() {
-		delete_option( self::CONSTANTS_CHECKSUM_OPTION_NAME );
-		delete_transient( self::CONSTANTS_AWAIT_TRANSIENT_NAME );
-		$this->maybe_sync_constants();
-	}
-
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		/**
 		 * Tells the client to sync all constants to the server
 		 *
@@ -57,6 +54,10 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_full_sync_constants', true );
 
+		return 1;
+	}
+
+	function estimate_full_sync_actions( $config ) {
 		return 1;
 	}
 

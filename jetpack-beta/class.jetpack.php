@@ -518,6 +518,8 @@ class Jetpack {
 
 		add_action( 'jetpack_notices', array( $this, 'show_development_mode_notice' ) );
 
+		add_action( 'jetpack_notices', array( $this, 'show_sync_lag_notice' ) );
+
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -853,13 +855,7 @@ class Jetpack {
 		// Don't let anyone authenticate
 		$_COOKIE = array();
 		remove_all_filters( 'authenticate' );
-
-		/**
-		 * For the moment, remove Limit Login Attempts if its xmlrpc for Jetpack.
-		 * If Limit Login Attempts is installed as a mu-plugin, it can occasionally
-		 * generate false-positives.
-		 */
-		remove_filter( 'wp_login_failed', 'limit_login_failed' );
+		remove_all_actions( 'wp_login_failed' );
 
 		if ( Jetpack::is_active() ) {
 			// Allow Jetpack authentication
@@ -1319,6 +1315,25 @@ class Jetpack {
 		}
 	}
 
+	public static function show_sync_lag_notice() {
+		if ( ! Jetpack::is_active() && Jetpack::is_staging_site() && Jetpack::is_development_mode() ) {
+			return;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$queue = $listener->get_sync_queue();
+
+		if ( ! $listener->can_add_to_queue( $queue ) ) { // Display notice if the lag is large then 24 hours.
+			$contact_url = admin_url( "admin.php?page=jetpack-debugger&contact=1&note=Jetpack is not able to talk to WordPress.com." );
+			$notice = sprintf(
+				__( 'Oh no! Jetpack is unable to communicate with WordPress.com. This affects a number of features you may be using. Please check your server logs for errors and <a href="%s">contact Jetpack support</a>.', 'jetpack' ),
+				esc_url( $contact_url )
+			);
+			echo '<div class="error" style="border-color: #dc3232;"><p>' . $notice . '</p></div>';
+		}
+	}
+
 	/**
 	 * Whether Jetpack's version maps to a public release, or a development version.
 	 */
@@ -1334,7 +1349,7 @@ class Jetpack {
 		if ( ! $user_id ) {
 			return false;
 		}
-		
+
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
@@ -6138,7 +6153,7 @@ p {
 	}
 
 	/**
-	 * This methods removes all of the registered css files on the frontend
+	 * This methods removes all of the registered css files on the front end
 	 * from Jetpack in favor of using a single file. In effect "imploding"
 	 * all the files into one file.
 	 *
@@ -6650,7 +6665,7 @@ p {
 	 */
 	function jetpack_user_col_style() {
 		global $current_screen;
-		if ( 'users' == $current_screen->base ) { ?>
+		if ( ! empty( $current_screen->base ) && 'users' == $current_screen->base ) { ?>
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;

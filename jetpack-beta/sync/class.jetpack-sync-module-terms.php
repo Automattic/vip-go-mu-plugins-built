@@ -14,8 +14,9 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_action( 'delete_term', $callable, 10, 4 );
 		add_action( 'set_object_terms', $callable, 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
+	}
 
-		//full sync
+	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_terms', $callable, 10, 2 );
 	}
 
@@ -24,7 +25,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_terms', array( $this, 'expand_term_ids' ) );
 	}
 
-	function enqueue_full_sync_actions() {
+	function enqueue_full_sync_actions( $config ) {
 		global $wpdb;
 
 		$taxonomies           = get_taxonomies();
@@ -40,6 +41,20 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 				do_action( 'jetpack_full_sync_terms', $chunk, $taxonomy );
 				$total_chunks_counter ++;
 			}
+		}
+
+		return $total_chunks_counter;
+	}
+
+	function estimate_full_sync_actions( $config ) {
+		// TODO - make this (and method above) more efficient for large numbers of terms or taxonomies
+		global $wpdb;
+
+		$taxonomies           = get_taxonomies();
+		$total_chunks_counter = 0;
+		foreach ( $taxonomies as $taxonomy ) {
+			$total_ids = $wpdb->get_var( $wpdb->prepare( "SELECT count(term_id) FROM $wpdb->term_taxonomy WHERE taxonomy = %s", $taxonomy ) );
+			$total_chunks_counter += (int) ceil( $total_ids / self::ARRAY_CHUNK_SIZE );
 		}
 
 		return $total_chunks_counter;
