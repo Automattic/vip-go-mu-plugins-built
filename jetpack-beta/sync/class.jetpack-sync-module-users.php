@@ -51,6 +51,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function sanitize_user( $user ) {
+		// this create a new user object and stops the passing of the object by reference.
+		$user = unserialize( serialize( $user ) );
 		unset( $user->data->user_pass );
 
 		return $user;
@@ -65,7 +67,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_user( $args ) {
 		list( $user ) = $args;
 
-		return array( $this->add_to_user( $user ) );
+		if ( $user ) {
+			return array( $this->add_to_user( $user ) );	
+		}
+
+		return false;
 	}
 
 	public function expand_login_username( $args ) {
@@ -140,16 +146,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
+		$user =  get_user_by( 'id', $user_id );
 		if ( $meta_key === $user->cap_key ) {
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
 			 * @since 4.2.0
 			 *
-			 * @param object The WP_User object
+			 * @param object The Sanitized WP_User object
 			 */
-			do_action( 'jetpack_sync_save_user', $user );
+			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
 		}
 	}
 
@@ -173,12 +179,20 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function get_where_sql( $config ) {
-		// config is a list of user IDs to sync
-		if ( is_array( $config ) ) {
-			return 'ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		global $wpdb;
+
+		if ( is_multisite() ) {
+			$query = "ID IN ( SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->base_prefix}capabilities' )";
+		} else {
+			$query = '1=1';
 		}
 
-		return null;
+		// config is a list of user IDs to sync
+		if ( is_array( $config ) ) {
+			$query .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+		}
+
+		return $query;
 	}
 
 	function get_full_sync_actions() {

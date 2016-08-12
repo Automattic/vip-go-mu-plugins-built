@@ -9,6 +9,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	private $full_sync_end_checksum;
 	private $full_sync_start_config;
+	private $synced_user_ids;
 
 	function setUp() {
 		parent::setUp();
@@ -219,8 +220,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
+		$this->sender->get_sync_queue()->reset();
+
+		// let's register a listener that asserts that only our intended users get enqueued
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_full_sync_users', array( $this, 'record_full_synced_users' ) );
 
 		$this->full_sync->start();
+
+		// let's make sure we've only enqueued users from the current blog too
+		$this->assertTrue( in_array( $added_mu_blog_user_id, $this->synced_user_ids ) );
+		$this->assertTrue( in_array( $user_id, $this->synced_user_ids ) );
+		$this->assertFalse( in_array( $mu_blog_user_id, $this->synced_user_ids ) );
+
 		$this->sender->do_sync();
 
 		// admin user, our current-blog-created user and our "added" user
@@ -229,6 +240,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $this->server_replica_storage->get_user( $user_id ) );
 		$this->assertNotNull( $this->server_replica_storage->get_user( $added_mu_blog_user_id ) );
 		$this->assertNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+	}
+
+	function record_full_synced_users( $user_ids ) {
+		$this->synced_user_ids = $user_ids;
 	}
 
 	function test_full_sync_sends_all_constants() {
@@ -825,6 +840,47 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
 	}
 
+	function test_full_sync_doesnt_exceed_options_write_rate_limit() {
+		Jetpack_Sync_Settings::update_settings( array( 'queue_max_writes_sec' => 2 ) );
+		
+		foreach( range( 1, 2100 ) as $i ) { // 200 items+
+			$this->factory->user->create();	
+		}
+
+		$start_time = microtime( true );
+
+		$this->full_sync->start();
+
+		$this->assertTrue( microtime( true ) > ( $start_time + 2.0 ) );
+	}
+
+	function test_full_sync_has_correct_sent_count_even_if_some_actions_unsent() {
+		// if actions get filtered out after dequeue, this can lead to the sent count 
+		// not matching the queued count - we should make sure the count is incremented even for late-deleted items
+
+		$this->sender->do_sync();
+
+		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_users', array( $this, 'dont_sync_users' ) );
+
+		foreach( range( 1, 3 ) as $i ) {
+			$this->factory->user->create();	
+		}
+		
+		$this->full_sync->start( array( 'users' => true ) );
+		
+		$this->sender->do_sync();
+		$this->sender->do_sync();
+		$this->sender->do_sync();
+
+		$full_sync_status = $this->full_sync->get_status();
+
+		$this->assertEquals( $full_sync_status['sent']['users'], $full_sync_status['queue']['users'] );
+	}
+
+	function dont_sync_users( $args ) {
+		return false;
+	}
+
 	function test_full_sync_status_with_a_small_queue() {
 
 		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
@@ -924,6 +980,42 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_sync();
 		$this->assertTrue( is_array( $wp_taxonomies['category']->rewrite ) );
+	}
+
+	public function test_initial_sync_doesnt_sync_subscribers() {
+		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
+		$this->factory->user->create( array( 'user_login' => 'theadmin', 'role' => 'administrator' ) );
+		foreach( range( 1, 10 ) as $i ) {
+			$this->factory->user->create( array( 'role' => 'subscriber' ) );
+		}
+		$this->full_sync->start();
+		$this->sender->do_sync();
+		$this->assertEquals( 13, $this->server_replica_storage->user_count() );
+		$this->server_replica_storage->reset();
+		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
+		$user_ids = Jetpack_Sync_Actions::get_initial_sync_user_config();
+		$this->assertEquals( 3, count( $user_ids ) );
+		$this->full_sync->start( array( 'users' => Jetpack_Sync_Actions::get_initial_sync_user_config() ) );
+		$this->sender->do_sync();
+		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
+		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
+		Jetpack_Sync_Actions::schedule_initial_sync();
+		$this->assertTrue(
+			!! Jetpack_Sync_Actions::is_scheduled_full_sync(
+				array(
+					'options' => true,
+					'network_options' => true,
+					'functions' => true,
+					'constants' => true,
+					'users' => Jetpack_Sync_Actions::get_initial_sync_user_config(),
+				)
+			)
+		);
+	}
+
+	function _do_cron() {
+		$_GET['check'] = wp_hash( '187425' );
+		require( ABSPATH . '/wp-cron.php' );
 	}
 
 	function upgrade_terms_to_pass_test( $term ) {
