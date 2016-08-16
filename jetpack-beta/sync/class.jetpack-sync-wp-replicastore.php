@@ -145,7 +145,7 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->posts, Jetpack_Sync_Defaults::$default_post_checksum_columns , 'ID', Jetpack_Sync_Defaults::get_blacklisted_post_types_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->posts, Jetpack_Sync_Defaults::$default_post_checksum_columns , 'ID', Jetpack_Sync_Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
 	}
 
 	public function comment_count( $status = null, $min_id = null, $max_id = null ) {
@@ -265,6 +265,14 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 
 	public function spam_comment( $comment_id ) {
 		wp_spam_comment( $comment_id );
+	}
+
+	public function trashed_post_comments( $post_id, $statuses ) {
+		wp_trash_post_comments( $post_id );
+	}
+
+	public function untrashed_post_comments( $post_id ) {
+		wp_untrash_post_comments( $post_id );
 	}
 
 	public function comments_checksum( $min_id = null, $max_id = null ) {

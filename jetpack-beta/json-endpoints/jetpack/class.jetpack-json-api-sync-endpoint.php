@@ -32,9 +32,7 @@ class Jetpack_JSON_API_Sync_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$modules = null;
 		}
 
-		Jetpack_Sync_Actions::schedule_full_sync( $modules );
-
-		return array( 'scheduled' => true );
+		return array( 'scheduled' => Jetpack_Sync_Actions::schedule_full_sync( $modules ) );
 	}
 }
 
@@ -156,6 +154,12 @@ class Jetpack_JSON_API_Sync_Modify_Settings_Endpoint extends Jetpack_JSON_API_Sy
 				if ( is_numeric( $value ) ) {
 					$value = (int) $value;
 				}
+				
+				// special case for sending empty arrays - a string with value 'empty'
+				if ( $value === 'empty' ) {
+					$value = array();
+				}
+
 				$sync_settings[ $key ] = $value;
 			}
 		}
