@@ -18,6 +18,27 @@ class Jetpack_Debugger {
 		}
 	}
 
+	static function seconds_to_time( $seconds ) {
+		$units = array(
+			"week"   => 7*24*3600,
+			"day"    =>   24*3600,
+			"hour"   =>      3600,
+			"minute" =>        60,
+			"second" =>         1,
+		);
+		// specifically handle zero
+		if ( $seconds == 0 ) return "0 seconds";
+		$human_readable = "";
+		foreach ( $units as $name => $divisor ) {
+			if ( $quot = intval( $seconds / $divisor) ) {
+				$human_readable .= "$quot $name";
+				$human_readable .= ( abs( $quot ) > 1 ? "s" : "" ) . ", ";
+				$seconds -= $quot * $divisor;
+			}
+		}
+		return substr( $human_readable, 0, -2 );
+	}
+
 	public static function jetpack_increase_timeout() {
 		return 30; // seconds
 	}
@@ -59,6 +80,40 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
+
+		$debug_info .= "\r\n";
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-modules.php';
+		$sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$sync_statuses = $sync_module->get_status();
+		$human_readable_sync_status = array();
+		foreach( $sync_statuses  as $sync_status => $sync_status_value ) {
+			$human_readable_sync_status[ $sync_status ] =
+				in_array( $sync_status, array( 'started', 'queue_finished', 'sent_started', 'finished' ) )
+				? date( 'r', $sync_status_value ) : $sync_status_value ;
+		}
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Jetpack Sync Full Status: `%1$s`', 'jetpack' ), print_r( $human_readable_sync_status, 1 ) );
+
+		$next_schedules = wp_next_scheduled( 'jetpack_sync_full' );
+		if( $next_schedules ) {
+			$debug_info .= "\r\n". sprintf( esc_html__( 'Next Jetpack Full Sync Schedule: `%1$s`', 'jetpack' ), date( 'r', $next_schedules ) );
+		} else {
+			$debug_info .= "\r\n". esc_html__( "Next Jetpack Full Sync Schedule: Not Scheduled", 'jetpack' );
+		}
+
+		require_once JETPACK__PLUGIN_DIR. 'sync/class.jetpack-sync-sender.php';
+
+		$queue = Jetpack_Sync_Sender::get_instance()->get_sync_queue();
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue size: %1$s', 'jetpack' ), $queue->size() );
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $queue->lag() ) );
+
+		$full_sync_queue = Jetpack_Sync_Sender::get_instance()->get_full_sync_queue();
+
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue size: %1$s', 'jetpack' ), $full_sync_queue->size() );
+		$debug_info .= "\r\n". sprintf( esc_html__( 'Full Sync Queue lag: %1$s', 'jetpack' ), self::seconds_to_time( $full_sync_queue->lag() ) );
+
+		$debug_info .= "\r\n";
 
 		foreach ( array (
 					  'HTTP_HOST',
@@ -172,7 +227,7 @@ class Jetpack_Debugger {
 				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
 				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
 				<ol>
-					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'http://wordpress.org/support/plugin/jetpack' ); ?></li>
+					<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( __( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/getting-started-with-jetpack/known-issues/', 'http://jetpack.com/support/', 'https://wordpress.org/support/plugin/jetpack' ); ?></li>
 					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
 					<li>
 						<b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>
@@ -203,11 +258,6 @@ class Jetpack_Debugger {
 					<div id="connected-user-details">
 						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
 					</div>
-					<hr />
-					<div id="sync-related-posts">
-						<p><?php echo esc_html__( 'Some features of Jetpack use the WordPress.com infrastructure and require that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
-						<?php echo Jetpack::init()->sync->reindex_ui() ?>
-					</div>
 				<?php endif; ?>
 			</div>
 			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
@@ -236,7 +286,7 @@ class Jetpack_Debugger {
 					?>
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
-						<textarea name="message" cols="40" rows="7" id="did"></textarea>
+						<textarea name="message" cols="40" rows="7" id="did"><?php echo ( isset( $_GET['note'] ) ? esc_textarea( $_GET['note'] ) : '' ); ?></textarea>
 					</div>
 
 					<div id="name_div" class="formbox">
@@ -264,7 +314,7 @@ class Jetpack_Debugger {
 
 					<div id="blog_div" class="formbox">
 						<div id="submit_div" class="contact-support">
-						<input type="submit" name="submit" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
+						<input type="submit" name="submit" class="button button-primary button-large" value="<?php esc_html_e( 'Submit &#187;', 'jetpack' ); ?>">
 						</div>
 					</div>
 					<div style="clear: both;"></div>
@@ -274,7 +324,7 @@ class Jetpack_Debugger {
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
 			<div id="debug_info_div" style="display:none">
 			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
-			<div id="debug_info"><?php echo wpautop( esc_html( $debug_info ) ); ?></div>
+			<div id="debug_info"><pre><?php echo esc_html( $debug_info ) ; ?></pre></div>
 		</div>
 		</div>
 	<?php
@@ -326,13 +376,11 @@ class Jetpack_Debugger {
 
 			form#contactme {
 				border: 1px solid #dfdfdf;
-				background: #eaf3fa;
+				background: #FFF;
 				padding: 20px;
 				margin: 10px;
-				background-color: #eaf3fa;
-				border-radius: 5px;
+				background-color: #F3F6F8;
 				font-size: 15px;
-				font-family: "Open Sans", "Helvetica Neue", sans-serif;
 			}
 
 			form#contactme label.h {
@@ -349,31 +397,17 @@ class Jetpack_Debugger {
 
 			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea, #debug_info_div {
 				border: 1px solid #e5e5e5;
-				border-radius: 11px;
 				box-shadow: inset 0 1px 1px rgba(0,0,0,0.1);
 				color: #666;
 				font-size: 14px;
 				padding: 10px;
 				width: 97%;
 			}
-			.formbox .contact-support input[type="submit"] {
-				float: right;
-				margin: 0 !important;
-				border-radius: 20px !important;
-				cursor: pointer;
-				font-size: 13pt !important;
-				height: auto !important;
-				margin: 0 0 2em 10px !important;
-				padding: 8px 16px !important;
-				background-color: #ddd;
-				border: 1px solid rgba(0,0,0,0.05);
-				border-top-color: rgba(255,255,255,0.1);
-				border-bottom-color: rgba(0,0,0,0.15);
-				color: #333;
-				font-weight: 400;
-				display: inline-block;
-				text-align: center;
-				text-decoration: none;
+			#debug_info_div {
+				border-radius: 0;
+				margin-top: 16px;
+				background: #FFF;
+				padding: 16px;
 			}
 
 			.formbox span.errormsg {
@@ -397,7 +431,7 @@ class Jetpack_Debugger {
 			}
 
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
-				font-size: smaller;
+				font-size: 12px;
 			}
 
 		</style>
@@ -444,7 +478,7 @@ class Jetpack_Debugger {
 				if ( validation_error ) {
 					return false;
 				}
-				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
+				message.val( message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_form_info').val()  );
 				return true;
 	    	});
 

@@ -795,7 +795,7 @@ class Jetpack_SSO {
 			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
 				'user_found_with' => $user_found_with,
 				'user_connected'  => (bool) $is_user_connected,
-				'user_role'       => Jetpack::init()->translate_current_user_to_role()
+				'user_role'       => Jetpack::translate_current_user_to_role()
 			) );
 
 			if ( ! $is_user_connected ) {
@@ -1010,7 +1010,7 @@ class Jetpack_SSO {
 		$error = sprintf(
 			wp_kses(
 				__(
-					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" target="_blank">Security Settings</a> to configure <a href="%2$S" target="_blank">Two-step Authentication</a> for your account.',
+					'Two-Step Authentication is required to access this site. Please visit your <a href="%1$s" target="_blank">Security Settings</a> to configure <a href="%2$s" target="_blank">Two-step Authentication</a> for your account.',
 					'jetpack'
 				),
 				array(  'a' => array( 'href' => array() ) )

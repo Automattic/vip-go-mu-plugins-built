@@ -522,7 +522,7 @@ class Jetpack_Custom_CSS {
 						return (bool) ( $custom_css_add === 'no' );
 				}
 
-				return (bool) ( get_option( 'safecss_add' ) == 'no' );
+				return (bool) ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_add', '' ) == 'no' );
 			}
 		}
 	}
@@ -721,7 +721,7 @@ class Jetpack_Custom_CSS {
 		$option = Jetpack_Custom_CSS::is_preview() ? 'safecss_preview' : 'safecss';
 
 		if ( 'safecss' == $option ) {
-			if ( get_option( 'safecss_revision_migrated' ) ) {
+			if ( Jetpack_Options::get_option_and_ensure_autoload( 'safecss_revision_migrated', '0' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
 
 				if ( ! empty( $safecss_post['post_content'] ) ) {
@@ -737,7 +737,7 @@ class Jetpack_Custom_CSS {
 
 			// Fix for un-migrated Custom CSS
 			if ( empty( $safecss_post ) ) {
-				$_css = get_option( 'safecss' );
+				$_css = Jetpack_Options::get_option_and_ensure_autoload( 'safecss', '' );
 				if ( !empty( $_css ) ) {
 					$css = $_css;
 				}
@@ -997,7 +997,7 @@ class Jetpack_Custom_CSS {
 						 * @param string $str Intro text appearing above the Custom CSS editor.
 						 */
 						echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/" target="_blank">beginner tutorial</a>. Questions?
-		Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
+		Ask in the <a href="https://wordpress.org/support/forum/themes-and-templates" target="_blank">Themes and Templates forum</a>.', 'jetpack' ) );
 					?></p>
 					<p class="css-support"><?php echo __( 'Note: Custom CSS will be reset when changing themes.', 'jetpack' ); ?></p>
 
@@ -1812,9 +1812,6 @@ function safecss_class() {
 	require_once( dirname( __FILE__ ) . '/csstidy/class.csstidy.php' );
 
 	class safecss extends csstidy_optimise {
-		function __construct( &$css ) {
-			return $this->csstidy_optimise( $css );
-		}
 
 		function postparse() {
 

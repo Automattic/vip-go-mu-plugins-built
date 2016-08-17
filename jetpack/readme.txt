@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stefmattana, stephdau, tmoorewp, Viper007Bond, westi, yoavf, zinigor
 Tags: WordPress.com, jet pack, comments, contact, gallery, performance, sharing, security, shortcodes, stats, subscriptions, widgets
-Stable tag: 4.1
-Requires at least: 4.4
-Tested up to: 4.5.3
+Stable tag: 4.1.1
+Requires at least: 4.5
+Tested up to: 4.6
 
 Increase your traffic, view your stats, speed up your site, and protect yourself from hackers with Jetpack.
 
@@ -74,6 +74,62 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Related Posts.
 
 == Changelog ==
+
+= 4.2.1 =
+
+* Release date: August 17th, 2016
+
+**Bug Fixes:**
+
+* We fixed a conflict between Jetpack and W3 Total Cache.
+* We fixed some issues with Publicize and Custom Post Types.
+* Very large Multisite networks with lots of users can now be synchronized with WordPress.com.
+* We improved the synchronization process between your site and WordPress.com.
+
+= 4.2 =
+
+* Release date: August 10th, 2016
+
+**Performance Enhancements:**
+
+* We’ve improved Jetpack’s performance by making calls to the database more efficient; essentially, Jetpack is doing less on each page load, making things faster. #4281, #4316
+* We’ve ensured that every feature uses information that is up to date by completely refactoring the way information was synchronized between your site and WordPress.com.
+* We've improved the way Jetpack queries for information about features, which results in less overall queries.
+
+**Exciting Feature and UI Improvements:**
+
+* We now track your visitor views of Carousel images in stats.
+* You can now customize advanced typographic settings like ligatures in the Custom CSS editor with new support for the `font-feature-settings` property.
+* We’ve improved the experience when you don’t actually have enough posts to Infinitely Scroll.
+* Our Contact Info Widget allows you to enter a Google Maps API Key which is now required by Google if you want to display a map.
+
+**Security:**
+
+* We’re continuing our efforts to harden Jetpack security, by implementing the `hash_equals()` function to avoid timing attacks when comparing strings.  We also improved security on CSVs exported from your contact form.
+
+**Slightly Less Exciting Feature Improvements:**
+
+* The Cartodb shortcode has been changed to match the new product name, Carto.
+* The YouTube shortcode now uses the content width defined by the theme when available, even if an embed size was defined in an old version of WordPress.
+* Breadcrumbs now support hierarchical post types and taxonomies.
+* We’ve added the Portfolio Post Type to the WordPress.com REST API whitelist.
+* There are a few new parameters for the Dailymotion shortcode.
+
+**Improved Compatibility:**
+
+* We now work well with WP Stagecoach staging sites, so you should not see any future impact on production sites.
+* We had some PHP notices popping up in the WooCommerce plugin wizard screen, these are gone.
+
+**Bug Fixes:**
+
+* We stopped loading compatibility stylesheets on the default theme's singular views for Infinite Scroll.
+* Debug tests forwarded through the contact form in the Jetpack Debug menu are now successfully sent to the support team.
+* We’ve removed the PHP notices you might have seen when moderating comments.
+* There are no longer PHP notices cropping up when publishing via Cron.
+* We’ve fixed the official Sharing buttons so they now line up just right.
+* The PHP warnings of Sitemaps stylesheets have been eliminated.
+* We’ve done away with the warnings that appeared when Tonesque processes a file which claims to be one filetype, but is actually another.
+* We’ve exterminated PHP notices that appeared when using Random Redirect, as well as when the author wasn't set.
 
 = 4.1.1 =
 
@@ -187,7 +243,7 @@ Bug Fixes:
 * We accidentally removed the ability for Open Graph to select images from slideshows, it’s up and running again.
 * There was an issue where Open Graph meta tags weren’t being set when your homepage is a “Static Front Page”, it’s working again.
 * In rare cases when developers were customizing Photon they were seeing a PHP notice when arguments were passed as a string rather than an array. This has been fixed.
-* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom frontend login forms.
+* We’ve fixed an issue where Protect’s backup math form wasn’t showing on custom front end login forms.
 * When setting up WooCommerce you might have seen a Related Posts notice which didn’t belong. We’ve eliminated them.
 * If you’ve been using our sharing tool with unofficial sharing buttons you might have noticed your sharing numbers were missing. They’re now back.
 * In unique situations where special characters were used in sitemap stylesheets an error would occur; that has been remedied.

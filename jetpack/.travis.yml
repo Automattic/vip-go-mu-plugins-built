@@ -6,7 +6,7 @@ language: php
 # Setup a global environemnt and overide as needed
 env:
   global:
-    - WP_TRAVISCI=travis:phpunit
+    - WP_TRAVISCI=phpunit
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -36,9 +36,11 @@ matrix:
   - php: "nightly"
     env: WP_VERSION=master
   - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI=travis:js
+    env: WP_VERSION=4.5 WP_TRAVISCI="travis:js"
   - php: "5.2"
     env: WP_VERSION=master
+  - php: "5.3"
+    env: WP_VERSION=master WP_TRAVISCI="phpunit --group=uninstall --testsuite=uninstall"
   - php: "5.2"
     env: WP_VERSION=4.4
   - php: "5.2"
@@ -61,6 +63,14 @@ matrix:
     env: WP_VERSION=4.5
   - php: "7.0"
     env: WP_VERSION=master
+  - php: "5.3"
+    env: WP_VERSION=4.4 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+  - php: "5.3"
+    env: WP_VERSION=4.5 WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+  - php: "5.3"
+    env: WP_VERSION=master WP_MULTISITE=1 WP_TRAVISCI="phpunit -c tests/php.multisite.xml"
+
+
   allow_failures:
   - php: "hhvm"
   - php: "nightly"
@@ -111,3 +121,7 @@ notifications:
        - kraft@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
+
+addons:
+  code_climate:
+    repo_token: 683bd559e5214ca3b721092af177893f05765ba90d2589fcf35d7e85c6ea01e8

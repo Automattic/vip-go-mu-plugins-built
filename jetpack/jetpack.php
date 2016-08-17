@@ -5,16 +5,16 @@
  * Plugin URI: http://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 4.1.1
+ * Version: 4.2.1
  * Author URI: http://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION', '4.4' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '4.5' );
 
-define( 'JETPACK__VERSION',            '4.1.1' );
+define( 'JETPACK__VERSION',            '4.2.1' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -43,13 +43,12 @@ function jetpack_require_lib_dir() {
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-// @todo: Only include things like class.jetpack-sync.php if we're connected.
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
+require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
