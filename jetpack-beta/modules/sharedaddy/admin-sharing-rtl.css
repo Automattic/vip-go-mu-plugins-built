@@ -1,3 +1,4 @@
+/* Do not modify this file directly.  It is concatenated from individual module CSS files. */
 /**
  * Sharedaddy Admin Styles
  */
@@ -284,7 +285,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .preview-digg .option-smart-on {
-	background: url(images/smart-digg.png) no-repeat top right;
+	background: url(images/smart-digg.png) no-repeat top left;
 	background-size: 76px 17px;
 	width:76px;
 	height:17px;
@@ -292,21 +293,21 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .preview-reddit .option-smart-on {
-	background: url(images/smart-reddit.png) no-repeat top right;
+	background: url(images/smart-reddit.png) no-repeat top left;
 	background-size: 104px 21px;
 	width:104px;
 	height:21px;
 }
 
 .preview-facebook .option-smart-on {
-	background: url(images/smart-like.png) no-repeat top right;
+	background: url(images/smart-like.png) no-repeat top left;
 	background-size: 85px 20px;
 	width:85px;
 	height:20px;
 }
 
 .preview-twitter .option-smart-on {
-	background: url(images/smart-twitter.png?1) no-repeat top right;
+	background: url(images/smart-twitter.png?1) no-repeat top left;
 	background-size: 60px 20px;
 	width:60px;
 	height:20px;
@@ -320,35 +321,35 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .preview-google-plus-1 .option-smart-on {
-	background: url(images/smart-googleplus1.png) no-repeat top right;
+	background: url(images/smart-googleplus1.png) no-repeat top left;
 	background-size: 96px 20px;
 	width: 96px;
 	height: 20px;
 }
 
 .preview-tumblr .option-smart-on {
-	background: url(images/smart-tumblr.png) no-repeat top right;
+	background: url(images/smart-tumblr.png) no-repeat top left;
 	background-size: 62px 20px;
 	width: 62px;
 	height: 20px;
 }
 
 .preview-pinterest .option-smart-on {
-	background: url(images/smart-pinterest.png) no-repeat top right;
+	background: url(images/smart-pinterest.png) no-repeat top left;
 	background-size: 39px 20px;
 	width: 39px;
 	height: 20px;
 }
 
 .preview-pocket .option-smart-on {
-	background: url(images/smart-pocket.png) no-repeat top right;
+	background: url(images/smart-pocket.png) no-repeat top left;
 	background-size: 60px 20px;
 	width: 60px;
 	height: 20px;
 }
 
 .preview-skype .option-smart-on {
-	background: url(images/smart-skype.png) no-repeat top right;
+	background: url(images/smart-skype.png) no-repeat top left;
 	background-size: 60px 20px;
 	width: 60px;
 	height: 20px;

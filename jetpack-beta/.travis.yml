@@ -36,7 +36,9 @@ matrix:
   - php: "nightly"
     env: WP_VERSION=master
   - php: "5.6"
-    env: WP_VERSION=4.5 WP_TRAVISCI="travis:js"
+    env: WP_VERSION=4.5 WP_TRAVISCI="gulp travis:js"
+  - php: "5.6"
+    env: WP_VERSION=4.5 WP_TRAVISCI="npm run test-client"
   - php: "5.2"
     env: WP_VERSION=master
   - php: "5.3"
@@ -97,13 +99,10 @@ before_script:
     - sed -i "s/yourusernamehere/root/" wp-tests-config.php
     - sed -i "s/yourpasswordhere//" wp-tests-config.php
     - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
-    - gem install sass
-    - gem install compass
-    - npm install -g npm
-    - npm install -g grunt-cli
-    - npm install
+    - ./tests/load-travis.sh
 
-script: grunt $WP_TRAVISCI
+script:
+    - $WP_TRAVISCI
 
 sudo: false
 

@@ -289,6 +289,7 @@ abstract class SAL_Post {
 			$result['duration'] = (int) $metadata['duration'];
 		}
 
+		/** This filter is documented in class.jetpack-sync.php */
 		return (object) apply_filters( 'get_attachment', $result );
 	}
 
@@ -489,7 +490,14 @@ abstract class SAL_Post {
 		return (object) $author;
 	}
 
-	protected abstract function get_avatar_url( $email, $avatar_size = 96 );
+	protected function get_avatar_url( $email, $avatar_size = 96 ) {
+		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
+		if ( !$avatar_url || is_wp_error( $avatar_url ) ) {
+			return '';
+		}
+
+		return esc_url_raw( htmlspecialchars_decode( $avatar_url[0] ) );
+	}
 
 	/**
  	 * Get extra post permalink suggestions
