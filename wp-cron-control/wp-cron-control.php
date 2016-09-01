@@ -315,8 +315,8 @@ class WP_Cron_Control {
 		}
 
 		// for all other cases disable wp-cron.php and spawn_cron() by telling the system it's already running
-		if ( !defined( 'DOING_CRON' ) )
-			define( 'DOING_CRON', true );
+		//if ( !defined( 'DOING_CRON' ) )
+		//	define( 'DOING_CRON', true );
 
 		// and also disable the wp_cron() call execution
 		if ( !defined( 'DISABLE_WP_CRON' ) )

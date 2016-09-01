@@ -2,7 +2,7 @@
 Contributors: tott, ethitter, automattic, batmoo
 Tags: wp-cron, cron, cron jobs, post missed schedule, scheduled posts
 Requires at least: 3.4
-Tested up to: 4.5
+Tested up to: 4.6
 Stable tag: 0.7.1
 
 This plugin allows you to take control over the execution of cron jobs.
