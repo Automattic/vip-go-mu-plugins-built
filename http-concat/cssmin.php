@@ -75,6 +75,18 @@ class CSSmin
 
         $css = $this->extract_data_urls($css);
 
+		// Clean up unclosed comments on the last line
+		$last_newline = strrpos( rtrim( $css ), "\n" );
+		if ( $last_newline !== false ) {
+			$last_comment_start = strrpos( $css, '/*', $last_newline );
+			if ( $last_comment_start !== false ) {
+				$last_comment_end = strrpos( $css, '*/', $last_comment_start );
+				if ( $last_comment_end === false ) {
+					$css = substr( $css, 0, $last_newline );
+				}
+			}
+		}
+
         // collect all comment blocks...
         while (($start_index = $this->index_of($css, '/*', $start_index)) >= 0) {
             $end_index = $this->index_of($css, '*/', $start_index + 2);
@@ -465,7 +477,10 @@ class CSSmin
 
             if ($found_terminator) {
                 $token = $this->str_slice($css, $start_index, $end_index);
-                $token = preg_replace('/\s+/', '', $token);
+				// remove whitespace, except if $token contains <svg, which needs whitepace left as is
+				if (strpos($token,"<svg")===false && strpos($token,'svg+xml')===false) {
+					$token = preg_replace('/\s+/', '', $token);
+				}
                 $this->preserved_tokens[] = $token;
 
                 $preserver = 'url(' . self::TOKEN . (count($this->preserved_tokens) - 1) . '___)';
