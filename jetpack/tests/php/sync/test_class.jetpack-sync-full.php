@@ -766,6 +766,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_can_sync_individual_comments() {
+		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
+			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
+		}
+
 		$post_id = $this->factory->post->create();
 		list( $sync_comment_id, $no_sync_comment_id, $sync_comment_id_2 ) = $this->factory->comment->create_post_comments( $post_id, 3 );
 
@@ -906,6 +910,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
+		if ( version_compare( phpversion(), '5.3.0', '<' ) ) {
+			$this->markTestSkipped( 'This test fails in PHP 5.2.' );
+		}
 
 		$this->sender->set_dequeue_max_bytes( 750 ); // process 0.00075MB of items at a time
 
@@ -1023,7 +1030,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::schedule_initial_sync();
+		Jetpack_Sync_Actions::schedule_initial_sync( '4.2', '4.1' );
 		$this->assertTrue(
 			!! Jetpack_Sync_Actions::is_scheduled_full_sync(
 				array(

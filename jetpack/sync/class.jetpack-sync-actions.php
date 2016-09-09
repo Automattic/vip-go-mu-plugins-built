@@ -13,15 +13,12 @@ class Jetpack_Sync_Actions {
 	const INITIAL_SYNC_MULTISITE_INTERVAL = 10;
 
 	static function init() {
-		
+
 		// Add a custom "every minute" cron schedule
 		add_filter( 'cron_schedules', array( __CLASS__, 'minute_cron_schedule' ) );
 
 		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ) );
-		
-		// When imports are finished, schedule a full sync
-		add_action( 'import_end', array( __CLASS__, 'schedule_full_sync' ) );
+		add_action( 'jetpack_client_authorized', array( __CLASS__, 'schedule_full_sync' ), 10, 0 );
 
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
@@ -51,7 +48,7 @@ class Jetpack_Sync_Actions {
 		 * Return false to not load sync listener code that monitors common
 		 * WP actions to be serialized.
 		 *
-		 * By default this returns true for non-GET-requests, or requests where the
+		 * By default this returns true for cron jobs, non-GET-requests, or requests where the
 		 * user is logged-in.
 		 *
 		 * @since 4.2.0
@@ -60,11 +57,13 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_listener_should_load',
 			(
-				'GET' !== $_SERVER['REQUEST_METHOD']
+				( isset( $_SERVER["REQUEST_METHOD"] ) && 'GET' !== $_SERVER['REQUEST_METHOD'] )
 				||
 				is_user_logged_in()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				defined( 'DOING_CRON' ) && DOING_CRON
 			)
 		) ) {
 			self::initialize_listener();
@@ -75,7 +74,7 @@ class Jetpack_Sync_Actions {
 		 * Return false to not load sync sender code that serializes pending
 		 * data and sends it to WPCOM for processing.
 		 *
-		 * By default this returns true for POST requests, admin requests, or requests
+		 * By default this returns true for cron jobs, POST requests, admin requests, or requests
 		 * by users who can manage_options.
 		 *
 		 * @since 4.2.0
@@ -84,13 +83,15 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
-				'POST' === $_SERVER['REQUEST_METHOD']
+				( isset( $_SERVER["REQUEST_METHOD"] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
 				||
 				current_user_can( 'manage_options' )
 				||
 				is_admin()
 				||
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
+				||
+				defined( 'DOING_CRON' ) && DOING_CRON
 			)
 		) ) {
 			self::initialize_sender();
@@ -141,7 +142,18 @@ class Jetpack_Sync_Actions {
 		return $rpc->getResponse();
 	}
 
-	static function schedule_initial_sync() {
+	static function schedule_initial_sync( $new_version = null, $old_version = null ) {
+		$initial_sync_config = array(
+			'options' => true,
+			'network_options' => true,
+			'functions' => true,
+			'constants' => true,
+		);
+
+		if ( $old_version && ( version_compare( $old_version, '4.2', '<' ) ) ) {
+			$initial_sync_config['users'] = 'initial';
+		}
+
 		// we need this function call here because we have to run this function
 		// reeeeally early in init, before WP_CRON_LOCK_TIMEOUT is defined.
 		wp_functionality_constants();
@@ -153,14 +165,8 @@ class Jetpack_Sync_Actions {
 			$time_offset = 1;
 		}
 
-		self::schedule_full_sync( 
-			array( 
-				'options' => true, 
-				'network_options' => true, 
-				'functions' => true, 
-				'constants' => true, 
-				'users' => 'initial' 
-			),
+		self::schedule_full_sync(
+			$initial_sync_config,
 			$time_offset
 		);
 	}
@@ -200,7 +206,7 @@ class Jetpack_Sync_Actions {
 	static function is_scheduled_full_sync( $modules = null ) {
 		if ( is_null( $modules ) ) {
 			$crons = _get_cron_array();
-			
+
 			foreach ( $crons as $timestamp => $cron ) {
 				if ( ! empty( $cron['jetpack_sync_full'] ) ) {
 					return true;
@@ -209,7 +215,7 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
-		return wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
+		return !! wp_next_scheduled( 'jetpack_sync_full', array( $modules ) );
 	}
 
 	static function do_full_sync( $modules = null ) {
@@ -226,7 +232,7 @@ class Jetpack_Sync_Actions {
 		if( ! isset( $schedules["1min"] ) ) {
 			$schedules["1min"] = array(
 				'interval' => 60,
-				'display' => __( 'Every minute' ) 
+				'display' => __( 'Every minute' )
 			);
 		}
 		return $schedules;
@@ -241,7 +247,7 @@ class Jetpack_Sync_Actions {
 		}
 
 		self::initialize_sender();
-		
+
 		// remove shutdown hook - no need to sync twice
 		if ( has_action( 'shutdown', array( self::$sender, 'do_sync' ) ) ) {
 			remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
@@ -249,7 +255,7 @@ class Jetpack_Sync_Actions {
 
 		do {
 			$next_sync_time = self::$sender->get_next_sync_time();
-			
+
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
 				if ( $delay > 15 ) {
@@ -282,4 +288,4 @@ class Jetpack_Sync_Actions {
 add_action( 'init', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'schedule_initial_sync' ), 10, 2 );

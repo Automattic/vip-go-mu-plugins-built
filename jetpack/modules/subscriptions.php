@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Subscriptions
- * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
+ * Module Description: Notify your readers of new posts and comments by email.
  * Jumpstart Description: Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.
  * Sort Order: 9
  * Recommendation Order: 8
@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Social
- * Feature: Jumpstart
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
  */
 
@@ -170,6 +170,14 @@ class Jetpack_Subscriptions {
 		}
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
+		}
+
+		/**
+		 * If we're updating the post, let's make sure the flag to not send to subscribers
+		 * is set to minimize the chances of sending posts multiple times.
+		 */
+		if ( 'publish' == $old_status ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 
 		/**

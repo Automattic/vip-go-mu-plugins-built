@@ -2,13 +2,14 @@
 
 /**
  * Module Name: Shortcode Embeds
- * Module Description: Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary.
+ * Module Description: Embed media from popular sites without any coding.
  * Sort Order: 3
  * First Introduced: 1.1
  * Major Changes In: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Photos and Videos, Social, Writing, Appearance
+ * Feature: Writing
  * Additional Search Queries: shortcodes, shortcode, embeds, media, bandcamp, blip.tv, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube
  */
 
