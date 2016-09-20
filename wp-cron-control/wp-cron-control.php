@@ -95,8 +95,8 @@ class WP_Cron_Control {
 		self::instance()->settings_page_name = sprintf( __( '%s Settings', 'wp-cron-control' ), self::instance()->plugin_name );
 
 		if ( 1 == self::instance()->settings['enable'] ) {
+			self::instance()->prepare();
 		}
-		self::instance()->prepare();
 	}
 
 	/*
