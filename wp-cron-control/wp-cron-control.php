@@ -327,41 +327,41 @@ class WP_Cron_Control {
 	public function validate_scheduled_posts() {
 		global $wpdb;
 
-		// grab all scheduled posts from posts table
-		$sql = "SELECT ID, post_date_gmt FROM $wpdb->posts WHERE post_status = 'future'";
-		$results = $wpdb->get_results( $sql );
-		$return = true;
+		$return_value = true;
 
-		// if none exists just return
-		if ( empty( $results ) )
-			return true;
+		$offset  = 0;
+		$limit   = 30;
 
-		// otherwise check each of them
-		foreach ( $results as $r ) {
+		while ( true ) {
+			// grab batch of scheduled posts
+			// uses `post_date` and converts to GMT later, rather than pulling `post_date_gmt`, to leverage `type_status_date` index
+			$results = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM $wpdb->posts WHERE post_status = 'future' LIMIT %d,%d", $offset, $limit ) );
+			$offset  += $limit;
 
-			$gmt_time  = strtotime( $r->post_date_gmt . ' GMT' );
+			// if none exists just return
+			if ( empty( $results ) ) {
+				return $return_value;
+			}
 
-			// grab the scheduled job for this post
-			$timestamp = wp_next_scheduled( 'publish_future_post', array( (int) $r->ID ) );
-			if ( $timestamp === false ) {
-				// if none exists issue one
-				wp_schedule_single_event( $gmt_time, 'publish_future_post', array( (int) $r->ID ) );
-				$return = false;
-			} else {
-				// if one exists update timestamp to adjust for daylights savings change, when necessary
-				if ( $timestamp != $gmt_time ) {
+			// otherwise check each of them
+			foreach ( $results as $r ) {
+				$gmt_time = strtotime( get_gmt_from_date( $r->post_date ) . ' GMT' );
+
+				// grab the scheduled job for this post
+				$timestamp = wp_next_scheduled( 'publish_future_post', array( (int) $r->ID ) );
+				if ( false === $timestamp ) {
+					// if none exists issue one
+					wp_schedule_single_event( $gmt_time, 'publish_future_post', array( (int) $r->ID ) );
+					$return_value = false;
+				} elseif ( (int) $timestamp !== $gmt_time ) {
 					wp_clear_scheduled_hook( 'publish_future_post', array( (int) $r->ID ) );
 					wp_schedule_single_event( $gmt_time, 'publish_future_post', array( (int) $r->ID ) );
-
-					$new_date = date( 'Y-m-d H:i:s', $gmt_time );
-					$sql_u = $wpdb->prepare( "UPDATE $wpdb->posts SET post_date_gmt=%s WHERE ID=%d", $new_date, $r->ID );
-					$wpdb->query( $sql_u );
-					$return = false;
+					$return_value = false;
 				}
 			}
 		}
 
-		return $return;
+		return $return_value;
 	}
 }
 
