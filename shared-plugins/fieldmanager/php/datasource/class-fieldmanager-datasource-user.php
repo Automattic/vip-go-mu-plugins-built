@@ -1,10 +1,8 @@
 <?php
-/**
- * @package Fieldmanager_Datasource
- */
 
 /**
- * Data source for WordPress Users, for autocomplete and option types.
+ * Datasource to populate autocomplete and option fields with WordPress Users.
+ *
  * @package Fieldmanager_Datasource
  */
 class Fieldmanager_Datasource_User extends Fieldmanager_Datasource {
@@ -141,7 +139,7 @@ class Fieldmanager_Datasource_User extends Fieldmanager_Datasource {
         $ret = array();
 
         if ( $fragment ) {
-        	$user_args['search'] = $fragment;
+        	$user_args['search'] = '*' . $fragment . '*';
         }
 
         $users = get_users( $user_args );

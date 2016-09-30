@@ -1,11 +1,10 @@
 <?php
-/**
- * @package Fieldmanager_Context
- */
 
 /**
- * Use fieldmanager to create meta boxes on
- * @package Fieldmanager_Datasource
+ * Use fieldmanager to add fields to the "quick edit" (post list inline editing)
+ * and save data primarily to post meta.
+ *
+ * @package Fieldmanager_Context
  */
 class Fieldmanager_Context_QuickEdit extends Fieldmanager_Context_Storable {
 
@@ -123,6 +122,9 @@ class Fieldmanager_Context_QuickEdit extends Fieldmanager_Context_Storable {
 		?>
 		<fieldset class="inline-edit-col-left fm-quickedit" id="fm-quickedit-<?php echo esc_attr( $column_name ); ?>" data-fm-post-type="<?php echo esc_attr( $post_type ); ?>">
 			<div class="inline-edit-col">
+				<?php if ( ! empty( $this->title ) ) : ?>
+					<h4><?php echo esc_html( $this->title ) ?></h4>
+				<?php endif ?>
 				<?php $this->render_field( array( 'data' => $values ) ); ?>
 			</div>
 		</fieldset>

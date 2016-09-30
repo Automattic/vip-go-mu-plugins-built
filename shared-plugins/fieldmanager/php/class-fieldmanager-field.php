@@ -1,25 +1,11 @@
 <?php
 
 /**
- * Base class containing core functionality for Fieldmanager
+ * Abstract base class containing core functionality for Fieldmanager fields.
  *
- * Security features of this class for verifying access and saving data:
- * 1. In Fieldmanager_Field::save_fields_for_post(), verify that we are using an assigned post type
- *    This is the starting point for $_POST requests to post edit pages.
- * 2. In Fieldmanager_Field::save_fields_for_post(), verify that the user can save the post type
- * 3. In Fieldmanager_Field::save_fields_for_post(), perform nonce validation
- * 4. In Fieldmanager_Field::save_to_post_meta(), call Fieldmanager_Field::presave_all()
- *    This is the starting point for save routines that use Fieldmanager as an API
- * 5. In Fieldmanager_Field::presave_all(), verify that the number of elements is less than $limit,
- *    if $limit is not 1 or infinite (0), and verify that all multi-element arrays are numeric only.
- * 6. In Fieldmanager_Field::presave_all(), call Fieldmanager_Field::presave()
- * 5. In Fieldmanager_Field::presave(), call all assigned validators; if one returns false, die.
- * 6a. For groups (including the root group) in Fieldmanager_Group::presave(), verify that all
- *     keys in the submission match the form names of valid children.
- * 6b. For all other fields, in Fieldmanager_Field::presave(), sanitize the field to save to the DB.
- *     The default sanitizer is sanitize_text_field().
+ * Fields are UI elements that allow a person to interact with data.
  *
- * @package Fieldmanager
+ * @package Fieldmanager_Field
  */
 abstract class Fieldmanager_Field {
 
@@ -93,6 +79,12 @@ abstract class Fieldmanager_Field {
 	 * Description for the form element
 	 */
 	public $description = '';
+
+	/**
+	 * @var boolean
+	 * If true, the description will be displayed after the element.
+	 */
+	public $description_after_element = true;
 
 	/**
 	 * @var string|boolean[]
@@ -331,6 +323,14 @@ abstract class Fieldmanager_Field {
 	 */
 	public function __construct( $label = '', $options = array() ) {
 		$this->set_options( $label, $options );
+
+		// A post can only have one parent, so if this saves to post_parent and
+		// it's repeatable, we're doing it wrong.
+		if ( $this->datasource && ! empty( $this->datasource->save_to_post_parent ) && $this->is_repeatable() ) {
+			_doing_it_wrong( 'Fieldmanager_Datasource_Post::$save_to_post_parent', __( 'A post can only have one parent, therefore you cannot store to post_parent in repeatable fields.', 'fieldmanager' ), '1.0.0' );
+			$this->datasource->save_to_post_parent = false;
+			$this->datasource->only_save_to_post_parent = false;
+		}
 	}
 
 	/**
@@ -341,25 +341,24 @@ abstract class Fieldmanager_Field {
 	 * @throws FM_Developer_Exception if an option is set but not public.
 	 */
 	public function set_options( $label, $options ) {
-		if ( is_array( $label ) ) $options = $label;
-		else $options['label'] = $label;
+		if ( is_array( $label ) ) {
+			$options = $label;
+		} else {
+			$options['label'] = $label;
+		}
 
-		foreach ( $options as $k => $v ) {
-			try {
-				$reflection = new ReflectionProperty( $this, $k ); // Would throw a ReflectionException if item doesn't exist (developer error)
-				if ( $reflection->isPublic() ) $this->$k = $v;
-				else throw new FM_Developer_Exception; // If the property isn't public, don't set it (rare)
-			} catch ( Exception $e ) {
+		// Get all the public properties for this object
+		$properties = call_user_func( 'get_object_vars', $this );
+
+		foreach ( $options as $key => $value ) {
+			if ( array_key_exists( $key, $properties ) ) {
+				$this->$key = $value;
+			} elseif ( self::$debug ) {
 				$message = sprintf(
 					__( 'You attempted to set a property "%1$s" that is nonexistant or invalid for an instance of "%2$s" named "%3$s".', 'fieldmanager' ),
-					$k, __CLASS__, !empty( $options['name'] ) ? $options['name'] : 'NULL'
+					$key, get_class( $this ), !empty( $options['name'] ) ? $options['name'] : 'NULL'
 				);
-				$title = esc_html__( 'Nonexistant or invalid option', 'fieldmanager' );
-				if ( !self::$debug ) {
-					wp_die( esc_html( $message ), $title );
-				} else {
-					throw new FM_Developer_Exception( esc_html( $message ) );
-				}
+				throw new FM_Developer_Exception( esc_html( $message ) );
 			}
 		}
 
@@ -449,7 +448,7 @@ abstract class Fieldmanager_Field {
 		);
 
 		// After starting the field, apply a filter to allow other plugins to append functionality
-		$out = apply_filters( 'fm_element_markup_start', $out, $this );
+		$out = apply_filters( 'fm_element_markup_start', $out, $this, $values );
 		if ( ( 0 == $this->limit || ( $this->limit > 1 && $this->limit > $this->minimum_count ) ) && "top" == $this->add_more_position ) {
 			$out .= $this->add_another();
 		}
@@ -471,7 +470,7 @@ abstract class Fieldmanager_Field {
 		}
 
 		// Before closing the field, apply a filter to allow other plugins to append functionality
-		$out = apply_filters( 'fm_element_markup_end', $out, $this );
+		$out = apply_filters( 'fm_element_markup_end', $out, $this, $values );
 
 		$out .= '</div>';
 
@@ -534,6 +533,10 @@ abstract class Fieldmanager_Field {
 			}
 		}
 
+		if ( isset( $this->description ) && !empty( $this->description ) && ! $this->description_after_element ) {
+			$out .= sprintf( '<div class="fm-item-description">%s</div>', $this->escape( 'description' ) );
+		}
+
 		if ( Null === $value && Null !== $this->default_value )
 			$value = $this->default_value;
 
@@ -547,7 +550,7 @@ abstract class Fieldmanager_Field {
 
 		if ( $render_label_after ) $out .= $label;
 
-		if ( isset( $this->description ) && !empty( $this->description ) ) {
+		if ( isset( $this->description ) && !empty( $this->description ) && $this->description_after_element ) {
 			$out .= sprintf( '<div class="fm-item-description">%s</div>', $this->escape( 'description' ) );
 		}
 
@@ -939,7 +942,7 @@ abstract class Fieldmanager_Field {
 	 * @return string
 	 */
 	public function get_collapse_handle() {
-		return sprintf( '<div class="handlediv" title="%s"><br /></div>', esc_attr__( 'Click to toggle', 'fieldmanager' ) );
+		return '<span class="toggle-indicator" aria-hidden="true"></span>';
 	}
 
 	/**
