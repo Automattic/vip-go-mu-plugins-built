@@ -1,0 +1,10 @@
+{
+    "name"       : "automattic/msm-sitemap",
+    "description": "Comprehensive sitemaps for your WordPress.com VIP site.",
+    "homepage"   : "https://vip.wordpress.com/plugins/msm-sitemap/",
+    "type"       : "wordpress-plugin",
+    "license"    : "GPL-2.0+",
+    "require"    : {
+        "composer/installers": "~1.0"
+    }
+}
