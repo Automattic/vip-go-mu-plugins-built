@@ -10,11 +10,13 @@ Author URI: http://automattic.com
 
 // Bail if Jetpack SSO is not active
 if ( ! class_exists( 'Jetpack' ) || ! Jetpack::is_module_active( 'sso' ) ) {
-	if ( apply_filters( 'jetpack_force_2fa_dependency_notice', true ) && current_user_can( 'manage_options' ) ) {
-		add_action( 'admin_notices', function() {
-			printf( '<div class="%1$s"><p>%2$s</p></div>', 'notice-warning', 'Jetpack Force 2FA requires Jetpack and the Jetpack SSO module.' );
-		});
-	}
+	add_action( 'plugins_loaded', function() {
+		if ( apply_filters( 'jetpack_force_2fa_dependency_notice', true ) && current_user_can( 'manage_options' ) ) {
+			add_action( 'admin_notices', function() {
+				printf( '<div class="%1$s"><p>%2$s</p></div>', 'notice-warning', 'Jetpack Force 2FA requires Jetpack and the Jetpack SSO module.' );
+			});
+		}
+	});
 	
 	return;
 }
