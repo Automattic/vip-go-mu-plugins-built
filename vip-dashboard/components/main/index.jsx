@@ -2,7 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
-	joinClasses = require( 'react/lib/joinClasses' );
+	joinClasses = require( 'fbjs/lib/joinClasses' );
 
 /**
  * Internal dependencies
@@ -20,4 +20,5 @@ var Main = React.createClass( {
 		);
 	}
 } );
+
 module.exports = Main;

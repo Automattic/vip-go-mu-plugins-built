@@ -20,7 +20,7 @@ module.exports = React.createClass( {
 			'is-error': this.props.isError
 		} );
 
-		return(
+		return (
 			<div className={ classes }>
 				<span>{ this.props.text }</span>
 			</div>

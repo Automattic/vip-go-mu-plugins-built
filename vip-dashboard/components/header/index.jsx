@@ -2,7 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
-	joinClasses = require( 'react/lib/joinClasses' );
+	joinClasses = require( 'fbjs/lib/joinClasses' );
 
 /**
  * Internal dependencies
@@ -31,13 +31,11 @@ var Header = React.createClass( {
 			]
 		};
 	},
+
 	render: function() {
-
-		var nav = ['Dashboard', 'Plugins'];
-
 		return (
 			<div className={ joinClasses( this.props.className, 'top-header' ) }>
-				<h1><img src={ Config.asseturl + "img/wpcom-vip-logo.svg"} alt="WordPress.com VIP" className="top-header__logo" /></h1>
+				<h1><img src={ Config.asseturl + 'img/wpcom-vip-logo.svg' } alt="WordPress.com VIP" className="top-header__logo" /></h1>
 
 				<Nav items={ this.state.nav } />,
 
@@ -47,4 +45,5 @@ var Header = React.createClass( {
 		);
 	}
 } );
+
 module.exports = Header;

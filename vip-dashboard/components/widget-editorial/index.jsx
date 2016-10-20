@@ -23,4 +23,5 @@ var Widget_Editorial = React.createClass( {
 		);
 	}
 } );
+
 module.exports = Widget_Editorial;

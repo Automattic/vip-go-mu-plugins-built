@@ -22,13 +22,13 @@ var SelectOptGroups = React.createClass( {
 					<optgroup label={ optGroup.label } key={ 'optgroup-' + optGroup.label } >
 					{ optGroup.options.map( function( option ) {
 						return <option value={ option.value } key={ 'option-' + optGroup.label + option.label } >{ option.label }</option>;
-					})}
+					} ) }
 					</optgroup>
 				);
 			} ) }
 			</select>
 		);
 	}
-});
+} );
 
 module.exports = SelectOptGroups;

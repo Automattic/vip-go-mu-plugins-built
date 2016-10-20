@@ -3,7 +3,7 @@
  */
 var React = require( 'react/addons' ),
 	isEmpty = require( 'lodash/lang/isEmpty' ),
-	joinClasses = require( 'react/lib/joinClasses' ),
+	joinClasses = require( 'fbjs/lib/joinClasses' ),
 	observe = require( 'lib/mixins/data-observe' ),
 	omit = require( 'lodash/object/omit' );
 
@@ -21,12 +21,11 @@ module.exports = React.createClass( {
 			options.push( { key: '', label: this.translate( 'Loading…' ), disabled: 'disabled' } );
 		} else {
 			options = options.concat( countriesList.map( function( country ) {
-					return { key: country.code, label: country.name };
-				}
-			) );
+				return { key: country.code, label: country.name };
+			} ) );
 		}
 
-		return(
+		return (
 			<select
 				{ ...omit( this.props, 'className' ) }
 				className={ joinClasses( this.props.className, 'form-country-select' ) }

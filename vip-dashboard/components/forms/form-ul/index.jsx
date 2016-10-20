@@ -2,7 +2,7 @@
  * External dependencies
  */
 var React = require( 'react/addons' ),
-	joinClasses = require( 'react/lib/joinClasses' ),
+	joinClasses = require( 'fbjs/lib/joinClasses' ),
 	omit = require( 'lodash/object/omit' );
 
 module.exports = React.createClass( {
@@ -10,7 +10,7 @@ module.exports = React.createClass( {
 	displayName: 'FormUl',
 
 	render: function() {
-		return(
+		return (
 			<ul { ...omit( this.props, 'className' ) } className={ joinClasses( this.props.className, 'form-ul' ) } >
 				{ this.props.children }
 			</ul>

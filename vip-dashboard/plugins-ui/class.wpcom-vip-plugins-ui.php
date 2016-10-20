@@ -133,6 +133,7 @@ class WPCOM_VIP_Plugins_UI {
 		$this->hidden_plugins = array(
 			'internacional', // Not ready yet (ever?)
 			'wpcom-legacy-redirector', // requires code-level changes
+			'maintenance-mode', // requires theme-level changes
 
 			// Premium
 			'new-device-notification',
@@ -326,7 +327,7 @@ class WPCOM_VIP_Plugins_UI {
 		}
 		$this->hook_suffix = add_menu_page( $page_title, $menu_label, $this->capability, 'vip-plugins', array( $this, 'display_menu_page' ), 'dashicons-admin-plugins', 64 );
 
-		// This is required because WPCOM_VIP_Plugins_UI_List_Table() is defined inside of a function
+		// This is required because WPCOM_VIP_Plugins_UI_List_Table() is defined inside of a function.
 		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPCOM_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
 	}
 
@@ -551,9 +552,8 @@ class WPCOM_VIP_Plugins_UI {
 
 		// The $plugin param passed here is just the slug - the plugin folder...
 		// but $this->get_shared_plugins() returns an array of $plugin_file => info
-		// The plugin files don't necessarily match their folder
-
-		foreach( $shared_plugins as $plugin_file => $plugin_info ) {
+		// The plugin files don't necessarily match their folder.
+		foreach ( $shared_plugins as $plugin_file => $plugin_info ) {
 			if ( $plugin === dirname( $plugin_file ) ) {
 				return true;
 			}
@@ -575,8 +575,8 @@ class WPCOM_VIP_Plugins_UI {
 
 		$plugins = $this->get_active_plugins_option();
 
-		// Don't add it twice
-		if ( in_array( $plugin, $plugins ) ) {
+		// Don't add it twice.
+		if ( in_array( $plugin, $plugins, true ) ) {
 			return new WP_Error( 'activation', __( 'Plugin already activated' ) );
 		}
 
@@ -602,11 +602,11 @@ class WPCOM_VIP_Plugins_UI {
 
 		$plugins = $this->get_active_plugins_option();
 
-		if ( ! in_array( $plugin, $plugins ) ) {
+		if ( ! in_array( $plugin, $plugins, true ) ) {
 			return false;
 		}
 
-		// Remove from array and re-index (just to stay clean)
+		// Remove from array and re-index (just to stay clean).
 		$plugins = array_values( array_diff( $plugins, array( $plugin ) ) );
 
 		return update_option( self::OPTION_ACTIVE_PLUGINS, $plugins );
@@ -619,7 +619,7 @@ class WPCOM_VIP_Plugins_UI {
 	 * @return string URL to the plugin's menu page.
 	 */
 	public function get_menu_url( $extra_query_args = array() ) {
-		$menu_url = ( 'plugins.php' == $this->parent_menu_slug ) ? 'plugins.php' : 'admin.php';
+		$menu_url = ( 'plugins.php' === $this->parent_menu_slug ) ? 'plugins.php' : 'admin.php';
 
 		$menu_url = add_query_arg(
 			array_merge(

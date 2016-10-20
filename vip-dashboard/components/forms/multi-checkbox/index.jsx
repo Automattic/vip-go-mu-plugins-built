@@ -7,7 +7,7 @@ var React = require( 'react' ),
 	omit = require( 'lodash/object/omit' ),
 	debug = require( 'debug' )( 'calypso:forms:multi-checkbox' );
 
-var MultiCheckbox = module.exports = React.createClass({
+var MultiCheckbox = module.exports = React.createClass( {
 	displayName: 'MultiCheckbox',
 
 	propTypes: {
@@ -65,4 +65,4 @@ var MultiCheckbox = module.exports = React.createClass({
 	render: function() {
 		return <div className="form-checkbox-group" { ...omit( this.props, Object.keys( MultiCheckbox.propTypes ) ) }>{ this.getCheckboxElements() }</div>;
 	}
-});
+} );

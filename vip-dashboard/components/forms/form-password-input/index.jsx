@@ -28,7 +28,6 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-
 		var toggleVisibilityClasses = classNames( {
 			'form-password-input__toggle-visibility': true,
 			'is-hidden': this.props.submitting,

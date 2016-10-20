@@ -126,6 +126,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	color: #fff;
 	background: #2ea2cc;
 	border: 1px solid #0074a2;
+	text-decoration: none;
 	border-radius: 3px;
 	-moz-box-shadow: 0px 1px 0px 0px rgba(173, 173, 173, 0.4), inset 0px 1px 0px 0px #53B5D9;
 	-webkit-box-shadow: 0px 1px 0px 0px rgba(173, 173, 173, 0.4), inset 0px 1px 0px 0px #53B5D9;

@@ -2,7 +2,7 @@
  * External dependencies
  */
 var React = require( 'react/addons' ),
-	joinClasses = require( 'react/lib/joinClasses' ),
+	joinClasses = require( 'fbjs/lib/joinClasses' ),
 	omit = require( 'lodash/object/omit' ),
 	classNames = require( 'classnames' );
 

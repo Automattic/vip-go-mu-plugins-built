@@ -2,7 +2,7 @@
  * External dependencies
  */
 var React = require( 'react/addons' ),
-	joinClasses = require( 'react/lib/joinClasses' ),
+	joinClasses = require( 'fbjs/lib/joinClasses' ),
 	omit = require( 'lodash/object/omit' ),
 	classNames = require( 'classnames' );
 
@@ -23,7 +23,7 @@ module.exports = React.createClass( {
 				'is-error': this.props.isError
 			} );
 
-		return(
+		return (
 			<input
 				{ ...otherProps }
 				type={ 'tel' }

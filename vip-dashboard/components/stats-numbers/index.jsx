@@ -2,12 +2,12 @@
  * External dependencies
  */
 var React = require( 'react' ),
-	joinClasses = require( 'react/lib/joinClasses' ),
+	joinClasses = require( 'fbjs/lib/joinClasses' );
 
 /**
  * Internal dependencies
  */
-CounTo = require( '../count');
+//var CounTo = require( '../count' );
 
 /**
  * Stats Number Component
@@ -20,14 +20,14 @@ var Stats_Numbers = React.createClass( {
 			type: this.props.type,
 		};
 	},
-	spin: function(e) {
-		this.setState({
-			value: (Math.floor(Math.random() * 10000) + 1),
-			trend: Math.floor(Math.random() * 20) - 10
-		});
+
+	spin: function( e ) {
+		this.setState( {
+			value: ( Math.floor( Math.random() * 10000 ) + 1 ),
+			trend: Math.floor( Math.random() * 20 ) - 10
+		} );
 	},
 	render: function() {
-
 		var trend = '';
 
 		if ( this.state.trend > 0 ) {
@@ -38,8 +38,7 @@ var Stats_Numbers = React.createClass( {
 			trend = 'trend-neutral';
 		}
 
-		if ( this.state.type == 'chart' ) {
-
+		if ( this.state.type === 'chart' ) {
 			return (
 				<div className={ this.props.className } onClick={this.spin}>
 					<span className="numbers__value">{ this.state.value + '%' }</span>
@@ -47,9 +46,7 @@ var Stats_Numbers = React.createClass( {
 					<span className={ joinClasses( trend, 'numbers__trend trend-center' )}>{ this.state.trend + '%' }</span>
 				</div>
 			);
-
 		} else {
-
 			return (
 				<div className={ this.props.className } onClick={this.spin}>
 					<span className="numbers__value"><CountTo to={ this.state.value } from={0} speed={ 500 } /></span>
@@ -58,7 +55,7 @@ var Stats_Numbers = React.createClass( {
 				</div>
 			);
 		}
-
 	}
 } );
+
 module.exports = Stats_Numbers;

@@ -42,7 +42,7 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	public function get_columns() {
 		return array(
 			'name' 			=> __( 'Name' ),
-			'description' 	=> __( 'Description' )
+			'description' 	=> __( 'Description' ),
 		);
 	}
 
@@ -53,8 +53,9 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 
 		foreach ( WPCOM_VIP_Plugins_UI()->fpp_plugins as $slug => $plugin ) {
 
-			if ( ! WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && in_array( $slug, WPCOM_VIP_Plugins_UI()->hidden_plugins ) )
+			if ( ! WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && in_array( $slug, WPCOM_VIP_Plugins_UI()->hidden_plugins, true ) ) {
 				continue;
+			}
 
 			$this->items[] = $slug;
 		}
@@ -63,25 +64,27 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	/**
 	 * Returns the content for a row in the list table.
 	 *
-	 * @param array $item Plugin slug
-	 * @param string $column_name Name of the table column
+	 * @param array  $slug Plugin slug.
+	 * @param string $column_name Name of the table column.
 	 * @return string
 	 */
 	public function column_default( $slug, $column_name ) {
 
-		if ( ! isset( $slug ) )
+		if ( ! isset( $slug ) ) {
 			return;
+		}
 
-		if ( ! isset( WPCOM_VIP_Plugins_UI()->fpp_plugins[$slug] ) )
+		if ( ! isset( WPCOM_VIP_Plugins_UI()->fpp_plugins[ $slug ] ) ) {
 			return;
+		}
 
-		// only show inactive
-		if ( WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && $this->filter == 'inactive' )
+		if ( WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && 'inactive' === $this->filter ) {
 			return;
+		}
 
-		// only show active
-		if ( ! WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && $this->filter == 'active' )
+		if ( ! WPCOM_VIP_Plugins_UI()->is_plugin_active( $slug ) && 'active' === $this->filter ) {
 			return;
+		}
 
 		$image_src = plugins_url( 'assets/img/featured-plugins/' . $slug . '-2x.png', __DIR__ . '/../vip-dashboard.php' );
 
@@ -94,23 +97,23 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 		<div class="plugin <?php if ( $is_active ) { ?>active<?php } ?>">
 			<img src="<?php echo esc_url( $image_src ); ?>" width="48" height="48" class="fp-icon" />
 			<div class="fp-content">
-				<h3 class="fp-title"><?php echo WPCOM_VIP_Plugins_UI()->fpp_plugins[$slug]['name']; ?></h3>
-				<p class="fp-description"><?php echo WPCOM_VIP_Plugins_UI()->fpp_plugins[$slug]['description']; ?></p>
+				<h3 class="fp-title"><?php echo esc_html( WPCOM_VIP_Plugins_UI()->fpp_plugins[ $slug ]['name'] ); ?></h3>
+				<p class="fp-description"><?php echo esc_html( WPCOM_VIP_Plugins_UI()->fpp_plugins[ $slug ]['description'] ); ?></p>
 			</div>
 			<div class="interstitial">
 				<div class="interstitial-inner">
-					<h3 class="fp-title"><?php echo WPCOM_VIP_Plugins_UI()->fpp_plugins[$slug]['name']; ?></h3>
+					<h3 class="fp-title"><?php echo esc_html( WPCOM_VIP_Plugins_UI()->fpp_plugins[ $slug ]['name'] ); ?></h3>
 					<?php
 					if ( $is_active ) {
-						if ( 'option' == $is_active ) {
-							echo '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_deactivation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Deactivate this plugin' ) . '">' . __( 'Deactivate Plugin' ) . '</a>';
-							echo '<span class="fp-text">'. __( 'Deactivating Plugin') .'</span>';
-						} elseif ( 'manual' == $is_active ) {
-							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file" class="fp-text">' . __( "Enabled via your theme's code" ) . '</span>';
+						if ( 'option' === $is_active ) {
+							echo '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_deactivation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Deactivate this plugin' ) . '">' . esc_html__( 'Deactivate Plugin' ) . '</a>';
+							echo '<span class="fp-text">' . esc_html__( 'Deactivating Plugin' ) . '</span>';
+						} elseif ( 'manual' === $is_active ) {
+							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file" class="fp-text">' . esc_html__( "Enabled via your theme's code" ) . '</span>';
 						}
 					} elseif ( ! $this->activation_disabled ) {
-						echo '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_activation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . __( 'Activate Plugin' ) . '</a>';
-						echo '<span class="fp-text">'. __( 'Activating Plugin') .'</span>';
+						echo '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_activation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . esc_html__( 'Activate Plugin' ) . '</a>';
+						echo '<span class="fp-text">' . esc_html__( 'Activating Plugin' ) . '</span>';
 
 					}
 					?>
@@ -133,22 +136,19 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	 */
 	public function display() {
 		$singular = $this->_args['singular'];
-
-
 		$this->display_tablenav( 'top' );
-
 	?>
 	<main id="plugins" role="main">
 
 		<section id="plugins-fp" class="<?php echo implode( ' ', $this->get_table_classes() ); ?>">
 
 			<nav id="menu">
-				<input id="search" type="search" value="" placeholder="<?php _e( 'Filter Plugins' ); ?>">
+				<input id="search" type="search" value="" placeholder="<?php esc_attr_e( 'Filter Plugins' ); ?>">
 			</nav>
 
 			<section id="active">
 
-				<h3><?php _e( 'Active Plugins' ); ?></h3>
+				<h3><?php esc_html_e( 'Active Plugins' ); ?></h3>
 
 				<?php $this->filter = 'active'; ?>
 				<?php $this->display_rows_or_placeholder(); ?>
@@ -157,7 +157,7 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 
 			<section id="showcase">
 
-				<h3><?php _e( 'VIP Featured Plugins' ); ?></h3>
+				<h3><?php esc_html_e( 'VIP Featured Plugins' ); ?></h3>
 
 				<?php $this->filter = 'inactive'; ?>
 				<?php $this->display_rows_or_placeholder(); ?>
