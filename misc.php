@@ -31,7 +31,7 @@ add_filter( 'postmeta_form_keys', '__return_false' );
 // Checking for VIP_GO_ENV allows this code to work outside VIP Go environments,
 // albeit without concatenation of JS and CSS.
 if ( defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV ) {
-	// Activate concatenation
+	//You can disable concatenation by passing any value to concat_js or concat_css that is not "yes" 
 	if ( ! isset( $_GET['concat_js'] ) || 'yes' === $_GET['concat_js'] ) {
 		require __DIR__ .'/http-concat/jsconcat.php';
 	}
