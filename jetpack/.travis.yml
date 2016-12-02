@@ -8,6 +8,11 @@ env:
   global:
     - WP_TRAVISCI=phpunit
 
+cache:
+  directories:
+    - ~/.yarn
+    - ~/.nvm
+
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
@@ -23,7 +28,7 @@ env:
 matrix:
   include:
   - php: "5.6"
-    env: WP_TRAVISCI="npm run test-client"
+    env: WP_TRAVISCI="yarn run test-client && yarn run test-gui"
   - php: "5.2"
   - php: "5.3"
   - php: "5.5"
@@ -62,7 +67,11 @@ before_script:
     - phpenv config-rm xdebug.ini
     - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
+    - source ~/.nvm/nvm.sh
+    - nvm install 6
+    - nvm use 6
     - ./tests/prepare-wordpress.sh
+    - mysql -e "set global wait_timeout = 3600;"
 
 script:
     - ./tests/run-travis.sh

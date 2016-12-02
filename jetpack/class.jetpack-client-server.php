@@ -130,7 +130,10 @@ class Jetpack_Client_Server {
 		} else {
 			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 		}
-		
+
+		// Since this is a fresh connection, be sure to clear out IDC options
+		Jetpack_IDC::clear_all_idc_options();
+
 		// Start nonce cleaner
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );

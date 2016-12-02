@@ -19,7 +19,7 @@ class WPCOM_VIP_Jetpack_Mandatory {
 	protected $mandatory_modules = array(
 		'manage',
 		'monitor',
-		'sso',
+		// 'sso', // Disabled while we roll out force-2fa
 		'stats',
 		'vaultpress',
 	);

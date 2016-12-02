@@ -36,9 +36,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		// Adding a redirect meta tag wrapped in noscript tags for all browsers in case they have JavaScript disabled
 		add_action( 'admin_head', array( $this, 'add_noscript_head_meta' ) );
 
-		// Enqueue admin page styles in head
-		add_action( 'admin_enqueue_scripts', array( $this, 'page_admin_styles' ) );
-
 		// Adding a redirect tag wrapped in browser conditional comments
 		add_action( 'admin_head', array( $this, 'add_legacy_browsers_head_script' ) );
 	}
@@ -184,18 +181,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		return $dismissed_notices;
 	}
 
-	function jetpack_get_tracks_user_data() {
-		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
-			return false;
-		}
-
-		return array(
-			'userid' => $user_data['ID'],
-			'username' => $user_data['login'],
-		);
-	}
-
-	function page_admin_styles() {
+	function additional_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
@@ -214,7 +200,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		if ( ! $is_dev_mode ) {
 			// Required for Analytics
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js?48', array(), JETPACK__VERSION, true );
+			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
 		$localeSlug = explode( '_', get_locale() );
@@ -226,7 +212,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		foreach( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
-				'canView' => in_array( $slug, $enabled_roles, true ),
+				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
 			);
 		}
 
@@ -257,6 +243,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
 				'isPublic'	=> '1' == get_option( 'blog_public' ),
+				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
 			),
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
@@ -290,7 +277,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'errorCode' => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
-			'tracksUserData' => $this->jetpack_get_tracks_user_data(),
+			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false
 		) );
 	}

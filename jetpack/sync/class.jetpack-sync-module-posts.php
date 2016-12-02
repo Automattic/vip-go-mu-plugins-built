@@ -4,6 +4,8 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
+	private $just_published;
+
 	public function name() {
 		return 'posts';
 	}
@@ -21,8 +23,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'send_published'), 11, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
+		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 	}
 
@@ -37,10 +42,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
 	}
 
-	public function enqueue_full_sync_actions( $config ) {
+	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
 
-		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $this->get_where_sql( $config ) );
+		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_posts', $wpdb->posts, 'ID', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
@@ -175,11 +180,26 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return $post;
 	}
 
+	public function save_published( $new_status, $old_status, $post ) {
+		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
+			$this->just_published = $post->ID;
+		}
+	}
+
+	public function send_published( $post_ID, $post, $update ) {
+		if ( $this->just_published === $post->ID ) {
+			$this->just_published = null;
+			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+			do_action( 'jetpack_published_post', $post_ID, $flags );
+		}
+	}
+
 	public function expand_post_ids( $args ) {
 		$post_ids = $args[0];
 
 		$posts = array_filter( array_map( array( 'WP_Post', 'get_instance' ), $post_ids ) );
 		$posts = array_map( array( $this, 'filter_post_content_and_add_links' ), $posts );
+		$posts = array_values( $posts ); // reindex in case posts were deleted
 
 		return array(
 			$posts,

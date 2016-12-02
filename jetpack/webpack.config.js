@@ -29,7 +29,6 @@ var webpackConfig = {
 		path: path.join( __dirname, '_inc/build' ),
 		filename: "[name].js"
 	},
-	devtool: '#source-map',
 	module: {
 
 		// Webpack loaders are applied when a resource is matches the test case
@@ -95,7 +94,13 @@ var webpackConfig = {
 			}
 		}),
 		new ExtractTextPlugin( '[name].dops-style.css' )
-	]
+	],
+	externals: {
+		'react/addons': true,
+		'react/lib/ExecutionEnvironment': true,
+		'react/lib/ReactContext': true,
+		jsdom: 'window'
+	}
 };
 
 if ( NODE_ENV === 'production' ) {

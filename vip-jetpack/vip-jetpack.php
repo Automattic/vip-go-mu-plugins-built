@@ -15,6 +15,17 @@
 require_once( __DIR__ . '/jetpack-mandatory.php' );
 
 /**
- * Various miscellaneous functionalities
+ * Remove certain modules from the list of those that can be activated
+ * Blocks access to certain functionality that isn't compatible with the platform.
  */
-require_once( __DIR__ . '/jetpack-misc.php' );
+require_once( __DIR__ . '/jetpack-force-2fa/jetpack-force-2fa.php' );
+
+add_filter( 'jetpack_get_available_modules', function( $modules ) {
+	unset( $modules['photon'] );
+	unset( $modules['site-icon'] );
+	unset( $modules['protect'] );
+
+	return $modules;
+}, 999 );
+
+add_filter( 'jetpack_force_2fa_dependency_notice', '__return_false' );

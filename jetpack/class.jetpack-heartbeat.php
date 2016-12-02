@@ -114,11 +114,8 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}language"]       = get_bloginfo( 'language' );
 		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
-		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
+		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
-
-		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
-
 		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
 
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
@@ -138,10 +135,6 @@ class Jetpack_Heartbeat {
 		foreach ( Jetpack::get_available_modules() as $slug ) {
 			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
 		}
-
-		require_once dirname(__FILE__).'/sync/class.jetpack-sync-wp-replicastore.php';
-		$store = new Jetpack_Sync_WP_Replicastore();
-		$return["{$prefix}sync-checksum"] = json_encode( $store->checksum_all() );
 
 		return $return;
 	}

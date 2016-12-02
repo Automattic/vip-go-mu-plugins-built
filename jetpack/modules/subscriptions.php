@@ -75,25 +75,8 @@ class Jetpack_Subscriptions {
 		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
 
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
-	}
 
-	function post_is_public( $the_post ) {
-		if ( !$post = get_post( $the_post ) ) {
-			return false;
-		}
-
-		if ( 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1 ) {
-			/**
-			 * Filter whether posts can be emailed to subscribers.
-			 *
-			 * @module subscriptions
-			 *
-			 * @since 2.4.0
-			 *
-			 * @param bool true Can the post be emailed to Subscribers. Default to true.
-			 */
-			return apply_filters( 'jetpack_is_post_mailable', true );
-		}
+		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 	}
 
 	/**
@@ -164,11 +147,19 @@ class Jetpack_Subscriptions {
 	 * @param $post obj - The post object
 	 */
 	function maybe_send_subscription_email( $new_status, $old_status, $post ) {
-		// Only do things on publish
-		if ( 'publish' !== $new_status ) {
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
 		}
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+
+		// Make sure that the checkbox is preseved
+		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
+			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
+		}
+
+		// Only do things on publish
+		if ( 'publish' !== $new_status ) {
 			return;
 		}
 
@@ -178,6 +169,17 @@ class Jetpack_Subscriptions {
 		 */
 		if ( 'publish' == $old_status ) {
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+		}
+
+		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
+			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+		}
+	}
+
+	public function should_email_post_to_subscribers( $post ) {
+		$should_email = true;
+		if ( get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) ) {
+			return false;
 		}
 
 		/**
@@ -195,7 +197,7 @@ class Jetpack_Subscriptions {
 
 		// Never email posts from these categories
 		if ( ! empty( $excluded_categories ) && in_category( $excluded_categories, $post->ID ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$should_email = false;
 		}
 
 		/**
@@ -213,15 +215,16 @@ class Jetpack_Subscriptions {
 
 		// Only emails posts from these categories
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
+			$should_email = false;
 		}
 
-		// Email the post, depending on the checkbox option
-		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
-			if ( isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ) {
-				update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $_POST['_jetpack_dont_email_post_to_subs'] );
-			}
-		}
+
+		return $should_email;
+	}
+
+	function set_post_flags( $flags, $post ) {
+		$flags['send_subscription'] = $this->should_email_post_to_subscribers( $post );
+		return $flags;
 	}
 
 	/**
@@ -584,11 +587,13 @@ class Jetpack_Subscriptions {
 		$blog_checked     = '';
 
 		// Check for a comment / blog submission and set a cookie to retain the setting and check the boxes.
-		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] ) && $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] == $post->ID )
+		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash . '_' . $post->ID ] ) ) {
 			$comments_checked = ' checked="checked"';
+		}
 
-		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) ) {
 			$blog_checked = ' checked="checked"';
+		}
 
 		// Some themes call this function, don't show the checkbox again
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -657,13 +662,14 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		$comment = get_comment( $comment_id );
+
 		// Set cookies for this post/comment
-		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), isset( $_REQUEST['subscribe_blog'] ) );
+		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), $comment->comment_post_ID, isset( $_REQUEST['subscribe_blog'] ) );
 
 		if ( !isset( $_REQUEST['subscribe_comments'] ) && !isset( $_REQUEST['subscribe_blog'] ) )
 			return;
 
-		$comment  = get_comment( $comment_id );
 		$post_ids = array();
 
 		if ( isset( $_REQUEST['subscribe_comments'] ) )
@@ -689,12 +695,17 @@ class Jetpack_Subscriptions {
 	 * Jetpack_Subscriptions::set_cookies()
 	 *
 	 * Set a cookie to save state on the comment and post subscription checkboxes.
+	 *
+	 * @param bool $subscribe_to_post Whether the user chose to subscribe to subsequent comments on this post.
+	 * @param int $post_id If $subscribe_to_post is true, the post ID they've subscribed to.
+	 * @param bool $subscribe_to_blog Whether the user chose to subscribe to all new posts on the blog.
 	 */
-	function set_cookies( $comments = true, $posts = true ) {
-		global $post;
+	function set_cookies( $subscribe_to_post = false, $post_id = null, $subscribe_to_blog = false ) {
+		$post_id = intval( $post_id );
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );
+
 		/**
 		 * Filter the Jetpack Comment cookie path.
 		 *
@@ -705,6 +716,7 @@ class Jetpack_Subscriptions {
 		 * @param string COOKIEPATH Cookie path.
 		 */
 		$cookie_path     = apply_filters( 'jetpack_comment_cookie_path',   COOKIEPATH );
+
 		/**
 		 * Filter the Jetpack Comment cookie domain.
 		 *
@@ -716,16 +728,19 @@ class Jetpack_Subscriptions {
 		 */
 		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
-		if ( $comments )
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		if ( $subscribe_to_post && $post_id >= 0 ) {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
+		} else {
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 
-		if ( $posts )
+		if ( $subscribe_to_blog ) {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
-		else
+		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
 	}
+
 }
 
 Jetpack_Subscriptions::init();
@@ -765,7 +780,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 		}
 
-
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'jetpack_subscriptions' );
 
 		$source                 = 'widget';
 		$instance            	= wp_parse_args( (array) $instance, $this->defaults() );
@@ -965,7 +981,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
 			'subscribe_placeholder'	 => esc_html__( 'Email Address', 'jetpack' ),
 			'subscribe_button'    	 => esc_html__( 'Subscribe', 'jetpack' ),
-			'success_message'    	 => esc_html__( 'Success! An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ),
+			'success_message'    	 => esc_html__( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
 			'show_subscribers_total' => true,
 		);
 	}
