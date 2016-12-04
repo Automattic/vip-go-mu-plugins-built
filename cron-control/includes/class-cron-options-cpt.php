@@ -117,10 +117,19 @@ class Cron_Options_CPT extends Singleton {
 						continue;
 					}
 
+					// Basic arguments to identify a job in the array format Core expects
 					$action   = $job_args['action'];
 					$instance = $job_args['instance'];
 					$args     = $job_args['args'];
 
+					// Exclude duplicates and prevent them from being run again
+					// Would normally do this asynchronously, but don't want to delay and risk the duplicate being run while the original is also pending/processing
+					if ( isset( $cron_array[ $timestamp ][ $action ][ $instance ] ) ) {
+						$this->mark_job_post_completed( $jobs_post->ID, false );
+						continue;
+					}
+
+					// Populate remaining job data
 					$cron_array[ $timestamp ][ $action ][ $instance ] = array(
 						'schedule' => $args['schedule'],
 						'args'     => $args['args'],
@@ -329,7 +338,7 @@ class Cron_Options_CPT extends Singleton {
 	 *
 	 * `wp_trash_post()` calls `wp_insert_post()`, which can't be used before `init` due to capabilities checks
 	 */
-	private function mark_job_post_completed( $job_post_id ) {
+	private function mark_job_post_completed( $job_post_id, $flush_cache = true ) {
 		// If called before `init`, we need to modify directly because post types aren't registered earlier
 		if ( did_action( 'init' ) ) {
 			wp_trash_post( $job_post_id );
@@ -342,7 +351,10 @@ class Cron_Options_CPT extends Singleton {
 		}
 
 		// Delete internal cache
-		wp_cache_delete( self::CACHE_KEY );
+		// Should only be skipped when deleting duplicates, as they are excluded from the cache
+		if ( $flush_cache ) {
+			wp_cache_delete( self::CACHE_KEY );
+		}
 
 		return true;
 	}

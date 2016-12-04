@@ -11,11 +11,6 @@ class Main extends Singleton {
 	 * Register hooks
 	 */
 	protected function class_init() {
-		// For now, leave WP-CLI alone
-		if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			return;
-		}
-
 		// Bail when plugin conditions aren't met
 		if ( ! defined( '\WP_CRON_CONTROL_SECRET' ) ) {
 			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
