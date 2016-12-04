@@ -16,6 +16,8 @@ class Cron_Options_CPT extends Singleton {
 	const POST_STATUS_PENDING   = 'inherit';
 	const POST_STATUS_COMPLETED = 'trash';
 
+	const CACHE_KEY             = 'a8c_cron_ctrl_option';
+
 	private $posts_to_clean = array();
 
 	private $option_before_unscheduling = null;
@@ -64,6 +66,16 @@ class Cron_Options_CPT extends Singleton {
 	 * Override cron option requests with data from CPT
 	 */
 	public function get_option() {
+		// Use cached value for reads, except when we're unscheduling and state is important
+		if ( ! $this->is_unscheduling() ) {
+			$cached_option = wp_cache_get( self::CACHE_KEY, null, true );
+
+			if ( false !== $cached_option ) {
+				return $cached_option;
+			}
+		}
+
+		// Start building a new cron option
 		$cron_array = array(
 			'version' => 2, // Core versions the cron array; without this, events will continually requeue
 		);
@@ -133,6 +145,9 @@ class Cron_Options_CPT extends Singleton {
 			$this->option_before_unscheduling = null;
 		}
 
+		// Cache the results, bearing in mind that they won't be used during unscheduling events
+		wp_cache_set( self::CACHE_KEY, $cron_array, null, 1 * \HOUR_IN_SECONDS );
+
 		return $cron_array;
 	}
 
@@ -173,22 +188,7 @@ class Cron_Options_CPT extends Singleton {
 				$job_exists = $this->job_exists( $event['timestamp'], $event['action'], $event['instance'] );
 
 				if ( ! $job_exists ) {
-					// Build minimum information needed to create a post
-					$job_post = array(
-						'post_title'            => $this->event_title( $event['timestamp'], $event['action'], $event['instance'] ),
-						'post_name'             => $this->event_name( $event['timestamp'], $event['action'], $event['instance'] ),
-						'post_content_filtered' => maybe_serialize( array(
-							'action'   => $event['action'],
-							'instance' => $event['instance'],
-							'args'     => $event['args'],
-						) ),
-						'post_date'             => date( 'Y-m-d H:i:s', $event['timestamp'] ),
-						'post_date_gmt'         => date( 'Y-m-d H:i:s', $event['timestamp'] ),
-						'post_type'             => self::POST_TYPE,
-						'post_status'           => self::POST_STATUS_PENDING,
-					);
-
-					$this->create_job( $job_post );
+					$this->create_job( $event['timestamp'], $event['action'], $event['args'] );
 				}
 			}
 		}
@@ -201,26 +201,21 @@ class Cron_Options_CPT extends Singleton {
 	/**
 	 * Retrieve list of jobs, respecting whether or not the CPT is registered
 	 *
-	 * `WP_Query` also can't be used before `init` due to capabilities checks
+	 * Uses a direct query to avoid stale caches that result in duplicate events
 	 */
 	private function get_jobs( $args ) {
-		// If called before `init`, we need to query directly because post types aren't registered earlier
-		if ( did_action( 'init' ) ) {
-			return get_posts( $args );
+		global $wpdb;
+
+		$orderby = 'date' === $args['orderby'] ? 'post_date' : $args['orderby'];
+
+		if ( isset( $args['paged'] ) ) {
+			$paged  = max( 0, $args['paged'] - 1 );
+			$offset = $paged * $args['posts_per_page'];
 		} else {
-			global $wpdb;
-
-			$orderby = 'date' === $args['orderby'] ? 'post_date' : $args['orderby'];
-
-			if ( isset( $args['paged'] ) ) {
-				$paged  = max( 0, $args['paged'] - 1 );
-				$offset = $paged * $args['posts_per_page'];
-			} else {
-				$offset = 0;
-			}
-
-			return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY %s %s LIMIT %d,%d;", $args['post_type'], $args['post_status'], $orderby, $args['order'], $offset, $args['posts_per_page'] ), 'OBJECT' );
+			$offset = 0;
 		}
+
+		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY %s %s LIMIT %d,%d;", $args['post_type'], $args['post_status'], $orderby, $args['order'], $offset, $args['posts_per_page'] ), 'OBJECT' );
 	}
 
 	/**
@@ -241,56 +236,68 @@ class Cron_Options_CPT extends Singleton {
 	}
 
 	/**
-	 * Create a job post, respecting whether or not Core is ready for CPTs
+	 * Create a post object for a given event
 	 *
-	 * `wp_insert_post()` can't be called as early as we need, in part because of the capabilities checks Core performs
+	 * Can't call `wp_insert_post()` because `wp_unique_post_slug()` breaks the plugin's expectations
+	 * Also doesn't call `wp_insert_post()` because this function is needed before post types and capabilities are ready.
 	 */
-	private function create_job( $job_post ) {
+	public function create_job( $timestamp, $action, $args ) {
 		// Limit how many events to insert at once
 		if ( ! Lock::check_lock( self::LOCK, 5 ) ) {
 			return false;
 		}
 
-		// If called before `init`, we need to insert directly because post types aren't registered earlier
-		if ( did_action( 'init' ) ) {
-			wp_insert_post( $job_post );
-		} else {
-			global $wpdb;
+		global $wpdb;
 
-			// Additional data needed to manually create a post
-			$job_post = wp_parse_args( $job_post, array(
-				'post_author'       => 0,
-				'comment_status'    => 'closed',
-				'ping_status'       => 'closed',
-				'post_parent'       => 0,
-				'post_modified'     => current_time( 'mysql' ),
-				'post_modified_gmt' => current_time( 'mysql', true ),
-			) );
+		// Build minimum information needed to create a post
+		$instance = md5( serialize( $args['args'] ) );
 
-			// Some sanitization in place of `sanitize_post()`, which we can't use this early
-			foreach ( array( 'post_title', 'post_name', 'post_content_filtered' ) as $field ) {
-				$job_post[ $field ] = sanitize_text_field( $job_post[ $field ] );
-			}
+		$job_post = array(
+			'post_title'            => $this->event_title( $timestamp, $action, $instance ),
+			'post_name'             => $this->event_name( $timestamp, $action, $instance ),
+			'post_content_filtered' => maybe_serialize( array(
+				'action'   => $action,
+				'instance' => $instance,
+				'args'     => $args,
+			) ),
+			'post_date'             => date( 'Y-m-d H:i:s', $timestamp ),
+			'post_date_gmt'         => date( 'Y-m-d H:i:s', $timestamp ),
+			'post_modified'         => current_time( 'mysql' ),
+			'post_modified_gmt'     => current_time( 'mysql', true ),
+			'post_type'             => self::POST_TYPE,
+			'post_status'           => self::POST_STATUS_PENDING,
+			'post_author'           => 0,
+			'post_parent'           => 0,
+			'comment_status'        => 'closed',
+			'ping_status'           => 'closed',
+		);
 
-			// Duplicate some processing performed in `wp_insert_post()`
-			$charset = $wpdb->get_col_charset( $wpdb->posts, 'post_title' );
-			if ( 'utf8' === $charset ) {
-				$job_post['post_title'] = wp_encode_emoji( $job_post['post_title'] );
-			}
-
-			$job_post = wp_unslash( $job_post );
-
-			// Set this so it isn't empty, even though it serves us no purpose
-			$job_post['guid'] = esc_url( add_query_arg( self::POST_TYPE, $job_post['post_name'], home_url( '/' ) ) );
-
-			// Create the post
-			$inserted = $wpdb->insert( $wpdb->posts, $job_post );
-
-			// Clear caches for new posts once the post type is registered
-			if ( $inserted ) {
-				$this->posts_to_clean[] = $wpdb->insert_id;
-			}
+		// Some sanitization in place of `sanitize_post()`, which we can't use this early
+		foreach ( array( 'post_title', 'post_name', 'post_content_filtered' ) as $field ) {
+			$job_post[ $field ] = sanitize_text_field( $job_post[ $field ] );
 		}
+
+		// Duplicate some processing performed in `wp_insert_post()`
+		$charset = $wpdb->get_col_charset( $wpdb->posts, 'post_title' );
+		if ( 'utf8' === $charset ) {
+			$job_post['post_title'] = wp_encode_emoji( $job_post['post_title'] );
+		}
+
+		$job_post = wp_unslash( $job_post );
+
+		// Set this so it isn't empty, even though it serves us no purpose
+		$job_post['guid'] = esc_url( add_query_arg( self::POST_TYPE, $job_post['post_name'], home_url( '/' ) ) );
+
+		// Create the post
+		$inserted = $wpdb->insert( $wpdb->posts, $job_post );
+
+		// Clear caches for new posts once the post type is registered
+		if ( $inserted ) {
+			$this->posts_to_clean[] = $wpdb->insert_id;
+		}
+
+		// Delete internal cache
+		wp_cache_delete( self::CACHE_KEY );
 
 		// Allow more events to be created
 		Lock::free_lock( self::LOCK );
@@ -307,7 +314,7 @@ class Cron_Options_CPT extends Singleton {
 	 *
 	 * @return bool
 	 */
-	private function mark_job_completed( $timestamp, $action, $instance ) {
+	public function mark_job_completed( $timestamp, $action, $instance ) {
 		$job_post_id = $this->job_exists( $timestamp, $action, $instance, true );
 
 		if ( ! $job_post_id ) {
@@ -333,6 +340,9 @@ class Cron_Options_CPT extends Singleton {
 			wp_add_trashed_suffix_to_post_name_for_post( $job_post_id );
 			$this->posts_to_clean[] = $job_post_id;
 		}
+
+		// Delete internal cache
+		wp_cache_delete( self::CACHE_KEY );
 
 		return true;
 	}

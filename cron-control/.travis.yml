@@ -5,11 +5,6 @@ notifications:
     on_success: never
     on_failure: change
 
-branches:
-  only:
-    - master
-    - develop
-
 php:
   - 5.6
   - 7.0

@@ -135,19 +135,13 @@ class Events extends Singleton {
 			return new \WP_Error( 'no-free-threads', sprintf( __( 'No resources available to run the job with action action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ) ), array( 'status' => 429, ) );
 		}
 
+		// Mark the event completed, and reschedule if desired
+		$this->update_event_record( $event );
+
 		// Prepare environment to run job
 		ignore_user_abort( true );
 		set_time_limit( JOB_TIMEOUT_IN_MINUTES * MINUTE_IN_SECONDS );
 		define( 'DOING_CRON', true );
-
-		// Remove the event, and reschedule if desired
-		// Follows pattern Core uses in wp-cron.php
-		if ( false !== $event['schedule'] ) {
-			$reschedule_args = array( $event['timestamp'], $event['schedule'], $event['action'], $event['args'] );
-			call_user_func_array( 'wp_reschedule_event', $reschedule_args );
-		}
-
-		wp_unschedule_event( $event['timestamp'], $event['action'], $event['args'] );
 
 		// Run the event
 		do_action_ref_array( $event['action'], $event['args'] );
@@ -163,6 +157,51 @@ class Events extends Singleton {
 			'success' => true,
 			'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` completed in %3$d seconds.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ), $time_end - $time_start ),
 		);
+	}
+
+	/**
+	 * Mark an event completed, and reschedule when requested
+	 */
+	private function update_event_record( $event ) {
+		if ( false !== $event['schedule'] ) {
+			// Re-implements much of the logic from `wp_reschedule_event()`
+			$schedules = wp_get_schedules();
+			$interval  = 0;
+
+			// First, we try to get it from the schedule
+			if ( isset( $schedules[ $event['schedule'] ] ) ) {
+				$interval = $schedules[ $event['schedule'] ]['interval'];
+			}
+
+			// Now we try to get it from the saved interval, in case the schedule disappears
+			if ( 0 == $interval ) {
+				$interval = $event['interval'];
+			}
+
+			// If we have an interval, create a new event entry
+			if ( 0 != $interval ) {
+				// Determine new timestamp, according to how `wp_reschedule_event()` does
+				$now           = time();
+				$new_timestamp = $event['timestamp'];
+
+				if ( $new_timestamp >= $now ) {
+					$new_timestamp = $now + $interval;
+				} else {
+					$new_timestamp = $now + ( $interval - ( ( $now - $new_timestamp ) % $interval ) );
+				}
+
+				// Build the expected arguments format
+				$event_args = array(
+					'schedule' => $event['schedule'],
+					'args'     => $event['args'],
+					'interval' => $interval,
+				);
+
+				Cron_Options_CPT::instance()->create_job( $new_timestamp, $event['action'], $event_args );
+			}
+		}
+
+		Cron_Options_CPT::instance()->mark_job_completed( $event['timestamp'], $event['action'], $event['instance'] );
 	}
 }
 
