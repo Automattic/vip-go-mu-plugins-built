@@ -110,10 +110,29 @@ class Cron_Options_CPT extends Singleton {
 			// Loop through results and built output Core expects
 			if ( ! empty( $jobs_posts ) ) {
 				foreach ( $jobs_posts as $jobs_post ) {
+					// Determine event timestamp
 					$timestamp = strtotime( $jobs_post->post_date_gmt );
 
+					// When timestamp is invalid, perhaps due to post date being set to `0000-00-00 00:00:00`, attempt to fall back to the original value
+					if ( $timestamp <= 0 ) {
+						$event_data = $jobs_post->post_title;
+						$event_data = explode( '|', $event_data );
+
+						if ( is_numeric( $event_data[0] ) ) {
+							$timestamp = (int) $event_data[0];
+						}
+					}
+
+					// If timestamp is still invalid, event is removed to let its source fix it
+					if ( $timestamp <= 0 ) {
+						$this->mark_job_post_completed( $jobs_post->ID );
+						continue;
+					}
+
+					// Retrieve event's remaining data
 					$job_args = maybe_unserialize( $jobs_post->post_content_filtered );
 					if ( ! is_array( $job_args ) ) {
+						$this->mark_job_post_completed( $jobs_post->ID );
 						continue;
 					}
 
