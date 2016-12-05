@@ -197,7 +197,7 @@ class Cron_Options_CPT extends Singleton {
 				$job_exists = $this->job_exists( $event['timestamp'], $event['action'], $event['instance'] );
 
 				if ( ! $job_exists ) {
-					$this->create_job( $event['timestamp'], $event['action'], $event['args'] );
+					$this->create_or_update_job( $event['timestamp'], $event['action'], $event['args'] );
 				}
 			}
 		}
@@ -232,7 +232,7 @@ class Cron_Options_CPT extends Singleton {
 	 *
 	 * Uses a direct query to avoid stale caches that result in duplicate events
 	 */
-	private function job_exists( $timestamp, $action, $instance, $return_id = false ) {
+	public function job_exists( $timestamp, $action, $instance, $return_id = false ) {
 		global $wpdb;
 
 		 $exists = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_name = %s AND post_type = %s AND post_status = %s LIMIT 1;", $this->event_name( $timestamp, $action, $instance ), self::POST_TYPE, self::POST_STATUS_PENDING ) );
@@ -250,7 +250,7 @@ class Cron_Options_CPT extends Singleton {
 	 * Can't call `wp_insert_post()` because `wp_unique_post_slug()` breaks the plugin's expectations
 	 * Also doesn't call `wp_insert_post()` because this function is needed before post types and capabilities are ready.
 	 */
-	public function create_job( $timestamp, $action, $args ) {
+	public function create_or_update_job( $timestamp, $action, $args, $update_id = null ) {
 		// Limit how many events to insert at once
 		if ( ! Lock::check_lock( self::LOCK, 5 ) ) {
 			return false;
@@ -297,8 +297,13 @@ class Cron_Options_CPT extends Singleton {
 		// Set this so it isn't empty, even though it serves us no purpose
 		$job_post['guid'] = esc_url( add_query_arg( self::POST_TYPE, $job_post['post_name'], home_url( '/' ) ) );
 
-		// Create the post
-		$inserted = $wpdb->insert( $wpdb->posts, $job_post );
+		// Create the post, or update an existing entry to run again in the future
+		if ( is_int( $update_id ) && $update_id > 0 ) {
+			$inserted = $wpdb->update( $wpdb->posts, $job_post, array( 'ID' => $update_id, ) );
+			$this->posts_to_clean[] = $update_id;
+		} else {
+			$inserted = $wpdb->insert( $wpdb->posts, $job_post );
+		}
 
 		// Clear caches for new posts once the post type is registered
 		if ( $inserted ) {

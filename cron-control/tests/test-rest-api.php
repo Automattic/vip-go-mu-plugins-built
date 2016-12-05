@@ -37,6 +37,17 @@ class REST_API_Tests extends \WP_UnitTestCase {
 	public function test_get_items() {
 		$ev = Utils::create_test_event();
 
+		// Don't test internal events with this test
+		$internal_events = array(
+			'a8c_cron_control_force_publish_missed_schedules',
+			'a8c_cron_control_confirm_scheduled_posts',
+			'a8c_cron_control_delete_cron_option',
+			'a8c_cron_control_purge_completed_events',
+		);
+		foreach ( $internal_events as $internal_event ) {
+			wp_clear_scheduled_hook( $internal_event );
+		}
+
 		$request = new \WP_REST_Request( 'POST', '/' . \Automattic\WP\Cron_Control\REST_API::API_NAMESPACE . '/' . \Automattic\WP\Cron_Control\REST_API::ENDPOINT_LIST );
 		$request->set_body( wp_json_encode( array( 'secret' => \WP_CRON_CONTROL_SECRET, ) ) );
 		$request->set_header( 'content-type', 'application/json' );
