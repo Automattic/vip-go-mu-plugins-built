@@ -35,7 +35,7 @@ class Internal_Events extends Singleton {
 				'callback' => 'delete_cron_option',
 			),
 			array(
-				'schedule' => 'hourly',
+				'schedule' => 'a8c_cron_control_ten_minutes',
 				'action'   => 'a8c_cron_control_purge_completed_events',
 				'callback' => 'purge_completed_events',
 			),
