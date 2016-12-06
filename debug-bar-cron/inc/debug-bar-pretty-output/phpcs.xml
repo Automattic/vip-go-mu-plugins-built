@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="Debug Bar Pretty Output">
+	<description>The code standard for Debug Bar Pretty Output is WordPress.</description>
+
+	<rule ref="WordPress">
+		<exclude name="WordPress.VIP" />
+
+		<!-- else on new line is perfectly fine -->
+		<exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace" />
+	</rule>
+
+	<!-- Add `PHP_Classes` to the whitelist for non-snakecase variable names. -->
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+	    <properties>
+	        <property name="customVariablesWhitelist" value="PHP_classes" type="array" />
+	    </properties>
+
+		<!-- TEMPORARY! Exclude a file until WPCS/PR #558 has been merged. -->
+		<exclude-pattern>class-debug-bar-list-php-classes.php</exclude-pattern>
+	</rule>
+
+
+	<!-- Exclude the PHP Core classes list from some documentation checks. -->
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<exclude-pattern>class-debug-bar-list-php-classes.php</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.BlockComment.NoNewLine">
+		<exclude-pattern>class-debug-bar-list-php-classes.php</exclude-pattern>
+	</rule>
+
+	<!-- Exclude the 'empty' index files from some documentation checks -->
+	<rule ref="Squiz.Commenting.FileComment.WrongStyle">
+		<exclude-pattern>*/index.php</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.InlineComment.SpacingAfter">
+		<exclude-pattern>*/index.php</exclude-pattern>
+	</rule>
+
+</ruleset>
