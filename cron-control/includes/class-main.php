@@ -22,6 +22,7 @@ class Main extends Singleton {
 		require __DIR__ . '/class-internal-events.php';
 		require __DIR__ . '/class-rest-api.php';
 		require __DIR__ . '/functions.php';
+		require __DIR__ . '/wp-cli.php';
 
 		// Block normal cron execution
 		$this->set_constants();

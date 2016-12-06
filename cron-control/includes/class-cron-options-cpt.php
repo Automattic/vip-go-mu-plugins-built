@@ -81,7 +81,7 @@ class Cron_Options_CPT extends Singleton {
 		);
 
 		// Get events to re-render as the cron option
-		$page  = 1;
+		$page = 1;
 
 		do {
 			$jobs_posts = $this->get_jobs( array(
