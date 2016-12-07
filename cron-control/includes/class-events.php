@@ -132,8 +132,8 @@ class Events extends Singleton {
 			return new \WP_Error( 'missing-data', __( 'Invalid or incomplete request data.', 'automattic-cron-control' ), array( 'status' => 400, ) );
 		}
 
-		// Ensure we don't run jobs too far ahead
-		if ( $timestamp > strtotime( sprintf( '+%d seconds', JOB_EXECUTION_BUFFER_IN_SECONDS ) ) ) {
+		// Ensure we don't run jobs ahead of time
+		if ( $timestamp > time() ) {
 			return new \WP_Error( 'premature', sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array( 'status' => 403, ) );
 		}
 
@@ -146,9 +146,6 @@ class Events extends Singleton {
 		}
 
 		unset( $timestamp, $action, $instance );
-
-		// And we're off!
-		$time_start = microtime( true );
 
 		// Limit how many events are processed concurrently
 		if ( ! is_internal_event( $event['action'] ) && ! Lock::check_lock( self::LOCK ) ) {
@@ -167,11 +164,9 @@ class Events extends Singleton {
 			Lock::free_lock( self::LOCK );
 		}
 
-		$time_end = microtime( true );
-
 		return array(
 			'success' => true,
-			'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` completed in %3$d seconds.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ), $time_end - $time_start ),
+			'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ) ),
 		);
 	}
 
