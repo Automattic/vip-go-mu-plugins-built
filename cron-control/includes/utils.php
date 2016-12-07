@@ -47,3 +47,62 @@ function collapse_events_array( $events, $timestamp = null ) {
 
 	return $collapsed_events;
 }
+
+/**
+ * Parse request using Core's logic
+ *
+ * We have occasion to check the request before Core has done so, such as when preparing the environment to run a cron job
+ */
+function parse_request() {
+	$rewrite_index = 'index.php';
+
+	/**
+	 * Start what's borrowed from Core
+	 *
+	 * References to $wp_rewrite->index were replaced with $rewrite_index, and whitespace updated, but otherwise, this is directly from WP::parse_request()
+	 */
+	$pathinfo = isset( $_SERVER['PATH_INFO'] ) ? $_SERVER['PATH_INFO'] : '';
+	list( $pathinfo ) = explode( '?', $pathinfo );
+	$pathinfo = str_replace( "%", "%25", $pathinfo );
+
+	list( $req_uri ) = explode( '?', $_SERVER['REQUEST_URI'] );
+	$self = $_SERVER['PHP_SELF'];
+	$home_path = trim( parse_url( home_url(), PHP_URL_PATH ), '/' );
+	$home_path_regex = sprintf( '|^%s|i', preg_quote( $home_path, '|' ) );
+
+	// Trim path info from the end and the leading home path from the
+	// front. For path info requests, this leaves us with the requesting
+	// filename, if any. For 404 requests, this leaves us with the
+	// requested permalink.
+	$req_uri = str_replace( $pathinfo, '', $req_uri );
+	$req_uri = trim( $req_uri, '/' );
+	$req_uri = preg_replace( $home_path_regex, '', $req_uri );
+	$req_uri = trim( $req_uri, '/' );
+	$pathinfo = trim( $pathinfo, '/' );
+	$pathinfo = preg_replace( $home_path_regex, '', $pathinfo );
+	$pathinfo = trim( $pathinfo, '/' );
+	$self = trim( $self, '/' );
+	$self = preg_replace( $home_path_regex, '', $self );
+	$self = trim( $self, '/' );
+
+	// The requested permalink is in $pathinfo for path info requests and
+	//  $req_uri for other requests.
+	if ( ! empty( $pathinfo ) && !preg_match( '|^.*' . $rewrite_index . '$|', $pathinfo ) ) {
+		$requested_path = $pathinfo;
+	} else {
+		// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+		if ( $req_uri == $rewrite_index ) {
+			$req_uri = '';
+		}
+
+		$requested_path = $req_uri;
+	}
+
+	$requested_file = $req_uri;
+	/**
+	 * End what's borrowed from Core
+	 */
+
+	// Return array of data about the request
+	return compact( 'requested_path', 'requested_file', 'self' );
+}

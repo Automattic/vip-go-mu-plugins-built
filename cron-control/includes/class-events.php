@@ -18,6 +18,26 @@ class Events extends Singleton {
 	protected function class_init() {
 		// Prime lock cache if not present
 		Lock::prime_lock( self::LOCK );
+
+		// Prepare environment as early as possible
+		$earliest_action = did_action( 'muplugins_loaded' ) ? 'plugins_loaded' : 'muplugins_loaded';
+		add_action( $earliest_action, array( $this, 'prepare_environment' ) );
+	}
+
+	/**
+	 * Prepare environment to run job
+	 *
+	 * Must run as early as possible, particularly before any client code is loaded
+	 * This also runs before Core has parsed the request and set the \REST_REQUEST constant
+	 */
+	public function prepare_environment() {
+		if ( ! is_rest_endpoint_request( 'run' ) ) {
+			return;
+		}
+
+		ignore_user_abort( true );
+		set_time_limit( JOB_TIMEOUT_IN_MINUTES * MINUTE_IN_SECONDS );
+		define( 'DOING_CRON', true );
 	}
 
 	/**
@@ -136,12 +156,8 @@ class Events extends Singleton {
 		}
 
 		// Mark the event completed, and reschedule if desired
+		// Core does this before running the job, so we respect that
 		$this->update_event_record( $event );
-
-		// Prepare environment to run job
-		ignore_user_abort( true );
-		set_time_limit( JOB_TIMEOUT_IN_MINUTES * MINUTE_IN_SECONDS );
-		define( 'DOING_CRON', true );
 
 		// Run the event
 		do_action_ref_array( $event['action'], $event['args'] );
