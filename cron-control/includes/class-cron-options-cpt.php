@@ -271,7 +271,7 @@ class Cron_Options_CPT extends Singleton {
 	 */
 	public function create_or_update_job( $timestamp, $action, $args, $update_id = null ) {
 		// Limit how many events to insert at once
-		if ( ! Lock::check_lock( self::LOCK, 5 ) ) {
+		if ( ! Lock::check_lock( self::LOCK, JOB_CREATION_CONCURRENCY_LIMIT ) ) {
 			return false;
 		}
 

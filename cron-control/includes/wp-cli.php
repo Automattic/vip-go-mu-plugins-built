@@ -37,4 +37,5 @@ function stop_the_insanity() {
  */
 require __DIR__ . '/wp-cli/class-cache.php';
 require __DIR__ . '/wp-cli/class-events.php';
+require __DIR__ . '/wp-cli/class-lock.php';
 require __DIR__ . '/wp-cli/class-one-time-fixers.php';

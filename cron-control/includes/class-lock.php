@@ -15,7 +15,7 @@ class Lock {
 
 		// Default limit for concurrent events
 		if ( ! is_numeric( $limit ) ) {
-			$limit = JOB_CONCURRENCY_LIMIT;
+			$limit = LOCK_DEFAULT_LIMIT;
 		}
 
 		// Check if process can run
@@ -72,21 +72,21 @@ class Lock {
 	/**
 	 * Retrieve a lock from cache
 	 */
-	private static function get_lock_value( $lock ) {
+	public static function get_lock_value( $lock ) {
 		return (int) wp_cache_get( self::get_key( $lock ), null, true );
 	}
 
 	/**
 	 * Retrieve a lock's timestamp
 	 */
-	private static function get_lock_timestamp( $lock ) {
+	public static function get_lock_timestamp( $lock ) {
 		return (int) wp_cache_get( self::get_key( $lock, 'timestamp' ), null, true );
 	}
 
 	/**
 	 * Clear a lock's current values, in order to free it
 	 */
-	private static function reset_lock( $lock ) {
+	public static function reset_lock( $lock ) {
 		wp_cache_set( self::get_key( $lock ), 0 );
 		wp_cache_set( self::get_key( $lock, 'timestamp' ), time() );
 
