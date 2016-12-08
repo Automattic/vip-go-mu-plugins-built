@@ -56,6 +56,7 @@ class Events extends \WP_CLI_Command {
 				'next_run_relative',
 				'last_updated_gmt',
 				'recurrence',
+				'internal_event',
 				'schedule_name',
 				'event_args',
 			) );
@@ -135,6 +136,7 @@ class Events extends \WP_CLI_Command {
 				'next_run_relative' => $this->calculate_interval( strtotime( $event->post_date_gmt ) - time() ),
 				'last_updated_gmt'  => date( TIME_FORMAT, strtotime( $event->post_modified_gmt ) ),
 				'recurrence'        => __( 'Non-repeating', 'automattic-cron-control' ),
+				'internal_event'    => '',
 				'schedule_name'     => __( 'n/a', 'automattic-cron-control' ),
 				'event_args'        => '',
 			);
@@ -144,7 +146,8 @@ class Events extends \WP_CLI_Command {
 			if ( is_array( $all_args ) ) {
 				// Action
 				if ( isset( $all_args['action'] ) ) {
-					$row['action'] = $all_args['action'];
+					$row['action']         = $all_args['action'];
+					$row['internal_event'] = \Automattic\WP\Cron_Control\is_internal_event( $all_args['action'] ) ? __( 'true', 'automattic-cron-control' ) : '';
 				}
 
 				// Instance
