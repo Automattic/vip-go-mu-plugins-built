@@ -41,7 +41,7 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		$internal_events = array(
 			'a8c_cron_control_force_publish_missed_schedules',
 			'a8c_cron_control_confirm_scheduled_posts',
-			'a8c_cron_control_delete_cron_option',
+			'a8c_cron_control_clean_legacy_data',
 			'a8c_cron_control_purge_completed_events',
 		);
 		foreach ( $internal_events as $internal_event ) {

@@ -31,8 +31,8 @@ class Internal_Events extends Singleton {
 			),
 			array(
 				'schedule' => 'daily',
-				'action'   => 'a8c_cron_control_delete_cron_option',
-				'callback' => 'delete_cron_option',
+				'action'   => 'a8c_cron_control_clean_legacy_data',
+				'callback' => 'clean_legacy_data',
 			),
 			array(
 				'schedule' => 'a8c_cron_control_ten_minutes',
@@ -155,10 +155,23 @@ class Internal_Events extends Singleton {
 	}
 
 	/**
-	 * In case the cron option lingers, purge it
+	 * Remove data related to how Core manages cron in the absence of this plugin
 	 */
-	public function delete_cron_option() {
+	public function clean_legacy_data() {
+		// Cron option can be very large, so it shouldn't linger
 		delete_option( 'cron' );
+
+		// While this plugin doesn't use this locking mechanism, other code may check the value
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_delete( 'doing_cron', 'transient' );
+		} else {
+			delete_transient( 'doing_cron' );
+		}
+
+		// Remove event that was a precursor to this one
+		if ( false !== wp_next_scheduled( 'a8c_cron_control_delete_cron_option' ) ) {
+			wp_clear_scheduled_hook( 'a8c_cron_control_delete_cron_option' );
+		}
 	}
 
 	/**
