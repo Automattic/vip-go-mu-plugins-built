@@ -159,9 +159,9 @@ class MSM_Sitemap_Builder_Cron {
 			'msm_cron_generate_sitemap_for_year_month_day',
 			array(
 				array(
-					'year' => $year,
-					'month' => $month,
-					'day' => $day,
+					'year' => (int) $year,
+					'month' => (int) $month,
+					'day' => (int) $day,
 					),
 				)
 			);
@@ -206,7 +206,7 @@ class MSM_Sitemap_Builder_Cron {
 			'msm_cron_generate_sitemap_for_year', 
 			array(
 				array(
-					'year' => $next_year,
+					'year' => (int) $next_year,
 					),
 				)
 			);
@@ -240,8 +240,8 @@ class MSM_Sitemap_Builder_Cron {
 			'msm_cron_generate_sitemap_for_year_month',
 			array(
 				array(
-					'year' => $year,
-					'month' => $next_month,
+					'year' => (int) $year,
+					'month' => (int) $next_month,
 					),
 				)
 			);
@@ -284,9 +284,9 @@ class MSM_Sitemap_Builder_Cron {
 			'msm_cron_generate_sitemap_for_year_month_day',
 			array(
 				array(
-					'year' => $year,
-					'month' => $month,
-					'day' => $next_day,
+					'year' => (int) $year,
+					'month' => (int) $month,
+					'day' => (int) $next_day,
 					),
 				)
 			);
