@@ -113,7 +113,7 @@ class Internal_Events extends Singleton {
 	public function force_publish_missed_schedules() {
 		global $wpdb;
 
-		$missed_posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date <= %s LIMIT 100;", current_time( 'mysql', false ) ) );
+		$missed_posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date <= %s LIMIT 25;", current_time( 'mysql', false ) ) );
 
 		if ( ! empty( $missed_posts ) ) {
 			foreach ( $missed_posts as $missed_post ) {
@@ -132,7 +132,7 @@ class Internal_Events extends Singleton {
 	public function confirm_scheduled_posts() {
 		global $wpdb;
 
-		$future_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date > %s LIMIT 100;", current_time( 'mysql', false ) ) );
+		$future_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date > %s LIMIT 25;", current_time( 'mysql', false ) ) );
 
 		if ( ! empty( $future_posts ) ) {
 			foreach ( $future_posts as $future_post ) {
