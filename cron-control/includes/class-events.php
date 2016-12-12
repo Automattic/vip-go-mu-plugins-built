@@ -123,7 +123,7 @@ class Events extends Singleton {
 	 * @param $timestamp  int     Unix timestamp
 	 * @param $action     string  md5 hash of the action used when the event is registered
 	 * @param $instance   string  md5 hash of the event's arguments array, which Core uses to index the `cron` option
-	 * @param $force      bool    Ignore timestamp and run event anyway?
+	 * @param $force      bool    Run event regardless of timestamp or lock status? eg, when executing jobs via wp-cli
 	 *
 	 * @return array|\WP_Error
 	 */
@@ -148,9 +148,14 @@ class Events extends Singleton {
 
 		unset( $timestamp, $action, $instance );
 
-		// Limit how many events are processed concurrently
-		if ( ! is_internal_event( $event['action'] ) && ! Lock::check_lock( self::LOCK, JOB_CONCURRENCY_LIMIT ) ) {
-			return new \WP_Error( 'no-free-threads', sprintf( __( 'No resources available to run the job with action action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ) ), array( 'status' => 429, ) );
+		// Limit how many events are processed concurrently, unless explicitly bypassed
+		if ( ! $force ) {
+			// Prepare event-level lock
+			$this->prime_event_action_lock( $event );
+
+			if ( ! $this->can_run_event( $event ) ) {
+				return new \WP_Error( 'no-free-threads', sprintf( __( 'No resources available to run the job with action action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event[ 'action' ], maybe_serialize( $event[ 'args' ] ) ), array( 'status' => 429, ) );
+			}
 		}
 
 		// Mark the event completed, and reschedule if desired
@@ -160,15 +165,80 @@ class Events extends Singleton {
 		// Run the event
 		do_action_ref_array( $event['action'], $event['args'] );
 
-		// Free process for the next event
-		if ( ! is_internal_event( $event['action'] ) ) {
-			Lock::free_lock( self::LOCK );
+		// Free process for the next event, unless it wasn't set to begin with
+		if ( ! $force ) {
+			$this->do_lock_cleanup( $event );
 		}
 
 		return array(
 			'success' => true,
 			'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event['action'], maybe_serialize( $event['args'] ) ),
 		);
+	}
+
+	/**
+	 * Prime the event-specific lock
+	 *
+	 * Used to ensure only one instance of a particular event, such as `wp_version_check` runs at one time
+	 *
+	 * @param $event array Event data
+	 */
+	private function prime_event_action_lock( $event ) {
+		Lock::prime_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES );
+	}
+
+	/**
+	 * Are resources available to run this event?
+	 *
+	 * @param $event array Event data
+	 *
+	 * @return bool
+	 */
+	private function can_run_event( $event ) {
+		// Internal Events always run
+		if ( is_internal_event( $event['action'] ) ) {
+			return true;
+		}
+
+		// Check if any resources are available to execute this job
+		if ( ! Lock::check_lock( self::LOCK, JOB_CONCURRENCY_LIMIT ) ) {
+			return false;
+		}
+
+		// Limit to one concurrent execution of a specific action
+		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES ) ) {
+			return false;
+		}
+
+		// Let's go!
+		return true;
+	}
+
+	/**
+	 * Free locks after event completes
+	 *
+	 * @param $event array Event data
+	 */
+	private function do_lock_cleanup( $event ) {
+		// Lock isn't set when event is Internal, so we don't want to alter it
+		if ( ! is_internal_event( $event['action'] ) ) {
+			Lock::free_lock( self::LOCK );
+		}
+
+		// Reset individual event lock
+		Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES );
+	}
+
+	/**
+	 * Turn the event action into a string that can be used with a lock
+	 *
+	 * @param $event array Event data
+	 *
+	 * @return string
+	 */
+	public function get_lock_key_for_event_action( $event ) {
+		// Hashed solely to constrain overall length
+		return md5( 'ev-' . $event['action'] );
 	}
 
 	/**

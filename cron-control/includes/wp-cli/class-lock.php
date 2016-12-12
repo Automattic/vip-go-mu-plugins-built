@@ -35,6 +35,24 @@ class Lock extends \WP_CLI_Command {
 	}
 
 	/**
+	 * Manage the lock that limits concurrent execution of jobs with the same action
+	 *
+	 * @subcommand manage-event-lock
+	 * @synopsis <action> [--reset]
+	 */
+	public function manage_event_lock( $args, $assoc_args ) {
+		if ( empty( $args[0] ) ) {
+			\WP_CLI::error( sprintf( __( 'Specify an action', 'automattic-cron-control' ) ) );
+		}
+
+		$lock_name        = \Automattic\WP\Cron_Control\Events::instance()->get_lock_key_for_event_action( array( 'action' => $args[0], ) );
+		$lock_limit       = 1;
+		$lock_description = __( "This lock prevents concurrent executions of events with the same action, regardless of the action's arguments.", 'automattic-cron-control' );
+
+		$this->get_reset_lock( $args, $assoc_args, $lock_name, $lock_limit, $lock_description );
+	}
+
+	/**
 	 * Retrieve a lock's current value, or reset it
 	 */
 	private function get_reset_lock( $args, $assoc_args, $lock_name, $lock_limit, $lock_description ) {

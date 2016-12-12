@@ -17,6 +17,12 @@ class Events extends \WP_CLI_Command {
 	public function list_events( $args, $assoc_args ) {
 		$events = $this->get_events( $args, $assoc_args );
 
+		// Prevent one from requesting a page that doesn't exist
+		// Shouldn't error when first page is requested, though, as that is handled below and is an odd behaviour otherwise
+		if ( $events['page'] > $events['total_pages'] && $events['page'] > 1 ) {
+			\WP_CLI::error( __( 'Invalid page requested', 'automattic-cron-control' ) );
+		}
+
 		// Output in the requested format
 		if ( isset( $assoc_args['format'] ) && 'ids' === $assoc_args['format'] ) {
 			echo implode( ' ', wp_list_pluck( $events['items'], 'ID' ) );
@@ -27,8 +33,8 @@ class Events extends \WP_CLI_Command {
 			}
 
 			// Not much to do
-			if ( 0 === $events['total_items'] ) {
-				\WP_CLI::success( __( 'No events to display', 'automattic-cron-control' ) );
+			if ( 0 === $events['total_items'] || empty( $events['items'] ) ) {
+				\WP_CLI::warning( __( 'No events to display', 'automattic-cron-control' ) );
 				return;
 			}
 
@@ -40,7 +46,7 @@ class Events extends \WP_CLI_Command {
 			if ( $events['total_items'] <= $total_events_to_display ) {
 				\WP_CLI::line( sprintf( _n( 'Displaying one entry', 'Displaying all %s entries', $total_events_to_display, 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ) ) );
 			} else {
-				\WP_CLI::line( sprintf( __( 'Displaying %s of %s entries, page %s of %s', 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ), number_format_i18n( $events['total_items'] ), number_format_i18n( $events['page'] ), number_format_i18n( $events['total_pages'] ) ) );
+				\WP_CLI::line( sprintf( __( 'Displaying %1$s of %2$s entries, page %3$s of %4$s', 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ), number_format_i18n( $events['total_items'] ), number_format_i18n( $events['page'] ), number_format_i18n( $events['total_pages'] ) ) );
 			}
 
 			// And reformat
@@ -110,7 +116,7 @@ class Events extends \WP_CLI_Command {
 		// Event data
 		$event_data = $this->get_event_details_from_post_title( $event );
 
-		\WP_CLI::line( sprintf( __( 'Found event %d with action `%s` and instance identifier `%s`', 'automattic-cron-control' ), $args[0], $event_data['action'], $event_data['instance'] ) );
+		\WP_CLI::line( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event_data['action'], $event_data['instance'] ) );
 
 		// Proceed?
 		$now = time();
@@ -181,7 +187,7 @@ class Events extends \WP_CLI_Command {
 		$offset = absint( ( $page - 1 ) * $limit );
 
 		// Query
-		$items = $wpdb->get_results( $wpdb->prepare( "SELECT SQL_CALC_FOUND_ROWS ID, post_title, post_content_filtered, post_date_gmt, post_modified_gmt FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY post_date ASC LIMIT %d,%d", \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE, $post_status, $offset, $limit ) );
+		$items = $wpdb->get_results( $wpdb->prepare( "SELECT SQL_CALC_FOUND_ROWS ID, post_title, post_content_filtered, post_date_gmt, post_modified_gmt, post_status FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY post_date ASC LIMIT %d,%d", \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE, $post_status, $offset, $limit ) );
 
 		// Bail if we don't get results
 		if ( ! is_array( $items ) ) {
@@ -208,13 +214,18 @@ class Events extends \WP_CLI_Command {
 				'action'            => '',
 				'instance'          => '',
 				'next_run_gmt'      => date( TIME_FORMAT, strtotime( $event->post_date_gmt ) ),
-				'next_run_relative' => $this->calculate_interval( strtotime( $event->post_date_gmt ) - time() ),
+				'next_run_relative' => '',
 				'last_updated_gmt'  => date( TIME_FORMAT, strtotime( $event->post_modified_gmt ) ),
 				'recurrence'        => __( 'Non-repeating', 'automattic-cron-control' ),
 				'internal_event'    => '',
 				'schedule_name'     => __( 'n/a', 'automattic-cron-control' ),
 				'event_args'        => '',
 			);
+
+			// Provide relative next run only for events that have yet to run
+			if ( $event->post_status === \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_PENDING ) {
+				$row['next_run_relative'] = $this->calculate_interval( strtotime( $event->post_date_gmt ) - time() );
+			}
 
 			// Most data serialized in the post
 			$all_args = maybe_unserialize( $event->post_content_filtered );

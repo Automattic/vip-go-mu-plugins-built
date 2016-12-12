@@ -48,7 +48,7 @@ class Main extends Singleton {
 		foreach ( $constants as $constant => $expected_value ) {
 			if ( defined( $constant ) ) {
 				if ( constant( $constant ) !== $expected_value ) {
-					error_log( sprintf( __( '%s: %s set to unexpected value; must be corrected for proper behaviour.', 'automattic-cron-control' ), 'Cron Control', $constant ) );
+					error_log( sprintf( __( '%1$s: %2$s set to unexpected value; must be corrected for proper behaviour.', 'automattic-cron-control' ), 'Cron Control', $constant ) );
 				}
 			} else {
 				define( $constant, $expected_value );

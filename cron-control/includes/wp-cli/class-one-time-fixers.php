@@ -9,9 +9,8 @@ class One_Time_Fixers extends \WP_CLI_Command {
 	/**
 	 * Remove corrupt Cron Control data resulting from initial plugin deployment
 	 *
-	 * eg.: `wp --allow-root cron-control-fixers remove-all-plugin-data --batch-size=15 --dry-run=true`
-	 *
 	 * @subcommand remove-all-plugin-data
+	 * @synopsis [--batch-size=<batch-size>] [--dry-run=<dry-run>]
 	 */
 	public function purge( $args, $assoc_args ) {
 		global $wpdb;
@@ -60,7 +59,7 @@ class One_Time_Fixers extends \WP_CLI_Command {
 
 		// Let's get on with it
 		do {
-			\WP_CLI::line( "\n\n" . sprintf( __( 'Processing page %s of %s', 'automattic-cron-control' ), number_format_i18n( $page ), number_format_i18n( $pages ) ) . "\n" );
+			\WP_CLI::line( "\n\n" . sprintf( __( 'Processing page %1$s of %2$s', 'automattic-cron-control' ), number_format_i18n( $page ), number_format_i18n( $pages ) ) . "\n" );
 
 			$items = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s LIMIT %d,%d", 'a8c_cron_ctrl_event', absint( ( $page - 1 ) * $page_size ),$page_size ) );
 

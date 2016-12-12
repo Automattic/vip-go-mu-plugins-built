@@ -167,11 +167,6 @@ class Internal_Events extends Singleton {
 		} else {
 			delete_transient( 'doing_cron' );
 		}
-
-		// Remove event that was a precursor to this one
-		if ( false !== wp_next_scheduled( 'a8c_cron_control_delete_cron_option' ) ) {
-			wp_clear_scheduled_hook( 'a8c_cron_control_delete_cron_option' );
-		}
 	}
 
 	/**
