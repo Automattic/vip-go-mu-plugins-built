@@ -65,6 +65,19 @@ class Events extends Singleton {
 				continue;
 			}
 
+			// Skip events that don't have any callbacks hooked to their actions, unless their execution is requested
+			if ( false === has_action( $event['action'] ) && ! apply_filters( 'a8c_cron_control_run_event_with_no_callbacks', false, $event ) ) {
+				if ( false === $event['args']['schedule'] ) {
+					wp_unschedule_event( $event['timestamp'], $event['action'], $event['args']['args'] );
+				} else {
+					$timestamp = $event['timestamp'] + ( isset( $event['args']['interval'] ) ? $event['args']['interval'] : 0 );
+					wp_reschedule_event( $timestamp, $event['args']['schedule'], $event['action'], $event['args']['args'] );
+					unset( $timestamp );
+				}
+
+				continue;
+			}
+
 			// Necessary data to identify an individual event
 			// `$event['action']` is hashed to avoid information disclosure
 			// Core hashes `$event['instance']` for us

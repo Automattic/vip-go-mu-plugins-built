@@ -13,6 +13,9 @@ class Utils {
 			'args'      => array(),
 		);
 
+		// Plugin skips events with no callbacks
+		add_action( 'a8c_cron_control_test_event', '__return_true' );
+
 		if ( $allow_multiple ) {
 			$event['action'] .= '_' . rand( 10, 100 );
 		}
