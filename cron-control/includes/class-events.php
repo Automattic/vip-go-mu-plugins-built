@@ -184,7 +184,7 @@ class Events extends Singleton {
 	 * @param $event array Event data
 	 */
 	private function prime_event_action_lock( $event ) {
-		Lock::prime_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES );
+		Lock::prime_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
 	}
 
 	/**
@@ -206,7 +206,7 @@ class Events extends Singleton {
 		}
 
 		// Limit to one concurrent execution of a specific action
-		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES ) ) {
+		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS ) ) {
 			return false;
 		}
 
@@ -226,7 +226,7 @@ class Events extends Singleton {
 		}
 
 		// Reset individual event lock
-		Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES );
+		Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
 	}
 
 	/**

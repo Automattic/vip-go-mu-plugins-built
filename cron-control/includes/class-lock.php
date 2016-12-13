@@ -5,12 +5,16 @@ namespace Automattic\WP\Cron_Control;
 class Lock {
 	/**
 	 * Set a lock and limit how many concurrent jobs are permitted
+	 *
+	 * @param $lock     string  Lock name
+	 * @param $limit    int     Concurrency limit
+	 * @param $timeout  int     Timeout in seconds
+	 *
+	 * @return bool
 	 */
-	public static function check_lock( $lock, $limit = null, $timeout_in_minutes = null ) {
+	public static function check_lock( $lock, $limit = null, $timeout = null ) {
 		// Timeout, should a process die before its lock is freed
-		if ( is_numeric( $timeout_in_minutes ) ) {
-			$timeout = $timeout_in_minutes * \MINUTE_IN_SECONDS;
-		} else {
+		if ( ! is_numeric( $timeout ) ) {
 			$timeout = LOCK_DEFULT_TIMEOUT_IN_MINUTES * \MINUTE_IN_SECONDS;
 		}
 
