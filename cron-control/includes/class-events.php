@@ -255,7 +255,7 @@ class Events extends Singleton {
 	 *
 	 * The `$instance` argument is hashed for us by Core, while we hash the action to avoid information disclosure
 	 */
-	private function get_event( $timestamp, $action_hashed, $instance ) {
+	public function get_event( $timestamp, $action_hashed, $instance ) {
 		$events = get_option( 'cron' );
 		$event  = false;
 
