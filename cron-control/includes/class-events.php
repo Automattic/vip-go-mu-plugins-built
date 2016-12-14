@@ -304,7 +304,9 @@ class Events extends Singleton {
 		}
 
 		// Check if any resources are available to execute this job
+		// If not, the indivdual-event lock must be freed, otherwise it's deadlocked until it times out
 		if ( ! Lock::check_lock( self::LOCK, JOB_CONCURRENCY_LIMIT ) ) {
+			$this->reset_event_lock( $event );
 			return false;
 		}
 
@@ -324,7 +326,18 @@ class Events extends Singleton {
 		}
 
 		// Reset individual event lock
-		Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
+		$this->reset_event_lock( $event );
+	}
+
+	/**
+	 * Frees the lock for an individual event
+	 *
+	 * @param $event array Event data
+	 *
+	 * @return bool
+	 */
+	private function reset_event_lock( $event ) {
+		return Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
 	}
 
 	/**
