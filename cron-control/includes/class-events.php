@@ -66,22 +66,14 @@ class Events extends Singleton {
 			}
 
 			// Skip events that don't have any callbacks hooked to their actions, unless their execution is requested
-			if ( false === has_action( $event['action'] ) && ! apply_filters( 'a8c_cron_control_run_event_with_no_callbacks', false, $event ) ) {
-				if ( false === $event['args']['schedule'] ) {
-					wp_unschedule_event( $event['timestamp'], $event['action'], $event['args']['args'] );
-				} else {
-					$timestamp = $event['timestamp'] + ( isset( $event['args']['interval'] ) ? $event['args']['interval'] : 0 );
-					wp_reschedule_event( $timestamp, $event['args']['schedule'], $event['action'], $event['args']['args'] );
-					unset( $timestamp );
-				}
-
+			if ( ! $this->action_has_callback_or_should_run_anyway( $event ) ) {
 				continue;
 			}
 
 			// Necessary data to identify an individual event
 			// `$event['action']` is hashed to avoid information disclosure
 			// Core hashes `$event['instance']` for us
-			$event = array(
+			$event_data_public = array(
 				'timestamp' => $event['timestamp'],
 				'action'    => md5( $event['action'] ),
 				'instance'  => $event['instance'],
@@ -89,17 +81,18 @@ class Events extends Singleton {
 
 			// Queue internal events separately to avoid them being blocked
 			if ( is_internal_event( $event['action'] ) ) {
-				$internal_events[] = $event;
+				$internal_events[] = $event_data_public;
 			} else {
-				$current_events[] = $event;
+				$current_events[] = $event_data_public;
 			}
 		}
 
 		// Limit batch size to avoid resource exhaustion
 		if ( count( $current_events ) > JOB_QUEUE_SIZE ) {
-			$current_events = array_slice( $current_events, 0, JOB_QUEUE_SIZE );
+			$current_events = $this->reduce_queue( $current_events );
 		}
 
+		// Combine with Internal Events and return necessary data to process the event queue
 		return array(
 			'events'   => array_merge( $current_events, $internal_events ),
 			'endpoint' => get_rest_url( null, REST_API::API_NAMESPACE . '/' . REST_API::ENDPOINT_RUN ),
@@ -107,27 +100,95 @@ class Events extends Singleton {
 	}
 
 	/**
-	 * Find an event's data using its hashed representations
+	 * Check that an event has a callback to run, and allow the check to be overridden
+	 * Empty events are, by default, skipped and removed/rescheduled
 	 *
-	 * The `$instance` argument is hashed for us by Core, while we hash the action to avoid information disclosure
+	 * @param $event  array  Event data
+	 *
+	 * @return bool
 	 */
-	private function get_event( $timestamp, $action_hashed, $instance ) {
-		$events = get_option( 'cron' );
-		$event  = false;
-
-		$filtered_events = collapse_events_array( $events, $timestamp );
-
-		foreach ( $filtered_events as $filtered_event ) {
-			if ( hash_equals( md5( $filtered_event['action'] ), $action_hashed ) && hash_equals( $filtered_event['instance'], $instance ) ) {
-				$event = $filtered_event['args'];
-				$event['timestamp'] = $filtered_event['timestamp'];
-				$event['action']    = $filtered_event['action'];
-				$event['instance']  = $filtered_event['instance'];
-				break;
-			}
+	private function action_has_callback_or_should_run_anyway( $event ) {
+		// Event has a callback, so let's get on with it
+		if ( false !== has_action( $event['action'] ) ) {
+			return true;
 		}
 
-		return $event;
+		// Run the event anyway, perhaps because callbacks are added using the `all` action
+		if ( apply_filters( 'a8c_cron_control_run_event_with_no_callbacks', false, $event ) ) {
+			return true;
+		}
+
+		// Remove or reschedule the empty event
+		if ( false === $event['args']['schedule'] ) {
+			wp_unschedule_event( $event['timestamp'], $event['action'], $event['args']['args'] );
+		} else {
+			$timestamp = $event['timestamp'] + ( isset( $event['args']['interval'] ) ? $event['args']['interval'] : 0 );
+			wp_reschedule_event( $timestamp, $event['args']['schedule'], $event['action'], $event['args']['args'] );
+			unset( $timestamp );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Trim events queue down to the limit set by JOB_QUEUE_SIZE
+	 *
+	 * @param $events  array  List of events to be run in the current period
+	 *
+	 * @return array
+	 */
+	private function reduce_queue( $events ) {
+		// Loop through events, adding one of each action during each iteration
+		$reduced_queue = array();
+		$action_counts = array();
+
+		$i = 1; // Intentionally not zero-indexed to facilitate comparisons against $action_counts members
+
+		do {
+			// Each time the events array is iterated over, move one instance of an action to the current queue
+			foreach ( $events as $key => $event ) {
+				$action = $event['action'];
+
+				// Prime the count
+				if ( ! isset( $action_counts[ $action ] ) ) {
+					$action_counts[ $action ] = 0;
+				}
+
+				// Check and do the move
+				if ( $action_counts[ $action ] < $i ) {
+					$reduced_queue[] = $event;
+					$action_counts[ $action ]++;
+					unset( $events[ $key ] );
+				}
+			}
+
+			// When done with an iteration and events remain, start again from the beginning of the $events array
+			if ( empty( $events ) ) {
+				break;
+			} else {
+				$i++;
+				reset( $events );
+
+				continue;
+			}
+		} while( $i <= 15 && count( $reduced_queue ) < JOB_QUEUE_SIZE && ! empty( $events ) );
+
+		/**
+		 * IMPORTANT: DO NOT re-sort the $reduced_queue array from this point forward.
+		 * Doing so defeats the preceding effort.
+		 *
+		 * While the events are now out of order with respect to timestamp, they're ordered
+		 * such that one of each action is run before another of an already-run action.
+		 * The timestamp mis-ordering is trivial given that we're only dealing with events
+		 * for the current JOB_QUEUE_WINDOW_IN_SECONDS.
+		 */
+
+		// Finally, ensure that we don't have more than we need
+		if ( count( $reduced_queue ) > JOB_QUEUE_SIZE ) {
+			$reduced_queue = array_slice( $reduced_queue, 0, JOB_QUEUE_SIZE );
+		}
+
+		return $reduced_queue;
 	}
 
 	/**
@@ -190,6 +251,30 @@ class Events extends Singleton {
 	}
 
 	/**
+	 * Find an event's data using its hashed representations
+	 *
+	 * The `$instance` argument is hashed for us by Core, while we hash the action to avoid information disclosure
+	 */
+	private function get_event( $timestamp, $action_hashed, $instance ) {
+		$events = get_option( 'cron' );
+		$event  = false;
+
+		$filtered_events = collapse_events_array( $events, $timestamp );
+
+		foreach ( $filtered_events as $filtered_event ) {
+			if ( hash_equals( md5( $filtered_event['action'] ), $action_hashed ) && hash_equals( $filtered_event['instance'], $instance ) ) {
+				$event = $filtered_event['args'];
+				$event['timestamp'] = $filtered_event['timestamp'];
+				$event['action']    = $filtered_event['action'];
+				$event['instance']  = $filtered_event['instance'];
+				break;
+			}
+		}
+
+		return $event;
+	}
+
+	/**
 	 * Prime the event-specific lock
 	 *
 	 * Used to ensure only one instance of a particular event, such as `wp_version_check` runs at one time
@@ -208,18 +293,18 @@ class Events extends Singleton {
 	 * @return bool
 	 */
 	private function can_run_event( $event ) {
-		// Internal Events always run
+		// Limit to one concurrent execution of a specific action
+		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS ) ) {
+			return false;
+		}
+
+		// Internal Events aren't subject to the global lock
 		if ( is_internal_event( $event['action'] ) ) {
 			return true;
 		}
 
 		// Check if any resources are available to execute this job
 		if ( ! Lock::check_lock( self::LOCK, JOB_CONCURRENCY_LIMIT ) ) {
-			return false;
-		}
-
-		// Limit to one concurrent execution of a specific action
-		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS ) ) {
 			return false;
 		}
 
