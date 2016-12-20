@@ -79,6 +79,20 @@ class WP_Test_Sitemap_Creation extends WP_UnitTestCase {
 		}
 	}
 
+	function test__get_sitemap_post_id() {
+		// Get yesterday's sitemap post
+		$sitemap_year = date( 'Y' );
+		$sitemap_month = date( 'm' );
+		$sitemap_day = date( 'd' ) - 1;
+		$sitemap_ymd = sprintf( '%s-%s-%s', $sitemap_year, $sitemap_month, $sitemap_day );
+
+		$sitemap_post_id = Metro_Sitemap::get_sitemap_post_id( $sitemap_year, $sitemap_month, $sitemap_day );
+		$sitemap_post = get_post( $sitemap_post_id );
+
+		$this->assertTrue( is_a( $sitemap_post, 'WP_Post' ), 'get_sitemap_post_id returned non-WP_Post value' );
+		$this->assertEquals( $sitemap_ymd, $sitemap_post->post_title );
+	}
+
 	/**
 	 * This is a long and convoluted test.
 	 *

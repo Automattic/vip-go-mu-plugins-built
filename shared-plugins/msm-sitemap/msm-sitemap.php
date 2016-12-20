@@ -3,8 +3,8 @@
 Plugin Name: Metro Sitemap
 Description: Comprehensive sitemaps for your WordPress site. Joint collaboration between Metro.co.uk, MAKE, Alley Interactive, and WordPress.com VIP.
 Author: Artur Synowiec, Paul Kevan, and others
-Version: 0.1
-Stable tag: 0.1
+Version: 1.2
+Stable tag: 1.2
 License: GPLv2
 */
 
@@ -627,10 +627,16 @@ class Metro_Sitemap {
 	}
 
 	public static function get_sitemap_post_id( $year, $month, $day ) {
+		$ymd = self::get_date_stamp( $year, $month, $day );
+
 		$sitemap_args = array(
-			'year' => $year,
-			'monthnum' => $month,
-			'day' => $day,
+			'date_query' => array(
+				array(
+					'before' => sprintf( '%s 00:00:00', $ymd ),
+					'after' => sprintf( '%s 00:00:00', $ymd ),
+					'inclusive' => true,
+				),
+			),
 			'orderby' => 'ID',
 			'order' => 'ASC',
 			'posts_per_page' => 1,
