@@ -3,8 +3,8 @@
 Plugin Name: Metro Sitemap
 Description: Comprehensive sitemaps for your WordPress site. Joint collaboration between Metro.co.uk, MAKE, Alley Interactive, and WordPress.com VIP.
 Author: Artur Synowiec, Paul Kevan, and others
-Version: 1.2
-Stable tag: 1.2
+Version: 1.2.1
+Stable tag: 1.2.1
 License: GPLv2
 */
 
@@ -146,7 +146,7 @@ class Metro_Sitemap {
 			'msm_sitemap_create_status',
 			$sitemap_create_in_progress ? __( 'Running', 'metro-sitemaps' ) : __( 'Not Running', 'metro-sitemaps' )
 		);
-		
+
 		?>
 		<div class="stats-container">
 			<div class="stats-box"><strong id="sitemap-count"><?php echo number_format( Metro_Sitemap::count_sitemaps() ); ?></strong><?php _e( 'Sitemaps', 'metro-sitemaps' ); ?></div>
@@ -185,20 +185,20 @@ class Metro_Sitemap {
 
 		echo '<div class="' . esc_attr( $class ) . ' msm-sitemap-message"><p>' . wp_kses( $message, wp_kses_allowed_html( 'post' ) ) . '</p></div>';
 	}
-		
+
 	/**
 	 * Counts the number of sitemaps that have been generated.
-	 * 
+	 *
 	 * @return int The number of sitemaps that have been generated
 	 */
 	public static function count_sitemaps() {
 		$count = wp_count_posts( Metro_Sitemap::SITEMAP_CPT );
 		return (int) $count->publish;
 	}
-	
+
 	/**
 	 * Gets the current number of URLs indexed by msm-sitemap accross all sitemaps.
-	 * 
+	 *
 	 * @return int The number of total number URLs indexed
 	 */
 	public static function get_total_indexed_url_count() {
@@ -228,7 +228,7 @@ class Metro_Sitemap {
 	public static function is_blog_public() {
 		return ( 1 == get_option( 'blog_public' ) );
 	}
-	
+
 	/**
 	 * Gets the number of URLs indexed for the given sitemap.
 	 *
@@ -243,7 +243,7 @@ class Metro_Sitemap {
 
 		return false;
 	}
-		
+
 	/**
 	 * Add entry to the bottom of robots.txt
 	 */
@@ -401,8 +401,11 @@ class Metro_Sitemap {
 		// We need to get a WP_Query object for back-compat as we run a Loop when building
 		$query = new WP_Query( array(
 			'post__in' => $post_ids,
+			'post_type' => self::get_supported_post_types(),
 			'no_found_rows' => true,
+			'posts_per_page' => $per_page,
 			'ignore_sticky_posts' => true,
+			'post_status' => 'publish',
 		) );
 		$post_count = $query->post_count;
 
@@ -435,7 +438,7 @@ class Metro_Sitemap {
 		$url_count = 0;
 		while ( $query->have_posts() ) {
 			$query->the_post();
-			
+
 			if ( apply_filters( 'msm_sitemap_skip_post', false ) )
 				continue;
 
@@ -536,7 +539,7 @@ class Metro_Sitemap {
 		global $wpdb;
 
 		$sitemap_last_run = get_option( 'msm_sitemap_update_last_run', false );
-		
+
 		$date = date( 'Y-m-d H:i:s', ( current_time( 'timestamp', 1 ) - 3600 ) ); // posts changed within the last hour
 
 		if ( $sitemap_last_run ) {
@@ -660,7 +663,7 @@ class Metro_Sitemap {
 	 * Get XML for individual day
 	 */
 	public static function build_individual_sitemap_xml( $year, $month, $day ) {
-		
+
 		// Get XML for an individual day. Stored as full xml
 		$sitemap_id = self::get_sitemap_post_id( $year, $month, $day );
 
