@@ -31,14 +31,12 @@ class WPcom_CSS_Concat extends WP_Styles {
 			}
 			unset( $this->$key );
 		}
-
-		parent::__construct();
 	}
 
 	function do_items( $handles = false, $group = false ) {
 		$handles = false === $handles ? $this->queue : (array) $handles;
 		$stylesheets = array();
-		$siteurl = site_url();
+		$siteurl = apply_filters( 'ngx_http_concat_site_url', $this->base_url );
 
 		$this->all_deps( $handles );
 

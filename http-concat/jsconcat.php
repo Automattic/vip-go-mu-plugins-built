@@ -31,14 +31,12 @@ class WPcom_JS_Concat extends WP_Scripts {
 			}
 			unset( $this->$key );
 		}
-
-		parent::__construct();
 	}
 
 	function do_items( $handles = false, $group = false ) {
 		$handles = false === $handles ? $this->queue : (array) $handles;
 		$javascripts= array();
-		$siteurl = site_url();
+		$siteurl = apply_filters( 'ngx_http_concat_site_url', $this->base_url );
 
 		$this->all_deps( $handles );
 		$level = 0;
@@ -65,6 +63,16 @@ class WPcom_JS_Concat extends WP_Scripts {
 			$js_url = parse_url( $obj->src );
 			$extra = $obj->extra;
 
+			// Check for scripts added from wp_add_inline_script()
+			$before_handle = $this->print_inline_script( $handle, 'before', false );
+			$after_handle = $this->print_inline_script( $handle, 'after', false );
+			if ( $before_handle ) {
+				$before_handle = sprintf( "<script type='text/javascript'>\n%s\n</script>\n", $before_handle );
+			}
+			if ( $after_handle ) {
+				$after_handle = sprintf( "<script type='text/javascript'>\n%s\n</script>\n", $after_handle );
+			}
+
 			// Don't concat by default
 			$do_concat = false;
 
@@ -84,13 +92,6 @@ class WPcom_JS_Concat extends WP_Scripts {
 			else
 				$js_url['path'] = substr( $js_realpath, strlen( ABSPATH ) - 1 );
 
-			//Don't concat items with associated inline scripts
-			$before_handle = $this->print_inline_script( $handle, 'before', false );
-			$after_handle  = $this->print_inline_script( $handle, 'after', false );
-			if ( $before_handle || $after_handle ) {
-				$do_concat = false;
-			}
-
 			// Allow plugins to disable concatenation of certain scripts.
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
 
@@ -100,6 +101,15 @@ class WPcom_JS_Concat extends WP_Scripts {
 
 				$javascripts[$level]['paths'][] = $js_url['path'];
 				$javascripts[$level]['handles'][] = $handle;
+
+				// Add inline scripts to Javascripts array for later processing
+				if ( $before_handle ) {
+					$javascripts[$level]['extras']['before'][] = $before_handle;
+				}
+				if ( $after_handle ) {
+					$javascripts[$level]['extras']['after'][] = $after_handle;
+				}
+
 			} else {
 				$level++;
 				$javascripts[$level]['type'] = 'do_item';
@@ -136,7 +146,19 @@ class WPcom_JS_Concat extends WP_Scripts {
 				}
 
 				$this->done = array_merge( $this->done, $js_array['handles'] );
+
+				// Print before/after scripts from wp_inline_scripts() and concatenated script tag
+				if ( isset( $js_array['extras']['before'] ) ) {
+					foreach ( $js_array['extras']['before'] as $inline_before ) {
+						echo $inline_before;
+					}
+				}
 				echo "<script type='text/javascript' src='$href'></script>\n";
+				if ( isset( $js_array['extras']['after'] ) ) {
+					foreach ( $js_array['extras']['after'] as $inline_after ) {
+						echo $inline_after;
+					}
+				}
 			}
 		}
 
