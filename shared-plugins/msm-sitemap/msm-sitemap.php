@@ -444,7 +444,7 @@ class Metro_Sitemap {
 
 			$url = $xml->addChild( 'url' );
 			$url->addChild( 'loc', get_permalink() );
-			$url->addChild( 'lastmod', get_post_modified_time( 'Y-m-dTH:i:sZ', true ) );
+			$url->addChild( 'lastmod', get_post_modified_time( 'c', true ) );
 			$url->addChild( 'changefreq', 'monthly' );
 			$url->addChild( 'priority', '0.7' );
 
