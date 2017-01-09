@@ -26,7 +26,5 @@ add_filter( 'jetpack_get_available_modules', function( $modules ) {
 	return $modules;
 }, 999 );
 
-if ( defined( 'WPCOM_VIP_FORCE_JETPACK_2FA' ) && true === WPCOM_VIP_FORCE_JETPACK_2FA ) {
-	add_filter( 'jetpack_force_2fa_dependency_notice', '__return_false' );
-	require_once( __DIR__ . '/jetpack-force-2fa/jetpack-force-2fa.php' );
-}
+add_filter( 'jetpack_force_2fa_dependency_notice', '__return_false' );
+require_once( __DIR__ . '/jetpack-force-2fa/jetpack-force-2fa.php' );
