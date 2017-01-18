@@ -26,6 +26,7 @@ class Jetpack {
 	public $xmlrpc_server = null;
 
 	private $xmlrpc_verification = null;
+	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
@@ -52,6 +53,7 @@ class Jetpack {
 		'jetpack-top-posts-widget',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
+		'wordads',
 	);
 
 	public $plugins_to_deactivate = array(
@@ -160,11 +162,13 @@ class Jetpack {
 			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 		),
 		'widget-visibility' => array(
 			'Widget Logic'                         => 'widget-logic/widget_logic.php',
@@ -179,6 +183,7 @@ class Jetpack {
 			'WordPress SEO by Yoast'               => 'wordpress-seo/wp-seo.php',
 			'WordPress SEO Premium by Yoast'       => 'wordpress-seo-premium/wp-seo-premium.php',
 			'All in One SEO Pack'                  => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+			'All in One SEO Pack Pro'              => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'Sitemap'                              => 'sitemap/sitemap.php',
 			'Simple Wp Sitemap'                    => 'simple-wp-sitemap/simple-wp-sitemap.php',
 			'Simple Sitemap'                       => 'simple-sitemap/simple-sitemap.php',
@@ -190,7 +195,7 @@ class Jetpack {
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
 	 *
-	 * Note: WordPress SEO by Yoast and WordPress SEO Premium by Yoast automatically deactivate
+	 * Note: All in One SEO Pack, All in one SEO Pack Pro, WordPress SEO by Yoast, and WordPress SEO Premium by Yoast automatically deactivate
 	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
@@ -482,6 +487,9 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
 		}
+
+		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
+		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
@@ -2515,6 +2523,16 @@ class Jetpack {
 			}
 		}
 
+		// Protect won't work with mis-configured IPs
+		if ( 'protect' === $module ) {
+			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+			if ( ! jetpack_protect_get_ip() ) {
+				error_log( 'hello' );
+				Jetpack::state( 'message', 'protect_misconfigured_ip' );
+				return false;
+			}
+		}
+
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
 		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
@@ -2773,6 +2791,10 @@ p {
 
 			Jetpack_Options::update_option( 'unique_connection', $jetpack_unique_connection );
 		}
+
+		// Delete cached connected user data
+		$transient_key = "jetpack_connected_user_data_" . get_current_user_id();
+		delete_transient( $transient_key );
 
 		// Delete all the sync related data. Since it could be taking up space.
 		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
@@ -4452,7 +4474,12 @@ p {
 		} elseif ( 408 == $code ) {
 			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		} elseif ( ! empty( $json->error ) ) {
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			if ( 'xml_rpc-32700' == $json->error && ! function_exists( 'xml_parser_create' ) ) {
+				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
+			} else {
+				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+			}
+			
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
@@ -4600,6 +4627,14 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
+	/**
+	 * Resets the saved authentication state in between testing requests.
+	 */
+	public function reset_saved_auth_state() {
+		$this->xmlrpc_verification = null;
+		$this->rest_authentication_status = null;
+	}
+
 	function verify_xml_rpc_signature() {
 		if ( $this->xmlrpc_verification ) {
 			return $this->xmlrpc_verification;
@@ -4672,6 +4707,7 @@ p {
 		} else {
 			$body = null;
 		}
+
 		$signature = $jetpack_signature->sign_current_request(
 			array( 'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body, )
 		);
@@ -4724,6 +4760,115 @@ p {
 		nocache_headers();
 
 		return new WP_User( $token_details['user_id'] );
+	}
+
+	// Authenticates requests from Jetpack server to WP REST API endpoints.
+	// Uses the existing XMLRPC request signing implementation.
+	function wp_rest_authenticate( $user ) {
+		if ( ! empty( $user ) ) {
+			// Another authentication method is in effect.
+			return $user;
+		}
+
+		if ( ! isset( $_GET['_for'] ) || $_GET['_for'] !== 'jetpack' ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		if ( ! isset( $_GET['token'] ) && ! isset( $_GET['signature'] ) ) {
+			// Nothing to do for this authentication method.
+			return null;
+		}
+
+		// Ensure that we always have the request body available.  At this
+		// point, the WP REST API code to determine the request body has not
+		// run yet.  That code may try to read from 'php://input' later, but
+		// this can only be done once per request in PHP versions prior to 5.6.
+		// So we will go ahead and perform this read now if needed, and save
+		// the request body where both the Jetpack signature verification code
+		// and the WP REST API code can see it.
+		if ( ! isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ) {
+			$GLOBALS['HTTP_RAW_POST_DATA'] = file_get_contents( 'php://input' );
+		}
+		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
+
+		// Only support specific request parameters that have been tested and
+		// are known to work with signature verification.  A different method
+		// can be passed to the WP REST API via the '?_method=' parameter if
+		// needed.
+		if ( $_SERVER['REQUEST_METHOD'] !== 'GET' && $_SERVER['REQUEST_METHOD'] !== 'POST' ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+		if ( $_SERVER['REQUEST_METHOD'] !== 'POST' && ! empty( $this->HTTP_RAW_POST_DATA ) ) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This request method does not support body parameters.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['CONTENT_TYPE'];
+		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
+			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
+		}
+
+		if (
+			isset( $content_type ) &&
+			$content_type !== 'application/x-www-form-urlencoded' &&
+			$content_type !== 'application/json'
+		) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_request',
+				__( 'This Content-Type is not supported.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		$verified = $this->verify_xml_rpc_signature();
+
+		if ( is_wp_error( $verified ) ) {
+			$this->rest_authentication_status = $verified;
+			return null;
+		}
+
+		if (
+			false === $verified ||
+			! isset( $verified['type'] ) ||
+			'user' !== $verified['type'] ||
+			empty( $verified['user_id'] )
+		) {
+			$this->rest_authentication_status = new WP_Error(
+				'rest_invalid_signature',
+				__( 'The request is not signed correctly.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+			return null;
+		}
+
+		// Authentication successful.
+		$this->rest_authentication_status = true;
+		return $verified['user_id'];
+	}
+
+	/**
+	 * Report authentication status to the WP REST API.
+	 *
+	 * @param  WP_Error|mixed $result Error from another authentication handler, null if we should handle it, or another value if not
+	 * @return WP_Error|boolean|null {@see WP_JSON_Server::check_authentication}
+	 */
+	public function wp_rest_authentication_errors( $value ) {
+		if ( $value !== null ) {
+			return $value;
+		}
+		return $this->rest_authentication_status;
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
@@ -6198,6 +6343,10 @@ p {
 			<style>
 				.fixed .column-user_jetpack {
 					width: 21px;
+				}
+				.jp-emblem-user-admin svg {
+					width: 20px;
+					height: 20px;
 				}
 				.jp-emblem-user-admin path {
 					fill: #8cc258;

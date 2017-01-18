@@ -7,29 +7,22 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
 	gutil = require( 'gulp-util' ),
-	i18n_calypso = require( 'i18n-calypso/cli' ),
+	glotpress = require( 'glotpress-js' ),
 	jshint = require( 'gulp-jshint' ),
-	json_transform = require( 'gulp-json-transform' ),
 	phplint = require( 'gulp-phplint' ),
 	phpunit = require( 'gulp-phpunit' ),
 	po2json = require( 'gulp-po2json' ),
 	qunit = require( 'gulp-qunit' ),
 	rename = require( 'gulp-rename' ),
-	readline = require( 'readline' ),
-	request = require( 'request' ),
 	rtlcss = require( 'gulp-rtlcss' ),
 	sass = require( 'gulp-sass' ),
 	spawn = require( 'child_process' ).spawn,
-	stream = require( 'stream' ),
 	sourcemaps = require( 'gulp-sourcemaps' ),
-	tap = require( 'gulp-tap' ),
-	modify = require('gulp-modify'),
-	uglify = require('gulp-uglify'),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
 var admincss, frontendcss,
-	meta = require( './package.json' );
+	language_packs = require( './language-packs.js' );
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -58,36 +51,23 @@ function onBuild( done ) {
 			children: false
 		} ), '\nJS finished at', Date.now() );
 
-		if ( 'production' === process.env.NODE_ENV ) {
-			gutil.log( 'Uglifying JS...' );
-			gulp.src( '_inc/build/admin.js' )
-				.pipe( uglify() )
-				.pipe( gulp.dest( '_inc/build' ) )
-				.on( 'end', function() {
-					gutil.log( 'Your JS is now uglified!' );
-				} );;
+		if ( done ) {
+			done();
 		}
-
-		doSass( function() {
-			if ( done ) {
-				doStatic( done );
-			} else {
-				doStatic();
-			}
-		} );
 	};
 }
 
 function getWebpackConfig() {
 	// clone and extend webpackConfig
 	var config = Object.create( require( './webpack.config.js' ) );
+	config.devtool = 'sourcemap';
 	config.debug = true;
 
 	return config;
 }
 
-function doSass( done ) {
-	if ( arguments.length && typeof arguments[0] !== 'function' ) {
+function doSass() {
+	if ( arguments.length ) {
 		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
 	}
 	console.log( 'Building Dashboard CSS bundle...' );
@@ -99,65 +79,12 @@ function doSass( done ) {
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
 			console.log( 'Dashboard CSS finished.' );
-			doRTL( 'main' );
-		} );
-	console.log( 'Building dops-components CSS bundle...' );
-	gulp.src( './_inc/build/*dops-style.css' )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			console.log( 'dops-components CSS finished.' );
-			doRTL( 'dops', done );
 		} );
 }
 
-function doRTL( files, done ) {
-	gulp.src( 'main' === files ? './_inc/build/style.min.css' : './_inc/build/*dops-style.css' )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
-			if ( done && 'function' === typeof done ) {
-				done();
-			}
-		} );
-}
-
-/* Replace relative paths with new paths */
-function transformRelativePath( relPath, filepath ) {
-	// If wrapped in singly quotes, strip them
-	if ( 0 === relPath.indexOf( '\'' ) ) {
-		relPath = relPath.substr( 1, relPath.length - 2 );
-	}
-
-	// Return the path unmodified if not relative
-	if ( ! ( 0 === relPath.indexOf( './' ) || 0 === relPath.indexOf( '../' ) ) ) {
-		return relPath;
-	}
-
-	// The concat file is in jetpack/css/jetpack.css, so to get to the root we
-	// have to go back one dir
-	var relPieces = relPath.split( '/' ),
-		filePieces = filepath.split( '/' );
-
-	filePieces.pop(); // Pop the css file name
-
-	if ( '.' === relPieces[0] ) {
-		relPieces.shift();
-	}
-
-	while ( '..' === relPieces[0] ) {
-		relPieces.shift();
-		filePieces.pop();
-	}
-
-	return '../' + filePieces.join( '/' ) + '/' + relPieces.join( '/' );
-}
-
-gulp.task( 'sass:build', ['react:build'], doSass );
+gulp.task( 'sass:build', function() {
+	doSass();
+} );
 
 gulp.task( 'sass:watch', function() {
 	doSass();
@@ -168,6 +95,16 @@ gulp.task( 'react:build', function( done ) {
 	var config = getWebpackConfig();
 
 	if ( 'production' === process.env.NODE_ENV ) {
+		config.plugins = config.plugins.concat(
+			new webpack.optimize.DedupePlugin(),
+			new webpack.optimize.UglifyJsPlugin( {
+				compress: {
+					warnings: false
+				}
+			} )
+		);
+
+		config.devtool = 'source-map';
 		config.debug = false;
 	}
 
@@ -180,11 +117,8 @@ gulp.task( 'react:watch', function() {
 	webpack( config ).watch( 100, onBuild() );
 } );
 
-function doStatic( done ) {
-	var path,
-		jsdom = require( 'jsdom' );
-
-	gutil.log( 'Building static HTML from built JS…' );
+gulp.task( 'react:static', [ 'react:build' ], function() {
+	var jsdom = require( 'jsdom' );
 
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
@@ -192,6 +126,7 @@ function doStatic( done ) {
 		global.navigator = window.navigator;
 
 		window.Initial_State = {
+			userData: {},
 			dismissedNotices: [],
 			connectionStatus: {
 				devMode: {
@@ -205,37 +140,13 @@ function doStatic( done ) {
 			}
 		};
 
-		try {
-			path = __dirname + '/_inc/build/static.js';
+		require( './_inc/build/static.js' );
 
-			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
-			require( path );
-
-			gulp.src( [ '_inc/build/static*' ] )
-				.pipe( tap( function( file ) {
-					fs.unlinkSync( file.path );
-				} ) )
-				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
-
-					if ( done ) {
-						done();
-					}
-				} );
-
-
-		} catch ( err ) {
-			util.log( util.colors.yellow(
-				"Warning: gulp was unable to update static HTML files.\n\n" +
-				"If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built."
-			) );
-		}
-
+		fs.writeFile( './_inc/build/static.html', window.staticHtml );
+		fs.writeFile( './_inc/build/static-noscript-notice.html', window.noscriptNotice );
+		fs.writeFile( './_inc/build/static-version-notice.html', window.versionNotice );
 	} );
-}
+} );
 
 // Admin CSS to be minified, autoprefixed, rtl
 //
@@ -282,9 +193,7 @@ frontendcss = [
 	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/social-media-icons/style.css',
 	'modules/widgets/top-posts/style.css',
-	'modules/widgets/image-widget/style.css',
-	'modules/widgets/my-community/style.css',
-	'css/jetpack-idc-admin-bar.css'
+	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
 ];
 
 gulp.task( 'old-styles:watch', function() {
@@ -323,16 +232,6 @@ gulp.task( 'admincss:rtl', function() {
 // Frontend CSS.  Auto-prefix and minimize.
 gulp.task( 'frontendcss', function() {
 	return gulp.src( frontendcss )
-		.pipe( modify( {
-				fileModifier: function ( file, contents ) {
-					var regex = /url\((.*)\)/g,
-						f = file.path.replace( file.cwd + '/', '');
-					return contents.replace( regex, function ( match, group ) {
-						return 'url(\'' + transformRelativePath( group, f ) + '\')';
-					} );
-				}
-			}
-		) )
 		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
 		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
 		.pipe( concat( 'jetpack.css' ) )
@@ -340,9 +239,6 @@ gulp.task( 'frontendcss', function() {
 			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
 			'*/\n'
 		) )
-		.pipe( gulp.dest( 'css' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'Front end modules CSS finished.' );
@@ -488,113 +384,43 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
-	var terms = [];
-	var instream = fs.createReadStream( './_inc/jetpack-strings.php' );
-	var outstream = new stream;
-	outstream.readable = true;
-	outstream.writable = true;
-
-	var rl = readline.createInterface( {
-		input: instream,
-		output: outstream,
-		terminal: false
-	} );
-
-	rl.on( 'line', function( line ) {
-		var brace_index = line.indexOf( '(' );
-
-		// Skipping lines that do not call translation functions
-		if ( -1 === brace_index ) {
-			return;
-		}
-
-		line = line.slice( brace_index + 1, line.lastIndexOf( ')' ) );
-
-		// Making the line look like a JSON array to parse it as such later
-		line = [ '[', line.trim(), ']' ].join( '' );
-
-		terms.push( line );
-	} ).on( 'close', function() {
-
-		// Extracting only the first argument to the translation function
-		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
-			return term[0];
-		} );
-
-		gulp.src( [ 'languages/*.po' ] )
-			.pipe( po2json() )
-			.pipe( json_transform( function( data, file ) {
-				var filtered = {
-					'': data['']
-				};
-
-				Object.keys( data ).forEach( function( term ) {
-					if ( -1 !== terms.indexOf( term ) ) {
-						filtered[ term ] = data[ term ];
-					}
-				} );
-
-				return filtered;
-			} ) )
-			.pipe( gulp.dest( 'languages/json/' ) )
-			.on( 'end', done );
-	} );
+gulp.task( 'languages:build', [ 'languages:get' ], function( ) {
+	return gulp.src( [ 'languages/*.po' ] )
+		.pipe( po2json() )
+		.pipe( gulp.dest( 'languages/json/' ) );
 } );
 
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
-	var language_packs = [];
+gulp.task( 'languages:cleanup', [ 'languages:build' ], function() {
+	return del(
+		language_packs.map( function( item ) {
+			var locale = item.split( '-' );
 
-	request(
-		'https://api.wordpress.org/translations/plugins/1.0/?slug=jetpack&version=' + meta.version,
-		function ( error, response, body ) {
-			if ( error || 200 !== response.statusCode ) {
-				done( 'Failed to reach wordpress.org translation API: ' + error );
+			if ( locale.length > 1 ) {
+				locale[1] = locale[1].toUpperCase();
+				locale = locale.join( '_' );
+			} else {
+				locale = locale[0];
 			}
 
-			body = JSON.parse( body );
-
-			body.translations.forEach( function( language ) {
-				language_packs.push( './languages/jetpack-' + language.language + '.*' );
-			} );
-
-			gutil.log( 'Cleaning up languages for which Jetpack has language packs:' );
-			del( language_packs ).then( function( paths ) {
-				paths.forEach( function( item ) {
-					gutil.log( item );
-				} );
-				done();
-			} );
-		}
+			return './languages/jetpack-' + locale + '.*';
+		} )
 	);
 } );
 
-gulp.task( 'languages:extract', function( done ) {
-	var paths = [];
+gulp.task( 'languages:extract', [ 'react:build' ], function( callback ) {
+	glotpress( {
+		inputPaths: [ '_inc/build/admin.js' ],
+		output: '_inc/jetpack-strings.php',
+		format: 'php'
+	} );
 
-	gulp.src( [ '_inc/client/**/*.js', '_inc/client/**/*.jsx' ] )
-		.pipe( tap( function( file ) {
-			paths.push( file.path );
-		} ) )
-		.on( 'end', function() {
-			i18n_calypso( {
-				projectName: 'Jetpack',
-				inputPaths: paths,
-				output: '_inc/jetpack-strings.php',
-				phpArrayName: 'jetpack_strings',
-				format: 'PHP',
-				textdomain: 'jetpack',
-				keywords: [ 'translate', '__' ]
-			} );
-
-			done();
-		} );
+	callback();
 } );
 
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+	['react:static', 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
 );
 gulp.task(
 	'watch',

@@ -35,7 +35,9 @@ class Jetpack_Options {
 				'relatedposts',
 				'file_data',
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+				'autoupdate_plugins_translations', // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated translation files.
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
+				'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
@@ -48,7 +50,6 @@ class Jetpack_Options {
 				'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
 				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
-				'connection_banner_ab',        // (int) 1 or 2, which will represent which connection banner to show.
 			);
 
 		case 'private' :

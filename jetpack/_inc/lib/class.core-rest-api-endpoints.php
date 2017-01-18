@@ -135,6 +135,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'modules' => array(
 					'default'           => '',
 					'type'              => 'array',
+					'items'             => array(
+						'type'          => 'string',
+					),
 					'required'          => true,
 					'validate_callback' => __CLASS__ . '::validate_module_list',
 				),
@@ -231,14 +234,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
 		) );
 
-		// Jumpstart
+		// Return current Jumpstart status
 		register_rest_route( 'jetpack/v4', '/jumpstart', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::jumpstart_toggle',
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::jumpstart_status',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		// Update Jumpstart
+		register_rest_route( 'jetpack/v4', '/jumpstart', array(
+			'methods'             => WP_REST_Server::EDITABLE,
+			'callback'            => __CLASS__ . '::jumpstart_toggle',
 			'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			'args' => array(
+			'args'                => array(
 				'active' => array(
-					'required' => true,
+					'required'          => true,
 					'validate_callback' => __CLASS__  . '::validate_boolean',
 				),
 			),
@@ -843,6 +853,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'required_param', esc_html__( 'Missing parameter "type".', 'jetpack' ), array( 'status' => 404 ) );
+	}
+
+	/**
+	 * Retrieves the current status of Jumpstart.
+	 *
+	 * @since 4.5.0
+	 *
+	 * @return bool
+	 */
+	public static function jumpstart_status() {
+		return array(
+			'status' => Jetpack_Options::get_option( 'jumpstart' )
+		);
 	}
 
 	/**
@@ -1527,7 +1550,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback'  => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'verification-tools',
 			),
-
+			'enable_header_ad' => array(
+				'description'        => esc_html__( 'Display an ad unit at the top of each page.', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 0,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_approved' => array(
+				'description'        => esc_html__( 'Is site approved for WordAds?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 0,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
 			// Stats
 			'admin_bar' => array(
 				'description'       => esc_html__( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ),

@@ -65,6 +65,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$options = array(
 			'stylesheet'                           => 'test',
 			'blogname'                             => 'test',
+			'home'                                 => 'http://test.com',
+			'siteurl'                              => 'http://test.com',
 			'blogdescription'                      => 'banana',
 			'blog_charset'                         => 'stuffs',
 			'permalink_structure'                  => '%postname%',
@@ -92,6 +94,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_sync_non_public_post_stati'   => 'pineapple',
 			'jetpack_options'                      => array( 'food' => 'pineapple' ),
 			'site_icon'                            => '1',
+			'jetpack_site_icon_url'                => 'http://test.com',
 			'default_post_format'                  => 'pineapple',
 			'default_category'                     => 0,
 			'large_size_w'                         => 1000,
@@ -136,7 +139,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_available_modules'            => 'pineapple',
 			'jetpack_autoupdate_plugins'           => 'pineapple',
 			'jetpack_autoupdate_themes'            => 'pineapple',
-			'jetpack_autoupdate_themes_translations' => 'pineapple',
 			'jetpack_autoupdate_core'              => 'pineapple',
 			'carousel_background_color'            => 'pineapple',
 			'carousel_display_exif'                => 'pineapple',
@@ -161,9 +163,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'verification_services_codes'          => 'pineapple',
 			'users_can_register'                   => '1',
 			'active_plugins'                       => array( 'pineapple' ),
-			'uninstall_plugins'                    => 'banana',
-			'advanced_seo_front_page_description'  => 'banana', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
-			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+			'uninstall_plugins'                    => 'banana'
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

@@ -3,6 +3,7 @@
 = 4.4.2 =
 
 * Release date: December 6, 2016
+* Release post: http://wp.me/p1moTy-3JR
 
 This release improves Jetpack compatibility with WordPress 4.7.
 
@@ -22,12 +23,13 @@ This release improves Jetpack compatibility with WordPress 4.7.
 = 4.4.1 =
 
 * Release date: November 22, 2016
+* Release post: http://wp.me/p1moTy-3JR
 
 **Bug Fixes**
 
-* Fixes an issue where some users with slower servers would get an error on
+* Fixed an issue where some users with slower servers would get an error on
 the Jetpack dashboard when `WP_DEBUG` was enabled.
-* Fixes an issue where users on a Jetpack Professional plan who are paying
+* Fixed an issue where users on a Jetpack Professional plan who were paying
 monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
 
 = 4.4 =
