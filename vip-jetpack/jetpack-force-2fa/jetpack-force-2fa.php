@@ -59,6 +59,9 @@ class Jetpack_Force_2FA {
 		else {
 			// Completely disable the standard login form for admins.
 			add_filter( 'wp_authenticate_user', function( $user ) {
+				if ( is_wp_error( $user ) ) {
+					return $user;
+				}
 				if ( $user->has_cap( $this->role ) ) {
 					return new WP_Error( 'wpcom-required', $this->get_login_error_message(), $user->user_login );
 				}
