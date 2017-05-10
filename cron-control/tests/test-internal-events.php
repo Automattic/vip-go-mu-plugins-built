@@ -11,6 +11,25 @@ namespace Automattic\WP\Cron_Control\Tests;
  * Sample test case.
  */
 class Internal_Events_Tests extends \WP_UnitTestCase {
+	/**
+	 * Prepare test environment
+	 */
+	function setUp() {
+		parent::setUp();
+
+		// make sure the schedule is clear
+		_set_cron_array( array() );
+	}
+
+	/**
+	 * Clean up after our tests
+	 */
+	function tearDown() {
+		// make sure the schedule is clear
+		_set_cron_array( array() );
+
+		parent::tearDown();
+	}
 
 	/**
 	 * Internal events should be scheduled

@@ -23,6 +23,7 @@ class QM_Backtrace {
 		'ExtQuery'       => true,
 		'W3_Db'          => true,
 		'Debug_Bar_PHP'  => true,
+		'WP_Hook'        => true,
 	);
 	protected static $ignore_method = array();
 	protected static $ignore_func = array(
@@ -40,15 +41,18 @@ class QM_Backtrace {
 		'dbDelta'              => true,
 	);
 	protected static $show_args = array(
-		'do_action'               => 1,
-		'apply_filters'           => 1,
-		'do_action_ref_array'     => 1,
-		'apply_filters_ref_array' => 1,
-		'get_template_part'       => 2,
-		'load_template'           => 'dir',
-		'get_header'              => 1,
-		'get_sidebar'             => 1,
-		'get_footer'              => 1,
+		'do_action'                  => 1,
+		'apply_filters'              => 1,
+		'do_action_ref_array'        => 1,
+		'apply_filters_ref_array'    => 1,
+		'get_template_part'          => 2,
+		'get_extended_template_part' => 2,
+		'load_template'              => 'dir',
+		'dynamic_sidebar'            => 1,
+		'get_header'                 => 1,
+		'get_sidebar'                => 1,
+		'get_footer'                 => 1,
+		'class_exists'               => 2,
 	);
 	protected static $filtered = false;
 	protected $trace           = null;

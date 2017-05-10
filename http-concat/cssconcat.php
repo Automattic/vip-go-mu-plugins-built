@@ -8,6 +8,8 @@ Version: 0.01
 Author URI: http://automattic.com/
  */
 
+require_once( dirname( __FILE__ ) . '/concat-utils.php' );
+
 if ( ! defined( 'ALLOW_GZIP_COMPRESSION' ) )
 	define( 'ALLOW_GZIP_COMPRESSION', true );
 
@@ -48,18 +50,19 @@ class WPcom_CSS_Concat extends WP_Styles {
 			// Core is kind of broken and returns "true" for src of "colors" handle
 			// http://core.trac.wordpress.org/attachment/ticket/16827/colors-hacked-fixed.diff
 			// http://core.trac.wordpress.org/ticket/20729
-			if ( 'colors' == $obj->handle && true === $obj->src ) {
-				$css_url = parse_url( wp_style_loader_src( $obj->src, $obj->handle ) );
-			} else {
-				$css_url = parse_url( $obj->src );
+			$css_url = $obj->src;
+			if ( 'colors' == $obj->handle && true === $css_url ) {
+				$css_url = wp_style_loader_src( $css_url, $obj->handle );
 			}
+
+			$css_url_parsed = parse_url( $obj->src );
 			$extra = $obj->extra;
 
 			// Don't concat by default
 			$do_concat = false;
 
 			// Only try to concat static css files
-			if ( false !== strpos( $css_url['path'], '.css' ) )
+			if ( false !== strpos( $css_url_parsed['path'], '.css' ) )
 				$do_concat = true;
 
 			// Don't try to concat styles which are loaded conditionally (like IE stuff)
@@ -71,16 +74,18 @@ class WPcom_CSS_Concat extends WP_Styles {
 				$do_concat = false;
 
 			// Don't try to concat externally hosted scripts
-			if ( ( isset( $css_url['host'] ) && ( preg_replace( '/https?:\/\//', '', $siteurl ) != $css_url['host'] ) ) )
+			$is_internal_url = WPCOM_Concat_Utils::is_internal_url( $css_url, $siteurl );
+			if ( ! $is_internal_url ) {
 				$do_concat = false;
+			}
 
 			// Concat and canonicalize the paths only for
 			// existing scripts that aren't outside ABSPATH
-			$css_realpath = realpath( ABSPATH . $css_url['path'] );
+			$css_realpath = WPCOM_Concat_Utils::realpath( $css_url, $siteurl );
 			if ( ! $css_realpath || 0 !== strpos( $css_realpath, ABSPATH ) )
 				$do_concat = false;
 			else
-				$css_url['path'] = substr( $css_realpath, strlen( ABSPATH ) - 1 );
+				$css_url_parsed['path'] = substr( $css_realpath, strlen( ABSPATH ) - 1 );
 
 			// Allow plugins to disable concatenation of certain stylesheets.
 			$do_concat = apply_filters( 'css_do_concat', $do_concat, $handle );
@@ -92,7 +97,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 				if ( ! isset( $stylesheets[ $stylesheet_group_index ] ) || ( isset( $stylesheets[ $stylesheet_group_index ] ) && ! is_array( $stylesheets[ $stylesheet_group_index ] ) ) )
 					$stylesheets[ $stylesheet_group_index ] = array();
 
-				$stylesheets[ $stylesheet_group_index ][ $media ][ $handle ] = $css_url['path'];
+				$stylesheets[ $stylesheet_group_index ][ $media ][ $handle ] = $css_url_parsed['path'];
 				$this->done[] = $handle;
 			} else {
 				$stylesheet_group_index++;
@@ -124,17 +129,18 @@ class WPcom_CSS_Concat extends WP_Styles {
 
 					$href = $siteurl . "/_static/??" . $path_str;
 				} else {
-					$href = $this->cache_bust_mtime( $siteurl . current( $css ) );
+					$href = $this->cache_bust_mtime( $siteurl . current( $css ), $siteurl );
 				}
 
-				echo apply_filters( 'style_loader_tag', "<link rel='stylesheet' id='$media-css-$idx' href='$href' type='text/css' media='$media' />\n", $handle, $href, $media );
+				$handles = array_keys( $css );
+				echo apply_filters( 'ngx_http_concat_style_loader_tag', "<link rel='stylesheet' id='$media-css-$idx' href='$href' type='text/css' media='$media' />\n", $handles, $href, $media );
 				array_map( array( $this, 'print_inline_style' ), array_keys( $css ) );
 			}
 		}
 		return $this->done;
 	}
 
-	function cache_bust_mtime( $url ) {
+	function cache_bust_mtime( $url, $siteurl ) {
 		if ( strpos( $url, '?m=' ) )
 			return $url;
 
@@ -142,7 +148,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 		if ( ! isset( $parts['path'] ) || empty( $parts['path'] ) )
 			return $url;
 
-		$file = ABSPATH . ltrim( $parts['path'], '/' );
+		$file = WPCOM_Concat_Utils::realpath( $url, $siteurl );
 
 		$mtime = false;
 		if ( file_exists( $file ) )

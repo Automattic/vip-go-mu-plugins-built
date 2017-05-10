@@ -22,10 +22,36 @@ function sharing_email_send_post( $data ) {
 	/** This filter is documented in core/src/wp-includes/pluggable.php */
 	$from_email = apply_filters( 'wp_mail_from', 'wordpress@' . $sitename );
 
+	if ( ! empty( $data['name'] ) ) {
+		$s_name = (string) $data['name'];
+		$name_needs_encoding_regex =
+			'/[' .
+				// SpamAssasin's list of characters which "need MIME" encoding
+				'\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff' .
+				// Our list of "unsafe" characters
+				'<\r\n' .
+			']/';
+
+		$needs_encoding =
+			// If it contains any blacklisted chars,
+			preg_match( $name_needs_encoding_regex, $s_name ) ||
+			// Or if we can't use `mb_convert_encoding`
+			! function_exists( 'mb_convert_encoding' ) ||
+			// Or if it's not already ASCII
+			mb_convert_encoding( $data['name'], 'ASCII' ) !== $s_name;
+
+		if ( $needs_encoding ) {
+			$data['name'] = sprintf( '=?UTF-8?B?%s?=', base64_encode( $data['name'] ) );
+		}
+	}
+
 	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $from_email );
 	$headers[] = sprintf( 'Reply-To: %1$s <%2$s>', $data['name'], $data['source'] );
 
-	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content, $headers );
+	// Make sure to pass the title through the normal sharing filters.
+	$title = $data['sharing_source']->get_share_title( $data['post']->ID );
+
+	wp_mail( $data['target'], '[' . __( 'Shared Post', 'jetpack' ) . '] ' . $title, $content, $headers );
 }
 
 
@@ -39,7 +65,7 @@ function sharing_email_check_for_spam_via_akismet( $data ) {
 	// Prepare the body_request for akismet
 	$body_request = array(
 		'blog'                  => get_option( 'home' ),
-		'permalink'             => get_permalink( $data['post']->ID ),
+		'permalink'             => $data['sharing_source']->get_share_url( $data['post']->ID ),
 		'comment_type'          => 'share',
 		'comment_author'        => $data['name'],
 		'comment_author_email'  => $data['source'],
@@ -67,8 +93,9 @@ function sharing_email_send_post_content( $data ) {
 	/* translators: included in email when post is shared via email. First item is sender's name. Second is sender's email address. */
 	$content  = sprintf( __( '%1$s (%2$s) thinks you may be interested in the following post:', 'jetpack' ), $data['name'], $data['source'] );
 	$content .= "\n\n";
-	$content .= $data['post']->post_title."\n";
-	$content .= get_permalink( $data['post']->ID )."\n";
+	// Make sure to pass the title and URL through the normal sharing filters.
+	$content .= $data['sharing_source']->get_share_title( $data['post']->ID ) . "\n";
+	$content .= $data['sharing_source']->get_share_url( $data['post']->ID ) . "\n";
 	return $content;
 }
 

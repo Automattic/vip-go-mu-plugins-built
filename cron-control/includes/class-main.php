@@ -17,12 +17,8 @@ class Main extends Singleton {
 			return;
 		}
 
-		// Load dependencies
-		require __DIR__ . '/class-events.php';
-		require __DIR__ . '/class-internal-events.php';
-		require __DIR__ . '/class-rest-api.php';
-		require __DIR__ . '/functions.php';
-		require __DIR__ . '/wp-cli.php';
+		// Load balance of plugin
+		$this->load_plugin_classes();
 
 		// Block normal cron execution
 		$this->set_constants();
@@ -32,6 +28,29 @@ class Main extends Singleton {
 		remove_action( 'init', 'wp_cron' );
 
 		add_filter( 'cron_request', array( $this, 'block_spawn_cron' ) );
+	}
+
+	/**
+	 * Load remaining classes
+	 *
+	 * Order here is somewhat important, as most classes depend on the Event Store,
+	 * but we don't want to load it prematurely.
+	 */
+	private function load_plugin_classes() {
+		// Load event store and its dependencies
+		require __DIR__ . '/constants.php';
+		require __DIR__ . '/utils.php';
+		require __DIR__ . '/class-events-store.php';
+
+		// Load dependencies for remaining classes
+		require __DIR__ . '/class-lock.php';
+
+		// Load remaining functionality
+		require __DIR__ . '/class-events.php';
+		require __DIR__ . '/class-internal-events.php';
+		require __DIR__ . '/class-rest-api.php';
+		require __DIR__ . '/functions.php';
+		require __DIR__ . '/wp-cli.php';
 	}
 
 	/**

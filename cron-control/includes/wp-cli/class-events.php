@@ -71,10 +71,10 @@ class Events extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Remove events by ID or action
+	 * Remove events
 	 *
 	 * @subcommand delete
-	 * @synopsis [--event_id=<event_id>] [--action=<action>]
+	 * @synopsis [--event_id=<event_id>] [--action=<action>] [--completed]
 	 */
 	public function delete_events( $args, $assoc_args ) {
 		// Remove a specific event
@@ -86,6 +86,12 @@ class Events extends \WP_CLI_Command {
 		// Remove all events with a given action
 		if ( isset( $assoc_args['action'] ) ) {
 			$this->delete_event_by_action( $args, $assoc_args );
+			return;
+		}
+
+		// Remove all completed events
+		if ( isset( $assoc_args['completed'] ) ) {
+			$this->delete_completed_events( $args, $assoc_args );
 			return;
 		}
 
@@ -104,24 +110,19 @@ class Events extends \WP_CLI_Command {
 			\WP_CLI::error( __( 'Specify the ID of an event to run', 'automattic-cron-control' ) );
 		}
 
-		// Validate event ID and get the information needed to execute it
-		global $wpdb;
+		// Retrieve information needed to execute event
+		$event = \Automattic\WP\Cron_Control\get_event_by_id( $args[0] );
 
-		$event = $wpdb->get_var( $wpdb->prepare( "SELECT post_title FROM {$wpdb->posts} WHERE ID = %d AND post_type = %s AND post_status = %s LIMIT 1", $args[0], \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE, \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_PENDING ) );
-
-		if ( empty( $event ) ) {
+		if ( ! is_object( $event ) ) {
 			\WP_CLI::error( sprintf( __( 'Failed to locate event %d. Please confirm that the entry exists and that the ID is that of an event.', 'automattic-cron-control' ), $args[0] ) );
 		}
 
-		// Event data
-		$event_data = $this->get_event_details_from_post_title( $event );
-
-		\WP_CLI::line( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event_data['action'], $event_data['instance'] ) );
+		\WP_CLI::line( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event->action, $event->instance ) );
 
 		// Proceed?
 		$now = time();
-		if ( $event_data['timestamp'] > $now ) {
-			\WP_CLI::warning( sprintf( __( 'This event is not scheduled to run until %1$s GMT (%2$s)', 'automattic-cron-control' ), date( TIME_FORMAT, $event_data['timestamp'] ), $this->calculate_interval( $event_data['timestamp'] - $now ) ) );
+		if ( $event->timestamp > $now ) {
+			\WP_CLI::warning( sprintf( __( 'This event is not scheduled to run until %1$s GMT (%2$s)', 'automattic-cron-control' ), date( TIME_FORMAT, $event->timestamp ), $this->calculate_interval( $event->timestamp - $now ) ) );
 		}
 
 		\WP_CLI::confirm( sprintf( __( 'Run this event?', 'automattic-cron-control' ) ) );
@@ -132,7 +133,7 @@ class Events extends \WP_CLI_Command {
 		}
 
 		// Run the event
-		$run = \Automattic\WP\Cron_Control\Events::instance()->run_event( $event_data['timestamp'], md5( $event_data['action'] ), $event_data['instance'], true );
+		$run = \Automattic\WP\Cron_Control\run_event( $event->timestamp, $event->action_hashed, $event->instance, true );
 
 		// Output based on run attempt
 		if ( is_array( $run ) ) {
@@ -150,27 +151,33 @@ class Events extends \WP_CLI_Command {
 	private function get_events( $args, $assoc_args ) {
 		global $wpdb;
 
-		// Validate status, with a default
+		// Accept a status argument, with a default
 		$status = 'pending';
 		if ( isset( $assoc_args['status'] ) ) {
 			$status = $assoc_args['status'];
 		}
 
-		if ( 'pending' !== $status && 'completed' !== $status ) {
-			\WP_CLI::error( __( 'Invalid status requested', 'automattic-cron-control' ) );
-		}
-
-		// Convert to post status
-		$post_status = null;
+		// Convert to status used by Event Store
+		$event_status = null;
 		switch ( $status ) {
 			case 'pending' :
-				$post_status = \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_PENDING;
+				$event_status = \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING;
+				break;
+
+			case 'running' :
+				$event_status = \Automattic\WP\Cron_Control\Events_Store::STATUS_RUNNING;
 				break;
 
 			case 'completed' :
-				$post_status = \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_COMPLETED;
+				$event_status = \Automattic\WP\Cron_Control\Events_Store::STATUS_COMPLETED;
 				break;
 		}
+
+		if ( is_null( $event_status ) ) {
+			\WP_CLI::error( __( 'Invalid status specified', 'automattic-cron-control' ) );
+		}
+
+		unset( $status );
 
 		// Total to show
 		$limit = 25;
@@ -187,7 +194,11 @@ class Events extends \WP_CLI_Command {
 		$offset = absint( ( $page - 1 ) * $limit );
 
 		// Query
-		$items = $wpdb->get_results( $wpdb->prepare( "SELECT SQL_CALC_FOUND_ROWS ID, post_title, post_content_filtered, post_date_gmt, post_modified_gmt, post_status FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s ORDER BY post_date ASC LIMIT %d,%d", \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE, $post_status, $offset, $limit ) );
+		$items = \Automattic\WP\Cron_Control\get_events( array(
+			'status'   => $event_status,
+			'quantity' => $limit,
+			'page'     => $page,
+		) );
 
 		// Bail if we don't get results
 		if ( ! is_array( $items ) ) {
@@ -195,7 +206,7 @@ class Events extends \WP_CLI_Command {
 		}
 
 		// Include totals for pagination etc
-		$total_items = (int) $wpdb->get_var( 'SELECT FOUND_ROWS()' );
+		$total_items = \Automattic\WP\Cron_Control\count_events_by_status( $event_status );
 		$total_pages = ceil( $total_items / $limit );
 
 		return compact( 'status', 'limit', 'page', 'offset', 'items', 'total_items', 'total_pages' );
@@ -211,61 +222,70 @@ class Events extends \WP_CLI_Command {
 		foreach ( $events as $event ) {
 			$row = array(
 				'ID'                => $event->ID,
-				'action'            => '',
-				'instance'          => '',
-				'next_run_gmt'      => date( TIME_FORMAT, strtotime( $event->post_date_gmt ) ),
+				'action'            => $event->action,
+				'instance'          => $event->instance,
+				'next_run_gmt'      => date( TIME_FORMAT, $event->timestamp ),
 				'next_run_relative' => '',
-				'last_updated_gmt'  => date( TIME_FORMAT, strtotime( $event->post_modified_gmt ) ),
+				'last_updated_gmt'  => date( TIME_FORMAT, strtotime( $event->last_modified ) ),
 				'recurrence'        => __( 'Non-repeating', 'automattic-cron-control' ),
 				'internal_event'    => '',
 				'schedule_name'     => __( 'n/a', 'automattic-cron-control' ),
 				'event_args'        => '',
 			);
 
-			// Provide relative next run only for events that have yet to run
-			if ( $event->post_status === \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_PENDING ) {
-				$row['next_run_relative'] = $this->calculate_interval( strtotime( $event->post_date_gmt ) - time() );
+			if ( $event->status === \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING ) {
+				$row['next_run_relative'] = $this->calculate_interval( $event->timestamp - time() );
 			}
 
-			// Most data serialized in the post
-			$all_args = maybe_unserialize( $event->post_content_filtered );
-			if ( is_array( $all_args ) ) {
-				// Action
-				if ( isset( $all_args['action'] ) ) {
-					$row['action']         = $all_args['action'];
-					$row['internal_event'] = \Automattic\WP\Cron_Control\is_internal_event( $all_args['action'] ) ? __( 'true', 'automattic-cron-control' ) : '';
-				}
+			$row['internal_event'] = \Automattic\WP\Cron_Control\is_internal_event( $event->action ) ? __( 'true', 'automattic-cron-control' ) : '';
 
-				// Instance
-				if ( isset( $all_args['instance'] ) ) {
-					$row['instance'] = $all_args['instance'];
-				}
+			$row['event_args'] = maybe_serialize( $event->args );
 
-				// Additional arguments
-				if ( isset( $all_args['args'] ) ) {
-					$args = $all_args['args'];
+			if ( \Automattic\WP\Cron_Control\Events_Store::STATUS_COMPLETED === $event->status ) {
+				$instance = md5( $row['event_args'] );
+				$row['instance'] = "{$instance} - {$row['instance']}";
+			}
 
-					// Event arguments themselves
-					if ( isset( $args['args'] ) ) {
-						$row['event_args'] = maybe_serialize( $args['args'] );
-					}
+			if ( isset( $event->interval ) && $event->interval ) {
+				$row['recurrence'] = $this->calculate_interval( $event->interval );
+			}
 
-					// Human-readable version of next run
-					if ( isset( $args['interval'] ) && $args['interval'] ) {
-						$row['recurrence'] = $this->calculate_interval( $args['interval'] );
-					}
-
-					// Named schedule
-					if ( isset( $args['schedule'] ) && $args['schedule'] ) {
-						$row['schedule_name'] = $args['schedule'];
-					}
-				}
+			if ( isset( $event->schedule ) && $event->schedule ) {
+				$row['schedule_name'] = $event->schedule;
 			}
 
 			$formatted_events[] = $row;
 		}
 
+		// Sort results
+		if ( ! empty( $formatted_events ) ) {
+			usort( $formatted_events, array( $this, 'sort_events' ) );
+		}
+
 		return $formatted_events;
+	}
+
+	/**
+	 * Sort events by timestamp, then action name
+	 */
+	private function sort_events( $first, $second ) {
+		// Timestamp is usually sufficient
+		if ( isset( $first['next_run_gmt'] ) ) {
+			$first_timestamp = strtotime( $first['next_run_gmt'] );
+			$second_timestamp = strtotime( $second['next_run_gmt'] );
+		} elseif ( isset( $first['timestamp'] ) ) {
+			$first_timestamp = $first['timestamp'];
+			$second_timestamp = $second['timestamp'];
+		} else {
+			return 0;
+		}
+
+		if ( $first_timestamp !== $second_timestamp ) {
+			return $first_timestamp - $second_timestamp;
+		}
+
+		// If timestamps are equal, consider action
+		return strnatcasecmp( $first['action'], $second['action'] );
 	}
 
 	/**
@@ -342,30 +362,27 @@ class Events extends \WP_CLI_Command {
 
 		\WP_CLI::line( __( 'Locating event...', 'automattic-cron-control' ) . "\n" );
 
-		// Look up full object and confirm that the entry belongs to this plugin's CPT
-		global $wpdb;
+		// Look up full event object
+		$event = \Automattic\WP\Cron_Control\get_event_by_id( $jid );
 
-		$event_post = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->posts} WHERE post_type = %s AND ID = %d LIMIT 1", \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE, $jid ) );
-
-		if ( is_object( $event_post ) && ! is_wp_error( $event_post ) ) {
-			// Parse basic event data and output, lest someone delete the wrong thing
-			$event_details = $this->get_event_details_from_post_title( $event_post->post_title );
-
+		if ( is_object( $event ) ) {
 			// Warning about Internal Events
-			if ( \Automattic\WP\Cron_Control\is_internal_event( $event_details['action'] ) ) {
+			if ( \Automattic\WP\Cron_Control\is_internal_event( $event->action ) ) {
 				\WP_CLI::warning( __( 'This is an event created by the Cron Control plugin. It will recreated automatically.', 'automattic-cron-control' ) );
 			}
 
-			\WP_CLI::line( sprintf( __( 'Execution time: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $event_details['timestamp'] ) ) );
-			\WP_CLI::line( sprintf( __( 'Action: %s', 'automattic-cron-control' ), $event_details['action'] ) );
-			\WP_CLI::line( sprintf( __( 'Instance identifier: %s', 'automattic-cron-control' ), $event_details['instance'] ) );
+			\WP_CLI::line( sprintf( __( 'Execution time: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $event->timestamp ) ) );
+			\WP_CLI::line( sprintf( __( 'Action: %s', 'automattic-cron-control' ), $event->action ) );
+			\WP_CLI::line( sprintf( __( 'Instance identifier: %s', 'automattic-cron-control' ), $event->instance ) );
 			\WP_CLI::line( '' );
 			\WP_CLI::confirm( sprintf( __( 'Are you sure you want to delete this event?', 'automattic-cron-control' ) ) );
 
 			// Try to delete the item and provide some relevant output
-			$trashed = wp_delete_post( $event_post->ID, true );
+			\Automattic\WP\Cron_Control\_suspend_event_creation();
+			$deleted = \Automattic\WP\Cron_Control\delete_event_by_id( $event->ID, true );
+			\Automattic\WP\Cron_Control\_resume_event_creation();
 
-			if ( false === $trashed ) {
+			if ( false === $deleted ) {
 				\WP_CLI::error( sprintf( __( 'Failed to delete event %d', 'automattic-cron-control' ), $jid ) );
 			} else {
 				\Automattic\WP\Cron_Control\_flush_internal_caches();
@@ -416,14 +433,8 @@ class Events extends \WP_CLI_Command {
 
 			// Check events for those that should be deleted
 			foreach ( $events['items'] as $single_event ) {
-				$event_details = $this->get_event_details_from_post_title( $single_event->post_title );
-
-				if ( $event_details['action'] === $action ) {
-					$events_to_delete[] = array_merge( $event_details, array(
-						'ID'                => (int) $single_event->ID,
-						'post_date_gmt'     => $single_event->post_date_gmt,
-						'post_modified_gmt' => $single_event->post_modified_gmt,
-					) );
+				if ( $single_event->action === $action ) {
+					$events_to_delete[] = (array) $single_event;
 				}
 
 				$search_progress->tick();
@@ -454,10 +465,16 @@ class Events extends \WP_CLI_Command {
 		\WP_CLI::line( sprintf( _n( 'Found one event with action `%2$s`:', 'Found %1$s events with action `%2$s`:', $total_to_delete, 'automattic-cron-control' ), number_format_i18n( $total_to_delete ), $action ) );
 
 		if ( $total_to_delete <= $assoc_args['limit'] ) {
+			// Sort results
+			if ( ! empty( $events_to_delete ) ) {
+				usort( $events_to_delete, array( $this, 'sort_events' ) );
+			}
+
+
 			\WP_CLI\Utils\format_items( 'table', $events_to_delete, array(
 				'ID',
-				'post_date_gmt',
-				'post_modified_gmt',
+				'created',
+				'last_modified',
 				'timestamp',
 				'instance',
 			) );
@@ -474,8 +491,11 @@ class Events extends \WP_CLI_Command {
 		$events_deleted       = array();
 		$events_deleted_count = $events_failed_delete = 0;
 
+		// Don't create new events while deleting events
+		\Automattic\WP\Cron_Control\_suspend_event_creation();
+
 		foreach ( $events_to_delete as $event_to_delete ) {
-			$deleted = wp_delete_post( $event_to_delete['ID'], true );
+			$deleted = \Automattic\WP\Cron_Control\delete_event_by_id( $event_to_delete['ID'], false );
 
 			$events_deleted[] = array(
 				'ID'      => $event_to_delete['ID'],
@@ -498,6 +518,9 @@ class Events extends \WP_CLI_Command {
 			\Automattic\WP\Cron_Control\_flush_internal_caches();
 		}
 
+		// New events can be created now that removal is complete
+		\Automattic\WP\Cron_Control\_resume_event_creation();
+
 		// List the removed items
 		\WP_CLI::line( "\n" . __( 'RESULTS:', 'automattic-cron-control' ) );
 
@@ -512,8 +535,6 @@ class Events extends \WP_CLI_Command {
 
 			// Limit just to failed deletes when many events are removed
 			if ( count( $events_deleted ) > $assoc_args['limit'] ) {
-				$events_deleted_unfiltered = $events_deleted;
-
 				$events_deleted = array_filter( $events_deleted, function( $event ) {
 					if ( 'no' === $event['deleted'] ) {
 						return $event;
@@ -542,17 +563,16 @@ class Events extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Parse event details stored in an item's post_title
+	 * Delete all completed events
 	 */
-	private function get_event_details_from_post_title( $title ) {
-		$event_details = explode( '|', $title );
-		$event_details = array_map( 'trim', $event_details );
+	private function delete_completed_events( $args, $assoc_args ) {
+		$count = \Automattic\WP\Cron_Control\count_events_by_status( \Automattic\WP\Cron_Control\Events_Store::STATUS_COMPLETED );
 
-		return array(
-			'timestamp' => (int) $event_details[0],
-			'action'    => $event_details[1],
-			'instance'  => $event_details[2],
-		);
+		\WP_CLI::confirm( sprintf( _n( 'Found one completed event to remove. Continue?', 'Found %s completed events to remove. Continue?', $count, 'automattic-cron-control' ), number_format_i18n( $count ) ) );
+
+		\Automattic\WP\Cron_Control\Events_Store::instance()->purge_completed_events( false );
+
+		\WP_CLI::success( __( 'Entries removed', 'automattic-cron-control' ) );
 	}
 }
 

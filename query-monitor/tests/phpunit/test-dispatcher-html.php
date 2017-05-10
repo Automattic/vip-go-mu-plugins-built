@@ -66,10 +66,12 @@ class Test_Dispatcher_HTML extends QM_UnitTestCase {
 
 		$expected = array(
 			'admin'         => false,
-			'assets'        => true,
+			'assets'        => false,
+			'cache'         => false,
 			'conditionals'  => false,
 			'db_callers'    => true,
 			'db_components' => true,
+			'db_dupes'      => true,
 			'db_queries'    => true,
 			'debug_bar'     => false,
 			'environment'   => true,
@@ -99,6 +101,15 @@ class Test_Dispatcher_HTML extends QM_UnitTestCase {
 			} else {
 				$this->assertArrayNotHasKey( 'query-monitor-' . $collector->id, $menu['sub'] );
 			}
+		}
+
+		$exceptions = array(
+			'assets-scripts',
+			'assets-styles',
+		);
+
+		foreach ( $exceptions as $expected ) {
+			$this->assertArrayHasKey( 'query-monitor-' . $expected, $menu['sub'] );
 		}
 
 	}

@@ -54,6 +54,13 @@ function collapse_events_array( $events, $timestamp = null ) {
  * We have occasion to check the request before Core has done so, such as when preparing the environment to run a cron job
  */
 function parse_request() {
+	// Hold onto this as it won't change during the request
+	static $parsed_request = null;
+	if ( is_array( $parsed_request ) ) {
+		return $parsed_request;
+	}
+
+	// Starting somewhere
 	$rewrite_index = 'index.php';
 
 	/**
@@ -104,5 +111,7 @@ function parse_request() {
 	 */
 
 	// Return array of data about the request
-	return compact( 'requested_path', 'requested_file', 'self' );
+	$parsed_request = compact( 'requested_path', 'requested_file', 'self' );
+
+	return $parsed_request;
 }

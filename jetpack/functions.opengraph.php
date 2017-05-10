@@ -261,22 +261,18 @@ function jetpack_og_tags() {
 }
 
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
-	$image = '';
+	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
-		global $post;
-		$image = '';
-
-		// Grab obvious image if $post is an attachment page for an image
-		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
-			$image = wp_get_attachment_url( $post->ID );
+		// Grab obvious image if post is an attachment page for an image
+		if ( is_attachment( get_the_ID() ) && 'image' == substr( get_post_mime_type(), 0, 5 ) ) {
+			$image['src'] = wp_get_attachment_url( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
+		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
+			$post_images = Jetpack_PostImages::get_images( get_the_ID(), array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
-				$image = array();
 				foreach ( (array) $post_images as $post_image ) {
 					$image['src'] = $post_image['src'];
 					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
@@ -286,46 +282,39 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 				}
 			}
 		}
-	} else if ( is_author() ) {
+	} elseif ( is_author() ) {
 		$author = get_queried_object();
-		if ( function_exists( 'get_avatar_url' ) ) {
-			// Prefer the core function get_avatar_url() if available, WP 4.2+
-			$image['src'] = get_avatar_url( $author->user_email, array( 'size' => $width ) );
-		}
-		else {
-			$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
-			if ( ! $has_filter ) {
-				add_filter( 'pre_option_show_avatars', '__return_true' );
-			}
-			$avatar = get_avatar( $author->user_email, $width );
-			if ( ! $has_filter ) {
-				remove_filter( 'pre_option_show_avatars', '__return_true' );
-			}
-
-			if ( ! empty( $avatar ) && ! is_wp_error( $avatar ) ) {
-				if ( preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) );
-					$image['src'] = wp_specialchars_decode( $matches[1], ENT_QUOTES );
-			}
-		}
-	}
-
-	if ( empty( $image ) ) {
-		$image = array();
-	} else if ( ! is_array( $image ) ) {
-		$image = array(
-			'src' => $image
-		);
+		$image['src'] = get_avatar_url( $author->user_email, array(
+			'size' => $width,
+		) );
 	}
 
 	// First fall back, blavatar
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
-			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-
 			$img_width  = '';
 			$img_height = '';
-			$image_id = attachment_url_to_postid( $image_url );
+
+			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
+
+			/**
+			 * Build a hash of the Image URL. We'll use it later when building the transient.
+			 *
+			 * Transient names are 45 chars max.
+			 * Let's generate a hash that's never more than 40 chars long.
+			 */
+			$image_hash = sha1( $image_url );
+
+			// Look for data in our transient. If nothing, let's get an attachment ID.
+			$cached_image_id = get_transient( 'jp_' . $image_hash );
+			if ( ! is_int( $cached_image_id ) ) {
+				$image_id = attachment_url_to_postid( $image_url );
+				set_transient( 'jp_' . $image_hash, $image_id );
+			} else {
+				$image_id = $cached_image_id;
+			}
+
 			$image_size = wp_get_attachment_image_src( $image_id, $width >= 512
 				? 'full'
 				: array( $width, $width ) );
@@ -358,12 +347,12 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$max_side = max( $width, $height );
-		$image_url = get_site_icon_url( $max_side );
-
 		$img_width  = '';
 		$img_height = '';
-		$image_id = attachment_url_to_postid( $image_url );
+
+		$max_side = max( $width, $height );
+		$image_url = get_site_icon_url( $max_side );
+		$image_id = get_option( 'site_icon' );
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
 			? 'full'
 			: array( $max_side, $max_side ) );
@@ -401,7 +390,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 * @param $width      int  Width of the image
 * @param $height     int  Height of the image
 * @param $req_width  int  Required width to pass validation
-* @param $req_height int  Required height to pass validation 
+* @param $req_height int  Required height to pass validation
 * @return bool - True if the image passed the required size validation
 */
 function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_height) {
@@ -416,36 +405,14 @@ function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_h
 }
 
 /**
-* @param $email
-* @param $width
-* @return array|bool|mixed|string
-*/
+ * Gets a gravatar URL of the specified size.
+ *
+ * @param string $email E-mail address to get gravatar for.
+ * @param int    $width Size of returned gravatar.
+ * @return array|bool|mixed|string
+ */
 function jetpack_og_get_image_gravatar( $email, $width ) {
-	$image = '';
-	if ( function_exists( 'get_avatar_url' ) ) {
-		$avatar = get_avatar_url( $email, $width );
-		if ( ! empty( $avatar ) ) {
-			if ( is_array( $avatar ) )
-				$image = $avatar[0];
-			else
-				$image = $avatar;
-		}
-	} else {
-		$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
-		if ( !$has_filter ) {
-			add_filter( 'pre_option_show_avatars', '__return_true' );
-		}
-		$avatar = get_avatar( $email, $width );
-
-		if ( !$has_filter ) {
-			remove_filter( 'pre_option_show_avatars', '__return_true' );
-		}
-
-		if ( !empty( $avatar ) && !is_wp_error( $avatar ) ) {
-			if ( preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) )
-				$image = wp_specialchars_decode($matches[1], ENT_QUOTES);
-		}
-	}
-
-	return $image;
+	return get_avatar_url( $email, array(
+		'size' => $width,
+	) );
 }

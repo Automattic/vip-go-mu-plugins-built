@@ -39,6 +39,7 @@ class Jetpack_Options {
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 				'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+				'autoupdate_translations',     // (bool)   Whether or not to autoupdate all translations
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
 				'site_icon_url',               // (string) url to the full site icon
@@ -56,10 +57,14 @@ class Jetpack_Options {
 			return array(
 				'register',
 				'authorize',
-				'activate_manage',
 				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
 				'user_token',                  // (string) The User Token of this site. (deprecated)
 				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
+			);
+
+		case 'network' :
+			return array(
+				'file_data'                     // (array) List of absolute paths to all Jetpack modules
 			);
 		}
 
@@ -122,15 +127,33 @@ class Jetpack_Options {
 	}
 
 	/**
+	 * Checks if an option must be saved for the whole network in WP Multisite
+	 *
+	 * @param string $option_name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
+	 *
+	 * @return bool
+	 */
+	public static function is_network_option( $option_name ) {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+		return in_array( $option_name, self::get_option_names( 'network' ) );
+	}
+
+	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
-	 * @param string $name Option name
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 * @param mixed $default (optional)
 	 *
 	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
 		if ( self::is_valid( $name, 'non_compact' ) ) {
+			if ( self::is_network_option( $name ) ) {
+				return get_site_option( "jetpack_$name", $default );
+			}
+
 			return get_option( "jetpack_$name", $default );
 		}
 
@@ -152,13 +175,22 @@ class Jetpack_Options {
 	 * @param string $name Option name
 	 * @param mixed $default (optional)
 	 *
-	 * @return mixed|void
+	 * @return mixed
 	 */
 	public static function get_option_and_ensure_autoload( $name, $default ) {
-		$value = get_option( $name );
+		// In this function the name is not adjusted by prefixing jetpack_
+		// so if it has already prefixed, we'll replace it and then
+		// check if the option name is a network option or not
+		$jetpack_name = preg_replace( '/^jetpack_/', '', $name, 1 );
+		$is_network_option = self::is_network_option( $jetpack_name );
+		$value = $is_network_option ? get_site_option( $name ) : get_option( $name );
 
 		if ( $value === false && $default !== false ) {
-			update_option( $name, $default );
+			if ( $is_network_option ) {
+				update_site_option( $name, $default );
+			} else {
+				update_option( $name, $default );
+			}
 			$value = $default;
 		}
 
@@ -178,7 +210,7 @@ class Jetpack_Options {
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
-	 * @param string $name Option name
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 * @param mixed $value Option value
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 *
@@ -195,7 +227,12 @@ class Jetpack_Options {
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
+			if ( self::is_network_option( $name ) ) {
+				return update_site_option( "jetpack_$name", $value );
+			}
+
 			return update_option( "jetpack_$name", $value, $autoload );
+
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -231,7 +268,7 @@ class Jetpack_Options {
 	 * Deletes the given option.  May be passed multiple option names as an array.
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *
-	 * @param string|array $names
+	 * @param string|array $names Option names. They must come _without_ `jetpack_%` prefix. The method will prefix the option names.
 	 *
 	 * @return bool Was the option successfully deleted?
 	 */
@@ -245,9 +282,12 @@ class Jetpack_Options {
 		}
 
 		foreach ( array_intersect( $names, self::get_option_names( 'non_compact' ) ) as $name ) {
-			if ( ! delete_option( "jetpack_$name" ) ) {
-				$result = false;
+			if ( self::is_network_option( $name ) ) {
+				$result = delete_site_option( "jetpack_$name" );
+			} else {
+				$result = delete_option( "jetpack_$name" );
 			}
+
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {

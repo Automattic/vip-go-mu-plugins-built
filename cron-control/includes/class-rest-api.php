@@ -46,9 +46,17 @@ class REST_API extends Singleton {
 
 	/**
 	 * List events pending for the current period
+	 *
+	 * For monitoring and alerting, also provides the total number of pending events
 	 */
 	public function get_events() {
-		return rest_ensure_response( Events::instance()->get_events() );
+		// Provides `events` and `endpoint` keys needed to run events
+		$response_array = Events::instance()->get_events();
+
+		// Provide pending event count for monitoring etc
+		$response_array['total_events_pending'] = count_events_by_status( Events_Store::STATUS_PENDING );
+
+		return rest_ensure_response( $response_array );
 	}
 
 	/**
@@ -64,7 +72,7 @@ class REST_API extends Singleton {
 		$action    = isset( $event['action'] ) ? trim( sanitize_text_field( $event['action'] ) ) : null;
 		$instance  = isset( $event['instance'] ) ? trim( sanitize_text_field( $event['instance'] ) ) : null;
 
-		return rest_ensure_response( Events::instance()->run_event( $timestamp, $action, $instance ) );
+		return rest_ensure_response( run_event( $timestamp, $action, $instance ) );
 	}
 
 	/**

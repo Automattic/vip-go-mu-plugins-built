@@ -289,10 +289,15 @@ class Metro_Sitemap {
 		global $wpdb;
 
 		$oldest_post_date_gmt = $wpdb->get_var( "SELECT post_date FROM $wpdb->posts WHERE post_status = 'publish' ORDER BY post_date ASC LIMIT 1" );
-		$oldest_post_year = date( 'Y', strtotime( $oldest_post_date_gmt ) );
-		$current_year = date( 'Y' );
+		
+		if( null !== $oldest_post_date_gmt ) {
+			$oldest_post_year = date( 'Y', strtotime( $oldest_post_date_gmt ) );
+			$current_year = date( 'Y' );
+			return range( $oldest_post_year, $current_year );
+		}
+		
+		return array();
 
-		return range( $oldest_post_year, $current_year );
 	}
 
 	/**
@@ -443,7 +448,7 @@ class Metro_Sitemap {
 				continue;
 
 			$url = $xml->addChild( 'url' );
-			$url->addChild( 'loc', get_permalink() );
+			$url->addChild( 'loc', esc_url( get_permalink() ) );
 			$url->addChild( 'lastmod', get_post_modified_time( 'c', true ) );
 			$url->addChild( 'changefreq', 'monthly' );
 			$url->addChild( 'priority', '0.7' );
@@ -548,7 +553,7 @@ class Metro_Sitemap {
 
 		$post_types_in = self::get_supported_post_types_in();
 
-		$modified_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM $wpdb->posts WHERE post_type IN ( {$post_types_in} ) AND post_modified_gmt >= %s ORDER BY post_date LIMIT 1000", $date ) );
+		$modified_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM $wpdb->posts WHERE post_type IN ( {$post_types_in} ) AND post_modified_gmt >= %s LIMIT 1000", $date ) );
 		return $modified_posts;
 	}
 

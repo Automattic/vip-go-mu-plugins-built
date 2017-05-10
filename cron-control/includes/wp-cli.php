@@ -7,6 +7,27 @@ if ( ! defined( '\WP_CLI' ) || ! \WP_CLI ) {
 }
 
 /**
+ * Prepare environment
+ */
+if ( ! \Automattic\WP\Cron_Control\Events_Store::is_installed() ) {
+	// Only interfere with `cron-control` commands
+	$cmd = \WP_CLI::get_runner()->arguments;
+	if ( ! is_array( $cmd ) || ! isset( $cmd['0'] ) ) {
+		return;
+	}
+
+	$cmd = $cmd[0];
+	if ( false === strpos( $cmd, 'cron-control' ) ) {
+		return;
+	}
+
+	// Create table and die, to ensure command runs with proper state
+	\Automattic\WP\Cron_Control\Events_Store::instance()->cli_create_tables();
+
+	\WP_CLI::error( __( 'Cron Control installation completed. Please try again.', 'automattic-cron-control' ) );
+}
+
+/**
  * Consistent time format across commands
  */
 const TIME_FORMAT = 'Y-m-d H:i:s';

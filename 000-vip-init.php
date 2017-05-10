@@ -1,27 +1,41 @@
 <?php
 
+/**
+ * Initialisation for various VIP functionality
+ *
+ * By virtue of the filename, this file is included first of
+ * all the files in the VIP Go MU plugins directory. All
+ * VIP code should be initialised here, unless there's a
+ * good reason not to.
+ */
+
 if ( file_exists( __DIR__ . '/.secrets/vip-secrets.php' ) ) {
 	require __DIR__ . '/.secrets/vip-secrets.php';
 }
 
 if ( ! defined( 'A8C_PROXIED_REQUEST' ) ) {
 	/**
-	 * @var constant A8C_PROXIED_REQUEST Set to true if the current request is made via the Automattic proxy, which is only available to Automatticians
+	 * @var constant A8C_PROXIED_REQUEST Set to true if the current request is made via the Automattic proxy, which is only available to Automatticians.
 	 */
 	define( 'A8C_PROXIED_REQUEST', false );
 }
 
-/**
- * @constant VIP_GO_ENV The name of the current VIP Go environment. Falls back to `false`.
- */
 if ( ! defined( 'VIP_GO_ENV' ) ) {
+	/**
+	 * @constant VIP_GO_ENV The name of the current VIP Go environment. Falls back to `false`.
+	 */
 	define( 'VIP_GO_ENV', false );
 }
 
 // For backwards compatibility - always true.
 if ( ! defined( 'WPCOM_IS_VIP_ENV' ) ) {
-    define( 'WPCOM_IS_VIP_ENV', false );
+	define( 'WPCOM_IS_VIP_ENV', false );
 }
+
+define( 'WPCOM_VIP_MACHINE_USER_LOGIN', 'wpcomvip' );
+define( 'WPCOM_VIP_MACHINE_USER_NAME', 'WordPress.com VIP' );
+define( 'WPCOM_VIP_MACHINE_USER_EMAIL', 'vip@matticspace.com' );
+define( 'WPCOM_VIP_MACHINE_USER_ROLE', 'administrator' );
 
 $hostname = gethostname();
 define( 'WPCOM_SANDBOXED', false !== strpos( $hostname, '_web_dev_' ) );

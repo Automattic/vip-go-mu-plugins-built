@@ -37,9 +37,18 @@ class QM_Output_Html_Overview extends QM_Output_Html {
 			}
 		}
 
+		$cache = QM_Collectors::get( 'cache' );
+
+		if ( $cache ) {
+			$cache_data = $cache->get_data();
+			if ( isset( $cache_data['stats'] ) && isset( $cache_data['cache_hit_percentage'] ) ) {
+				$cache_hit_percentage = $cache_data['cache_hit_percentage'];
+			}
+		}
+
 		echo '<div class="qm" id="' . esc_attr( $this->collector->id() ) . '">';
 		echo '<table cellspacing="0">';
-
+		echo '<caption class="screen-reader-text">' . esc_html( $this->collector->name() ). '</caption>';
 		echo '<thead>';
 		echo '<tr>';
 		echo '<th scope="col">' . esc_html__( 'Page generation time', 'query-monitor' ) . '</th>';
@@ -48,15 +57,17 @@ class QM_Output_Html_Overview extends QM_Output_Html {
 			echo '<th scope="col">' . esc_html__( 'Database query time', 'query-monitor' ) . '</th>';
 			echo '<th scope="col">' . esc_html__( 'Database queries', 'query-monitor' ) . '</th>';
 		}
+		echo '<th scope="col">' . esc_html__( 'Object cache', 'query-monitor' ) . '</th>';
 		echo '</tr>';
 		echo '</thead>';
 
 		echo '<tbody>';
 		echo '<tr>';
 		echo '<td>';
-		echo esc_html( number_format_i18n( $data['time'], 4 ) );
+		echo esc_html( number_format_i18n( $data['time_taken'], 4 ) );
 		echo '<br><span class="qm-info">';
 		echo esc_html( sprintf(
+			/* translators: 1: Percentage of time limit used, 2: Time limit in seconds*/
 			__( '%1$s%% of %2$ss limit', 'query-monitor' ),
 			number_format_i18n( $data['time_usage'], 1 ),
 			number_format_i18n( $data['time_limit'] )
@@ -69,11 +80,13 @@ class QM_Output_Html_Overview extends QM_Output_Html {
 		} else {
 			echo '<td>';
 			echo esc_html( sprintf(
+				/* translators: %s: Memory used in kilobytes */
 				__( '%s kB', 'query-monitor' ),
 				number_format_i18n( $data['memory'] / 1024 )
 			) );
 			echo '<br><span class="qm-info">';
 			echo esc_html( sprintf(
+				/* translators: 1: Percentage of memory limit used, 2: Memory limit in kilobytes*/
 				__( '%1$s%% of %2$s kB limit', 'query-monitor' ),
 				number_format_i18n( $data['memory_usage'], 1 ),
 				number_format_i18n( $data['memory_limit'] / 1024 )
@@ -96,6 +109,41 @@ class QM_Output_Html_Overview extends QM_Output_Html {
 
 			echo '</td>';
 		}
+
+		echo '<td>';
+		if ( isset( $cache_hit_percentage ) ) {
+			echo esc_html( sprintf(
+				/* translators: 1: Cache hit rate percentage, 2: number of cache hits, 3: number of cache misses */
+				__( '%s%% hit rate (%s hits, %s misses)', 'query-monitor' ),
+				number_format_i18n( $cache_hit_percentage, 1 ),
+				number_format_i18n( $cache_data['stats']['cache_hits'], 0 ),
+				number_format_i18n( $cache_data['stats']['cache_misses'], 0 )
+			) );
+			if ( $cache_data['display_hit_rate_warning'] ) {
+				printf(
+					'<br><a href="%s">%s</a>',
+					'https://github.com/johnbillion/query-monitor/wiki/Cache-Hit-Rate',
+					esc_html__( "Why is this value 100%?", 'query-monitor' )
+				);
+			}
+			echo '<br><span class="qm-info">';
+			if ( $cache_data['ext_object_cache'] ) {
+				printf(
+					'<a href="%s">%s</a>',
+					network_admin_url( 'plugins.php?plugin_status=dropins' ),
+					esc_html__( 'External object cache in use', 'query-monitor' )
+				);
+			} else {
+				echo esc_html__( 'External object cache not in use', 'query-monitor' );
+			}
+			echo '</span>';
+		} else {
+			echo '<span class="qm-info">';
+			echo esc_html__( 'Object cache information is not available', 'query-monitor' );
+			echo '</span>';
+		}
+		echo '</td>';
+
 		echo '</tr>';
 		echo '</tbody>';
 
@@ -111,17 +159,24 @@ class QM_Output_Html_Overview extends QM_Output_Html {
 		if ( empty( $data['memory'] ) ) {
 			$memory = '??';
 		} else {
-			$memory = number_format_i18n( ( $data['memory'] / 1024 / 1024 ), 2 );
+			$memory = number_format_i18n( ( $data['memory'] / 1024 ), 0 );
 		}
 
 		$title[] = sprintf(
-			_x( '%s<small>S</small>', 'page load time', 'query-monitor' ),
-			number_format_i18n( $data['time'], 2 )
+			/* translators: %s: Page load time in seconds */
+			esc_html_x( '%s S', 'Page load time', 'query-monitor' ),
+			number_format_i18n( $data['time_taken'], 2 )
 		);
 		$title[] = sprintf(
-			_x( '%s<small>MB</small>', 'memory usage', 'query-monitor' ),
+			/* translators: %s: Memory usage in kilobytes */
+			esc_html_x( '%s kB', 'Memory usage', 'query-monitor' ),
 			$memory
 		);
+
+		foreach ( $title as &$t ) {
+			$t = preg_replace( '#\s?([^0-9,\.]+)#', '<small>$1</small>', $t );
+		}
+
 		return $title;
 	}
 

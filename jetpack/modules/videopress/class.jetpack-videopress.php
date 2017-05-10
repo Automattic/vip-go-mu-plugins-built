@@ -144,18 +144,12 @@ class Jetpack_VideoPress {
 		}
 
 		if ( $this->should_override_media_uploader() ) {
-			// We're going to replace the standard wp-plupload with our own ... messy, I know, but as of now the
-			// hooks in it are not good enough for us to be able to override / add in just the code we need.
-			// P.S. Please don't take this as an example of good behavior, this is a temporary fix until I
-			// can get a more permanent action / filter system added into the core wp-plupload.js to make this
-			// type of override unnecessary.
-			wp_dequeue_script( 'wp-plupload' );
-
 			wp_enqueue_script(
 				'videopress-plupload',
 				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
 				array(
-					'jquery'
+					'jquery',
+					'wp-plupload'
 				),
 				$this->version
 			);
@@ -179,26 +173,18 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * An override for the attachment url, which returns back the WPCOM videopress original url,
-	 * if it is set to the the objects metadata. this allows us to show the original uploaded
-	 * file on the WPCOM architecture, instead of the locally uplodaded file,
-	 * which doeasn't exist.
+	 * An override for the attachment url, which returns back the WPCOM VideoPress processed url.
 	 *
-	 * TODO: Fix this so that it will return a VideoPress process url, to ensure that it is in MP4 format.
+	 * This is an action proxy to the videopress_get_attachment_url() utility function.
 	 *
 	 * @param string $url
 	 * @param int $post_id
 	 *
-	 * @return mixed
+	 * @return string
 	 */
 	public function update_attachment_url_for_videopress( $url, $post_id ) {
-
-		if ( get_post_mime_type( $post_id ) === 'video/videopress' ) {
-			$meta = wp_get_attachment_metadata( $post_id );
-
-			if ( isset( $meta['original']['url'] ) ) {
-				$url = $meta['original']['url'];
-			}
+		if ( $videopress_url = videopress_get_attachment_url( $post_id ) ) {
+			return $videopress_url;
 		}
 
 		return $url;

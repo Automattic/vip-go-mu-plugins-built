@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Prevent and block malicious login attempts.
+ * Module Description: Block suspicious-looking sign in activity
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -311,7 +311,11 @@ class Jetpack_Protect_Module {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address whitelist
 	 */
-	public function log_successful_login( $user_login, $user ) {
+	public function log_successful_login( $user_login, $user = null ) {
+		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
+			$user = get_user_by( 'login', $user_login );
+		}
+
 		$this->protect_call( 'successful_login', array ( 'roles' => $user->roles ) );
 	}
 
@@ -433,9 +437,9 @@ class Jetpack_Protect_Module {
 			ob_end_clean();
 			return true;
 		}
-		
+
 		/**
-		 * Short-circuit check_login_ability. 
+		 * Short-circuit check_login_ability.
 		 *
 		 * If there is an alternate way to validate the current IP such as
 		 * a hard-coded list of IP addresses, we can short-circuit the rest
@@ -450,7 +454,7 @@ class Jetpack_Protect_Module {
 		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
 			return true;
 		}
-		
+
 		$headers         = $this->get_headers();
 		$header_hash     = md5( json_encode( $headers ) );
 		$transient_name  = 'jpp_li_' . $header_hash;
@@ -548,7 +552,7 @@ class Jetpack_Protect_Module {
 		 * @param string $ip IP flagged by Protect.
 		 */
 		do_action( 'jpp_kill_login', $ip );
-		$help_url = 'http://jetpack.com/support/security/';
+		$help_url = 'https://jetpack.com/support/security-features/#unblock';
 
 		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
 

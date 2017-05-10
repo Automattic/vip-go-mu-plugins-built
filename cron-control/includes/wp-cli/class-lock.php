@@ -21,20 +21,6 @@ class Lock extends \WP_CLI_Command {
 	}
 
 	/**
-	 * Manage the lock that limits concurrent job creation
-	 *
-	 * @subcommand manage-create-lock
-	 * @synopsis [--reset]
-	 */
-	public function manage_create_lock( $args, $assoc_args ) {
-		$lock_name        = \Automattic\WP\Cron_Control\Cron_Options_CPT::LOCK;
-		$lock_limit       = \Automattic\WP\Cron_Control\JOB_CREATION_CONCURRENCY_LIMIT;
-		$lock_description = __( 'This lock limits the number of events created concurrently.', 'automattic-cron-control' );
-
-		$this->get_reset_lock( $args, $assoc_args, $lock_name, $lock_limit, $lock_description );
-	}
-
-	/**
 	 * Manage the lock that limits concurrent execution of jobs with the same action
 	 *
 	 * @subcommand manage-event-lock

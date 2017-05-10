@@ -35,7 +35,7 @@ class Internal_Events extends Singleton {
 				'callback' => 'clean_legacy_data',
 			),
 			array(
-				'schedule' => 'a8c_cron_control_ten_minutes',
+				'schedule' => 'hourly',
 				'action'   => 'a8c_cron_control_purge_completed_events',
 				'callback' => 'purge_completed_events',
 			),
@@ -87,7 +87,7 @@ class Internal_Events extends Singleton {
 					'interval' => $interval,
 				);
 
-				Cron_Options_CPT::instance()->create_or_update_job( $when, $job_args['action'], $args );
+				schedule_event( $when, $job_args['action'], $args );
 			}
 		}
 	}
@@ -100,7 +100,7 @@ class Internal_Events extends Singleton {
 	 * Events that are always run, regardless of how many jobs are queued
 	 */
 	public function is_internal_event( $action ) {
-		return in_array( $action, wp_list_pluck( $this->internal_jobs, 'action' ) );
+		return in_array( $action, wp_list_pluck( $this->internal_jobs, 'action' ), true );
 	}
 
 	/**
@@ -108,21 +108,20 @@ class Internal_Events extends Singleton {
 	 */
 
 	/**
-	 * Published scheduled posts that miss their schedule
+	 * Publish scheduled posts that miss their schedule
 	 */
 	public function force_publish_missed_schedules() {
 		global $wpdb;
 
-		$missed_posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date <= %s LIMIT 25;", current_time( 'mysql', false ) ) );
+		$query        = $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date <= %s LIMIT 0,100;", current_time( 'mysql', false ) );
+		$missed_posts = $wpdb->get_col( $query );
 
-		if ( ! empty( $missed_posts ) ) {
-			foreach ( $missed_posts as $missed_post ) {
-				$missed_post = absint( $missed_post );
-				wp_publish_post( $missed_post );
-				wp_clear_scheduled_hook( 'publish_future_post', array( $missed_post ) );
+		foreach ( $missed_posts as $missed_post ) {
+			$missed_post = absint( $missed_post );
+			wp_publish_post( $missed_post );
+			wp_clear_scheduled_hook( 'publish_future_post', array( $missed_post ) );
 
-				do_action( 'a8c_cron_control_published_post_that_missed_schedule', $missed_post );
-			}
+			do_action( 'a8c_cron_control_published_post_that_missed_schedule', $missed_post );
 		}
 	}
 
@@ -132,30 +131,45 @@ class Internal_Events extends Singleton {
 	public function confirm_scheduled_posts() {
 		global $wpdb;
 
-		$future_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date > %s LIMIT 25;", current_time( 'mysql', false ) ) );
+		$page     = 1;
+		$quantity = 100;
 
-		if ( ! empty( $future_posts ) ) {
-			foreach ( $future_posts as $future_post ) {
-				$future_post->ID = absint( $future_post->ID );
-				$gmt_time        = strtotime( get_gmt_from_date( $future_post->post_date ) . ' GMT' );
-				$timestamp       = wp_next_scheduled( 'publish_future_post', array( $future_post->ID ) );
+		do {
+			$offset       = max( 0, $page - 1 ) * $quantity;
+			$query        = $wpdb->prepare( "SELECT ID, post_date FROM {$wpdb->posts} WHERE post_status = 'future' AND post_date > %s LIMIT %d,%d", current_time( 'mysql', false ), $offset, $quantity );
+			$future_posts = $wpdb->get_results( $query );
 
-				if ( false === $timestamp ) {
-					wp_schedule_single_event( $gmt_time, 'publish_future_post', array( $future_post->ID ) );
+			if ( ! empty( $future_posts ) ) {
+				foreach ( $future_posts as $future_post ) {
+					$future_post->ID = absint( $future_post->ID );
+					$gmt_time        = strtotime( get_gmt_from_date( $future_post->post_date ) . ' GMT' );
+					$timestamp       = wp_next_scheduled( 'publish_future_post', array( $future_post->ID ) );
 
-					do_action( 'a8c_cron_control_publish_scheduled', $future_post->ID );
-				} elseif ( (int) $timestamp !== $gmt_time ) {
-					wp_clear_scheduled_hook( 'publish_future_post', array( $future_post->ID ) );
-					wp_schedule_single_event( $gmt_time, 'publish_future_post', array( $future_post->ID ) );
+					if ( false === $timestamp ) {
+						wp_schedule_single_event( $gmt_time, 'publish_future_post', array( $future_post->ID ) );
 
-					do_action( 'a8c_cron_control_publish_rescheduled', $future_post->ID );
+						do_action( 'a8c_cron_control_publish_scheduled', $future_post->ID );
+					} elseif ( (int) $timestamp !== $gmt_time ) {
+						wp_clear_scheduled_hook( 'publish_future_post', array( $future_post->ID ) );
+						wp_schedule_single_event( $gmt_time, 'publish_future_post', array( $future_post->ID ) );
+
+						do_action( 'a8c_cron_control_publish_rescheduled', $future_post->ID );
+					}
 				}
 			}
-		}
+
+			$page++;
+
+			if ( count( $future_posts ) < $quantity || $page > 5 ) {
+				break;
+			}
+		} while ( ! empty( $future_posts ) );
 	}
 
 	/**
-	 * Remove data related to how Core manages cron in the absence of this plugin
+	 * Remove unnecessary data and scheduled events
+	 *
+	 * Some of this data relates to how Core manages Cron when this plugin isn't active
 	 */
 	public function clean_legacy_data() {
 		// Cron option can be very large, so it shouldn't linger
@@ -167,28 +181,45 @@ class Internal_Events extends Singleton {
 		} else {
 			delete_transient( 'doing_cron' );
 		}
+
+		// Confirm internal events are scheduled for when they're expected
+		$schedules = wp_get_schedules();
+
+		foreach ( $this->internal_jobs as $internal_job ) {
+			$timestamp = wp_next_scheduled( $internal_job['action'] );
+
+			// Will reschedule on its own
+			if ( false === $timestamp ) {
+				continue;
+			}
+
+			$job_details = get_event_by_attributes( array(
+				'timestamp' => $timestamp,
+				'action'    => $internal_job['action'],
+				'instance'  => md5( maybe_serialize( array() ) ),
+			) );
+
+			if ( $job_details->schedule !== $internal_job['schedule'] ) {
+				if ( $timestamp <= time() ) {
+					$timestamp = time() + ( 1 * \MINUTE_IN_SECONDS );
+				}
+
+				$args = array(
+					'schedule' => $internal_job['schedule'],
+					'args'     => $job_details->args,
+					'interval' => $schedules[ $internal_job['schedule'] ]['interval'],
+				);
+
+				schedule_event( $timestamp, $job_details->action, $args, $job_details->ID );
+			}
+		}
 	}
 
 	/**
 	 * Delete event objects for events that have run
-	 *
-	 * Given volume of events that can be created, waiting for `wp_scheduled_delete()`, which defaults to a trailing 30-day delete, is unwise
 	 */
 	public function purge_completed_events() {
-		$trashed_posts = get_posts( array(
-			'post_type'        => Cron_Options_CPT::POST_TYPE,
-			'post_status'      => Cron_Options_CPT::POST_STATUS_COMPLETED,
-			'posts_per_page'   => 100,
-			'fields'           => 'ids',
-		) );
-
-		if ( is_array( $trashed_posts ) && ! empty( $trashed_posts ) ) {
-			foreach ( $trashed_posts as $trashed_post_id ) {
-				wp_delete_post( $trashed_post_id, true );
-
-				do_action( 'a8c_cron_control_purged_completed_event', $trashed_post_id );
-			}
-		}
+		Events_Store::instance()->purge_completed_events();
 	}
 }
 

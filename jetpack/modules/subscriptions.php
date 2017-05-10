@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Subscriptions
- * Module Description: Notify your readers of new posts and comments by email.
+ * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email
  * Jumpstart Description: Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.
  * Sort Order: 9
  * Recommendation Order: 8
@@ -120,10 +120,11 @@ class Jetpack_Subscriptions {
 
 		global $post;
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
-		// Nonce it
-		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
 		// only show checkbox if post hasn't been published and is a 'post' post type.
-		if ( get_post_status( $post->ID ) !== 'publish' && get_post_type( $post->ID ) == 'post' ) : ?>
+		if ( get_post_status( $post->ID ) !== 'publish' && get_post_type( $post->ID ) == 'post' ) :
+			// Nonce it
+			wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+			?>
 			<div class="misc-pub-section">
 				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
@@ -157,28 +158,16 @@ class Jetpack_Subscriptions {
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
 		}
-
-		// Only do things on publish
-		if ( 'publish' !== $new_status ) {
-			return;
-		}
-
-		/**
-		 * If we're updating the post, let's make sure the flag to not send to subscribers
-		 * is set to minimize the chances of sending posts multiple times.
-		 */
-		if ( 'publish' == $old_status ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
-
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
 	}
 
 	public function should_email_post_to_subscribers( $post ) {
 		$should_email = true;
 		if ( get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true ) ) {
+			return false;
+		}
+
+		// Only posts are currently supported
+		if ( $post->post_type !== 'post' ) {
 			return false;
 		}
 
@@ -217,7 +206,6 @@ class Jetpack_Subscriptions {
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
 			$should_email = false;
 		}
-
 
 		return $should_email;
 	}
@@ -546,10 +534,10 @@ class Jetpack_Subscriptions {
 			case 'invalid_email':
 				$result = $error;
 				break;
-			case 'active':
 			case 'blocked_email':
 				$result = 'opted_out';
 				break;
+			case 'active':
 			case 'pending':
 				$result = 'already';
 				break;
@@ -1059,8 +1047,16 @@ add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
 add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $instance ) {
+	if ( empty( $instance ) || ! is_array( $instance ) ) {
+		$instance = array();
+	}
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
-	$instance = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $instance, 'jetpack_subscription_form' );
+
+	$instance = shortcode_atts(
+		Jetpack_Subscriptions_Widget::defaults(),
+		$instance,
+		'jetpack_subscription_form'
+	);
 	$args = array(
 		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
 	);

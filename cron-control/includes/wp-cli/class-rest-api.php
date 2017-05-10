@@ -72,16 +72,20 @@ class REST_API extends \WP_CLI_Command {
 		$formatted_events = array();
 
 		foreach ( $events as $event ) {
-			$event_data = \Automattic\WP\Cron_Control\Events::instance()->get_event( $event['timestamp'], $event['action'], $event['instance'] );
+			$event_data = \Automattic\WP\Cron_Control\get_event_by_attributes( array(
+				'timestamp'     => $event['timestamp'],
+				'action_hashed' => $event['action'],
+				'instance'      => $event['instance'],
+			) );
 
 			$formatted_events[] = array(
-				'timestamp'      => $event_data['timestamp'],
-				'action'         => $event_data['action'],
-				'instance'       => $event_data['instance'],
-				'scheduled_for'  => date( TIME_FORMAT, $event_data['timestamp'] ),
-				'internal_event' => \Automattic\WP\Cron_Control\is_internal_event( $event_data['action'] ) ? __( 'true', 'automattic-cron-control' ) : '',
-				'schedule_name'  => false === $event_data['schedule'] ? __( 'n/a', 'automattic-cron-control' ) : $event_data['schedule'],
-				'event_args'     => maybe_serialize( $event_data['args'] ),
+				'timestamp'      => $event_data->timestamp,
+				'action'         => $event_data->action,
+				'instance'       => $event_data->instance,
+				'scheduled_for'  => date( TIME_FORMAT, $event_data->timestamp ),
+				'internal_event' => \Automattic\WP\Cron_Control\is_internal_event( $event_data->action ) ? __( 'true', 'automattic-cron-control' ) : '',
+				'schedule_name'  => false === $event_data->schedule ? __( 'n/a', 'automattic-cron-control' ) : $event_data->schedule,
+				'event_args'     => maybe_serialize( $event_data->args ),
 			);
 		}
 

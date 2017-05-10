@@ -4,6 +4,13 @@ namespace Automattic\WP\Cron_Control\Tests;
 
 class Utils {
 	/**
+	 * Provide easy access to the plugin's table
+	 */
+	static function get_table_name() {
+		return \Automattic\WP\Cron_Control\Events_Store::instance()->get_table_name();
+	}
+
+	/**
 	 * Build a test event
 	 */
 	static function create_test_event( $allow_multiple = false ) {
@@ -25,7 +32,7 @@ class Utils {
 		if ( $next ) {
 			$event['timestamp'] = $next;
 		} else {
-			wp_schedule_single_event( $event[ 'timestamp' ], $event[ 'action' ], $event[ 'args' ] );
+			wp_schedule_single_event( $event['timestamp'], $event['action'], $event['args'] );
 		}
 
 		return $event;
@@ -34,24 +41,19 @@ class Utils {
 	/**
 	 * Retrieve some events' post objects for use in testing
 	 */
-	static function get_events_from_post_objects() {
-		$events = get_posts( array(
-			'post_type'        => \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_TYPE,
-			'post_status'      => \Automattic\WP\Cron_Control\Cron_Options_CPT::POST_STATUS_PENDING,
-			'posts_per_page'   => 10,
-			'orderby'          => 'date',
-			'order'            => 'ASC',
-			'suppress_filters' => false,
-		) );
+	static function get_events_from_store() {
+		global $wpdb;
+
+		$table_name = self::get_table_name();
+		$events     = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE status = %s ORDER BY `timestamp` ASC LIMIT 10;", \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING ), 'OBJECT' );
 
 		$parsed_events = array();
 
 		foreach ( $events as $event ) {
-			$event_args = explode( '|', $event->post_title );
 			$parsed_events[] = array(
-				'timestamp' => (int) $event_args[0],
-				'action'    => trim( $event_args[1] ),
-				'instance'  => trim( $event_args[2] ),
+				'timestamp' => (int) $event->timestamp,
+				'action'    => $event->action,
+				'instance'  => $event->instance,
 			);
 		}
 

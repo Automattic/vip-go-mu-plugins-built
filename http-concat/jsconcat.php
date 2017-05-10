@@ -8,6 +8,8 @@ Version: 0.01
 Author URI: http://automattic.com/
  */
 
+require_once( dirname( __FILE__ ) . '/concat-utils.php' );
+
 if ( ! defined( 'ALLOW_GZIP_COMPRESSION' ) )
 	define( 'ALLOW_GZIP_COMPRESSION', true );
 
@@ -60,7 +62,8 @@ class WPcom_JS_Concat extends WP_Scripts {
 				$this->in_footer = array_diff( $this->in_footer, (array) $handle );
 
 			$obj = $this->registered[$handle];
-			$js_url = parse_url( $obj->src );
+			$js_url = $obj->src;
+			$js_url_parsed = parse_url( $js_url );
 			$extra = $obj->extra;
 
 			// Check for scripts added from wp_add_inline_script()
@@ -77,20 +80,22 @@ class WPcom_JS_Concat extends WP_Scripts {
 			$do_concat = false;
 
 			// Only try to concat static js files
-			if ( false !== strpos( $js_url['path'], '.js' ) )
+			if ( false !== strpos( $js_url_parsed['path'], '.js' ) )
 				$do_concat = true;
 
 			// Don't try to concat externally hosted scripts
-			if ( ( isset( $js_url['host'] ) && ( preg_replace( '/https?:\/\//', '', $siteurl ) != $js_url['host'] ) ) )
+			$is_internal_url = WPCOM_Concat_Utils::is_internal_url( $js_url, $siteurl );
+			if ( ! $is_internal_url ) {
 				$do_concat = false;
+			}
 
 			// Concat and canonicalize the paths only for
 			// existing scripts that aren't outside ABSPATH
-			$js_realpath = realpath( ABSPATH . $js_url['path'] );
+			$js_realpath = WPCOM_Concat_Utils::realpath( $js_url, $siteurl );
 			if ( ! $js_realpath || 0 !== strpos( $js_realpath, ABSPATH ) )
 				$do_concat = false;
 			else
-				$js_url['path'] = substr( $js_realpath, strlen( ABSPATH ) - 1 );
+				$js_url_parsed['path'] = substr( $js_realpath, strlen( ABSPATH ) - 1 );
 
 			// Allow plugins to disable concatenation of certain scripts.
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
@@ -99,7 +104,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 				if ( !isset( $javascripts[$level] ) )
 					$javascripts[$level]['type'] = 'concat';
 
-				$javascripts[$level]['paths'][] = $js_url['path'];
+				$javascripts[$level]['paths'][] = $js_url_parsed['path'];
 				$javascripts[$level]['handles'][] = $handle;
 
 				// Add inline scripts to Javascripts array for later processing
@@ -142,7 +147,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 
 					$href = $siteurl . "/_static/??" . $path_str;
 				} else {
-					$href = $this->cache_bust_mtime( $siteurl . $js_array['paths'][0] );
+					$href = $this->cache_bust_mtime( $siteurl . $js_array['paths'][0], $siteurl );
 				}
 
 				$this->done = array_merge( $this->done, $js_array['handles'] );
@@ -165,7 +170,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 		return $this->done;
 	}
 
-	function cache_bust_mtime( $url ) {
+	function cache_bust_mtime( $url, $siteurl ) {
 		if ( strpos( $url, '?m=' ) )
 			return $url;
 
@@ -173,7 +178,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 		if ( ! isset( $parts['path'] ) || empty( $parts['path'] ) )
 			return $url;
 
-		$file = ABSPATH . ltrim( $parts['path'], '/' );
+		$file = WPCOM_Concat_Utils::realpath( $url, $siteurl );
 
 		$mtime = false;
 		if ( file_exists( $file ) )

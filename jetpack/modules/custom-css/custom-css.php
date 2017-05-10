@@ -438,13 +438,8 @@ class Jetpack_Custom_CSS {
 			$post['post_content_filtered'] = wp_slash( $compressed_css );
 
 			// Set excerpt to current theme, for display in revisions list
-			if ( function_exists( 'wp_get_theme' ) ) {
-				$current_theme = wp_get_theme();
-				$post['post_excerpt'] = $current_theme->Name;
-			}
-			else {
-				$post['post_excerpt'] = get_current_theme();
-			}
+			$current_theme = wp_get_theme();
+			$post['post_excerpt'] = $current_theme->Name;
 
 			// Insert the CSS into wp_posts
 			$post_id = wp_insert_post( $post );
@@ -457,13 +452,8 @@ class Jetpack_Custom_CSS {
 		$safecss_post['post_content_filtered'] = $compressed_css;
 
 		// Set excerpt to current theme, for display in revisions list
-		if ( function_exists( 'wp_get_theme' ) ) {
-			$current_theme = wp_get_theme();
-			$safecss_post['post_excerpt'] = $current_theme->Name;
-		}
-		else {
-			$safecss_post['post_excerpt'] = get_current_theme();
-		}
+		$current_theme = wp_get_theme();
+		$safecss_post['post_excerpt'] = $current_theme->Name;
 
 		// Don't carry over last revision's timestamps, otherwise revisions all have matching timestamps
 		unset( $safecss_post['post_date'] );
@@ -1044,7 +1034,7 @@ class Jetpack_Custom_CSS {
 				<p>
 					<?php
 
-					printf(
+					printf( /* translators: %1$s is replaced with an input field for numbers. */
 						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" target="_blank">More info</a>.)', 'jetpack' ),
 						'<input type="text" id="custom_content_width_visible" value="' . esc_attr( $custom_content_width ) . '" size="4" />',
 						/**
@@ -1063,14 +1053,14 @@ class Jetpack_Custom_CSS {
 				</p>
 				<?php
 
-				if ( !empty( $GLOBALS['content_width'] ) && $custom_content_width != $GLOBALS['content_width'] ) {
-					if ( function_exists( 'wp_get_theme' ) )
-						$current_theme = wp_get_theme()->Name;
-					else
-						$current_theme = get_current_theme();
+				if (
+					! empty( $GLOBALS['content_width'] )
+					&& $custom_content_width != $GLOBALS['content_width']
+				) {
+					$current_theme = wp_get_theme()->Name;
 
 					?>
-					<p><?php printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), $current_theme, intval( $GLOBALS['content_width'] ) ); ?></p>
+					<p><?php printf( _n( 'The default content width for the %s theme is %d pixel.', 'The default content width for the %s theme is %d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ), $current_theme, intval( $GLOBALS['content_width'] ) ); ?></p>
 					<?php
 				}
 
