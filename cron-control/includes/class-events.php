@@ -12,6 +12,8 @@ class Events extends Singleton {
 	 */
 	const LOCK = 'run-events';
 
+	private $concurrent_action_whitelist = array();
+
 	/**
 	 * Register hooks
 	 */
@@ -22,6 +24,9 @@ class Events extends Singleton {
 		// Prepare environment as early as possible
 		$earliest_action = did_action( 'muplugins_loaded' ) ? 'plugins_loaded' : 'muplugins_loaded';
 		add_action( $earliest_action, array( $this, 'prepare_environment' ) );
+
+		// Allow code loaded as late as the theme to modify the whitelist
+		add_action( 'after_setup_theme', array( $this, 'populate_concurrent_action_whitelist' ) );
 	}
 
 	/**
@@ -44,6 +49,20 @@ class Events extends Singleton {
 		if ( REST_API::ENDPOINT_RUN === $endpoint ) {
 			ignore_user_abort( true );
 			set_time_limit( JOB_TIMEOUT_IN_MINUTES * MINUTE_IN_SECONDS );
+		}
+	}
+
+	/**
+	 * Allow certain events to be run concurrently
+	 *
+	 * By default, multiple events of the same action cannot be run concurrently, due to alloptions and other data-corruption issues
+	 * Some events, however, are fine to run concurrently, and should be whitelisted for such
+	 */
+	public function populate_concurrent_action_whitelist() {
+		$concurrency_whitelist = apply_filters( 'a8c_cron_control_concurrent_event_whitelist', array() );
+
+		if ( is_array( $concurrency_whitelist ) && ! empty( $concurrency_whitelist ) ) {
+			$this->concurrent_action_whitelist = $concurrency_whitelist;
 		}
 	}
 
@@ -281,8 +300,15 @@ class Events extends Singleton {
 	 * @return bool
 	 */
 	private function can_run_event( $event ) {
-		// Limit to one concurrent execution of a specific action
-		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), 1, JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS ) ) {
+		// Limit to one concurrent execution of a specific action by default
+		$limit = 1;
+
+		if ( isset( $this->concurrent_action_whitelist[ $event->action ] ) ) {
+			$limit = absint( $this->concurrent_action_whitelist[ $event->action ] );
+			$limit = min( $limit, JOB_CONCURRENCY_LIMIT );
+		}
+
+		if ( ! Lock::check_lock( $this->get_lock_key_for_event_action( $event ), $limit, JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS ) ) {
 			return false;
 		}
 
@@ -292,7 +318,7 @@ class Events extends Singleton {
 		}
 
 		// Check if any resources are available to execute this job
-		// If not, the indivdual-event lock must be freed, otherwise it's deadlocked until it times out
+		// If not, the individual-event lock must be freed, otherwise it's deadlocked until it times out
 		if ( ! Lock::check_lock( self::LOCK, JOB_CONCURRENCY_LIMIT ) ) {
 			$this->reset_event_lock( $event );
 			return false;
@@ -325,7 +351,14 @@ class Events extends Singleton {
 	 * @return bool
 	 */
 	private function reset_event_lock( $event ) {
-		return Lock::reset_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
+		$lock_key = $this->get_lock_key_for_event_action( $event );
+		$expires  = JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS;
+
+		if ( isset( $this->concurrent_action_whitelist[ $event->action ] ) ) {
+			return Lock::free_lock( $lock_key, $expires );
+		} else {
+			return Lock::reset_lock( $lock_key, $expires );
+		}
 	}
 
 	/**
