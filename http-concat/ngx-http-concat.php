@@ -11,8 +11,9 @@
  * It will also replace the relative paths in CSS files with absolute paths.
  */
 
-require __DIR__ . '/cssmin.php';
-require_once( dirname(__FILE__) . '/concat-utils.php' );
+
+require_once( __DIR__ . '/cssmin/cssmin.php' );
+require_once( __DIR__ . '/concat-utils.php' );
 
 /* Config */
 $concat_max_files = 150;
@@ -114,7 +115,7 @@ $last_modified = 0;
 $pre_output = '';
 $output = '';
 
-$css_minify = new CSSmin();
+$css_minify = new tubalmartin\CssMin\Minifier;
 
 foreach ( $args as $uri ) {
 	$fullpath = concat_get_path( $uri );
