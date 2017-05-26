@@ -37,6 +37,9 @@ class Events_Store extends Singleton {
 		add_action( 'wp_install', array( $this, 'create_table_during_install' ) );
 		add_action( 'wpmu_new_blog', array( $this, 'create_tables_during_multisite_install' ) );
 
+		// Remove table when a multisite subsite is deleted
+		add_filter( 'wpmu_drop_tables', array( $this, 'remove_multisite_table' ) );
+
 		// Enable plugin when conditions support it, otherwise limit errors as much as possible
 		if ( self::is_installed() ) {
 			// Option interception
@@ -209,6 +212,20 @@ class Events_Store extends Singleton {
 		}
 
 		$this->_prepare_table();
+	}
+
+	/**
+	 * When deleting a subsite from a multisite instance, include the plugin's table
+	 *
+	 * Core only drops its tables
+	 *
+	 * @param  array $tables_to_drop Array of prefixed table names to drop
+	 * @return array
+	 */
+	public function remove_multisite_table( $tables_to_drop ) {
+		$tables_to_drop[] = $this->get_table_name();
+
+		return $tables_to_drop;
 	}
 
 	/**
