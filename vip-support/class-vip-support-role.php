@@ -87,7 +87,7 @@ class WPCOM_VIP_Support_Role {
 	 * @return array An array of all the user's caps, with the required cap added
 	 */
 	public function filter_user_has_cap( array $user_caps, array $caps, array $args, WP_User $user ) {
-		if ( in_array( self::VIP_SUPPORT_ROLE, $user->roles ) ) {
+		if ( in_array( self::VIP_SUPPORT_ROLE, $user->roles ) && is_proxied_automattician() ) {
 			foreach ( $caps as $cap ) {
 				$user_caps[$cap] = true;
 			}
