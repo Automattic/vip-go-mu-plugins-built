@@ -12,6 +12,7 @@ require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
@@ -25,14 +26,15 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	protected $sender;
 
 	protected $server;
+	protected $server_replicator;
 	protected $server_replica_storage;
 	protected $server_event_storage;
 
 	public function setUp() {
-		parent::setUp();
-
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
+
+		parent::setUp();
 
 		$this->setSyncClientDefaults();
 
@@ -56,6 +58,14 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
+		// don't sync callables or constants every time - slows down tests
+		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
+	}
+
+	protected function resetCallableAndConstantTimeouts() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
 	}
 
 	public function test_pass() {
@@ -97,88 +107,3 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	}
 }
 
-class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
-
-	function test_sending_empties_queue() {
-		$this->factory->post->create();
-		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
-		$this->sender->do_sync();
-		$this->assertEmpty( $this->sender->get_sync_queue()->get_all() );
-	}
-
-	function test_sends_publicize_action() {
-		$post_id = $this->factory->post->create();
-		do_action( 'jetpack_publicize_post', $post_id );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_publicize_post' );
-		$this->assertEquals( $post_id, $event->args[0] );
-	}
-
-	function test_upgrading_sends_options_constants_and_callables() {
-		/** This action is documented in class.jetpack.php */
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-
-		$modules = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( $modules ) ) > time()-5 );
-	}
-
-	function test_upgrading_from_42_plus_does_not_includes_users_in_initial_sync() {
-
-		$initial_sync_without_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true );
-		$initial_sync_with_users_config = array( 'options' => true, 'network_options' => true, 'functions' => true, 'constants' => true, 'users' => 'initial' );
-
-		do_action( 'updating_jetpack_version', '4.3', '4.2' );
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_without_users_config ) );
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
-
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync( $initial_sync_with_users_config ) );
-	}
-
-	function test_schedules_regular_sync() {
-		// we need to run this again because cron is cleared between tests
-		Jetpack_Sync_Actions::init(); 
-		$timestamp = wp_next_scheduled( 'jetpack_sync_cron' );
-		// we need to check a while in the past because the task got scheduled at 
-		// the beginning of the entire test run, not at the beginning of this test :)
-		$this->assertTrue( $timestamp > time()-HOUR_IN_SECONDS );
-	}
-
-	function test_enqueues_full_sync_after_import() {
-		do_action( 'import_end' );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full' ) !== false );
-	}
-
-	function test_is_scheduled_full_sync_works_with_different_args() {
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
-
-		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync() );
-		$this->assertTrue( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'posts' => true ) ) );
-		$this->assertFalse( (bool) Jetpack_Sync_Actions::is_scheduled_full_sync( array( 'comments' => true ) ) );
-	}
-
-	function test_can_unschedule_all_full_syncs() {
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ) );
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ) );
-
-		$this->assertTrue( Jetpack_Sync_Actions::is_scheduled_full_sync() );
-
-		Jetpack_Sync_Actions::unschedule_all_full_syncs();
-
-		$this->assertFalse( Jetpack_Sync_Actions::is_scheduled_full_sync() );		
-	}
-
-	function test_scheduling_a_full_sync_unschedules_all_future_full_syncs() {
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'posts' => true ), 100 ); // 100 seconds in the future
-		Jetpack_Sync_Actions::schedule_full_sync( array( 'users' => true ), 200 ); // 200 seconds in the future
-
-		// users sync should have overridden posts sync
-		$this->assertFalse( wp_next_scheduled( 'jetpack_sync_full', array( array( 'posts' => true ) ) ) );
-		$this->assertTrue( wp_next_scheduled( 'jetpack_sync_full', array( array( 'users' => true ) ) ) >= time() + 199 );
-	}
-}

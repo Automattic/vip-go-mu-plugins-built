@@ -126,14 +126,15 @@ class Jetpack_Client_Server {
 		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
 			Jetpack::delete_active_modules();
 
-			Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error );
+			Jetpack::activate_default_modules( 999, 1, $active_modules, $redirect_on_activation_error, false );
 		} else {
-			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
+			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error, false );
 		}
 
 		// If redirect_uri is SSO, ensure SSO module is enabled
 		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
-		if ( isset( $redirect_options['action'] ) && 'jetpack-sso' === $redirect_options['action'] ) {
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( isset( $redirect_options['action'] ) && 'jetpack-sso' === $redirect_options['action'] && apply_filters( 'jetpack_start_enable_sso', true ) ) {
 			Jetpack::activate_module( 'sso', false, false );
 		}
 

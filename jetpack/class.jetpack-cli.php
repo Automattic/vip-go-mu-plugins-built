@@ -678,14 +678,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$i = 1;
 				do {
 					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
-					if ( $result ) {
-						if ( 1 == $i++ ) {
+					if ( is_wp_error( $result ) ) {
+						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
+						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
+							WP_CLI::error( sprintf( __( 'Sync errored with code: %s', 'jetpack' ), $result->get_error_code() ) );
+						}
+					} else {
+						if ( 1 == $i ) {
 							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
 						} else {
 							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
 						}
 					}
-				} while ( $result );
+					$i++;
+				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.
 				Jetpack_Sync_Settings::update_settings( $original_settings );
@@ -794,6 +800,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'Authorization' => "Bearer " . $token->access_token,
 				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
+			'timeout' => 60,
 			'method'  => 'POST',
 			'body'    => json_encode( array( 'site_id' => $blog_id ) )
 		);
@@ -826,18 +833,18 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
 	 * [--force_register=<register>]
 	 * : Whether to force a site to register
+	 * [--onboarding=<onboarding>]
+	 * : Guide the user through an onboarding wizard
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> --user_id=<user_id> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>] [--onboarding=<onboarding>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
-
-		$user_id   = $named_args['user_id'];
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
@@ -853,24 +860,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
-		
-		if ( empty( $user_id ) ) {
-			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
-		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );
 		$blog_token = Jetpack_Options::get_option( 'blog_token' );
-
-		// we need to set the current user because:
-		// 1) register uses it as the "state" variable
-		// 2) authorize uses it to construct state variable and also to check if site is authorized for this user, and to send role
-		// 3) ultimately, it is this user who receives the plan
-		wp_set_current_user( $user_id );
-		$user = wp_get_current_user();
-
-		if ( empty( $user ) ) {
-			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
-		}
 
 		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// this code mostly copied from Jetpack::admin_page_load
@@ -886,39 +878,52 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
-		// role
-		$role = Jetpack::translate_current_user_to_role();
-		$signed_role = Jetpack::sign_role( $role );
-
-		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+		// if the user isn't specified, but we have a current master user, then set that to current user
+		if ( ! get_current_user_id() && $master_user_id = Jetpack_Options::get_option( 'master_user' ) ) {
+			wp_set_current_user( $master_user_id );
+		}
 
 		$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 			? get_site_icon_url()
 			: false;
 
-		$sso_url = add_query_arg(
-			array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
-			wp_login_url() // TODO: come back to Jetpack dashboard?
-		);
+		/** This filter is documented in class.jetpack-cli.php */
+		if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
+			$redirect_uri = add_query_arg(
+				array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		} else {
+			$redirect_uri = admin_url();
+		}
 
 		$request_body = array( 
 			'jp_version'    => JETPACK__VERSION,
+			'redirect_uri'  => $redirect_uri
+		);
+
+		if ( $site_icon ) {
+			$request_body['site_icon'] = $site_icon;
+		}
+
+		if ( get_current_user_id() ) {
+			$user = wp_get_current_user();
+
+			// role
+			$role = Jetpack::translate_current_user_to_role();
+			$signed_role = Jetpack::sign_role( $role );
+
+			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 
 			// Jetpack auth stuff
-			'scope'         => $signed_role,
-			'secret'        => $secrets['secret_1'],	
+			$request_body['scope']  = $signed_role;
+			$request_body['secret'] = $secrets['secret_1'];
 
 			// User stuff
-			'user_id'       => $user->ID,
-			'user_email'    => $user->user_email,
-			'user_login'    => $user->user_login,
-
-			// Blog meta stuff
-			'site_icon'     => $site_icon,
-
-			// Then come back to this URL
-			'redirect_uri'  => $sso_url
-		);
+			$request_body['user_id']    = $user->ID;
+			$request_body['user_email'] = $user->user_email;
+			$request_body['user_login'] = $user->user_login;
+		}
 
 		// optional additional params
 		if ( isset( $named_args['wpcom_user_id'] ) && ! empty( $named_args['wpcom_user_id'] ) ) {
@@ -929,11 +934,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$request_body['plan'] = $named_args['plan'];
 		}
 
+		if ( isset( $named_args['onboarding'] ) && ! empty( $named_args['onboarding'] ) ) {
+			$request_body['onboarding'] = intval( $named_args['onboarding'] );
+		}
+
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $token->access_token,
 				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
+			'timeout' => 60,
 			'method'  => 'POST',
 			'body'    => json_encode( $request_body )
 		);
@@ -958,8 +968,30 @@ class Jetpack_CLI extends WP_CLI_Command {
 			if ( isset( $body_json->error ) ) {
 				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
 			} else {
-				error_log(print_r($result,1));
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+			}
+		}
+
+		if ( isset( $body_json->access_token ) ) {
+			// authorize user and enable SSO
+			Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $body_json->access_token, $user->ID ), true );
+
+			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+				Jetpack::delete_active_modules();
+				Jetpack::activate_default_modules( 999, 1, $active_modules, false );
+			} else {
+				Jetpack::activate_default_modules( false, false, array(), false );
+			}
+
+			/**
+			 * Auto-enable SSO module for new Jetpack Start connections
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
+			 */
+			if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
+				Jetpack::activate_module( 'sso', false, false );
 			}
 		}
 

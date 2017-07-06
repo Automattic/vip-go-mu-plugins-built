@@ -6,6 +6,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	del = require( 'del' ),
 	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
+	eslint = require( 'gulp-eslint' ),
 	gutil = require( 'gulp-util' ),
 	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
@@ -245,7 +246,6 @@ function doStatic( done ) {
 admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
-	'modules/contact-form/css/menu-alter.css',
 	'modules/custom-css/csstidy/cssparse.css',
 	'modules/custom-css/csstidy/cssparsed.css',
 	'modules/custom-css/custom-css/css/codemirror.css',
@@ -287,7 +287,9 @@ frontendcss = [
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
 	'css/jetpack-idc-admin-bar.css',
-	'modules/wordads/css/style.css'
+	'modules/wordads/css/style.css',
+	'modules/widgets/eu-cookie-law/style.css',
+	'modules/widgets/flickr/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {
@@ -438,6 +440,20 @@ gulp.task( 'php:unit', function() {
 		} );
 } );
 
+/**
+ * eslint
+ */
+gulp.task( 'eslint', function() {
+	return gulp.src( [
+		'_inc/client/**/*.js',
+		'_inc/client/**/*.jsx',
+		'!_inc/client/**/test/*.js'
+	] )
+		.pipe( eslint() )
+		.pipe( eslint.format() )
+		.pipe( eslint.failAfterError() );
+} );
+
 /*
 	JS Hint
  */
@@ -505,14 +521,16 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 
 	rl.on( 'line', function( line ) {
-		var brace_index = line.indexOf( '(' );
+		var brace_index = line.indexOf( '__(' );
 
 		// Skipping lines that do not call translation functions
 		if ( -1 === brace_index ) {
 			return;
 		}
 
-		line = line.slice( brace_index + 1, line.lastIndexOf( ')' ) );
+		line = line
+			.slice( brace_index + 3, line.lastIndexOf( ')' ) )
+			.replace( /[\b\f\n\r\t]/g, ' ' );
 
 		// Making the line look like a JSON array to parse it as such later
 		line = [ '[', line.trim(), ']' ].join( '' );

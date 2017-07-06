@@ -10,7 +10,7 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
     else
         exit 1
     fi
-    
+
     echo "Testing on WordPress stable..."
     cd /tmp/wordpress-latest/src/wp-content/plugins/$PLUGIN_SLUG
     if $WP_TRAVISCI; then
@@ -40,9 +40,7 @@ else
 
     gem install sass
     gem install compass
-    npm install -g npm
-    npm install -g gulp-cli
-    npm install
+    yarn
 
     if $WP_TRAVISCI; then
 	# Everything is fine

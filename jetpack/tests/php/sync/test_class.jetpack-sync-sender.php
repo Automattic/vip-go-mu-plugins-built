@@ -7,6 +7,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $encoded_data;
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
+		// some trivial action so that there's an item in the queue
+		$this->factory->post->create();
+
 		$start_test_timestamp   = microtime( true );
 		$this->action_ran       = false;
 		$this->action_codec     = null;
@@ -17,7 +20,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertEquals( true, $this->action_ran );
-		$this->assertEquals( 'deflate-json', $this->action_codec );
+		$this->assertEquals( 'deflate-json-array', $this->action_codec );
 		$this->assertNotNull( $this->action_timestamp );
 		$this->assertTrue( $this->action_timestamp > $start_test_timestamp );
 		$this->assertTrue( $this->action_timestamp < microtime( true ) );
@@ -164,15 +167,17 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		sleep( 3 );
 
-		$next_sync_time = $this->sender->get_next_sync_time();
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
 		$this->assertTrue( $this->sender->do_sync() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		// because we synced, next sync time should be further in the future
-		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time() );
+		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time( 'sync' ) );
 
 		// doesn't sync second time
-		$this->assertFalse( $this->sender->do_sync() );
+		$result = $this->sender->do_sync();
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'sync_throttled', $result->get_error_code() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		sleep( 3 );
@@ -243,6 +248,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'my_full_sync_action' );
 
 		$this->sender->do_sync();
+		$this->sender->do_full_sync();
 
 		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
 		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
@@ -262,7 +268,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$full_sync->reset_data();
 		
-		$status = $full_sync->get_status();
 		$this->assertFalse( $full_sync->is_started() );
 	}
 
@@ -273,7 +278,18 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 55 );
+	}
+
+	function test_waits_ten_seconds_on_queue_lock_with_last_item() {
+		$this->sender->get_sync_queue()->lock(0);
+
+		$this->factory->post->create();
+		$this->sender->do_sync();
+
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
+		$this->assertTrue( $next_sync_time > time() + 5 );
+		$this->assertTrue( $next_sync_time < time() + 15 );
 	}
 
 	function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
@@ -292,7 +308,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 55 );
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 55 );
 	}
 
 	function serverReceiveWithError( $data, $codec, $sent_timestamp ) {
@@ -308,7 +324,94 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time() > time() + 9 );	
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );	
+	}
+
+	function test_default_value_for_max_execution_time() {
+		// test with strings, non-strings, 0 and null
+
+		ini_set( 'max_execution_time', '30' );
+		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', 65 );
+		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', '0' );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+
+		ini_set( 'max_execution_time', null );
+		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+	}
+
+	function test_limits_execution_time_of_do_sync() {
+		// disable sync callables
+		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		$this->sender->do_sync();
+
+		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
+
+		$this->sender->set_max_dequeue_time( 4 );
+
+		add_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ), 10, 2 );
+
+		// register the action to be synced
+		add_action( 'super_slow_action', array( $this->listener, 'action_handler' ) );
+
+		// it should only dequeue 2 of these, because each takes 3 seconds to process, and 3*2 = 6, which is > 4
+		do_action( 'super_slow_action' );
+		do_action( 'super_slow_action' );
+		do_action( 'super_slow_action' );
+
+		$this->assertEquals( 3, $this->sender->get_sync_queue()->size() );
+
+		$this->sender->do_sync();
+
+		// should have aborted after 2 actions
+		$this->assertEquals( 1, $this->sender->get_sync_queue()->size() );
+
+		remove_filter( 'jetpack_sync_before_send_super_slow_action', array( $this, 'before_send_super_slow_action' ) );
+	}
+
+	function test_doesnt_log_actions_during_sync_send() {
+		// plugins like snitch and secupress create posts during http requests,
+		// which can result in recursive sync, or at least syncing a TON of data
+		// so we try to unhook right before send, and rehook right after
+
+		$args = array(
+			'public' => true,
+			'label'  => 'HttpListener'
+		);
+		register_post_type( 'http_listener', $args );
+
+		// register a trivial action we use to force sync
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) ); 
+
+		// log http_listener during send data, since in test we're not sending real HTTP requests
+		add_filter( 'jetpack_sync_send_data', array( $this, 'create_http_listener_post_and_return_processed_ids' ), 10, 1 );
+
+		// hopefully no http_listener events created here
+		do_action( 'my_action' );
+		$this->sender->do_sync();
+
+		$this->server_event_storage->reset();
+
+		// do a trivial data change, then check we didn't enqueue a http_listener post
+		do_action( 'my_action' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+
+		$this->assertFalse( $event );
+	}
+
+	function create_http_listener_post_and_return_processed_ids( $data ) {
+		$post_id = $this->factory->post->create( array( 'post_type' => 'http_listener' ) );
+		return array_keys( $data );
+	}
+
+	function before_send_super_slow_action( $args, $user_id ) {
+		sleep( 3 );
+		return $args;
 	}
 
 	function serverReceiveWithThreeSecondDelay( $data, $codec, $sent_timestamp ) {

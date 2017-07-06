@@ -26,6 +26,24 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $server_user->data->allowed_mime_types );
 
 		$this->assertEqualsObject( $user, $server_user );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $this->user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
+
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -91,17 +109,17 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		
 		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 		update_user_meta( $this->user_id, 'session_tokens', 'moon' );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 		delete_user_meta( $this->user_id, 'session_tokens', 'moon' );
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( );
+		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
 
 	}
@@ -297,6 +315,24 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+		
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
+
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $mu_blog_user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
+		
 	}
 
 	public function test_syncs_user_authentication_attempts() {
@@ -390,6 +426,60 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// don't demote user if the user one the only admin that is connected.
 		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
+	}
+
+	public function test_returns_user_object_by_id() {
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+
+		// get the synced object
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $this->user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
+	}
+
+	public function test_update_user_locale_is_synced() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
+			return;
+		}
+
+		update_user_meta( $this->user_id, 'locale', 'en_GB' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
+		$this->assertNotEmpty( $event );
+
+		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
+		$this->assertEquals( get_user_locale( $this->user_id ), $server_user_local );
+	}
+
+	public function test_delete_user_locale_is_synced() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
+			return;
+		}
+
+		delete_user_meta( $this->user_id, 'locale' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale_delete' );
+		$this->assertNotEmpty( $event );
+
+		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
+		$this->assertEquals( '', $server_user_local );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {
