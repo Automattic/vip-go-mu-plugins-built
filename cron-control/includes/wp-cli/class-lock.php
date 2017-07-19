@@ -31,7 +31,7 @@ class Lock extends \WP_CLI_Command {
 			\WP_CLI::error( sprintf( __( 'Specify an action', 'automattic-cron-control' ) ) );
 		}
 
-		$lock_name        = \Automattic\WP\Cron_Control\Events::instance()->get_lock_key_for_event_action( array( 'action' => $args[0], ) );
+		$lock_name        = \Automattic\WP\Cron_Control\Events::instance()->get_lock_key_for_event_action( (object) array( 'action' => $args[0], ) );
 		$lock_limit       = 1;
 		$lock_description = __( "This lock prevents concurrent executions of events with the same action, regardless of the action's arguments.", 'automattic-cron-control' );
 
@@ -43,9 +43,9 @@ class Lock extends \WP_CLI_Command {
 	 */
 	private function get_reset_lock( $args, $assoc_args, $lock_name, $lock_limit, $lock_description ) {
 		// Output information about the lock
-		\WP_CLI::line( $lock_description . "\n" );
+		\WP_CLI::log( $lock_description . "\n" );
 
-		\WP_CLI::line( sprintf( __( 'Maximum: %s', 'automattic-cron-control' ), number_format_i18n( $lock_limit ) ) . "\n" );
+		\WP_CLI::log( sprintf( __( 'Maximum: %s', 'automattic-cron-control' ), number_format_i18n( $lock_limit ) ) . "\n" );
 
 		// Reset requested
 		if ( isset( $assoc_args['reset'] ) ) {
@@ -54,23 +54,23 @@ class Lock extends \WP_CLI_Command {
 			$lock      = \Automattic\WP\Cron_Control\Lock::get_lock_value( $lock_name );
 			$timestamp = \Automattic\WP\Cron_Control\Lock::get_lock_timestamp( $lock_name );
 
-			\WP_CLI::line( sprintf( __( 'Previous value: %s', 'automattic-cron-control' ), number_format_i18n( $lock ) ) );
-			\WP_CLI::line( sprintf( __( 'Previously modified: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $timestamp ) ) . "\n" );
+			\WP_CLI::log( sprintf( __( 'Previous value: %s', 'automattic-cron-control' ), number_format_i18n( $lock ) ) );
+			\WP_CLI::log( sprintf( __( 'Previously modified: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $timestamp ) ) . "\n" );
 
 			\WP_CLI::confirm( sprintf( __( 'Are you sure you want to reset this lock?', 'automattic-cron-control' ) ) );
-			\WP_CLI::line( '' );
+			\WP_CLI::log( '' );
 
 			\Automattic\WP\Cron_Control\Lock::reset_lock( $lock_name );
 			\WP_CLI::success( __( 'Lock reset', 'automattic-cron-control' ) . "\n" );
-			\WP_CLI::line( __( 'New lock values:', 'automattic-cron-control' ) );
+			\WP_CLI::log( __( 'New lock values:', 'automattic-cron-control' ) );
 		}
 
 		// Output lock state
 		$lock      = \Automattic\WP\Cron_Control\Lock::get_lock_value( $lock_name );
 		$timestamp = \Automattic\WP\Cron_Control\Lock::get_lock_timestamp( $lock_name );
 
-		\WP_CLI::line( sprintf( __( 'Current value: %s', 'automattic-cron-control' ), number_format_i18n( $lock ) ) );
-		\WP_CLI::line( sprintf( __( 'Last modified: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $timestamp ) ) );
+		\WP_CLI::log( sprintf( __( 'Current value: %s', 'automattic-cron-control' ), number_format_i18n( $lock ) ) );
+		\WP_CLI::log( sprintf( __( 'Last modified: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $timestamp ) ) );
 	}
 }
 

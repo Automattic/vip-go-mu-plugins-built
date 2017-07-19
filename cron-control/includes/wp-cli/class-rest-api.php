@@ -38,7 +38,7 @@ class REST_API extends \WP_CLI_Command {
 		// Prepare items for display
 		$events_for_display      = $this->format_events( $queue_response['events'] );
 		$total_events_to_display = count( $events_for_display );
-		\WP_CLI::line( sprintf( _n( 'Displaying one event', 'Displaying %s events', $total_events_to_display, 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ) ) );
+		\WP_CLI::log( sprintf( _n( 'Displaying one event', 'Displaying %s events', $total_events_to_display, 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ) ) );
 
 		// And reformat
 		$format = 'table';

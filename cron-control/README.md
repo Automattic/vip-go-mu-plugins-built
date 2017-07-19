@@ -1,8 +1,13 @@
-# Cron Control
+Cron Control
+============
 
 Execute WordPress cron events in parallel, using a custom post type for event storage.
 
 Using REST API endpoints (requires WordPress 4.4+), an event queue is produced and events are triggered.
+
+## PHP Compatibility
+
+Cron Control requires PHP 7 or greater to be able to catch fatal errors triggered by event callbacks. While the plugin may work with previous versions of PHP, internal locks may become deadlocked if callbacks fail. 
 
 ## Event Concurrency
 

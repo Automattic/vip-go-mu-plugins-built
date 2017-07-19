@@ -23,13 +23,13 @@ class One_Time_Fixers extends \WP_CLI_Command {
 		}
 
 		// Provide some idea of what's going on
-		\WP_CLI::line( __( 'CRON CONTROL', 'automattic-cron-control' ) . "\n" );
+		\WP_CLI::log( __( 'CRON CONTROL', 'automattic-cron-control' ) . "\n" );
 
 		$table_name = \Automattic\WP\Cron_Control\Events_Store::instance()->get_table_name();
 		$count = (int) $wpdb->get_var( "SELECT COUNT(ID) FROM {$table_name}" );
 
 		if ( $count > 1 ) {
-			\WP_CLI::line( sprintf( __( 'Found %s total items', 'automattic-cron-control' ), number_format_i18n( $count ) ) . "\n\n" );
+			\WP_CLI::log( sprintf( __( 'Found %s total items', 'automattic-cron-control' ), number_format_i18n( $count ) ) . "\n\n" );
 
 			if ( $dry_run ) {
 				\WP_CLI::error( __( 'Stopping as this is a dry run!', 'automattic-cron-control' ) );
@@ -40,9 +40,9 @@ class One_Time_Fixers extends \WP_CLI_Command {
 
 		// Should we really destroy all this data?
 		if ( ! $dry_run ) {
-			\WP_CLI::line( __( 'This process will remove all data for the Cron Control plugin', 'automattic-cron-control' ) );
+			\WP_CLI::log( __( 'This process will remove all data for the Cron Control plugin', 'automattic-cron-control' ) );
 			\WP_CLI::confirm( __( 'Proceed?', 'automattic-cron-control' ) );
-			\WP_CLI::line( "\n" . __( 'Starting...', 'automattic-cron-control' ) . "\n" );
+			\WP_CLI::log( "\n" . __( 'Starting...', 'automattic-cron-control' ) . "\n" );
 		}
 
 		// Don't create new events while deleting events
@@ -56,7 +56,7 @@ class One_Time_Fixers extends \WP_CLI_Command {
 		// Remove the now-stale cache when actively run
 		if ( ! $dry_run ) {
 			\Automattic\WP\Cron_Control\_flush_internal_caches();
-			\WP_CLI::line( "\n" . sprintf( __( 'Cleared the %s cache', 'automattic-cron-control' ), 'Cron Control' ) );
+			\WP_CLI::log( "\n" . sprintf( __( 'Cleared the %s cache', 'automattic-cron-control' ), 'Cron Control' ) );
 		}
 
 		// Let event creation resume
@@ -83,12 +83,12 @@ class One_Time_Fixers extends \WP_CLI_Command {
 		}
 
 		// Provide some idea of what's going on
-		\WP_CLI::line( __( 'CRON CONTROL', 'automattic-cron-control' ) . "\n" );
+		\WP_CLI::log( __( 'CRON CONTROL', 'automattic-cron-control' ) . "\n" );
 
 		$count = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type = %s;", 'a8c_cron_ctrl_event' ) );
 
 		if ( $count > 1 ) {
-			\WP_CLI::line( sprintf( __( 'Found %s total items', 'automattic-cron-control' ), number_format_i18n( $count ) ) . "\n\n" );
+			\WP_CLI::log( sprintf( __( 'Found %s total items', 'automattic-cron-control' ), number_format_i18n( $count ) ) . "\n\n" );
 			\WP_CLI::confirm( __( 'Proceed?', 'automattic-cron-control' ) );
 		} else {
 			\WP_CLI::error( __( 'No entries found...aborting!', 'automattic-cron-control' ) );
@@ -96,9 +96,9 @@ class One_Time_Fixers extends \WP_CLI_Command {
 
 		// Should we really destroy all this data?
 		if ( ! $dry_run ) {
-			\WP_CLI::line( __( 'This process will remove all CPT data for the Cron Control plugin', 'automattic-cron-control' ) );
+			\WP_CLI::log( __( 'This process will remove all CPT data for the Cron Control plugin', 'automattic-cron-control' ) );
 			\WP_CLI::confirm( __( 'Proceed?', 'automattic-cron-control' ) );
-			\WP_CLI::line( "\n" . __( 'Starting...', 'automattic-cron-control' ) . "\n" );
+			\WP_CLI::log( "\n" . __( 'Starting...', 'automattic-cron-control' ) . "\n" );
 		}
 
 		// Determine how many batches this will take
@@ -107,7 +107,7 @@ class One_Time_Fixers extends \WP_CLI_Command {
 		} else {
 			$page_size = 250;
 		}
-		\WP_CLI::line( sprintf( __( 'Processing in batches of %s', 'automattic-cron-control' ), number_format_i18n( $page_size ) ) . "\n\n" );
+		\WP_CLI::log( sprintf( __( 'Processing in batches of %s', 'automattic-cron-control' ), number_format_i18n( $page_size ) ) . "\n\n" );
 
 		$pages     = 1;
 		$page      = 1;
@@ -118,20 +118,20 @@ class One_Time_Fixers extends \WP_CLI_Command {
 
 		// Let's get on with it
 		do {
-			\WP_CLI::line( "\n\n" . sprintf( __( 'Processing page %1$s of %2$s', 'automattic-cron-control' ), number_format_i18n( $page ), number_format_i18n( $pages ) ) . "\n" );
+			\WP_CLI::log( "\n\n" . sprintf( __( 'Processing page %1$s of %2$s', 'automattic-cron-control' ), number_format_i18n( $page ), number_format_i18n( $pages ) ) . "\n" );
 
 			$items = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s LIMIT %d,%d", 'a8c_cron_ctrl_event', absint( ( $page - 1 ) * $page_size ),$page_size ) );
 
 			// Nothing more to do
 			if ( ! is_array( $items ) || empty( $items ) ) {
-				\WP_CLI::line( __( 'No more items found!', 'automattic-cron-control' ) );
+				\WP_CLI::log( __( 'No more items found!', 'automattic-cron-control' ) );
 				break;
 			}
 
-			\WP_CLI::line( sprintf( __( 'Found %s items in this batch' ), number_format_i18n( count( $items ) ) ) );
+			\WP_CLI::log( sprintf( __( 'Found %s items in this batch' ), number_format_i18n( count( $items ) ) ) );
 
 			foreach ( $items as $item ) {
-				\WP_CLI::line( "{$item->ID}, `{$item->post_title}`" );
+				\WP_CLI::log( "{$item->ID}, `{$item->post_title}`" );
 
 				if ( ! $dry_run ) {
 					wp_delete_post( $item->ID, true );

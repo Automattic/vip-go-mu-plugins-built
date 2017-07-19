@@ -44,9 +44,9 @@ class Events extends \WP_CLI_Command {
 
 			// Count, noting if showing fewer than all
 			if ( $events['total_items'] <= $total_events_to_display ) {
-				\WP_CLI::line( sprintf( _n( 'Displaying one entry', 'Displaying all %s entries', $total_events_to_display, 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ) ) );
+				\WP_CLI::log( sprintf( _n( 'Displaying one entry', 'Displaying all %s entries', $total_events_to_display, 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ) ) );
 			} else {
-				\WP_CLI::line( sprintf( __( 'Displaying %1$s of %2$s entries, page %3$s of %4$s', 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ), number_format_i18n( $events['total_items'] ), number_format_i18n( $events['page'] ), number_format_i18n( $events['total_pages'] ) ) );
+				\WP_CLI::log( sprintf( __( 'Displaying %1$s of %2$s entries, page %3$s of %4$s', 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ), number_format_i18n( $events['total_items'] ), number_format_i18n( $events['page'] ), number_format_i18n( $events['total_pages'] ) ) );
 			}
 
 			// And reformat
@@ -117,7 +117,7 @@ class Events extends \WP_CLI_Command {
 			\WP_CLI::error( sprintf( __( 'Failed to locate event %d. Please confirm that the entry exists and that the ID is that of an event.', 'automattic-cron-control' ), $args[0] ) );
 		}
 
-		\WP_CLI::line( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event->action, $event->instance ) );
+		\WP_CLI::log( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event->action, $event->instance ) );
 
 		// Proceed?
 		$now = time();
@@ -149,8 +149,6 @@ class Events extends \WP_CLI_Command {
 	 * Retrieve list of events, and related data, for a given request
 	 */
 	private function get_events( $args, $assoc_args ) {
-		global $wpdb;
-
 		// Accept a status argument, with a default
 		$status = 'pending';
 		if ( isset( $assoc_args['status'] ) ) {
@@ -360,7 +358,7 @@ class Events extends \WP_CLI_Command {
 			\WP_CLI::error( __( 'Invalid event ID', 'automattic-cron-control' ) );
 		}
 
-		\WP_CLI::line( __( 'Locating event...', 'automattic-cron-control' ) . "\n" );
+		\WP_CLI::log( __( 'Locating event...', 'automattic-cron-control' ) . "\n" );
 
 		// Look up full event object
 		$event = \Automattic\WP\Cron_Control\get_event_by_id( $jid );
@@ -371,10 +369,10 @@ class Events extends \WP_CLI_Command {
 				\WP_CLI::warning( __( 'This is an event created by the Cron Control plugin. It will recreated automatically.', 'automattic-cron-control' ) );
 			}
 
-			\WP_CLI::line( sprintf( __( 'Execution time: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $event->timestamp ) ) );
-			\WP_CLI::line( sprintf( __( 'Action: %s', 'automattic-cron-control' ), $event->action ) );
-			\WP_CLI::line( sprintf( __( 'Instance identifier: %s', 'automattic-cron-control' ), $event->instance ) );
-			\WP_CLI::line( '' );
+			\WP_CLI::log( sprintf( __( 'Execution time: %s GMT', 'automattic-cron-control' ), date( TIME_FORMAT, $event->timestamp ) ) );
+			\WP_CLI::log( sprintf( __( 'Action: %s', 'automattic-cron-control' ), $event->action ) );
+			\WP_CLI::log( sprintf( __( 'Instance identifier: %s', 'automattic-cron-control' ), $event->instance ) );
+			\WP_CLI::log( '' );
 			\WP_CLI::confirm( sprintf( __( 'Are you sure you want to delete this event?', 'automattic-cron-control' ) ) );
 
 			// Try to delete the item and provide some relevant output
@@ -415,13 +413,13 @@ class Events extends \WP_CLI_Command {
 		$assoc_args['limit'] = 50;
 
 		// Gather events
-		\WP_CLI::line( __( 'Gathering events...', 'automattic-cron-control' ) );
+		\WP_CLI::log( __( 'Gathering events...', 'automattic-cron-control' ) );
 
 		$events_to_delete = array();
 
 		$events = $this->get_events( $args, $assoc_args );
 
-		\WP_CLI::line( sprintf( _n( 'Found one event to check', 'Found %s events to check', $events['total_items'], 'automattic-cron-control' ), number_format_i18n( $events['total_items'] ) ) );
+		\WP_CLI::log( sprintf( _n( 'Found one event to check', 'Found %s events to check', $events['total_items'], 'automattic-cron-control' ), number_format_i18n( $events['total_items'] ) ) );
 
 		$search_progress = \WP_CLI\Utils\make_progress_bar( sprintf( __( 'Searching events for those with the action `%s`', 'automattic-cron-control' ), $action ), $events['total_items'] );
 
@@ -452,7 +450,7 @@ class Events extends \WP_CLI_Command {
 
 		$search_progress->finish();
 
-		\WP_CLI::line( '' );
+		\WP_CLI::log( '' );
 
 		// Nothing more to do
 		if ( empty( $events_to_delete ) ) {
@@ -462,7 +460,7 @@ class Events extends \WP_CLI_Command {
 		// List the items to remove
 		$total_to_delete = count( $events_to_delete );
 
-		\WP_CLI::line( sprintf( _n( 'Found one event with action `%2$s`:', 'Found %1$s events with action `%2$s`:', $total_to_delete, 'automattic-cron-control' ), number_format_i18n( $total_to_delete ), $action ) );
+		\WP_CLI::log( sprintf( _n( 'Found one event with action `%2$s`:', 'Found %1$s events with action `%2$s`:', $total_to_delete, 'automattic-cron-control' ), number_format_i18n( $total_to_delete ), $action ) );
 
 		if ( $total_to_delete <= $assoc_args['limit'] ) {
 			// Sort results
@@ -482,7 +480,7 @@ class Events extends \WP_CLI_Command {
 			\WP_CLI::warning( sprintf( __( 'Events are not displayed as there are more than %s to remove', 'automattic-cron-control' ), number_format_i18n( $assoc_args['limit'] ) ) );
 		}
 
-		\WP_CLI::line( '' );
+		\WP_CLI::log( '' );
 		\WP_CLI::confirm( _n( 'Are you sure you want to delete this event?', 'Are you sure you want to delete these events?', $total_to_delete, 'automattic-cron-control' ) );
 
 		// Remove the items
@@ -522,7 +520,7 @@ class Events extends \WP_CLI_Command {
 		\Automattic\WP\Cron_Control\_resume_event_creation();
 
 		// List the removed items
-		\WP_CLI::line( "\n" . __( 'RESULTS:', 'automattic-cron-control' ) );
+		\WP_CLI::log( "\n" . __( 'RESULTS:', 'automattic-cron-control' ) );
 
 		if ( 1 === $total_to_delete && 1 === $events_deleted_count ) {
 			\WP_CLI::success( sprintf( __( 'Deleted one event: %d', 'automattic-cron-control' ), $events_deleted[0]['ID'] ) );
@@ -544,10 +542,10 @@ class Events extends \WP_CLI_Command {
 				} );
 
 				if ( count( $events_deleted ) > 0 ) {
-					\WP_CLI::line( "\n" . __( 'Events that couldn\'t be deleted:', 'automattic-cron-control' ) );
+					\WP_CLI::log( "\n" . __( 'Events that couldn\'t be deleted:', 'automattic-cron-control' ) );
 				}
 			} else {
-				\WP_CLI::line( "\n" . __( 'Events deleted:', 'automattic-cron-control' ) );
+				\WP_CLI::log( "\n" . __( 'Events deleted:', 'automattic-cron-control' ) );
 			}
 
 			// Don't display a table if there's nothing to display

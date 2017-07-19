@@ -268,17 +268,29 @@ class Events extends Singleton {
 		$this->update_event_record( $event );
 
 		// Run the event
-		do_action_ref_array( $event->action, $event->args );
+		try {
+			do_action_ref_array( $event->action, $event->args );
+		} catch ( \Throwable $t ) {
+			$return = array(
+				'success' => false,
+				'message' => sprintf( __( 'Callback for job with action `%1$s` and arguments `%2$s` raised a Throwable - %3$s in %4$s on line %5$d.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ), $t->getMessage(), $t->getFile(), $t->getLine() ),
+			);
+		}
 
 		// Free process for the next event, unless it wasn't set to begin with
 		if ( ! $force ) {
 			$this->do_lock_cleanup( $event );
 		}
 
-		return array(
-			'success' => true,
-			'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ),
-		);
+		// Callback didn't trigger an exception, indicating it succeeded
+		if ( ! isset( $return ) ) {
+			$return = array(
+				'success' => true,
+				'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ),
+			);
+		}
+
+		return $return;
 	}
 
 	/**
