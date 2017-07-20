@@ -14,6 +14,8 @@ class Events extends Singleton {
 
 	private $concurrent_action_whitelist = array();
 
+	private $running_event = null;
+
 	/**
 	 * Register hooks
 	 */
@@ -261,6 +263,10 @@ class Events extends Singleton {
 			if ( ! $this->can_run_event( $event ) ) {
 				return new \WP_Error( 'no-free-threads', sprintf( __( 'No resources available to run the job with action action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ), array( 'status' => 429, ) );
 			}
+
+			// Free locks should event throw uncatchable error
+			$this->running_event = $event;
+			add_action( 'shutdown', array( $this, 'do_lock_cleanup_on_shutdown' ) );
 		}
 
 		// Mark the event completed, and reschedule if desired
@@ -271,18 +277,27 @@ class Events extends Singleton {
 		try {
 			do_action_ref_array( $event->action, $event->args );
 		} catch ( \Throwable $t ) {
+			// Note that timeouts and memory exhaustion do not invoke this block
+			// Instead, those locks are freed in `do_lock_cleanup_on_shutdown()`
+
+			do_action( 'a8c_cron_control_event_threw_catchable_error', $event, $t );
+
 			$return = array(
 				'success' => false,
 				'message' => sprintf( __( 'Callback for job with action `%1$s` and arguments `%2$s` raised a Throwable - %3$s in %4$s on line %5$d.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ), $t->getMessage(), $t->getFile(), $t->getLine() ),
 			);
 		}
 
-		// Free process for the next event, unless it wasn't set to begin with
+		// Free locks for the next event, unless they weren't set to begin with
 		if ( ! $force ) {
+			// If we got this far, there's no uncaught error to handle
+			$this->running_event = null;
+			remove_action( 'shutdown', array( $this, 'do_lock_cleanup_on_shutdown' ) );
+
 			$this->do_lock_cleanup( $event );
 		}
 
-		// Callback didn't trigger an exception, indicating it succeeded
+		// Callback didn't trigger a Throwable, indicating it succeeded
 		if ( ! isset( $return ) ) {
 			$return = array(
 				'success' => true,
@@ -298,7 +313,7 @@ class Events extends Singleton {
 	 *
 	 * Used to ensure only one instance of a particular event, such as `wp_version_check` runs at one time
 	 *
-	 * @param $event array Event data
+	 * @param $event object Event data
 	 */
 	private function prime_event_action_lock( $event ) {
 		Lock::prime_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
@@ -433,6 +448,23 @@ class Events extends Singleton {
 
 		// Either event doesn't recur, or the interval couldn't be determined
 		delete_event( $event->timestamp, $event->action, $event->instance );
+	}
+
+	/**
+	 * If event execution throws uncatchable error, free locks
+	 *
+	 * Covers situations such as timeouts and memory exhaustion, which aren't \Throwable errors
+	 *
+	 * Under normal conditions, this callback isn't hooked to `shutdown`
+	 */
+	public function do_lock_cleanup_on_shutdown() {
+		if ( is_null( $this->running_event ) ) {
+			return;
+		}
+
+		do_action( 'a8c_cron_control_freeing_event_locks_after_uncaught_error', $this->running_event );
+
+		$this->do_lock_cleanup( $this->running_event );
 	}
 }
 
