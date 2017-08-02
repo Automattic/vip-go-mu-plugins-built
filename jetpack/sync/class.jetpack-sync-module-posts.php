@@ -46,7 +46,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'export_wp', $callable );
-		add_action( 'jetpack_sync_import_end', $callable );
+		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
 
 		// Movable type, RSS, Livejournal
 		add_action( 'import_done', array( $this, 'sync_import_done' ) );
@@ -60,6 +60,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $this->import_end ) {
 			return;
 		}
+
+		$importer_name = $this->get_importer_name( $importer );
+
 		/**
 		 * Sync Event that tells that the import is finished
 		 *
@@ -67,7 +70,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * $param string $importer
 		 */
-		do_action( 'jetpack_sync_import_end', $importer );
+		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
 		$this->import_end = true;
 	}
 
@@ -92,8 +95,15 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$importer = 'wordpress';
 		}
 
+		$importer_name = $this->get_importer_name( $importer );
+
 		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
-		do_action( 'jetpack_sync_import_end', $importer );
+		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
+	}
+
+	private function get_importer_name( $importer ) {
+		$importers = get_importers();
+		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
 	}
 
 	private function is_importer( $backtrace, $class_name ) {
@@ -159,8 +169,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post         = $args[1];
 		$update       = $args[2];
 		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
+		$just_published = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save );
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -328,7 +339,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$is_auto_save = false;
 		}
 
-		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save );
+		if ( ! in_array( $post_ID, $this->just_published ) ) {
+			$just_published = false;
+		} else {
+			$just_published = true;
+		}
+
+		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}
@@ -343,6 +360,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
+		$post_flags = array(
+			'post_type' => $post->post_type
+		);
+
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -351,7 +372,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array post flags that are added to the post
 		 * @param mixed $post WP_POST object
 		 */
-		$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
 		/**
 		 * Action that gets synced when a post type gets published.
@@ -383,7 +404,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @param int $post_ID
 		 */
-		do_action( 'jetpack_trashed_post', $post_ID );
+		do_action( 'jetpack_trashed_post', $post_ID, $post->post_type );
 
 		$this->just_trashed = array_diff( $this->just_trashed, array( $post_ID ) );
 	}
