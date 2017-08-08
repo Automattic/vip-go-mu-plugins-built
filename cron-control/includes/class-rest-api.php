@@ -50,8 +50,17 @@ class REST_API extends Singleton {
 	 * For monitoring and alerting, also provides the total number of pending events
 	 */
 	public function get_events() {
-		// Provides `events` and `endpoint` keys needed to run events
-		$response_array = Events::instance()->get_events();
+		$response_array = array(
+			'events'               => array(),
+			'orchestrate_disabled' => Events::instance()->run_disabled(),
+		);
+
+		// Include events only when automatic execution is enabled
+		if ( 0 === $response_array['orchestrate_disabled'] ) {
+			$response_array = array_merge( $response_array, Events::instance()->get_events() );
+		}
+
+		$response_array['endpoint'] = get_rest_url( null, self::API_NAMESPACE . '/' . self::ENDPOINT_RUN );
 
 		// Provide pending event count for monitoring etc
 		$response_array['total_events_pending'] = count_events_by_status( Events_Store::STATUS_PENDING );
@@ -63,6 +72,18 @@ class REST_API extends Singleton {
 	 * Execute a specific event
 	 */
 	public function run_event( $request ) {
+		// Stop if event execution is blocked
+		$run_disabled = Events::instance()->run_disabled();
+		if ( 0 !== $run_disabled ) {
+			if ( 1 === $run_disabled ) {
+				$message = __( 'Automatic event execution is disabled indefinitely.', 'automattic-cron-control' );
+			} else {
+				$message = sprintf( __( 'Automatic event execution is disabled until %s (%d).', 'automattic-cron-control' ), date( 'Y-m-d H:i:s T', $run_disabled ), $run_disabled );
+			}
+
+			return rest_ensure_response( new \WP_Error( 'automatic-execution-disabled', $message, array( 'status' => 403, ) ) );
+		}
+
 		// Parse request for details needed to identify the event to execute
 		// `$timestamp` is, unsurprisingly, the Unix timestamp the event is scheduled for
 		// `$action` is the md5 hash of the action used when the event is registered

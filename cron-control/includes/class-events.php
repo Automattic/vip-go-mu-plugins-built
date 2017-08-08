@@ -12,6 +12,8 @@ class Events extends Singleton {
 	 */
 	const LOCK = 'run-events';
 
+	const DISABLE_RUN_OPTION = 'a8c_cron_control_disable_run';
+
 	private $concurrent_action_whitelist = array();
 
 	private $running_event = null;
@@ -45,7 +47,7 @@ class Events extends Singleton {
 		}
 
 		// Flag is used in many contexts, so should be set for all of our requests, regardless of the action
-		define( 'DOING_CRON', true );
+		set_doing_cron();
 
 		// When running events, allow for long-running ones, and non-blocking trigger requests
 		if ( REST_API::ENDPOINT_RUN === $endpoint ) {
@@ -120,10 +122,10 @@ class Events extends Singleton {
 			$current_events = $this->reduce_queue( $current_events );
 		}
 
-		// Combine with Internal Events and return necessary data to process the event queue
+		// Combine with Internal Events
+		// TODO: un-nest array, which is nested for legacy reasons
 		return array(
-			'events'   => array_merge( $current_events, $internal_events ),
-			'endpoint' => get_rest_url( null, REST_API::API_NAMESPACE . '/' . REST_API::ENDPOINT_RUN ),
+			'events' => array_merge( $current_events, $internal_events ),
 		);
 	}
 
@@ -465,6 +467,46 @@ class Events extends Singleton {
 		do_action( 'a8c_cron_control_freeing_event_locks_after_uncaught_error', $this->running_event );
 
 		$this->do_lock_cleanup( $this->running_event );
+	}
+
+	/**
+	 * Return status of automatic event execution
+	 *
+	 * @return int 0 if run is enabled, 1 if run is disabled indefinitely, otherwise timestamp when execution will resume
+	 */
+	public function run_disabled() {
+		$disabled = (int) get_option( self::DISABLE_RUN_OPTION, 0 );
+
+		if ( $disabled <= 1 || $disabled > time() ) {
+			return $disabled;
+		}
+
+		$this->update_run_status( 0 );
+		return 0;
+	}
+
+	/**
+	 * Set automatic execution status
+	 *
+	 * 0 if run is enabled, 1 if run is disabled indefinitely, otherwise timestamp when execution will resume
+	 *
+	 * @param int $new_status
+	 * @return bool
+	 */
+	public function update_run_status( $new_status ) {
+		$new_status = absint( $new_status );
+
+		// Don't store a past timestamp
+		if ( $new_status > 1 && $new_status < time() ) {
+			return false;
+		}
+
+		// Nothing to do, but `update_option()` will return false
+		if ( $new_status === $this->run_disabled() ) {
+			return false;
+		}
+
+		return update_option( self::DISABLE_RUN_OPTION, $new_status );
 	}
 }
 

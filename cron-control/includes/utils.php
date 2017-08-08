@@ -115,3 +115,16 @@ function parse_request() {
 
 	return $parsed_request;
 }
+
+/**
+ * Consistently set flag Core uses to indicate cron execution is ongoing
+ */
+function set_doing_cron() {
+	if ( ! defined( 'DOING_CRON' ) ) {
+		define( 'DOING_CRON', true );
+	}
+
+	// WP 4.8 introduced the `wp_doing_cron()` function and filter
+	// These can be used to override the `DOING_CRON` constant, which may cause problems for plugin's requests
+	add_filter( 'wp_doing_cron', '__return_true', 99999 );
+}

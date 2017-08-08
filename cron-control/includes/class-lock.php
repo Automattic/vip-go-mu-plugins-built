@@ -15,7 +15,7 @@ class Lock {
 	public static function check_lock( $lock, $limit = null, $timeout = null ) {
 		// Timeout, should a process die before its lock is freed
 		if ( ! is_numeric( $timeout ) ) {
-			$timeout = LOCK_DEFULT_TIMEOUT_IN_MINUTES * \MINUTE_IN_SECONDS;
+			$timeout = LOCK_DEFAULT_TIMEOUT_IN_MINUTES * \MINUTE_IN_SECONDS;
 		}
 
 		// Check for, and recover from, deadlock

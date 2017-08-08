@@ -128,9 +128,7 @@ class Events extends \WP_CLI_Command {
 		\WP_CLI::confirm( sprintf( __( 'Run this event?', 'automattic-cron-control' ) ) );
 
 		// Environment preparation
-		if ( ! defined( 'DOING_CRON' ) ) {
-			define( 'DOING_CRON', true );
-		}
+		\Automattic\WP\Cron_Control\set_doing_cron();
 
 		// Run the event
 		$run = \Automattic\WP\Cron_Control\run_event( $event->timestamp, $event->action_hashed, $event->instance, true );

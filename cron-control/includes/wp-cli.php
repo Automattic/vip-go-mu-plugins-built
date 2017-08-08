@@ -9,23 +9,30 @@ if ( ! defined( '\WP_CLI' ) || ! \WP_CLI ) {
 /**
  * Prepare environment
  */
-if ( ! \Automattic\WP\Cron_Control\Events_Store::is_installed() ) {
+function prepare_environment() {
 	// Only interfere with `cron-control` commands
 	$cmd = \WP_CLI::get_runner()->arguments;
 	if ( ! is_array( $cmd ) || ! isset( $cmd['0'] ) ) {
 		return;
 	}
 
-	$cmd = $cmd[0];
-	if ( false === strpos( $cmd, 'cron-control' ) ) {
+	if ( false === strpos( $cmd[0], 'cron-control' ) ) {
 		return;
 	}
 
 	// Create table and die, to ensure command runs with proper state
-	\Automattic\WP\Cron_Control\Events_Store::instance()->cli_create_tables();
+	if ( ! \Automattic\WP\Cron_Control\Events_Store::is_installed() ) {
+		\Automattic\WP\Cron_Control\Events_Store::instance()->cli_create_tables();
 
-	\WP_CLI::error( __( 'Cron Control installation completed. Please try again.', 'automattic-cron-control' ) );
+		\WP_CLI::error( __( 'Cron Control installation completed. Please try again.', 'automattic-cron-control' ) );
+	}
+
+	// Set DOING_CRON when appropriate
+	if ( isset( $cmd[1] ) && 'orchestrate' === $cmd[1] ) {
+		\Automattic\WP\Cron_Control\set_doing_cron();
+	}
 }
+prepare_environment();
 
 /**
  * Consistent time format across commands
@@ -60,4 +67,6 @@ require __DIR__ . '/wp-cli/class-cache.php';
 require __DIR__ . '/wp-cli/class-events.php';
 require __DIR__ . '/wp-cli/class-lock.php';
 require __DIR__ . '/wp-cli/class-one-time-fixers.php';
+require __DIR__ . '/wp-cli/class-orchestrate.php';
+require __DIR__ . '/wp-cli/class-orchestrate-runner.php';
 require __DIR__ . '/wp-cli/class-rest-api.php';
