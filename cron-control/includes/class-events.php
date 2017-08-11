@@ -501,11 +501,6 @@ class Events extends Singleton {
 			return false;
 		}
 
-		// Nothing to do, but `update_option()` will return false
-		if ( $new_status === $this->run_disabled() ) {
-			return false;
-		}
-
 		return update_option( self::DISABLE_RUN_OPTION, $new_status );
 	}
 }
