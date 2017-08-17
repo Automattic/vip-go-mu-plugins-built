@@ -169,10 +169,6 @@ class WPCOM_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
-			'browsi'       => array(
-				'name'        => 'Brow.si',
-				'description' => 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
-			),
 			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
 				'description' => 'Get a free trial to see your site\'s real-time data.',
@@ -198,65 +194,13 @@ class WPCOM_VIP_Plugins_UI {
 				'name'        => 'Janrain',
 				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
 			),
-			'jwplayer' => array(
-				'name'        => 'JW Player',
-				'description' => 'The World’s Most Popular Video Player.',
-			),
-			'livefyre-apps'   => array(
-				'name'        => 'Livefyre',
-				'description' => 'Replace comments with live conversations connected to the social web.',
-			),
-			'mediapass'     => array(
-				'name'        => 'MediaPass Subscriptions',
-				'description' => 'Monetize your content with recurring subscriptions made easy.',
-			),
 			'postrelease-vip'        => array(
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
 			),
-			'newscred'        => array(
-				'name'        => 'NewsCred',
-				'description' => 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
-			),
-			'ooyala'        => array(
-				'name'        => 'Ooyala',
-				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
-			),
 			'wp-parsely'        => array(
 				'name'        => 'Parsely',
 				'description' => 'Start a trial to finally see your audience clearly.',
-			),
-			'publishthis'        => array(
-				'name'        => 'PublishThis',
-				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
-			),
-			'sailthru'    => array(
-				'name'        => 'Sailthru for WordPress',
-				'description' => 'Sailthru is the leading provider of personalized marketing communications.',
-			),
-			'simple-reach-analytics'    => array(
-				'name'        => 'SimpleReach',
-				'description' => 'Content ROI made simple.',
-			),
-			'skyword'    => array(
-				'name'        => 'Skyword',
-				'description' => 'Moving Stories. Forward.',
-			),
-			'socialflow'    => array(
-				'name'        => 'SocialFlow',
-				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
-			),
-			'storify'    => array(
-				'name'        => 'Storify',
-				'description' => 'Easily add social media to every blog post with Storify.',
-			),
-			'thePlatform'   => array(
-				'name' 		  => 'thePlatform',
-				'description' => 'Easily publish and manage your videos in WordPress using thePlatform’s mpx.',
-			),
-			'tinypass'   => array(
-				'name' 		  => 'Tinypass',
-				'description' => 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
 			),
 		);
 	}
@@ -527,11 +471,6 @@ class WPCOM_VIP_Plugins_UI {
 			} elseif ( 'manual' == $is_active ) {
 				$actions['deactivate-manually'] = '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file">' . __( "Enabled via your theme's code" ) . '</span>';
 			}
-		}
-
-		// Only show activation links if they aren't disabled
-		elseif ( ! $this->activation_disabled ) {
-			$actions['activate'] = '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_activation_link( $plugin ) ) . '" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . __( 'Activate' ) . '</a>';
 		}
 
 		return $actions;

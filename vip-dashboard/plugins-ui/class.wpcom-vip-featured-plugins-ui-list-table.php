@@ -111,10 +111,6 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 						} elseif ( 'manual' === $is_active ) {
 							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file" class="fp-text">' . esc_html__( "Enabled via your theme's code" ) . '</span>';
 						}
-					} elseif ( ! $this->activation_disabled ) {
-						echo '<a href="' . esc_url( WPCOM_VIP_Plugins_UI()->get_plugin_activation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . esc_html__( 'Activate Plugin' ) . '</a>';
-						echo '<span class="fp-text">' . esc_html__( 'Activating Plugin' ) . '</span>';
-
 					}
 					?>
 				</div>
@@ -145,7 +141,11 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 			<nav id="menu">
 				<input id="search" type="search" value="" placeholder="<?php esc_attr_e( 'Filter Plugins' ); ?>">
 			</nav>
-
+				
+			<div class="error">
+				<p>The VIP shared plugins UI will be deprecated in the near future and replaced with the core plugins screen. <em>We recommend you add any shared plugins to the <code>plugins</code> directory in your site GitHub repository, and activate from there; please <a href="https://wordpressvip.zendesk.com/hc/en-us" target="_blank">contact us if you have any questions</a>. <a href=" http://lobby.vip.wordpress.com/2017/08/11/shared-plugins-on-vip-go/" target="_blank">Find out more on the VIP lobby</a>.</p>
+			</div>
+			
 			<section id="active">
 
 				<h3><?php esc_html_e( 'Active Plugins' ); ?></h3>
