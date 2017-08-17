@@ -191,9 +191,10 @@ class Events extends \WP_CLI_Command {
 
 		// Query
 		$items = \Automattic\WP\Cron_Control\get_events( array(
-			'status'   => $event_status,
-			'quantity' => $limit,
-			'page'     => $page,
+			'status'     => $event_status,
+			'quantity'   => $limit,
+			'page'       => $page,
+			'force_sort' => true,
 		) );
 
 		// Bail if we don't get results

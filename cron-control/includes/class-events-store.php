@@ -374,8 +374,15 @@ class Events_Store extends Singleton {
 			$offset = 0;
 		}
 
-		// Do not sort, otherwise index isn't used
-		$jobs = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$this->get_table_name()} WHERE status = %s LIMIT %d,%d;", $args['status'], $offset, $args['quantity'] ), 'OBJECT' );
+		// Avoid sorting whenever possible, otherwise filesort is used
+		// Generally only necessary in CLI commands for pagination, as full list of events is usually required
+		if ( isset( $args['force_sort'] ) && true === $args['force_sort'] ) {
+			$query = $wpdb->prepare( "SELECT * FROM {$this->get_table_name()} WHERE status = %s ORDER BY timestamp ASC LIMIT %d,%d;", $args['status'], $offset, $args['quantity'] );
+		} else {
+			$query = $wpdb->prepare( "SELECT * FROM {$this->get_table_name()} WHERE status = %s LIMIT %d,%d;", $args['status'], $offset, $args['quantity'] );
+		}
+
+		$jobs = $wpdb->get_results( $query, 'OBJECT' );
 
 		if ( is_array( $jobs ) ) {
 			$jobs = array_map( array( $this, 'format_job' ), $jobs );
