@@ -143,7 +143,7 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 			</nav>
 				
 			<div class="error">
-				<p>The VIP shared plugins UI will be deprecated in the near future and replaced with the core plugins screen. <em>We recommend you add any shared plugins to the <code>plugins</code> directory in your site GitHub repository, and activate from there; please <a href="https://wordpressvip.zendesk.com/hc/en-us" target="_blank">contact us if you have any questions</a>. <a href=" http://lobby.vip.wordpress.com/2017/08/11/shared-plugins-on-vip-go/" target="_blank">Find out more on the VIP lobby</a>.</p>
+				<p>The VIP shared plugins UI will be deprecated in the near future and replaced with the core plugins screen. <em>We recommend you add any shared plugins to the <code>plugins</code> directory in your site GitHub repository, and activate from there;</em> please <a href="https://wordpressvip.zendesk.com/hc/en-us" target="_blank">contact us if you have any questions</a>. <a href="http://wp.me/pPtWC-29J" target="_blank">Find out more on the VIP lobby</a>.</p>
 			</div>
 			
 			<section id="active">
