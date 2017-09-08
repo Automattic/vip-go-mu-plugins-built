@@ -186,11 +186,8 @@ class Grunion_Contact_Form_Plugin {
 		 *	}
 		 *	add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		if ( is_rtl() ) {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/rtl/grunion-rtl.css', array(), JETPACK__VERSION );
-		} else {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
-		}
+		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
+		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 	}
 
 	/**
@@ -1506,7 +1503,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			/**
-			 * Filter the message returned after a successfull contact form submission.
+			 * Filter the message returned after a successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -2133,7 +2130,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$message = join( $message, '' );
 
 		/**
-		 * Filters the message sent via email after a successfull form submission.
+		 * Filters the message sent via email after a successful form submission.
 		 *
 		 * @module contact-form
 		 *
@@ -2170,7 +2167,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if (
 			$is_spam !== true &&
 			/**
-			 * Filter to choose whether an email should be sent after each successfull contact form submission.
+			 * Filter to choose whether an email should be sent after each successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -2267,7 +2264,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	function add_name_to_address( $address ) {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
-			$address = sprintf( '"%s" <%s>', $address, $address );
+			$address_parts = explode( '@', $address );
+			$address = sprintf( '"%s" <%s>', $address_parts[0], $address );
 		}
 
 		return $address;

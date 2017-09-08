@@ -244,6 +244,11 @@ function doStatic( done ) {
 
 /* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
 admincss = [
+	// Non-concatenated, non-admin styles to be processed
+	'modules/custom-post-types/comics/comics.css',
+	'modules/shortcodes/css/recipes.css',
+	'modules/shortcodes/css/recipes-print.css',
+
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
 	'modules/contact-form/css/editor-inline-editing-style.css',
@@ -254,8 +259,6 @@ admincss = [
 	'modules/custom-css/custom-css/css/codemirror.css',
 	'modules/custom-css/custom-css/css/css-editor.css',
 	'modules/custom-css/custom-css/css/use-codemirror.css',
-	'modules/omnisearch/omnisearch.css',
-	'modules/omnisearch/omnisearch-jetpack.css',
 	'modules/post-by-email/post-by-email.css',
 	'modules/publicize/assets/publicize.css',
 	'modules/protect/protect-dashboard-widget.css',

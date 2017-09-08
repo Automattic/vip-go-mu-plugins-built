@@ -1561,6 +1561,8 @@ a.dops-notice__action {
     color: white;
     display: none;
     padding: 3px 3px 4px 4px; }
+    .dops-banner__icons .dops-banner__icon-circle .gridicon {
+      margin-bottom: -7px; }
   @media (min-width: 481px) {
     .dops-banner__icons {
       -ms-flex-align: center;

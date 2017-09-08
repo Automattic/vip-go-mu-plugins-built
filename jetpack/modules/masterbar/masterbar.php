@@ -122,7 +122,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array(), JETPACK__VERSION );
+		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
 	}
 
 	function wpcom_static_url( $file ) {
@@ -643,9 +643,41 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
 			'id'     => 'publish-header',
-			'title'  => esc_html_x( 'Publish', 'admin bar menu group label', 'jetpack' ),
+			'title'  => esc_html_x( 'Manage', 'admin bar menu group label', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
+			),
+		) );
+
+		// Pages
+		$pages_title = $this->create_menu_item_pair(
+			array(
+				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
+				'id'    => 'wp-admin-bar-edit-page',
+				'label' => esc_html__( 'Site Pages', 'jetpack' ),
+			),
+			array(
+				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
+				'id'    => 'wp-admin-bar-new-page',
+				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+			)
+		);
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			$pages_title = $this->create_menu_item_anchor(
+				'ab-item ab-primary mb-icon',
+				'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
+				esc_html__( 'Site Pages', 'jetpack' ),
+				'wp-admin-bar-edit-page'
+			);
+		}
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'publish',
+			'id'     => 'new-page',
+			'title'  => $pages_title,
+			'meta'   => array(
+				'class' => 'inline-action',
 			),
 		) );
 
@@ -681,37 +713,18 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
-		// Pages
-		$pages_title = $this->create_menu_item_pair(
-			array(
-				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-edit-page',
-				'label' => esc_html__( 'Pages', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-page',
-				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
-			)
-		);
-
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			$pages_title = $this->create_menu_item_anchor(
-				'ab-item ab-primary mb-icon',
-				'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
-				esc_html__( 'Pages', 'jetpack' ),
-				'wp-admin-bar-edit-page'
-			);
+		// Comments
+		if ( current_user_can( 'moderate_comments' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'publish',
+				'id'     => 'comments',
+				'title'  => __( 'Comments' ),
+				'href'   => 'https://wordpress.com/comments/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
 		}
-
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'publish',
-			'id'     => 'new-page',
-			'title'  => $pages_title,
-			'meta'   => array(
-				'class' => 'inline-action',
-			),
-		) );
 
 		// Testimonials
 		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
