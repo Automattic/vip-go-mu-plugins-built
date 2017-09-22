@@ -13,7 +13,7 @@ class Jetpack_Force_2FA {
 	private $role;
 
 	function __construct() {
-		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
+		add_action( 'after_setup_theme', array( $this, 'plugins_loaded' ) );
 	}
 
 	function plugins_loaded() {
