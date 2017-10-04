@@ -52,6 +52,7 @@ class Jetpack_Options {
 				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
+				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
 			);
 
 		case 'private' :
@@ -63,6 +64,7 @@ class Jetpack_Options {
 
 		case 'network' :
 			return array(
+				'onboarding',                   // (string) Auth token to be used in the onboarding connection flow
 				'file_data'                     // (array) List of absolute paths to all Jetpack modules
 			);
 		}
@@ -185,7 +187,7 @@ class Jetpack_Options {
 		$is_network_option = self::is_network_option( $jetpack_name );
 		$value = $is_network_option ? get_site_option( $name ) : get_option( $name );
 
-		if ( $value === false && $default !== false ) {
+		if ( false === $value && false !== $default ) {
 			if ( $is_network_option ) {
 				update_site_option( $name, $default );
 			} else {

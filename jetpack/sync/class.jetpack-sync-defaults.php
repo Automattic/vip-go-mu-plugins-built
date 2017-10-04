@@ -191,6 +191,7 @@ class Jetpack_Sync_Defaults {
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
+		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
 	);
 
 	public static function get_callable_whitelist() {

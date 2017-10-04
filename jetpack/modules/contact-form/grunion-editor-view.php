@@ -83,7 +83,7 @@ class Grunion_Editor_View {
 			)
 		) );
 
-		add_editor_style( plugins_url( 'css/editor-style.css', __FILE__ ) );
+		add_editor_style( plugin_dir_url( __FILE__ ) . '/css/editor-style.css' );
 	}
 
 	/**
@@ -171,7 +171,7 @@ class Grunion_Editor_View {
 <script type="text/html" id="tmpl-grunion-field-date">
 	<div>
 		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
-		<input type='date' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
+		<input type='text' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
 	</div>
 </script>
 
@@ -201,6 +201,7 @@ class Grunion_Editor_View {
 			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack' ),
 			'select'            => __( 'Drop down', 'jetpack' ),
 			'radio'             => __( 'Radio', 'jetpack' ),
+			'date'              => __( 'Date', 'jetpack' ),
 		);
 		?>
 		<div class="grunion-type-options">

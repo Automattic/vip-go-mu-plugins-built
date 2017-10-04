@@ -89,6 +89,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-logo-endpo
 // Homepage Settings
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
 
+// Widgets
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-add-widget-endpoint.php' );
+
 // **********
 // v1.2
 // **********
@@ -108,3 +111,10 @@ $json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
 
 // This files instantiates the endpoints
 require_once( $json_jetpack_endpoints_dir . 'json-api-jetpack-endpoints.php' );
+
+// **********
+// v1.3
+// **********
+
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-v1-3-endpoint.php' );
+
