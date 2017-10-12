@@ -1,11 +1,17 @@
 <?php
+/**
+ * Support User Role
+ */
+
+namespace Automattic\VIP\Support_User;
+use WP_User;
 
 /**
  * Provides the VIP Support role
  *
  * @package WPCOM_VIP_Support_Role
  **/
-class WPCOM_VIP_Support_Role {
+class Role {
 
 	/**
 	 * The name of the ACTIVE VIP Support role
@@ -25,17 +31,17 @@ class WPCOM_VIP_Support_Role {
 
 	/**
 	 * Initiate an instance of this class if one doesn't
-	 * exist already. Return the VipSupportRole instance.
+	 * exist already. Return the Role instance.
 	 *
 	 * @access @static
 	 *
-	 * @return WPCOM_VIP_Support_Role object The instance of WPCOM_VIP_Support_Role
+	 * @return Role object The instance of Role
 	 */
 	static public function init() {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new WPCOM_VIP_Support_Role;
+			$instance = new Role;
 		}
 
 		return $instance;
@@ -165,4 +171,4 @@ class WPCOM_VIP_Support_Role {
 	}
 }
 
-WPCOM_VIP_Support_Role::init();
+Role::init();

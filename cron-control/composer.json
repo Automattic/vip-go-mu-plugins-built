@@ -1,0 +1,11 @@
+{
+  "name": "automattic/cron-control",
+  "description": "Execute WordPress cron events in parallel, with custom event storage for high-volume cron.",
+  "license": "GPL-2.0",
+  "require": {
+    "php": ">=7.0.0"
+  },
+  "require-dev": {
+    "wp-cli/wp-cli": "*"
+  }
+}

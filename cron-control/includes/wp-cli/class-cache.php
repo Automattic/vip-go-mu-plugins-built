@@ -1,4 +1,9 @@
 <?php
+/**
+ * Cache commands for WP-CLI
+ *
+ * @package a8c_Cron_Control
+ */
 
 namespace Automattic\WP\Cron_Control\CLI;
 
@@ -10,6 +15,8 @@ class Cache extends \WP_CLI_Command {
 	 * Flush the cache
 	 *
 	 * @subcommand flush
+	 * @param array $args Array of positional arguments.
+	 * @param array $assoc_args Array of flags.
 	 */
 	public function flush_internal_caches( $args, $assoc_args ) {
 		$flushed = \Automattic\WP\Cron_Control\_flush_internal_caches();

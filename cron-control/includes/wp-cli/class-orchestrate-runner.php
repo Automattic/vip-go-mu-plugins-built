@@ -1,4 +1,11 @@
 <?php
+/**
+ * Execute cron via WP-CLI
+ *
+ * Not intended for human use, rather it powers the Go-based Runner. Use the `events` command instead.
+ *
+ * @package a8c_Cron_Control
+ */
 
 namespace Automattic\WP\Cron_Control\CLI;
 
@@ -14,6 +21,8 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 	 * Not intended for human use, rather it powers the Go-based Runner. Use the `events list` command instead.
 	 *
 	 * @subcommand list-due-batch
+	 * @param array $args Array of positional arguments.
+	 * @param array $assoc_args Array of flags.
 	 */
 	public function list_due_now( $args, $assoc_args ) {
 		if ( 0 !== \Automattic\WP\Cron_Control\Events::instance()->run_disabled() ) {
@@ -38,6 +47,8 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 	 *
 	 * @subcommand run
 	 * @synopsis --timestamp=<timestamp> --action=<action-hashed> --instance=<instance>
+	 * @param array $args Array of positional arguments.
+	 * @param array $assoc_args Array of flags.
 	 */
 	public function run_event( $args, $assoc_args ) {
 		if ( 0 !== \Automattic\WP\Cron_Control\Events::instance()->run_disabled() ) {
@@ -56,19 +67,20 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 			\WP_CLI::error( __( 'Invalid action', 'automattic-cron-control' ) );
 		}
 
-		if( ! is_string( $instance ) ) {
+		if ( ! is_string( $instance ) ) {
 			\WP_CLI::error( __( 'Invalid instance', 'automattic-cron-control' ) );
 		}
 
 		$now = time();
 		if ( $timestamp > $now ) {
-			\WP_CLI::error( sprintf( __( 'Given timestamp is for %1$s GMT, %2$s from now. The event\'s existence was not confirmed, and no attempt was made to execute it.', 'automattic-cron-control' ), date_i18n( TIME_FORMAT, $timestamp ), human_time_diff( $now, $timestamp ) ) );
+			/* translators: 1: Event execution time in UTC, 2: Human time diff */
+			\WP_CLI::error( sprintf( __( 'Given timestamp is for %1$s UTC, %2$s from now. The event\'s existence was not confirmed, and no attempt was made to execute it.', 'automattic-cron-control' ), date_i18n( TIME_FORMAT, $timestamp ), human_time_diff( $now, $timestamp ) ) );
 		}
 
-		// Prepare environment
+		// Prepare environment.
 		\Automattic\WP\Cron_Control\set_doing_cron();
 
-		// Run the event
+		// Run the event.
 		$run = \Automattic\WP\Cron_Control\run_event( $timestamp, $action, $instance );
 
 		if ( is_wp_error( $run ) ) {
@@ -86,6 +98,8 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 	 * Not intended for human use, rather it powers the Go-based Runner. Use the `orchestrate manage-automatic-execution` command instead.
 	 *
 	 * @subcommand get-info
+	 * @param array $args Array of positional arguments.
+	 * @param array $assoc_args Array of flags.
 	 */
 	public function get_info( $args, $assoc_args ) {
 		$info = array(

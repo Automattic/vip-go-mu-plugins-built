@@ -1,4 +1,10 @@
 <?php
+/**
+ * CLI commands
+ */
+
+namespace Automattic\VIP\Support_User;
+use WP_CLI_Command;
 
 /**
  * Implements a WP CLI command that converts guid users to meta users
@@ -6,8 +12,7 @@
  *
  * @package a8c\vip_support
  */
-class WPCOM_VIP_Support_CLI  extends WP_CLI_Command {
-
+class Command extends WP_CLI_Command {
 
 	/**
 	 * Creates a user in the VIP Support role, already verified,
@@ -40,62 +45,13 @@ class WPCOM_VIP_Support_CLI  extends WP_CLI_Command {
 		$user_data['user_email']   = $user_email;
 		$user_data['display_name'] = $display_name;
 
-		// A user with this email address may already exist, in which case
-		// we should update that user record
-		$user = get_user_by( 'email', $user_email );
+		$user_id = User::add( $user_data );
 
-		$update_user = true;
-		if ( false === $user ) {
-			$update_user = false;
-		}
-
-		// If the user already exists, we should delete and recreate them,
-		// it's the only way to be sure we get the right user_login
-		if ( false !== $user && $user_login !== $user->user_login ) {
-			if ( is_multisite() ) {
-				revoke_super_admin( $user->ID );
-				wpmu_delete_user( $user->ID );
-			} else {
-				wp_delete_user( $user->ID, null );
-			}
-			$user = false;
-		} else {
-			$user_data['ID'] = $user->ID;
-		}
-
-		if ( false === $user ) {
-			$user_id = wp_insert_user( $user_data );
-		} else {
-			add_filter( 'send_password_change_email', '__return_false' );
-			$user_id = wp_update_user( $user_data );
-		}
-
-		// It's possible the user update/insert will fail, we need to log this
 		if ( is_wp_error( $user_id ) ) {
 			\WP_CLI::error( $user_id );
 		}
 
-		remove_action( 'set_user_role', array( WPCOM_VIP_Support_User::init(), 'action_set_user_role' ), 10, 3 );
-		$user = new WP_User( $user_id );
-		add_action( 'set_user_role', array( WPCOM_VIP_Support_User::init(), 'action_set_user_role' ), 10, 3 );
-
-		// Seems polite to notify the admin that a support user got added to their site
-		// @TODO Tailor the notification email so it explains that this is a support user
-		wp_new_user_notification( $user_id, null, 'admin' );
-
-		WPCOM_VIP_Support_User::init()->mark_user_email_verified( $user->ID, $user->user_email );
-		$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
-
-		// If this is a multisite, commence super powers!
-		if ( is_multisite() ) {
-			grant_super_admin( $user->ID );
-		}
-
-		$msg = "Added";
-		if ( $update_user ) {
-			$msg = "Updated";
-		}
-		$msg .= " user $user_id with login {$user_login} and password '{$user_pass}', they are verified as a VIP Support user and ready to go";
+		$msg = "Added user $user_id with login {$user_login}, they are verified as a VIP Support user and ready to go";
 		\WP_CLI::success( $msg );
 	}
 
@@ -115,28 +71,10 @@ class WPCOM_VIP_Support_CLI  extends WP_CLI_Command {
 
 		$user_email = $args[0];
 
-		// Let's find the user
-		$user = get_user_by( 'email', $user_email );
+		$success = User::remove( $user_email );
 
-		if ( false === $user ) {
-			\WP_CLI::warning( "No user exists with the email address {$user_email}, so they could not be deleted" );
-			return;
-		}
-
-		// Check user has the active or inactive VIP Support role,
-		// and bail out if not
-		if ( ! WPCOM_VIP_Support_User::user_has_vip_support_role( $user->ID, true )
-			&& ! WPCOM_VIP_Support_User::user_has_vip_support_role( $user->ID, false ) ) {
-			\WP_CLI::error( "The user with email {$user_email} is not in the active or the inactive VIP Support roles" );
-		}
-
-		// If the user already exists, we should delete and recreate them,
-		// it's the only way to be sure we get the right user_login
-		if ( is_multisite() ) {
-			revoke_super_admin( $user->ID );
-			wpmu_delete_user( $user->ID );
-		} else {
-			wp_delete_user( $user->ID, null );
+		if ( is_wp_error( $success ) ) {
+			\WP_CLI::error( $success->get_error_message() );
 		}
 
 		\WP_CLI::success( "Deleted user with email {$user_email}" );
@@ -174,7 +112,7 @@ class WPCOM_VIP_Support_CLI  extends WP_CLI_Command {
 			grant_super_admin( $user->ID );
 		}
 
-		WPCOM_VIP_Support_User::init()->mark_user_email_verified( $user->ID, $user->user_email );
+		User::init()->mark_user_email_verified( $user->ID, $user->user_email );
 
 		// Print a success message
 		\WP_CLI::success( "Verified user $user_id with email {$user->user_email}, you can now change their role to VIP Support" );
@@ -182,4 +120,4 @@ class WPCOM_VIP_Support_CLI  extends WP_CLI_Command {
 
 }
 
-\WP_CLI::add_command( 'vipsupport', 'WPCOM_VIP_Support_CLI' );
+\WP_CLI::add_command( 'vipsupport', __NAMESPACE__ . '\Command' );

@@ -1,14 +1,14 @@
 <?php
 /**
- * Class REST_API_Tests
+ * Test plugin's REST API
  *
- * @package Automattic_Cron_Control
+ * @package a8c_Cron_Control
  */
 
 namespace Automattic\WP\Cron_Control\Tests;
 
 /**
- * Sample test case.
+ * REST API tests
  */
 class REST_API_Tests extends \WP_UnitTestCase {
 	/**
@@ -18,10 +18,11 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		parent::setUp();
 
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new \WP_REST_Server;
+		$wp_rest_server = new \WP_REST_Server;
+		$this->server   = $wp_rest_server;
 		do_action( 'rest_api_init' );
 
-		// make sure the schedule is clear
+		// make sure the schedule is clear.
 		_set_cron_array( array() );
 	}
 
@@ -32,7 +33,7 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
-		// make sure the schedule is clear
+		// make sure the schedule is clear.
 		_set_cron_array( array() );
 
 		parent::tearDown();
@@ -53,7 +54,7 @@ class REST_API_Tests extends \WP_UnitTestCase {
 	public function test_get_items() {
 		$ev = Utils::create_test_event();
 
-		// Don't test internal events with this test
+		// Don't test internal events with this test.
 		$internal_events = array(
 			'a8c_cron_control_force_publish_missed_schedules',
 			'a8c_cron_control_confirm_scheduled_posts',
@@ -65,7 +66,9 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		}
 
 		$request = new \WP_REST_Request( 'POST', '/' . \Automattic\WP\Cron_Control\REST_API::API_NAMESPACE . '/' . \Automattic\WP\Cron_Control\REST_API::ENDPOINT_LIST );
-		$request->set_body( wp_json_encode( array( 'secret' => \WP_CRON_CONTROL_SECRET, ) ) );
+		$request->set_body( wp_json_encode( array(
+			'secret' => \WP_CRON_CONTROL_SECRET,
+		) ) );
 		$request->set_header( 'content-type', 'application/json' );
 
 		$response = $this->server->dispatch( $request );
@@ -109,12 +112,13 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertArrayHasKey( 'success', $data );
 		$this->assertArrayHasKey( 'message', $data );
-
-
 	}
 
 	/**
 	 * Check response code
+	 *
+	 * @param string $status Status code.
+	 * @param object $response REST API response object.
 	 */
 	protected function assertResponseStatus( $status, $response ) {
 		$this->assertEquals( $status, $response->get_status() );
@@ -122,6 +126,9 @@ class REST_API_Tests extends \WP_UnitTestCase {
 
 	/**
 	 * Ensure response includes the expected data
+	 *
+	 * @param array  $data Expected data.
+	 * @param object $response REST API response object.
 	 */
 	protected function assertResponseData( $data, $response ) {
 		Utils::compare_arrays( $data, $response->get_data(), $this );

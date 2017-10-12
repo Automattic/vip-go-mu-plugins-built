@@ -1,11 +1,18 @@
 <?php
+/**
+ * Support User management
+ */
+
+namespace Automattic\VIP\Support_User;
+use WP_Error;
+use WP_User;
 
 /**
  * Manages VIP Support users.
  *
  * @package WPCOM_VIP_Support_User
  **/
-class WPCOM_VIP_Support_User {
+class User {
 
 	/**
 	 * GET parameter for a message: We blocked this user from the
@@ -77,6 +84,11 @@ class WPCOM_VIP_Support_User {
 	const GET_TRIGGER_RESEND_VERIFICATION = 'vip_trigger_resend';
 
 	/**
+	 * Cron action to purge support user after 24 hours.
+	 */
+	const CRON_ACTION = 'wpcom_vip_support_remove_user_via_cron';
+
+	/**
 	 * A flag to indicate reversion and then to prevent recursion.
 	 *
 	 * @var bool True if the role is being reverted
@@ -101,17 +113,17 @@ class WPCOM_VIP_Support_User {
 
 	/**
 	 * Initiate an instance of this class if one doesn't
-	 * exist already. Return the WPCOM_VIP_Support_User instance.
+	 * exist already. Return the User instance.
 	 *
 	 * @access @static
 	 *
-	 * @return WPCOM_VIP_Support_User object The instance of WPCOM_VIP_Support_User
+	 * @return User object The instance of User
 	 */
 	static public function init() {
 		static $instance = false;
 
 		if ( ! $instance ) {
-			$instance = new WPCOM_VIP_Support_User;
+			$instance = new User;
 		}
 
 		return $instance;
@@ -133,6 +145,16 @@ class WPCOM_VIP_Support_User {
 		add_action( 'profile_update',     array( $this, 'action_profile_update' ) );
 		add_action( 'admin_head',         array( $this, 'action_admin_head' ) );
 		add_action( 'wp_login',           array( $this, 'action_wp_login' ), 10, 2 );
+
+		// May be added by Cron Control, if used together.
+		// Ensure cleanup runs regardless.
+		if ( ! has_action( self::CRON_ACTION ) ) {
+			add_action( self::CRON_ACTION, array( __CLASS__, 'do_cron_cleanup' ) );
+
+			if ( ! wp_next_scheduled( self::CRON_ACTION ) ) {
+				wp_schedule_event( time(), 'hourly', self::CRON_ACTION );
+			}
+		}
 
 		add_filter( 'wp_redirect',          array( $this, 'filter_wp_redirect' ) );
 		add_filter( 'removable_query_args', array( $this, 'filter_removable_query_args' ) );
@@ -287,7 +309,7 @@ class WPCOM_VIP_Support_User {
 				$user_id = absint( $_GET['user_id'] );
 				$user = get_user_by( 'id', $user_id );
 				$resend_link = $this->get_trigger_resend_verification_url();
-				if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user->ID ) && $this->user_has_vip_support_role( $user->ID ) ) {
+				if ( $this->is_a8c_email( $user->user_email ) && ! $this->user_has_verified_email( $user->ID ) && self::user_has_vip_support_role( $user->ID ) ) {
 					$error_html = sprintf( __( 'This user’s Automattic email address is not verified, <a href="%s">re-send verification email</a>.', 'vip-support' ), esc_url( $resend_link ) );
 				}
 			}
@@ -321,7 +343,7 @@ class WPCOM_VIP_Support_User {
 		$user = new WP_User( $user_id );
 
 		// Try to make the conditional checks clearer
-		$becoming_support         = ( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE == $role );
+		$becoming_support         = ( Role::VIP_SUPPORT_ROLE == $role );
 		$valid_and_verified_email = ( $this->is_a8c_email( $user->user_email ) && $this->user_has_verified_email( $user_id ) );
 
 		if ( $becoming_support && ! $valid_and_verified_email ) {
@@ -329,7 +351,7 @@ class WPCOM_VIP_Support_User {
 			// @FIXME This could be expressed more simply, probably :|
 			if ( ! is_array( $old_roles ) || ! isset( $old_roles[0] ) ) {
 				if ( $this->is_a8c_email( $user->user_email ) ) {
-					$revert_role_to = WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE;
+					$revert_role_to = Role::VIP_SUPPORT_INACTIVE_ROLE;
 				} else {
 					$revert_role_to = 'subscriber';
 				}
@@ -388,8 +410,8 @@ class WPCOM_VIP_Support_User {
 	 */
 	public function action_user_register( $user_id ) {
 		$user = new WP_User( $user_id );
-		if ( $this->is_a8c_email( $user->user_email ) && $this->user_has_vip_support_role( $user->ID ) ) {
-			$this->demote_user_from_vip_support_to( $user->ID, WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+		if ( $this->is_a8c_email( $user->user_email ) && self::user_has_vip_support_role( $user->ID ) ) {
+			$this->demote_user_from_vip_support_to( $user->ID, Role::VIP_SUPPORT_INACTIVE_ROLE );
 			$this->registering_a11n = true;
 			// @TODO Abstract this into an UNVERIFY method
 			$this->mark_user_email_unverified( $user_id );
@@ -410,12 +432,12 @@ class WPCOM_VIP_Support_User {
 	public function action_profile_update( $user_id ) {
 		$user = new WP_User( $user_id );
 		$verified_email = get_user_meta( $user_id, self::META_EMAIL_VERIFIED, true );
-		if ( $user->user_email !== $verified_email && $this->user_has_vip_support_role( $user_id ) ) {
-			$this->demote_user_from_vip_support_to( $user->ID, WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE );
+		if ( $user->user_email !== $verified_email && self::user_has_vip_support_role( $user_id ) ) {
+			$this->demote_user_from_vip_support_to( $user->ID, Role::VIP_SUPPORT_INACTIVE_ROLE );
 			$this->message_replace = self::MSG_DOWNGRADE_VIP_USER;
 			delete_user_meta( $user_id, self::META_EMAIL_VERIFIED );
 			delete_user_meta( $user_id, self::META_VERIFICATION_DATA );
-			if ( $this->user_has_vip_support_role( $user_id ) || $this->user_has_vip_support_role( $user_id, false ) ) {
+			if ( self::user_has_vip_support_role( $user_id ) || self::user_has_vip_support_role( $user_id, false ) ) {
 				$this->send_verification_email( $user_id );
 			}
 		}
@@ -512,17 +534,17 @@ class WPCOM_VIP_Support_User {
 		// * Is an inactive support user
 		// * Is a super admin
 		// …revoke their powers
-		if ( $this->user_has_vip_support_role( $user->ID, false ) && is_super_admin( $user->ID ) ) {
+		if ( self::user_has_vip_support_role( $user->ID, false ) && is_super_admin( $user->ID ) ) {
 			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
 			revoke_super_admin( $user->ID );
 			return;
 		}
-		if ( ! $this->user_has_vip_support_role( $user->ID ) ){
+		if ( ! self::user_has_vip_support_role( $user->ID ) ){
 			// If the user is a super admin, but has been demoted to
 			// the inactive VIP Support role, we should remove
 			// their super powers
 			if ( is_super_admin( $user->ID )
-			     && $this->user_has_vip_support_role( $user->ID, false ) ) {
+			     && self::user_has_vip_support_role( $user->ID, false ) ) {
 				// This user is NOT VIP Support, remove
 				// their powers forthwith
 				require_once( ABSPATH . '/wp-admin/includes/ms.php' );
@@ -654,7 +676,7 @@ class WPCOM_VIP_Support_User {
 		return ( $is_a8c_email && $email_verified );
 	}
 
-	public function user_has_vip_support_role( $user_id, $active_role = true ) {
+	public static function user_has_vip_support_role( $user_id, $active_role = true ) {
 		$user = new WP_User( $user_id );
 
 		if ( ! $user || ! $user->ID ) {
@@ -666,12 +688,12 @@ class WPCOM_VIP_Support_User {
 		// Filter out caps that are not role names and assign to $user_roles
 		if ( is_array( $user->caps ) )
 			$user_roles = array_filter( array_keys( $user->caps ), array( $wp_roles, 'is_role' ) );
-		
+
 		if ( false === $active_role) {
-			return in_array( WPCOM_VIP_Support_Role::VIP_SUPPORT_INACTIVE_ROLE, $user_roles, true );
+			return in_array( Role::VIP_SUPPORT_INACTIVE_ROLE, $user_roles, true );
 		}
 
-		return in_array( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE, $user_roles, true );
+		return in_array( Role::VIP_SUPPORT_ROLE, $user_roles, true );
 	}
 
 	/**
@@ -756,13 +778,13 @@ class WPCOM_VIP_Support_User {
 	}
 
 	/**
-	 * 
+	 *
 	 *
 	 * @param $user_id
 	 */
 	protected function promote_user_to_vip_support( $user_id ) {
 		$user = new WP_User( $user_id );
-		$user->set_role( WPCOM_VIP_Support_Role::VIP_SUPPORT_ROLE );
+		$user->set_role( Role::VIP_SUPPORT_ROLE );
 		if ( is_multisite() ) {
 			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
 			grant_super_admin( $user_id );
@@ -785,6 +807,162 @@ class WPCOM_VIP_Support_User {
 		}
 	}
 
+	/**
+	 * Add a new support user for the given request
+	 *
+	 * Will delete an existing user with the same user_login as is to be created
+	 *
+	 * @param array $user_data Array of data to create user.
+	 * @return int|WP_Error
+	 */
+	public static function add( $user_data ) {
+		// A user with this email address may already exist, in which case
+		// we should update that user record
+		$user = get_user_by( 'email', $user_data['user_email'] );
+
+		/** Include admin user functions to get access to wp_delete_user() */
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
+		// If the user already exists, we should delete and recreate them,
+		// it's the only way to be sure we get the right user_login
+		if ( false !== $user && $user_data['user_login'] !== $user->user_login ) {
+			if ( is_multisite() ) {
+				revoke_super_admin( $user->ID );
+				wpmu_delete_user( $user->ID );
+			} else {
+				wp_delete_user( $user->ID, null );
+			}
+			$user = false;
+		} elseif ( $user && $user->ID ) {
+			$user_data['ID'] = $user->ID;
+		}
+
+		if ( false === $user ) {
+			$user_id = wp_insert_user( $user_data );
+		} else {
+			add_filter( 'send_password_change_email', '__return_false' );
+			$user_id = wp_update_user( $user_data );
+			remove_filter( 'send_password_change_email', '__return_false' );
+		}
+
+		// It's possible the user update/insert will fail, we need to log this
+		if ( is_wp_error( $user_id ) ) {
+			return $user_id;
+		}
+
+		remove_action( 'set_user_role', array( self::init(), 'action_set_user_role' ), 10 );
+		$user = new WP_User( $user_id );
+		add_action( 'set_user_role', array( self::init(), 'action_set_user_role' ), 10, 3 );
+
+		// Seems polite to notify the admin that a support user got added to their site
+		// @TODO Tailor the notification email so it explains that this is a support user
+		wp_new_user_notification( $user_id, null, 'admin' );
+
+		self::init()->mark_user_email_verified( $user->ID, $user->user_email );
+		$user->set_role( Role::VIP_SUPPORT_ROLE );
+
+		// If this is a multisite, commence super powers!
+		if ( is_multisite() ) {
+			grant_super_admin( $user->ID );
+		}
+
+		return $user_id;
+	}
+
+	/**
+	 * Remove a VIP Support user
+	 *
+	 * @param mixed $user_id User ID, login, or email. See `get_user_by()`.
+	 * @param string $by What to search for user by. See `get_user_by()`.
+	 * @return bool|WP_Error
+	 */
+	public static function remove( $user_id, $by = 'email' ) {
+		// Let's find the user
+		$user = get_user_by( $by, $user_id );
+
+		if ( false === $user ) {
+			return new WP_Error( 'invalid-user', 'User does not exist' );
+		}
+
+		// Never remove the machine user.
+		if (
+			( defined( 'WPCOM_VIP_MACHINE_USER_LOGIN' ) && \WPCOM_VIP_MACHINE_USER_LOGIN === $user->user_login ) ||
+			( defined( 'WPCOM_VIP_MACHINE_USER_EMAIL' ) && \WPCOM_VIP_MACHINE_USER_LOGIN === $user->user_email )
+		) {
+			return new WP_Error( 'not-removing-machine-user', 'WPCOM VIP machine user cannot be removed!' );
+		}
+
+		// Check user has the active or inactive VIP Support role,
+		// and bail out if not
+		if ( ! self::user_has_vip_support_role( $user->ID, true )
+			&& ! self::user_has_vip_support_role( $user->ID, false ) ) {
+			return new WP_Error( 'not-support-user', 'Specified user is not a support user' );
+		}
+
+		/** Include admin user functions to get access to wp_delete_user() */
+		require_once ABSPATH . 'wp-admin/includes/user.php';
+
+		// If the user already exists, we should delete and recreate them,
+		// it's the only way to be sure we get the right user_login
+		if ( is_multisite() ) {
+			revoke_super_admin( $user->ID );
+			return wpmu_delete_user( $user->ID );
+		}
+
+		return wp_delete_user( $user->ID, null );
+	}
+
+	/**
+	 * Remove support users created more than a day ago
+	 *
+	 * @return array
+	 */
+	public static function remove_stale_support_users() {
+		$support_users = get_users( array(
+			'role__in' => array(
+				Role::VIP_SUPPORT_ROLE,
+				Role::VIP_SUPPORT_INACTIVE_ROLE,
+			),
+		) );
+
+		if ( empty( $support_users ) ) {
+			return array();
+		}
+
+		// Report the users removed.
+		$removed   = array();
+		$threshold = strtotime( '-24 hours' );
+
+		foreach ( $support_users as $user ) {
+			// Only remove users older than 24 hours.
+			$created = strtotime( $user->user_registered );
+			if ( $created > $threshold ) {
+				continue;
+			}
+
+			$rm = self::remove( $user->ID, 'id' );
+
+			$removed[] = array(
+				'ID'      => $user->ID,
+				'email'   => $user->user_email,
+				'login'   => $user->user_login,
+				'removed' => $rm,
+			);
+		}
+
+		return $removed;
+	}
+
+	/**
+	 * Remove stale users via cron
+	 */
+	public static function do_cron_cleanup() {
+		// TODO: search for some meta in case someone changes roles?
+
+		$stale = self::remove_stale_support_users();
+
+		error_log( "VIP Support user removals attempted: \n" . var_export( compact( 'stale' ), true ) );
+	}
 }
 
-WPCOM_VIP_Support_User::init();
+User::init();

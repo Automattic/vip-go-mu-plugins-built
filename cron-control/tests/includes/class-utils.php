@@ -1,7 +1,15 @@
 <?php
+/**
+ * Utility functions for tests
+ *
+ * @package a8c_Cron_Control
+ */
 
 namespace Automattic\WP\Cron_Control\Tests;
 
+/**
+ * Utilities
+ */
 class Utils {
 	/**
 	 * Provide easy access to the plugin's table
@@ -12,6 +20,9 @@ class Utils {
 
 	/**
 	 * Build a test event
+	 *
+	 * @param bool $allow_multiple Whether or not to create multiple of the same event.
+	 * @return array
 	 */
 	static function create_test_event( $allow_multiple = false ) {
 		$event = array(
@@ -20,7 +31,7 @@ class Utils {
 			'args'      => array(),
 		);
 
-		// Plugin skips events with no callbacks
+		// Plugin skips events with no callbacks.
 		add_action( 'a8c_cron_control_test_event', '__return_true' );
 
 		if ( $allow_multiple ) {
@@ -40,12 +51,14 @@ class Utils {
 
 	/**
 	 * Retrieve some events' post objects for use in testing
+	 *
+	 * @return array
 	 */
 	static function get_events_from_store() {
 		global $wpdb;
 
 		$table_name = self::get_table_name();
-		$events     = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE status = %s ORDER BY `timestamp` ASC LIMIT 10;", \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING ), 'OBJECT' );
+		$events     = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE status = %s ORDER BY `timestamp` ASC LIMIT 10;", \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING ), 'OBJECT' ); // Cannot prepare table name. @codingStandardsIgnoreLine
 
 		$parsed_events = array();
 
@@ -62,10 +75,15 @@ class Utils {
 
 	/**
 	 * Check that two arrays are equal
+	 *
+	 * @param array $expected Array of expected values.
+	 * @param array $test Array of values to test against $expected.
+	 * @param mixed $context Is this a test itself, or used within a test.
+	 * @return mixed
 	 */
 	static function compare_arrays( $expected, $test, $context ) {
 		$tested_data = array();
-		foreach( $expected as $key => $value ) {
+		foreach ( $expected as $key => $value ) {
 			if ( isset( $test[ $key ] ) ) {
 				$tested_data[ $key ] = $test[ $key ];
 			} else {

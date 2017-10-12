@@ -1,7 +1,15 @@
 <?php
+/**
+ * Plugin's REST API
+ *
+ * @package a8c_Cron_Control
+ */
 
 namespace Automattic\WP\Cron_Control;
 
+/**
+ * REST API class
+ */
 class REST_API extends Singleton {
 	/**
 	 * API SETUP
@@ -55,14 +63,14 @@ class REST_API extends Singleton {
 			'orchestrate_disabled' => Events::instance()->run_disabled(),
 		);
 
-		// Include events only when automatic execution is enabled
+		// Include events only when automatic execution is enabled.
 		if ( 0 === $response_array['orchestrate_disabled'] ) {
 			$response_array = array_merge( $response_array, Events::instance()->get_events() );
 		}
 
 		$response_array['endpoint'] = get_rest_url( null, self::API_NAMESPACE . '/' . self::ENDPOINT_RUN );
 
-		// Provide pending event count for monitoring etc
+		// Provide pending event count for monitoring etc.
 		$response_array['total_events_pending'] = count_events_by_status( Events_Store::STATUS_PENDING );
 
 		return rest_ensure_response( $response_array );
@@ -70,24 +78,30 @@ class REST_API extends Singleton {
 
 	/**
 	 * Execute a specific event
+	 *
+	 * @param object $request REST API request object.
+	 * @return object
 	 */
 	public function run_event( $request ) {
-		// Stop if event execution is blocked
+		// Stop if event execution is .
 		$run_disabled = Events::instance()->run_disabled();
 		if ( 0 !== $run_disabled ) {
 			if ( 1 === $run_disabled ) {
 				$message = __( 'Automatic event execution is disabled indefinitely.', 'automattic-cron-control' );
 			} else {
-				$message = sprintf( __( 'Automatic event execution is disabled until %s (%d).', 'automattic-cron-control' ), date( 'Y-m-d H:i:s T', $run_disabled ), $run_disabled );
+				/* translators: 1: Time automatic execution is disabled until, 2: Unix timestamp */
+				$message = sprintf( __( 'Automatic event execution is disabled until %1$s UTC (%2$d).', 'automattic-cron-control' ), date_i18n( TIME_FORMAT, $run_disabled ), $run_disabled );
 			}
 
-			return rest_ensure_response( new \WP_Error( 'automatic-execution-disabled', $message, array( 'status' => 403, ) ) );
+			return rest_ensure_response( new \WP_Error( 'automatic-execution-disabled', $message, array(
+				'status' => 403,
+			) ) );
 		}
 
-		// Parse request for details needed to identify the event to execute
-		// `$timestamp` is, unsurprisingly, the Unix timestamp the event is scheduled for
-		// `$action` is the md5 hash of the action used when the event is registered
-		// `$instance` is the md5 hash of the event's arguments array, which Core uses to index the `cron` option
+		// Parse request for details needed to identify the event to execute.
+		// `$timestamp` is, unsurprisingly, the Unix timestamp the event is scheduled for.
+		// `$action` is the md5 hash of the action used when the event is registered.
+		// `$instance` is the md5 hash of the event's arguments array, which Core uses to index the `cron` option.
 		$event     = $request->get_json_params();
 		$timestamp = isset( $event['timestamp'] ) ? absint( $event['timestamp'] ) : null;
 		$action    = isset( $event['action'] ) ? trim( sanitize_text_field( $event['action'] ) ) : null;
@@ -98,13 +112,18 @@ class REST_API extends Singleton {
 
 	/**
 	 * Check if request is authorized
+	 *
+	 * @param object $request REST API request object.
+	 * @return bool|\WP_Error
 	 */
 	public function check_secret( $request ) {
 		$body = $request->get_json_params();
 
 		// For now, mimic original plugin's "authentication" method. This needs to be better.
 		if ( ! isset( $body['secret'] ) || ! hash_equals( \WP_CRON_CONTROL_SECRET, $body['secret'] ) ) {
-			return new \WP_Error( 'no-secret', __( 'Secret must be specified with all requests', 'automattic-cron-control' ), array( 'status' => 400, ) );
+			return new \WP_Error( 'no-secret', __( 'Secret must be specified with all requests', 'automattic-cron-control' ), array(
+				'status' => 400,
+			) );
 		}
 
 		return true;

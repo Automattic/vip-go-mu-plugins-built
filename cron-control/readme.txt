@@ -1,34 +1,34 @@
-# Cron Control #
-**Contributors:** automattic, ethitter  
-**Tags:** cron, cron control, concurrency, parallel, async  
-**Requires at least:** 4.4  
-**Tested up to:** 4.9  
-**Requires PHP:** 7.0  
-**Stable tag:** 2.0  
-**License:** GPLv2 or later  
-**License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
+=== Cron Control ===
+Contributors: automattic, ethitter
+Tags: cron, cron control, concurrency, parallel, async
+Requires at least: 4.4
+Tested up to: 4.9
+Requires PHP: 7.0
+Stable tag: 2.0
+License: GPLv2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Execute WordPress cron events in parallel, with custom event storage for high-volume cron.
 
-## Description ##
+== Description ==
 
 Execute WordPress cron events in parallel, with custom event storage for high-volume cron.
 
 Using REST API endpoints (requires WordPress 4.4+), or a Golang daemon, an event queue is produced and events are triggered.
 
-## Installation ##
+== Installation ==
 
 1. Define `WP_CRON_CONTROL_SECRET` in `wp-config.php`
 1. Upload the `cron-control` directory to the `/wp-content/mu-plugins/` directory
 1. Create a file at `/wp-content/mu-plugins/cron-control.php` to load `/wp-content/mu-plugins/cron-control/cron-control.php`
 
-## Frequently Asked Questions ##
+== Frequently Asked Questions ==
 
-### Why is PHP 7 required? ###
+= Why is PHP 7 required? =
 
 To be able to catch fatal errors triggered by event callbacks, and define arrays in constants (such as for adding "Internal Events"), PHP 7 is necessary.
 
-### Adding Internal Events ###
+= Adding Internal Events =
 
 **This should be done sparingly as "Internal Events" bypass certain locks and limits built into the plugin.** Overuse will lead to unexpected resource usage, and likely resource exhaustion.
 
@@ -58,7 +58,7 @@ array(
 
 Take care to reference the full namespace when appropriate.
 
-### Increasing Event Concurrency ###
+= Increasing Event Concurrency =
 
 In some circumstances, multiple events with the same action can safely run in parallel. This is usually not the case, largely due to Core's alloptions, but sometimes an event is written in a way that we can support concurrent executions.
 
@@ -72,16 +72,16 @@ return $wh;
 } );
 ```
 
-## Changelog ##
+== Changelog ==
 
-### 2.0 ###
+= 2.0 =
 * Support additional Internal Events
 * Break large cron queues into several caches
 * Introduce Golang runner to execute cron
 * Support concurrency for whitelisted events
 
-### 1.5 ###
+= 1.5 =
 * Convert from custom post type to custom table with proper indices
 
-### 1.0 ###
+= 1.0 =
 * Initial release
