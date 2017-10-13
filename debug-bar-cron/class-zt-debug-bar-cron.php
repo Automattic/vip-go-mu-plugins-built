@@ -108,7 +108,10 @@ if ( ! class_exists( 'ZT_Debug_Bar_Cron' ) && class_exists( 'Debug_Bar_Panel' ) 
 		 * @return void
 		 */
 		public function init() {
-			load_plugin_textdomain( 'debug-bar-cron' );
+			if ( ! function_exists( '_load_textdomain_just_in_time' ) ) {
+				load_plugin_textdomain( 'debug-bar-cron' );
+			}
+
 			$this->title( __( 'Cron', 'debug-bar-cron' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts_styles' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts_styles' ) );

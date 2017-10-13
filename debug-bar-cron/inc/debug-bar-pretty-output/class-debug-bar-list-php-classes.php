@@ -9,9 +9,9 @@
  * @package    Debug Bar Pretty Output
  * @author     Juliette Reinders Folmer <wpplugins_nospam@adviesenzo.nl>
  * @link       https://github.com/jrfnl/debug-bar-pretty-output
- * @version    1.6.0
+ * @version    1.7.0
  *
- * @copyright  2013-2016 Juliette Reinders Folmer
+ * @copyright  2013-2017 Juliette Reinders Folmer
  * @license    http://creativecommons.org/licenses/GPL/2.0/ GNU General Public License, version 2 or higher.
  */
 
@@ -124,155 +124,157 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 
 			/* == Database Extensions == */
 
-				/* = Abstraction Layers = */
-				// PDO.
-				// @see http://php.net/book.pdo
-				'PDO',
-				'PDOStatement',
-				'PDOException',
-				'PDORow',  // Not in PHP docs.
+			/* = Abstraction Layers = */
+			// PDO.
+			// @see http://php.net/book.pdo
+			'PDO',
+			'PDOStatement',
+			'PDOException',
+			'PDORow',  // Not in PHP docs.
 
 
-				/* = Vendor Specific Database Extensions = */
-				// Mongo.
-				// @see http://php.net/book.mongo
-					// Mongo Core Classes.
-					'MongoClient',
-					'MongoDB',
-					'MongoCollection',
-					'MongoCursor',
-					'MongoCursorInterface',
-					'MongoCommandCursor',
+			/* = Vendor Specific Database Extensions = */
+			// Mongo.
+			// @see http://php.net/book.mongo
+			// Mongo Core Classes.
+			'MongoClient',
+			'MongoDB',
+			'MongoCollection',
+			'MongoCursor',
+			'MongoCursorInterface',
+			'MongoCommandCursor',
 
-					// Mongo Types.
-					'MongoId',
-					'MongoCode',
-					'MongoDate',
-					'MongoRegex',
-					'MongoBinData',
-					'MongoInt32',
-					'MongoInt64',
-					'MongoDBRef',
-					'MongoMinKey',
-					'MongoMaxKey',
-					'MongoTimestamp',
+			// Mongo Types.
+			'MongoId',
+			'MongoCode',
+			'MongoDate',
+			'MongoRegex',
+			'MongoBinData',
+			'MongoInt32',
+			'MongoInt64',
+			'MongoDBRef',
+			'MongoMinKey',
+			'MongoMaxKey',
+			'MongoTimestamp',
 
-					// Mongo GridFS Classes.
-					'MongoGridFS',
-					'MongoGridFSFile',
-					'MongoGridFSCursor',
+			// Mongo GridFS Classes.
+			'MongoGridFS',
+			'MongoGridFSFile',
+			'MongoGridFSCursor',
 
-					// Mongo Batch Classes.
-					'MongoWriteBatch',
-					'MongoInsertBatch',
-					'MongoUpdateBatch',
-					'MongoDeleteBatch',
+			// Mongo Batch Classes.
+			'MongoWriteBatch',
+			'MongoInsertBatch',
+			'MongoUpdateBatch',
+			'MongoDeleteBatch',
 
-					// Mongo Miscellaneous.
-					'MongoLog',
-					'MongoPool',
-					'Mongo',
+			// Mongo Miscellaneous.
+			'MongoLog',
+			'MongoPool',
+			'Mongo',
 
-					// Mongo Exceptions.
-					'MongoException',
-					'MongoResultException',
-					'MongoCursorException',
-					'MongoCursorTimeoutException',
-					'MongoConnectionException',
-					'MongoGridFSException',
-					'MongoDuplicateKeyException',
-					'MongoProtocolException',
-					'MongoExecutionTimeoutException',
-					'MongoWriteConcernException',
+			// Mongo Exceptions.
+			'MongoException',
+			'MongoResultException',
+			'MongoCursorException',
+			'MongoCursorTimeoutException',
+			'MongoConnectionException',
+			'MongoGridFSException',
+			'MongoDuplicateKeyException',
+			'MongoProtocolException',
+			'MongoExecutionTimeoutException',
+			'MongoWriteConcernException',
 
-				// PHP driver for MongoDB.
-				// @see http://php.net/set.mongodb
-					// MongoDB\Driver.
-					'MongoDB\Driver\Manager',
-					'MongoDB\Driver\Command',
-					'MongoDB\Driver\Query',
-					'MongoDB\Driver\BulkWrite',
-					'MongoDB\Driver\WriteConcern',
-					'MongoDB\Driver\ReadPreference',
-					'MongoDB\Driver\Cursor',
-					'MongoDB\Driver\CursorId',
-					'MongoDB\Driver\Server',
-					'MongoDB\Driver\WriteConcernError',
-					'MongoDB\Driver\WriteError',
-					'MongoDB\Driver\WriteResult',
+			// PHP driver for MongoDB.
+			// @see http://php.net/set.mongodb
+			// MongoDB\Driver.
+			'MongoDB\Driver\Manager',
+			'MongoDB\Driver\Command',
+			'MongoDB\Driver\Query',
+			'MongoDB\Driver\BulkWrite',
+			'MongoDB\Driver\WriteConcern',
+			'MongoDB\Driver\ReadPreference',
+			'MongoDB\Driver\ReadConcern',
+			'MongoDB\Driver\Cursor',
+			'MongoDB\Driver\CursorId',
+			'MongoDB\Driver\Server',
+			'MongoDB\Driver\WriteConcernError',
+			'MongoDB\Driver\WriteError',
+			'MongoDB\Driver\WriteResult',
 
-					// BSON.
-					'MongoDB\BSON\Binary',
-					'MongoDB\BSON\Javascript',
-					'MongoDB\BSON\MaxKey',
-					'MongoDB\BSON\MinKey',
-					'MongoDB\BSON\ObjectID',
-					'MongoDB\BSON\Regex',
-					'MongoDB\BSON\Timestamp',
-					'MongoDB\BSON\UTCDatetime',
-					'MongoDB\BSON\Type',
-					'MongoDB\BSON\Persistable',
-					'MongoDB\BSON\Serializable',
-					'MongoDB\BSON\Unserializable',
+			// BSON.
+			'MongoDB\BSON\Binary',
+			'MongoDB\BSON\Decimal128',
+			'MongoDB\BSON\Javascript',
+			'MongoDB\BSON\MaxKey',
+			'MongoDB\BSON\MinKey',
+			'MongoDB\BSON\ObjectID',
+			'MongoDB\BSON\Regex',
+			'MongoDB\BSON\Timestamp',
+			'MongoDB\BSON\UTCDatetime',
+			'MongoDB\BSON\Type',
+			'MongoDB\BSON\Persistable',
+			'MongoDB\BSON\Serializable',
+			'MongoDB\BSON\Unserializable',
 
-					// MongoDB Exceptions.
-					'MongoDB\Driver\Exception\AuthenticationException',
-					'MongoDB\Driver\Exception\BulkWriteException',
-					'MongoDB\Driver\Exception\ConnectionException',
-					'MongoDB\Driver\Exception\ConnectionTimeoutException',
-					'MongoDB\Driver\Exception\Exception',
-					'MongoDB\Driver\Exception\ExecutionTimeoutException',  // (No version information available, might only be in Git).
-					'MongoDB\Driver\Exception\InvalidArgumentException',
-					'MongoDB\Driver\Exception\LogicException',
-					'MongoDB\Driver\Exception\RuntimeException',
-					'MongoDB\Driver\Exception\SSLConnectionException',
-					'MongoDB\Driver\Exception\UnexpectedValueException',
-					'MongoDB\Driver\Exception\WriteException',
+			// MongoDB Exceptions.
+			'MongoDB\Driver\Exception\AuthenticationException',
+			'MongoDB\Driver\Exception\BulkWriteException',
+			'MongoDB\Driver\Exception\ConnectionException',
+			'MongoDB\Driver\Exception\ConnectionTimeoutException',
+			'MongoDB\Driver\Exception\Exception',
+			'MongoDB\Driver\Exception\ExecutionTimeoutException',  // (No version information available, might only be in Git).
+			'MongoDB\Driver\Exception\InvalidArgumentException',
+			'MongoDB\Driver\Exception\LogicException',
+			'MongoDB\Driver\Exception\RuntimeException',
+			'MongoDB\Driver\Exception\SSLConnectionException',
+			'MongoDB\Driver\Exception\UnexpectedValueException',
+			'MongoDB\Driver\Exception\WriteException',
 
-					'MongoDB\Driver\DuplicateKeyException', // No longer in the manual, possibly deprecated ?
-					'MongoDB\Driver\WriteConcernException', // No longer in the manual, possibly deprecated ?
+			'MongoDB\Driver\DuplicateKeyException', // No longer in the manual, possibly deprecated ?
+			'MongoDB\Driver\WriteConcernException', // No longer in the manual, possibly deprecated ?
 
-				// MySQL.
-				// @see http://php.net/set.mysqlinfo
-					// Mysqli - MySQL Improved Extension.
-					// @see http://php.net/book.mysqli
-					'mysqli',
-					'mysqli_stmt',
-					'mysqli_result',
-					'mysqli_driver',
-					'mysqli_warning',
-					'mysqli_sql_exception',
+			// MySQL.
+			// @see http://php.net/set.mysqlinfo
+			// Mysqli - MySQL Improved Extension.
+			// @see http://php.net/book.mysqli
+			'mysqli',
+			'mysqli_stmt',
+			'mysqli_result',
+			'mysqli_driver',
+			'mysqli_warning',
+			'mysqli_sql_exception',
 
-					// Mysqlnd_uh - Mysqlnd user handler plugin.
-					// @see http://php.net/book.mysqlnd-uh
-					'MysqlndUhConnection',
-					'MysqlndUhPreparedStatement',
+			// Mysqlnd_uh - Mysqlnd user handler plugin.
+			// @see http://php.net/book.mysqlnd-uh
+			'MysqlndUhConnection',
+			'MysqlndUhPreparedStatement',
 
-				// OCI8 - Oracle OCI8.
-				// @see http://php.net/book.oci8
-				'OCI-Collection',
-				'OCI-Lob',
+			// OCI8 - Oracle OCI8.
+			// @see http://php.net/book.oci8
+			'OCI-Collection',
+			'OCI-Lob',
 
-				// SQLLite.
-				// @see http://php.net/ref.sqlite
-				'SQLiteDatabase',  // Not easy to find in PHP docs.
-				'SQLiteResult',  // Not easy to find  in PHP docs.
-				'SQLiteUnbuffered',  // Not easy to find  in PHP docs.
-				'SQLiteException',	// Not easy to find  in PHP docs.
+			// SQLLite.
+			// @see http://php.net/ref.sqlite
+			'SQLiteDatabase',   // Not easy to find in PHP docs.
+			'SQLiteResult',     // Not easy to find in PHP docs.
+			'SQLiteUnbuffered', // Not easy to find in PHP docs.
+			'SQLiteException',  // Not easy to find in PHP docs.
 
-				// SQLite3.
-				// @see http://php.net/book.sqlite3
-				'SQLite3',
-				'SQLite3Stmt',
-				'SQLite3Result',
+			// SQLite3.
+			// @see http://php.net/book.sqlite3
+			'SQLite3',
+			'SQLite3Stmt',
+			'SQLite3Result',
 
-				// Tokyo_tyrant.
-				// @see http://php.net/book.tokyo-tyrant
-				'TokyoTyrant',
-				'TokyoTyrantTable',
-				'TokyoTyrantQuery',
-				'TokyoTyrantIterator',
-				'TokyoTyrantException',
+			// Tokyo_tyrant.
+			// @see http://php.net/book.tokyo-tyrant
+			'TokyoTyrant',
+			'TokyoTyrantTable',
+			'TokyoTyrantQuery',
+			'TokyoTyrantIterator',
+			'TokyoTyrantException',
 
 
 			/* == Date and Time Related Extensions == */
@@ -280,7 +282,7 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			// @see http://php.net/book.datetime
 			'DateTime',
 			'DateTimeImmutable', // PHP 5.5.0+.
-			'DateTimeInterface', // PHP 5.5.0+.
+			'DateTimeInterface', // PHP 5.5.0+ (interface, not class).
 			'DateTimeZone',
 			'DateInterval',
 			'DatePeriod',
@@ -460,7 +462,7 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			'Threaded',
 			'Thread',
 			'Worker',
-			'Collectable',
+			'Collectable', // Interface.
 			'Pool',
 			'Stackable', // No longer available ?
 			'Mutex',
@@ -472,6 +474,7 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			'SyncSemaphore',
 			'SyncEvent',
 			'SyncReaderWriter',
+			'SyncSharedMemory',
 
 
 			/* == Other Basic Extensions == */
@@ -481,7 +484,7 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 
 			// JSON - JavaScript Object Notation.
 			// @see http://php.net/book.json
-			'JsonSerializable', // PHP 5.4.0+.
+			'JsonSerializable', // PHP 5.4.0+ (interface, not class).
 
 			// Judy - Judy Arrays.
 			// @see http://php.net/book.judy
@@ -494,75 +497,75 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 
 			// SPL - Standard PHP Library (SPL).
 			// @see http://php.net/book.spl
-				// SPL Data structures.
-				'SplDoublyLinkedList',
-				'SplStack',
-				'SplQueue',
-				'SplHeap',
-				'SplMaxHeap',
-				'SplMinHeap',
-				'SplPriorityQueue',
-				'SplFixedArray',
-				'SplObjectStorage',
+			// SPL Data structures.
+			'SplDoublyLinkedList',
+			'SplStack',
+			'SplQueue',
+			'SplHeap',
+			'SplMaxHeap',
+			'SplMinHeap',
+			'SplPriorityQueue',
+			'SplFixedArray',
+			'SplObjectStorage',
 
-				// SPL Iterators.
-				'AppendIterator',
-				'ArrayIterator',
-				'CachingIterator',
-				'CallbackFilterIterator',
-				'DirectoryIterator',
-				'EmptyIterator',
-				'FilesystemIterator',
-				'FilterIterator',
-				'GlobIterator',
-				'InfiniteIterator',
-				'IteratorIterator',
-				'LimitIterator',
-				'MultipleIterator',
-				'NoRewindIterator',
-				'ParentIterator',
-				'RecursiveArrayIterator',
-				'RecursiveCachingIterator',
-				'RecursiveCallbackFilterIterator',
-				'RecursiveDirectoryIterator',
-				'RecursiveFilterIterator',
-				'RecursiveIteratorIterator',
-				'RecursiveRegexIterator',
-				'RecursiveTreeIterator',
-				'RegexIterator',
+			// SPL Iterators.
+			'AppendIterator',
+			'ArrayIterator',
+			'CachingIterator',
+			'CallbackFilterIterator',
+			'DirectoryIterator',
+			'EmptyIterator',
+			'FilesystemIterator',
+			'FilterIterator',
+			'GlobIterator',
+			'InfiniteIterator',
+			'IteratorIterator',
+			'LimitIterator',
+			'MultipleIterator',
+			'NoRewindIterator',
+			'ParentIterator',
+			'RecursiveArrayIterator',
+			'RecursiveCachingIterator',
+			'RecursiveCallbackFilterIterator',
+			'RecursiveDirectoryIterator',
+			'RecursiveFilterIterator',
+			'RecursiveIteratorIterator',
+			'RecursiveRegexIterator',
+			'RecursiveTreeIterator',
+			'RegexIterator',
 
-				'CachingRecursiveIterator', // Not in PHP docs - deprecated.
+			'CachingRecursiveIterator', // Not in PHP docs - deprecated.
 
-				// SPL Interfaces.
-				'Countable',
-				'OuterIterator',
-				'RecursiveIterator',
-				'SeekableIterator',
+			// SPL Interfaces.
+			'Countable',
+			'OuterIterator',
+			'RecursiveIterator',
+			'SeekableIterator',
 
-				// SPL Exceptions.
-				'BadFunctionCallException',
-				'BadMethodCallException',
-				'DomainException',
-				'InvalidArgumentException',
-				'LengthException',
-				'LogicException',
-				'OutOfBoundsException',
-				'OutOfRangeException',
-				'OverflowException',
-				'RangeException',
-				'RuntimeException',
-				'UnderflowException',
-				'UnexpectedValueException',
+			// SPL Exceptions.
+			'BadFunctionCallException',
+			'BadMethodCallException',
+			'DomainException',
+			'InvalidArgumentException',
+			'LengthException',
+			'LogicException',
+			'OutOfBoundsException',
+			'OutOfRangeException',
+			'OverflowException',
+			'RangeException',
+			'RuntimeException',
+			'UnderflowException',
+			'UnexpectedValueException',
 
-				// SPL File Handling.
-				'SplFileInfo',
-				'SplFileObject',
-				'SplTempFileObject',
+			// SPL File Handling.
+			'SplFileInfo',
+			'SplFileObject',
+			'SplTempFileObject',
 
-				// SPL Miscellaneous Classes and Interfaces.
-				'ArrayObject',
-				'SplObserver',
-				'SplSubject',
+			// SPL Miscellaneous Classes and Interfaces.
+			'ArrayObject',
+			'SplObserver',
+			'SplSubject',
 
 			// SPL Types - SPL Type Handling.
 			// @see http://php.net/book.spl-types
@@ -629,13 +632,6 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 
 
 			/* == Other Services == */
-			// AMQP - Deprecated ?
-			'AMQPConnection',
-			'AMQPChannel',
-			'AMQPExchange',
-			'AMQPQueue',
-			'AMQPEnvelope',
-
 			// Chdb - Constant hash database.
 			// @see http://php.net/book.chdb
 			'chdb',
@@ -666,16 +662,6 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			'GearmanTask',
 			'GearmanWorker',
 			'GearmanException',
-
-			// HTTP.
-			// @see http://php.net/book.http
-			'HttpDeflateStream',
-			'HttpInflateStream',
-			'HttpMessage',
-			'HttpQueryString',
-			'HttpRequest',
-			'HttpRequestPool',
-			'HttpResponse',
 
 			// Hyperwave API.
 			// @see http://php.net/book.hwapi
@@ -736,6 +722,10 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			'ZMQPoll',
 			'ZMQDevice',
 
+			// ZooKeeper.
+			// @see http://php.net/book.zookeeper
+			'ZooKeeper',
+
 
 			/* == Search Engine Extensions == */
 			// Solr - Apache Solr.
@@ -787,6 +777,21 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			/* == Text Processing == */
 
 			/* == Variable and Type Related Extensions == */
+			// Data Structures.
+			// PECL icm PHP 7.
+			// @see http://php.net/book.ds
+			'Ds\Collection', // Interface.
+			'Ds\Hashable',   // Interface.
+			'Ds\Sequence',   // Interface.
+			'Ds\Vector',
+			'Ds\Deque',
+			'Ds\Map',
+			'Ds\Pair',
+			'Ds\Set',
+			'Ds\Stack',
+			'Ds\Queue',
+			'Ds\PriorityQueue',
+
 			// Quickhash.
 			// @see http://php.net/book.quickhash
 			'QuickHashIntSet',
@@ -925,7 +930,7 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			'SimpleXMLElement',
 			'SimpleXMLIterator',
 
-			// XMLDiff — XML diff and merge.
+			// XMLDiff - XML diff and merge.
 			// @see http://php.net/book.xmldiff
 			'XMLDiff\Base',
 			'XMLDiff\DOM',
@@ -944,6 +949,57 @@ if ( ! class_exists( 'Debug_Bar_List_PHP_Classes' ) ) {
 			// @see http://php.net/book.xsl
 			'XSLTProcessor',
 
+
+			/* == GUI Extensions == */
+			// UI - PHP7+ & PECL.
+			// @see http://php.net/book.ui
+			'UI\Point',
+			'UI\Size',
+			'UI\Window',
+			'UI\Control',
+			'UI\Menu',
+			'UI\MenuItem',
+			'UI\Area',
+			'UI\Executor',
+			'UI\Controls\Tab',
+			'UI\Controls\Check',
+			'UI\Controls\Button',
+			'UI\Controls\ColorButton',
+			'UI\Controls\Label',
+			'UI\Controls\Entry',
+			'UI\Controls\MultilineEntry',
+			'UI\Controls\Spin',
+			'UI\Controls\Slider',
+			'UI\Controls\Progress',
+			'UI\Controls\Separator',
+			'UI\Controls\Combo',
+			'UI\Controls\EditableCombo',
+			'UI\Controls\Radio',
+			'UI\Controls\Picker',
+			'UI\Controls\Form',
+			'UI\Controls\Grid',
+			'UI\Controls\Group',
+			'UI\Controls\Box',
+			'UI\Draw\Pen',
+			'UI\Draw\Path',
+			'UI\Draw\Matrix',
+			'UI\Draw\Color',
+			'UI\Draw\Stroke',
+			'UI\Draw\Brush',
+			'UI\Draw\Brush\Gradient',
+			'UI\Draw\Brush\LinearGradient',
+			'UI\Draw\Brush\RadialGradient',
+			'UI\Draw\Text\Layout',
+			'UI\Draw\Text\Font',
+			'UI\Draw\Text\Font\Descriptor',
+			'UI\Draw\Text\Font\Weight',
+			'UI\Draw\Text\Font\Italic',
+			'UI\Draw\Text\Font\Stretch',
+			'UI\Draw\Line\Cap',
+			'UI\Draw\Line\Join',
+			'UI\Key',
+			'UI\Exception\InvalidArgumentException',
+			'UI\Exception\RuntimeException',
 		);
 	} // End of class Debug_Bar_List_PHP_Classes.
 
