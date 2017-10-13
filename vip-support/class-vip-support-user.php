@@ -487,7 +487,7 @@ class User {
 
 		$check_hash = $this->create_check_hash( get_current_user_id(), $stored_verification_code, $user->user_email );
 
-		if ( $check_hash !== $hash_sent ) {
+		if ( ! hash_equals( $check_hash, $hash_sent ) ) {
 			wp_die( $rebuffal_message, $rebuffal_title, array( 'response' => 403 ) );
 		}
 
@@ -495,6 +495,7 @@ class User {
 		$this->mark_user_email_verified( $user->ID, $user->user_email );
 
 		// If the user is an A12n, add them to the support role
+		// Only promotes the user if from the inactive user role
 		if ( $this->is_a8c_email( $user->user_email ) ) {
 			$this->promote_user_to_vip_support( $user->ID );
 		}
@@ -778,18 +779,27 @@ class User {
 	}
 
 	/**
-	 *
+	 * Promote an inactive support user
 	 *
 	 * @param $user_id
+	 * @return bool
 	 */
 	protected function promote_user_to_vip_support( $user_id ) {
 		$user = new WP_User( $user_id );
+
+		// Don't promote a user unless that person is an inactive support user
+		if ( ! self::user_has_vip_support_role( $user->ID, false ) ) {
+			return false;
+		}
+
 		$user->set_role( Role::VIP_SUPPORT_ROLE );
 		if ( is_multisite() ) {
 			require_once( ABSPATH . '/wp-admin/includes/ms.php' );
 			grant_super_admin( $user_id );
 		}
 		update_user_meta( $user->ID, $GLOBALS['wpdb']->get_blog_prefix() . 'user_level', 10 );
+
+		return true;
 	}
 
 	/**

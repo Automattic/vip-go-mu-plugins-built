@@ -30,6 +30,17 @@ class Role {
 	const VERSION = 2;
 
 	/**
+	 * Capabilities that even VIP Support shouldn't have
+	 *
+	 * ie, filesystem is read-only, regardless of WP role
+	 */
+	const BANNED_CAPABILITIES = array(
+		'edit_files',
+		'edit_plugins',
+		'edit_themes',
+	);
+
+	/**
 	 * Initiate an instance of this class if one doesn't
 	 * exist already. Return the Role instance.
 	 *
@@ -94,6 +105,8 @@ class Role {
 	 */
 	public function filter_user_has_cap( array $user_caps, array $caps, array $args, WP_User $user ) {
 		if ( in_array( self::VIP_SUPPORT_ROLE, $user->roles ) && is_proxied_automattician() ) {
+			$caps = array_diff( $caps, self::BANNED_CAPABILITIES );
+
 			foreach ( $caps as $cap ) {
 				$user_caps[$cap] = true;
 			}
