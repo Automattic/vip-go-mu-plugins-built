@@ -1,10 +1,6 @@
-![VIP Dashboard](http://cloud.scott.ee/images/vip-dashboard.png)
-
-See also: [README-PUBLIC.md](README-PUBLIC.md)
-
 # VIP Dashboard
 
-WordPress plugin that provides a new dashboard for VIP and VIPv2 clients. The new interface features statistics and a new suite of tools for v2.
+WordPress plugin that provides a new dashboard for VIP Go clients.
 
 The interface is built with [React.js](https://facebook.github.io/react/).
 
@@ -14,7 +10,7 @@ The interface is built with [React.js](https://facebook.github.io/react/).
 
 Make sure you have [Node.js](https://nodejs.org/) and [NPM](https://docs.npmjs.com/getting-started/what-is-npm) installed. Here's a [handy installer](https://nodejs.org/download/) for Windows, Mac, and Linux.
 
-The repository is a sub-module of the [mu-plugins](https://github.com/Automattic/vipv2-mu-plugins) directory. The dashboard is dependent on functions that exists within the mu-plugins repository and will not work without them.
+The repository is a sub-module of the [mu-plugins](https://github.com/Automattic/vip-go-mu-plugins) directory.
 
 ### Gulp
 
@@ -73,7 +69,6 @@ To test your JavaScript for errors.
 │   └── js
 ├── components
 │   └── ... react components
-├── plugins-ui
 
 ```
 
@@ -85,10 +80,6 @@ Compiled assets, do not edit anything here.
 
 Where each react component lives with the relevent JSX and SCSS files.
 
-### plugins-ui
-
-Plugins interface adopted from v1.
-
 ## Git Workflow
 
 * The Master branch is production code (i.e. completely deployable by the time it gets merged)
@@ -99,7 +90,3 @@ Plugins interface adopted from v1.
 * No development takes place on Master or Develop (if Develop exists)
 * Nobody should merge code they’ve written, instead create a Pull Request and ask another colleague to merge it
 * Pull Requests should not be monstrous quantities of code, or they’ll be too daunting to review
-
-## Coding Standards
-
-[Coding Guidelines »](https://github.com/Automattic/calypso-pre-oss/blob/master/docs/coding-guidelines.md)

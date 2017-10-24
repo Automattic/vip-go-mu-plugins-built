@@ -23,10 +23,6 @@ var Header = React.createClass( {
 				{
 					title: 'Dashboard',
 					url: 'vip-dashboard'
-				},
-				{
-					title: 'Plugins',
-					url: 'vip-plugins'
 				}
 			]
 		};
@@ -35,7 +31,7 @@ var Header = React.createClass( {
 	render: function() {
 		return (
 			<div className={ joinClasses( this.props.className, 'top-header' ) }>
-				<h1><img src={ Config.asseturl + 'img/wpcom-vip-logo.svg' } alt="WordPress.com VIP" className="top-header__logo" /></h1>
+				<h1><a href="https://vip.wordpress.com" target="_blank"><img src={ Config.asseturl + 'img/wpcom-vip-logo.svg' } alt="WordPress.com VIP" className="top-header__logo" /></a></h1>
 
 				<Nav items={ this.state.nav } />,
 

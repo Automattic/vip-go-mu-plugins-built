@@ -2,16 +2,16 @@
  * Top Header
  */
 .top-header {
-	padding: .225em 2em;
-	background: $graphite-dark-var;
+	padding: 0.5em 3em;
+	background: $grey-dark;
 }
 
 .top-header h1 {
-	margin: .75em 0 .3125em;
+	margin: 0.5em 0 0 0;
 }
 
 .top-header__logo {
-	width: 85px;
+	width: 82px;
 	height: auto;
 	margin: 0;
 }

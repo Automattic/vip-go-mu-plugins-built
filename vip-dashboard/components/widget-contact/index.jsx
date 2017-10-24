@@ -177,7 +177,7 @@ var Widget_Contact = React.createClass( {
 							<label></label>
 						</div>
 						<div className="contact-form__input">
-							<input type="submit" value="Submit Request" disabled={!this.state.cansubmit} />
+							<input type="submit" value="Send Request" disabled={!this.state.cansubmit} />
 						</div>
 					</div>
 				</form>

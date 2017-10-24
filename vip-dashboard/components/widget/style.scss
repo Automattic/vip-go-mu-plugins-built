@@ -4,6 +4,8 @@
 
 .widgets-area {
 	padding: 1%;
+	max-width: 1250px;
+	margin: 0 auto;
 	
 	@media screen and (max-width: 600px) {
 		padding: 2%;
@@ -13,16 +15,11 @@
 .widget {
 	display: block;
 	float: left;
-	width: 36%;
+	width: 48%;
 	margin: 1%;
 	padding: 2em;
-	background: $white;
-	border: 1px solid $blue-border;
-	border-radius: 2px;
-	
-	@media screen and (max-width: 1280px) {
-		width: 48%;
-	}
+	background: $vip-white;
+	border: 1px solid $vip-grey-2;
 	
 	@media screen and (max-width: 600px) {
 		width: 100%;
@@ -30,16 +27,17 @@
 	}
 	
 	a {
-		color: $blue;
-		text-decoration: none;
+		color: $vip-gold;
+		text-decoration: underline;
 	
 		&:hover {
 			text-decoration: underline;
+			color: $vip-grey;
 		}
 	}
 	
 	p {
-		color: $blue-dark;
+		color: $vip-grey;
 	}
 
 	&.widget-small {
@@ -70,8 +68,7 @@
 
 .widget__subtitle {
 	margin-top: 3em;
-	font-size: 1em;
-	text-transform: uppercase;
+	font-size: 1.2em;
 }
 
 .widget__col-2 {
@@ -112,7 +109,7 @@
 
 	span {
 		font-size: .9em;
-		color: $blue-light;
+		color: $vip-grey-1;
 	}
 }
 

@@ -51,7 +51,7 @@ var Widget_Welcome = React.createClass( {
 							<span>Navigating VIP Tools</span>
 						</li>
 						<li>
-							<a href="https://vip.wordpress.com/blog/" target="_blank">VIP News</a>
+							<a href="https://vip.wordpress.com/news/" target="_blank">VIP News</a>
 							<span>New features, case studies</span>
 						</li>
 						<li>

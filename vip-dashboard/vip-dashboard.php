@@ -4,22 +4,13 @@
  * Plugin URI: http://vip.wordpress.com
  * Description: WordPress VIP Go Dashboard
  * Author: Scott Evans, Filipe Varela
- * Version: 2.0.4
+ * Version: 2.1.0
  * Author URI: http://vip.wordpress.com
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: vip-dashboard
  * Domain Path: /languages/
 */
-
-/**
- * Initiate the WPCOM_VIP_Plugins_UI class immediately as the WPCOM_VIP_Plugins_UI
- * class manages it's own actions and priorities
- *
- * Despite it's name, the class is also responsible for loading the plugins on both
- * frontend and backend, so it always has to be loaded and initialised
- */
-require __DIR__ . '/plugins-ui/plugins-ui.php';
 
 /**
  * Boot the new VIP Dashboard
@@ -36,8 +27,6 @@ function vip_dashboard_init() {
 	add_action( 'admin_menu', 'wpcom_vip_admin_menu', 5 );
 	add_action( 'admin_menu', 'wpcom_vip_rename_vip_menu_to_dashboard', 50 );
 
-	// Remove standard WP plugins screen.
-	add_action( 'admin_menu', 'vip_dashboard_remove_menu_pages' );
 }
 add_action( 'plugins_loaded', 'vip_dashboard_init' );
 
@@ -59,15 +48,6 @@ function vip_dashboard_admin_styles() {
 function vip_dashboard_admin_scripts() {
 	wp_register_script( 'vip-dashboard-script', plugins_url( '/assets/js/vip-dashboard.js', __FILE__ ), array( 'jquery' ), '1.0', true );
 	wp_enqueue_script( 'vip-dashboard-script' );
-}
-
-/**
- * Remove plugins menu item for all but vip_support
- *
- * @return void
- */
-function vip_dashboard_remove_menu_pages() {
-	remove_menu_page( 'plugins.php' );
 }
 
 /**

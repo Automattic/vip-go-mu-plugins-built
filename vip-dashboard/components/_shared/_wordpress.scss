@@ -5,7 +5,7 @@
 
 #wpbody-content,
 body.toplevel_page_vip-dashboard {
-	background: #edf3f7;
+	background: $vip-grey-3;
 }
 
 body.toplevel_page_vip-dashboard #wpcontent {
@@ -20,8 +20,4 @@ body.toplevel_page_vip-dashboard #vp-notice {
 	.auto-fold #wpcontent {
 		padding-left: 0;
 	}
-}
-
-.toplevel_page_vip-dashboard ul#adminmenu>li.current>a.current:after {
-	border-right-color: $graphite-dark-var;
 }
