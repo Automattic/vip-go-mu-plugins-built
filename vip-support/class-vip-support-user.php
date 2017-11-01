@@ -971,7 +971,9 @@ class User {
 
 		$stale = self::remove_stale_support_users();
 
-		error_log( "VIP Support user removals attempted: \n" . var_export( compact( 'stale' ), true ) );
+		if ( ! empty( $stale ) ) {
+			error_log( "VIP Support user removals attempted: \n" . var_export( compact( 'stale' ), true ) );
+		}
 	}
 }
 
