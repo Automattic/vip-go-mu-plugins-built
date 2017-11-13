@@ -84,7 +84,15 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 		$run = \Automattic\WP\Cron_Control\run_event( $timestamp, $action, $instance );
 
 		if ( is_wp_error( $run ) ) {
-			\WP_CLI::error( $run->get_error_message() );
+			$error_data = $run->get_error_data();
+
+			if ( isset( $error_data['status'] ) && 404 === $error_data['status'] ) {
+				\WP_CLI::warning( $run->get_error_message() );
+
+				exit;
+			} else {
+				\WP_CLI::error( $run->get_error_message() );
+			}
 		} elseif ( isset( $run['success'] ) && true === $run['success'] ) {
 			\WP_CLI::success( $run['message'] );
 		} else {
