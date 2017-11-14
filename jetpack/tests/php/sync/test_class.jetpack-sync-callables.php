@@ -74,12 +74,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
 			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
+			'get_plugins_action_links'		   => Jetpack_Sync_functions::get_plugins_action_links(),
 			'active_modules'                   => Jetpack::get_active_modules(),
 			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
-			'get_editable_roles'               => get_editable_roles(),
+			'roles'                            => Jetpack_Sync_Functions::roles(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -145,7 +146,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
-		
+
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
 		$this->assertEquals(  array( 'stats' ), $synced_value  );
 
@@ -393,7 +394,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
-		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of 
+		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
@@ -428,7 +429,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
-		
+
 		Jetpack_Sync_Settings::set_doing_cron( false );
 		$this->sender->do_sync();
 		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
@@ -480,7 +481,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sanitize_sync_taxonomies_method() {
-		
+
 		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
 
@@ -512,8 +513,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
-		$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'home' ) );
-		$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		if ( is_multisite() ) {
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		} else {
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		}
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
@@ -535,6 +541,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 	}
 
+	function test_raw_home_url_is_https_when_is_ssl() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+
+		$home_option = get_option( 'home' );
+
+		// Test without https first
+		$this->assertEquals(
+			$home_option,
+			Jetpack_Sync_Functions::home_url()
+		);
+
+		// Now, with https
+		$_SERVER['HTTPS'] = 'on';
+		$this->assertEquals(
+			set_url_scheme( $home_option, 'https' ),
+			Jetpack_Sync_Functions::home_url()
+		);
+		unset( $_SERVER['HTTPS'] );
+	}
+
 	function test_user_can_stop_raw_urls() {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
@@ -551,10 +577,56 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 	}
 
+	function test_plugin_action_links_get_synced() {
+		$helper_all = new Jetpack_Sync_Test_Helper();
+		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
+		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
+
+		$helper_jetpack = new Jetpack_Sync_Test_Helper();
+		$helper_jetpack->array_override = array( '<a href="settings.php">settings</a>', '<a href="https://jetpack.com/support">support</a>' );
+		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
+
+		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
+		$callables_module->set_plugin_action_links();
+		// Let's see if the original values get synced
+		$this->sender->do_sync();
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+
+		$expected_array = array(
+			'hello.php' => array(
+				'fun' => admin_url( 'fun.php' )
+			),
+			'jetpack/jetpack.php' => array(
+				'settings' => admin_url( 'settings.php' ),
+				'support' => 'https://jetpack.com/support'
+			)
+		);
+  		$this->assertEquals( $expected_array, $plugins_action_links );
+
+		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
+		$this->resetCallableAndConstantTimeouts();
+		$callables_module->set_plugin_action_links();
+		$this->sender->do_sync();
+
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+		// Nothing should have changed since we cache the results.
+		$this->assertEquals( $plugins_action_links, $expected_array );
+
+		activate_plugin('hello.php', '', false, true );
+		$this->resetCallableAndConstantTimeouts();
+		$callables_module->set_plugin_action_links();
+		$this->sender->do_sync();
+
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+		// Links should have changes now since we activated the plugin.
+		$expected_array['hello.php'] = array( 'not fun' => admin_url( 'not-fun.php' ) );
+		$this->assertEquals( $plugins_action_links, $expected_array );
+	}
+
 	function __return_filtered_url() {
 		return 'http://filteredurl.com';
 	}
-	
+
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 
@@ -592,7 +664,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 
 	}
-
 }
 
 /* Example Test Taxonomy */

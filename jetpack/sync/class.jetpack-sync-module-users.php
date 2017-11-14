@@ -50,7 +50,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		// user authentication
 		add_action( 'wp_login', $callable, 10, 2 );
-		add_action( 'wp_login_failed', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 	}
@@ -71,9 +70,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function sanitize_user_and_expand( $user ) {
-		$user = $this->sanitize_user( $user );
-
-		return $this->add_to_user( $user );
+		$user = $this->add_to_user( $user );
+		return $this->sanitize_user( $user );
 	}
 
 	public function sanitize_user( $user ) {
@@ -84,6 +82,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			unset( $user->data->user_pass );
 		}
 
+		$user->allcaps = $this->get_real_user_capabilities( $user );
 		return $user;
 	}
 
@@ -99,6 +98,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		return $user;
+	}
+
+	public function get_real_user_capabilities( $user ) {
+		$user_capabilities = array();
+		foreach( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
+			if ( $user_has_capabilities = user_can( $user , $capability ) ) {
+				$user_capabilities[ $capability ] = true;
+			}
+		}
+		return $user_capabilities;
 	}
 
 	public function expand_user( $args ) {

@@ -191,7 +191,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
-		if ( ! ( comments_open( $post->ID ) || current_user_can( 'moderate_comments' ) ) ) {
+		if ( ! comments_open( $post->ID ) && ! current_user_can( 'edit_post', $post->ID ) ) {
 			return new WP_Error( 'unauthorized', 'Comments on this post are closed', 403 );
 		}
 
@@ -225,6 +225,17 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 				}
 				if ( !isset( $user->ID ) ) {
 					$user->ID = 0;
+				}
+
+				// If we have a user with an external ID saved, we can use it.
+				if (
+					! $auth_required
+					&& $user->ID
+					&& (
+						$author = get_user_by( 'id', intval( $user->ID ) )
+					)
+				) {
+					$user = $author;
 				}
 			} else {
 				$auth_required = true;
@@ -292,10 +303,6 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		$comment_status = wp_get_comment_status( $comment->comment_ID );
-		if ( $comment_status !== $update['comment_status'] && !current_user_can( 'moderate_comments' ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot moderate comments', 403 );
-		}
-
 		if ( isset( $update['comment_status'] ) ) {
 			switch ( $update['comment_status'] ) {
 				case 'approved' :

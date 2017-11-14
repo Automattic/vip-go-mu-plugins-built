@@ -69,7 +69,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
 	}
-	
+
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
@@ -114,10 +114,14 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function get_update_checksum( $value ) {
 		// Create an new array so we don't modify the object passed in.
 		$a_value = (array) $value;
-
 		// ignore `last_checked`
 		unset( $a_value['last_checked'] );
 		unset( $a_value['checked'] );
+		unset( $a_value['version_checked'] );
+		if ( empty( $a_value['updates'] ) ) {
+			unset( $a_value['updates'] );
+		}
+
 		if ( empty( $a_value ) ) {
 			return false;
 		}
@@ -208,5 +212,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			$theme_data['name'] = $theme->name;
 		}
 		return $args;
+	}
+
+	public function reset_data() {
+		delete_option( self::UPDATES_CHECKSUM_OPTION_NAME );
 	}
 }

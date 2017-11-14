@@ -4,6 +4,8 @@
  *
  * @since 4.4.0
  */
+require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
@@ -654,6 +656,21 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test onboarding token and make sure it's a network option.
+	 *
+	 * @since 5.4.0
+	 */
+	public function test_check_onboarding_token() {
+		$this->assertFalse( Jetpack_Options::get_option( 'onboarding' ) );
+
+		Jetpack::create_onboarding_token();
+
+		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
+		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
+		$this->assertTrue( in_array( 'onboarding', Jetpack_Options::get_option_names( 'network' ) ) );
+	}
+
+	/**
 	 * Test connection url build when there's a blog token or id.
 	 *
 	 * @since 4.4.0
@@ -863,5 +880,143 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'jumpstart', array( 'active' => false ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 	}
+
+	/**
+	 * Test fetching milestone widget data.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_milestone_widget_data() {
+		jetpack_register_widget_milestone();
+
+		global $_wp_sidebars_widgets, $wp_registered_widgets;
+
+		$widget_instances = array(
+			3 => array(
+				'title' => 'Ouou',
+				'event' => 'The Biog Day',
+				'unit' => 'years',
+				'type' => 'until',
+				'message' => 'The big day is here.',
+				'year' => date( 'Y' ) + 10,
+				'month' => date( 'm' ),
+				'hour' => '0',
+				'min' => '00',
+				'day' => date( 'd' )
+			)
+		);
+
+		update_option( 'widget_milestone_widget', $widget_instances );
+
+		$sidebars = wp_get_sidebars_widgets();
+		foreach( $sidebars as $key => $sidebar ) {
+			$sidebars[ $key ][] = 'milestone_widget-3';
+		}
+		$_wp_sidebars_widgets = $sidebars;
+		wp_set_sidebars_widgets( $sidebars );
+
+		$wp_registered_widgets['milestone_widget-3'] = array(
+			'name' => 'Milestone Widget',
+			'id' => 'milestone_widget-3',
+			'callback' => array( 'Milestone_Widget', 'widget' ),
+			'params' => array()
+		);
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		// Should return the widget data
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+			),
+			$response
+		);
+
+		$widget_instances[3] = array_merge(
+			$widget_instances[3],
+			array(
+				'year' => date( 'Y' ) + 1,
+				'unit' => 'months',
+			)
+		);
+		update_option( 'widget_milestone_widget', $widget_instances );
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
+			),
+			$response
+		);
+
+		// Cleaning up the sidebars
+		$sidebars = wp_get_sidebars_widgets();
+		foreach( $sidebars as $key => $sidebar ) {
+			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
+		}
+		$_wp_sidebars_widgets = $sidebars;
+		wp_set_sidebars_widgets( $sidebars );
+	}
+
+	/**
+	 * Test fetching a widget that does not exist.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/some_other_slug-133', array(), 'GET' );
+
+		// Fails because there is no such widget
+		$this->assertResponseStatus( 404, $response );
+
+		unregister_widget( 'Milestone_Widget' );
+	}
+
+	/**
+	 * Test fetching a nonexistent instance of an existing widget.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_instance_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-333', array(), 'GET' );
+
+		// Fails because there is no such widget instance
+		$this->assertResponseStatus( 404, $response );
+
+		unregister_widget( 'Milestone_Widget' );
+	}
+
+	/**
+	 * Test fetching a widget that exists but has not been registered.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_not_registered_widget_data() {
+		update_option(
+			'widget_milestone_widget',
+			array(
+				3 => array(
+					'title' => 'Ouou',
+					'event' => 'The Biog Day',
+				)
+			)
+		);
+
+		foreach( wp_get_sidebars_widgets() as $sidebar ) {
+			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
+		}
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		// Fails because the widget is inactive
+		$this->assertResponseStatus( 404, $response );
+	}
+
 
 } // class end

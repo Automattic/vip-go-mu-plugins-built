@@ -1030,7 +1030,7 @@
 .form-toggle + .form-toggle__label .form-toggle__switch {
   background: #a8bece; }
 
-.form-toggle:not(:disabled) + .form-toggle__label .form-toggle__switch:hover {
+.form-toggle:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
   background: #c8d7e1; }
 
 .form-toggle:checked + .form-toggle__label .form-toggle__switch {
@@ -1038,7 +1038,7 @@
   .form-toggle:checked + .form-toggle__label .form-toggle__switch:after {
     right: 16px; }
 
-.form-toggle:checked:not(:disabled) + .form-toggle__label .form-toggle__switch:hover {
+.form-toggle:checked:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
   background: #78dcfa; }
 
 .form-toggle:disabled + label.form-toggle__label span.form-toggle__switch {
