@@ -29,6 +29,8 @@ import tap from 'gulp-tap';
 import uglify from 'gulp-uglify';
 import util from 'gulp-util';
 import webpack from 'webpack';
+import gulpif from 'gulp-if';
+import saveLicense from 'uglify-save-license';
 
 /**
  * Internal dependencies
@@ -75,6 +77,41 @@ function onBuild( done ) {
 				} );
 		}
 
+		const is_prod = 'production' === process.env.NODE_ENV;
+
+		const supportedModules = [
+			'shortcodes'
+		];
+
+		// Source any JS for whitelisted modules, which will minimize us shipping much
+		// more JS that we haven't pointed to in PHP yet.
+		// Example output: modules/(shortcodes|widgets)/**/*.js
+		const supportedModulesSource = `modules/@(${supportedModules.join( '|' ) })/**/*.js`;
+
+		// Uglify other JS from _inc and supported modules
+		const sources = [
+			'_inc/*.js',
+			supportedModulesSource
+		];
+
+		// Don't process minified JS in _inc or modules directories
+		const sourceNegations = [
+			'!_inc/*.min.js',
+			'!modules/**/*.min.js'
+		];
+		gulp.src( Array.concat( sources, sourceNegations ) )
+			.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
+			.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
+			.pipe( uglify( {
+				preserveComments: saveLicense
+			} ) )
+			.pipe( rename( { suffix: '.min' } ) )
+			.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
+			.pipe( gulp.dest( '_inc/build' ) )
+			.on( 'end', function() {
+				util.log( 'Your other JS is now uglified!' );
+			} );
+
 		doSass( function() {
 			if ( done ) {
 				doStatic( done );
@@ -86,11 +123,7 @@ function onBuild( done ) {
 }
 
 function getWebpackConfig() {
-	// clone and extend webpackConfig
-	const config = Object.create( require( './webpack.config.js' ) );
-	config.debug = true;
-
-	return config;
+	return Object.create( require( './webpack.config.js' ) );
 }
 
 function doSass( done ) {
@@ -143,8 +176,12 @@ gulp.task( 'sass:watch', function() {
 gulp.task( 'react:build', function( done ) {
 	const config = getWebpackConfig();
 
-	if ( 'production' === process.env.NODE_ENV ) {
-		config.debug = false;
+	if ( 'production' !== process.env.NODE_ENV ) {
+		config.plugins.push(
+			new webpack.LoaderOptionsPlugin( {
+				debug: true
+			} )
+		);
 	}
 
 	webpack( config ).run( onBuild( done ) );

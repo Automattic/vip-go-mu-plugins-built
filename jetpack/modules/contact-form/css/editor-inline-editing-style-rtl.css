@@ -136,12 +136,6 @@ input[type="email"] {
 	box-shadow: none;
 }
 
-input[type="text"]::-webkit-input-placeholder,
-input[type="tel"]::-webkit-input-placeholder,
-input[type="email"]::-webkit-input-placeholder {
-	color: #87a6bc;
-}
-
 input[type="text"]:-ms-input-placeholder,
 input[type="tel"]:-ms-input-placeholder,
 input[type="email"]:-ms-input-placeholder {
@@ -189,12 +183,6 @@ input[type="email"]:disabled:hover {
 	cursor: default;
 }
 
-input[type="text"]:disabled::-webkit-input-placeholder,
-input[type="tel"]:disabled::-webkit-input-placeholder,
-input[type="email"]:disabled::-webkit-input-placeholder {
-	color: #a8bece;
-}
-
 input[type="text"]:disabled:-ms-input-placeholder,
 input[type="tel"]:disabled:-ms-input-placeholder,
 input[type="email"]:disabled:-ms-input-placeholder {
@@ -231,10 +219,6 @@ textarea {
 	box-shadow: none;
 }
 
-textarea::-webkit-input-placeholder {
-	color: #87a6bc;
-}
-
 textarea:-ms-input-placeholder {
 	color: #87a6bc;
 }
@@ -266,10 +250,6 @@ textarea:disabled {
 
 textarea:disabled:hover {
 	cursor: default;
-}
-
-textarea:disabled::-webkit-input-placeholder {
-	color: #a8bece;
 }
 
 textarea:disabled:-ms-input-placeholder {
@@ -443,11 +423,6 @@ input[type="radio"]:disabled {
 .radio-button:disabled:hover,
 input[type="radio"]:disabled:hover {
 	cursor: default;
-}
-
-.radio-button:disabled::-webkit-input-placeholder,
-input[type="radio"]:disabled::-webkit-input-placeholder {
-	color: #a8bece;
 }
 
 .radio-button:disabled:-ms-input-placeholder,

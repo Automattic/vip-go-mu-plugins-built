@@ -204,6 +204,11 @@ class Jetpack {
 			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 		),
+		'lazy-images' => array(
+			'Lazy Load'              => 'lazy-load/lazy-load.php',
+			'BJ Lazy Load'           => 'bj-lazy-load/bj-lazy-load.php',
+			'Lazy Load by WP Rocket' => 'rocket-lazy-load/rocket-lazy-load.php',
+		),
 	);
 
 	/**
@@ -916,23 +921,50 @@ class Jetpack {
 	 */
 	public function register_assets() {
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script( 'spin', plugins_url( '_inc/spin.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
+			wp_register_script(
+				'spin',
+				self::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
+				false,
+				'1.3'
+			);
 		}
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
+			wp_register_script(
+				'jquery.spin',
+				self::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
+				array( 'jquery', 'spin' ),
+				'1.3'
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
+			wp_register_script(
+				'jetpack-gallery-settings',
+				self::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				array( 'media-views' ),
+				'20121225'
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
+			wp_register_script(
+				'jetpack-twitter-timeline',
+				self::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
+				array( 'jquery' ),
+				'4.0.0',
+				true
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
-			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/facebook-embed.js', __FILE__ ), array( 'jquery' ), null, true );
+			wp_register_script(
+				'jetpack-facebook-embed',
+				self::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
+				array( 'jquery' ),
+				null,
+				true
+			);
 
 			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
@@ -1449,6 +1481,7 @@ class Jetpack {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'vip',
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
@@ -6128,32 +6161,35 @@ p {
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
-		$returned_values = get_transient( 'jetpack_idc_option' );
-		if ( false === $returned_values ) {
+		// Since the local options will hit the database directly, store the values
+		// in a transient to allow for autoloading and caching on subsequent views.
+		$local_options = get_transient( 'jetpack_idc_local' );
+		if ( false === $local_options ) {
 			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 			$local_options = array(
 				'home'    => Jetpack_Sync_Functions::home_url(),
 				'siteurl' => Jetpack_Sync_Functions::site_url(),
 			);
+			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
+		}
 
-			$options = array_merge( $local_options, $response );
+		$options = array_merge( $local_options, $response );
 
-			$returned_values = array();
-			foreach( $options as $key => $option ) {
-				if ( 'error_code' === $key ) {
-					$returned_values[ $key ] = $option;
-					continue;
-				}
-
-				if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
-					continue;
-				}
-
-				$returned_values[ $key ] = $normalized_url;
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			if ( 'error_code' === $key ) {
+				$returned_values[ $key ] = $option;
+				continue;
 			}
 
-			set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
+			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
+				continue;
+			}
+
+			$returned_values[ $key ] = $normalized_url;
 		}
+
+		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 
 		return $returned_values;
 	}
@@ -6805,7 +6841,7 @@ p {
 	 * @return string
 	 */
 	public static function get_jp_emblem() {
-		return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" width="20" height="20" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve"><path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" /></svg>';
+		return '<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 32 32"><path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/></svg>';
 	}
 
 	/*
@@ -6847,7 +6883,7 @@ p {
 					height: 20px;
 				}
 				.jp-emblem-user-admin path {
-					fill: #8cc258;
+					fill: #00BE28;
 				}
 			</style>
 		<?php }
@@ -6895,5 +6931,26 @@ p {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Given a minified path, and a non-minified path, will return
+	 * a minified or non-minified file URL based on whether SCRIPT_DEBUG is set and truthy.
+	 *
+	 * Both `$min_base` and `$non_min_base` are expected to be relative to the
+	 * root Jetpack directory.
+	 *
+	 * @since 5.6.0
+	 *
+	 * @param string $min_path
+	 * @param string $non_min_path
+	 * @return string The URL to the file
+	 */
+	public static function get_file_url_for_environment( $min_path, $non_min_path ) {
+		$path = ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG' ) )
+			? $non_min_path
+			: $min_path;
+
+		return plugins_url( $path, JETPACK__PLUGIN_FILE );
 	}
 }

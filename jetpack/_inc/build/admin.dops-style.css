@@ -932,8 +932,6 @@
   background-color: white;
   transition: all .15s ease-in-out;
   box-shadow: none; }
-  .dops-text-input.dops-text-input::-webkit-input-placeholder {
-    color: #87a6bc; }
   .dops-text-input.dops-text-input:-ms-input-placeholder {
     color: #87a6bc; }
   .dops-text-input.dops-text-input::placeholder {
@@ -953,8 +951,6 @@
     -webkit-text-fill-color: #a8bece; }
     .dops-text-input.dops-text-input:disabled:hover {
       cursor: default; }
-    .dops-text-input.dops-text-input:disabled::-webkit-input-placeholder {
-      color: #a8bece; }
     .dops-text-input.dops-text-input:disabled:-ms-input-placeholder {
       color: #a8bece; }
     .dops-text-input.dops-text-input:disabled::placeholder {
@@ -2078,8 +2074,6 @@ button.dops-foldable-card__action {
   background-color: white;
   transition: all .15s ease-in-out;
   box-shadow: none; }
-  .dops-textarea::-webkit-input-placeholder {
-    color: #87a6bc; }
   .dops-textarea:-ms-input-placeholder {
     color: #87a6bc; }
   .dops-textarea::placeholder {
@@ -2099,8 +2093,6 @@ button.dops-foldable-card__action {
     -webkit-text-fill-color: #a8bece; }
     .dops-textarea:disabled:hover {
       cursor: default; }
-    .dops-textarea:disabled::-webkit-input-placeholder {
-      color: #a8bece; }
     .dops-textarea:disabled:-ms-input-placeholder {
       color: #a8bece; }
     .dops-textarea:disabled::placeholder {
