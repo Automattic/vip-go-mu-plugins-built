@@ -636,10 +636,11 @@ class Jetpack {
 		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
-		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
+		// If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
-		if ( Jetpack_Options::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_links_to_calypso' ), 1, 2 );
+		if ( Jetpack::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
+			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
+			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
 		}
 
 		// Update the Jetpack plan from API on heartbeats
@@ -667,7 +668,7 @@ class Jetpack {
 		}
 	}
 
-	function point_edit_links_to_calypso( $default_url, $post_id ) {
+	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) ) {
@@ -694,6 +695,15 @@ class Jetpack {
 		$site_slug  = Jetpack::build_raw_urls( get_home_url() );
 
 		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+	}
+
+	function point_edit_comment_links_to_calypso( $url ) {
+		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
+		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d?action=edit',
+			Jetpack::build_raw_urls( get_home_url() ),
+			$query_args['amp;c']
+		) );
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
@@ -4038,10 +4048,16 @@ p {
 				} else {
 					Jetpack::create_onboarding_token();
 					$url = $this->build_connect_url( true );
+
+					if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+						$url = add_query_arg( 'onboarding', $token, $url );
+					}
+
 					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
 					if ( $calypso_env ) {
 						$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 					}
+
 					wp_redirect( $url );
 					exit;
 				}
@@ -4484,14 +4500,6 @@ p {
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
-		}
-
-		if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
-			$url = add_query_arg( 'onboarding', $token, $url );
-
-			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
-			// Uncomment for development until it's merged.
-			//$url = add_query_arg( 'calypso_env', 'development', $url );
 		}
 
 		return $raw ? $url : esc_url( $url );
@@ -6966,5 +6974,30 @@ p {
 			: $min_path;
 
 		return plugins_url( $path, JETPACK__PLUGIN_FILE );
+	}
+
+	/**
+	 * Checks for whether Jetpack Rewind is enabled.
+	 * Will return true if the state of Rewind is anything except "unavailable".
+	 * @return bool|int|mixed
+	 */
+	public static function is_rewind_enabled() {
+		if ( ! Jetpack::is_active() ) {
+			return false;
+		}
+
+		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
+		if ( false === $rewind_enabled ) {
+			jetpack_require_lib( 'class.core-rest-api-endpoints' );
+			$rewind_data = (array) Jetpack_Core_Json_Api_Endpoints::rewind_data();
+			$rewind_enabled = ( ! is_wp_error( $rewind_data )
+				&& ! empty( $rewind_data['state'] )
+				&& 'unavailable' !== $rewind_data['state'] )
+				? 1
+				: 0;
+
+			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
+		}
+		return $rewind_enabled;
 	}
 }
