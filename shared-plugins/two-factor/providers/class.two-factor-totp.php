@@ -74,23 +74,24 @@ class Two_Factor_Totp extends Two_Factor_Provider {
 		$this->admin_notices();
 		?>
 		<br />
-		<a href="javascript:;" onclick="jQuery('#two-factor-totp-options').toggle();"><?php esc_html_e( 'View Options &rarr;', 'two-factor' ); ?></a>
-		<div id="two-factor-totp-options" style="display:none;">
-			<?php if ( empty( $key ) ) {
-				$key = $this->generate_key();
-				$site_name = get_bloginfo( 'name', 'display' );
-				?>
-				<img src="<?php echo esc_url( $this->get_google_qr_code( $site_name . ':' . $user->user_login, $key, $site_name ) ); ?>" id="two-factor-totp-qrcode" />
-				<p><strong><?php echo esc_html( $key ); ?></strong></p>
-				<p><?php esc_html_e( 'Please scan the QR code or manually enter the key, then enter an authentication code from your app in order to complete setup', 'two-factor' ); ?></p>
-				<p>
-					<label for="two-factor-totp-authcode"><?php esc_html_e( 'Authentication Code:', 'two-factor' ); ?></label>
-					<input type="hidden" name="two-factor-totp-key" value="<?php echo esc_attr( $key ) ?>" />
-					<input type="tel" name="two-factor-totp-authcode" id="two-factor-totp-authcode" class="input" value="" size="20" pattern="[0-9]*" />
-				</p>
-			<?php } else { ?>
-				<p class="success"><?php esc_html_e( 'Enabled', 'two-factor' ); ?></p>
-			<?php } ?>
+		<?php if ( empty( $key ) ) :
+			$key = $this->generate_key();
+			$site_name = get_bloginfo( 'name', 'display' );
+			?>
+			<a href="javascript:;" onclick="jQuery('#two-factor-totp-options').toggle();"><?php esc_html_e( 'View Options &rarr;', 'two-factor' ); ?></a>
+			<div id="two-factor-totp-options" style="display:none;">
+					<img src="<?php echo esc_url( $this->get_google_qr_code( $site_name . ':' . $user->user_login, $key, $site_name ) ); ?>" id="two-factor-totp-qrcode" />
+					<p><strong><?php echo esc_html( $key ); ?></strong></p>
+					<p><?php esc_html_e( 'Please scan the QR code or manually enter the key, then enter an authentication code from your app in order to complete setup', 'two-factor' ); ?></p>
+					<p>
+						<label for="two-factor-totp-authcode"><?php esc_html_e( 'Authentication Code:', 'two-factor' ); ?></label>
+						<input type="hidden" name="two-factor-totp-key" value="<?php echo esc_attr( $key ) ?>" />
+						<input type="tel" name="two-factor-totp-authcode" id="two-factor-totp-authcode" class="input" value="" size="20" pattern="[0-9]*" />
+					</p>
+			</div>
+		<?php else : ?>
+			<p class="success"><?php esc_html_e( 'Enabled', 'two-factor' ); ?></p>
+		<?php endif; ?>
 		</div>
 		<?php
 	}
@@ -292,8 +293,8 @@ class Two_Factor_Totp extends Two_Factor_Provider {
 	 * @return string A URL to use as an img src to display the QR code
 	 */
 	public static function get_google_qr_code( $name, $key, $title = null ) {
-		// Pre-encode spaces because iOS chokes on them.
-		$name = str_replace( ' ', '%20', $name );
+		// Encode to support spaces, question marks and other characters.
+		$name = rawurlencode( $name );
 		$google_url = urlencode( 'otpauth://totp/' . $name . '?secret=' . $key );
 		if ( isset( $title ) ) {
 			$google_url .= urlencode( '&issuer=' . rawurlencode( $title ) );
