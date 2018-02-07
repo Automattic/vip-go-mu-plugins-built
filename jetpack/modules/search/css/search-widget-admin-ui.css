@@ -3,10 +3,15 @@
 	border: 1px solid #dfdfdf;
 	padding: 0 12px;
 	margin-bottom: 12px;
+	cursor: move;
 }
 
 .jetpack-search-filters-widget__controls {
 	text-align: right;
+}
+
+.jetpack-search-filters-widget .jetpack-search-filters-widget__sort-controls-enabled {
+	margin-left: 24px;
 }
 
 .jetpack-search-filters-widget__controls .delete {
@@ -17,13 +22,8 @@
 	display: none;
 }
 
-/* If there's only one filter, do not show the control to delete it */
-.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .delete {
-	display: none;
-}
-
-.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .control-separator {
-	display: none;
+.button.jetpack-search-filters-widget__add-filter {
+	margin-bottom: 10px;
 }
 
 /* Assume that taxonomy select is the default selected. Other controls should be hidden here. */
@@ -33,6 +33,13 @@
 
 .jetpack-search-filters-widget__date-histogram-select {
 	display: none;
+}
+
+.jetpack-search-filters-widget__filter-placeholder {
+	border: 1px #555 dashed;
+	background-color: #eee;
+	height: 286px;
+	margin-bottom: 12px;
 }
 
 /* When post type is selected, remove the other controls */
@@ -46,5 +53,35 @@
 }
 
 .jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__taxonomy-select {
+	display: none;
+}
+
+.jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {
+	display: none;
+}
+
+.jetpack-search-filters-help:before {
+	display: inline-block;
+	position: relative;
+	font-family: dashicons;
+	font-size: 20px;
+	top: 5px;
+	line-height: 1px;
+	content:"\f223";
+}
+.jetpack-search-filters-help {
+	padding: 5px 5px 15px 0;
+}
+
+.jetpack-search-filters-widget__post-types-select label {
+	display: block;
+	margin-bottom: 4px;
+}
+
+.jetpack-search-filters-widget__post-types-select input[type="checkbox"] {
+	margin-left: 24px;
+}
+
+body.no-js .jetpack-search-filters-widget__add-filter-wrapper {
 	display: none;
 }

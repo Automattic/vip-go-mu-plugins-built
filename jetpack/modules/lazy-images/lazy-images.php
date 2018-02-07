@@ -45,20 +45,49 @@ class Jetpack_Lazy_Images {
 
 		// Do not lazy load avatar in admin bar
 		add_action( 'admin_bar_menu', array( $this, 'remove_filters' ), 0 );
+
+		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
 	}
 
 	public function setup_filters() {
-		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
-		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), 11 );
-		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), 11 );
+		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // run this later, so other content filters have run, including image_add_wh on WP.com
+		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
 		add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
 	public function remove_filters() {
-		remove_filter( 'the_content', array( $this, 'add_image_placeholders' ), 99 );
-		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), 11 );
-		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), 11 );
+		remove_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
 		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+	}
+
+	/**
+	 * Ensure that our lazy image attributes are not filtered out of image tags.
+	 *
+	 * @param array $allowed_tags The allowed tags and their attributes.
+	 * @return array
+	 */
+	public function allow_lazy_attributes( $allowed_tags ) {
+		if ( ! isset( $allowed_tags['img'] ) ) {
+			return $allowed_tags;
+		}
+
+		// But, if images are allowed, ensure that our attributes are allowed!
+		$img_attributes = array_merge( $allowed_tags['img'], array(
+			'data-lazy-src' => 1,
+			'data-lazy-srcset' => 1,
+			'data-lazy-sizes' => 1,
+		) );
+
+		$allowed_tags['img'] = $img_attributes;
+
+		return $allowed_tags;
 	}
 
 	public function add_image_placeholders( $content ) {
@@ -119,6 +148,11 @@ class Jetpack_Lazy_Images {
 	 */
 	static function process_image_attributes( $attributes ) {
 		if ( empty( $attributes['src'] ) ) {
+			return $attributes;
+		}
+
+		// check for gazette featured images, which are incompatible
+		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) ) {
 			return $attributes;
 		}
 

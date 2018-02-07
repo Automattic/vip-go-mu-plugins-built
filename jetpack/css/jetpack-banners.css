@@ -197,6 +197,16 @@ https://github.com/thoughtbot/bourbon
   margin: 0;
 }
 
+.jp-connect-full__button-container .dops-button.is-primary {
+  background: #00BE30;
+  border-color: #00a523;
+}
+
+.jp-connect-full__button-container .dops-button.is-primary:hover, .jp-connect-full__button-container .dops-button.is-primary:focus {
+  background: #00a523;
+  border-color: #008b1d;
+}
+
 .jp-connect-full__help-button {
   display: inline-block;
   text-decoration: none;
@@ -316,6 +326,16 @@ https://github.com/thoughtbot/bourbon
 
 .jp-banner__button-container .dops-button {
   margin: 0.3125rem 0;
+}
+
+.jp-banner__button-container .dops-button.is-primary {
+  background: #00BE30;
+  border-color: #00a523;
+}
+
+.jp-banner__button-container .dops-button.is-primary:hover, .jp-banner__button-container .dops-button.is-primary:focus {
+  background: #00a523;
+  border-color: #008b1d;
 }
 
 .jp-wpcom-connect__vertical-nav {

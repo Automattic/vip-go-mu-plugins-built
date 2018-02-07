@@ -14,7 +14,7 @@ jQuery( document ).ready( function( $ ) {
 			html += '</div>';
 			if ( envelope.CTA.message ) {
 				html += '<div class="jitm-banner__action">';
-				html += '<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.feature_class + '" type="button" class="jitm-button is-compact ' + ( envelope.CTA.primary ? 'is-primary' : '' ) + ' jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '">' + envelope.CTA.message + '</a>';
+				html += '<a href="' + envelope.url + '" target="_blank" rel="noopener noreferrer" title="' + envelope.CTA.message + '" data-module="' + envelope.feature_class + '" type="button" class="jitm-button is-compact ' + ( envelope.CTA.primary ? 'is-primary' : '' ) + ' jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '">' + envelope.CTA.message + '</a>';
 				html += '</div>';
 			}
 			html += '<a href="#" data-module="' + envelope.feature_class + '" class="jitm-banner__dismiss"></a>';
@@ -25,7 +25,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 	};
 
-	var setJITMContent = function( $el, response ) {
+	var setJITMContent = function( $el, response, redirect ) {
 		var template;
 
 		var render = function( $my_template ) {
@@ -52,10 +52,15 @@ jQuery( document ).ready( function( $ ) {
 			template = 'default';
 		}
 
+		response.url = response.url + '&redirect=' + redirect;
+
 		var $template = templates[ template ]( response );
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
 		$el.replaceWith( $template );
+
+		// Add to Jetpack notices within the Jetpack settings app.
+		$template.prependTo( $( '#jp-admin-notices' ) );
 	};
 
 	$( '.jetpack-jitm-message' ).each( function() {
@@ -63,6 +68,7 @@ jQuery( document ).ready( function( $ ) {
 
 		var message_path = $el.data( 'message-path' );
 		var query = $el.data( 'query' );
+		var redirect = $el.data( 'redirect' );
 
 		$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 			message_path: message_path,
@@ -79,7 +85,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 
 			// for now, always take the first response
-			setJITMContent( $el, response[ 0 ] );
+			setJITMContent( $el, response[ 0 ], redirect );
 		} );
 	} );
 } );

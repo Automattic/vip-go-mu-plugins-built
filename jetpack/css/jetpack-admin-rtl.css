@@ -1097,10 +1097,6 @@
   opacity: 0.3;
 }
 
-.table-bordered.jetpack-modules.with-transparency tr.jetpack-module#vaultpress {
-  opacity: 1;
-}
-
 .table-bordered.jetpack-modules.with-transparency tr.jetpack-module td .row-actions span a {
   opacity: 0;
 }

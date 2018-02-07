@@ -27,8 +27,6 @@
     color: #2e4453; }
   .dops-button:active {
     border-width: 2px 1px 1px; }
-  .dops-button:visited {
-    color: #2e4453; }
   .dops-button[disabled], .dops-button:disabled {
     color: #e9eff3;
     background: white;
@@ -1253,9 +1251,10 @@ a.dops-card:focus {
     text-decoration: underline; }
   .dops-notice__text ul {
     margin-bottom: 0;
-    margin-left: 0; }
+    margin-left: 0;
+    list-style: disc; }
   .dops-notice__text li {
-    margin-left: 2em;
+    margin-left: 1.2em;
     margin-top: 0.5em; }
   .dops-notice__text p {
     margin-bottom: 0;
@@ -2170,6 +2169,35 @@ body.dops-modal-showing {
         height: auto;
         border-radius: 5px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); } }
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+.jp-jetpack-connect__button {
+  background: #00BE30;
+  border-color: #00a523;
+  color: white; }
+  .jp-jetpack-connect__button:hover, .jp-jetpack-connect__button:focus {
+    background: #00a523;
+    border-color: #008b1d;
+    color: white; }
 .dops-tooltip.dops-popover .dops-popover__arrow {
   border-width: 6px; }
 
