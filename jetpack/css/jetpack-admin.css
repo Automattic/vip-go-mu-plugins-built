@@ -70,41 +70,18 @@
   }
 }
 
-@-webkit-keyframes "candy" {
-  0% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-  20% {
-    -webkit-transform: scale(1.15);
-            transform: scale(1.15);
-  }
-  60% {
-    -webkit-transform: scale(0.95);
-            transform: scale(0.95);
-  }
-  100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-}
-
 @keyframes "candy" {
   0% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
+    transform: scale(1);
   }
   20% {
-    -webkit-transform: scale(1.15);
-            transform: scale(1.15);
+    transform: scale(1.15);
   }
   60% {
-    -webkit-transform: scale(0.95);
-            transform: scale(0.95);
+    transform: scale(0.95);
   }
   100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
+    transform: scale(1);
   }
 }
 
@@ -774,8 +751,7 @@
 }
 
 .footer .a8c-attribution a:hover:after {
-  -webkit-animation: candy .4s ease-in-out;
-          animation: candy .4s ease-in-out;
+  animation: candy .4s ease-in-out;
 }
 
 @media (min-width: 782px) {

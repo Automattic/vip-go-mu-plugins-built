@@ -145,7 +145,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
 
-		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>';
+		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" height="100px" /></noscript>';
+		$this->assertSame( $expected_html, $html );
 	}
 
 	function test_wp_get_attachment_image_gets_lazy_treatment() {
@@ -180,6 +181,135 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
 	}
 
+	function test_compat_with_wp_kses_post() {
+		$instance = Jetpack_Lazy_Images::instance();
+		remove_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
+
+		$sample_image_srcset = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-srcset="medium.jpg 1000w, large.jpg 2000w">';
+		$sample_img_sizes    = '<img src="placeholder.jpg" data-lazy-src="image.jpg" data-lazy-sizes="(min-width: 36em) 33.3vw, 100vw">';
+
+		$allowed = wp_kses_allowed_html();
+
+		// First, test existence of issue if we don't filter.
+		$no_lazy_srcset = wp_kses_post( $sample_image_srcset );
+		$no_lazy_sizes  = wp_kses_post( $sample_img_sizes );
+
+		$this->assertNotContains( 'data-lazy-src', $no_lazy_srcset );
+		$this->assertNotContains( 'data-lazy-src', $no_lazy_sizes );
+		$this->assertNotContains( 'data-lazy-srcset', $no_lazy_srcset );
+		$this->assertNotContains( 'data-lazy-size', $no_lazy_sizes );
+
+		add_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
+
+		// Second, test that the issue is fixed when we filter.
+		$with_lazy_srcset = wp_kses_post( $sample_image_srcset );
+		$with_lazy_sizes  = wp_kses_post( $sample_img_sizes );
+
+		$this->assertContains( 'data-lazy-src', $with_lazy_srcset );
+		$this->assertContains( 'data-lazy-src', $with_lazy_sizes );
+		$this->assertContains( 'data-lazy-srcset', $with_lazy_srcset );
+		$this->assertContains( 'data-lazy-size', $with_lazy_sizes );
+	}
+
+	/**
+	 * @dataProvider get_dont_process_images_with_classes_data
+	 */
+	function test_dont_process_images_with_classes( $input, $should_skip = true ) {
+		$instance = Jetpack_Lazy_Images::instance();
+		$output = $instance->add_image_placeholders( $input );
+
+		if ( $should_skip ) {
+			$this->assertNotContains( 'src="placeholder.jpg"', $output );
+		} else {
+			$this->assertContains( 'src="placeholder.jpg"', $output );
+		}
+	}
+
+	function get_dont_process_images_with_classes_data() {
+		return array(
+			'skip_lazy' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="skip-lazy"/>',
+			),
+			'gazette_theme_featured_image' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="attachment-gazette-featured-content-thumbnail wp-post-image"/>',
+			),
+			'does_not-skip' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>',
+				false,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_should_skip_image_with_blacklisted_class_data
+	 */
+	function test_should_skip_image_with_blacklisted_class( $expected, $input, $empty_blacklisted_classes = false ) {
+		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $input ) );
+	}
+
+	function get_should_skip_image_with_blacklisted_class_data() {
+		return array(
+			'wp-post-image' => array(
+				false,
+				'wp-post-image'
+			),
+			'skip-lazy' => array(
+				true,
+				'wp-post-image skip-lazy',
+			),
+			'gazette-feature' => array(
+				true,
+				'wp-post-image attachment-gazette-featured-content-thumbnail',
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_should_skip_image_with_filtered_empty_blacklist_data
+	 */
+	function test_should_skip_image_with_filtered_empty_blacklist( $classes ) {
+		$filter_callbacks = array(
+			'__return_empty_string',
+			'__return_empty_array',
+		);
+
+		foreach ( $filter_callbacks as $callback ) {
+			add_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
+			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $classes ) );
+			remove_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
+		}
+	}
+
+	function get_should_skip_image_with_filtered_empty_blacklist_data() {
+		return array(
+			'wp-post-image' => array(
+				'wp-post-image'
+			),
+			'skip-lazy' => array(
+				'wp-post-image skip-lazy',
+			),
+			'gazette-feature' => array(
+				'wp-post-image attachment-gazette-featured-content-thumbnail',
+			),
+		);
+	}
+
+	function test_jetpack_lazy_images_skip_image_with_atttributes_filter() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$src = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+	}
+
 	/*
 	 * Helpers
 	 */
@@ -190,7 +320,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 	public function __set_height_attribute( $attributes ) {
 		if ( ! empty( $attributes['height'] ) ) {
-			$attributes['style'] = sprintf( 'height: %d;', $attributes['height'] );
+			$attributes['style'] = sprintf( 'height: %dpx;', $attributes['height'] );
+			unset( $attributes['height'] );
 		}
 		return $attributes;
 	}
@@ -215,5 +346,9 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		ob_end_clean();
 
 		return trim( $contents );
+	}
+
+	public function __skip_if_srcset( $should_skip, $attributes ) {
+		return isset( $attributes['srcset'] );
 	}
 }

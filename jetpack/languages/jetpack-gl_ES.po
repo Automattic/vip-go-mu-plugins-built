@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the Plugins - Jetpack by WordPress.com - Development (trunk) package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2018-02-05 22:21:47+0000\n"
+"PO-Revision-Date: 2018-02-05 22:21:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,18 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: gl_ES\n"
 "Project-Id-Version: Plugins - Jetpack by WordPress.com - Development (trunk)\n"
+
+#: _inc/jetpack-strings.php:606
+msgid "Sites with large numbers of images can now activate the Lazy Loading Images feature, which significantly speeds up loading times for visitors. Instead of waiting for the entire page to load, Jetpack will instead show pages instantly, and only download additional images when they are about to come into view."
+msgstr ""
+
+#: _inc/jetpack-strings.php:605
+msgid "If this sounds like a great improvement (and it is) you can enable it now by clicking the toggle below."
+msgstr ""
+
+#: _inc/jetpack-strings.php:601
+msgid "Our faster site search is now available to all Professional plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more relevant results to users."
+msgstr ""
 
 #: sync/class.jetpack-sync-module-plugins.php:137
 msgid "Unknown Plugin Update Failure"
@@ -273,7 +285,181 @@ msgstr ""
 msgid "Primary language for the site."
 msgstr ""
 
-#: class.jetpack-connection-banner.php:271
+#: _inc/jetpack-strings.php:608
+msgid "This release of Jetpack brings major new features and big improvements to your WordPress site."
+msgstr ""
+
+#: _inc/jetpack-strings.php:607
+msgid "Speed up your site and its content"
+msgstr ""
+
+#: _inc/jetpack-strings.php:604
+msgid "We have also upgraded all our Premium plan customers to unlimited high-speed video storage (up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads when using features like infinite scroll and embedding rich content."
+msgstr ""
+
+#: _inc/jetpack-strings.php:603
+msgid "Faster, more relevant search results"
+msgstr ""
+
+#: _inc/jetpack-strings.php:602
+msgid "Elasticsearch"
+msgstr ""
+
+#: _inc/jetpack-strings.php:600
+msgid "Read the full announcement!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:599
+msgid "Compare paid plans"
+msgstr ""
+
+#: _inc/jetpack-strings.php:597
+msgid "Major new features from Jetpack"
+msgstr ""
+
+#: _inc/jetpack-strings.php:576
+msgid "Faster, more relevant and more powerful sitewide search."
+msgstr ""
+
+#: _inc/jetpack-strings.php:466
+msgid "Hassle-free design, marketing, and security for your WordPress site. Connect Jetpack to a WordPress.com account to start building your own success story."
+msgstr ""
+
+#: _inc/jetpack-strings.php:464
+msgid "WordPress themes and customization tools for designing your site."
+msgstr ""
+
+#: _inc/jetpack-strings.php:463
+msgid "Design the perfect website"
+msgstr ""
+
+#: _inc/jetpack-strings.php:462
+msgid "Bring your ideas to life with elegant and professional designs and code-free customization tools."
+msgstr ""
+
+#: _inc/jetpack-strings.php:461
+msgid "Jetpack's photon serves up lightning fast, optimized images"
+msgstr ""
+
+#: _inc/jetpack-strings.php:460
+msgid "Jetpack's WordPress themes"
+msgstr ""
+
+#: _inc/jetpack-strings.php:459
+msgid "Professional themes"
+msgstr ""
+
+#: _inc/jetpack-strings.php:458
+msgid "Find the perfect design for your site from hundreds of available themes."
+msgstr ""
+
+#: _inc/jetpack-strings.php:457
+msgid "Jetpack's customization tools"
+msgstr ""
+
+#: _inc/jetpack-strings.php:456
+msgid "Code-free customization"
+msgstr ""
+
+#: _inc/jetpack-strings.php:455
+msgid "Customize your site with endless widget options, image galleries, and embedded media."
+msgstr ""
+
+#: _inc/jetpack-strings.php:454
+msgid "Jetpack's performance features"
+msgstr ""
+
+#: _inc/jetpack-strings.php:452
+msgid "Deliver blazing fast images and video and improve site load times."
+msgstr ""
+
+#: _inc/jetpack-strings.php:451
+msgid "Drive more traffic to your site with Jetpack"
+msgstr ""
+
+#: _inc/jetpack-strings.php:450
+msgid "Increase traffic and revenue"
+msgstr ""
+
+#: _inc/jetpack-strings.php:449
+msgid "Reach more people and earn money with automated marketing tools."
+msgstr ""
+
+#: _inc/jetpack-strings.php:448
+msgctxt "Image alternate text."
+msgid "Decoration: Jetpack clouds"
+msgstr ""
+
+#: _inc/jetpack-strings.php:447
+msgctxt "Image alternate text."
+msgid "Decoration: Jetpack bar graph"
+msgstr ""
+
+#: _inc/jetpack-strings.php:446
+msgid "Jetpack's site stats feature"
+msgstr ""
+
+#: _inc/jetpack-strings.php:444
+msgid "Keep an eye on your success with simple, concise, and mobile-friendly stats."
+msgstr ""
+
+#: _inc/jetpack-strings.php:443
+msgid "Jetpack's publicize features"
+msgstr ""
+
+#: _inc/jetpack-strings.php:442
+msgid "Automated marketing"
+msgstr ""
+
+#: _inc/jetpack-strings.php:441
+msgid "Schedule social media posts in advance, show related content, and give better search results."
+msgstr ""
+
+#: _inc/jetpack-strings.php:440
+msgid "Jetpack's ads and PayPal features"
+msgstr ""
+
+#: _inc/jetpack-strings.php:439
+msgid "Generate revenue"
+msgstr ""
+
+#: _inc/jetpack-strings.php:438
+msgid "Monetize your site with high-quality ads and take PayPal payments."
+msgstr ""
+
+#: _inc/jetpack-strings.php:436 _inc/jetpack-strings.php:437
+msgid "Keep your site safe, 24/7"
+msgstr ""
+
+#: _inc/jetpack-strings.php:435
+msgid "Automatic defense against hacks, malware, spam, data loss, and downtime."
+msgstr ""
+
+#: _inc/jetpack-strings.php:434
+msgid "Jetpack's monitor feature"
+msgstr ""
+
+#: _inc/jetpack-strings.php:432
+msgid "Be alerted about any unexpected downtime the moment it happens."
+msgstr ""
+
+#: _inc/jetpack-strings.php:431
+msgid "Jetpack's Protect features"
+msgstr ""
+
+#: _inc/jetpack-strings.php:429
+msgid "Guard your site against brute force login attacks, spam, and harmfulmalware injections."
+msgstr ""
+
+#: _inc/jetpack-strings.php:428
+msgid "Backup and restore"
+msgstr ""
+
+#: _inc/jetpack-strings.php:427
+msgid "Automatic, real-time backups mean your entire site is always ready to be restored."
+msgstr ""
+
+#: _inc/jetpack-strings.php:401 class.jetpack-connection-banner.php:271
 #: class.jetpack-connection-banner.php:331
 #: class.jetpack-connection-banner.php:385
 #: class.jetpack-connection-banner.php:439
@@ -288,6 +474,14 @@ msgstr ""
 msgid "Set up Jetpack"
 msgstr ""
 
+#: _inc/jetpack-strings.php:357 _inc/jetpack-strings.php:453
+msgid "Speed up your site"
+msgstr ""
+
+#: _inc/jetpack-strings.php:186
+msgid "Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning."
+msgstr ""
+
 #: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:150
 msgctxt "label for formatting JSON"
 msgid "Minify"
@@ -299,6 +493,7 @@ msgid "Pretty"
 msgstr ""
 
 #: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:26
+#: _inc/jetpack-strings.php:598
 msgid "Jetpack Search"
 msgstr ""
 
@@ -413,6 +608,64 @@ msgstr ""
 msgid "Rewind data correctly received."
 msgstr ""
 
+#: _inc/jetpack-strings.php:415
+msgid "Jetpack version %(version)s"
+msgstr ""
+
+#: _inc/jetpack-strings.php:291
+msgid "Replace WordPress built-in search with an improved search experience"
+msgstr ""
+
+#: _inc/jetpack-strings.php:290
+msgid "To configure search filters add the {{link}}Jetpack Search widget to your sidebar{{/link}}."
+msgstr ""
+
+#: _inc/jetpack-strings.php:235
+msgid "Your site is being backed up in real time and regularly scanned for security threats."
+msgstr ""
+
+#: _inc/jetpack-strings.php:190
+msgid "Daily backup of all your site data with unlimited space and one-click restores"
+msgstr ""
+
+#: _inc/jetpack-strings.php:189
+msgid "Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support"
+msgstr ""
+
+#: _inc/jetpack-strings.php:185
+msgid "View your security activity"
+msgstr ""
+
+#: _inc/jetpack-strings.php:183
+msgid " (powered by VaultPress)."
+msgstr ""
+
+#: _inc/jetpack-strings.php:168
+msgid "Replace the default WordPress search with better results that will help your users find what they are looking for."
+msgstr ""
+
+#: _inc/jetpack-strings.php:167
+msgid "Customize Search Widget"
+msgstr ""
+
+#: _inc/jetpack-strings.php:166
+msgid "Activate Search"
+msgstr ""
+
+#: _inc/jetpack-strings.php:116
+msgid "Please correct the issue below and try again."
+msgid_plural "Please correct the issues listed below and try again."
+msgstr[0] ""
+msgstr[1] ""
+
+#: _inc/jetpack-strings.php:93
+msgid "We are making sure your site stays free of security threats. You will be notified if we find one."
+msgstr ""
+
+#: _inc/jetpack-strings.php:55
+msgid "Your site is being backed up in real-time."
+msgstr ""
+
 #: 3rd-party/vaultpress.php:10
 msgid "VaultPress is no longer needed and has been deactivated."
 msgstr ""
@@ -427,6 +680,14 @@ msgstr ""
 
 #: class.jetpack-debugger.php:368
 msgid "I need help with backing up my site."
+msgstr ""
+
+#: _inc/jetpack-strings.php:416
+msgid "Jetpack version"
+msgstr ""
+
+#: _inc/jetpack-strings.php:47
+msgid "{{a}}View your site's activity{{/a}} in a single feed."
 msgstr ""
 
 #: modules/protect/blocked-login-page.php:272
@@ -478,6 +739,26 @@ msgstr ""
 
 #: class.jetpack-cli.php:33
 msgid "Checking status for %s"
+msgstr ""
+
+#: _inc/jetpack-strings.php:631
+msgid "Your Jetpack Professional plan is taking care of business!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:619
+msgid "Your Jetpack Premium plan is powering up!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:609
+msgid "Your Jetpack Personal plan is powering up!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:46
+msgid "Activity"
+msgstr ""
+
+#: _inc/jetpack-strings.php:316
+msgid "Confirm each new phrase you add by pressing enter."
 msgstr ""
 
 #: modules/widgets/milestone/milestone.php:580
@@ -628,6 +909,10 @@ msgstr ""
 msgid "The requested widget was not found."
 msgstr ""
 
+#: _inc/jetpack-strings.php:231
+msgid "{{a}}View details{{/a}}"
+msgstr ""
+
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1013
 msgid "The onboarding token couldn't be deleted."
 msgstr ""
@@ -693,6 +978,94 @@ msgstr ""
 
 #: _inc/lib/class.core-rest-api-endpoints.php:1987
 msgid "Not valid onboarding data."
+msgstr ""
+
+#: _inc/jetpack-strings.php:643
+msgid "Thanks for choosing Jetpack Professional. Jetpack is now backing up your content in real-time, scanning for security threats, and granting access to premium themes."
+msgstr ""
+
+#: _inc/jetpack-strings.php:641
+msgid "With Jetpack Professional, you can create the perfect site with one of over 300 professionally-designed WordPress themes, including more than 200 premium themes. Customize your content with a variety of widgets, or add unlimited videos to your posts and pages -- displayed free of ads or watermarks."
+msgstr ""
+
+#: _inc/jetpack-strings.php:639
+msgid "Growing your following is easy with your Professional plan, thanks to content sharing and scheduling, SEO tools, and built-in subscription options. You can monetize your site with a simple payment button and in-line ads, and monitor the success of your efforts by integrating with Google Analytics."
+msgstr ""
+
+#: _inc/jetpack-strings.php:637
+msgid "Jetpack Professional gives you everything you need to keep your hard work safe, including on-demand backups and malware scans with one-click restores and issue resolution. Your site will be fully protected against spam, malicious code, and brute force login attempts."
+msgstr ""
+
+#: _inc/jetpack-strings.php:636
+msgid "Start exploring Jetpack Professional now to see all the benefits of your new plan."
+msgstr ""
+
+#: _inc/jetpack-strings.php:635
+msgid "Install premium themes"
+msgstr ""
+
+#: _inc/jetpack-strings.php:633
+msgid "Review SEO features"
+msgstr ""
+
+#: _inc/jetpack-strings.php:632
+msgid "Welcome Professional"
+msgstr ""
+
+#: _inc/jetpack-strings.php:630
+msgid "Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for  security threats, and enabling monetization features."
+msgstr ""
+
+#: _inc/jetpack-strings.php:628
+msgid "With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s appearance with one of more than 100 free themes, or enhance your content with unlimited HD video -- all hosted free of ads or watermarks."
+msgstr ""
+
+#: _inc/jetpack-strings.php:626
+msgid "Using Jetpack’s powerful sharing tools, you can automatically share your newest posts on social media, or schedule your content to be re-shared at any date or time you choose. And along with growing your following, you can grow your business with tools like payment buttons and ads."
+msgstr ""
+
+#: _inc/jetpack-strings.php:624
+msgid "Keeping your hard work safe is important, too. Jetpack Premium gives you brute force login protection, automated spam filtering, and malware scanning. You also get daily backups  with hassle-free restores, just in case you need them."
+msgstr ""
+
+#: _inc/jetpack-strings.php:623
+msgid "Start exploring Jetpack Premium now to see all the benefits of your new plan."
+msgstr ""
+
+#: _inc/jetpack-strings.php:622
+msgid "Enable premium video player"
+msgstr ""
+
+#: _inc/jetpack-strings.php:621 _inc/jetpack-strings.php:634
+msgid "Monetize your site with ads"
+msgstr ""
+
+#: _inc/jetpack-strings.php:620
+msgid "Welcome Premium"
+msgstr ""
+
+#: _inc/jetpack-strings.php:618
+msgid "Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and scanning for security threats."
+msgstr ""
+
+#: _inc/jetpack-strings.php:616
+msgid "With Jetpack Personal, you have access to more than 100 free, professionally-designed WordPress themes. Choose the theme that best fits your site and customize colors, images, or add a variety of new widgets."
+msgstr ""
+
+#: _inc/jetpack-strings.php:614
+msgid "Using Jetpack’s powerful Publicize feature and built-in sharing tools, you’ll find new ways to grow your following and increase traffic. Automatically share your newest posts on social media, or allow followers to subscribe via email for your latest content right in their inbox."
+msgstr ""
+
+#: _inc/jetpack-strings.php:612
+msgid "Jetpack keeps you safe, too: you’re protected from spam in comments and contact forms, and our brute force login protection prevents hackers from accessing your data. And if something does go wrong, you can restore a backup of your site in a single click."
+msgstr ""
+
+#: _inc/jetpack-strings.php:611
+msgid "Got it!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:610
+msgid "Welcome personal"
 msgstr ""
 
 #: modules/module-headings.php:118
@@ -862,6 +1235,50 @@ msgstr ""
 msgid "Display second ad below post?"
 msgstr ""
 
+#: _inc/jetpack-strings.php:496
+msgid "Connect your account to get the most out of Jetpack"
+msgstr ""
+
+#: _inc/jetpack-strings.php:400
+msgid "By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com"
+msgstr ""
+
+#: _inc/jetpack-strings.php:392
+msgid "Jetpack Stats People"
+msgstr ""
+
+#: _inc/jetpack-strings.php:391
+msgid "Hello there! Your stats have been activated."
+msgstr ""
+
+#: _inc/jetpack-strings.php:390
+msgid "Just give us a little time to collect data so we can display it for you here."
+msgstr ""
+
+#: _inc/jetpack-strings.php:389
+msgid "Okay, got it!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:267
+msgid "Display ads below posts on"
+msgstr ""
+
+#: _inc/jetpack-strings.php:262
+msgid "Additional ad placements"
+msgstr ""
+
+#: _inc/jetpack-strings.php:261
+msgid "Top of each page"
+msgstr ""
+
+#: _inc/jetpack-strings.php:260
+msgid "Second ad below post"
+msgstr ""
+
+#: _inc/jetpack-strings.php:263
+msgid "Archives"
+msgstr ""
+
 #: modules/theme-tools/content-options/customizer.php:293
 msgid "Display on single projects"
 msgstr ""
@@ -951,6 +1368,122 @@ msgstr ""
 msgid "Are you sure you'd like to stop editing this form without saving your changes?"
 msgstr ""
 
+#: _inc/jetpack-strings.php:595
+msgid "{{subhead}}Only with Jetpack Professional{{/subhead}}{{p}}Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}"
+msgstr ""
+
+#: _inc/jetpack-strings.php:594
+msgid "Explore Professional"
+msgstr ""
+
+#: _inc/jetpack-strings.php:593
+msgid "Compare All Plans"
+msgstr ""
+
+#: _inc/jetpack-strings.php:526
+msgid "Person with laptop"
+msgstr ""
+
+#: _inc/jetpack-strings.php:525
+msgid "Your Jetpack site is ready to go!"
+msgstr ""
+
+#: _inc/jetpack-strings.php:524
+msgid "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard."
+msgstr ""
+
+#: _inc/jetpack-strings.php:469 _inc/jetpack-strings.php:528
+msgid "Stars"
+msgstr ""
+
+#: _inc/jetpack-strings.php:468 _inc/jetpack-strings.php:527
+msgid "Jupiter"
+msgstr ""
+
+#: _inc/jetpack-strings.php:198
+msgid "Welcome to Jetpack Personal"
+msgstr ""
+
+#: _inc/jetpack-strings.php:197
+msgid "Security essentials (daily backups, spam filtering), and priority support."
+msgstr ""
+
+#: _inc/jetpack-strings.php:196
+msgid "Welcome to Jetpack Premium"
+msgstr ""
+
+#: _inc/jetpack-strings.php:195
+msgid "Enhanced security (backups, scanning, spam filtering), marketing automation (social scheduling, ad program), 13Gb video hosting, and priority support."
+msgstr ""
+
+#: _inc/jetpack-strings.php:194
+msgid "Welcome to Jetpack Professional"
+msgstr ""
+
+#: _inc/jetpack-strings.php:193
+msgid "Unlimited Premium themes, business class security (backups, scanning, spam filtering), marketing automation (social scheduling, SEO tools, ad program), video hosting, and priority support."
+msgstr ""
+
+#: _inc/jetpack-strings.php:165
+msgid "Social Media Scheduling"
+msgstr ""
+
+#: _inc/jetpack-strings.php:164
+msgid "Schedule multiple Facebook, Twitter, and other social media postings in advance and view share history stats."
+msgstr ""
+
+#: _inc/jetpack-strings.php:163
+msgid "Schedule Posts"
+msgstr ""
+
+#: _inc/jetpack-strings.php:162
+msgid "Activate Publicize"
+msgstr ""
+
+#: _inc/jetpack-strings.php:149
+msgid "Explore Premium and Professional Options"
+msgstr ""
+
+#: _inc/jetpack-strings.php:148
+msgid "Learn about Jetpack services used by WordPress professionals. On top of the security essentials you currently enjoy, Jetpack offers you:"
+msgstr ""
+
+#: _inc/jetpack-strings.php:146
+msgid "Business class security: malware scanning, real-time backups, and threat resolution"
+msgstr ""
+
+#: _inc/jetpack-strings.php:145
+msgid "Social media automation and scheduling"
+msgstr ""
+
+#: _inc/jetpack-strings.php:142
+msgid "Income generation from a WordPress ad program"
+msgstr ""
+
+#: _inc/jetpack-strings.php:138
+msgid "Jetpack Professional is the tool used by WordPress professionals. On top of the services you already enjoy, you also benefit from:"
+msgstr ""
+
+#: _inc/jetpack-strings.php:137 _inc/jetpack-strings.php:147
+msgid "Over 200 Premium themes to explore"
+msgstr ""
+
+#: _inc/jetpack-strings.php:136
+msgid "Business class security: real-time backups and threat resolution"
+msgstr ""
+
+#: _inc/jetpack-strings.php:143
+msgid "SEO and social media previewing tools"
+msgstr ""
+
+#: _inc/jetpack-strings.php:141
+msgid "Google Analytics integration"
+msgstr ""
+
+#: _inc/jetpack-strings.php:135 _inc/jetpack-strings.php:139
+msgid "Explore Jetpack Professional"
+msgstr ""
+
 #: class.jetpack-cli.php:734
 msgid "Sync errored with code: %s"
 msgstr ""
@@ -992,6 +1525,22 @@ msgstr ""
 
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1664
 msgid "Could not connect to VaultPress."
+msgstr ""
+
+#: _inc/jetpack-strings.php:596
+msgid "Introducing Unlimited Themes"
+msgstr ""
+
+#: _inc/jetpack-strings.php:180
+msgid "Unlimited Premium Themes"
+msgstr ""
+
+#: _inc/jetpack-strings.php:179
+msgid "Exclusive hand-crafted designs you will love with dedicated support directly from the themes' authors."
+msgstr ""
+
+#: _inc/jetpack-strings.php:178
+msgid "Explore"
 msgstr ""
 
 #: json-endpoints/jetpack/class.jetpack-json-api-get-user-backup-endpoint.php:22
@@ -1087,6 +1636,14 @@ msgstr ""
 
 #: class.jetpack-cli.php:56 class.jetpack-cli.php:92
 msgid "The WordPress.com account for the primary connection is %s"
+msgstr ""
+
+#: _inc/jetpack-strings.php:228
+msgid "Your site is backed up."
+msgstr ""
+
+#: _inc/jetpack-strings.php:82
+msgid "Image Performance"
 msgstr ""
 
 #: modules/widgets/flickr.php:151
@@ -1266,10 +1823,47 @@ msgctxt "action"
 msgid "Hide the banner"
 msgstr "Ocultar o banner"
 
+#: _inc/jetpack-strings.php:399
+msgid "Get WordPress Apps for every device"
+msgstr "Consegue aplicacións WordPress para calquera dispositivo"
+
+#: _inc/jetpack-strings.php:398
+msgid "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world."
+msgstr "Xestiona todos os teus sitios desde un só escritorio: publica contido, segue as estatísticas, modera comentarios, e moito máis desde calquera lugar do mundo."
+
+#: _inc/jetpack-strings.php:396
+msgid "I already use this app."
+msgstr "Xa usei esta aplicación."
+
+#: _inc/jetpack-strings.php:351
+msgid "Create address"
+msgstr "Crear dirección"
+
 #: modules/module-headings.php:210
 msgctxt "Jumpstart Description"
 msgid "Display image galleries in a variety of elegant arrangements."
 msgstr "Mostra as galerías de imaxes nunha variedade de distribucións elegantes."
+
+#: _inc/jetpack-strings.php:480 _inc/jetpack-strings.php:484
+#: _inc/jetpack-strings.php:488
+msgid "Priority support"
+msgstr "Soporte prioritario"
+
+#: _inc/jetpack-strings.php:254
+msgid "Add sharing buttons to your posts"
+msgstr "Engade botóns de compartir aos teus artigos"
+
+#: _inc/jetpack-strings.php:250
+msgid "Automatically share your posts to social networks"
+msgstr "Comparte automaticamente as túas entradas nas redes sociais"
+
+#: _inc/jetpack-strings.php:42
+msgid "Updating settings…"
+msgstr "Actualizando axustes..."
+
+#: _inc/jetpack-strings.php:39
+msgid "Updating Post by Email address…"
+msgstr "Actualizando o artigo a través da dirección de correo electrónico..."
 
 #: modules/sitemaps/sitemaps.php:153
 msgid "Sitemaps"
@@ -1295,9 +1889,25 @@ msgstr "Isto é o índice do mapa do cerco XML creado por <a href=\"%1$s\" targe
 msgid "This is an XML Sitemap generated by <a href=\"%1$s\" target=\"_blank\">Jetpack</a>, meant to be consumed by search engines like <a href=\"%2$s\" target=\"_blank\">Google</a> or <a href=\"%3$s\" target=\"_blank\">Bing</a>."
 msgstr "Isto é un mapa do cerco XML crado por <a href=\"%1$s\" target=\"_blank\">Jetpack</a>, que será consumido por motores de procura como <a href=\"%2$s\" target=\"_blank\">Google</a> ou <a href=\"%3$s\" target=\"_blank\">Bing</a>."
 
-#: _inc/jetpack-strings.php:565
+#: _inc/jetpack-strings.php:590
 msgid "Your paid plan gives you access to prioritized Jetpack support."
 msgstr "O teu plan de pago dáche acceso ao soporte prioritario de Jetpack."
+
+#: _inc/jetpack-strings.php:227
+msgid "You have paid for backups but they're not yet active."
+msgstr "Pagaches polas copias de seguridade pero aínda non están activas."
+
+#: _inc/jetpack-strings.php:225
+msgid "You have paid for backups and security scanning but they’re not yet active."
+msgstr "Pagaches por copias e analisis de seguridade pero aínda non están activas."
+
+#: _inc/jetpack-strings.php:224 _inc/jetpack-strings.php:226
+msgid "Click \"Set Up\" to finish installation."
+msgstr "Feixe clic en \"Configurar\" para finalizar a instalación."
+
+#: _inc/jetpack-strings.php:238
+msgid "Checking site status…"
+msgstr "Comprobando estado do sitio..."
 
 #: modules/widgets/mailchimp.php:93
 msgid "Code: <a href=\"%s\" target=\"_blank\">( ? )</a>"
@@ -1458,6 +2068,10 @@ msgstr "Personaliza"
 msgctxt "Button label for adding a new item via the toolbar menu"
 msgid "Add"
 msgstr "Engadir"
+
+#: _inc/jetpack-strings.php:264
+msgid "Pages"
+msgstr "Páxinas"
 
 #: modules/masterbar/masterbar.php:699 modules/masterbar/masterbar.php:731
 msgctxt "admin bar menu new item label"
@@ -1653,209 +2267,200 @@ msgstr "Esquema de cor."
 msgid "Error fetching static.html. Try running: "
 msgstr "Erro ao recuperar static.html. Trata de executar: "
 
-#: _inc/jetpack-strings.php:567
+#: _inc/jetpack-strings.php:592
 msgid "We're here to help"
 msgstr "Onde ir para obter axuda"
 
-#: _inc/jetpack-strings.php:566
+#: _inc/jetpack-strings.php:591
 msgid "Jetpack comes with free, basic support for all users."
 msgstr "Jetpack incorpora soporte básico gratuíto para todos os usuarios."
 
-#: _inc/jetpack-strings.php:564
+#: _inc/jetpack-strings.php:589
 msgid "Ask a question"
 msgstr "Feixe unha pregunta"
 
-#: _inc/jetpack-strings.php:563
+#: _inc/jetpack-strings.php:588
 msgid "Search our support site"
 msgstr "Busca no noso sitio de soporte"
 
-#: _inc/jetpack-strings.php:562
+#: _inc/jetpack-strings.php:587
 msgid "Get a faster resolution to your support questions."
 msgstr "Consegue unha resposta máis rápida ás túas preguntas de soporte."
 
-#: _inc/jetpack-strings.php:558
+#: _inc/jetpack-strings.php:583
 msgctxt "A caption for a button to upgrade an existing paid feature to a higher tier."
 msgid "Upgrade"
 msgstr "Actualizar"
 
-#: _inc/jetpack-strings.php:557
+#: _inc/jetpack-strings.php:582
 msgid "Host fast, high-quality, ad-free video."
 msgstr "Vídeo de alta calidade, sen publicidade e con aloxamento rápido."
 
-#: _inc/jetpack-strings.php:556
+#: _inc/jetpack-strings.php:581
 msgid "Generate income with high-quality ads."
 msgstr "Xera beneficios con anuncios de alta calidade."
 
-#: _inc/jetpack-strings.php:555
+#: _inc/jetpack-strings.php:580
 msgid "Real-time site backups and automatic threat resolution."
 msgstr "Copias de seguridade en tempo real e resolución automática de ameazas."
 
-#: _inc/jetpack-strings.php:554
+#: _inc/jetpack-strings.php:579
 msgid "Protect against data loss, malware, and malicious attacks."
 msgstr "Protexe contra perdas de datos, malware e ataques maliciosos."
 
-#: _inc/jetpack-strings.php:553
+#: _inc/jetpack-strings.php:578
 msgid "Integrate easily with Google Analytics."
 msgstr "Intégrase facilmente con Google Analytics."
 
-#: _inc/jetpack-strings.php:552
+#: _inc/jetpack-strings.php:577
 msgid "Help your content get found and shared with SEO tools."
 msgstr "Axuda a que os teus contidos sexan atopados e compartidos con ferramentas SEO."
 
-#: _inc/jetpack-strings.php:551
+#: _inc/jetpack-strings.php:575
 msgid "Protect your site from spam."
 msgstr "Protexe o teu sitio do spam."
 
-#: _inc/jetpack-strings.php:550
+#: _inc/jetpack-strings.php:574
 msgctxt "Button caption"
 msgid "Saving…"
 msgstr "Gardando..."
 
-#: _inc/jetpack-strings.php:549
+#: _inc/jetpack-strings.php:573
 msgctxt "Button caption"
 msgid "Save settings"
 msgstr "Guardar ajustes"
 
-#: _inc/jetpack-strings.php:515
+#: _inc/jetpack-strings.php:542
 msgctxt "A header for a block of related posts."
 msgid "Related"
 msgstr "Relacionado"
 
-#: _inc/jetpack-strings.php:511
+#: _inc/jetpack-strings.php:538
 msgctxt "Noun, a header for a preview block in a configuration screen."
 msgid "Preview"
 msgstr "Vista previa"
 
-#: _inc/jetpack-strings.php:469
+#: _inc/jetpack-strings.php:494
 msgid "This site is not connected to WordPress.com. Please ask the site administrator to connect."
 msgstr "Este sitio non está conectado con WordPress.com. Por favor, contacta co administrado para conectalo."
 
-#: _inc/jetpack-strings.php:462
+#: _inc/jetpack-strings.php:487
 msgid "Spam filtering"
 msgstr "Filtro de spam"
 
-#: _inc/jetpack-strings.php:460
+#: _inc/jetpack-strings.php:485
 msgid "Daily, automated malware scanning"
 msgstr "Análise automática diario de malware"
 
-#: _inc/jetpack-strings.php:458
+#: _inc/jetpack-strings.php:483
 msgid "13Gb of high-speed video hosting"
 msgstr "13Gb de aloxamento de alta velocidade para vídeo"
 
-#: _inc/jetpack-strings.php:457 _inc/jetpack-strings.php:461
-#: _inc/jetpack-strings.php:464
+#: _inc/jetpack-strings.php:482 _inc/jetpack-strings.php:486
+#: _inc/jetpack-strings.php:489
 msgid "Daily, automated backups (unlimited storage)"
 msgstr "Copias de seguridade diarias automáticas (con almacenamento ilimitado)"
 
-#: _inc/jetpack-strings.php:456
+#: _inc/jetpack-strings.php:481
 msgid "Daily, automated malware scanning with automated resolution"
 msgstr "Escaneo diario e resolución automática de malware"
 
-#: _inc/jetpack-strings.php:455 _inc/jetpack-strings.php:459
-#: _inc/jetpack-strings.php:463
-msgid "Priority WordPress and security support"
-msgstr ""
-
-#: _inc/jetpack-strings.php:454
+#: _inc/jetpack-strings.php:479
 msgid "Unlimited high-speed video hosting"
 msgstr "Aloxamento de alta velocidade ilimitado para vídeo"
 
-#: _inc/jetpack-strings.php:453
+#: _inc/jetpack-strings.php:478
 msgid "SEO preview tools"
 msgstr "Ferramentas de vista previa SEO"
 
-#: _inc/jetpack-strings.php:452
+#: _inc/jetpack-strings.php:477
 msgid "Site stats, related content, and sharing tools"
 msgstr "Estatísticas do sitio, contido relacionado e ferramentas para compartir"
 
-#: _inc/jetpack-strings.php:451
+#: _inc/jetpack-strings.php:476
 msgid "Brute force attack protection and uptime monitoring"
 msgstr "Protección contra ataques de forza bruta e monitoraxe de tempo de actividade"
 
-#: _inc/jetpack-strings.php:450
+#: _inc/jetpack-strings.php:475
 msgid "Unlimited, high-speed image hosting"
 msgstr "Aloxamento de alta velocidade ilimitado para imaxes"
 
-#: _inc/jetpack-strings.php:448
+#: _inc/jetpack-strings.php:473
 msgid "By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:"
 msgstr "Ao desconectar o teu %(siteName)s de WordPress.com, xa non terás acceso ao seguinte:"
 
-#: _inc/jetpack-strings.php:447
+#: _inc/jetpack-strings.php:472
 msgctxt "A caption for a button to cancel disconnection."
 msgid "Stay connected"
 msgstr "Segue conectado"
 
-#: _inc/jetpack-strings.php:446
+#: _inc/jetpack-strings.php:471
 msgctxt "A caption for a button to disconnect."
 msgid "Disconnect"
 msgstr "Desconectar"
 
-#: _inc/jetpack-strings.php:445
+#: _inc/jetpack-strings.php:470
 msgid "Read more about Jetpack benefits"
 msgstr "Le máis sobre os beneficios de Jetpack"
 
-#: _inc/jetpack-strings.php:405
+#: _inc/jetpack-strings.php:418
 msgctxt "Navigation item."
 msgid "Dev Tools"
 msgstr "Ferramentas de desenvolvemento"
 
-#: _inc/jetpack-strings.php:404
+#: _inc/jetpack-strings.php:417
 msgid "An Automattic Airline"
 msgstr "Unha aerolínea de Automattic"
 
-#: _inc/jetpack-strings.php:398
+#: _inc/jetpack-strings.php:408
 msgctxt "Short warning message"
 msgid "Updates needed"
 msgstr "Actualizacións necesarias"
 
-#: _inc/jetpack-strings.php:395
+#: _inc/jetpack-strings.php:405
 msgctxt "Short label appearing near a paid feature configuration block."
 msgid "Paid"
 msgstr "Pagado"
 
-#: _inc/jetpack-strings.php:392
+#: _inc/jetpack-strings.php:402
 msgid "Manage site connection"
 msgstr "Xestionar conexión do sitio"
 
-#: _inc/jetpack-strings.php:367
+#: _inc/jetpack-strings.php:368
 msgid "Connect your account to WordPress.com to view more stats"
 msgstr "Conecta a túa conta a WordPress.com para ver máis estatísticas"
 
-#: _inc/jetpack-strings.php:366
+#: _inc/jetpack-strings.php:367
 msgid "Theme enhancements"
 msgstr "Melloras do tema"
 
-#: _inc/jetpack-strings.php:365
+#: _inc/jetpack-strings.php:366
 msgid "Load more posts using the default theme behavior"
 msgstr "Carga máis entradas usando o comportamento por defecto do tema"
 
-#: _inc/jetpack-strings.php:364
+#: _inc/jetpack-strings.php:365
 msgid "Load more posts in page with a button"
 msgstr "Carga mais entradas na páxina cun botón"
 
-#: _inc/jetpack-strings.php:363
+#: _inc/jetpack-strings.php:364
 msgid "Load more posts as the reader scrolls down"
 msgstr "Carga máis entradas a medida que o lector navega"
 
-#: _inc/jetpack-strings.php:362
+#: _inc/jetpack-strings.php:363
 msgid "Theme support required."
 msgstr "Requírese que o tema sexa compatible."
 
-#: _inc/jetpack-strings.php:361
+#: _inc/jetpack-strings.php:362
 msgid "Learn more about adding support for Infinite Scroll to your theme."
 msgstr "Aprende máis sobre como engadir soporte para scroll infinito no teu tema."
 
-#: _inc/jetpack-strings.php:359
+#: _inc/jetpack-strings.php:360
 msgid "Use excerpts instead of full posts on front page and archive pages"
 msgstr "Usar extractos no canto de entradas completas en portada e páxinas de arquivo"
 
-#: _inc/jetpack-strings.php:358
+#: _inc/jetpack-strings.php:359
 msgid "Show featured images"
 msgstr "Mostra imaxes destacadas"
-
-#: _inc/jetpack-strings.php:350
-msgid "Must be enabled to use tiled galleries."
-msgstr "Debe estar activo para usar as galerías apiladas."
 
 #: _inc/jetpack-strings.php:346
 msgctxt "Settings header"
@@ -1883,345 +2488,332 @@ msgid "Portfolios"
 msgstr "Portafolios"
 
 #: _inc/jetpack-strings.php:338
-msgid "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolios] )"
-msgstr "Engade, organiza e mostra {{portfolioLink}}portafolios{{/portfolioLink}}. Se o teu tema aínda ou é compatible con portafolios podes mostralos usando o shortcode ( [portfolios] )"
+msgid "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolio] )."
+msgstr ""
 
-#: _inc/jetpack-strings.php:316
+#: _inc/jetpack-strings.php:315
 msgctxt "Settings header"
 msgid "Composing"
 msgstr "Creando"
 
-#: _inc/jetpack-strings.php:315
+#: _inc/jetpack-strings.php:313
 msgid "Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}."
 msgstr "Dáche conta que {{b}}non é necesario verificar o teu sitio con estes servizos{{/b}} para que o teu sitio o indexen os motores de procura. Para usar estas ferramentas avanzadas de motores de procura e verificar o teu sitio cun servizo pega o código da etiqueta HTML a continuación. Le as {{support}}instrucións completas{{/support}} se tes algún problema. Servizos compatibles coa verificación: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}} e {{yandex}}Yandex.Webmaster{{/yandex}}."
 
-#: _inc/jetpack-strings.php:313
+#: _inc/jetpack-strings.php:311
 msgid "Bing"
 msgstr "Bing"
 
-#: _inc/jetpack-strings.php:311
+#: _inc/jetpack-strings.php:309
 msgid "Yandex"
 msgstr "Yandex"
 
-#: _inc/jetpack-strings.php:310
+#: _inc/jetpack-strings.php:308
 msgid "Generate XML sitemaps"
 msgstr "Crea mapas do sitio XML"
 
-#: _inc/jetpack-strings.php:309
+#: _inc/jetpack-strings.php:307
 msgid "Your sitemap is automatically sent to all major search engines for indexing."
 msgstr "O teu mapa do sitio envíase automaticamente a todos os principais motores de procura para que o indexen."
 
-#: _inc/jetpack-strings.php:308
+#: _inc/jetpack-strings.php:306
 msgid "Your site is not currently accessible to search engines. You might have \"Search Engine Visibility\" disabled in your {{a}}Reading Settings{{/a}}."
 msgstr "O teu sitio non é visible para os motores de procura neste momento. Poida que desactivases \"Visibilidade nos motores de procura\" nas túas {{a}}Axustes de lectura{{/a}}."
 
-#: _inc/jetpack-strings.php:303
+#: _inc/jetpack-strings.php:301
 msgctxt "Settings header"
 msgid "Site stats"
 msgstr "Estatísticas do sitio"
 
-#: _inc/jetpack-strings.php:302
+#: _inc/jetpack-strings.php:300
 msgid "Collecting valuable traffic stats and insights"
 msgstr "Recollendo valiosas estatísticas e informes de tráfico"
 
-#: _inc/jetpack-strings.php:299
+#: _inc/jetpack-strings.php:297
 msgid "The image helps collect stats, but should work when hidden."
 msgstr "A imaxe axuda a recoller estatísticas pero debería funcionar cando estea oculta."
 
-#: _inc/jetpack-strings.php:298
+#: _inc/jetpack-strings.php:296
 msgid "Count logged in page views from"
 msgstr "Contar as visualizacións de páxina conectados desde"
 
-#: _inc/jetpack-strings.php:297
+#: _inc/jetpack-strings.php:295
 msgid "Allow stats reports to be viewed by"
 msgstr "Permitir que sexan vistos os informes de estatísticas"
 
-#: _inc/jetpack-strings.php:296
+#: _inc/jetpack-strings.php:294
 msgctxt "Settings header"
 msgid "Search engine optimization"
 msgstr "Optimización nos motores de procura"
 
-#: _inc/jetpack-strings.php:295
+#: _inc/jetpack-strings.php:293
 msgid "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}."
 msgstr "Podes modificar estes axustes se queres un control máis avanzado. Le máis sobre como {a}}optimizar o SEO do teu sitio{{/a}}."
 
-#: _inc/jetpack-strings.php:294
+#: _inc/jetpack-strings.php:292
 msgid "Configure your SEO settings"
 msgstr "Configura os teus axustes SEO"
 
-#: _inc/jetpack-strings.php:289
+#: _inc/jetpack-strings.php:285
 msgctxt "A header for a preview area in the configuration screen."
 msgid "Preview"
 msgstr "Vista previa"
 
-#: _inc/jetpack-strings.php:282
+#. translators: It refers to the category where a post was found. Used in an
+#. example preview.
+#: _inc/jetpack-strings.php:276
 msgid "In \"Upgrade\""
 msgstr "En \"Actualización\""
 
-#: _inc/jetpack-strings.php:281
+#: _inc/jetpack-strings.php:274
 msgctxt "Settings header"
 msgid "Google Analytics"
 msgstr "Google Analytics"
 
-#: _inc/jetpack-strings.php:279
+#: _inc/jetpack-strings.php:272
 msgid "Configure your Google Analytics settings"
 msgstr "Configura os teus axustes de Google Analytics"
 
-#: _inc/jetpack-strings.php:278
+#: _inc/jetpack-strings.php:271
 msgctxt "Ads header"
 msgid "Ads"
 msgstr "Publicidade"
 
-#: _inc/jetpack-strings.php:277
+#: _inc/jetpack-strings.php:270
 msgid "Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings."
 msgstr "Mostra anuncios no primeiro artigo da túa portada ou ao final de cada páxina e entrada. Pon máis anuncios na parte superior do teu sitio e en calquera área de widgets para incrementar as túas ganancias."
 
-#: _inc/jetpack-strings.php:275
+#: _inc/jetpack-strings.php:268
 msgid "Enable ads and display an ad below each post"
 msgstr "Activa anuncios e mostra un anuncio debaixo de cada artigo"
 
-#: _inc/jetpack-strings.php:274
-msgid "Display an additional ad at the top of each page"
-msgstr ""
-
-#: _inc/jetpack-strings.php:271 _inc/jetpack-strings.php:272
+#: _inc/jetpack-strings.php:257 _inc/jetpack-strings.php:258
 msgid "Configure your sharing buttons"
 msgstr "Configura os teus botóns de compartir"
 
-#: _inc/jetpack-strings.php:269
+#: _inc/jetpack-strings.php:255
 msgctxt "Settings header"
 msgid "Sharing buttons"
 msgstr "Botóns de compartir"
 
-#: _inc/jetpack-strings.php:268
-msgid "Sharing buttons can be added to your posts so that your users can share your content to their social networks and show their support."
-msgstr ""
-
-#: _inc/jetpack-strings.php:267
+#: _inc/jetpack-strings.php:253
 msgid "Connect your social media accounts"
 msgstr "Conecta coas túas contas de redes socials"
 
-#: _inc/jetpack-strings.php:266 _inc/jetpack-strings.php:270
-#: _inc/jetpack-strings.php:343 _inc/jetpack-strings.php:351
+#: _inc/jetpack-strings.php:252 _inc/jetpack-strings.php:256
+#: _inc/jetpack-strings.php:343 _inc/jetpack-strings.php:350
 msgid "Connect your user account to WordPress.com to use this feature"
 msgstr "Conecta coa túa conta de usuario de WordPress.com para usar esta característica"
 
-#: _inc/jetpack-strings.php:265
+#: _inc/jetpack-strings.php:251
 msgctxt "Settings header"
 msgid "Publicize connections"
 msgstr "Conexións de Divulgar"
 
-#: _inc/jetpack-strings.php:264
-msgid "Publicize lets you connect your site to various social networking services.  Once connected to a service, you can share your posts with that service automatically."
-msgstr ""
-
-#: _inc/jetpack-strings.php:263
+#: _inc/jetpack-strings.php:249
 msgctxt "Settings header"
 msgid "Like buttons"
 msgstr "Botóns gústame"
 
-#: _inc/jetpack-strings.php:262
+#: _inc/jetpack-strings.php:248
 msgid "Allow readers to show their appreciation of your posts by adding a like button to your content"
 msgstr "Permite aos lectores mostrar o seu aprecio polos teus artigos engadindo un botón de gústame ao teu contido"
 
-#: _inc/jetpack-strings.php:259
+#: _inc/jetpack-strings.php:247
 msgctxt "Settings header"
 msgid "WordPress.com log in"
 msgstr "Acceso a WordPress.com"
 
-#: _inc/jetpack-strings.php:258
+#: _inc/jetpack-strings.php:246
 msgid "Match accounts using email addresses"
 msgstr "Emparella contas utilizando a dirección de email"
 
-#: _inc/jetpack-strings.php:257
+#: _inc/jetpack-strings.php:245
 msgid "Require accounts to use WordPress.com Two-Step Authentication"
 msgstr "Requirir contas para usar a identificación en dous pasos de WordPress.com"
 
-#: _inc/jetpack-strings.php:256
+#: _inc/jetpack-strings.php:244
 msgctxt "Settings header"
 msgid "Brute force attack protection"
 msgstr "Protección ante ataques de forza bruta"
 
-#: _inc/jetpack-strings.php:254
+#: _inc/jetpack-strings.php:242
 msgid "Add to whitelist"
 msgstr "Engadir á lista branca"
 
-#: _inc/jetpack-strings.php:252
+#: _inc/jetpack-strings.php:240
 msgid "You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100"
 msgstr "Deberías autorizar algunhas direccións IP para que non sexan bloqueadas por Jetpack. Admítense direccións IPv4 e IPv6. Para especificar un rango, introduce o valor menor e o maior separados por un guión, p. ej: 12.12.12.1-12.12.12.100"
 
-#: _inc/jetpack-strings.php:251
+#: _inc/jetpack-strings.php:223 _inc/jetpack-strings.php:234
+#: _inc/jetpack-strings.php:239
 msgctxt "Settings header"
 msgid "Backups and security scanning"
 msgstr "Copias e analisis de seguridade"
 
-#: _inc/jetpack-strings.php:250
+#: _inc/jetpack-strings.php:229
 msgid "Your site is backed up and threat-free."
 msgstr "O teu sitio está asegurado e libre de ameazas."
 
-#: _inc/jetpack-strings.php:248
+#: _inc/jetpack-strings.php:221
 msgid "Checking your spam protection…"
 msgstr "Comprobando protección contra o spam..."
 
-#: _inc/jetpack-strings.php:247
+#: _inc/jetpack-strings.php:220
 msgid "Fetching key…"
 msgstr "Obtendo clave..."
 
-#: _inc/jetpack-strings.php:246
+#: _inc/jetpack-strings.php:219
 msgid "Your site needs an Antispam key."
 msgstr "O teu sitio necesita unha clave Akismet."
 
-#: _inc/jetpack-strings.php:245
+#: _inc/jetpack-strings.php:218
 msgid "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}."
 msgstr "Hai un problema coa túa clave de API antispam. {{a}}Saber máis{{/a}}."
 
-#: _inc/jetpack-strings.php:244
+#: _inc/jetpack-strings.php:217
 msgid "Your site is not protected from spam."
 msgstr "O teu sitio non está protexido fronte ao spam."
 
-#: _inc/jetpack-strings.php:243
+#: _inc/jetpack-strings.php:216
 msgid "Your Antispam key is valid."
 msgstr "A túa clave antispam non é válida."
 
-#: _inc/jetpack-strings.php:242
+#: _inc/jetpack-strings.php:215
 msgid "Your site is protected from spam."
 msgstr "O teu sitio está protexido contra o spam."
 
-#: _inc/jetpack-strings.php:241
+#: _inc/jetpack-strings.php:214
 msgid "Checking key…"
 msgstr "Comprobando clave..."
 
-#: _inc/jetpack-strings.php:240
+#: _inc/jetpack-strings.php:213
 msgctxt "Settings header"
 msgid "Spam filtering"
 msgstr "Filtro de spam"
 
-#: _inc/jetpack-strings.php:239
+#: _inc/jetpack-strings.php:212
 msgid "Your API key"
 msgstr "A túa clave de API"
 
-#: _inc/jetpack-strings.php:238
+#: _inc/jetpack-strings.php:211
 msgid "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one."
 msgstr "Se aínda non tes unha clave de API, {{a}}feixe clic aquí {{/a}} e segue o proceso guiado para conseguila."
 
-#: _inc/jetpack-strings.php:261
+#: _inc/jetpack-strings.php:210
 msgid "No search results found for %(term)s"
 msgstr "Non se atoparon resultados para %(term)"
 
-#: _inc/jetpack-strings.php:260
+#: _inc/jetpack-strings.php:209
 msgid "Enter a search term to find settings or close search."
 msgstr "Escribe un termo de procura para atopar opcións ou pecha a procura."
 
-#: _inc/jetpack-strings.php:105
+#: _inc/jetpack-strings.php:72
 msgid "Connections"
 msgstr "Conexións"
 
-#: _inc/jetpack-strings.php:103
+#: _inc/jetpack-strings.php:70
 msgid "Your site is in Development Mode, so it can not be connected to WordPress.com."
 msgstr "O teu sitio está en modo de desenvolvemento, polo que non se pode conectar con WordPress.com."
 
-#: _inc/jetpack-strings.php:102
+#: _inc/jetpack-strings.php:69
 msgid "Your site is connected to WordPress.com."
 msgstr "O teu sitio está conectado con WordPress.com."
 
-#: _inc/jetpack-strings.php:101
+#: _inc/jetpack-strings.php:68
 msgid "You are the Jetpack owner."
 msgstr "Es o propietario de Jetpack."
 
 #. translators: %(username) is the WordPress user login name.
-#: _inc/jetpack-strings.php:99
+#: _inc/jetpack-strings.php:66
 msgid "Connected as {{span}}%(username)s{{/span}}"
 msgstr "Conectado como {{span}}%(username)s{{/span}}"
 
-#: _inc/jetpack-strings.php:96
+#: _inc/jetpack-strings.php:63
 msgctxt "Dashboard widget header"
 msgid "Site connection"
 msgstr "Conexión ao sitio"
 
-#: _inc/jetpack-strings.php:95
+#: _inc/jetpack-strings.php:62
 msgctxt "Dashboard widget header"
 msgid "Account connection"
 msgstr "Conexión á túa conta"
 
-#: _inc/jetpack-strings.php:237
+#: _inc/jetpack-strings.php:126
 msgctxt "A caption for a small button to fix security issues."
 msgid "Threats"
 msgstr "Ameazas"
 
-#: _inc/jetpack-strings.php:236
+#: _inc/jetpack-strings.php:125
 msgctxt "Short warning message about new threats found."
 msgid "Threats found!"
 msgstr "Ameazas atopadas!"
 
-#: _inc/jetpack-strings.php:235
+#: _inc/jetpack-strings.php:124
 msgctxt "A caption for a small button to fix security issues."
 msgid "FIX"
 msgstr "SOLUCIONAR"
 
-#: _inc/jetpack-strings.php:234
+#: _inc/jetpack-strings.php:123
 msgctxt "Short warning message about site having no security scan."
 msgid "No scanning"
 msgstr "Non se analizou"
 
-#: _inc/jetpack-strings.php:233
+#: _inc/jetpack-strings.php:122
 msgctxt "Caption for a button to purchase a paid feature."
 msgid "Upgrade"
 msgstr "Actualizar"
 
-#: _inc/jetpack-strings.php:232
+#: _inc/jetpack-strings.php:121
 msgctxt "Short message informing user that the site is secure."
 msgid "Secure"
 msgstr "Seguro"
 
-#: _inc/jetpack-strings.php:231
+#: _inc/jetpack-strings.php:120
 msgctxt "Short warning message about an invalid key being used for Akismet."
 msgid "Invalid key"
 msgstr "Clave non válida"
 
-#: _inc/jetpack-strings.php:229
+#: _inc/jetpack-strings.php:117
 msgctxt "Caption for a button to set up a feature."
 msgid "Set up"
 msgstr "Configurar"
 
-#: _inc/jetpack-strings.php:151
+#: _inc/jetpack-strings.php:115
 msgid "View your Email Followers"
 msgstr "Ver os teus seguidores por correo electrónico"
 
-#: _inc/jetpack-strings.php:150
+#: _inc/jetpack-strings.php:114
 msgid "Connect your user account to WordPress.com to view your email followers"
 msgstr "Conecta a túa conta de usuario con WordPress.com para ver os teus seguidores de email"
 
-#: _inc/jetpack-strings.php:144 _inc/jetpack-strings.php:348
+#: _inc/jetpack-strings.php:108 _inc/jetpack-strings.php:348
 #: _inc/lib/class.core-rest-api-endpoints.php:1265
 #: modules/widgets/eu-cookie-law/form.php:92
 msgid "Color scheme"
 msgstr "Esquema de cor"
 
-#: _inc/jetpack-strings.php:142
+#: _inc/jetpack-strings.php:106
 msgid "Enable Markdown use for comments."
 msgstr "Permite Markdown nos comentarios."
 
-#: _inc/jetpack-strings.php:40
-msgid "router There are unsaved settings in this tab that will be lost if you leave it. Proceed?"
-msgstr ""
-
-#: _inc/jetpack-strings.php:39
+#: _inc/jetpack-strings.php:41
 msgid "Updated settings."
 msgstr "Opcións gardadas."
 
-#: _inc/jetpack-strings.php:38
+#: _inc/jetpack-strings.php:40
 msgid "Error updating settings. %(error)s"
 msgstr "Erro actualizando opcións. %(erro)s"
 
-#: _inc/jetpack-strings.php:37
+#: _inc/jetpack-strings.php:38
 msgid "Regenerated Post by Email address."
 msgstr "Artigo rexenerado desde a dirección de correo electrónico."
 
-#: _inc/jetpack-strings.php:36
+#: _inc/jetpack-strings.php:37
 msgid "Error regenerating Post by Email address. %(error)s"
 msgstr "Erro ao rexenerar o artigo desde a dirección de correo electrónico. %(erro) é"
 
-#: _inc/jetpack-strings.php:35
+#: _inc/jetpack-strings.php:36
 msgid "Updated settings. Refreshing page…"
 msgstr "Opcións actualizadas. Recargando páxina..."
 
@@ -2230,18 +2822,18 @@ msgctxt "Navigation item."
 msgid "Settings"
 msgstr "Axustes"
 
-#: _inc/jetpack-strings.php:8 _inc/jetpack-strings.php:545
+#: _inc/jetpack-strings.php:8 _inc/jetpack-strings.php:569
 msgctxt "Navigation item."
 msgid "Discussion"
 msgstr "Debate"
 
-#: _inc/jetpack-strings.php:6 _inc/jetpack-strings.php:544
+#: _inc/jetpack-strings.php:6 _inc/jetpack-strings.php:568
 msgctxt "Navigation item."
 msgid "Traffic"
 msgstr "Tráfico"
 
-#: _inc/jetpack-strings.php:4 _inc/jetpack-strings.php:542
-#: _inc/jetpack-strings.php:546
+#: _inc/jetpack-strings.php:4 _inc/jetpack-strings.php:566
+#: _inc/jetpack-strings.php:570
 msgctxt "Navigation item."
 msgid "Sharing"
 msgstr "Compartir"
@@ -2250,19 +2842,19 @@ msgstr "Compartir"
 msgid "Post type Archives:"
 msgstr "Arquivo do tipo de contido:"
 
-#: _inc/jetpack-strings.php:476
-msgid "Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:"
-msgstr "Actualmente en {{a}}modo de desenvolvemento{{/a}} (algunhas características están desactivadas) porque:"
+#: _inc/jetpack-strings.php:498
+msgid "Currently in {{a}}Development Mode{{/a}} (some features are disabled) because: {{reasons/}}"
+msgstr ""
 
-#: _inc/jetpack-strings.php:475
+#: _inc/jetpack-strings.php:501
 msgid "{{li}}The jetpack_development_mode filter is active{{/li}}"
 msgstr "{{li}}O filtro jetpack_development_mode está activo{{/li}}"
 
-#: _inc/jetpack-strings.php:474
+#: _inc/jetpack-strings.php:500
 msgid "{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}"
 msgstr "{{li}}Definiuse a constante JETPACK_DEV_DEBUG{{/li}}"
 
-#: _inc/jetpack-strings.php:473
+#: _inc/jetpack-strings.php:499
 msgid "{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}"
 msgstr "{{li}}A URL do teu sitio non ten punto (p.ex. http://localhost){{/li}}"
 
@@ -2366,7 +2958,7 @@ msgstr "Usar Markdown nos artigos."
 msgid "Track each scroll load (7 posts by default) as a page view in Google Analytics"
 msgstr "Fai seguimento de cada scroll (7 artigos por defecto) como unha páxina vista en Google Analytics"
 
-#: _inc/jetpack-strings.php:280 _inc/jetpack-strings.php:528
+#: _inc/jetpack-strings.php:273 _inc/jetpack-strings.php:555
 msgid "Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic. WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc."
 msgstr "Google Analytics é un servizo gratuíto que complementa nosas {{a}}estatísticas integradas{{/a}} con diferentes informes do teu tráfico. As estatísticas de WordPress.com e as de Google Analytics usan distintos métodos para identificar e seguir a actividade do teu sitio, así que normalmente mostrarán totais das túas visitas, páxinas vistas, etc. lixeiramente diferentes."
 
@@ -2405,33 +2997,33 @@ msgstr "Debes especificar un IDE de artigo"
 msgid "Nothing is in the queue: %s"
 msgstr "Non hai nada en espera: %s "
 
-#: _inc/jetpack-strings.php:527
+#: _inc/jetpack-strings.php:554
 msgid "Configure Google Analytics settings."
 msgstr "Configura os axustes de Google Analytics."
 
-#: _inc/jetpack-strings.php:222
+#: _inc/jetpack-strings.php:201
 msgid "Image of WordPress login screen protected by Jetpack"
 msgstr "Imaxe da pantalla de acceso de WordPress protexida por Jetpack "
 
-#: _inc/jetpack-strings.php:179 _inc/lib/class.core-rest-api-endpoints.php:1783
+#: _inc/jetpack-strings.php:153 _inc/lib/class.core-rest-api-endpoints.php:1783
 msgid "Google Analytics"
 msgstr "Google Analytics"
 
-#: _inc/jetpack-strings.php:178 modules/module-info.php:665
+#: _inc/jetpack-strings.php:152 modules/module-info.php:665
 msgid "Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers."
 msgstr "Feixe seguimento das estatísticas da túa web con Google Analytics para unha maior comprensión dos visitantes e clientes da túa web."
 
-#: _inc/jetpack-strings.php:177
+#: _inc/jetpack-strings.php:151
 msgid "Configure Google Analytics"
 msgstr "Configura Google Analytics"
 
-#: _inc/jetpack-strings.php:176
+#: _inc/jetpack-strings.php:150
 msgid "Activate Google Analytics"
 msgstr "Activa Google Analytics"
 
-#: _inc/jetpack-strings.php:77
-msgid "Download the Free Apps"
-msgstr "Descarga as aplicacións gratuítas"
+#: _inc/jetpack-strings.php:397
+msgid "Download the free apps"
+msgstr ""
 
 #: 3rd-party/woocommerce-services.php:91
 msgid "There was an error installing WooCommerce Services."
@@ -2580,107 +3172,59 @@ msgstr "Cando"
 msgid "Location"
 msgstr "Localización"
 
-#: _inc/jetpack-strings.php:283 _inc/jetpack-strings.php:516
+#: _inc/jetpack-strings.php:277 _inc/jetpack-strings.php:543
 msgid "Upgrade Focus: VideoPress For Weddings"
 msgstr ""
 
-#: _inc/jetpack-strings.php:290 _inc/jetpack-strings.php:514
+#: _inc/jetpack-strings.php:286 _inc/jetpack-strings.php:541
 msgid "{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}"
 msgstr "{{span}}Agora tamén podes configurar os artigos relacionados no personalizador. {{ExternalLink}}Próbao!{{/ExternalLink}}{{/span}}"
 
-#: _inc/jetpack-strings.php:507 modules/module-info.php:649
+#: _inc/jetpack-strings.php:534 modules/module-info.php:649
 msgid "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!"
 msgstr "Por defecto os anuncios móstranse ao final de cada páxina, entrada, ou o primeiro artigo na súa portada. Tamén podes engadilos á parte superior do seu sitio e en calquera área de widget para aumentar as túas ganancias!"
 
-#: _inc/jetpack-strings.php:506
+#: _inc/jetpack-strings.php:533
 msgid "Display an ad unit at the top of your site."
 msgstr "Mostrar un bloque de anuncios na parte superior do seu sitio."
 
-#: _inc/jetpack-strings.php:276
+#: _inc/jetpack-strings.php:269
 msgid "By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}."
 msgstr "Mediante a activación dous anuncios, vostede acepta as {{link}}Condicións de servizo{{/link}} dous anuncios e Automattic."
-
-#: _inc/jetpack-strings.php:76
-msgid "Image of managing your sites themes on your WordPress.com dashboard"
-msgstr ""
-
-#: _inc/jetpack-strings.php:75
-msgid "Image of managing your sites plugins on your WordPress.com dashboard"
-msgstr ""
-
-#: _inc/jetpack-strings.php:68
-msgid "Image of the new post editor on your WordPress.com dashboard"
-msgstr ""
-
-#: _inc/jetpack-strings.php:67
-msgid "Image of your sites stats on your WordPress.com dashboard"
-msgstr ""
-
-#: _inc/jetpack-strings.php:59 _inc/jetpack-strings.php:63
-msgid "Image of your WordPress.com reader"
-msgstr ""
-
-#: _inc/jetpack-strings.php:56
-msgid "Example of three devices to use the WordPress apps. An iPhone, Android phone, and a apple laptop computer."
-msgstr ""
-
-#: _inc/jetpack-strings.php:52
-msgid "Download the free WordPress app for your iPhone"
-msgstr ""
-
-#: _inc/jetpack-strings.php:50
-msgid "Download the free WordPress app for your Android based phone"
-msgstr ""
-
-#: _inc/jetpack-strings.php:46
-msgid "Download the free WordPress app for your apple computer"
-msgstr ""
-
-#: _inc/jetpack-strings.php:44
-msgid "Download the free WordPress app for your PC "
-msgstr ""
-
-#: _inc/jetpack-strings.php:42
-msgid "Download the free WordPress app for your Linux machine"
-msgstr ""
 
 #: modules/shortcodes/unavailable.php:61
 msgid "The Blip.tv service has been shut down since August 20th, 2015."
 msgstr "O servizo Blip.tv estivo pechado desde o 20 de agosto de 2015."
 
-#: _inc/jetpack-strings.php:482
+#: _inc/jetpack-strings.php:507
 msgid "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site."
 msgstr "O teu servidor está mal configurado, o que significa que Jetpack Protect non pode protexer o teu sitio con efectividade."
 
-#: _inc/jetpack-strings.php:220
+#: _inc/jetpack-strings.php:199
 msgid "Upgrade to a paid plan to unlock world-class security, spam protection tools, priority support, SEO and monetization tools."
 msgstr "Mellora a un plan de pago para desbloquear as ferramentas de seguridade de clase alta, soporte prioritario, SEO e monetización."
 
-#: _inc/jetpack-strings.php:195
+#: _inc/jetpack-strings.php:173
 msgid "Ads"
 msgstr "Publicidade"
 
-#: _inc/jetpack-strings.php:194
+#: _inc/jetpack-strings.php:172
 msgid "Earn income by allowing Jetpack to display high quality ads (powered by WordAds)."
 msgstr "Consegue ingresos permitindo a Jetpack mostrar anuncios de alta calidade (xestionado por WordAds)"
 
-#: _inc/jetpack-strings.php:192
+#: _inc/jetpack-strings.php:170
 msgid "Activate Ads"
 msgstr "Activar publicidade"
 
-#: _inc/jetpack-strings.php:161 _inc/jetpack-strings.php:169
-msgid "Income generation from ads"
-msgstr ""
-
-#: _inc/jetpack-strings.php:156
+#: _inc/jetpack-strings.php:131
 msgid "Premium traffic and monetization tools"
 msgstr "Ferramentas de tráfico e monetización premiu"
 
-#: _inc/jetpack-strings.php:155
+#: _inc/jetpack-strings.php:130
 msgid "The Jetpack Premium plan now offers you the ability to generate income from your site by showing high-quality paid ads to your visitors. Professional plan customers also benefit from SEO tools to help optimize search engine traffic."
 msgstr "O plan premium de Jetpack agora ofrece a posibilidade de xerar ingresos no teu sitio mostrando publicidade paga de alta calidade aos teus visitantes. O plan profesional tamén se beneficia de ferramentas de SÉ para axudar a optimizar o tráfico de buscadores."
 
-#: _inc/jetpack-strings.php:153
+#: _inc/jetpack-strings.php:128
 msgid "We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. "
 msgstr "Damos soporte a todos os usuarios de Jetpack, calquera que sexa ou seu plan. Pero vos clientes con subscrición de pago gozan de prioridade para que vos problemas de seguridade sexan identificados e arranxados canto antes. "
 
@@ -2891,7 +3435,9 @@ msgstr "Agora as vodas son o centro de atención con VideoPress para vodas."
 msgid "Writing is new again in Android with the new WordPress app."
 msgstr "Escribir volveu a Android na nova aplicación WordPress."
 
-#: _inc/jetpack-strings.php:284 _inc/jetpack-strings.php:286
+#. translators: It refers to the category where a post was found. Used in an
+#. example preview.
+#: _inc/jetpack-strings.php:279 _inc/jetpack-strings.php:282
 #: modules/related-posts/jetpack-related-posts.php:846
 #: modules/related-posts/jetpack-related-posts.php:866
 #: modules/related-posts/jetpack-related-posts.php:886
@@ -3060,7 +3606,7 @@ msgstr "Utiliza o marcado LaTeX para ecuacións completas e outras frikadas."
 msgid "Display an ad unit at the top of each page."
 msgstr "Mostra un anuncio na parte superior de cada páxina."
 
-#: _inc/jetpack-strings.php:508
+#: _inc/jetpack-strings.php:535
 msgid "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}"
 msgstr "{{link}}Configura os teus axustes de aviso de Monitor en WordPress.com{{/link}}"
 
@@ -3077,15 +3623,15 @@ msgctxt "Module Description"
 msgid "Check your spelling, style, and grammar"
 msgstr "Comproba a túa ortografía, estilo e gramática."
 
-#: _inc/jetpack-strings.php:193 _inc/jetpack-strings.php:273
+#: _inc/jetpack-strings.php:171 _inc/jetpack-strings.php:259
 msgid "View your earnings"
 msgstr "Ver as túas ganancias"
 
-#: _inc/jetpack-strings.php:184 _inc/jetpack-strings.php:188
+#: _inc/jetpack-strings.php:158
 msgid "Activate VideoPress"
 msgstr "Activar VideoPress"
 
-#: _inc/jetpack-strings.php:185 _inc/jetpack-strings.php:189
+#: _inc/jetpack-strings.php:159
 msgid "Upload Videos Now"
 msgstr "Subir vídeos agora"
 
@@ -3244,27 +3790,27 @@ msgstr "Jetpack simplifica a seguridade do sitio, a súa personalización e xest
 msgid "%s must be an array of post types."
 msgstr "%s debe ser un array de tipos de contido."
 
-#: _inc/jetpack-strings.php:531
+#: _inc/jetpack-strings.php:558
 msgid "Make sure your site is easily found on search engines with SEO tools for your content and social posts."
 msgstr "Asegúrache de que o teu sitio sexa fácil de atopar nos motores de procura coas ferramentas SÉ para o teu contido e publicacións sociais."
 
-#: _inc/jetpack-strings.php:530
+#: _inc/jetpack-strings.php:557
 msgid "Activate this module to use the advanced SEO tools."
 msgstr "Activa este módulo para utilizar as ferramentas SÉ avanzadas."
 
-#: _inc/jetpack-strings.php:226
+#: _inc/jetpack-strings.php:205
 msgid "How much is your website worth?"
 msgstr "Canto vale o teu sitio?"
 
-#: _inc/jetpack-strings.php:225
+#: _inc/jetpack-strings.php:204
 msgid "For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up."
 msgstr "Por menos do que vale un café ao mes podes descansar sabendo que o teu duro traballo (ou o teu medio de vida) ten copia de seguridade."
 
-#: _inc/jetpack-strings.php:181
+#: _inc/jetpack-strings.php:155
 msgid "Configure Site SEO"
 msgstr "Configurar el SEO do sitio"
 
-#: _inc/jetpack-strings.php:180
+#: _inc/jetpack-strings.php:154
 msgid "Activate SEO Tools"
 msgstr "Activar as ferramentas de SEO"
 
@@ -3284,97 +3830,37 @@ msgstr "Mostrar un máximo de"
 msgid "Display members of your site's community."
 msgstr "Mostra os membros da comunidade do teu sitio."
 
-#: _inc/jetpack-strings.php:520
+#: _inc/jetpack-strings.php:547
 msgid "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!"
 msgstr "Para empezar feixe clic en engadir obxecto no teu editor de entradas e sobe un vídeo. Encargarémonos do resto!"
 
-#: _inc/jetpack-strings.php:228
+#: _inc/jetpack-strings.php:207
 msgid "Introducing our most affordable backups and security plan yet"
 msgstr "As copias e o plan de seguridade máis económicos ata o momento"
 
-#: _inc/jetpack-strings.php:227
-msgid "The Personal Plan keeps your data, site, and hard work safe."
-msgstr ""
-
-#: _inc/jetpack-strings.php:219
-msgid "Your site is on the Jetpack Personal plan"
-msgstr ""
-
-#: _inc/jetpack-strings.php:218
-msgid "With this plan you are provided with spam-protection, daily backups (up to 30 days), and unlimited storage."
-msgstr ""
-
-#: _inc/jetpack-strings.php:216
-msgid "With this plan you are provided with spam-protection, daily backups (up to 30 days), unlimited backup storage, security scanning, 13Gb of ad-free video hosting, income generation from ads, and priority support."
-msgstr ""
-
-#: _inc/jetpack-strings.php:214
-msgid "You get spam-protection, real-time backups (unlimited archive), unlimited backup storage, security scanning, unlimited ad-free video hosting, income generation from ads, SEO tools, and priority support."
-msgstr ""
-
 #: _inc/jetpack-strings.php:206
-msgid "Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress)."
-msgstr "Copias de seguridade diarias de todos os datos do teu sitio con espazo ilimitado e restauracións cun só clic (ofrecido por VaultPress)."
+msgid "Jetpack Personal keeps your data, site, and hard work safe."
+msgstr ""
 
-#: _inc/jetpack-strings.php:202
-msgid "Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress)."
-msgstr "Copias de seguridade diarias de todos os datos do teu sitio con espazo ilimitado, restauracións cun só clic, análise de seguridade automático e servizo de axuda prioritario (ofrecido por VaultPress)."
-
-#: _inc/jetpack-strings.php:199 _inc/jetpack-strings.php:203
-msgid "Backups & Security Scanning"
-msgstr "Copias de seguridade e escaneado de seguridade"
-
-#: _inc/jetpack-strings.php:198
-msgid "Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress)."
-msgstr "Copia de seguridade en tempo real de todos os datos do teu sitio con espazo ilimitado, restauracións cun só clic, exploración de seguridade automatizada, resolución de ameazas cun só clic e prioridade no soporte (implementado con VaultPress)."
-
-#: _inc/jetpack-strings.php:190
-msgid "13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress)."
-msgstr "13Gb de aloxamento de vídeo optimizado e sen anuncios para o teu sitio (implementado por VideoPress)."
-
-#: _inc/jetpack-strings.php:187 _inc/jetpack-strings.php:191
+#: _inc/jetpack-strings.php:161
 msgid "Video Hosting"
 msgstr "Aloxamento de vídeo"
 
-#: _inc/jetpack-strings.php:186
+#: _inc/jetpack-strings.php:160
 msgid "Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress)."
 msgstr "Aloxamento de vídeo optimizado, sen anuncios e ilimitado para o teu sitio (implementado con VideoPress)."
 
-#: _inc/jetpack-strings.php:183
+#: _inc/jetpack-strings.php:157
 msgid "SEO Tools"
 msgstr "Ferramentas de SEO"
 
-#: _inc/jetpack-strings.php:182
+#: _inc/jetpack-strings.php:156
 msgid "Advanced SEO tools to help your site get found when people search for relevant content."
 msgstr "As ferramentas SEO avanzadas axudan a que o teu sitio sexa fácil de atopar cando a xente busque contido relevante."
 
-#: _inc/jetpack-strings.php:173
-msgid "Daily and on-demand security scanning"
-msgstr ""
-
-#: _inc/jetpack-strings.php:172
-msgid "Real-time backups and one-click threat resolution"
-msgstr ""
-
-#: _inc/jetpack-strings.php:171
+#: _inc/jetpack-strings.php:144
 msgid "Unlimited and ad-free video hosting"
 msgstr "Aloxamento ilimitado de vídeo sen anuncios"
-
-#: _inc/jetpack-strings.php:167 _inc/jetpack-strings.php:175
-msgid "Need more? Running a business site?"
-msgstr ""
-
-#: _inc/jetpack-strings.php:166 _inc/jetpack-strings.php:174
-msgid "If your site is important to you, consider protecting and improving it with some of our advanced features: "
-msgstr ""
-
-#: _inc/jetpack-strings.php:165
-msgid "On-demand security scanning"
-msgstr ""
-
-#: _inc/jetpack-strings.php:162 _inc/jetpack-strings.php:170
-msgid "Advanced SEO tools"
-msgstr ""
 
 #: sync/class.jetpack-sync-actions.php:183
 msgid "Sync has been blocked from WordPress.com because it would cause an identity crisis"
@@ -3750,39 +4236,35 @@ msgstr "Non se puido borrar a opción sync erro."
 msgid "Could not confirm safe mode."
 msgstr "Non se puido confirmar o modo seguro."
 
-#: _inc/jetpack-strings.php:529
+#: _inc/jetpack-strings.php:556
 msgid "Configure your SEO settings."
 msgstr "Configurar os teus axustes de SEO."
 
-#: _inc/jetpack-strings.php:521
+#: _inc/jetpack-strings.php:548
 msgid "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive."
 msgstr "A forma máis sinxela de subirse vídeos sen anuncios nin marcas. Obtés estatísticas das reproducións de vídeo e das veces que se compartiu e o reprodutor é lixeiro e adaptable."
 
-#: _inc/jetpack-strings.php:478
+#: _inc/jetpack-strings.php:503
 msgid "You are running Jetpack on a staging server."
 msgstr "Estás a executar Jetpack nun servidor de desenvolvemento."
 
-#: _inc/jetpack-strings.php:477
+#: _inc/jetpack-strings.php:502
 msgid "More Info"
 msgstr "Máis Información"
 
-#: _inc/jetpack-strings.php:535
-msgid "Search your content."
-msgstr "Buscar o teu contido."
-
-#: _inc/jetpack-strings.php:509
+#: _inc/jetpack-strings.php:536
 msgid "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}"
 msgstr "{{a}}Manage Likes visibilidade desde o Sharing Module Settings{{/a}}"
 
-#: _inc/jetpack-strings.php:255
+#: _inc/jetpack-strings.php:243
 msgid "Your current IP: %(ip)s"
 msgstr "Túa IP actual: %(ip)s"
 
-#: _inc/jetpack-strings.php:41
+#: _inc/jetpack-strings.php:43 _inc/jetpack-strings.php:44
 msgid "There are unsaved settings in this tab that will be lost if you leave it. Proceed?"
 msgstr "Hai configuracións sen gardar neste tab que serán perdidas se as deixas así. Proceder?"
 
-#: _inc/jetpack-strings.php:409
+#: _inc/jetpack-strings.php:422
 msgid "This will reset all Jetpack options, are you sure?"
 msgstr "Isto resetea todas as opcións Jetpack, estás seguro?"
 
@@ -3820,48 +4302,48 @@ msgstr "%1$s e %2$s"
 msgid "%1$s must be %2$s."
 msgstr "%1$s ten que ser %2$s."
 
-#: _inc/jetpack-strings.php:548
+#: _inc/jetpack-strings.php:572
 msgid "Search for a Jetpack feature."
 msgstr "Buscar unha característica Jetpack."
 
-#: _inc/jetpack-strings.php:534
+#: _inc/jetpack-strings.php:561
 msgid "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website."
 msgstr "Actualización Jetpack e o noso escáner de seguranza moderno cazará ficheiros maliciosos e informará inmediatamente de modo que nunca es inconsciente do que está sucedendo no teu sitio web."
 
-#: _inc/jetpack-strings.php:533
+#: _inc/jetpack-strings.php:560
 msgid "You can see the information about security scanning in the \"At a Glance\" section."
 msgstr "Podes ver a información sobre a seguranza que escanea na sección \"Nunha Ollada\"."
 
-#: _inc/jetpack-strings.php:249 _inc/jetpack-strings.php:532
+#: _inc/jetpack-strings.php:222 _inc/jetpack-strings.php:559
 msgid "Configure your Security Scans"
 msgstr "Configurar os teus Escáneres de Seguranza"
 
-#: _inc/jetpack-strings.php:526
+#: _inc/jetpack-strings.php:553
 msgid "This module has no configuration options"
 msgstr "Este módulo non ten opcións de configuración"
 
-#: _inc/jetpack-strings.php:525
+#: _inc/jetpack-strings.php:552
 msgid "Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch."
 msgstr "Deixar motores de procura e os visitantes saben que é serio sobre a túa integridade de sitios web por mellorar Jetpack. O noso anti-spam eliminará as ferramentas de comentario spam, protexer o teu SEO, e facelo máis fácil para que visitantes podan ficar en táctil."
 
-#: _inc/jetpack-strings.php:524
+#: _inc/jetpack-strings.php:551
 msgid "Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today."
 msgstr "Real-time offsite backups con automatizado restaura entregar peace-of-mind, así que pódeste centrar en escribir contido grande e tráfico crecente mentres protexemos cada aspecto doteu investimento. Actualiza hoxe."
 
-#: _inc/jetpack-strings.php:522 _inc/jetpack-strings.php:523
+#: _inc/jetpack-strings.php:549 _inc/jetpack-strings.php:550
 msgid "{{link}}Configure your %(module_slug)s Settings {{/link}}"
 msgstr "{{link}}Configurar as túas %(module_slug)s Configuracións {{/link}}"
 
-#: _inc/jetpack-strings.php:519
+#: _inc/jetpack-strings.php:546
 msgid "Subscriber"
 msgstr "Subscritor"
 
-#: _inc/jetpack-strings.php:287 _inc/jetpack-strings.php:518
+#: _inc/jetpack-strings.php:283 _inc/jetpack-strings.php:545
 #: modules/related-posts/jetpack-related-posts.php:841
 msgid "Big iPhone/iPad Update Now Available"
 msgstr "Big iPhone/iPad Update Agora Dispoñíbel"
 
-#: _inc/jetpack-strings.php:285 _inc/jetpack-strings.php:517
+#: _inc/jetpack-strings.php:280 _inc/jetpack-strings.php:544
 #: modules/related-posts/jetpack-related-posts.php:861
 msgid "The WordPress for Android App Gets a Big Facelift"
 msgstr "O WordPress para Android App Consegue unha Gran Mellora do Aspecto"
@@ -3870,35 +4352,35 @@ msgstr "O WordPress para Android App Consegue unha Gran Mellora do Aspecto"
 msgid "Upgrade Focus, VideoPress for weddings"
 msgstr "Upgrade Focus: VideoPress para Weddings"
 
-#: _inc/jetpack-strings.php:510
+#: _inc/jetpack-strings.php:537
 msgid "WordPress.com Likes are:"
 msgstr "WordPress.com Likes son:"
 
-#: _inc/jetpack-strings.php:146
+#: _inc/jetpack-strings.php:110
 msgid "Comments headline"
 msgstr "Titular de comentarios"
 
-#: _inc/jetpack-strings.php:145
+#: _inc/jetpack-strings.php:109
 msgid "A few catchy words to motivate your readers to comment."
 msgstr "Expresións pegadizas para motivar aos teus lectores para comentar."
 
-#: _inc/jetpack-strings.php:149
+#: _inc/jetpack-strings.php:113
 msgid "Show a \"follow blog\" option in the comment form"
 msgstr "Mostra as opcións \"segue ao blogue\" no formulario de comentarios"
 
-#: _inc/jetpack-strings.php:148
+#: _inc/jetpack-strings.php:112
 msgid "Show a \"follow comments\" option in the comment form"
 msgstr "Mostra a opción \"segue os comentarios\" no formulario de comentarios"
 
-#: _inc/jetpack-strings.php:301
+#: _inc/jetpack-strings.php:299
 msgid "Put a chart showing 48 hours of views in the admin bar"
 msgstr "Poñer un gráfico mostrando as visitas das últimas 48 horas na barra de administración"
 
-#: _inc/jetpack-strings.php:300
+#: _inc/jetpack-strings.php:298
 msgid "Hide the stats smiley face image"
 msgstr "Oculta a imaxe da carita feliz das estatísticas"
 
-#: _inc/jetpack-strings.php:253
+#: _inc/jetpack-strings.php:241
 msgid "Whitelisted IP addresses"
 msgstr "Lista branca de direccións IP"
 
@@ -3906,7 +4388,7 @@ msgstr "Lista branca de direccións IP"
 msgid "Show photo metadata (Exif) in carousel, when available"
 msgstr "Mostra os metadatos da foto (Exif) en carrousel cando estean dispoñibles"
 
-#: _inc/jetpack-strings.php:357
+#: _inc/jetpack-strings.php:358
 msgid "Show an ad for the WordPress mobile apps in the footer of the mobile theme"
 msgstr "Mostra unha promo das aplicacións de WordPress para móbiles no pé da versión móbil do tema"
 
@@ -3955,388 +4437,265 @@ msgstr "Activar a proba de lectura a a seguinte gramática e regras de estilo: "
 msgid "Add a phrase"
 msgstr "Engade unha frase"
 
-#: _inc/jetpack-strings.php:496
+#: _inc/jetpack-strings.php:521
 msgid "Cheatin' uh?"
 msgstr "Facendo trampas?"
 
-#: _inc/jetpack-strings.php:495
+#: _inc/jetpack-strings.php:520
 msgid "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}"
 msgstr "{{p}}Importaríache dicirnos por que non completaches a conexión con Jetpack nesta {{a}}enquisa de 2 preguntas?{{/a}}{{/p}}{{p}}A conexión con Jetpack é obrigatoria para que funcionen as nosas características gratuítas de tráfico e seguridade.{{/p}}"
 
-#: _inc/jetpack-strings.php:486
+#: _inc/jetpack-strings.php:511
 msgid "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!"
 msgstr ""
 
-#: _inc/jetpack-strings.php:485
+#: _inc/jetpack-strings.php:510
 msgid "Your Jetpack is already connected."
 msgstr "O teu Jetpack xa está conectado."
 
-#: _inc/jetpack-strings.php:484
+#: _inc/jetpack-strings.php:509
 msgid "You're fueled up and ready to go, Jetpack is now active."
 msgstr "Vostede está alimentado e listo para funcionar, Jetpack está agora activo."
 
-#: _inc/jetpack-strings.php:483
+#: _inc/jetpack-strings.php:508
 msgid "You're fueled up and ready to go."
 msgstr "Vostede está alimentado e listo para funcionar."
 
-#: _inc/jetpack-strings.php:480
+#: _inc/jetpack-strings.php:505
 msgid "You are currently running a development version of Jetpack."
 msgstr "Neste momento estás a executar unha versión de desenvolvemento de Jetpack."
 
-#: _inc/jetpack-strings.php:479
+#: _inc/jetpack-strings.php:504
 msgid "Submit Beta feedback"
 msgstr "Envía as túas suxestións"
 
-#: _inc/jetpack-strings.php:471
-msgid "You, %(userName)s, are not connected to WordPress.com."
-msgstr ""
-
-#: _inc/jetpack-strings.php:468
+#: _inc/jetpack-strings.php:493
 msgid "What would you like to see on your Jetpack Dashboard?"
 msgstr "Que che gustaría ver no Escritorio do teu Jetpack?"
 
-#: _inc/jetpack-strings.php:467
+#: _inc/jetpack-strings.php:492
 msgid "Let us know!"
 msgstr "Háznolo saber!"
 
-#: _inc/jetpack-strings.php:444 class.jetpack-connection-banner.php:183
+#: _inc/jetpack-strings.php:467 class.jetpack-connection-banner.php:183
 #: class.jetpack-connection-banner.php:601
 #: class.jetpack-connection-banner.php:627
 msgid "Welcome to Jetpack"
 msgstr "Benvido a Jetpack"
 
-#: _inc/jetpack-strings.php:443 class.jetpack-connection-banner.php:865
+#: class.jetpack-connection-banner.php:865
 msgid "Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services."
 msgstr "Por favor, conéctache a ou crea unha conta de WordPress.com para empezar a usar Jetpack. Isto activará potentes servizos de seguridade, tráfico e personalización."
 
-#: _inc/jetpack-strings.php:412 _inc/jetpack-strings.php:442
-msgid "No account? Create one for free…"
+#: _inc/jetpack-strings.php:425 _inc/jetpack-strings.php:465
+msgid "No account? Create one for free."
 msgstr ""
 
-#: _inc/jetpack-strings.php:411
+#: _inc/jetpack-strings.php:424
 msgid "Saving…"
 msgstr "Gardando..."
 
-#: _inc/jetpack-strings.php:410
+#: _inc/jetpack-strings.php:423
 msgid "Save Settings"
 msgstr "Gardar os axustes"
 
-#: _inc/jetpack-strings.php:307 _inc/jetpack-strings.php:386
+#: _inc/jetpack-strings.php:305 _inc/jetpack-strings.php:387
 msgid "Jetpack Stats Icon"
 msgstr "Icona de estatísticas de Jeptpack"
 
-#: _inc/jetpack-strings.php:305 _inc/jetpack-strings.php:384
+#: _inc/jetpack-strings.php:303 _inc/jetpack-strings.php:385
 msgid "{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}"
 msgstr "{{a}}Activa as Estatísticas do sitio{{/a}} para ver estatísticas detalladas, gústame, seguidores, subscritores e máis! {{a1}}Aprende máis{{/a1}}"
 
-#: _inc/jetpack-strings.php:304 _inc/jetpack-strings.php:383
+#: _inc/jetpack-strings.php:302 _inc/jetpack-strings.php:384
 msgid "Activate Site Stats"
 msgstr "Activar estatísticas do sitio"
 
-#: _inc/jetpack-strings.php:137
+#: _inc/jetpack-strings.php:103
 msgid "Security Scanning"
 msgstr "Escaneo de seguridade"
 
-#: _inc/jetpack-strings.php:561
+#: _inc/jetpack-strings.php:586
 msgid "Upgrade"
 msgstr "Actualizar"
 
-#: _inc/jetpack-strings.php:230
+#: _inc/jetpack-strings.php:118
 msgid "ACTIVE"
 msgstr "ACTIVO"
 
-#: _inc/jetpack-strings.php:224
+#: _inc/jetpack-strings.php:203
 msgid "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory."
 msgstr "Os hackers, botnets e spammers atacan webs indiscriminadamente. O seu obxectivo é atacar por todos lados e a miúdo. O noso obxectivo é axudarche a prepararche bloqueando estas ameazas, e no peor dos casos estaremos aquí para axudarche a restaurar o teu sitio á súa antiga gloria."
 
-#: _inc/jetpack-strings.php:221
+#: _inc/jetpack-strings.php:200
 msgid "Your site is on the Free Jetpack Plan"
 msgstr "O teu sitio está no plan gratuíto de Jetpack"
 
-#: _inc/jetpack-strings.php:217
-msgid "Your site is on the Jetpack Premium plan"
-msgstr ""
-
-#: _inc/jetpack-strings.php:215
-msgid "Your site is on the Jetpack Professional plan"
-msgstr ""
-
-#: _inc/jetpack-strings.php:213
+#: _inc/jetpack-strings.php:192
 msgid "Your site is on Development Mode"
 msgstr "O teu sitio web está en modo de desenvolvemento"
 
-#: _inc/jetpack-strings.php:212
+#: _inc/jetpack-strings.php:191
 msgid "Once you connect, you can upgrade to a paid plan in order to unlock world-class security, spam protection tools, and priority support."
 msgstr "Unha vez que esteas conectado podes pasar a un plan de pago para conseguir seguridade de primeiro nivel, ferramentas de protección contra o spam e soporte prioritario."
 
-#: _inc/jetpack-strings.php:210
+#: _inc/jetpack-strings.php:176
 msgid "State-of-the-art spam defense powered by Akismet."
 msgstr "Defensa anti spam de calidade profesional potenciada por Akismet."
 
-#: _inc/jetpack-strings.php:209
+#: _inc/jetpack-strings.php:175
 msgid "View your spam stats"
 msgstr "Ver as túas estatísticas de spam"
 
-#: _inc/jetpack-strings.php:208
+#: _inc/jetpack-strings.php:174
 msgid "Configure Akismet"
 msgstr "Configurar Akismet"
 
-#: _inc/jetpack-strings.php:197 _inc/jetpack-strings.php:201
-#: _inc/jetpack-strings.php:205
+#: _inc/jetpack-strings.php:182
 msgid "View your security dashboard"
 msgstr "Ver o teu escritorio de seguridade"
 
-#: _inc/jetpack-strings.php:196 _inc/jetpack-strings.php:200
-#: _inc/jetpack-strings.php:204
+#: _inc/jetpack-strings.php:181
 msgid "Configure VaultPress"
 msgstr "Configura VaultPress"
 
-#: _inc/jetpack-strings.php:164
-msgid "Real-time backups"
-msgstr ""
-
-#: _inc/jetpack-strings.php:163
-msgid "One-click threat resolution"
-msgstr ""
-
-#: _inc/jetpack-strings.php:152 _inc/jetpack-strings.php:160
-#: _inc/jetpack-strings.php:168
+#: _inc/jetpack-strings.php:127 _inc/jetpack-strings.php:140
 msgid "Compare Plans"
 msgstr "Comparar plans"
 
-#: _inc/jetpack-strings.php:159
+#: _inc/jetpack-strings.php:134
 msgid "Maximum grade security"
 msgstr "Máximo grao de seguridade"
 
-#: _inc/jetpack-strings.php:158
+#: _inc/jetpack-strings.php:133
 msgid "Real-time backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place and optimized for WordPress."
 msgstr "Copias de seguridade en tempo real con espazo ilimitado, restauracións cun só clic, monitoraxe de spam a proba de bombas, protección contra malware e contra acceso por forza bruta - todo nun só lugar e optimizado para WordPress."
 
-#: _inc/jetpack-strings.php:157
+#: _inc/jetpack-strings.php:132
 msgid "Bulletproof spam filtering protects your brand, your readers, and improves SEO. Malware scanning helps maintain peace of mind and keeps your backend safe from intruders."
 msgstr "Filtrado de correo lixo a proba de balas, protexe a túa marca, os teus lectores e mellora o SEO. Revisión de Malware , que che axuda a manter baixo control os teus nervios e mantén a salvo de intrusos o teu panel de administración."
 
-#: _inc/jetpack-strings.php:154
+#: _inc/jetpack-strings.php:129
 msgid "Enjoy priority support"
 msgstr "Disfruta de soporte prioritario"
 
-#: _inc/jetpack-strings.php:100
+#: _inc/jetpack-strings.php:67
 msgid "The site is in Development Mode, so you can not connect to WordPress.com."
 msgstr "O sitio está no modo de desenvolvemento, así que non podes conectarche a WordPress.com."
 
-#: _inc/jetpack-strings.php:97
+#: _inc/jetpack-strings.php:64
 msgid "Link your account to WordPress.com to get the most out of Jetpack."
 msgstr "Conecta a túa conta a WordPress.com para conseguir o máximo de Jetpack."
 
-#: _inc/jetpack-strings.php:81
-msgid "Powerful WordPress.com features on every device."
-msgstr ""
-
-#: _inc/jetpack-strings.php:80
-msgid "Manage all your sites from a single dashboard."
-msgstr ""
-
-#: _inc/jetpack-strings.php:79
-msgid "Feel the performance"
-msgstr ""
-
-#: _inc/jetpack-strings.php:78
-msgid "All the WordPress apps are built for speed. You'll notice the difference in performance immediately, with near-instant page-loads and less waiting around."
-msgstr ""
-
-#: _inc/jetpack-strings.php:74
-msgid "Bulk and automatic updates"
-msgstr ""
-
-#: _inc/jetpack-strings.php:73
-msgid "Most security flaws are found in outdated plugins. Use our Web and Desktop apps to turn on auto-updates or update plugins manually for all your websites in one convenient place."
-msgstr ""
-
-#: _inc/jetpack-strings.php:71
-msgid "Focus on your Writing"
-msgstr ""
-
-#: _inc/jetpack-strings.php:70
-msgid "Our new editor is lightning fast, optimized for writers and eliminates distractions, giving you the ability to focus on your work."
-msgstr ""
-
-#: _inc/jetpack-strings.php:69
-msgid "Try the New Editor"
-msgstr ""
-
-#: _inc/jetpack-strings.php:66
-msgid "Connect with your Visitors"
-msgstr ""
-
-#: _inc/jetpack-strings.php:65
-msgid "Monitor your visitors with advanced stats. Watch for trends, learn what content performs the best and understand your visitors from anywhere in the world."
-msgstr ""
-
-#: _inc/jetpack-strings.php:64
-msgid "View Your Stats"
-msgstr ""
-
-#: _inc/jetpack-strings.php:62
-msgid "Connect with the Community"
-msgstr ""
-
-#: _inc/jetpack-strings.php:61
-msgid "The WordPress apps all have impressively fast and full featured readers so you can catch up with your favorite sites and join the conversation anywhere, any time."
-msgstr ""
-
-#: _inc/jetpack-strings.php:60
-msgid "Launch Reader"
-msgstr ""
-
-#: _inc/jetpack-strings.php:58
-msgid "Inspiration strikes any time, anywhere."
-msgstr ""
-
-#: _inc/jetpack-strings.php:57
-msgid "Get WordPress apps for any screen."
-msgstr ""
-
-#: _inc/jetpack-strings.php:55
-msgid "In Your Pocket"
-msgstr ""
-
-#: _inc/jetpack-strings.php:54
-msgid "Publish content, track stats, moderate comments and so much more from anywhere in the world. Our mobile apps are open source, free and available to you on Apple or Android devices."
-msgstr ""
-
-#: _inc/jetpack-strings.php:53
-msgid "WordPress.com in the App Store"
-msgstr ""
-
-#: _inc/jetpack-strings.php:51
-msgid "WordPress.com in Google Play"
-msgstr ""
-
-#: _inc/jetpack-strings.php:49
-msgid "On Your Desktop"
-msgstr ""
-
-#: _inc/jetpack-strings.php:48
-msgid "A desktop app that gives WordPress a permanent home on your computer. Not to mention the distraction free environment you get writing outside of a web browser."
-msgstr ""
-
-#: _inc/jetpack-strings.php:47
-msgid "WordPress.com for Mac OS X"
-msgstr ""
-
-#: _inc/jetpack-strings.php:45
-msgid "WordPress.com for Windows"
-msgstr ""
-
-#: _inc/jetpack-strings.php:43
-msgid "WordPress.com for Linux"
-msgstr ""
-
-#: _inc/jetpack-strings.php:130
+#: _inc/jetpack-strings.php:96
 msgid "For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress."
 msgstr "Para a exploración automática e completa das ameazas de seguridade, por favor {{a}}instala e activa{{/a}} VaultPress."
 
-#: _inc/jetpack-strings.php:129
+#: _inc/jetpack-strings.php:95
 msgid "For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}."
 msgstr "Para a exploración automática e completa das ameazas de seguridade, por favor {{a}}actualiza a túa conta{{/a}}."
 
-#: _inc/jetpack-strings.php:127
+#: _inc/jetpack-strings.php:92
 msgid "Jetpack is actively blocking malicious login attempts. Data will display here soon!"
 msgstr "Jetapck está a bloquear activamente intentos de acceso maliciosos. Moi pronto se mostrasen datos aquí mesmo!"
 
-#: _inc/jetpack-strings.php:126
+#: _inc/jetpack-strings.php:91
 msgid "Total malicious attacks blocked on your site."
 msgstr "Total de ataques maliciosos bloqueados no teu sitio."
 
-#: _inc/jetpack-strings.php:124
+#: _inc/jetpack-strings.php:89
 msgid "{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts."
 msgstr "{{a}}Activa Protexer{{/a}} para manter o teu sitio protexido de intentos de acceso malintencionados."
 
-#: _inc/jetpack-strings.php:119
+#: _inc/jetpack-strings.php:86
 msgid "%(number)s plugin"
 msgid_plural "%(number)s plugins"
 msgstr[0] "%(número)s plugin"
 msgstr[1] "%(número)s plugins"
 
-#: _inc/jetpack-strings.php:118
+#: _inc/jetpack-strings.php:85
 msgid "Needs updating. "
 msgid_plural "Need updating. "
 msgstr[0] "Necesita actualizarse. "
 msgstr[1] "Necesitan actualizarse. "
 
-#: _inc/jetpack-strings.php:117
+#: _inc/jetpack-strings.php:83
 msgid "All plugins are up-to-date. Awesome work!"
 msgstr "Todos os plugins están actualizados. Bo traballo!"
 
-#: _inc/jetpack-strings.php:116
-msgid "{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com."
-msgstr ""
-
-#: _inc/jetpack-strings.php:114
+#: _inc/jetpack-strings.php:81
 msgid "Jetpack is improving and optimizing your image speed."
 msgstr "Jeptack está a mellorar e optimizando a velocidade das túas imaxes."
 
-#: _inc/jetpack-strings.php:110
+#: _inc/jetpack-strings.php:77
 msgid "Jetpack is monitoring your site. If we think your site is down, you will receive an email."
 msgstr "Jetpack está a monitorar o teu sitio. Se cremos que o teu sitio está caído, recibirás un correo electrónico."
 
-#: _inc/jetpack-strings.php:107 modules/masterbar/masterbar.php:460
+#: _inc/jetpack-strings.php:74 _inc/jetpack-strings.php:613
+#: _inc/jetpack-strings.php:625 _inc/jetpack-strings.php:638
+#: modules/masterbar/masterbar.php:460
 msgid "Security"
 msgstr "Seguridade"
 
-#: _inc/jetpack-strings.php:104 class.jetpack-connection-banner.php:207
+#: _inc/jetpack-strings.php:71 class.jetpack-connection-banner.php:207
 msgid "Performance"
 msgstr "Rendemento"
 
-#: _inc/jetpack-strings.php:94 _inc/jetpack-strings.php:207
+#: _inc/jetpack-strings.php:61 _inc/jetpack-strings.php:184
+#: _inc/jetpack-strings.php:187
 msgid "Backups"
 msgstr "Copia de seguridade"
 
-#: _inc/jetpack-strings.php:92
+#: _inc/jetpack-strings.php:60
 msgid "{{a}}View backup details{{/a}}."
 msgstr "{{a}}Ver detalles da copia de seguridade{{/a}}."
 
-#: _inc/jetpack-strings.php:91
+#: _inc/jetpack-strings.php:59
 msgid "To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress."
 msgstr "Para facer automaticamente unha copia de seguridade do teu sitio completo, por favor {{a}}instala e activa{{/a}} VaultPress."
 
-#: _inc/jetpack-strings.php:89 _inc/jetpack-strings.php:109
-#: _inc/jetpack-strings.php:128
+#: _inc/jetpack-strings.php:45 _inc/jetpack-strings.php:56
+#: _inc/jetpack-strings.php:76 _inc/jetpack-strings.php:94
+#: _inc/jetpack-strings.php:233 _inc/jetpack-strings.php:237
 msgid "Unavailable in Dev Mode."
 msgstr "Non dispoñible no modo desarrollador."
 
-#: _inc/jetpack-strings.php:88 _inc/jetpack-strings.php:211
+#: _inc/jetpack-strings.php:54 _inc/jetpack-strings.php:177
 msgid "Spam Protection"
 msgstr "Protección de spam"
 
-#: _inc/jetpack-strings.php:86
+#: _inc/jetpack-strings.php:52
 msgid "For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}."
 msgstr "Para unha defensa contra o spam de calidade profesional por favor {{a}}instala Akismet{{/a}}."
 
-#: _inc/jetpack-strings.php:85
+#: _inc/jetpack-strings.php:51
 msgid "For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}."
 msgstr "Se queres un protector contra o spas que estea á última, {{a}}activa Akismet{{a}}."
 
-#: _inc/jetpack-strings.php:84
+#: _inc/jetpack-strings.php:50
 msgid "Invalid key"
 msgstr "Clave non válida"
 
-#: _inc/jetpack-strings.php:113 _inc/jetpack-strings.php:125
-#: _inc/jetpack-strings.php:306 _inc/jetpack-strings.php:385
+#: _inc/jetpack-strings.php:80 _inc/jetpack-strings.php:90
+#: _inc/jetpack-strings.php:304 _inc/jetpack-strings.php:386
 msgid "Unavailable in Dev Mode"
 msgstr "Non dispoñible en modo desarrollador"
 
-#: _inc/jetpack-strings.php:24
+#: _inc/jetpack-strings.php:23 _inc/jetpack-strings.php:530
 msgid "Activating recommended features…"
 msgstr "Activando funcionalidades recomendadas..."
 
-#: _inc/jetpack-strings.php:23
+#: _inc/jetpack-strings.php:22
 msgid "Recommended features active."
 msgstr "Funcionalidades de recomendación activas."
 
-#: _inc/jetpack-strings.php:22
+#: _inc/jetpack-strings.php:21
 msgid "Recommended features failed to activate. %(error)s"
 msgstr "Non se puideron activar as funcionalidades recomendadas. %(erro)s"
+
+#: _inc/jetpack-strings.php:35
+msgid "Activating %(slug)s…"
+msgstr "Activando %(slug)s…"
 
 #: _inc/jetpack-strings.php:34
 msgid "%(slug)s has been activated."
@@ -4347,81 +4706,85 @@ msgid "%(slug)s failed to activate. %(error)s"
 msgstr "%(slug)s fallou ao activarse. %(erro)s"
 
 #: _inc/jetpack-strings.php:32
+msgid "Deactivating %(slug)s…"
+msgstr "Desactivando %(slug)s…"
+
+#: _inc/jetpack-strings.php:31
 msgid "%(slug)s has been deactivated."
 msgstr "%(slug)s foi desactivado."
 
-#: _inc/jetpack-strings.php:31
+#: _inc/jetpack-strings.php:30
 msgid "%(slug)s failed to deactivate. %(error)s"
 msgstr "%(slug)s non se desactivaron. %(erro)s"
 
-#: _inc/jetpack-strings.php:30
+#: _inc/jetpack-strings.php:29
 msgid "Updating %(slug)s settings…"
 msgstr "Actualizando %(slug)s axustes..."
 
-#: _inc/jetpack-strings.php:29
+#: _inc/jetpack-strings.php:28
 msgid "Updated %(slug)s settings."
 msgstr "Axustes de %(slug)s actualizados."
 
-#: _inc/jetpack-strings.php:28
+#: _inc/jetpack-strings.php:27
 msgid "Error updating %(slug)s settings. %(error)s"
 msgstr "Erro actualizando os axustes %(slug)s. %(erro)s"
 
-#: _inc/jetpack-strings.php:27
+#: _inc/jetpack-strings.php:26
 msgid "Updating %(slug)s address…"
 msgstr "Actualizando a dirección %(slug)s..."
 
-#: _inc/jetpack-strings.php:26
+#: _inc/jetpack-strings.php:25
 msgid "Regenerated %(slug)s address ."
 msgstr "Rexenerar %(slug)s direccións."
 
-#: _inc/jetpack-strings.php:25
+#: _inc/jetpack-strings.php:24
 msgid "Error regenerating %(slug)s address. %(error)s"
 msgstr "Erro rexenerando a dirección %(slug). %(erro)s"
 
-#: _inc/jetpack-strings.php:21
+#: _inc/jetpack-strings.php:20
 msgid "Resetting Jetpack options…"
 msgstr "Resetear opcións de jetpack..."
 
-#: _inc/jetpack-strings.php:20
+#: _inc/jetpack-strings.php:19
 msgid "Options reset."
 msgstr "Axustes restablecidos."
 
-#: _inc/jetpack-strings.php:19
+#: _inc/jetpack-strings.php:18
 msgid "Options failed to reset."
 msgstr "Fallo ao restablecer as opcións."
 
-#: _inc/jetpack-strings.php:17
+#: _inc/jetpack-strings.php:16
 msgid "There was an error disconnecting Jetpack. Error: %(error)s"
 msgstr "Ocorreu un erro desconectando Jetpack. Erro: %(erro)s"
 
-#: _inc/jetpack-strings.php:16
+#: _inc/jetpack-strings.php:15
 msgid "Unlinking from WordPress.com"
 msgstr "Desconectando de WordPress.com"
 
-#: _inc/jetpack-strings.php:15
+#: _inc/jetpack-strings.php:14
 msgid "Unlinked from WordPress.com."
 msgstr "Desconectado de WordPress.com."
 
-#: _inc/jetpack-strings.php:14
+#: _inc/jetpack-strings.php:13
 msgid "Error unlinking from WordPress.com. %(error)s"
 msgstr "Erro ao desconectar de WordPress.com. %(erro)s"
 
-#: _inc/jetpack-strings.php:13
+#: _inc/jetpack-strings.php:12
 msgctxt "Navigation item."
 msgid "At A Glance"
 msgstr "Dunha ollada"
 
-#: _inc/jetpack-strings.php:12
+#: _inc/jetpack-strings.php:11
 msgid "At A Glance"
 msgstr "Dunha ollada"
 
-#: _inc/jetpack-strings.php:10 _inc/jetpack-strings.php:538
+#: _inc/jetpack-strings.php:10 _inc/jetpack-strings.php:563
 msgctxt "Navigation item."
 msgid "Plans"
 msgstr "Planes"
 
-#: _inc/jetpack-strings.php:5 _inc/jetpack-strings.php:541
-#: _inc/jetpack-strings.php:547
+#: _inc/jetpack-strings.php:5 _inc/jetpack-strings.php:565
+#: _inc/jetpack-strings.php:571
 msgctxt "Navigation item."
 msgid "Writing"
 msgstr "Escritura"
@@ -5151,194 +5514,174 @@ msgstr "Activa JavaScript para desvelar todo o potencial de Jetpack!"
 msgid "You have JavaScript disabled"
 msgstr "Tes deshabilitado JavaScript"
 
-#: _inc/jetpack-strings.php:505
+#: _inc/jetpack-strings.php:532
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:54
 #: class.jetpack-network-sites-list-table.php:59
 #: modules/masterbar/masterbar.php:998
 msgid "Dashboard"
 msgstr "Escritorio"
 
-#: _inc/jetpack-strings.php:465
+#: _inc/jetpack-strings.php:490
 msgid "Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack."
 msgstr "Importaríache dicirnos por que? Simplemente {{a}}contestando dúas sinxelas preguntas{{/a}} axudarasnos a mellorar Jetpack."
 
-#: _inc/jetpack-strings.php:400
+#: _inc/jetpack-strings.php:410
 msgctxt "Shorthand for Privacy Policy."
 msgid "Privacy"
 msgstr "Privacidade"
 
-#: _inc/jetpack-strings.php:401
+#: _inc/jetpack-strings.php:411
 msgid "Automattic's Privacy Policy"
 msgstr "Política de privacidade de Automattic"
 
-#: _inc/jetpack-strings.php:402
+#: _inc/jetpack-strings.php:412
 msgctxt "Shorthand for Terms of Service."
 msgid "Terms"
 msgstr "Términos"
 
-#: _inc/jetpack-strings.php:403
+#: _inc/jetpack-strings.php:413
 msgid "WordPress.com Terms of Service"
 msgstr "Termos do servizo de WordPress.com"
 
-#: _inc/jetpack-strings.php:406
+#: _inc/jetpack-strings.php:419
 msgctxt "Navigation item. Noun. Links to a debugger tool for Jetpack."
 msgid "Debug"
 msgstr "Depurar"
 
-#: _inc/jetpack-strings.php:408
+#: _inc/jetpack-strings.php:421
 msgctxt "Navigation item."
 msgid "Reset Options (dev only)"
 msgstr "Restablecer axustes (só en versións de desenvolvemento)"
 
-#: _inc/jetpack-strings.php:138
-msgid "{{a}}Activate Site Verification{{/a}} to verify your site and increase ranking with Google, Bing, and Pinterest."
-msgstr ""
-
-#: _inc/jetpack-strings.php:139
-msgid "Site Verification Tools are active. Ensure your site is verified with Google, Bing, and Pinterest for more accurate indexing and ranking. {{a}}Verify now{{/a}}"
-msgstr ""
-
-#: _inc/jetpack-strings.php:140
-msgid "Site Verification Tools"
-msgstr ""
-
-#: _inc/jetpack-strings.php:112
-msgid "{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images."
-msgstr ""
-
-#: _inc/jetpack-strings.php:115
-msgid "Image Performance %(photon)s"
+#: _inc/jetpack-strings.php:79
+msgid "{{a}}Activate{{/a}} to enhance the performance and speed of your images."
 msgstr ""
 
 #: _inc/lib/class.core-rest-api-endpoints.php:2662
 msgid "All plugins are up-to-date. Keep up the good work!"
 msgstr "Todos os plugins están actualizados. Segue co bo traballo!"
 
-#: _inc/jetpack-strings.php:120
-msgid "{{a}}Activate Manage and turn on auto updates{{/a}}"
-msgstr ""
-
-#: _inc/jetpack-strings.php:121
+#: _inc/jetpack-strings.php:84
 msgid "{{a}}Turn on plugin auto updates{{/a}}"
 msgstr "{{a}}Activar as actualizacións automáticas de plugins{{/a}}"
 
-#: _inc/jetpack-strings.php:123
+#: _inc/jetpack-strings.php:88
 msgid "Plugin Updates"
 msgstr "Actualizacións de plugins"
 
-#: _inc/jetpack-strings.php:90
-msgid "To automatically back up your entire site, please {{a}}upgrade your account.{{/a}}."
-msgstr "Para realizar copias de seguridade automáticas de ti sitio completo, por favor {{a}}amplía a túa conta{{/a}}."
+#: _inc/jetpack-strings.php:58
+msgid "To automatically back up your entire site, please {{a}}upgrade your account{{/a}}."
+msgstr ""
 
-#: _inc/jetpack-strings.php:82
+#: _inc/jetpack-strings.php:48
 msgctxt "Example: \"412 Spam comments blocked\""
 msgid "Spam comments blocked."
 msgstr "Comentarios de spam bloqueados."
 
-#: _inc/jetpack-strings.php:83
+#: _inc/jetpack-strings.php:49
 msgid "Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}."
 msgstr "Vaia! As túas claves de Akismet perdéronse ou non son válidas. {{akismetSettings}}Ve á as opcións de Akismet para arranxalo {{/akismetSettings}}"
 
-#: _inc/jetpack-strings.php:132
+#: _inc/jetpack-strings.php:98
 msgid "No threats found, you're good to go!"
 msgstr "Non se atoparon ameazas.Adiante!"
 
-#: _inc/jetpack-strings.php:133
+#: _inc/jetpack-strings.php:99 _inc/jetpack-strings.php:230
 msgid "{{a}}Contact Support{{/a}}"
 msgstr "{{a}}Contacta con soporte{{/a}}"
 
-#: _inc/jetpack-strings.php:134
+#: _inc/jetpack-strings.php:100
 msgid "{{a}}View details at VaultPress.com{{/a}}"
 msgstr "{{a}}Ver detalles en VaultPress.com{{/a}}"
 
-#: _inc/jetpack-strings.php:135
+#: _inc/jetpack-strings.php:101 _inc/jetpack-strings.php:232
 msgid "Uh oh, %(number)s threat found."
 msgid_plural "Uh oh, %(number)s threats found."
 msgstr[0] "Uh oh,%(número)s ameaza atopada."
 msgstr[1] "Uh oh,%(número)s ameazas atopadas."
 
-#: _inc/jetpack-strings.php:108
+#: _inc/jetpack-strings.php:75
 msgid "{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down."
 msgstr "{{a}}Activa Monitor{{/a}} para recibir avisos se o teu sitio cae."
 
-#: _inc/jetpack-strings.php:87 _inc/jetpack-strings.php:93
-#: _inc/jetpack-strings.php:122 _inc/jetpack-strings.php:131
-#: _inc/jetpack-strings.php:136
+#: _inc/jetpack-strings.php:53 _inc/jetpack-strings.php:57
+#: _inc/jetpack-strings.php:87 _inc/jetpack-strings.php:97
+#: _inc/jetpack-strings.php:102
 msgid "Loading…"
 msgstr "Cargando..."
 
-#: _inc/jetpack-strings.php:111
+#: _inc/jetpack-strings.php:78
 msgid "Downtime Monitoring"
 msgstr "Monitoraxe de caídas"
 
-#: _inc/jetpack-strings.php:368
+#: _inc/jetpack-strings.php:369
 msgid "{{button}}View more stats on WordPress.com {{/button}}"
 msgstr "{{button}}Ver máis estatísticas en WordPress.com {{/button}}"
 
-#: _inc/jetpack-strings.php:369
+#: _inc/jetpack-strings.php:370
 msgid "{{button}}View detailed stats{{/button}}"
 msgstr "{{button}}Ver máis estatísticas{{/button}}"
 
 #. translators: Referring to a number of comments
-#: _inc/jetpack-strings.php:371
+#: _inc/jetpack-strings.php:372
 msgid "All-time comments"
 msgstr "Todos os comentarios"
 
 #. translators: Referring to a number of page views
-#: _inc/jetpack-strings.php:373
+#: _inc/jetpack-strings.php:374
 msgid "All-time views"
 msgstr "Visitas de todo o período"
 
-#: _inc/jetpack-strings.php:374
+#: _inc/jetpack-strings.php:375
 msgid "%(number)s View"
 msgid_plural "%(number)s Views"
 msgstr[0] "%(Número)s Ver"
 msgstr[1] "%(Número)s Vistas"
 
 #. translators: Referring to a number of page views
-#: _inc/jetpack-strings.php:376
+#: _inc/jetpack-strings.php:377
 msgid "Best overall day"
 msgstr "O mellor día"
 
 #. translators: Referring to a number of page views
-#: _inc/jetpack-strings.php:378
+#: _inc/jetpack-strings.php:379
 msgid "Views today"
 msgstr "Visualizacións hoxe"
 
-#: _inc/jetpack-strings.php:380
+#: _inc/jetpack-strings.php:381
 msgid "Months"
 msgstr "Meses"
 
-#: _inc/jetpack-strings.php:381
+#: _inc/jetpack-strings.php:382
 msgid "Weeks"
 msgstr "Semanas"
 
-#: _inc/jetpack-strings.php:382
+#: _inc/jetpack-strings.php:383
 msgid "Days"
 msgstr "Días"
 
-#: _inc/jetpack-strings.php:387
+#: _inc/jetpack-strings.php:388
 msgid "Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}"
 msgstr "Algo pasou ao cargar as estatísticas. Por favor, téntao de novo máis tarde ou {{a}}vai as túas estatísticas agora en WordPress.com{{/a}}"
 
-#: _inc/jetpack-strings.php:388
+#: _inc/jetpack-strings.php:393
 msgid "Click to view detailed stats."
 msgstr "Feixe clic para ver estadíticas detalladas."
 
-#: _inc/jetpack-strings.php:389
+#: _inc/jetpack-strings.php:394
 msgid "Views: %(numberOfViews)s"
 msgstr "Visitas: %(numberOfViews)s"
 
-#: _inc/jetpack-strings.php:390
+#: _inc/jetpack-strings.php:395
 msgid "Week of %(date)s"
 msgstr "Semana do %(date)s"
 
-#: _inc/jetpack-strings.php:399
+#: _inc/jetpack-strings.php:409
 msgctxt "Noun. Displayed to screen readers."
 msgid "Settings"
 msgstr "Axustes"
 
-#: _inc/jetpack-strings.php:106
+#: _inc/jetpack-strings.php:73
 msgid "Manage security on WordPress.com"
 msgstr "Xestiona a seguridade en WordPress.com"
 
@@ -5346,159 +5689,46 @@ msgstr "Xestiona a seguridade en WordPress.com"
 msgid "Site Security"
 msgstr "Seguridade do sitio"
 
-#: _inc/jetpack-strings.php:497
-msgid "Skip this step"
-msgstr ""
-
-#: _inc/jetpack-strings.php:498
-msgid "Skip the Jetpack Jumpstart process"
-msgstr ""
-
-#: _inc/jetpack-strings.php:499
+#: _inc/jetpack-strings.php:522
 msgid "Features can be activated or deactivated at any time."
 msgstr "As funcionalidades podes ser activadas e desactivadas en calquera momento."
 
-#: _inc/jetpack-strings.php:500
+#: _inc/jetpack-strings.php:523
 msgid "Jetpack's recommended features include:"
 msgstr "As funcionalidades recomendadas de Jetpack inclúen:"
 
-#: _inc/jetpack-strings.php:501
-msgid "Activate Recommended Features"
+#: _inc/jetpack-strings.php:529
+msgid "Activate recommended features"
 msgstr ""
 
-#: _inc/jetpack-strings.php:502
-msgid "Quickly enhance your site by activating Jetpack's recommended features."
-msgstr ""
-
-#: _inc/jetpack-strings.php:503
-msgid "Jump Start your Site"
-msgstr ""
-
-#: _inc/jetpack-strings.php:393 _inc/jetpack-strings.php:470
+#: _inc/jetpack-strings.php:403
 msgid "Link to WordPress.com"
 msgstr "Conecta con WordPress.com"
 
-#: _inc/jetpack-strings.php:394
+#: _inc/jetpack-strings.php:404
 msgid "Unlink me from WordPress.com"
 msgstr "Desconectame de WordPress.com"
 
-#: _inc/jetpack-strings.php:413
+#: _inc/jetpack-strings.php:426
 msgid "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier."
 msgstr "Úneche aos millóns de usuarios que confían en Jetpack para mellorar e securizar os seus sitios. Apaixónanos WordPress e aquí facémosche a vida máis fácil."
 
-#: _inc/jetpack-strings.php:414
-msgid "Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you."
-msgstr ""
-
-#: _inc/jetpack-strings.php:415
-msgid "Did we mention free, professional support?"
-msgstr ""
-
-#: _inc/jetpack-strings.php:416
-msgid "Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous imagery super fast. Optimized for any device, and its completely free."
-msgstr "Jetpack utiliza a rede de entrega de contidos de calidade profesional de WordPress.com para cargar as túas fantásticas imaxes super rápido. Optimizado para calquera dispositivo, e totalmente gratis."
-
-#: _inc/jetpack-strings.php:417
-msgid "Lightning fast, optimized images"
-msgstr "Rápidas como un raio, imaxes optimizadas"
-
-#: _inc/jetpack-strings.php:418
-msgid "Never fall behind on a security release or waste time updating multiple sites."
-msgstr "Nunca te perdas unha actualización de seguridade ou perdas tempo actualizando varios sitios."
-
-#: _inc/jetpack-strings.php:419
-msgid "Automatic site updates."
-msgstr "Actualizacións automáticas do sitio."
-
-#: _inc/jetpack-strings.php:420
-msgctxt "Header. Noun: Manage is a module of Jetpack."
-msgid "Manage"
-msgstr "Xestiona"
-
-#: _inc/jetpack-strings.php:422
-msgid "Live site monitoring."
-msgstr "Monitoraxe de sitio a tempo real."
-
-#: _inc/jetpack-strings.php:423
+#: _inc/jetpack-strings.php:433
 msgctxt "Header. Noun: Monitor is a module of Jetpack."
 msgid "Monitor"
 msgstr "Monitor"
 
-#: _inc/jetpack-strings.php:424
-msgid "Gain peace of mind with Protect, the tool that has blocked billions of login attacks across millions of sites."
-msgstr "Gaña tranquilidade con Protect, a ferramenta que bloquea billóns de ataques de acceso en millóns de sitios."
-
-#: _inc/jetpack-strings.php:425
-msgid "Block site attacks."
-msgstr "Ataques de bloqueo ao sitio."
-
-#: _inc/jetpack-strings.php:426
+#: _inc/jetpack-strings.php:430
 msgctxt "Header. Noun: Protect is a module of Jetpack."
 msgid "Protect"
 msgstr "Protección"
 
-#: _inc/jetpack-strings.php:427
-msgid "Jetpack blocks malicious log in attempts, lets you know if your site goes down, and can automatically update your plugins, so you don’t have to worry."
-msgstr "Jetpack bloquea intentos de acceso malintencionados, permíteche saber se o teu sitio caeuse, e podes actualizar automaticamente os teus plugins, para que non teñas que preocuparche de nada."
-
-#: _inc/jetpack-strings.php:428
-msgid "Site security and peace of mind"
-msgstr "Seguridade do sitio e tranquilidade de espírito"
-
-#: _inc/jetpack-strings.php:429
-msgid "Jetpack harnesses the power of WordPress.com to show you detailed insights about your visitors, what they’re reading, and where they’re coming from."
-msgstr "Jetpack utiliza o poder de WordPress.com para mostrarche estatísticas detalladas dos teus visitantes, o que están a ler e de onde veñen."
-
-#: _inc/jetpack-strings.php:431
-msgid "Keep visitors engaged by giving them more to share and read with Related Posts."
-msgstr "Mantén aos visitantes implicados, ofrecéndolles máis cousas que compartir e ler coas Entradas relacionadas."
-
-#: _inc/jetpack-strings.php:432
-msgid "Increase page views."
-msgstr "Incrementa as páxinas vistas."
-
-#: _inc/jetpack-strings.php:433
-msgctxt "Header. Noun: Related posts is a module of Jetpack."
-msgid "Related Posts"
-msgstr "Artigos relacionados"
-
-#: _inc/jetpack-strings.php:434
-msgid "Give visitors the tools to share and subscribe to your content."
-msgstr "Dá ás visitantes ferramentas para compartir e subscribirse ao teu contido."
-
-#: _inc/jetpack-strings.php:435
-msgid "Build a community."
-msgstr "Constrúe unha comunidade."
-
-#: _inc/jetpack-strings.php:436
-msgid "Sharing & Like Buttons"
-msgstr "Botóns de compartir e gústame"
-
-#: _inc/jetpack-strings.php:438
-msgid "Automated social marketing."
-msgstr "Márketing social automático."
-
-#: _inc/jetpack-strings.php:439
-msgctxt "Header. Noun: Publicize is a module of Jetpack"
-msgid "Publicize"
-msgstr "Divulgar"
-
-#: _inc/jetpack-strings.php:440
-msgid "Jetpack has many traffic and engagement tools to help you get more viewers to your site and keep them there."
-msgstr "Jetpack ten moitas ferramentas de tráfico e implicación para axudarche a conseguir máis visitantes ao teu sitio e mantelos aí."
-
-#: _inc/jetpack-strings.php:11 _inc/jetpack-strings.php:536
-#: _inc/jetpack-strings.php:539
-msgctxt "Navigation item."
-msgid "Apps"
-msgstr ""
-
-#: _inc/jetpack-strings.php:7 _inc/jetpack-strings.php:543
+#: _inc/jetpack-strings.php:7 _inc/jetpack-strings.php:567
 msgctxt "Navigation item."
 msgid "Security"
 msgstr "Seguridade"
 
-#: _inc/jetpack-strings.php:537 _inc/jetpack-strings.php:540
+#: _inc/jetpack-strings.php:562 _inc/jetpack-strings.php:564
 msgctxt "Navigation item."
 msgid "At a Glance"
 msgstr "De un vistazo"
@@ -5789,7 +6019,7 @@ msgstr "Ver resultados de depuración avanzados"
 msgid "Your site did not get a response from our debugging service in the expected timeframe. If you are not experiencing other issues, this could be due to a slow connection between your site and our server."
 msgstr "O teu sitio non recibiu resposta do noso servizo de depuración no marco de tempo esperado. Se non estás a experimentar outros problemas, podería ser debido a unha conexión lenta entre o teu sitio e o noso servidor."
 
-#: _inc/jetpack-strings.php:72 class.jetpack-network-sites-list-table.php:85
+#: class.jetpack-network-sites-list-table.php:85
 msgid "Manage Plugins"
 msgstr "Xestionar os plugins"
 
@@ -5831,21 +6061,9 @@ msgstr "Habilitar alta definición por defecto"
 msgid "Video ID"
 msgstr "ID do vídeo"
 
-#: _inc/jetpack-strings.php:421
-msgid "Stress less. Monitor will send you real-time alerts if your site ever goes down."
-msgstr "Estrésate menos. Supervisar enviarache alertas en tempo real se o teu sitio esta inactivo."
-
-#: _inc/jetpack-strings.php:430
+#: _inc/jetpack-strings.php:445
 msgid "Track your growth"
 msgstr "Monitora o teu crecemento"
-
-#: _inc/jetpack-strings.php:437
-msgid "Use Publicize to automatically share your posts with friends, followers, and the world."
-msgstr "Utiliza Publicize para compartir automaticamente as túas entradas con amigos, seguidores, e co mundo."
-
-#: _inc/jetpack-strings.php:441
-msgid "Drive more traffic to your site"
-msgstr "Dirixe máis tráfico ao teu sitio"
 
 #: modules/widgets/top-posts.php:308
 msgid "There are no posts to display. <a href=\"%s\" target=\"_blank\">Want more traffic?</a>"
@@ -5895,15 +6113,15 @@ msgstr "Rechea o meu formulario Wufoo!"
 msgid "<a href=\"%s\" target=\"_blank\">Learn more</a> about these options."
 msgstr "<a href=\"%s\" target=\"_blank\">Aprende máis</a> acerca destas opcións."
 
-#: _inc/jetpack-strings.php:492
+#: _inc/jetpack-strings.php:517
 msgid "There was an issue connecting your Jetpack. Please click \"Connect to WordPress.com\" again."
 msgstr "Houbo un problema conectando co teu Jetpack. Por favor feixe click en \"Conecta con WordPress.com\" de novo."
 
-#: _inc/jetpack-strings.php:493
+#: _inc/jetpack-strings.php:518
 msgid "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again."
 msgstr "Tivemos unha incidencia conectando Jetpack; desactiva e volve activar o plugin de Jetpack, e conecta outra vez."
 
-#: _inc/jetpack-strings.php:494
+#: _inc/jetpack-strings.php:519
 msgid "You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Debes permanecer conectado ao teu blogue de WordPress mentres autorizas Jetpack."
 
@@ -6036,7 +6254,7 @@ msgstr "Mapas do sitio"
 msgid "%s requires at least one selection"
 msgstr "%s require polo menos unha selección"
 
-#: _inc/jetpack-strings.php:487
+#: _inc/jetpack-strings.php:512
 msgid "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %(error_key)s"
 msgstr "{{s}}O teu Jetpack ten un problema.{{/s}} Lamentamos as molestias. Por favor, téntao máis tarde. Se o problema continúa, por favor contacta co soporte con esta mensaxe: %(erro_key)"
 
@@ -6371,7 +6589,7 @@ msgstr "Tes comentarios sobre Jetpack?"
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr "Jetpack é activado pola rede e os avisos non poden ser omitidos."
 
-#: _inc/jetpack-strings.php:18
+#: _inc/jetpack-strings.php:17
 msgid "Disconnecting Jetpack"
 msgstr "Desconectando Jetpack"
 
@@ -6383,10 +6601,10 @@ msgstr "Comeza xestionando a túa instalación multisitio de Jetpack conectándo
 msgid "Get started with Jetpack Multisite"
 msgstr "Empeza con Jetpack Multisite"
 
-#: _inc/jetpack-strings.php:141 _inc/jetpack-strings.php:143
-#: _inc/jetpack-strings.php:223 _inc/jetpack-strings.php:360
-#: _inc/jetpack-strings.php:559 _inc/jetpack-strings.php:560
-#: class.jetpack.php:3838
+#: _inc/jetpack-strings.php:104 _inc/jetpack-strings.php:105
+#: _inc/jetpack-strings.php:107 _inc/jetpack-strings.php:202
+#: _inc/jetpack-strings.php:361 _inc/jetpack-strings.php:584
+#: _inc/jetpack-strings.php:585 class.jetpack.php:3838
 msgid "Learn more"
 msgstr "Aprender máis"
 
@@ -6619,7 +6837,7 @@ msgstr "Feed(s) a mostrar:"
 msgid "Posts & Comments"
 msgstr "Artigos e comentarios"
 
-#: modules/widgets/rsslinks-widget.php:96
+#: _inc/jetpack-strings.php:265 modules/widgets/rsslinks-widget.php:96
 #: modules/widgets/rsslinks-widget.php:162
 msgid "Posts"
 msgstr "Artigos"
@@ -7039,6 +7257,7 @@ msgstr "Páxina de arquivo"
 msgid "Posts page"
 msgstr "Páxina dos artigos"
 
+#: _inc/jetpack-strings.php:266
 #: modules/widget-visibility/widget-conditions.php:96
 msgid "Front page"
 msgstr "Páxina de inicio"
@@ -7766,7 +7985,7 @@ msgctxt "share to"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: _inc/jetpack-strings.php:312 modules/sharedaddy/sharing-sources.php:1462
+#: _inc/jetpack-strings.php:310 modules/sharedaddy/sharing-sources.php:1462
 msgid "Pinterest"
 msgstr "Pinterest"
 
@@ -7813,7 +8032,7 @@ msgctxt "share to"
 msgid "Google"
 msgstr "Google"
 
-#: _inc/jetpack-strings.php:314 modules/sharedaddy/sharing-sources.php:1115
+#: _inc/jetpack-strings.php:312 modules/sharedaddy/sharing-sources.php:1115
 msgid "Google"
 msgstr "Google"
 
@@ -8025,7 +8244,7 @@ msgstr "En \"%s\""
 msgid "Untitled Post"
 msgstr "Artigo sen título"
 
-#: _inc/jetpack-strings.php:293
+#: _inc/jetpack-strings.php:289
 #: modules/related-posts/jetpack-related-posts.php:423
 msgid "Show related content after posts"
 msgstr "Mostra contido relacionado despois das entradas"
@@ -8038,19 +8257,19 @@ msgstr "Oculta o contido relacionado despois das entradas"
 msgid "Preview:"
 msgstr "Previsualizar:"
 
-#: _inc/jetpack-strings.php:291 _inc/jetpack-strings.php:512
+#: _inc/jetpack-strings.php:287 _inc/jetpack-strings.php:539
 #: _inc/lib/class.core-rest-api-endpoints.php:1588
 #: modules/related-posts/jetpack-related-posts.php:389
 msgid "Use a large and visually striking layout"
 msgstr "Usa un deseño grande e visualmente atractivo"
 
-#: _inc/jetpack-strings.php:292 _inc/jetpack-strings.php:513
+#: _inc/jetpack-strings.php:288 _inc/jetpack-strings.php:540
 #: _inc/lib/class.core-rest-api-endpoints.php:1581
 #: modules/related-posts/jetpack-related-posts.php:387
 msgid "Show a \"Related\" header to more clearly separate the related section from posts"
 msgstr "Mostrar o texto \"Relacionado\" para separar máis claramente a sección dos artigos"
 
-#: _inc/jetpack-strings.php:288
+#: _inc/jetpack-strings.php:284
 #: modules/related-posts/class.related-posts-customize.php:154
 #: modules/related-posts/jetpack-related-posts.php:282
 #: modules/related-posts/jetpack-related-posts.php:342
@@ -8411,7 +8630,8 @@ msgstr "Enviaranse correos a %s (<a href=\"%s\">Editar</a>)"
 msgid "Receive Monitor Email Notifications."
 msgstr "Recibir Notificacións por Correos do Monitor."
 
-#: modules/masterbar/masterbar.php:865
+#: _inc/jetpack-strings.php:617 _inc/jetpack-strings.php:629
+#: _inc/jetpack-strings.php:642 modules/masterbar/masterbar.php:865
 msgid "Themes"
 msgstr "Temas"
 
@@ -8473,7 +8693,7 @@ msgstr "Máis información achega do uso de Divulgar."
 msgid "Publicize"
 msgstr "Divulgar"
 
-#: _inc/jetpack-strings.php:379 class.jetpack.php:6818 modules/stats.php:388
+#: _inc/jetpack-strings.php:380 class.jetpack.php:6818 modules/stats.php:388
 #: modules/stats.php:511 modules/stats.php:1004
 msgid "Site Stats"
 msgstr "Estatísticas do sitio"
@@ -9133,7 +9353,8 @@ msgstr "Botóns de compartir"
 msgid "Settings have been saved"
 msgstr "As opcións están gardadas"
 
-#: modules/likes/jetpack-likes-settings.php:153
+#: _inc/jetpack-strings.php:615 _inc/jetpack-strings.php:627
+#: _inc/jetpack-strings.php:640 modules/likes/jetpack-likes-settings.php:153
 #: modules/masterbar/masterbar.php:906 modules/publicize/ui.php:54
 #: modules/sharedaddy/sharedaddy.php:143 modules/sharedaddy/sharing.php:80
 msgid "Sharing"
@@ -10752,7 +10973,7 @@ msgstr "Esquema de cores"
 msgid "Greeting Text"
 msgstr "Texto de Benvida"
 
-#: _inc/jetpack-strings.php:147 modules/comments/admin.php:72
+#: _inc/jetpack-strings.php:111 modules/comments/admin.php:72
 #: modules/masterbar/masterbar.php:758 modules/widgets/rsslinks-widget.php:97
 #: modules/widgets/rsslinks-widget.php:165
 msgid "Comments"
@@ -11376,10 +11597,6 @@ msgstr "Tipo"
 msgid "Thumbnail Grid"
 msgstr "Cuadrícula de miniaturas"
 
-#: _inc/jetpack-strings.php:391
-msgid "Connect Jetpack"
-msgstr "Conectar Jetpack"
-
 #: class.jetpack.php:6900
 msgid "Akismet can help to keep your blog safe from spam!"
 msgstr "Akismet pode axudarche a manter afastado o spam do teu blogue!"
@@ -11525,23 +11742,23 @@ msgstr "Activouse Xestionar para ti."
 msgid "You are all set! Your site can now be managed from <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 msgstr "Xa está todo preparado Agora podes xestionar o teu sitio desde <a href=\"%s\" target=\"_blank\">wordpress.com/sites</a>."
 
-#: _inc/jetpack-strings.php:488
+#: _inc/jetpack-strings.php:513
 msgid "Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack non puido contactar con WordPress.com: %(error_key)s. Isto xeralmente significa que algo está configurado incorrectamente no seu servidor."
 
-#: _inc/jetpack-strings.php:489
+#: _inc/jetpack-strings.php:514
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com está a ter problemas e é incapaz de alimentar o seu Jetpack. Por favor, ténteo de novo máis tarde."
 
-#: _inc/jetpack-strings.php:490
+#: _inc/jetpack-strings.php:515
 msgid "{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "{{s}}O seu Jetpack ten un fallo.{{/s}}  A conexión desta web con WordPress.com non é posible. Isto xeralmente significa que o sitio non está accesible publicamente (localhost)."
 
-#: _inc/jetpack-strings.php:491
+#: _inc/jetpack-strings.php:516
 msgid "Your website needs to be publicly accessible to use Jetpack: %(error_key)s"
 msgstr "O seu sitio web ten que ser accesible ao público para usar Jetpack: %(error_key)s"
 
-#: _inc/jetpack-strings.php:466
+#: _inc/jetpack-strings.php:491
 msgid "You have successfully disconnected Jetpack"
 msgstr "Desconectaches Jetpack con éxito"
 
@@ -11553,7 +11770,7 @@ msgstr "<strong>Jetpack activouse!</strong> Cada sitio da túa rede debe estar c
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
 msgstr "<p><a href=\"%1$s\" title=\"Activar Xestión de sitios de WordPress.com\" >Activa Xestión de sitios</a> para xestionar os teus diversos sitios desde o noso escritorio centralizado en wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Máis información</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activar agora</a>"
 
-#: views/admin/must-connect-main-blog.php:11
+#: _inc/jetpack-strings.php:495 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "Conectar a WordPress.com"
 
@@ -11593,7 +11810,7 @@ msgstr "Nesta páxina poderás ver os módulos dispoñibles en Jetpack, aprender
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack recarga o seu sitio con WordPress co incrible poder da nube de WordPress.com."
 
-#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 5.8-beta2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack-code.pot (Jetpack by WordPress.com 5.8)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: class.jetpack.php:3706 class.jetpack.php:3719 class.jetpack.php:4682
 #: views/admin/network-admin-header.php:5
@@ -11687,6 +11904,7 @@ msgstr "Sitios de Jetpack "
 msgid "Edit"
 msgstr "Editar"
 
+#: _inc/jetpack-strings.php:119 _inc/jetpack-strings.php:236
 #: class.jetpack-network-sites-list-table.php:16
 msgid "Connected"
 msgstr "Conectado"
@@ -11703,6 +11921,7 @@ msgstr "Nome do sitio"
 msgid "No Modules Found"
 msgstr "Non se atoparon módulos"
 
+#: _inc/jetpack-strings.php:208 _inc/jetpack-strings.php:314
 #: class.jetpack-modules-list-table.php:110
 #: class.jetpack-modules-list-table.php:221
 #: class.jetpack-modules-list-table.php:285
@@ -12123,7 +12342,7 @@ msgstr "Ordenar por:"
 msgid "Inactive"
 msgstr "Inactivo"
 
-#: _inc/jetpack-strings.php:397
+#: _inc/jetpack-strings.php:407
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:127
 #: class.jetpack-cli.php:358 modules/vaultpress.php:26
 msgid "Active"
@@ -12139,6 +12358,7 @@ msgstr "Todo"
 msgid "View:"
 msgstr "Vista:"
 
+#: _inc/jetpack-strings.php:169
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:123
 #: modules/masterbar/masterbar.php:300
 #: modules/minileven/theme/pub/minileven/searchform.php:9
@@ -12167,7 +12387,7 @@ msgstr "Jetpack"
 msgid "Feedback"
 msgstr "Feedback"
 
-#: _inc/jetpack-strings.php:396 _inc/jetpack-strings.php:504
+#: _inc/jetpack-strings.php:406 _inc/jetpack-strings.php:531
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:67
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:15
 #: class.jetpack-network.php:272 class.jetpack.php:3717 class.jetpack.php:3798
@@ -12176,8 +12396,9 @@ msgstr "Feedback"
 msgid "Settings"
 msgstr "Preferencias"
 
-#: class.jetpack-network.php:204 class.jetpack-network.php:270
-#: class.jetpack.php:3793 modules/publicize/ui.php:105
+#: _inc/jetpack-strings.php:414 class.jetpack-network.php:204
+#: class.jetpack-network.php:270 class.jetpack.php:3793
+#: modules/publicize/ui.php:105
 msgid "Jetpack"
 msgstr "Jetpack"
 
@@ -12185,14 +12406,14 @@ msgstr "Jetpack"
 msgid "Config"
 msgstr "Axustes"
 
-#: _inc/footer.php:6 _inc/jetpack-strings.php:472 _inc/jetpack-strings.php:481
+#: _inc/footer.php:6 _inc/jetpack-strings.php:497 _inc/jetpack-strings.php:506
 #: modules/custom-content-types.php:48
 #: modules/custom-post-types/portfolios.php:132
 #: modules/custom-post-types/testimonial.php:160
 msgid "Learn More"
 msgstr "Aprender máis"
 
-#: _inc/jetpack-strings.php:449
+#: _inc/jetpack-strings.php:474
 msgid "Disconnect Jetpack"
 msgstr "Desconectar Jetpack"
 
@@ -12205,7 +12426,7 @@ msgstr "Axuda"
 msgid "Debug"
 msgstr "Depurar"
 
-#: _inc/jetpack-strings.php:407
+#: _inc/jetpack-strings.php:420
 msgid "Test your site’s compatibility with Jetpack."
 msgstr "Comproba a compatibilidade do teu sitio con Jetpack."
 

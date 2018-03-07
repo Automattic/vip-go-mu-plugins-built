@@ -52,7 +52,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 #jetpack_summary_widget .wpcom-connect svg path {
-  fill: #00BE30;
+  fill: #00BE28;
 }
 
 #jetpack_summary_widget .wpcom-connect .jp-emblem,
@@ -86,34 +86,34 @@ https://github.com/thoughtbot/bourbon
 }
 
 #jetpack_summary_widget .button-jetpack {
-  background: #00BE30;
-  border-color: #008b23;
+  background: #00BE28;
+  border-color: #008b1d;
   color: white;
-  box-shadow: inset 0 1px 0 #0cff49, 0 1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 0 #0cff3f, 0 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 #jetpack_summary_widget .button-jetpack:hover, #jetpack_summary_widget .button-jetpack:focus {
-  background: #00a52a;
-  border-color: #00721d;
+  background: #00a523;
+  border-color: #007218;
   color: white;
-  box-shadow: inset 0 1px 0 #00f13d;
+  box-shadow: inset 0 1px 0 #00f133;
 }
 
 #jetpack_summary_widget .button-jetpack:focus {
-  box-shadow: inset 0 1px 0 #00f13d, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+  box-shadow: inset 0 1px 0 #00f133, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 #jetpack_summary_widget .button-jetpack:active {
-  background: #008b23;
-  border-color: #00721d;
+  background: #008b1d;
+  border-color: #007218;
   color: white;
   box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 #jetpack_summary_widget .button-jetpack[disabled], #jetpack_summary_widget .button-jetpack:disabled, #jetpack_summary_widget .button-jetpack.button-primary-disabled, #jetpack_summary_widget .button-jetpack.disabled {
   color: #c7d1c9 !important;
-  background: #009526 !important;
-  border-color: #00721d !important;
+  background: #00951f !important;
+  border-color: #007218 !important;
   text-shadow: none !important;
 }
 

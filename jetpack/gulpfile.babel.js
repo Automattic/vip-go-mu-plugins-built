@@ -107,7 +107,7 @@ function onBuild( done ) {
 		// Source any JS for whitelisted modules, which will minimize us shipping much
 		// more JS that we haven't pointed to in PHP yet.
 		// Example output: modules/(shortcodes|widgets)/**/*.js
-		const supportedModulesSource = `modules/@(${supportedModules.join( '|' ) })/**/*.js`;
+		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
 		const sources = [
@@ -262,7 +262,7 @@ function doStatic( done ) {
 				} );
 		} catch ( error ) {
 			log( colors.yellow(
-				"Warning: gulp was unable to update static HTML files.\n\n" +
+				'Warning: gulp was unable to update static HTML files.\n\n' +
 				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
 			) );
 		}
@@ -333,7 +333,7 @@ gulp.task( 'old-sass:rtl', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '*.php', '**/*.php' ] )
+	return gulp.src( [ '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
 			log( colors.red( err ) );
@@ -344,7 +344,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 

@@ -6,12 +6,16 @@
 .travis.yml
 .npmrc
 .nvmrc
+.eslines.json
+.eslintcache
 readme.md
 .github
 phpunit.xml.dist
 docs
 tests
 tools
+vendor
+composer.lock
 package.json
 Gruntfile.js
 gulpfile.js

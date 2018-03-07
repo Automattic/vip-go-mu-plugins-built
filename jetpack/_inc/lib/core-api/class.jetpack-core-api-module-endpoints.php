@@ -459,6 +459,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'addContactForm' => intval( get_option( 'jpo_contact_page' ) ),
 						'businessAddress' => $business_address,
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+						'stats' => Jetpack::is_active() && Jetpack::is_module_active( 'stats' ),
 					);
 					break;
 
@@ -649,6 +650,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					if ( $value === 'en_US' || empty( $value ) ) {
 						return delete_option( 'WPLANG' );
+					}
+
+					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/file.php' );
+					}
+
+					if ( ! function_exists( 'wp_download_language_pack' ) ) {
+						require_once ABSPATH . 'wp-admin/includes/translation-install.php';
 					}
 
 					// `wp_download_language_pack` only tries to download packs if they're not already available
@@ -1150,6 +1159,21 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		if ( ! empty( $data['stats'] ) ) {
+			if ( Jetpack::is_active() ) {
+				$stats_module_active = Jetpack::is_module_active( 'stats' );
+				if ( ! $stats_module_active ) {
+					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
+				}
+
+				if ( ! $stats_module_active ) {
+					$error[] = 'stats activate';
+				}
+			} else {
+				$error[] = 'stats not connected';
+			}
+		}
+
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
@@ -1179,8 +1203,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
 			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
 			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
+			$country = isset( $address['country'] ) ? sanitize_text_field( $address['country'] ) : '';
 
-			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip ) ) );
+			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip, $country ) ) );
 
 			$widget_options = array(
 				'title'   => $title,
@@ -1206,7 +1231,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'street' => $street,
 				'city' => $city,
 				'state' => $state,
-				'zip' => $zip
+				'zip' => $zip,
+				'country' => $country
 			);
 			update_option( 'jpo_business_address', $address_save );
 			return true;
