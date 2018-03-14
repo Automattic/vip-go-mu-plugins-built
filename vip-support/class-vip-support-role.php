@@ -67,7 +67,7 @@ class Role {
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_filter( 'editable_roles', array( $this, 'filter_editable_roles' ) );
-		add_filter( 'user_has_cap', array( $this, 'filter_user_has_cap' ), 10, 4 );
+		add_filter( 'user_has_cap', array( $this, 'filter_user_has_cap' ), PHP_INT_MAX, 4 );
 	}
 
 	// HOOKS
