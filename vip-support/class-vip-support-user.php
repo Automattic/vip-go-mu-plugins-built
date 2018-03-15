@@ -84,7 +84,7 @@ class User {
 	const GET_TRIGGER_RESEND_VERIFICATION = 'vip_trigger_resend';
 
 	/**
-	 * Cron action to purge support user after 24 hours.
+	 * Cron action to purge support user.
 	 */
 	const CRON_ACTION = 'wpcom_vip_support_remove_user_via_cron';
 
@@ -941,10 +941,12 @@ class User {
 
 		// Report the users removed.
 		$removed   = array();
-		$threshold = strtotime( '-24 hours' );
+		
+		// Remove support user after 8 hours (about 1 shift).
+		$threshold = strtotime( '-8 hours' );
 
 		foreach ( $support_users as $user ) {
-			// Only remove users older than 24 hours.
+			// Only remove expired users.
 			$created = strtotime( $user->user_registered );
 			if ( $created > $threshold ) {
 				continue;
