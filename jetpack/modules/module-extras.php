@@ -7,7 +7,6 @@
 // Include extra tools that aren't modules, in a filterable way
 $tools = array(
 	'theme-tools/social-links.php',
-	'holiday-snow.php', // Happy Holidays!!!
 	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/infinite-scroll.php',
@@ -54,3 +53,11 @@ if ( ! empty( $jetpack_tools_to_include ) ) {
 		}
 	}
 }
+
+/**
+ * Add the "(Jetpack)" suffix to the widget names
+ */
+function jetpack_widgets_add_suffix( $widget_name ) {
+	return sprintf( __( '%s (Jetpack)', 'jetpack' ), $widget_name );
+}
+add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );

@@ -1452,6 +1452,13 @@ class Jetpack {
 	 * @return array Active Jetpack plan details
 	 */
 	public static function get_active_plan() {
+		global $active_plan_cache;
+
+		// this can be expensive to compute so we cache for the duration of a request
+		if ( $active_plan_cache ) {
+			return $active_plan_cache;
+		}
+
 		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Set the default options
@@ -1463,6 +1470,8 @@ class Jetpack {
 			) );
 		}
 
+		$supports = array();
+
 		// Define what paid modules are supported by personal plans
 		$personal_plans = array(
 			'jetpack_personal',
@@ -1471,9 +1480,8 @@ class Jetpack {
 		);
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
-			$plan['supports'] = array(
-				'akismet',
-			);
+			// special support value, not a module but a separate plugin
+			$supports[] = 'akismet';
 			$plan['class'] = 'personal';
 		}
 
@@ -1485,12 +1493,8 @@ class Jetpack {
 		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
-			$plan['supports'] = array(
-				'videopress',
-				'akismet',
-				'vaultpress',
-				'wordads',
-			);
+			$supports[] = 'akismet';
+			$supports[] = 'vaultpress';
 			$plan['class'] = 'premium';
 		}
 
@@ -1503,22 +1507,22 @@ class Jetpack {
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
-			$plan['supports'] = array(
-				'videopress',
-				'akismet',
-				'vaultpress',
-				'seo-tools',
-				'google-analytics',
-				'wordads',
-				'search',
-			);
+			$supports[] = 'akismet';
+			$supports[] = 'vaultpress';
 			$plan['class'] = 'business';
 		}
 
-		// Make sure we have an array here in the event database data is stale
-		if ( ! isset( $plan['supports'] ) ) {
-			$plan['supports'] = array();
+		// get available features
+		foreach ( self::get_available_modules() as $module_slug ) {
+			$module = self::get_module( $module_slug );
+			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
+				$supports[] = $module_slug;
+			}
 		}
+
+		$plan['supports'] = $supports;
+
+		$active_plan_cache = $plan;
 
 		return $plan;
 	}
@@ -1720,6 +1724,34 @@ class Jetpack {
 	function current_user_is_connection_owner() {
 		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
+	}
+
+	/**
+	 * Gets current user IP address.
+	 *
+	 * @param  bool $check_all_headers Check all headers? Default is `false`.
+	 *
+	 * @return string                  Current user IP address.
+	 */
+	public static function current_user_ip( $check_all_headers = false ) {
+		if ( $check_all_headers ) {
+			foreach ( array(
+				'HTTP_CF_CONNECTING_IP',
+				'HTTP_CLIENT_IP',
+				'HTTP_X_FORWARDED_FOR',
+				'HTTP_X_FORWARDED',
+				'HTTP_X_CLUSTER_CLIENT_IP',
+				'HTTP_FORWARDED_FOR',
+				'HTTP_FORWARDED',
+				'HTTP_VIA',
+			) as $key ) {
+				if ( ! empty( $_SERVER[ $key ] ) ) {
+					return $_SERVER[ $key ];
+				}
+			}
+		}
+
+		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
 	}
 
 	/**
@@ -2411,6 +2443,7 @@ class Jetpack {
 			'module_tags'               => 'Module Tags',
 			'feature'                   => 'Feature',
 			'additional_search_queries' => 'Additional Search Queries',
+			'plan_classes'              => 'Plans',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -2438,6 +2471,13 @@ class Jetpack {
 			$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
 		} else {
 			$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
+		}
+
+		if ( $mod['plan_classes'] ) {
+			$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
+			$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
+		} else {
+			$mod['plan_classes'] = array( 'free' );
 		}
 
 		if ( $mod['feature'] ) {
@@ -2840,6 +2880,12 @@ class Jetpack {
 			}
 		}
 
+		$plan = Jetpack::get_active_plan();
+
+		if ( ! in_array( $module, $plan['supports'] ) ) {
+			return false;
+		}
+
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
 		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
@@ -2876,7 +2922,7 @@ class Jetpack {
 	}
 
 	function activate_module_actions( $module ) {
-		_deprecated_function( __METHOD__, 'jeptack-4.2' );
+		_deprecated_function( __METHOD__, 'jetpack-4.2' );
 	}
 
 	public static function deactivate_module( $module ) {
@@ -4033,7 +4079,9 @@ p {
 				$module = stripslashes( $_GET['module'] );
 				check_admin_referer( "jetpack_activate-$module" );
 				Jetpack::log( 'activate', $module );
-				Jetpack::activate_module( $module );
+				if ( ! Jetpack::activate_module( $module ) ) {
+					Jetpack::state( 'error', sprintf( __( 'Could not activate %s', 'jetpack' ), $module ) );
+				}
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
@@ -6509,6 +6557,12 @@ p {
 			'jetpack_is_post_mailable'                               => null,
 			'jetpack_seo_site_host'                                  => null,
 			'jetpack_installed_plugin'                               => 'jetpack_plugin_installed',
+			'jetpack_holiday_snow_option_name'                       => null,
+			'jetpack_holiday_chance_of_snow'                         => null,
+			'jetpack_holiday_snow_js_url'                            => null,
+			'jetpack_is_holiday_snow_season'                         => null,
+			'jetpack_holiday_snow_option_updated'                    => null,
+			'jetpack_holiday_snowing'                                => null,
 		);
 
 		// This is a silly loop depth. Better way?

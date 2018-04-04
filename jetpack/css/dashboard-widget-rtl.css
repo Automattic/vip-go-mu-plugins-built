@@ -131,6 +131,10 @@ https://github.com/thoughtbot/bourbon
   text-align: right;
 }
 
+#jetpack_summary_widget footer .protect {
+  padding-left: 3%;
+}
+
 #jetpack_summary_widget footer h3 {
   font-size: 1.5em;
   font-weight: normal;

@@ -67,6 +67,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
+		if ( ! Jetpack::active_plan_supports( $module_slug ) ) {
+			return new WP_Error(
+				'not_supported',
+				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),
+				array( 'status' => 424 )
+			);
+		}
+
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
 			return rest_ensure_response( array(
 				'code' 	  => 'success',
@@ -404,7 +412,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
-		$holiday_snow_option_name = Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name();
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -427,10 +434,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					$value = get_option( 'WPLANG' );
 					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
-					break;
-
-				case $holiday_snow_option_name:
-					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
 					break;
 
 				case 'wordpress_api_key':
@@ -868,10 +871,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
-					break;
-
-				case Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name():
-					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
 					break;
 
 				case 'akismet_show_user_comments_approved':
