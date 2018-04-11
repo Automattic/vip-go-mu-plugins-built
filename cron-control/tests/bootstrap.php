@@ -19,13 +19,15 @@ require_once $_tests_dir . '/includes/functions.php';
 function _manually_load_plugin() {
 	define( 'WP_CRON_CONTROL_SECRET', 'testtesttest' );
 
-	define( 'CRON_CONTROL_ADDITIONAL_INTERNAL_EVENTS', array(
-		array(
-			'schedule' => 'hourly',
-			'action'   => 'cron_control_additional_internal_event',
-			'callback' => '__return_true',
-		),
-	) );
+	define(
+		'CRON_CONTROL_ADDITIONAL_INTERNAL_EVENTS', array(
+			array(
+				'schedule' => 'hourly',
+				'action'   => 'cron_control_additional_internal_event',
+				'callback' => '__return_true',
+			),
+		)
+	);
 
 	// Nonsense values to test constraints and aid testing.
 	define( 'CRON_CONTROL_CACHE_BUCKET_SIZE', 0 );

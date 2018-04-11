@@ -58,24 +58,25 @@ class Events extends \WP_CLI_Command {
 				\WP_CLI::log( sprintf( __( 'Displaying %1$s of %2$s entries, page %3$s of %4$s', 'automattic-cron-control' ), number_format_i18n( $total_events_to_display ), number_format_i18n( $events['total_items'] ), number_format_i18n( $events['page'] ), number_format_i18n( $events['total_pages'] ) ) );
 			}
 
-			// And reformat!
 			$format = 'table';
 			if ( isset( $assoc_args['format'] ) ) {
 				$format = $assoc_args['format'];
 			}
 
-			\WP_CLI\Utils\format_items( $format, $events_for_display, array(
-				'ID',
-				'action',
-				'instance',
-				'next_run_gmt',
-				'next_run_relative',
-				'last_updated_gmt',
-				'recurrence',
-				'internal_event',
-				'schedule_name',
-				'event_args',
-			) );
+			\WP_CLI\Utils\format_items(
+				$format, $events_for_display, array(
+					'ID',
+					'action',
+					'instance',
+					'next_run_gmt',
+					'next_run_relative',
+					'last_updated_gmt',
+					'recurrence',
+					'internal_event',
+					'schedule_name',
+					'event_args',
+				)
+			);
 		}
 	}
 
@@ -134,7 +135,6 @@ class Events extends \WP_CLI_Command {
 		/* translators: 1: Event ID, 2: Event action, 3. Event instance */
 		\WP_CLI::log( sprintf( __( 'Found event %1$d with action `%2$s` and instance identifier `%3$s`', 'automattic-cron-control' ), $args[0], $event->action, $event->instance ) );
 
-		// Proceed?
 		$now = time();
 		if ( $event->timestamp > $now ) {
 			/* translators: 1: Time in UTC, 2: Human time diff */
@@ -209,13 +209,14 @@ class Events extends \WP_CLI_Command {
 
 		$offset = absint( ( $page - 1 ) * $limit );
 
-		// Query!
-		$items = \Automattic\WP\Cron_Control\get_events( array(
-			'status'     => $event_status,
-			'quantity'   => $limit,
-			'page'       => $page,
-			'force_sort' => true,
-		) );
+		$items = \Automattic\WP\Cron_Control\get_events(
+			array(
+				'status'     => $event_status,
+				'quantity'   => $limit,
+				'page'       => $page,
+				'force_sort' => true,
+			)
+		);
 
 		// Bail if we don't get results!
 		if ( ! is_array( $items ) ) {
@@ -262,7 +263,7 @@ class Events extends \WP_CLI_Command {
 			$row['event_args'] = maybe_serialize( $event->args );
 
 			if ( \Automattic\WP\Cron_Control\Events_Store::STATUS_COMPLETED === $event->status ) {
-				$instance = md5( $row['event_args'] );
+				$instance        = md5( $row['event_args'] );
 				$row['instance'] = "{$instance} - {$row['instance']}";
 			}
 
@@ -295,10 +296,10 @@ class Events extends \WP_CLI_Command {
 	private function sort_events( $first, $second ) {
 		// Timestamp is usually sufficient.
 		if ( isset( $first['next_run_gmt'] ) ) {
-			$first_timestamp = strtotime( $first['next_run_gmt'] );
+			$first_timestamp  = strtotime( $first['next_run_gmt'] );
 			$second_timestamp = strtotime( $second['next_run_gmt'] );
 		} elseif ( isset( $first['timestamp'] ) ) {
-			$first_timestamp = $first['timestamp'];
+			$first_timestamp  = $first['timestamp'];
 			$second_timestamp = $second['timestamp'];
 		} else {
 			return 0;
@@ -512,13 +513,15 @@ class Events extends \WP_CLI_Command {
 				usort( $events_to_delete, array( $this, 'sort_events' ) );
 			}
 
-			\WP_CLI\Utils\format_items( 'table', $events_to_delete, array(
-				'ID',
-				'created',
-				'last_modified',
-				'timestamp',
-				'instance',
-			) );
+			\WP_CLI\Utils\format_items(
+				'table', $events_to_delete, array(
+					'ID',
+					'created',
+					'last_modified',
+					'timestamp',
+					'instance',
+				)
+			);
 		} else {
 			/* translators: 1: Event count */
 			\WP_CLI::warning( sprintf( __( 'Events are not displayed as there are more than %s to remove', 'automattic-cron-control' ), number_format_i18n( $assoc_args['limit'] ) ) );
@@ -581,13 +584,15 @@ class Events extends \WP_CLI_Command {
 
 			// Limit just to failed deletes when many events are removed.
 			if ( count( $events_deleted ) > $assoc_args['limit'] ) {
-				$events_deleted = array_filter( $events_deleted, function( $event ) {
-					if ( 'no' === $event['deleted'] ) {
-						return $event;
-					} else {
-						return false;
+				$events_deleted = array_filter(
+					$events_deleted, function( $event ) {
+						if ( 'no' === $event['deleted'] ) {
+							return $event;
+						} else {
+							return false;
+						}
 					}
-				} );
+				);
 
 				if ( count( $events_deleted ) > 0 ) {
 					\WP_CLI::log( "\n" . __( 'Events that couldn\'t be deleted:', 'automattic-cron-control' ) );
@@ -598,10 +603,12 @@ class Events extends \WP_CLI_Command {
 
 			// Don't display a table if there's nothing to display.
 			if ( count( $events_deleted ) > 0 ) {
-				\WP_CLI\Utils\format_items( 'table', $events_deleted, array(
-					'ID',
-					'deleted',
-				) );
+				\WP_CLI\Utils\format_items(
+					'table', $events_deleted, array(
+						'ID',
+						'deleted',
+					)
+				);
 			}
 		}
 

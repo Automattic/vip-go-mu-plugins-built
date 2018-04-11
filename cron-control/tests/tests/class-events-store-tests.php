@@ -48,7 +48,7 @@ class Events_Store_Tests extends \WP_UnitTestCase {
 	function test_events_exist() {
 		global $wpdb;
 
-		$event = Utils::create_test_event();
+		$event      = Utils::create_test_event();
 		$table_name = Utils::get_table_name();
 
 		$entry = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$table_name} WHERE timestamp = %d AND action = %s AND instance = %s AND status = %s LIMIT 1", $event['timestamp'], $event['action'], md5( maybe_serialize( $event['args'] ) ), \Automattic\WP\Cron_Control\Events_Store::STATUS_PENDING ) ); // Cannot prepare table name. @codingStandardsIgnoreLine
@@ -92,7 +92,7 @@ class Events_Store_Tests extends \WP_UnitTestCase {
 	 * Test that events are unscheduled correctly using Core functions
 	 */
 	function test_event_unscheduling_using_core_functions() {
-		$first_event = Utils::create_test_event();
+		$first_event  = Utils::create_test_event();
 		$second_event = Utils::create_test_event( true );
 
 		$first_event_ts = wp_next_scheduled( $first_event['action'], $first_event['args'] );
@@ -119,16 +119,16 @@ class Events_Store_Tests extends \WP_UnitTestCase {
 	 */
 	function test_event_unscheduling_against_event_store() {
 		// Schedule two events and prepare their data a bit for further testing.
-		$first_event = Utils::create_test_event();
+		$first_event             = Utils::create_test_event();
 		$first_event['instance'] = md5( maybe_serialize( $first_event['args'] ) );
-		$first_event_args = $first_event['args'];
+		$first_event_args        = $first_event['args'];
 		unset( $first_event['args'] );
 
 		sleep( 2 ); // More-thorough to test with events that don't have matching timestamps.
 
-		$second_event = Utils::create_test_event( true );
+		$second_event             = Utils::create_test_event( true );
 		$second_event['instance'] = md5( maybe_serialize( $second_event['args'] ) );
-		$second_event_args = $second_event['args'];
+		$second_event_args        = $second_event['args'];
 		unset( $second_event['args'] );
 
 		// First, check that posts were created for the two events.
@@ -165,10 +165,55 @@ class Events_Store_Tests extends \WP_UnitTestCase {
 		$cached = wp_cache_get( \Automattic\WP\Cron_Control\Events_Store::CACHE_KEY );
 
 		$this->assertArrayHasKey( 'incrementer', $cached );
-		$this->assertArrayHasKey( 'buckets',     $cached );
+		$this->assertArrayHasKey( 'buckets', $cached );
 		$this->assertArrayHasKey( 'event_count', $cached );
 
-		$this->assertEquals( 4,   $cached['buckets'] );
+		$this->assertEquals( 4, $cached['buckets'] );
 		$this->assertEquals( 100, $cached['event_count'] );
+	}
+
+	/**
+	 * Test retrieving an event without requesting a status
+	 */
+	function test_get_job_by_attributes() {
+		$event = Utils::create_test_event();
+
+		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes( [
+			'timestamp' => $event['timestamp'],
+			'action'    => $event['action'],
+			'instance'  => md5( maybe_serialize( $event['args'] ) ),
+		] );
+
+		$this->assertInternalType( 'object', $event_from_store );
+	}
+
+	/**
+	 * Test retrieving an event with any status
+	 */
+	function test_get_job_by_attributes_with_any_status() {
+		$event = Utils::create_test_event();
+
+		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes( [
+			'timestamp' => $event['timestamp'],
+			'action'    => $event['action'],
+			'instance'  => md5( maybe_serialize( $event['args'] ) ),
+			'status'    => 'any',
+		] );
+
+		$this->assertInternalType( 'object', $event_from_store );
+	}
+
+	/**
+	 * Test retrieving an event with insufficient information
+	 */
+	function test_get_job_by_attributes_with_insufficient_args() {
+		$event = Utils::create_test_event();
+
+		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes( [
+			'timestamp' => $event['timestamp'],
+			'action'    => $event['action'],
+		] );
+
+		$this->assertFalse( $event_from_store );
 	}
 }

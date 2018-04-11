@@ -42,7 +42,7 @@ var (
 
 	getEventsInterval int
 
-	heartbeatInt int
+	heartbeatInt int64
 
 	disabledLoopCount    uint64
 	eventRunErrCount     uint64
@@ -51,10 +51,16 @@ var (
 	logger  *log.Logger
 	logDest string
 	debug   bool
+
+	gRestart                bool
+	gEventRetrieversRunning []bool
+	gEventWorkersRunning    []bool
+	gSiteRetrieverRunning   bool
+	gRandomDeltaMap         map[string]int64
 )
 
-const getEventsBreak time.Duration = time.Second
-const runEventsBreak time.Duration = time.Second * 10
+const getEventsBreakSec time.Duration = 1 * time.Second
+const runEventsBreakSec int64 = 10
 
 func init() {
 	flag.StringVar(&wpCliPath, "cli", "/usr/local/bin/wp", "Path to WP-CLI binary")
@@ -63,7 +69,7 @@ func init() {
 	flag.IntVar(&numGetWorkers, "workers-get", 1, "Number of workers to retrieve events")
 	flag.IntVar(&numRunWorkers, "workers-run", 5, "Number of workers to run events")
 	flag.IntVar(&getEventsInterval, "get-events-interval", 60, "Seconds between event retrieval")
-	flag.IntVar(&heartbeatInt, "heartbeat", 60, "Heartbeat interval in seconds")
+	flag.Int64Var(&heartbeatInt, "heartbeat", 60, "Heartbeat interval in seconds")
 	flag.StringVar(&logDest, "log", "os.Stdout", "Log path, omit to log to Stdout")
 	flag.BoolVar(&debug, "debug", false, "Include additional log data for debugging")
 	flag.Parse()
@@ -73,24 +79,26 @@ func init() {
 	// TODO: Should check for wp-config.php instead?
 	validatePath(&wpCliPath, "WP-CLI path")
 	validatePath(&wpPath, "WordPress path")
+
+	gRandomDeltaMap = make(map[string]int64)
 }
 
 func main() {
 	logger.Printf("Starting with %d event-retreival worker(s) and %d event worker(s)", numGetWorkers, numRunWorkers)
 	logger.Printf("Retrieving events every %d seconds", getEventsInterval)
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	go setupSignalHandler()
 
 	sites := make(chan site)
 	events := make(chan event)
 
+	gEventRetrieversRunning = make([]bool, numGetWorkers)
+	gEventWorkersRunning = make([]bool, numRunWorkers)
+
 	go spawnEventRetrievers(sites, events)
 	go spawnEventWorkers(events)
 	go retrieveSitesPeriodically(sites)
-	go heartbeat()
 
-	caughtSig := <-sig
-	logger.Printf("Stopping, got signal %s", caughtSig)
+	heartbeat(sites, events)
 }
 
 func spawnEventRetrievers(sites <-chan site, queue chan<- event) {
@@ -114,9 +122,14 @@ func spawnEventWorkers(queue <-chan event) {
 }
 
 func retrieveSitesPeriodically(sites chan<- site) {
-	loopInterval := time.Duration(getEventsInterval) * time.Second
+	gSiteRetrieverRunning = true
 
-	for range time.Tick(loopInterval) {
+	for {
+		waitForEpoch("retrieveSitesPeriodically", int64(getEventsInterval))
+		if gRestart {
+			logger.Println("exiting site retriever")
+			break
+		}
 		siteList, err := getSites()
 		if err != nil {
 			continue
@@ -126,21 +139,61 @@ func retrieveSitesPeriodically(sites chan<- site) {
 			sites <- site
 		}
 	}
+
+	gSiteRetrieverRunning = false
 }
 
-func heartbeat() {
+func heartbeat(sites chan<- site, queue chan<- event) {
 	if heartbeatInt == 0 {
 		logger.Println("heartbeat disabled")
+		for {
+			waitForEpoch("heartbeat", 60)
+			if gRestart {
+				logger.Println("exiting heartbeat routine")
+				break
+			}
+		}
 		return
 	}
 
-	interval := time.Duration(heartbeatInt) * time.Second
-
-	for range time.Tick(interval) {
+	for {
+		waitForEpoch("heartbeat", heartbeatInt)
+		if gRestart {
+			logger.Println("exiting heartbeat routine")
+			break
+		}
 		successCount, errCount := atomic.LoadUint64(&eventRunSuccessCount), atomic.LoadUint64(&eventRunErrCount)
 		atomic.SwapUint64(&eventRunSuccessCount, 0)
 		atomic.SwapUint64(&eventRunErrCount, 0)
 		logger.Printf("<heartbeat eventsSucceededSinceLast=%d eventsErroredSinceLast=%d>", successCount, errCount)
+	}
+
+	var StillRunning bool
+	for {
+		StillRunning = false
+		for workerID, r := range gEventRetrieversRunning {
+			if r {
+				logger.Printf("event retriever ID %d still running\n", workerID+1)
+				logger.Printf("sending empty site object for worker %d\n", workerID+1)
+				sites <- site{}
+				StillRunning = true
+			}
+		}
+		for workerID, r := range gEventWorkersRunning {
+			if r {
+				logger.Printf("event worker ID %d still running\n", workerID+1)
+				logger.Printf("sending empty event for worker %d\n", workerID+1)
+				queue <- event{}
+				StillRunning = true
+			}
+		}
+		if StillRunning {
+			logger.Println("worker(s) still running, waiting")
+			time.Sleep(time.Duration(3) * time.Second)
+			continue
+		}
+		logger.Println(".:sayonara:.")
+		os.Exit(0)
 	}
 }
 
@@ -244,24 +297,33 @@ func getMultisiteSites() ([]site, error) {
 }
 
 func queueSiteEvents(workerID int, sites <-chan site, queue chan<- event) {
+	gEventRetrieversRunning[workerID-1] = true
+	logger.Printf("started retriever %d\n", workerID)
+
+OuterLoop:
 	for site := range sites {
+		if gRestart {
+			logger.Printf("exiting event retriever ID %d\n", workerID)
+			break
+		}
 		if debug {
 			logger.Printf("getEvents-%d processing %s", workerID, site.URL)
 		}
 
 		events, err := getSiteEvents(site.URL)
-		if err != nil {
-			time.Sleep(getEventsBreak)
-			continue
+		if err == nil && len(events) > 0 {
+			for _, event := range events {
+				if gRestart {
+					break OuterLoop
+				}
+				event.URL = site.URL
+				queue <- event
+			}
 		}
-
-		for _, event := range events {
-			event.URL = site.URL
-			queue <- event
-		}
-
-		time.Sleep(getEventsBreak)
+		time.Sleep(getEventsBreakSec)
 	}
+	// Mark this event retriever as not running for graceful exit
+	gEventRetrieversRunning[workerID-1] = false
 }
 
 func getSiteEvents(site string) ([]event, error) {
@@ -283,7 +345,14 @@ func getSiteEvents(site string) ([]event, error) {
 }
 
 func runEvents(workerID int, events <-chan event) {
+	gEventWorkersRunning[workerID-1] = true
+	logger.Printf("started event worker %d\n", workerID)
+
 	for event := range events {
+		if gRestart {
+			logger.Printf("exiting event worker ID %d\n", workerID)
+			break
+		}
 		if now := time.Now(); event.Timestamp > int(now.Unix()) {
 			if debug {
 				logger.Printf("runEvents-%d skipping premature job %d|%s|%s for %s", workerID, event.Timestamp, event.Action, event.Instance, event.URL)
@@ -292,7 +361,8 @@ func runEvents(workerID int, events <-chan event) {
 			continue
 		}
 
-		subcommand := []string{"cron-control", "orchestrate", "runner-only", "run", fmt.Sprintf("--timestamp=%d", event.Timestamp), fmt.Sprintf("--action=%s", event.Action), fmt.Sprintf("--instance=%s", event.Instance), fmt.Sprintf("--url=%s", event.URL)}
+		subcommand := []string{"cron-control", "orchestrate", "runner-only", "run", fmt.Sprintf("--timestamp=%d", event.Timestamp),
+			fmt.Sprintf("--action=%s", event.Action), fmt.Sprintf("--instance=%s", event.Instance), fmt.Sprintf("--url=%s", event.URL)}
 
 		_, err := runWpCliCmd(subcommand)
 
@@ -308,8 +378,16 @@ func runEvents(workerID int, events <-chan event) {
 			atomic.AddUint64(&eventRunErrCount, 1)
 		}
 
-		time.Sleep(runEventsBreak)
+		waitForEpoch("runEvents", runEventsBreakSec)
+		if gRestart {
+			logger.Printf("exiting event worker ID %d\n", workerID)
+			break
+		}
+
 	}
+
+	// Mark this event worker as not running for graceful exit
+	gEventWorkersRunning[workerID-1] = false
 }
 
 func runWpCliCmd(subcommand []string) (string, error) {
@@ -378,4 +456,54 @@ func validatePath(path *string, label string) {
 func usage() {
 	flag.Usage()
 	os.Exit(3)
+}
+
+func waitForEpoch(whom string, epoch_sec int64) {
+	tEpochNano := epoch_sec * time.Second.Nanoseconds()
+	tEpochDelta := tEpochNano - (time.Now().UnixNano() % tEpochNano)
+	if tEpochDelta < 1*time.Second.Nanoseconds() {
+		tEpochDelta += epoch_sec * time.Second.Nanoseconds()
+	}
+
+	// We need to offset each epoch wait by a fixed random value to prevent
+	// all Cron Runners having their epochs at exactly the same time.
+	_, found := gRandomDeltaMap[whom]
+	if !found {
+		rand.Seed(time.Now().UnixNano() + epoch_sec)
+		gRandomDeltaMap[whom] = rand.Int63n(tEpochNano)
+	}
+
+	tNextEpoch := time.Now().UnixNano() + tEpochDelta + gRandomDeltaMap[whom]
+
+	// Sleep in 3sec intervals by default, less if we are running out of time
+	tMaxDelta := 3 * time.Second.Nanoseconds()
+	tDelta := tMaxDelta
+
+	for i := tDelta; time.Now().UnixNano() < tNextEpoch; i += tDelta {
+		if i > tEpochNano*2 {
+			// if we ever loop here for more than 2 full epochs, bail out
+			logger.Printf("Error in the epoch wait loop for %s\n", whom)
+			break
+		}
+		if gRestart {
+			return
+		}
+		tDelta = tNextEpoch - time.Now().UnixNano()
+		if tDelta > tMaxDelta {
+			tDelta = tMaxDelta
+		}
+		time.Sleep(time.Duration(tDelta))
+	}
+}
+
+func setupSignalHandler() {
+	sigChan := make(chan os.Signal)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	for {
+		select {
+		case sig := <-sigChan:
+			logger.Printf("caught termination signal %s, scheduling shutdown\n", sig)
+			gRestart = true
+		}
+	}
 }

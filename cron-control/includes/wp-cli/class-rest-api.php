@@ -22,9 +22,13 @@ class REST_API extends \WP_CLI_Command {
 		// Build and make request.
 		$queue_request = new \WP_REST_Request( 'POST', '/' . \Automattic\WP\Cron_Control\REST_API::API_NAMESPACE . '/' . \Automattic\WP\Cron_Control\REST_API::ENDPOINT_LIST );
 		$queue_request->add_header( 'Content-Type', 'application/json' );
-		$queue_request->set_body( wp_json_encode( array(
-			'secret' => \WP_CRON_CONTROL_SECRET,
-		) ) );
+		$queue_request->set_body(
+			wp_json_encode(
+				array(
+					'secret' => \WP_CRON_CONTROL_SECRET,
+				)
+			)
+		);
 
 		$queue_request = rest_do_request( $queue_request );
 
@@ -58,15 +62,17 @@ class REST_API extends \WP_CLI_Command {
 			}
 		}
 
-		\WP_CLI\Utils\format_items( $format, $events_for_display, array(
-			'timestamp',
-			'action',
-			'instance',
-			'scheduled_for',
-			'internal_event',
-			'schedule_name',
-			'event_args',
-		) );
+		\WP_CLI\Utils\format_items(
+			$format, $events_for_display, array(
+				'timestamp',
+				'action',
+				'instance',
+				'scheduled_for',
+				'internal_event',
+				'schedule_name',
+				'event_args',
+			)
+		);
 	}
 
 	/**
@@ -79,11 +85,13 @@ class REST_API extends \WP_CLI_Command {
 		$formatted_events = array();
 
 		foreach ( $events as $event ) {
-			$event_data = \Automattic\WP\Cron_Control\get_event_by_attributes( array(
-				'timestamp'     => $event['timestamp'],
-				'action_hashed' => $event['action'],
-				'instance'      => $event['instance'],
-			) );
+			$event_data = \Automattic\WP\Cron_Control\get_event_by_attributes(
+				array(
+					'timestamp'     => $event['timestamp'],
+					'action_hashed' => $event['action'],
+					'instance'      => $event['instance'],
+				)
+			);
 
 			$formatted_events[] = array(
 				'timestamp'      => $event_data->timestamp,

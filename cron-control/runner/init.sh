@@ -48,7 +48,7 @@ case $1 in
   if [ -e $PIDFILE ]; then
    status_of_proc -p $PIDFILE $DAEMON "Stoppping the $NAME process" && status="0" || status="$?"
    if [ "$status" = 0 ]; then
-    start-stop-daemon --stop --quiet --oknodo --pidfile $PIDFILE
+    start-stop-daemon --stop --retry=TERM/60/KILL/5 --quiet --oknodo --pidfile $PIDFILE
     /bin/rm -rf $PIDFILE
    fi
   else

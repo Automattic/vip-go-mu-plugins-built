@@ -40,9 +40,11 @@ class Lock extends \WP_CLI_Command {
 			\WP_CLI::error( sprintf( __( 'Specify an action', 'automattic-cron-control' ) ) );
 		}
 
-		$lock_name = \Automattic\WP\Cron_Control\Events::instance()->get_lock_key_for_event_action( (object) array(
-			'action' => $args[0],
-		) );
+		$lock_name = \Automattic\WP\Cron_Control\Events::instance()->get_lock_key_for_event_action(
+			(object) array(
+				'action' => $args[0],
+			)
+		);
 
 		$lock_limit       = 1;
 		$lock_description = __( "This lock prevents concurrent executions of events with the same action, regardless of the action's arguments.", 'automattic-cron-control' );

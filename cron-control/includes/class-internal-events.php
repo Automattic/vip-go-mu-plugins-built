@@ -43,7 +43,7 @@ class Internal_Events extends Singleton {
 		if ( defined( 'WP_CLI' ) && \WP_CLI ) {
 			add_action( 'wp_loaded', array( $this, 'schedule_internal_events' ) );
 		} else {
-			add_action( 'admin_init',    array( $this, 'schedule_internal_events' ) );
+			add_action( 'admin_init', array( $this, 'schedule_internal_events' ) );
 			add_action( 'rest_api_init', array( $this, 'schedule_internal_events' ) );
 		}
 
@@ -106,13 +106,13 @@ class Internal_Events extends Singleton {
 	 */
 	private function prepare_internal_events_schedules() {
 		$internal_events_schedules = array(
-			'a8c_cron_control_minute' => array(
+			'a8c_cron_control_minute'      => array(
 				'interval' => 1 * MINUTE_IN_SECONDS,
-				'display' => __( 'Cron Control internal job - every minute', 'automattic-cron-control' ),
+				'display'  => __( 'Cron Control internal job - every minute', 'automattic-cron-control' ),
 			),
 			'a8c_cron_control_ten_minutes' => array(
 				'interval' => 10 * MINUTE_IN_SECONDS,
-				'display' => __( 'Cron Control internal job - every 10 minutes', 'automattic-cron-control' ),
+				'display'  => __( 'Cron Control internal job - every 10 minutes', 'automattic-cron-control' ),
 			),
 		);
 
@@ -269,11 +269,13 @@ class Internal_Events extends Singleton {
 				continue;
 			}
 
-			$event_details = get_event_by_attributes( array(
-				'timestamp' => $timestamp,
-				'action'    => $internal_event['action'],
-				'instance'  => md5( maybe_serialize( array() ) ),
-			) );
+			$event_details = get_event_by_attributes(
+				array(
+					'timestamp' => $timestamp,
+					'action'    => $internal_event['action'],
+					'instance'  => md5( maybe_serialize( array() ) ),
+				)
+			);
 
 			if ( $event_details->schedule !== $internal_event['schedule'] ) {
 				if ( $timestamp <= time() ) {

@@ -40,7 +40,7 @@ function get_endpoint_type() {
 
 	foreach ( $request as $req ) {
 		if ( 0 === stripos( $req, $namespace ) ) {
-			$req_parts = explode( '/', $req );
+			$req_parts     = explode( '/', $req );
 			$endpoint_slug = array_pop( $req_parts );
 			break;
 		}

@@ -33,11 +33,13 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 
 		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
 
-		\WP_CLI\Utils\format_items( $format, $events['events'], array(
-			'timestamp',
-			'action',
-			'instance',
-		) );
+		\WP_CLI\Utils\format_items(
+			$format, $events['events'], array(
+				'timestamp',
+				'action',
+				'instance',
+			)
+		);
 	}
 
 	/**
@@ -56,8 +58,8 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 		}
 
 		$timestamp = \WP_CLI\Utils\get_flag_value( $assoc_args, 'timestamp', null );
-		$action    = \WP_CLI\Utils\get_flag_value( $assoc_args, 'action',    null );
-		$instance  = \WP_CLI\Utils\get_flag_value( $assoc_args, 'instance',  null );
+		$action    = \WP_CLI\Utils\get_flag_value( $assoc_args, 'action', null );
+		$instance  = \WP_CLI\Utils\get_flag_value( $assoc_args, 'instance', null );
 
 		if ( ! is_numeric( $timestamp ) ) {
 			\WP_CLI::error( __( 'Invalid timestamp', 'automattic-cron-control' ) );

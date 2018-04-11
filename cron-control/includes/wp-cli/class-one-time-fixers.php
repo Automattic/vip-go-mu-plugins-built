@@ -123,8 +123,8 @@ class One_Time_Fixers extends \WP_CLI_Command {
 		/* translators: 1: Batch size */
 		\WP_CLI::log( sprintf( __( 'Processing in batches of %s', 'automattic-cron-control' ), number_format_i18n( $page_size ) ) . "\n\n" );
 
-		$pages     = 1;
-		$page      = 1;
+		$pages = 1;
+		$page  = 1;
 
 		if ( $count > $page_size ) {
 			$pages = ceil( $count / $page_size );
@@ -135,7 +135,7 @@ class One_Time_Fixers extends \WP_CLI_Command {
 			/* translators: 1: Current page, 2: total pages */
 			\WP_CLI::log( "\n\n" . sprintf( __( 'Processing page %1$s of %2$s', 'automattic-cron-control' ), number_format_i18n( $page ), number_format_i18n( $pages ) ) . "\n" );
 
-			$items = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s LIMIT %d,%d", 'a8c_cron_ctrl_event', absint( ( $page - 1 ) * $page_size ),$page_size ) );
+			$items = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = %s LIMIT %d,%d", 'a8c_cron_ctrl_event', absint( ( $page - 1 ) * $page_size ), $page_size ) );
 
 			// Nothing more to do.
 			if ( ! is_array( $items ) || empty( $items ) ) {

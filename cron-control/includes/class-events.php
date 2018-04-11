@@ -253,33 +253,41 @@ class Events extends Singleton {
 	public function run_event( $timestamp, $action, $instance, $force = false ) {
 		// Validate input data.
 		if ( empty( $timestamp ) || empty( $action ) || empty( $instance ) ) {
-			return new \WP_Error( 'missing-data', __( 'Invalid or incomplete request data.', 'automattic-cron-control' ), array(
-				'status' => 400,
-			) );
+			return new \WP_Error(
+				'missing-data', __( 'Invalid or incomplete request data.', 'automattic-cron-control' ), array(
+					'status' => 400,
+				)
+			);
 		}
 
 		// Ensure we don't run jobs ahead of time.
 		if ( ! $force && $timestamp > time() ) {
-			/* translators: 1: Job identifier */
-			return new \WP_Error( 'premature', sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
-				'status' => 403,
-			) );
+			return new \WP_Error(
+				/* translators: 1: Job identifier */
+				'premature', sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
+					'status' => 403,
+				)
+			);
 		}
 
 		// Find the event to retrieve the full arguments.
-		$event = get_event_by_attributes( array(
-			'timestamp'     => $timestamp,
-			'action_hashed' => $action,
-			'instance'      => $instance,
-			'status'        => Events_Store::STATUS_PENDING,
-		) );
+		$event = get_event_by_attributes(
+			array(
+				'timestamp'     => $timestamp,
+				'action_hashed' => $action,
+				'instance'      => $instance,
+				'status'        => Events_Store::STATUS_PENDING,
+			)
+		);
 
 		// Nothing to do...
 		if ( ! is_object( $event ) ) {
-			/* translators: 1: Job identifier */
-			return new \WP_Error( 'no-event', sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
-				'status' => 404,
-			) );
+			return new \WP_Error(
+				/* translators: 1: Job identifier */
+				'no-event', sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
+					'status' => 404,
+				)
+			);
 		}
 
 		unset( $timestamp, $action, $instance );
@@ -290,10 +298,12 @@ class Events extends Singleton {
 			$this->prime_event_action_lock( $event );
 
 			if ( ! $this->can_run_event( $event ) ) {
-				/* translators: 1: Event action, 2: Event arguments */
-				return new \WP_Error( 'no-free-threads', sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ), array(
-					'status' => 429,
-				) );
+				return new \WP_Error(
+					/* translators: 1: Event action, 2: Event arguments */
+					'no-free-threads', sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ), array(
+						'status' => 429,
+					)
+				);
 			}
 
 			// Free locks should event throw uncatchable error.

@@ -47,6 +47,6 @@ class Misc_Tests extends \WP_UnitTestCase {
 	 */
 	function test_event_cache_constants() {
 		$this->assertEquals( 256 * \KB_IN_BYTES, \Automattic\WP\Cron_Control\CACHE_BUCKET_SIZE );
-		$this->assertEquals( 250,                \Automattic\WP\Cron_Control\MAX_CACHE_BUCKETS );
+		$this->assertEquals( 250, \Automattic\WP\Cron_Control\MAX_CACHE_BUCKETS );
 	}
 }
