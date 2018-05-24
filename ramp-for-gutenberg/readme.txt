@@ -23,7 +23,7 @@ To enable Gutenberg for specific post IDs and for a more granular level of contr
 Loading behaviour is controlled by the `ramp_for_gutenberg_load_gutenberg()` function, to be added in your theme `functions.php`. Calling this function without its single optional parameter causes Gutenberg to load on all post-edit screens. An optional associative array of criteria can be passed. The possible keys and values are:
 
 * `load` (Int): `0|1`: never or always load Gutenberg
-* `posts` (Array of post_ids): loads Gutenberg for the specified post_ids
+* `post_ids` (Array of post_ids): loads Gutenberg for the specified post_ids
 * `post_types` (Array of post_types): loads Gutenberg for the specified post types.
 
 == Code Examples ==

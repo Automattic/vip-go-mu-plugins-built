@@ -25,7 +25,7 @@ Criteria are stored in an option and specified by calling a function any time af
 Loading behavior is controlled by the `ramp_for_gutenberg_load_gutenberg()` function.  Calling this function without its single optional parameter causes Gutenberg to load on all post-edit screens.  An optional associative array of criteria can be passed.  The possible keys and values are:
 
 - `load` (Int): `0|1`:  never or always load Gutenberg
-- `posts` (Array of post_ids): loads Gutenberg for the specified post_ids
+- `post_ids` (Array of post_ids): loads Gutenberg for the specified post_ids
 -  `post_types` (Array of post_types): loads Gutenberg for the specified post types.
 
 ### Code Examples

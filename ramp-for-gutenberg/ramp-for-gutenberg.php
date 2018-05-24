@@ -26,7 +26,7 @@ include __DIR__ . '/inc/admin/class-ramp-for-gutenberg-post-type-settings-ui.php
 
 /**
 *
-* This function allows themes to specify Gutenberg loadiung critera.
+* This function allows themes to specify Gutenberg loading critera.
 * In and of itself it doesn't cause any change to Gutenberg's loading behavior.
 * However, it governs the option which stores the criteria under which Gutenberg will load 
 *

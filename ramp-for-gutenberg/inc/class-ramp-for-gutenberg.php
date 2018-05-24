@@ -420,12 +420,12 @@ class Ramp_For_Gutenberg {
 	 * decision code above. If it's explicitly false, then the filter returns false,
 	 * else it returns the original value.
 	 *
-	 * @param string  $post_type - the post type
 	 * @param boolean $can_edit  - whether Gutenberg should edit this post type
+	 * @param string  $post_type - the post type
 	 *
 	 * @return boolean - whether Gutenberg should edit this post
 	 */
-	public function maybe_allow_gutenberg_to_load( $post_type, $can_edit ) {
+	public function maybe_allow_gutenberg_to_load( $can_edit, $post_type ) {
 
 		// Don't enable Gutenberg in post types that don't support Gutenberg.
 		if ( false === $can_edit ) {
