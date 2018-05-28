@@ -1460,23 +1460,20 @@ class Jetpack {
 		global $active_plan_cache;
 
 		// this can be expensive to compute so we cache for the duration of a request
-		if ( $active_plan_cache ) {
+		if ( is_array( $active_plan_cache ) && ! empty( $active_plan_cache ) ) {
 			return $active_plan_cache;
 		}
 
 		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Set the default options
-		if ( empty( $plan ) || ( isset( $plan['product_slug'] ) && 'jetpack_free' === $plan['product_slug'] ) ) {
-			$plan = wp_parse_args( $plan, array(
-				'product_slug' => 'jetpack_free',
-				'supports'     => array(),
-				'class'        => 'free',
-				'features'     => array(
-					'active' => array()
-				),
-			) );
-		}
+		$plan = wp_parse_args( $plan, array(
+			'product_slug' => 'jetpack_free',
+			'class'        => 'free',
+			'features'     => array(
+				'active' => array()
+			),
+		) );
 
 		$supports = array();
 
@@ -7067,12 +7064,25 @@ p {
 
 	/**
 	 * Checks if Akismet is active and working.
+	 * 
+	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
+	 * that implied usage of methods present since more recent version.
+	 * See https://github.com/Automattic/jetpack/pull/9585
 	 *
 	 * @since  5.1.0
+	 * 
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
-		if ( method_exists( 'Akismet' , 'http_post' ) || function_exists( 'akismet_http_post' ) ) {
+		if ( method_exists( 'Akismet' , 'http_post' ) ) {
+			$akismet_key = Akismet::get_api_key();
+			if ( ! $akismet_key ) {
+				return false;
+			}
+			$akismet_key_state = Akismet::verify_key( $akismet_key );
+			if ( 'invalid' === $akismet_key_state || 'failed' === $akismet_key_state ) {
+				return false;
+			}
 			return true;
 		}
 		return false;

@@ -18,8 +18,8 @@ class WordAds {
 	public $ads = array();
 
 	/**
-	 * The different supported ad types.
-	 * v0.1 - mrec only for now
+	 * Array of supported ad types.
+	 *
 	 * @var array
 	 */
 	public static $ad_tag_ids = array(
@@ -47,6 +47,7 @@ class WordAds {
 
 	/**
 	 * Convenience function for grabbing options from params->options
+	 *
 	 * @param  string $option the option to grab
 	 * @param  mixed  $default (optional)
 	 * @return option or $default if not set
@@ -96,7 +97,11 @@ class WordAds {
 		$this->insert_adcode();
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
-			$ads_txt_server_contents = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+
+			if ( false === ( $ads_txt_transient = get_transient( 'jetpack_ads_txt' ) ) ) {
+				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
+				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
+			}
 
 			/**
 			 * Provide plugins a way of modifying the contents of the automatically-generated ads.txt file.
@@ -107,7 +112,7 @@ class WordAds {
 			 *
 			 * @param string WordAds_API::get_wordads_ads_txt() The contents of the ads.txt file.
 			 */
-			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_server_contents );
+			$ads_txt_content = apply_filters( 'wordads_ads_txt', $ads_txt_transient );
 
 			header( 'Content-Type: text/plain; charset=utf-8' );
 			echo esc_html( $ads_txt_content );
@@ -117,6 +122,7 @@ class WordAds {
 
 	/**
 	 * Check for Jetpack's The_Neverending_Home_Page and use got_infinity
+	 *
 	 * @return boolean true if load came from infinite scroll
 	 *
 	 * @since 4.5.0
@@ -131,9 +137,9 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	private function insert_adcode() {
-		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
-		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_head',              array( $this, 'insert_head_meta' ), 20 );
+		add_action( 'wp_head',              array( $this, 'insert_head_iponweb' ), 30 );
+		add_action( 'wp_enqueue_scripts',   array( $this, 'enqueue_scripts' ) );
 
 		/**
 		 * Filters enabling ads in `the_content` filter
@@ -202,9 +208,10 @@ class WordAds {
 		$pagetype = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id = $this->params->blog_id;
+		$consent = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id };
+			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id, consent: $consent };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
@@ -245,8 +252,8 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_ad( $content ) {
-		// Ad JS won't work in XML feeds.
-		if ( is_feed() ) {
+		// Don't insert ads in feeds, or for anything but the main display. (This is required for compatibility with the Publicize module).
+		if ( is_feed() || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
 		}
 		/**
@@ -269,7 +276,7 @@ HTML;
 
 	/**
 	 * Insert an inline ad into a post content
-	 * Used for rendering the `wordad` shortcode.
+	 * Used for rendering the `wordads` shortcode.
 	 *
 	 * @since 6.1.0
 	 */
@@ -369,25 +376,32 @@ HTML;
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
 		if ( 'iponweb' == $type ) {
+			// Default to mrec
 			$width = 300;
 			$height = 250;
+
+			$section_id = WORDADS_API_TEST_ID;
 			$second_belowpost = '';
 			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-				$snippet = $this->get_ad_snippet( $height, $width, $spot );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot );
 			} else if ( 'belowpost' == $spot ) {
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
 
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
-					$snippet .= $this->get_ad_snippet( $height, $width, $spot, 'float:left;margin-top:0px;' );
+					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, $spot, 'float:left;margin-top:0px;' );
 				}
 			} else if ( 'inline' === $spot ) {
-				$snippet = $this->get_ad_snippet( $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
+				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 			}
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
@@ -414,6 +428,7 @@ HTML;
 
 	/**
 	 * Returns the snippet to be inserted into the ad unit
+	 * @param  int $section_id
 	 * @param  int $height
 	 * @param  int $width
 	 * @param  int $location
@@ -422,15 +437,15 @@ HTML;
 	 *
 	 * @since 5.7
 	 */
-	function get_ad_snippet( $height, $width, $location = '', $css = '' ) {
+	function get_ad_snippet( $section_id, $height, $width, $location = '', $css = '' ) {
 		$this->ads[] = array( 'location' => $location, 'width' => $width, 'height' => $height );
 		$ad_number = count( $this->ads );
 		// Max 6 ads per page.
-		if ( $ad_number > 6 ) {
+		if ( $ad_number > 5 && 'top' !== $location ) {
 			return;
 		}
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		
+
 		return <<<HTML
 		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
 			<div id="atatags-{$ad_number}">
@@ -438,6 +453,7 @@ HTML;
 				__ATA.cmd.push(function() {
 					__ATA.initSlot('atatags-{$ad_number}',  {
 						collapseEmpty: 'before',
+						sectionId: '{$section_id}',
 						location: '{$location}',
 						width: {$width},
 						height: {$height}
@@ -467,18 +483,21 @@ HTML;
 	 * @since 4.7.0
 	 */
 	public function get_house_ad( $unit = 'mrec' ) {
-		if ( ! in_array( $unit, array( 'mrec', 'widesky', 'leaderboard' ) ) ) {
-			$unit = 'mrec';
-		}
 
-		$width  = 300;
-		$height = 250;
-		if ( 'widesky' == $unit ) {
-			$width  = 160;
-			$height = 600;
-		} else if ( 'leaderboard' == $unit ) {
-			$width  = 728;
-			$height = 90;
+		switch ( $unit ) {
+			case 'widesky':
+				$width  = 160;
+				$height = 600;
+				break;
+			case 'leaderboard':
+				$width  = 728;
+				$height = 90;
+				break;
+			case 'mrec':
+			default:
+				$width  = 300;
+				$height = 250;
+				break;
 		}
 
 		return <<<HTML
