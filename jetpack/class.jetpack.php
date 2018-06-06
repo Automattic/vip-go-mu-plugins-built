@@ -580,8 +580,10 @@ class Jetpack {
 
 		if ( Jetpack::is_active() ) {
 			Jetpack_Heartbeat::init();
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
-			Jetpack_Search_Performance_Logger::init();
+			if ( Jetpack::is_module_active( 'stats' ) && Jetpack::is_module_active( 'search' ) ) {
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
+				Jetpack_Search_Performance_Logger::init();
+			}
 		}
 
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
@@ -622,6 +624,9 @@ class Jetpack {
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
+		// gutenberg locale
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_gutenberg_locale' ) );
+
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
 		/**
@@ -660,7 +665,7 @@ class Jetpack {
 		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
 
 		/**
-		 * This is the hack to concatinate all css files into one.
+		 * This is the hack to concatenate all css files into one.
 		 * For description and reasoning see the implode_frontend_css method
 		 *
 		 * Super late priority so we catch all the registered styles
@@ -1088,7 +1093,7 @@ class Jetpack {
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		if ( Jetpack::is_active() ) {
+		if ( Jetpack::is_active() && ! Jetpack_AMP_Support::is_amp_request() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
 	}
@@ -2589,6 +2594,30 @@ class Jetpack {
 	}
 
 	/**
+	 * Get i18n strings as a JSON-encoded string
+	 *
+	 * @return string The locale as JSON
+	 */
+	public static function get_i18n_data_json() {
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
+
+		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
+			$locale_data = @file_get_contents( $i18n_json );
+			if ( $locale_data ) {
+				return $locale_data;
+			}
+		}
+
+		// Return valid empty Jed locale
+		return json_encode( array(
+			'' => array(
+				'domain' => 'jetpack',
+				'lang'   => is_admin() ? get_user_locale() : get_locale(),
+			),
+		) );
+	}
+
+	/**
 	 * Return module name translation. Uses matching string created in modules/module-headings.php.
 	 *
 	 * @since 3.9.2
@@ -3814,6 +3843,13 @@ p {
 
 	function admin_menu_order() {
 		return true;
+	}
+
+	function enqueue_gutenberg_locale() {
+		wp_add_inline_script(
+			'wp-i18n',
+			'wp.i18n.setLocaleData( ' . self::get_i18n_data_json() . ', \'jetpack\' );'
+		);
 	}
 
 	function jetpack_menu_order( $menu_order ) {
@@ -6588,6 +6624,7 @@ p {
 			'jetpack_holiday_snowing'                                => null,
 			'jetpack_sso_auth_cookie_expirtation'                    => 'jetpack_sso_auth_cookie_expiration',
 			'jetpack_cache_plans'                                    => null,
+			'jetpack_updated_theme'                                  => 'jetpack_updated_themes',
 		);
 
 		// This is a silly loop depth. Better way?
@@ -7064,13 +7101,13 @@ p {
 
 	/**
 	 * Checks if Akismet is active and working.
-	 * 
+	 *
 	 * We dropped support for Akismet 3.0 with Jetpack 6.1.1 while introducing a check for an Akismet valid key
 	 * that implied usage of methods present since more recent version.
 	 * See https://github.com/Automattic/jetpack/pull/9585
 	 *
 	 * @since  5.1.0
-	 * 
+	 *
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
@@ -7079,11 +7116,20 @@ p {
 			if ( ! $akismet_key ) {
 				return false;
 			}
-			$akismet_key_state = Akismet::verify_key( $akismet_key );
-			if ( 'invalid' === $akismet_key_state || 'failed' === $akismet_key_state ) {
-				return false;
+			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
+
+			// We cache the result of the Akismet key verification for ten minutes.
+			if ( in_array( $cached_key_verification, array( 'valid', 'invalid' ) ) ) {
+				$akismet_key_state = $cached_key_verification;
+			} else {
+				$akismet_key_state = Akismet::verify_key( $akismet_key );
+				if ( 'failed' === $akismet_key_state ) {
+					return false;
+				}
+				set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
 			}
-			return true;
+
+			return ( 'valid' === $akismet_key_state );
 		}
 		return false;
 	}
