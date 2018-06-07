@@ -1,26 +1,19 @@
 <?php
-/*
-Copyright 2009-2016 John Blackbourn
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-*/
+/**
+ * Abstract data collector.
+ *
+ * @package query-monitor
+ */
 
 if ( ! class_exists( 'QM_Collector' ) ) {
 abstract class QM_Collector {
 
+	protected $timer;
 	protected $data = array(
 		'types'           => array(),
 		'component_times' => array(),
 	);
+	protected static $hide_qm = null;
 
 	public function __construct() {}
 
@@ -32,10 +25,10 @@ abstract class QM_Collector {
 
 	protected function log_type( $type ) {
 
-		if ( isset( $this->data['types'][$type] ) ) {
-			$this->data['types'][$type]++;
+		if ( isset( $this->data['types'][ $type ] ) ) {
+			$this->data['types'][ $type ]++;
 		} else {
-			$this->data['types'][$type] = 1;
+			$this->data['types'][ $type ] = 1;
 		}
 
 	}
@@ -53,22 +46,20 @@ abstract class QM_Collector {
 
 	protected function log_component( $component, $ltime, $type ) {
 
-		if ( !isset( $this->data['component_times'][$component->name] ) ) {
-			$this->data['component_times'][$component->name] = array(
+		if ( ! isset( $this->data['component_times'][ $component->name ] ) ) {
+			$this->data['component_times'][ $component->name ] = array(
 				'component' => $component->name,
-				'calls'     => 0,
 				'ltime'     => 0,
-				'types'     => array()
+				'types'     => array(),
 			);
 		}
 
-		$this->data['component_times'][$component->name]['calls']++;
-		$this->data['component_times'][$component->name]['ltime'] += $ltime;
+		$this->data['component_times'][ $component->name ]['ltime'] += $ltime;
 
-		if ( isset( $this->data['component_times'][$component->name]['types'][$type] ) ) {
-			$this->data['component_times'][$component->name]['types'][$type]++;
+		if ( isset( $this->data['component_times'][ $component->name ]['types'][ $type ] ) ) {
+			$this->data['component_times'][ $component->name ]['types'][ $type ]++;
 		} else {
-			$this->data['component_times'][$component->name]['types'][$type] = 1;
+			$this->data['component_times'][ $component->name ]['types'][ $type ] = 1;
 		}
 
 	}
@@ -79,10 +70,10 @@ abstract class QM_Collector {
 	}
 
 	public static function format_bool_constant( $constant ) {
-		if ( !defined( $constant ) ) {
+		if ( ! defined( $constant ) ) {
 			/* translators: Undefined PHP constant */
 			return __( 'undefined', 'query-monitor' );
-		} else if ( !constant( $constant ) ) {
+		} elseif ( ! constant( $constant ) ) {
 			return 'false';
 		} else {
 			return 'true';
@@ -97,14 +88,6 @@ abstract class QM_Collector {
 		$this->id = $id;
 	}
 
-	public static function sort_ltime( $a, $b ) {
-		if ( $a['ltime'] == $b['ltime'] ) {
-			return 0;
-		} else {
-			return ( $a['ltime'] > $b['ltime'] ) ? -1 : 1;
-		}
-	}
-
 	public static function format_user( WP_User $user_object ) {
 		$user = get_object_vars( $user_object->data );
 		unset(
@@ -116,9 +99,32 @@ abstract class QM_Collector {
 		return $user;
 	}
 
+	public static function hide_qm() {
+		if ( null === self::$hide_qm ) {
+			self::$hide_qm = ( defined( 'QM_HIDE_SELF' ) && QM_HIDE_SELF );
+		}
+
+		return self::$hide_qm;
+	}
+
+	public function filter_remove_qm( array $item ) {
+		$component = $item['trace']->get_component();
+		return ( 'query-monitor' !== $component->context );
+	}
+
 	public function process() {}
 
+	public function post_process() {}
+
 	public function tear_down() {}
+
+	public function get_timer() {
+		return $this->timer;
+	}
+
+	public function set_timer( QM_Timer $timer ) {
+		$this->timer = $timer;
+	}
 
 }
 }

@@ -1,44 +1,30 @@
 <?php
-/*
-Copyright 2009-2016 John Blackbourn
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-*/
+/**
+ * Hooks and actions collector.
+ *
+ * @package query-monitor
+ */
 
 class QM_Collector_Hooks extends QM_Collector {
 
 	public $id = 'hooks';
+	protected static $hide_core;
 
 	public function name() {
-		return __( 'Hooks', 'query-monitor' );
+		return __( 'Hooks & Actions', 'query-monitor' );
 	}
 
 	public function process() {
 
 		global $wp_actions, $wp_filter;
 
-		$this->hide_qm = ( defined( 'QM_HIDE_SELF' ) and QM_HIDE_SELF );
-		$this->hide_core = ( defined( 'QM_HIDE_CORE_HOOKS' ) and QM_HIDE_CORE_HOOKS );
-
-		if ( is_admin() and ( $admin = QM_Collectors::get( 'admin' ) ) ) {
-			$this->data['screen'] = $admin->data['base'];
-		} else {
-			$this->data['screen'] = '';
-		}
+		self::$hide_qm   = self::hide_qm();
+		self::$hide_core = ( defined( 'QM_HIDE_CORE_HOOKS' ) && QM_HIDE_CORE_HOOKS );
 
 		$hooks = $all_parts = $components = array();
 
 		if ( has_filter( 'all' ) ) {
-			$hooks['all'] = $this->process_action( 'all', $wp_filter );
+			$hooks['all'] = self::process_action( 'all', $wp_filter, self::$hide_qm, self::$hide_core );
 		}
 
 		if ( defined( 'QM_SHOW_ALL_HOOKS' ) && QM_SHOW_ALL_HOOKS ) {
@@ -51,10 +37,10 @@ class QM_Collector_Hooks extends QM_Collector {
 
 		foreach ( $hook_names as $name ) {
 
-			$hooks[$name] = $this->process_action( $name, $wp_filter );
+			$hooks[ $name ] = self::process_action( $name, $wp_filter, self::$hide_qm, self::$hide_core );
 
-			$all_parts    = array_merge( $all_parts, $hooks[$name]['parts'] );
-			$components   = array_merge( $components, $hooks[$name]['components'] );
+			$all_parts    = array_merge( $all_parts, $hooks[ $name ]['parts'] );
+			$components   = array_merge( $components, $hooks[ $name ]['components'] );
 
 		}
 
@@ -64,14 +50,24 @@ class QM_Collector_Hooks extends QM_Collector {
 
 	}
 
-	protected function process_action( $name, array $wp_filter ) {
+	public function post_process() {
+		$admin = QM_Collectors::get( 'admin' );
+
+		if ( is_admin() && $admin ) {
+			$this->data['screen'] = $admin->data['base'];
+		} else {
+			$this->data['screen'] = '';
+		}
+	}
+
+	public static function process_action( $name, array $wp_filter, $hide_qm = false, $hide_core = false ) {
 
 		$actions = $components = array();
 
-		if ( isset( $wp_filter[$name] ) ) {
+		if ( isset( $wp_filter[ $name ] ) ) {
 
 			# http://core.trac.wordpress.org/ticket/17817
-			$action = $wp_filter[$name];
+			$action = $wp_filter[ $name ];
 
 			foreach ( $action as $priority => $callbacks ) {
 
@@ -81,14 +77,17 @@ class QM_Collector_Hooks extends QM_Collector {
 
 					if ( isset( $callback['component'] ) ) {
 						if (
-							( $this->hide_qm and 'query-monitor' === $callback['component']->context )
-							or ( $this->hide_core and 'core' === $callback['component']->context ) 
+							( $hide_qm && 'query-monitor' === $callback['component']->context )
+							|| ( $hide_core && 'core' === $callback['component']->context )
 						) {
 							continue;
 						}
 
-						$components[$callback['component']->name] = $callback['component']->name;
+						$components[ $callback['component']->name ] = $callback['component']->name;
 					}
+
+					// This isn't used and takes up a ton of memory:
+					unset( $callback['function'] );
 
 					$actions[] = array(
 						'priority'  => $priority,
@@ -96,9 +95,7 @@ class QM_Collector_Hooks extends QM_Collector {
 					);
 
 				}
-
 			}
-
 		}
 
 		$parts = array_filter( preg_split( '#[_/-]#', $name ) );
@@ -114,9 +111,5 @@ class QM_Collector_Hooks extends QM_Collector {
 
 }
 
-function register_qm_collector_hooks( array $collectors, QueryMonitor $qm ) {
-	$collectors['hooks'] = new QM_Collector_Hooks;
-	return $collectors;
-}
-
-add_filter( 'qm/collectors', 'register_qm_collector_hooks', 20, 2 );
+# Load early to catch all hooks
+QM_Collectors::add( new QM_Collector_Hooks );

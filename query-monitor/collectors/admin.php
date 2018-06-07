@@ -1,18 +1,9 @@
 <?php
-/*
-Copyright 2009-2016 John Blackbourn
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-*/
+/**
+ * Admin screen collector.
+ *
+ * @package query-monitor
+ */
 
 class QM_Collector_Admin extends QM_Collector {
 
@@ -24,11 +15,11 @@ class QM_Collector_Admin extends QM_Collector {
 
 	public function process() {
 
-		global $pagenow;
+		global $pagenow, $wp_list_table;
 
 		$current_screen = get_current_screen();
 
-		if ( isset( $_GET['page'] ) && $current_screen !== null ) {
+		if ( isset( $_GET['page'] ) && null !== $current_screen ) { // @codingStandardsIgnoreLine
 			$this->data['base'] = $current_screen->base;
 		} else {
 			$this->data['base'] = $pagenow;
@@ -57,15 +48,15 @@ class QM_Collector_Admin extends QM_Collector {
 
 			# And now, WordPress' legendary inconsistency comes into play:
 
-			if ( !empty( $this->data['current_screen']['taxonomy'] ) ) {
+			if ( ! empty( $this->data['current_screen']['taxonomy'] ) ) {
 				$list_table['column'] = $this->data['current_screen']['taxonomy'];
-			} else if ( !empty( $this->data['current_screen']['post_type'] ) ) {
+			} elseif ( ! empty( $this->data['current_screen']['post_type'] ) ) {
 				$list_table['column'] = $this->data['current_screen']['post_type'] . '_posts';
 			} else {
 				$list_table['column'] = $this->data['current_screen']['base'];
 			}
 
-			if ( !empty( $this->data['current_screen']['post_type'] ) and empty( $this->data['current_screen']['taxonomy'] ) ) {
+			if ( ! empty( $this->data['current_screen']['post_type'] ) and empty( $this->data['current_screen']['taxonomy'] ) ) {
 				$list_table['columns'] = $this->data['current_screen']['post_type'] . '_posts';
 			} else {
 				$list_table['columns'] = $this->data['current_screen']['id'];
@@ -73,9 +64,9 @@ class QM_Collector_Admin extends QM_Collector {
 
 			if ( 'edit-comments' === $list_table['column'] ) {
 				$list_table['column'] = 'comments';
-			} else if ( 'upload' === $list_table['column'] ) {
+			} elseif ( 'upload' === $list_table['column'] ) {
 				$list_table['column'] = 'media';
-			} else if ( 'link-manager' === $list_table['column'] ) {
+			} elseif ( 'link-manager' === $list_table['column'] ) {
 				$list_table['column'] = 'link';
 			}
 
@@ -86,12 +77,10 @@ class QM_Collector_Admin extends QM_Collector {
 				'sortables_filter' => "manage_{$list_table['sortables']}_sortable_columns",
 				'column_action'    => "manage_{$list_table['column']}_custom_column",
 			);
-			$this->data['list_table_markup'] = array(
-				'columns_filter'   => 'manage_<span class="qm-current">' . esc_html( $list_table['columns'] ) . '</span>_columns',
-				'sortables_filter' => 'manage_<span class="qm-current">' . esc_html( $list_table['sortables'] ) . '</span>_sortable_columns',
-				'column_action'    => 'manage_<span class="qm-current">' . esc_html( $list_table['column'] ) . '</span>_custom_column',
-			);
 
+			if ( ! empty( $wp_list_table ) ) {
+				$this->data['list_table']['class_name'] = get_class( $wp_list_table );
+			}
 		}
 
 	}

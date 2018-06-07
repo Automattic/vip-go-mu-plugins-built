@@ -5,9 +5,9 @@
 
 # Query Monitor #
 
-Query Monitor is a debugging plugin for anyone developing with WordPress. It has some advanced features not available in other debugging plugins, including automatic AJAX debugging, REST API debugging, and the ability to narrow down its output by plugin or theme.
+Query Monitor is the Developer Tools panel for WordPress. It includes some advanced features not available in other debugging plugins, including Ajax and REST API debugging, and the ability to narrow down its output by plugin or theme.
 
-Query Monitor adds a toolbar menu showing an overview of the current page. Complete data is shown in the footer once you select a menu item.
+Query Monitor focuses heavily on presenting its information in a useful manner. It adds an admin toolbar menu showing an overview of the current page, with complete data shown in a panel once you select a menu item.
 
 Here's an example of Query Monitor's output. This is the panel showing aggregate database queries grouped by component, allowing you to see which plugins are spending the most time on database queries.
 
@@ -26,7 +26,7 @@ Here's an example of Query Monitor's output. This is the panel showing aggregate
     * [Languages](#languages)
     * [HTTP Requests](#http-requests)
     * [Redirects](#redirects)
-    * [AJAX](#ajax)
+    * [Ajax](#ajax)
     * [REST API](#rest-api)
     * [Admin Screen](#admin-screen)
     * [Environment Information](#environment-information)
@@ -78,14 +78,8 @@ Filtering queries by component or calling function makes it easy to see which pl
 
 ## Request ##
 
- * Shows matched rewrite rules and associated query strings
  * Shows query vars for the current request, and highlights custom query vars
- * Shows the queried object details
- * Shows details of the current blog (multisite only) and current site (multi-network only)
-
-## Rewrite Rules ##
-
- * Shows all matching rewrite rules for a given request
+ * Shows all matched rewrite rules and associated query strings
 
 ## Scripts & Styles ##
 
@@ -103,13 +97,17 @@ Filtering queries by component or calling function makes it easy to see which pl
  * Shows the response code, call stack, component, timeout, and time taken
  * Highlights erroneous responses, such as failed requests and anything without a `200` response code
 
+## User Capability Checks ##
+
+ * Shows every user capability check that is performed on the page, along with the result and any parameters passed along with the capability check.
+
 ## Redirects ##
 
  * Whenever a redirect occurs, Query Monitor adds an `X-QM-Redirect` HTTP header containing the call stack, so you can use your favourite HTTP inspector or browser developer tools to easily trace where a redirect has come from
 
-## AJAX ##
+## Ajax ##
 
-The response from any jQuery AJAX request on the page will contain various debugging information in its headers. Any errors also get output to the developer console. No hooking required.
+The response from any jQuery Ajax request on the page will contain various debugging information in its headers. Any errors also get output to the developer console. No hooking required.
 
 Currently this includes PHP errors and some overview information such as memory usage, but this will be built upon in future versions.
 
@@ -178,7 +176,7 @@ Database listing panel showing all queries, and the controls for filtering by qu
 
 ![Database Queries](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-4.png)
 
-A slow database query (over 0.05s by default) that has been highlighted in a separate panel
+User capability checks with an active filter
 
 ![Slow Database Queries](https://raw.github.com/johnbillion/query-monitor/master/assets-wp-repo/screenshot-3.png)
 
@@ -265,7 +263,7 @@ See also my list of [WordPress Developer Plugins](https://johnblackbourn.com/wor
 
 # Contributing #
 
-Code contributions are very welcome, as are bug reports in the form of GitHub issues. Development happens in the `develop` branch, and any pull requests should be made to that branch please.
+Contributions are very welcome. See [CONTRIBUTING.md](https://github.com/johnbillion/query-monitor/blob/master/CONTRIBUTING.md) for more details.
 
 # License: GPLv2 #
 

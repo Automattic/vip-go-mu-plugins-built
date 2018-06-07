@@ -1,18 +1,9 @@
 <?php
-/*
-Copyright 2009-2016 John Blackbourn
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-*/
+/**
+ * Object cache collector.
+ *
+ * @package query-monitor
+ */
 
 class QM_Collector_Cache extends QM_Collector {
 
@@ -29,7 +20,6 @@ class QM_Collector_Cache extends QM_Collector {
 		$this->data['cache_hit_percentage'] = 0;
 
 		if ( is_object( $wp_object_cache ) ) {
-
 			if ( property_exists( $wp_object_cache, 'cache_hits' ) ) {
 				$this->data['stats']['cache_hits'] = (int) $wp_object_cache->cache_hits;
 			}
@@ -46,7 +36,6 @@ class QM_Collector_Cache extends QM_Collector {
 					$this->data['stats'][ $key ] = $value;
 				}
 			}
-
 		}
 
 		if ( isset( $this->data['stats']['cache_hits'] ) && isset( $this->data['stats']['cache_misses'] ) ) {
@@ -54,7 +43,7 @@ class QM_Collector_Cache extends QM_Collector {
 			$this->data['cache_hit_percentage'] = ( 100 / $total ) * $this->data['stats']['cache_hits'];
 		}
 
-		$this->data['display_hit_rate_warning'] = ( 100 == $this->data['cache_hit_percentage'] );
+		$this->data['display_hit_rate_warning'] = ( 100 === $this->data['cache_hit_percentage'] );
 
 	}
 

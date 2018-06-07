@@ -1,18 +1,9 @@
 <?php
-/*
-Copyright 2009-2016 John Blackbourn
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-*/
+/**
+ * Enqueued scripts and styles collector.
+ *
+ * @package query-monitor
+ */
 
 class QM_Collector_Assets extends QM_Collector {
 
@@ -53,7 +44,7 @@ class QM_Collector_Assets extends QM_Collector {
 	}
 
 	public function process() {
-		if ( !isset( $this->data['raw'] ) ) {
+		if ( ! isset( $this->data['raw'] ) ) {
 			return;
 		}
 
@@ -67,17 +58,17 @@ class QM_Collector_Assets extends QM_Collector {
 			$broken = array_values( array_diff( $raw->queue, $raw->done ) );
 			$missing = array_values( array_diff( $raw->queue, array_keys( $raw->registered ) ) );
 
-			if ( !empty( $broken ) ) {
+			if ( ! empty( $broken ) ) {
 				foreach ( $broken as $key => $handle ) {
 					if ( $item = $raw->query( $handle ) ) {
-						$broken = array_merge( $broken, $this->get_broken_dependencies( $item, $raw ) );
+						$broken = array_merge( $broken, self::get_broken_dependencies( $item, $raw ) );
 					} else {
 						unset( $broken[ $key ] );
 						$missing[] = $handle;
 					}
 				}
 
-				if ( !empty( $broken ) ) {
+				if ( ! empty( $broken ) ) {
 					$this->data['broken'][ $type ] = array_unique( $broken );
 				}
 			}
@@ -86,31 +77,43 @@ class QM_Collector_Assets extends QM_Collector {
 				$this->data['missing'][ $type ] = array_unique( $missing );
 				foreach ( $this->data['missing'][ $type ] as $handle ) {
 					$raw->add( $handle, false );
-					if ( false !== ( $key = array_search( $handle, $raw->done ) ) ) {
+					if ( false !== ( $key = array_search( $handle, $raw->done, true ) ) ) {
 						unset( $raw->done[ $key ] );
 					}
 				}
 			}
-
 		}
 	}
 
-	protected function get_broken_dependencies( _WP_Dependency $item, WP_Dependencies $dependencies ) {
-
+	protected static function get_broken_dependencies( _WP_Dependency $item, WP_Dependencies $dependencies ) {
 		$broken = array();
 
 		foreach ( $item->deps as $handle ) {
-
 			if ( $dep = $dependencies->query( $handle ) ) {
-				$broken = array_merge( $broken, $this->get_broken_dependencies( $dep, $dependencies ) );
+				$broken = array_merge( $broken, self::get_broken_dependencies( $dep, $dependencies ) );
 			} else {
 				$broken[] = $item->handle;
 			}
-
 		}
 
 		return $broken;
+	}
 
+	public function get_dependents( _WP_Dependency $dependency, WP_Dependencies $dependencies ) {
+		$dependents = array();
+		$handles    = array_unique( array_merge( $dependencies->queue, $dependencies->done ) );
+
+		foreach ( $handles as $handle ) {
+			if ( $item = $dependencies->query( $handle ) ) {
+				if ( in_array( $dependency->handle, $item->deps, true ) ) {
+					$dependents[] = $handle;
+				}
+			}
+		}
+
+		sort( $dependents );
+
+		return $dependents;
 	}
 
 	public function name() {
