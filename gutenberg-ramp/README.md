@@ -22,7 +22,7 @@ Loading criteria are supplied either in code (in a theme or plugin) or via UI. G
 
 Criteria are stored in an option and specified by calling a function any time after `plugins_loaded`, typically in theme code or on a hook such as `init`.
 
-Loading behavior is controlled by the `ramp_for_gutenberg_load_gutenberg()` function.  Calling this function without its single optional parameter causes Gutenberg to load on all post-edit screens.  An optional associative array of criteria can be passed.  The possible keys and values are:
+Loading behavior is controlled by the `gutenberg_ramp_load_gutenberg()` function.  Calling this function without its single optional parameter causes Gutenberg to load on all post-edit screens.  An optional associative array of criteria can be passed.  The possible keys and values are:
 
 - `load` (Int): `0|1`:  never or always load Gutenberg
 - `post_ids` (Array of post_ids): loads Gutenberg for the specified post_ids
@@ -30,29 +30,43 @@ Loading behavior is controlled by the `ramp_for_gutenberg_load_gutenberg()` func
 
 ### Code Examples
 
-```
-if ( function_exists( 'ramp_for_gutenberg_load_gutenberg' ) ) {
-	ramp_for_gutenberg_load_gutenberg();
+Load Gutenberg for all posts:
+```php
+if ( function_exists( 'gutenberg_ramp_load_gutenberg' ) ) {
+	gutenberg_ramp_load_gutenberg();
 }
 ```
 
-Load Gutenberg for all posts.
 
-`ramp_for_gutenberg_load_gutenberg( [ 'load' => 0 ] );`
+Never load Gutenberg:
+```php
+gutenberg_ramp_load_gutenberg( false );
 
-Never load Gutenberg.
+// Alternatively, you can use the `load` key to always disable Gutenberg:
+gutenberg_ramp_load_gutenberg( [ 'load' => 0 ] );
+```
 
-`ramp_for_gutenberg_load_gutenberg( [ 'post_ids' => [ 12, 13, 122 ] ] );`
+Load Gutenberg only for posts with ids 12, 13 and 122:
+```php
+gutenberg_ramp_load_gutenberg( [ 'post_ids' => [ 12, 13, 122 ] ] );
+```
 
-Load Gutenberg only for posts with ids 12, 13 and 122.
 
-`ramp_for_gutenberg_load_gutenberg( [ 'post_types' => [ 'test', 'scratch' ], 'post_ids' => [ 12 ] ] );`
+Load Gutenberg for `post_id: 12` and all posts of type `test` and `scratch`:
 
-Load Gutenberg for post_id 12 and all posts of type `test` and `scratch`
+```php
+gutenberg_ramp_load_gutenberg(
+	[
+		'post_types' => [ 'test', 'scratch' ],
+		'post_ids'   => [ 12 ],
+	]
+);
+```
+
 
 ### UI
 
-Ramp for Gutenberg adds a section to the Settings -> Writing menu that allows post_type control of Gutenberg loading.  This can be used in place of specifying criteria in code.
+Gutenberg Ramp adds a section to the Settings -> Writing menu that allows post_type control of Gutenberg loading.  This can be used in place of specifying criteria in code.
 
 
 ### Advanced	
@@ -65,7 +79,7 @@ If making more dynamic changes, note that the parameter supplied is persisted in
 
 **Why is a post type disabled (greyed out) at Settings > Writing?**
 
-If you're seeing something greyed out, it means the `ramp_for_gutenberg_load_gutenberg()` function is already in your theme functions.php. If you want to use the wp-admin UI, remove the conflicting function from your functions.php file.
+If you're seeing something greyed out, it means the `gutenberg_ramp_load_gutenberg()` function is already in your theme functions.php. If you want to use the wp-admin UI, remove the conflicting function from your functions.php file.
 
 **Why are some post types are not showing up on the settings screen?**
 
@@ -78,4 +92,4 @@ The parameter supplied in the function is persisted in a site option. Therefore,
 
 **Can I contribute to this plugin?**
 
-Absolutely! Please create issues and pull requests on [GitHub here.](https://github.com/Automattic/ramp-for-gutenberg)
+Absolutely! Please create issues and pull requests on [GitHub here.](https://github.com/Automattic/gutenberg-ramp)
