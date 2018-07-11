@@ -707,7 +707,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_display_exif_callback() {
-		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
+		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" rel="noopener noreferrer" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) );
 	}
 
 	function carousel_display_exif_sanitize( $value ) {
@@ -723,7 +723,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_background_color_callback() {
-		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack' ) ) );
 	}
 
 	function carousel_background_color_sanitize( $value ) {
