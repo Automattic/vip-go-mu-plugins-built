@@ -24,7 +24,7 @@ class Jetpack_Provision { //phpcs:ignore
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function() use ( $url_arg, $named_args ) {
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) { // phpcs:ignore PHPCompatibility
 						return $named_args[ $url_arg ];
 					}, 11 );
 				} elseif ( ! defined( $constant_name ) ) {
@@ -274,7 +274,7 @@ class Jetpack_Provision { //phpcs:ignore
 			if ( isset( $body_json->error ) ) {
 				return new WP_Error( $body_json->error, $body_json->message );
 			} else {
-				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
+				return new WP_Error( 'server_error', sprintf( __( 'Request failed with code %s', 'jetpack' ), $response_code ) );
 			}
 		}
 

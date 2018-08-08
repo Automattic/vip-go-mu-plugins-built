@@ -384,7 +384,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							: __( 'Inactive', 'jetpack' ),
 					);
 				}
-				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) );
+				WP_CLI\Utils\format_items( $assoc_args['format'], $modules_list, array( 'slug', 'status' ) ); // phpcs:ignore PHPCompatibility
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
@@ -689,7 +689,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					);
 				}
 
-				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
+				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) ); // phpcs:ignore PHPCompatibility
 				break;
 			case 'start':
 				// Get the original settings so that we can restore them later
@@ -830,7 +830,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							'importing'       => (string) $item[4],
 						);
 					}
-					WP_CLI\Utils\format_items(
+					WP_CLI\Utils\format_items( // phpcs:ignore PHPCompatibility
 						'table',
 						$collection,
 						array(
@@ -1148,7 +1148,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( isset( $named_args['pretty'] ) ) {
 			$decoded_output = json_decode( $output );
 			if ( $decoded_output ) {
-				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
+				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT ); // phpcs:ignore PHPCompatibility
 			}
 		}
 
@@ -1331,7 +1331,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'connection_data',
 				);
 
-				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys );
+				WP_CLI\Utils\format_items( $named_args['format'], $connections_to_return, $expected_keys ); // phpcs:ignore PHPCompatibility
 				break; // list.
 			case 'disconnect':
 				if ( ! $identifier ) {
@@ -1369,7 +1369,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					if ( ! empty( $connections ) ) {
 						$count    = count( $connections );
-						$progress = \WP_CLI\Utils\make_progress_bar(
+						$progress = \WP_CLI\Utils\make_progress_bar( // phpcs:ignore PHPCompatibility
 							/* translators: %s is a lowercase string for a social network. */
 							sprintf( __( 'Disconnecting all connections to %s.', 'jetpack' ), $service ),
 							$count
@@ -1447,10 +1447,9 @@ function jetpack_cli_are_you_sure( $flagged = false, $error_msg = false ) {
 	}
 
 	if ( ! $flagged ) {
-		$prompt_message = __( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command.  Do not translate that.', 'jetpack' );
+		$prompt_message = _x( 'Are you sure? This cannot be undone. Type "yes" to continue:', '"yes" is a command - do not translate.', 'jetpack' );
 	} else {
-		/* translators: Don't translate the word yes here. */
-		$prompt_message = __( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', 'jetpack' );
+		$prompt_message = _x( 'Are you sure? Modifying this option may disrupt your Jetpack connection.  Type "yes" to continue.', '"yes" is a command - do not translate.', 'jetpack' );
 	}
 
 	WP_CLI::line( $prompt_message );

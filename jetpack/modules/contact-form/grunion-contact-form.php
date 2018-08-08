@@ -749,7 +749,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $exporters An array of personal data exporters.
 	 */
 	public function register_personal_data_exporter( $exporters ) {
-		$exporters[] = array(
+		$exporters['jetpack-feedback'] = array(
 			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'               => array( $this, 'personal_data_exporter' ),
 		);
@@ -767,7 +767,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array $erasers An array of personal data erasers.
 	 */
 	public function register_personal_data_eraser( $erasers ) {
-		$erasers[] = array(
+		$erasers['jetpack-feedback'] = array(
 			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
 			'callback'             => array( $this, 'personal_data_eraser' ),
 		);
@@ -844,16 +844,43 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public function personal_data_eraser( $email, $page = 1 ) {
 		$per_page = 250;
-		$removed  = 0;
-		$retained = 0;
+		$removed  = false;
+		$retained = false;
 		$messages = array();
 		$post_ids = $this->personal_data_post_ids_by_email( $email, $per_page, $page );
 
 		foreach ( $post_ids as $post_id ) {
+			/**
+			 * Filters whether to erase a particular Feedback post.
+			 *
+			 * @since 6.3.0
+			 *
+			 * @param bool|string $prevention_message Whether to apply erase the Feedback post (bool).
+			 *                                        Custom prevention message (string). Default true.
+			 * @param int         $post_id            Feedback post ID.
+			 */
+			$prevention_message = apply_filters( 'grunion_contact_form_delete_feedback_post', true, $post_id );
+
+			if ( true !== $prevention_message ) {
+				if ( $prevention_message && is_string( $prevention_message ) ) {
+					$messages[] = esc_html( $prevention_message );
+				} else {
+					$messages[] = sprintf(
+						// translators: %d: Post ID.
+						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+						$post_id
+					);
+				}
+
+				$retained = true;
+
+				continue;
+			}
+
 			if ( wp_delete_post( $post_id, true ) ) {
-				$removed++;
+				$removed = true;
 			} else {
-				$retained++;
+				$retained = true;
 				$messages[] = sprintf(
 					// translators: %d: Post ID.
 					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
@@ -1703,7 +1730,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( isset( $_GET['contact-form-id'] )
 			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
 			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
-			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -1925,7 +1952,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
 		&&
-			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
+			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] ) // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -2962,21 +2989,18 @@ function grunion_delete_old_spam() {
 		wp_delete_post( $post_id, true );
 	}
 
-	// Arbitrary check points for running OPTIMIZE
-	// nothing special about 5000 or 11
-	// just trying to periodically recover deleted rows
-	$random_num = mt_rand( 1, 5000 );
 	if (
 		/**
-		 * Filter how often the module run OPTIMIZE TABLE on the core WP tables.
+		 * Filter if the module run OPTIMIZE TABLE on the core WP tables.
 		 *
 		 * @module contact-form
 		 *
 		 * @since 1.3.1
+		 * @since 6.4.0 Set to false by default.
 		 *
-		 * @param int $random_num Random number.
+		 * @param bool $filter Should Jetpack optimize the table, defaults to false.
 		 */
-		apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) )
+		apply_filters( 'grunion_optimize_table', false )
 	) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}

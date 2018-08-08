@@ -11,13 +11,13 @@
 readme.md
 .github
 phpunit.xml.dist
+dangerfile.js
 docs
 tests
 tools
 vendor
 composer.lock
 package.json
-Gruntfile.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
