@@ -17,6 +17,9 @@ require_once ABSPATH . '/wp-includes/class-wp-error.php';
 
 // Register endpoints when WP REST API is initialized.
 add_action( 'rest_api_init', array( 'Jetpack_Core_Json_Api_Endpoints', 'register_endpoints' ) );
+// Load API endpoints that are synced with WP.com
+// Each of these is a class that will register its own routes on 'rest_api_init'.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/load-wpcom-endpoints.php';
 
 /**
  * Class Jetpack_Core_Json_Api_Endpoints
@@ -378,6 +381,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $widget_endpoint, 'process' ),
 			'permission_callback' => array( $widget_endpoint, 'can_request' ),
 		) );
+
+		// Site Verify: check if the site is verified, and a get verification token if not
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::is_site_verified_and_token',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)/(?<keyring_id>[0-9]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::is_site_verified_and_token',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+		) );
+
+		// Site Verify: tell a service to verify the site
+		register_rest_route( 'jetpack/v4', '/verify-site/(?P<service>[a-z\-_]+)', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::verify_site',
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'args' => array(
+				'keyring_id' => array(
+					'required'          => true,
+					'type'              => 'integer',
+					'validate_callback' => __CLASS__  . '::validate_posint',
+				),
+			)
+		) );
 	}
 
 	public static function get_plans( $request ) {
@@ -459,6 +489,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $result;
+	}
+
+
+	/**
+	 * Checks if this site has been verified using a service - only 'google' supported at present - and a specfic
+	 *  keyring to use to get the token if it is not
+	 *
+	 * Returns 'verified' = true/false, and a token if 'verified' is false and site is ready for verification
+	 *
+	 * @since 6.6.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function is_site_verified_and_token( $request ) {
+		Jetpack::load_xml_rpc_client();
+ 		$xml = new Jetpack_IXR_Client( array(
+ 			'user_id' => get_current_user_id(),
+		) );
+
+		$args = array(
+			'user_id' => get_current_user_id(),
+			'service' => $request[ 'service' ],
+		);
+
+		if ( isset( $request[ 'keyring_id' ] ) ) {
+			$args[ 'keyring_id' ] = $request[ 'keyring_id' ];
+		}
+
+		$xml->query( 'jetpack.isSiteVerified', $args );
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'error_checking_if_site_verified_google', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		} else {
+			return $xml->getResponse();
+		}
+	}
+
+
+
+	public static function verify_site( $request ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+
+		$params = $request->get_json_params();
+
+		$xml->query( 'jetpack.verifySite', array(
+				'user_id' => get_current_user_id(),
+				'service' => $request[ 'service' ],
+				'keyring_id' => $params[ 'keyring_id' ],
+			)
+		);
+
+		if ( $xml->isError() ) {
+			return new WP_Error( 'error_verifying_site_google', sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		} else {
+			$response = $xml->getResponse();
+
+			if ( ! empty( $response['errors'] ) ) {
+				$error = new WP_Error;
+				$error->errors = $response['errors'];
+				return $error;
+			}
+
+			return $response;
+		}
 	}
 
 	/**

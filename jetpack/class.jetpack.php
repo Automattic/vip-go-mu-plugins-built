@@ -33,7 +33,9 @@ class Jetpack {
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	/**
-	 * @var array The handles of styles that are concatenated into jetpack.css
+	 * @var array The handles of styles that are concatenated into jetpack.css.
+	 *
+	 * When making changes to that list, you must also update concat_list in tools/builder/frontend-css.js.
 	 */
 	public $concatenated_style_handles = array(
 		'jetpack-carousel',
@@ -60,6 +62,8 @@ class Jetpack {
 		'flickr-widget-style',
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
+		'jetpack-widget-social-icons-styles',
+		'jetpack-authors-widget',
 	);
 
 	/**
@@ -513,6 +517,8 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
+			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
 		/*
@@ -1514,6 +1520,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'premium';
 		}
 
@@ -1530,6 +1537,7 @@ class Jetpack {
 			$supports[] = 'akismet';
 			$supports[] = 'simple-payments';
 			$supports[] = 'vaultpress';
+			$supports[] = 'videopress';
 			$plan['class'] = 'business';
 		}
 
@@ -2610,7 +2618,7 @@ class Jetpack {
 	 * @return string The locale as JSON
 	 */
 	public static function get_i18n_data_json() {
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . jetpack_get_user_locale() . '.json';
+		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_user_locale() . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );
@@ -3911,7 +3919,7 @@ p {
 
 	function plugin_action_links( $actions ) {
 
-		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), __( 'Jetpack', 'jetpack' ) ) );
+		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), 'Jetpack' ) );
 
 		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
 			return array_merge(
@@ -4812,7 +4820,6 @@ p {
 			<h3>
 			<?php
 				$module = Jetpack::get_module( $module_id );
-				echo '<a href="' . Jetpack::admin_url( 'page=jetpack_modules' ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
@@ -4971,7 +4978,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
 			return false;
 		}
 
@@ -5441,7 +5448,7 @@ p {
 		}
 
 		$token_check = "$token_key.";
-		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		if ( ! hash_equals( substr( $token->secret, 0, strlen( $token_check ) ), $token_check ) ) {
 			return false;
 		}
 
@@ -5481,7 +5488,7 @@ p {
 			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return false;
 		}
 
@@ -5604,25 +5611,6 @@ p {
 			$this->rest_authentication_status = new WP_Error(
 				'rest_invalid_request',
 				__( 'This request method does not support body parameters.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
-		}
-
-		if ( ! empty( $_SERVER['CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['CONTENT_TYPE'];
-		} elseif ( ! empty( $_SERVER['HTTP_CONTENT_TYPE'] ) ) {
-			$content_type = $_SERVER['HTTP_CONTENT_TYPE'];
-		}
-
-		if (
-			isset( $content_type ) &&
-			$content_type !== 'application/x-www-form-urlencoded' &&
-			$content_type !== 'application/json'
-		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_request',
-				__( 'This Content-Type is not supported.', 'jetpack' ),
 				array( 'status' => 400 )
 			);
 			return null;
@@ -6105,11 +6093,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) { // phpcs:ignore PHPCompatibility -- skipping since `hash_equals` is part of WP core
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
 					wp_die( $die_error );
 				}
 			} else {
@@ -7157,7 +7145,7 @@ p {
 	 * @return bool
 	 */
 	public static function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.PHP.NewFunctionParameters.debug_backtrace_optionsFound
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}
@@ -7165,7 +7153,7 @@ p {
 
 		//Do check in constant O(1) time for PHP5.5+
 		if ( function_exists( 'array_column' ) ) {
-			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility
+			$backtrace_functions = array_column( $backtrace, 'function' ); // phpcs:ignore PHPCompatibility.PHP.NewFunctions.array_columnFound
 			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
 			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
 			return ! empty ( $intersection );
@@ -7293,10 +7281,10 @@ p {
 	 *
 	 *
 	 * Loading blocks is disabled by default and enabled via filter:
-	 *   add_filter( 'jetpack_gutenberg', '__return_true', 10 );
+	 *   add_filter( 'jetpack_gutenberg', '__return_true' );
 	 *
 	 * When enabled, blocks are loaded from CDN by default. To load locally instead:
-	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false', 10 );
+	 *   add_filter( 'jetpack_gutenberg_cdn', '__return_false' );
 	 *
 	 * Note that when loaded locally, you need to build the files yourself:
 	 * - _inc/blocks/jetpack-editor.js
@@ -7317,9 +7305,14 @@ p {
 		 *
 		 * @param bool false Whether to load Gutenberg blocks
 		 */
+		if ( ! Jetpack::is_active() ) {
+			return;
+		}
 		if ( ! Jetpack::is_gutenberg_available() || ! apply_filters( 'jetpack_gutenberg', false ) ) {
 			return;
 		}
+
+		$rtl = is_rtl() ? '.rtl' : '';
 
 		/**
 		 * Filter to turn off serving blocks via CDN
@@ -7329,8 +7322,11 @@ p {
 		 * @param bool true Whether to load Gutenberg blocks from CDN
 		 */
 		if ( apply_filters( 'jetpack_gutenberg_cdn', true ) ) {
-			$editor_script = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.js';
-			$editor_style = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks/jetpack-editor.css';
+			$cdn_base = 'https://s0.wp.com/wp-content/mu-plugins/jetpack/_inc/blocks';
+			$editor_script = "$cdn_base/editor.js";
+			$editor_style = "$cdn_base/editor$rtl.css";
+			$view_script = "$cdn_base/view.js";
+			$view_style = "$cdn_base/view$rtl.css";
 
 			/**
 			 * Filter to modify cache busting for Gutenberg block assets loaded from CDN
@@ -7341,35 +7337,42 @@ p {
 			 */
 			$version = apply_filters( 'jetpack_gutenberg_cdn_cache_buster', sprintf( '%s-%s', gmdate( 'd-m-Y' ), JETPACK__VERSION ) );
 		} else {
-			$editor_script = plugins_url( '_inc/blocks/jetpack-editor.js', JETPACK__PLUGIN_FILE );
-			$editor_style = plugins_url( '_inc/blocks/jetpack-editor.css', JETPACK__PLUGIN_FILE );
-			$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/jetpack-editor.js' ) : JETPACK__VERSION;
+			$editor_script = plugins_url( '_inc/blocks/editor.js', JETPACK__PLUGIN_FILE );
+			$editor_style = plugins_url( "_inc/blocks/editor$rtl.css", JETPACK__PLUGIN_FILE );
+			$view_script = plugins_url( '_inc/blocks/view.js', JETPACK__PLUGIN_FILE );
+			$view_style = plugins_url( "_inc/blocks/view$rtl.css", JETPACK__PLUGIN_FILE );
+			$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+				? filemtime( JETPACK__PLUGIN_DIR . '_inc/blocks/editor.js' )
+				: JETPACK__VERSION;
 		}
 
 		wp_register_script(
 			'jetpack-blocks-editor',
 			$editor_script,
 			array(
+				'lodash',
+				'wp-api-fetch',
 				'wp-blocks',
 				'wp-components',
 				'wp-compose',
 				'wp-data',
+				'wp-date',
 				'wp-editor',
 				'wp-element',
+				'wp-hooks',
 				'wp-i18n',
 				'wp-plugins',
 			),
 			$version
 		);
 
-		wp_register_style(
-			'jetpack-blocks-editor',
-			$editor_style,
-			array(),
-			$version
-		);
+		wp_register_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+		wp_register_script( 'jetpack-blocks-view', $view_script, array(), $version );
+		wp_register_style( 'jetpack-blocks-view', $view_style, array(), $version );
 
 		register_block_type( 'jetpack/blocks', array(
+				'script'        => 'jetpack-blocks-view',
+				'style'         => 'jetpack-blocks-view',
 				'editor_script' => 'jetpack-blocks-editor',
 				'editor_style'  => 'jetpack-blocks-editor',
 		) );

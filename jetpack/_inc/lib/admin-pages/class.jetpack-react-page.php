@@ -9,10 +9,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	protected $is_redirecting = false;
 
 	function get_page_hook() {
-		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
-
 		// Add the main admin Jetpack menu
-		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
+		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {
@@ -109,7 +107,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function render_nojs_configurable( $module_name ) {
 		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 
-		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
 		echo '<div class="wrap configure-module">';
 
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
@@ -167,14 +164,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	function additional_styles() {
-		$rtl = is_rtl() ? '.rtl' : '';
-
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin.dops-style$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min$rtl.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	function page_admin_scripts() {
-		if ( $this->is_redirecting ) {
+		if ( $this->is_redirecting || isset( $_GET['configure'] ) ) {
 			return; // No need for scripts on a fallback page
 		}
 
@@ -299,7 +293,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 			),
 			'locale' => Jetpack::get_i18n_data_json(),
-			'localeSlug' => join( '-', explode( '_', jetpack_get_user_locale() ) ),
+			'localeSlug' => join( '-', explode( '_', get_user_locale() ) ),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),
@@ -308,7 +302,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl' => esc_url( $last_post ),
+			'externalServicesConnectUrls' => $this->get_external_services_connect_urls()
 		) );
+	}
+
+	function get_external_services_connect_urls() {
+		$connect_urls = array();
+		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name ) {
+			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name );
+		}
+		return $connect_urls;
 	}
 
 	/**
