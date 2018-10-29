@@ -169,6 +169,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 			}
 		}
 
+		do_action( 'js_concat_did_items', $javascripts );
 		return $this->done;
 	}
 
