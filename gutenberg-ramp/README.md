@@ -69,12 +69,6 @@ gutenberg_ramp_load_gutenberg(
 Gutenberg Ramp adds a section to the Settings -> Writing menu that allows post_type control of Gutenberg loading.  This can be used in place of specifying criteria in code.
 
 
-### Advanced	
-
-The typical use case is as shown above, the parameters do not change except when theme code is updated.	
-
-If making more dynamic changes, note that the parameter supplied is persisted in a site option; when the parameters are changed in code, one page load is necessary to update the site option before the editor can use the new setting.
-
 ### FAQs
 
 **Why is a post type disabled (greyed out) at Settings > Writing?**
@@ -84,11 +78,6 @@ If you're seeing something greyed out, it means the `gutenberg_ramp_load_gutenbe
 **Why are some post types are not showing up on the settings screen?**
 
 Post types that are not compatible with Gutenberg will not show up. If you think you have found a false negative (posts in that post type DO work with Gutenberg, when Ramp plugin is deactivated) please report it as an issue on [GitHub here.](https://github.com/Automattic/ramp-for-gutenberg)
-
-
-**Why are the changes I'm making in functions.php are not showing up on the next pageload?**
-
-The parameter supplied in the function is persisted in a site option. Therefore, when the parameters are changed in code, _one page load is necessary_ to update the site option before the editor can use the new setting.
 
 **Can I contribute to this plugin?**
 

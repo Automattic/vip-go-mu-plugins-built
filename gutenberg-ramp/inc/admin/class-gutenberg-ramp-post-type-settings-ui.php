@@ -65,6 +65,7 @@ class Gutenberg_Ramp_Post_Type_Settings_UI {
 				add_settings_error(
 					'gutenberg_ramp_post_types',
 					'gutenberg_ramp_post_types',
+					/* translators: %s will be replaced with the post type that can't be enabled */
 					sprintf( esc_html__( "Can't enable Gutenberg for post type \"%s\"" ), sanitize_title( $post_type ) )
 				);
 			}
@@ -76,7 +77,7 @@ class Gutenberg_Ramp_Post_Type_Settings_UI {
 		 * Even though `disabled` attribute prevents data from being submitted to server
 		 * This is just going to make sure it accidentally doesn't fall through
 		 */
-		$helper_enabled_post_types = (array) $this->gutenberg_ramp->get_criteria( 'post_types' );
+		$helper_enabled_post_types = (array) $this->gutenberg_ramp->criteria->get( 'post_types' );
 		$validated_post_types      = array_diff( $validated_post_types, $helper_enabled_post_types );
 
 		return $validated_post_types;
@@ -88,8 +89,9 @@ class Gutenberg_Ramp_Post_Type_Settings_UI {
 	function render_settings_section() {
 
 		$post_types                = $this->gutenberg_ramp->get_supported_post_types();
-		$helper_enabled_post_types = (array) $this->gutenberg_ramp->get_criteria( 'post_types' );
-		$enabled_post_types        = $this->gutenberg_ramp->get_enabled_post_types();
+		$helper_enabled_post_types = (array) $this->gutenberg_ramp->criteria->get( 'post_types' );
+		$enabled_post_types        = $this->gutenberg_ramp->criteria->get_enabled_post_types();
+		$unsupported_post_types    = $this->gutenberg_ramp->get_unsupported_post_types();
 		?>
 		<div class="gutenberg-ramp-description">
 			<p>
@@ -140,9 +142,24 @@ class Gutenberg_Ramp_Post_Type_Settings_UI {
 			</tbody>
 		</table>
 
+		<?php if ( ! empty( $unsupported_post_types ) ): ?>
+			<div class="gutenberg-ramp-unsupported-post-types" style="padding: .44rem 1.22rem; background-color: rgba(255, 255, 255, .5); max-width: 720px; border-left: solid 4px #0073aa;">
+				<p>
+					<?php esc_html_e( "The following post types were found, but are not be compatible with Gutenberg:", 'gutenberg-ramp' )?>
+					<code>
+						<?php echo esc_html( implode( ', ', $unsupported_post_types ) ) ?>
+					</code>
+				</p>
+				<p>
+					<a href="https://github.com/Automattic/gutenberg-ramp#faqs" target="_blank"><?php esc_html_e( 'Learn More', 'gutenberg-ramp' )  ?></a>
+				</p>
+			</div>
+		<?php endif; ?>
+
 		<div class="gutenberg-ramp-description">
 			<p>
 				<?php printf(
+				/* translators: %s will be replaced with <code>gutenberg_ramp_load_gutenberg()</code> */
 					esc_html__( 'For more granular control you can use the %s function.', 'gutenberg-ramp' ),
 					'<code>gutenberg_ramp_load_gutenberg()</code>'
 				); ?>
@@ -151,6 +168,8 @@ class Gutenberg_Ramp_Post_Type_Settings_UI {
 		</div>
 		<?php
 	}
+
+
 
 
 }

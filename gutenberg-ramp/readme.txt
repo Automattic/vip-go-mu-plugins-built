@@ -1,10 +1,10 @@
 === Gutenberg Ramp ===
 Contributors: automattic, mattoperry, justnorris, enigmaweb
 Tags: gutenberg, ramp, classic editor, legacy editor, gutenberg ramp
-Requires at least: 4.9.6
-Tested up to: 4.9.6
+Requires at least: 4.9.8
+Tested up to: 5.0
 Requires PHP: 5.5
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,12 +65,6 @@ gutenberg_ramp_load_gutenberg(
 );
 </code>
 
-== Advanced ==
-
-The typical use case is as shown above, the parameters do not change except when theme code is updated.
-
-If making more dynamic changes, note that the parameter supplied is persisted in a site option; when the parameters are changed in code, one page load is necessary to update the site option before the editor can use the new setting.
-
 == Contributions ==
 
 Contributions are welcome via our [GitHub repo.](https://github.com/Automattic/gutenberg-ramp)
@@ -91,10 +85,6 @@ If you're seeing something greyed out, it means the `gutenberg_ramp_load_gutenbe
 
 Post types that are not compatible with Gutenberg will not show up. If you think you have found a false negative (posts in that post type DO work with Gutenberg, when Ramp plugin is deactivated) please report it as an issue on [GitHub here.](https://github.com/Automattic/gutenberg-ramp)
 
-= The changes I'm making in functions.php are not showing up =
-
-The parameter supplied in the function is persisted in a site option. Therefore, when the parameters are changed in code, *one page load is necessary* to update the site option before the editor can use the new setting.
-
 = Can I contribute to this plugin? =
 
 Absolutely! Please create issues and pull requests on [GitHub here.](https://github.com/Automattic/gutenberg-ramp)
@@ -105,10 +95,21 @@ Absolutely! Please create issues and pull requests on [GitHub here.](https://git
 
 == Changelog ==
 
+= 1.1.0 =
+* prepares Gutenberg Ramp for WordPress 5.0 release
+* deprecates support for Gutenberg Plugin versions older than 3.5
+* no longer caches load decision in `gutenberg_ramp_load_critera` option
+* removed  `gutenberg_ramp_option_name` filter
+* adds unsupported post types notice
+* adds support for multiple function calls to `gutenberg_ramp_load_gutenberg()`
+
 = 1.0.0 =
 * initial release
 
 == Upgrade Notice ==
 
+= 1.1.0 =
+1.1.0 is a major upgrade preparing Gutenberg Ramp for WordPress 5.0 release. Upgrade prior to 5.0 is recommended to ensure seamless transition.
+
 = 1.0.0 =
-* intial release
+* initial release
