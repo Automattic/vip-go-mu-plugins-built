@@ -10,11 +10,13 @@ _x( "Security", "Navigation item.", "jetpack" ), // _inc/client/admin.js:79
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/admin.js:80
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:81
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/admin.js:82
-__( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:81
-__( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:98
-__( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:114
-__( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:121
-__( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:130
+__( "Testing Jetpack Conncetion", "jetpack" ), // _inc/client/state/connection/actions.js:41
+__( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:57
+__( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:111
+__( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:128
+__( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:144
+__( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:151
+__( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:160
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:34
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:41
@@ -619,8 +621,8 @@ __( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/compo
 __( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
 __( "Person with laptop", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:85
 __( "Your Jetpack site is ready to go!", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:86
-__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:84
-__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:92
+__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:95
+__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:103
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:53
 __( "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:31
 __( "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:34
@@ -657,14 +659,14 @@ __( "This feature is being managed by a site administrator. {{link}}Learn more{{
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:45
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:51
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:61
-__( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:68
-_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:137
-_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:151
-_x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:166
-_x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:184
-_x( "Security", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:198
-_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:217
-_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:232
+__( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:70
+_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:139
+_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:153
+_x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:168
+_x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:186
+_x( "Security", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:200
+_x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:219
+_x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:234
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:89
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:99
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:119
@@ -692,17 +694,15 @@ __( "{{p}}To create a beautiful site that looks and works exactly how you want i
 __( "{{p}}To create a beautiful site that looks and works exactly how you want it to, Jetpack Professional gives you unlimited access to over 200 premium WordPress themes.{{/p}}{{p}}Jetpack Professional is about more than just finding the perfect design. It's also about total peace of mind knowing that you'll have priority support from our global team of experts should the need arise.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:71
 __( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:87
 __( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:93
-__( "This release of Jetpack brings with it a major new free feature!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:192
-__( "Speed up your site and its content", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:196
-__( "Jetpack 6.7 introduces a new feature to help make your site faster. Our site accelerator already offered speedier and optimized images served from our global Content Delivery Network. Now we can also speed up your site by serving your static files (think CSS and JavaScript) from the same network.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:200
-__( "Turn on one or both and see decreased page load speeds, as well as reduced bandwidth usage—which may lead to lower hosting costs.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:207
-__( "Enable site acceleration now by clicking the toggle below.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:213
-__( "Enable site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:226
-__( "Speed up image load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:238
-__( "Speed up static file load times", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:249
-__( "Learn more", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:262
-__( "Jetpack's site accelerator", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:272
-__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:273
+__( "The features you rely on, adapted for the new WordPress editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:49
+__( "A new editor? Yes! {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:51
+__( "Build your Jetpack site with blocks", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:63
+__( "Today, we are introducing the first wave of Jetpack-specific blocks built specifically for the new editor experience: Simple Payment button, Form, Map, and Markdown.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:67
+__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:75
+__( "Take me to the new editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:83
+__( "Okay, got it!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:86
+__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:97
+__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:98
 __( "Security", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:16
 __( "Your Jetpack plan gives you everything you need to keep your hard work safe, including on-demand backups and malware scans with one-click restores and issue resolution. Your site will be fully protected against spam, malicious code, and brute force login attempts.", "jetpack" ), // _inc/client/components/welcome-new-plan/monitor-akismet-backups-prompt.jsx:18
 __( "Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and scanning for security threats.", "jetpack" ), // _inc/client/components/welcome-new-plan/personal.jsx:29
@@ -750,49 +750,5 @@ __( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.j
 __( "Verify with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:288
 __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:291
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:297
-__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor-beta.js:1
-__( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Use regular characters and punctuation to style text, links, and lists.", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Support reference", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "formatting", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "syntax", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "markup", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Write your _Markdown_ **here**...", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Preview", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Markdown", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "VR Image", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Related Posts", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "similar", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "linked", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "connected", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Grid View", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "List View", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Related Posts Settings", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Display thumbnails", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Display date", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Display context (category or tag)", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Number of posts", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "VR Image", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Embed 360° photos and Virtual Reality (VR) content", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "vr", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "panorama", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "360", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "VR Image", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Enter URL to VR image", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "View Type", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "360°", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Cinema", "jetpack" ), // _inc/blocks/editor-beta.js:25
-__( "Are you sure you wish to leave this page?", "jetpack" ), // _inc/blocks/editor.js:1
-__( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Use regular characters and punctuation to style text, links, and lists.", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Support reference", "jetpack" ), // _inc/blocks/editor.js:25
-__( "formatting", "jetpack" ), // _inc/blocks/editor.js:25
-__( "syntax", "jetpack" ), // _inc/blocks/editor.js:25
-__( "markup", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Write your _Markdown_ **here**...", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Preview", "jetpack" ), // _inc/blocks/editor.js:25
-__( "Markdown", "jetpack" ), // _inc/blocks/editor.js:25
 );
 /* THIS IS THE END OF THE GENERATED FILE */

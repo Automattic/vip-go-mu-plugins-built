@@ -151,7 +151,7 @@ class Jetpack_Sitemap_Builder {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our >server requirements at https://jetpack.com/support/server-requirements/ .',
+						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
 						'jetpack'
 					),
 					true
@@ -1123,8 +1123,8 @@ class Jetpack_Sitemap_Builder {
 		 *
 		 * @since 3.9.0
 		 *
-		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
+		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
+		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
 		 */
 		if ( true === apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			return array(

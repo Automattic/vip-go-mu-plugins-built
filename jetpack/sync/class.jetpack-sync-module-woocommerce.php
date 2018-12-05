@@ -44,6 +44,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
@@ -54,6 +55,11 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
+		// attributes
+		add_action( 'woocommerce_attribute_added', $callable, 10, 2 );
+		add_action( 'woocommerce_attribute_updated', $callable, 10, 3 );
+		add_action( 'woocommerce_attribute_deleted', $callable, 10, 3 );
+
 		// orders
 		add_action( 'woocommerce_new_order', $callable, 10, 1 );
 		add_action( 'woocommerce_order_status_changed', $callable, 10, 3 );
@@ -62,9 +68,28 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		// order items
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
-
-		// order item meta
+		add_action( 'woocommerce_delete_order_item', $callable, 10, 1 );
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
+
+		// payment tokens
+		add_action( 'woocommerce_new_payment_token', $callable, 10, 1 );
+		add_action( 'woocommerce_payment_token_deleted', $callable, 10, 2 );
+		add_action( 'woocommerce_payment_token_updated', $callable, 10, 1 );
+		$this->init_listeners_for_meta_type( 'payment_token', $callable );
+
+		// product downloads
+		add_action( 'woocommerce_downloadable_product_download_log_insert', $callable, 10, 1 );
+		add_action( 'woocommerce_grant_product_download_access', $callable, 10, 1 );
+
+		// tax rates
+		add_action( 'woocommerce_tax_rate_added', $callable, 10, 2 );
+		add_action( 'woocommerce_tax_rate_updated', $callable, 10, 2 );
+		add_action( 'woocommerce_tax_rate_deleted', $callable, 10, 1 );
+
+		// webhooks
+		add_action( 'woocommerce_new_webhook', $callable, 10, 1 );
+		add_action( 'woocommerce_webhook_deleted', $callable, 10, 2 );
+		add_action( 'woocommerce_webhook_updated', $callable, 10, 1 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -137,6 +162,10 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 	public function add_woocommerce_post_meta_whitelist( $list ) {
 		return array_merge( $list, self::$wc_post_meta_whitelist );
+	}
+
+	public function add_woocommerce_comment_meta_whitelist( $list ) {
+		return array_merge( $list, self::$wc_comment_meta_whitelist );
 	}
 
 	private static $wc_options_whitelist = array(
@@ -298,5 +327,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_order_version',
 		'_prices_include_tax',
 		'_payment_tokens',
+	);
+
+	private static $wc_comment_meta_whitelist = array(
+		'rating',
 	);
 }

@@ -539,6 +539,7 @@ class Jetpack {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		add_action( 'init', array( 'Jetpack_Gutenberg', 'load_blocks' ) ); // Registers all the Jetpack blocks .
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
+		add_filter( 'jetpack_set_available_blocks', array( 'Jetpack_Gutenberg', 'jetpack_set_available_blocks' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -906,6 +907,12 @@ class Jetpack {
 				break;
 			case 'jetpack_configure_modules' :
 				$caps = array( 'manage_options' );
+				break;
+			case 'jetpack_manage_autoupdates' :
+				$caps = array(
+					'manage_options',
+					'update_plugins',
+				);
 				break;
 			case 'jetpack_network_admin_page':
 			case 'jetpack_network_settings_page':
@@ -3206,10 +3213,14 @@ p {
 	 * @return null              [description]
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
+		} else {
+			// If a Jetpack is still active but not connected when updating verion, remind them to connect with the banner.
+			if ( ! Jetpack::is_active() ) {
+				Jetpack_Options::delete_option( 'dismissed_connection_banner' );
+			}
 		}
 	}
 
@@ -7135,27 +7146,39 @@ p {
 	 * @return bool True = Akismet available. False = Aksimet not available.
 	 */
 	public static function is_akismet_active() {
-		if ( method_exists( 'Akismet' , 'http_post' ) ) {
-			$akismet_key = Akismet::get_api_key();
-			if ( ! $akismet_key ) {
-				return false;
-			}
-			$cached_key_verification = get_transient( 'jetpack_akismet_key_is_valid' );
+		static $status = null;
 
-			// We cache the result of the Akismet key verification for ten minutes.
-			if ( in_array( $cached_key_verification, array( 'valid', 'invalid' ) ) ) {
-				$akismet_key_state = $cached_key_verification;
-			} else {
-				$akismet_key_state = Akismet::verify_key( $akismet_key );
-				if ( 'failed' === $akismet_key_state ) {
-					return false;
-				}
-				set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
-			}
-
-			return ( 'valid' === $akismet_key_state );
+		if ( ! is_null( $status ) ) {
+			return $status;
 		}
-		return false;
+
+		// Check if a modern version of Akismet is active.
+		if ( ! method_exists( 'Akismet', 'http_post' ) ) {
+			$status = false;
+			return $status;
+		}
+
+		// Make sure there is a key known to Akismet at all before verifying key.
+		$akismet_key = Akismet::get_api_key();
+		if ( ! $akismet_key ) {
+			$status = false;
+			return $status;
+		}
+
+		// Possible values: valid, invalid, failure via Akismet. false if no status is cached.
+		$akismet_key_state = get_transient( 'jetpack_akismet_key_is_valid' );
+
+		// Do not used the cache result in wp-admin or REST API requests if the key isn't valid, in case someone is actively renewing, etc.
+		$recheck = ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) && 'valid' !== $akismet_key_state;
+		// We cache the result of the Akismet key verification for ten minutes.
+		if ( ! $akismet_key_state || $recheck ) {
+			$akismet_key_state = Akismet::verify_key( $akismet_key );
+			set_transient( 'jetpack_akismet_key_is_valid', $akismet_key_state, 10 * MINUTE_IN_SECONDS );
+		}
+
+		$status = 'valid' === $akismet_key_state;
+
+		return $status;
 	}
 
 	/**
