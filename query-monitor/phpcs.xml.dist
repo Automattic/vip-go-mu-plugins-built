@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset name="Query Monitor">
 
-	<config name="installed_paths" value="../../wp-coding-standards/wpcs,../../wimg/php-compatibility" />
+	<config name="installed_paths" value="../../wp-coding-standards/wpcs,../../phpcompatibility/php-compatibility" />
 	<config name="testVersion" value="5.3-"/>
 
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
@@ -24,6 +24,7 @@
 		<exclude name="WordPress.VIP.RestrictedFunctions.cookies_setcookie" />
 		<exclude name="WordPress.VIP.RestrictedVariables.cache_constraints___COOKIE" />
 		<exclude name="WordPress.VIP.SuperGlobalInputUsage.AccessDetected" />
+		<exclude name="WordPress.VIP.RestrictedFunctions.wp_is_mobile_wp_is_mobile" />
 
 		<!-- QM currently supports WordPress versions older than 4.4: -->
 		<exclude name="WordPress.WP.AlternativeFunctions.parse_url_parse_url" />
@@ -46,9 +47,12 @@
 
 	<rule ref="WordPress-Docs" />
 
-	<!-- Not interested in whitespace issues in JS files at the moment -->
+	<!-- Not interested in whitespace issues in JS and CSS files at the moment -->
 	<rule ref="PEAR.Functions.FunctionCallSignature">
 		<exclude-pattern>*.js</exclude-pattern>
+	</rule>
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed">
+		<exclude-pattern>*.css</exclude-pattern>
 	</rule>
 
 	<!-- The VIP sniffer triggers false positives for this rule -->
