@@ -357,6 +357,10 @@ class TermCountingTest extends WP_UnitTestCase {
 				'update_count_callback' => function( $terms, $taxonomy ) {
 					global $wpdb;
 
+					//confirm parameters are as expected
+					$this->assertTrue( is_int($terms) || is_array( $terms ) );
+					$this->assertInstanceOf( 'WP_Taxonomy', $taxonomy );
+
 					foreach ( (array) $terms as $term ) {
 
 						$count = 10;
