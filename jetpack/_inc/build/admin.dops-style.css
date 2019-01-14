@@ -75,7 +75,8 @@
     border-color: #8cc9e2;
     color: white; }
   .dops-button.is-primary.is-compact {
-    color: white; }
+    color: white;
+    white-space: nowrap; }
 
 .dops-button.is-scary {
   color: #d94f4f; }
@@ -131,6 +132,7 @@
       width: 18px;
       height: 18px;
       top: 5px; }
+
 .dops-button-group .dops-button {
   border-left-width: 0;
   border-radius: 0; }
@@ -160,6 +162,7 @@
 
 .dops-section-header .dops-button-group .dops-button {
   margin-right: 0; }
+
 .dops-count {
   display: inline-block;
   padding: 0.0625rem 0.375rem;
@@ -170,6 +173,7 @@
   line-height: 0.875rem;
   color: #87a6bc;
   text-align: center; }
+
 /**
  * Select Dropdown
  */
@@ -224,7 +228,7 @@
     display: inline-block;
     vertical-align: middle;
     font: normal 16px/1 'Dashicons';
-    content: '\F347';
+    content: '\f347';
     position: absolute;
     right: 13px;
     top: 12px;
@@ -254,7 +258,7 @@
       display: inline-block;
       vertical-align: middle;
       font: normal 16px/1 'Dashicons';
-      content: '\F343'; }
+      content: '\f343'; }
   .dops-select-dropdown__header .dops-count {
     margin-left: 8px; }
 
@@ -349,6 +353,7 @@
     font-size: 12px;
     text-transform: uppercase;
     padding: 0px 16px 0px 16px; }
+
 @keyframes rotate-spinner__right {
   0% {
     transform: rotate(0deg); }
@@ -441,6 +446,7 @@
 .dops-spinner__progress.is-right,
 .dops-spinner.is-fallback .dops-spinner__progress.is-right::before {
   animation-name: rotate-spinner__right; }
+
 .gridicon {
   fill: currentColor; }
   .gridicon.needs-offset g {
@@ -452,6 +458,7 @@
   .gridicon.needs-offset-y g {
     transform: translate(0, 1px);
     /* only nudges vertically */ }
+
 /**
  * @component Search
  */
@@ -621,6 +628,7 @@
 
 .animating.dops-search-opening .dops-search input {
   opacity: 1; }
+
 /**
  * Section Nav
  */
@@ -661,7 +669,7 @@
     display: inline-block;
     vertical-align: middle;
     font: normal 16px/1 'Dashicons';
-    content: '\F347';
+    content: '\f347';
     line-height: 16px;
     color: rgba(135, 166, 188, 0.5); }
   .dops-section-nav.is-open .dops-section-nav__mobile-header:after {
@@ -670,7 +678,7 @@
     display: inline-block;
     vertical-align: middle;
     font: normal 16px/1 'Dashicons';
-    content: '\F343'; }
+    content: '\f343'; }
   .dops-section-nav.has-pinned-items .dops-section-nav__mobile-header {
     padding-right: 50px; }
     .dops-section-nav.has-pinned-items .dops-section-nav__mobile-header:after {
@@ -879,6 +887,54 @@
 @media (max-width: 480px) {
   .dops-section-nav .dops-search.is-pinned {
     height: 46px; } }
+
+#jp-plugin-container {
+  min-height: 100vh; }
+
+/* Card */
+.dops-card {
+  display: block;
+  position: relative;
+  margin: 0 auto 10px auto;
+  padding: 16px;
+  box-sizing: border-box;
+  background: white;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3; }
+  .dops-card:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden; }
+  @media (min-width: 481px) {
+    .dops-card {
+      margin-bottom: 16px;
+      padding: 24px; } }
+  .dops-card.is-compact {
+    margin-bottom: 1px; }
+    @media (min-width: 481px) {
+      .dops-card.is-compact {
+        margin-bottom: 1px;
+        padding: 16px 24px; } }
+  .dops-card.is-card-link {
+    padding-right: 48px; }
+
+.dops-card__link-indicator {
+  color: #c8d7e1;
+  display: block;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  right: 16px; }
+
+a.dops-card:hover .dops-card__link-indicator {
+  color: #a8bece; }
+
+a.dops-card:focus {
+  outline: 0; }
+  a.dops-card:focus .dops-card__link-indicator {
+    color: tint(#00aadc, 20%); }
+
 .dops-text-input.dops-text-input {
   box-sizing: border-box;
   margin: 0;
@@ -929,6 +985,7 @@
     box-shadow: 0 0 0 2px #f9e2e2; }
     .dops-text-input.dops-text-input:focus.is-error:hover {
       box-shadow: 0 0 0 2px #f0b8b8; }
+
 /**
  * "popover" theme for `component/tip`.
  */
@@ -1122,6 +1179,7 @@
 .dops-popover__hr {
   margin: 8px 0;
   background: #e9eff3; }
+
 .form-toggle[type="checkbox"] {
   display: none; }
 
@@ -1203,52 +1261,7 @@
 
 .form-toggle.is-compact:checked + .form-toggle__label .form-toggle__switch:after {
   left: 8px; }
-#jp-plugin-container {
-  min-height: 100vh; }
 
-/* Card */
-.dops-card {
-  display: block;
-  position: relative;
-  margin: 0 auto 10px auto;
-  padding: 16px;
-  box-sizing: border-box;
-  background: white;
-  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3; }
-  .dops-card:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden; }
-  @media (min-width: 481px) {
-    .dops-card {
-      margin-bottom: 16px;
-      padding: 24px; } }
-  .dops-card.is-compact {
-    margin-bottom: 1px; }
-    @media (min-width: 481px) {
-      .dops-card.is-compact {
-        margin-bottom: 1px;
-        padding: 16px 24px; } }
-  .dops-card.is-card-link {
-    padding-right: 48px; }
-
-.dops-card__link-indicator {
-  color: #c8d7e1;
-  display: block;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  right: 16px; }
-
-a.dops-card:hover .dops-card__link-indicator {
-  color: #a8bece; }
-
-a.dops-card:focus {
-  outline: 0; }
-  a.dops-card:focus .dops-card__link-indicator {
-    color: tint(#00aadc, 20%); }
 .dops-section-header.dops-card {
   display: flex;
   flex-wrap: wrap;
@@ -1315,6 +1328,7 @@ a.dops-card:focus {
   margin-right: 0.5rem; }
   .section-header__actions .button:last-child {
     margin-right: 0; }
+
 #jp-plugin-container {
   min-height: 100vh; }
 
@@ -1503,6 +1517,7 @@ a.dops-notice__action {
       height: 14px;
       vertical-align: sub;
       opacity: 1; }
+
 .dops-plan-icon {
   width: inherit;
   height: inherit;
@@ -1576,9 +1591,31 @@ a.dops-notice__action {
 
 .dops-plan-icon__business .dops-plan-icon__business-4 {
   fill: #005082; }
+
+@charset "UTF-8";
 #jp-plugin-container {
   min-height: 100vh; }
 
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
 .dops-banner.dops-card {
   border-left: 3px solid;
   display: flex;
@@ -1594,6 +1631,12 @@ a.dops-notice__action {
     color: #0087be; }
   .dops-banner.dops-card .dops-banner__icon-circle {
     background-color: #0087be; }
+  .dops-banner.dops-card.is-jetpack-info {
+    border-left-color: #00BE28; }
+    .dops-banner.dops-card.is-jetpack-info .dops-banner__icon {
+      color: #00BE28; }
+    .dops-banner.dops-card.is-jetpack-info .dops-banner__icon-circle {
+      background-color: #00BE28; }
   .dops-banner.dops-card.is-upgrade-personal {
     border-left-color: #f0b849; }
     .dops-banner.dops-card.is-upgrade-personal .dops-banner__icon {
@@ -1734,11 +1777,13 @@ a.dops-notice__action {
       .dops-banner__action .dops-banner__prices {
         justify-content: flex-end;
         text-align: right; } }
+
 .module-overridden-banner.dops-banner.is-compact {
   margin-bottom: 0; }
 
 .module-overridden-banner.dops-banner .dops-banner__description a {
   text-decoration: underline; }
+
 .dops-info-popover-button {
   background: transparent;
   border: none;
@@ -1766,11 +1811,13 @@ a.dops-notice__action {
   max-width: 220px;
   padding: 16px;
   text-align: left; }
+
 .dops-external-link .gridicons-external {
   color: currentColor;
   margin-left: 0.5rem;
   top: 0.125rem;
   position: relative; }
+
 #jp-plugin-container {
   min-height: 100vh; }
 
@@ -1793,6 +1840,7 @@ a.dops-notice__action {
   margin-top: 0.875rem;
   padding-top: 0.75rem;
   border-top: 1px solid rgba(135, 166, 188, 0.5); }
+
 @keyframes appear {
   0% {
     opacity: 0; }
@@ -1942,6 +1990,7 @@ button.dops-foldable-card__action {
   display: none; }
   .dops-foldable-card.is-expanded .dops-foldable-card__summary_expanded {
     display: inline-block; }
+
 #jp-plugin-container {
   min-height: 100vh; }
 
@@ -1960,6 +2009,7 @@ button.dops-foldable-card__action {
   .form-input-validation .gridicon {
     float: left;
     margin-left: -34px; }
+
 .dops-textarea {
   box-sizing: border-box;
   margin: 0;
@@ -1992,6 +2042,7 @@ button.dops-foldable-card__action {
       cursor: default; }
     .dops-textarea:disabled::placeholder {
       color: #a8bece; }
+
 .dops-clipboard-button-input {
   position: relative;
   display: block; }
@@ -2022,82 +2073,7 @@ button.dops-foldable-card__action {
       right: calc( 100% + 1px); }
     .dops-clipboard-button-input .dops-clipboard-button:focus::before {
       right: calc( 100% + 3px); }
-#jp-plugin-container {
-  min-height: 100vh; }
 
-/* This hack is used to prevent the body from scrolling when the modal is showing */
-body.dops-modal-showing {
-  overflow: hidden; }
-
-.dops-modal-wrapper {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 1050;
-  display: block;
-  overflow-x: hidden;
-  overflow-y: auto;
-  text-align: center;
-  -webkit-overflow-scrolling: touch;
-  outline: 0;
-  transition: opacity .15s linear;
-  background-color: rgba(0, 0, 0, 0.5);
-  cursor: pointer; }
-  .dops-modal-wrapper:before {
-    content: '';
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle; }
-  .dops-modal-wrapper .dops-modal {
-    position: relative;
-    display: inline-block;
-    margin: 0 0;
-    width: 100%;
-    max-width: 550px;
-    vertical-align: middle;
-    text-align: left;
-    background-color: #fff;
-    transition: all 0.5s;
-    z-index: 100;
-    clear: both;
-    cursor: default; }
-    @media (min-width: 481px) {
-      .dops-modal-wrapper .dops-modal {
-        margin: 0 auto;
-        height: auto;
-        border-radius: 5px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); } }
-@charset "UTF-8";
-/*
-The MIT License (MIT)
-
-Copyright © 2011–2015 thoughtbot, inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial
-portions of the Software.
-
-THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-https://github.com/thoughtbot/bourbon
-*/
-.jp-jetpack-connect__button {
-  background: #00BE28;
-  border-color: #00a523;
-  color: white; }
-  .jp-jetpack-connect__button:hover, .jp-jetpack-connect__button:focus {
-    background: #00a523;
-    border-color: #008b1d;
-    color: white; }
 .dops-tooltip.dops-popover .dops-popover__arrow {
   border-width: 6px; }
 
@@ -2188,6 +2164,7 @@ https://github.com/thoughtbot/bourbon
 .dops-tooltip__hr {
   margin: 8px 0;
   background: #87a6bc; }
+
 #jp-plugin-container {
   min-height: 100vh; }
 
@@ -2434,7 +2411,7 @@ https://github.com/thoughtbot/bourbon
         display: inline-block;
         vertical-align: middle;
         font: normal 16px/1 'Noticons';
-        content: '\F456';
+        content: '\f456';
         position: absolute;
         top: 23px;
         left: 20px;
@@ -2533,6 +2510,85 @@ https://github.com/thoughtbot/bourbon
       width: 30px;
       height: 24px;
       display: block; }
+
+#jp-plugin-container {
+  min-height: 100vh; }
+
+/* This hack is used to prevent the body from scrolling when the modal is showing */
+body.dops-modal-showing {
+  overflow: hidden; }
+
+.dops-modal-wrapper {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1050;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: center;
+  -webkit-overflow-scrolling: touch;
+  outline: 0;
+  transition: opacity .15s linear;
+  background-color: rgba(0, 0, 0, 0.5);
+  cursor: pointer; }
+  .dops-modal-wrapper:before {
+    content: '';
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle; }
+  .dops-modal-wrapper .dops-modal {
+    position: relative;
+    display: inline-block;
+    margin: 0 0;
+    width: 100%;
+    max-width: 550px;
+    vertical-align: middle;
+    text-align: left;
+    background-color: #fff;
+    transition: all 0.5s;
+    z-index: 100;
+    clear: both;
+    cursor: default; }
+    @media (min-width: 481px) {
+      .dops-modal-wrapper .dops-modal {
+        margin: 0 auto;
+        height: auto;
+        border-radius: 5px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); } }
+
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+.jp-jetpack-connect__button {
+  background: #00BE28;
+  border-color: #00a523;
+  color: white; }
+  .jp-jetpack-connect__button:hover, .jp-jetpack-connect__button:focus {
+    background: #00a523;
+    border-color: #008b1d;
+    color: white; }
+
 .notices-list {
   overflow: hidden; }
   .notices-list.is-pinned {
@@ -2547,6 +2603,7 @@ https://github.com/thoughtbot/bourbon
   height: 71px;
   width: 100%;
   display: block; }
+
 @keyframes appear {
   0% {
     opacity: 0; }
@@ -2607,3 +2664,4 @@ https://github.com/thoughtbot/bourbon
   @media (min-width: 661px) {
     .global-notices .dops-notice__dismiss {
       padding: 13px 16px 0; } }
+

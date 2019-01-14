@@ -94,7 +94,8 @@ body.settings_page_sharing ul.services-hidden {
 #available-services .service:hover, #enabled-services .service:hover {
 	background: #fff;
 	border: 1px solid #bbb;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	-webkit-box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
 /* Generic style icons */

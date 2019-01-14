@@ -29,7 +29,7 @@ class Jetpack_Carousel {
 	public $single_image_gallery_enabled_media_file = false;
 
 	function __construct() {
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp', array( $this, 'init' ), 99 );
 	}
 
 	function init() {
@@ -44,7 +44,7 @@ class Jetpack_Carousel {
 
 		if ( is_admin() ) {
 			// Register the Carousel-related related settings
-			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+			$this->register_settings();
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) ) {
 					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
@@ -78,6 +78,7 @@ class Jetpack_Carousel {
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 			add_filter( 'the_content', array( $this, 'check_content_for_blocks' ), 1 );
+			add_filter( 'jetpack_tiled_galleries_block_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			if ( $this->single_image_gallery_enabled ) {
 				add_filter( 'the_content', array( $this, 'add_data_img_tags_and_enqueue_assets' ) );
 			}
@@ -158,6 +159,10 @@ class Jetpack_Carousel {
 	}
 
 	function check_if_shortcode_processed_and_enqueue_assets( $output ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $output;
+		}
+
 		if (
 			! empty( $output ) &&
 			/**
@@ -199,8 +204,24 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
+	/**
+	 * Check if the content of a post uses gallery blocks. To be used by 'the_content' filter.
+	 *
+	 * @since 6.8.0
+	 *
+	 * @param string $content Post content.
+	 *
+	 * @return string $content Post content.
+	 */
 	function check_content_for_blocks( $content ) {
-		if ( function_exists( 'has_block' ) && has_block( 'gallery', $content ) ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $content;
+		}
+    
+		if (
+			function_exists( 'has_block' )
+			&& ( has_block( 'gallery', $content ) || has_block( 'jetpack/tiled-gallery', $content ) )
+		) {
 			$this->enqueue_assets();
 			$content = $this->add_data_to_container( $content );
 		}
@@ -216,7 +237,7 @@ class Jetpack_Carousel {
 					'modules/carousel/jetpack-carousel.js'
 				),
 				array( 'jquery.spin' ),
-				$this->asset_version( '20170209' ),
+				$this->asset_version( '20190102' ),
 				true
 			);
 
@@ -346,6 +367,9 @@ class Jetpack_Carousel {
 	}
 
 	function set_in_gallery( $output ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $output;
+		}
 		$this->in_gallery = true;
 		return $output;
 	}
@@ -361,15 +385,18 @@ class Jetpack_Carousel {
 	 * @return string Modified HTML content of the post
 	 */
 	function add_data_img_tags_and_enqueue_assets( $content ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $content;
+		}
+
 		if ( ! preg_match_all( '/<img [^>]+>/', $content, $matches ) ) {
 			return $content;
 		}
 		$selected_images = array();
-
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/wp-image-([0-9]+)/i', $image_html, $class_id ) &&
-				( $attachment_id = absint( $class_id[1] ) ) ) {
-				/*
+			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) ) {
+				$attachment_id = absint( $class_id[2] );
+				/**
 				 * If exactly the same image tag is used more than once, overwrite it.
 				 * All identical tags will be replaced later with 'str_replace()'.
 				 */
@@ -411,6 +438,10 @@ class Jetpack_Carousel {
 	}
 
 	function add_data_to_images( $attr, $attachment = null ) {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $attr;
+		}
+
 		$attachment_id = intval( $attachment->ID );
 		if ( ! wp_attachment_is_image( $attachment_id ) ) {
 			return $attr;
@@ -423,7 +454,7 @@ class Jetpack_Carousel {
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = intval( comments_open( $attachment_id ) );
 
-		 /*
+		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
 		 * it takes the $content_width global variable themes can set in consideration, therefore returning sizes
 		 * which when used to generate a filename will likely result in a 404 on the image.
@@ -479,6 +510,9 @@ class Jetpack_Carousel {
 
 	function add_data_to_container( $html ) {
 		global $post;
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $html;
+		}
 
 		if ( isset( $post ) ) {
 			$blog_id = (int) get_current_blog_id();

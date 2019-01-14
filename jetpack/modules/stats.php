@@ -958,7 +958,7 @@ function stats_admin_bar_head() {
 }
 #wpadminbar .quicklinks li#wp-admin-bar-stats a img {
 	height: 24px;
-	padding: 4px 0;
+	margin: 4px 0;
 	max-width: none;
 	border: none;
 }
@@ -983,7 +983,15 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 
 	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
-	$menu = array( 'id' => 'stats', 'title' => "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>", 'href' => $url );
+	$menu = array(
+		'id'   => 'stats',
+		'href' => $url,
+	);
+	if ( Jetpack_AMP_Support::is_amp_request() ) {
+		$menu['title'] = "<amp-img src='$img_src_2x' width=112 height=24 layout=fixed alt='$alt' title='$title'></amp-img>";
+	} else {
+		$menu['title'] = "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>";
+	}
 
 	$wp_admin_bar->add_menu( $menu );
 }
@@ -1196,7 +1204,7 @@ function stats_jetpack_dashboard_widget() {
 		<input type="hidden" name="widget_id" value="dashboard_stats" />
 		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
 	</form>
-	<span id="js-toggle-stats_dashboard_widget_control">
+	<span class="js-toggle-stats_dashboard_widget_control">
 		<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 	</span>
 	<div id="dashboard_stats">
@@ -1206,7 +1214,7 @@ function stats_jetpack_dashboard_widget() {
 	</div>
 	<script>
 		jQuery(document).ready(function($){
-			var $toggle = $('#js-toggle-stats_dashboard_widget_control');
+			var $toggle = $('.js-toggle-stats_dashboard_widget_control');
 
 			$toggle.parent().prev().append( $toggle );
 			$toggle.show().click(function(e){
@@ -1218,7 +1226,7 @@ function stats_jetpack_dashboard_widget() {
 		});
 	</script>
 	<style>
-		#js-toggle-stats_dashboard_widget_control {
+		.js-toggle-stats_dashboard_widget_control {
 			display: none;
 			float: right;
 			margin-top: 0.2em;
@@ -1447,7 +1455,6 @@ function stats_dashboard_widget_content() {
 	}
 
 ?>
-<a class="button" href="admin.php?page=stats"><?php  esc_html_e( 'View All', 'jetpack' ); ?></a>
 <div id="stats-info">
 	<div id="top-posts" class='stats-section'>
 		<div class="stats-section-inner">
@@ -1483,13 +1490,26 @@ function stats_dashboard_widget_content() {
 			<p class="nothing"><?php  esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
 			<?php
 	} else {
-?>
-			<p><?php echo join( ',&nbsp; ', $searches );?></p>
-			<?php
+		foreach ( $searches as $search_term_item ) {
+			printf(
+				'<p>%s</p>',
+				$search_term_item
+			);
+		}
 	}
 ?>
 		</div>
 	</div>
+</div>
+<div class="clear"></div>
+<div class="stats-view-all">
+<?php
+	printf(
+		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
+		esc_url( "https://wordpress.com/stats/day/" . Jetpack::build_raw_urls( get_home_url() ) ),
+		esc_html__( 'View all stats', 'jetpack' )
+	);
+?>
 </div>
 <div class="clear"></div>
 <?php

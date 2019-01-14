@@ -69,19 +69,19 @@ msgstr ""
 msgid "The message to use instead of the title when sharing to Publicize Services"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:2234
+#: modules/contact-form/grunion-contact-form.php:2239
 msgid "Select one"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:2232
+#: modules/contact-form/grunion-contact-form.php:2237
 msgid "Choose one"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:2230
+#: modules/contact-form/grunion-contact-form.php:2235
 msgid "Choose several"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:2224
+#: modules/contact-form/grunion-contact-form.php:2229
 msgid "Phone"
 msgstr "Телефон"
 
@@ -126,19 +126,19 @@ msgstr ""
 msgid "Is this connection available to all users?"
 msgstr ""
 
-#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:85
 #: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:70
+#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:85
 msgid "Username of the connected account"
 msgstr ""
 
-#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:79
 #: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:66
 #: _inc/lib/core-api/wpcom-endpoints/publicize-services.php:61
+#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:79
 msgid "Alphanumeric identifier for the Publicize Service"
 msgstr ""
 
-#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:73
 #: _inc/lib/core-api/wpcom-endpoints/publicize-connections.php:62
+#: _inc/lib/core-api/wpcom-fields/post-fields-publicize-connections.php:73
 msgid "Unique identifier for the Publicize Connection"
 msgstr ""
 
@@ -343,7 +343,7 @@ msgid "Still having trouble?"
 msgstr ""
 
 #. translators: Link to Jetpack Hosting support page.
-#: class.jetpack-debugger.php:235 modules/sitemaps/sitemap-builder.php:153
+#: modules/sitemaps/sitemap-builder.php:153 class.jetpack-debugger.php:235
 msgid "Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ ."
 msgstr ""
 
@@ -443,7 +443,7 @@ msgstr ""
 msgid "Site connection failed!"
 msgstr ""
 
-#: class.jetpack-debugger.php:269 class.jetpack-admin.php:257
+#: class.jetpack-admin.php:257 class.jetpack-debugger.php:269
 msgid "Debugging Center"
 msgstr ""
 
@@ -583,7 +583,7 @@ msgstr ""
 msgid "Jetpack automatically generates a custom {{link}}ads.txt{{/link}} tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line."
 msgstr ""
 
-#: _inc/lib/class.core-rest-api-endpoints.php:2161 _inc/jetpack-strings.php:336
+#: _inc/jetpack-strings.php:336 _inc/lib/class.core-rest-api-endpoints.php:2161
 msgid "Custom ads.txt entries"
 msgstr ""
 
@@ -591,8 +591,8 @@ msgstr ""
 msgid "Invalid parameters."
 msgstr ""
 
-#: modules/simple-payments/simple-payments.php:193
 #: modules/widgets/simple-payments/admin-warning.php:9
+#: modules/simple-payments/simple-payments.php:193
 msgid "Your plan doesn't include Simple Payments. <a href=\"%s\" rel=\"noopener noreferrer\" target=\"_blank\">Learn more and upgrade</a>."
 msgstr ""
 
@@ -925,8 +925,8 @@ msgid "Configure related posts in the Customizer"
 msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:389
-#: _inc/lib/class.core-rest-api-endpoints.php:1961 _inc/jetpack-strings.php:345
-#: _inc/jetpack-strings.php:635
+#: _inc/jetpack-strings.php:345 _inc/jetpack-strings.php:635
+#: _inc/lib/class.core-rest-api-endpoints.php:1961
 msgid "Highlight related content with a heading"
 msgstr ""
 
@@ -942,9 +942,9 @@ msgstr ""
 msgid "As of July 27, 2018, the Twitter Timeline widget will no longer display tweets based on searches or hashtags. To display a simple list of tweets instead, change the Widget ID to a Twitter username."
 msgstr ""
 
-#: modules/simple-payments/simple-payments.php:198
 #: modules/widgets/twitter-timeline.php:92
 #: modules/widgets/twitter-timeline.php:112
+#: modules/simple-payments/simple-payments.php:198
 msgid "(Only administrators will see this message.)"
 msgstr ""
 
@@ -1068,8 +1068,8 @@ msgid "New owner is not admin"
 msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:391
-#: _inc/lib/class.core-rest-api-endpoints.php:1968 _inc/jetpack-strings.php:346
-#: _inc/jetpack-strings.php:636
+#: _inc/jetpack-strings.php:346 _inc/jetpack-strings.php:636
+#: _inc/lib/class.core-rest-api-endpoints.php:1968
 msgid "Show a thumbnail image where available"
 msgstr ""
 
@@ -1209,7 +1209,7 @@ msgstr "%1$s (%2$s)"
 msgid "View project"
 msgstr ""
 
-#: modules/subscriptions.php:196 modules/publicize/publicize.php:1036
+#: modules/publicize/publicize.php:1036 modules/subscriptions.php:196
 msgid "View post"
 msgstr "Преглед на публикацията"
 
@@ -2144,8 +2144,8 @@ msgctxt "label for formatting JSON"
 msgid "Pretty"
 msgstr ""
 
-#: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:26
 #: _inc/jetpack-strings.php:121 _inc/jetpack-strings.php:172
+#: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:26
 msgid "Jetpack Search"
 msgstr ""
 
@@ -2310,8 +2310,8 @@ msgstr ""
 msgid "Jetpack is now handling your backups."
 msgstr ""
 
-#: _inc/lib/admin-pages/class.jetpack-admin-page.php:320
 #: _inc/jetpack-strings.php:514
+#: _inc/lib/admin-pages/class.jetpack-admin-page.php:320
 msgid "Jetpack version"
 msgstr ""
 
@@ -2497,13 +2497,13 @@ msgctxt "Label for the button on the Masterbar to manage plugins"
 msgid "Manage"
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:266
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:161
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:266
 msgid "Sorry, you are not allowed to deactivate this plugin."
 msgstr ""
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:198
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:109
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:198
 msgid "Sorry, you are not allowed to activate this plugin."
 msgstr ""
 
@@ -3163,7 +3163,7 @@ msgstr ""
 msgid "Request failed with code %s"
 msgstr "Заявката пропадна с код %s"
 
-#: class.jetpack-xmlrpc-server.php:205 _inc/class.jetpack-provision.php:60
+#: _inc/class.jetpack-provision.php:60 class.jetpack-xmlrpc-server.php:205
 msgid "There was an unspecified error registering the site"
 msgstr ""
 
@@ -4208,8 +4208,8 @@ msgstr ""
 msgid "Connect your user account to WordPress.com to view your email followers"
 msgstr ""
 
-#: modules/widgets/eu-cookie-law/form.php:210
-#: _inc/lib/class.core-rest-api-endpoints.php:1645 _inc/jetpack-strings.php:134
+#: modules/widgets/eu-cookie-law/form.php:210 _inc/jetpack-strings.php:134
+#: _inc/lib/class.core-rest-api-endpoints.php:1645
 msgid "Color scheme"
 msgstr ""
 
@@ -4302,13 +4302,13 @@ msgstr[1] ""
 msgid "Social Links Menu"
 msgstr "Меню с линкове към социални мрежи"
 
-#: modules/theme-tools/social-menu/icon-functions.php:41
 #: modules/widgets/social-icons.php:361
+#: modules/theme-tools/social-menu/icon-functions.php:41
 msgid "Please define an SVG icon filename."
 msgstr ""
 
-#: modules/theme-tools/social-menu/icon-functions.php:36
 #: modules/widgets/social-icons.php:348
+#: modules/theme-tools/social-menu/icon-functions.php:36
 msgid "Please define default parameters in the form of an array."
 msgstr ""
 
@@ -4423,7 +4423,7 @@ msgstr "Конфигуриране на настройките на Google Ан�
 msgid "Image of WordPress login screen protected by Jetpack"
 msgstr "Изображение на WordPress входа защитен от Jetpack"
 
-#: _inc/lib/class.core-rest-api-endpoints.php:2171 _inc/jetpack-strings.php:188
+#: _inc/jetpack-strings.php:188 _inc/lib/class.core-rest-api-endpoints.php:2171
 msgid "Google Analytics"
 msgstr "Google Анализ"
 
@@ -4650,7 +4650,7 @@ msgstr "Минути "
 msgid "Hour"
 msgstr "Час"
 
-#: modules/widgets/milestone/milestone.php:610 modules/widgets/search.php:761
+#: modules/widgets/search.php:761 modules/widgets/milestone/milestone.php:610
 msgid "Year"
 msgstr "Година"
 
@@ -4658,7 +4658,7 @@ msgstr "Година"
 msgid "Day"
 msgstr "Ден"
 
-#: modules/widgets/milestone/milestone.php:598 modules/widgets/search.php:758
+#: modules/widgets/search.php:758 modules/widgets/milestone/milestone.php:598
 msgid "Month"
 msgstr "Месец"
 
@@ -5399,9 +5399,9 @@ msgstr "Невалидна SEO стойност на мета описаниет
 
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:741
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:757
-#: json-endpoints/class.wpcom-json-api-update-post-endpoint.php:710
 #: json-endpoints/class.wpcom-json-api-update-post-v1-2-endpoint.php:760
 #: json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php:789
+#: json-endpoints/class.wpcom-json-api-update-post-endpoint.php:710
 msgid "SEO tools are not enabled for this site."
 msgstr "SEO инструментите не са включени за този сайт."
 
@@ -6558,7 +6558,7 @@ msgstr ""
 msgid "Add Phrase to be ignored"
 msgstr ""
 
-#: _inc/lib/class.core-rest-api-endpoints.php:1998 _inc/jetpack-strings.php:403
+#: _inc/jetpack-strings.php:403 _inc/lib/class.core-rest-api-endpoints.php:1998
 msgid "Clichés"
 msgstr "Клишета"
 
@@ -6743,11 +6743,10 @@ msgstr ""
 msgid "You have JavaScript disabled"
 msgstr ""
 
-#: modules/masterbar/masterbar.php:1013
-#: class.jetpack-network-sites-list-table.php:59
+#: modules/masterbar/masterbar.php:1013 _inc/jetpack-strings.php:624
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:297
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:52
-#: _inc/jetpack-strings.php:624
+#: class.jetpack-network-sites-list-table.php:59
 msgid "Dashboard"
 msgstr "Табло"
 
@@ -6760,8 +6759,8 @@ msgctxt "Shorthand for Privacy Policy."
 msgid "Privacy"
 msgstr "Поверителност"
 
-#: _inc/lib/admin-pages/class.jetpack-admin-page.php:326
 #: _inc/jetpack-strings.php:518
+#: _inc/lib/admin-pages/class.jetpack-admin-page.php:326
 msgid "Automattic's Privacy Policy"
 msgstr ""
 
@@ -6770,8 +6769,8 @@ msgctxt "Shorthand for Terms of Service."
 msgid "Terms"
 msgstr ""
 
-#: _inc/lib/admin-pages/class.jetpack-admin-page.php:323
 #: _inc/jetpack-strings.php:516
+#: _inc/lib/admin-pages/class.jetpack-admin-page.php:323
 msgid "WordPress.com Terms of Service"
 msgstr ""
 
@@ -7443,7 +7442,7 @@ msgid "Sitemaps"
 msgstr "Карти на сайта (sitemaps)"
 
 #. translators: %s is the name of a form field
-#: modules/contact-form/grunion-contact-form.php:3040
+#: modules/contact-form/grunion-contact-form.php:3045
 msgid "%s requires at least one selection"
 msgstr "%s изисква поне един избран елемент"
 
@@ -7704,8 +7703,8 @@ msgstr "Трафик"
 msgid "Show all"
 msgstr "Покажи Всички"
 
-#: modules/contact-form/grunion-editor-view.php:222
 #: modules/contact-form/grunion-form-view.php:210
+#: modules/contact-form/grunion-editor-view.php:222
 msgid "Checkbox with Multiple Items"
 msgstr "Отметка с множество елементи"
 
@@ -7962,17 +7961,17 @@ msgstr "Червена"
 msgid "Image Size:"
 msgstr "Размери на изображението:"
 
-#: modules/widgets/flickr/form.php:89 modules/widgets/rsslinks-widget.php:141
-#: modules/widgets/social-icons.php:220
+#: modules/widgets/flickr/form.php:89 modules/widgets/social-icons.php:220
+#: modules/widgets/rsslinks-widget.php:141
 msgid "Large"
 msgstr "Голяма"
 
-#: modules/widgets/flickr/form.php:78 modules/widgets/rsslinks-widget.php:140
-#: modules/widgets/social-icons.php:219
+#: modules/widgets/flickr/form.php:78 modules/widgets/social-icons.php:219
+#: modules/widgets/rsslinks-widget.php:140
 msgid "Medium"
 msgstr "Среден"
 
-#: modules/widgets/rsslinks-widget.php:139 modules/widgets/social-icons.php:218
+#: modules/widgets/social-icons.php:218 modules/widgets/rsslinks-widget.php:139
 msgid "Small"
 msgstr "Малък"
 
@@ -8216,8 +8215,8 @@ msgstr "Избор на изображения"
 msgid "Images:"
 msgstr "Изображения:"
 
-#: modules/widgets/facebook-likebox.php:205
 #: modules/widgets/googleplus-badge.php:287
+#: modules/widgets/facebook-likebox.php:205
 msgid "Show Cover Photo"
 msgstr "Показване на заглавно изображение"
 
@@ -8269,16 +8268,17 @@ msgstr "Показване на карта"
 msgid "Address:"
 msgstr "Адрес"
 
-#: modules/widgets/flickr/form.php:3 modules/widgets/blog-stats.php:93
-#: modules/widgets/social-media-icons.php:246
-#: modules/widgets/my-community.php:85 modules/widgets/upcoming-events.php:42
-#: modules/widgets/rsslinks-widget.php:96
-#: modules/widgets/twitter-timeline.php:322
-#: modules/widgets/social-icons.php:226 modules/widgets/top-posts.php:92
-#: modules/widgets/contact-info.php:258 modules/widgets/search.php:769
 #: modules/widgets/wordpress-post-widget/class.jetpack-display-posts-widget-base.php:224
-#: modules/widgets/goodreads.php:137 modules/widgets/google-translate.php:170
-#: modules/widgets/authors.php:210 modules/widgets/gallery/templates/form.php:2
+#: modules/widgets/flickr/form.php:3
+#: modules/widgets/gallery/templates/form.php:2
+#: modules/widgets/google-translate.php:170
+#: modules/widgets/contact-info.php:258 modules/widgets/my-community.php:85
+#: modules/widgets/goodreads.php:137 modules/widgets/blog-stats.php:93
+#: modules/widgets/social-icons.php:226 modules/widgets/search.php:769
+#: modules/widgets/social-media-icons.php:246 modules/widgets/top-posts.php:92
+#: modules/widgets/rsslinks-widget.php:96
+#: modules/widgets/twitter-timeline.php:322 modules/widgets/authors.php:210
+#: modules/widgets/upcoming-events.php:42
 msgid "Title:"
 msgstr "Заглавие:"
 
@@ -8637,7 +8637,7 @@ msgstr "Placeholder за абонамент"
 msgid "Optional text to display to your readers:"
 msgstr "Незадължителен текст за показване на вашите читатели:"
 
-#: modules/subscriptions.php:1065 modules/widgets/image-widget.php:226
+#: modules/widgets/image-widget.php:226 modules/subscriptions.php:1065
 msgid "Widget title:"
 msgstr "Заглавие на джаджата:"
 
@@ -8661,7 +8661,7 @@ msgstr "Въведете имейл адрес за да се абонирате
 msgid "Subscribe to Blog via Email"
 msgstr "Абониране за блога чрез имейл"
 
-#: modules/subscriptions.php:921 modules/widgets/contact-info.php:295
+#: modules/widgets/contact-info.php:295 modules/subscriptions.php:921
 msgid "Email Address:"
 msgstr "Имейл адрес:"
 
@@ -8865,8 +8865,8 @@ msgstr "ден"
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr "Посещения през последните 48 часа. Щракнете за повече статистики."
 
-#: modules/masterbar/masterbar.php:639 modules/stats.php:982
-#: modules/stats.php:1793
+#: modules/stats.php:982 modules/stats.php:1793
+#: modules/masterbar/masterbar.php:639
 msgid "Stats"
 msgstr "Статистика"
 
@@ -9154,8 +9154,8 @@ msgstr "Премахване на услуга"
 msgid "Icon"
 msgstr "Икона"
 
-#: modules/sharedaddy/sharing-sources.php:1333
 #: modules/sitemaps/sitemap-stylist.php:68
+#: modules/sharedaddy/sharing-sources.php:1333
 msgid "URL"
 msgstr "Адрес"
 
@@ -9313,12 +9313,12 @@ msgstr "(Отваря се в нов прозорец)"
 msgid "Share"
 msgstr "Сподели"
 
-#: modules/sharedaddy/sharing-service.php:803
 #: modules/sharedaddy/sharing.php:309 modules/sharedaddy/sharing.php:345
+#: modules/sharedaddy/sharing-service.php:803
 msgid "More"
 msgstr "Още"
 
-#: modules/sharedaddy/sharing-service.php:12 modules/sharedaddy/sharing.php:205
+#: modules/sharedaddy/sharing.php:205 modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
 msgstr "Споделяне:"
 
@@ -9398,10 +9398,10 @@ msgstr "Скриване на свързаното съдържание след
 msgid "Preview:"
 msgstr "Преглед:"
 
+#: modules/related-posts/class.related-posts-customize.php:154
 #: modules/related-posts/jetpack-related-posts.php:284
 #: modules/related-posts/jetpack-related-posts.php:344
 #: modules/related-posts/jetpack-related-posts.php:451
-#: modules/related-posts/class.related-posts-customize.php:154
 #: _inc/jetpack-strings.php:348
 msgid "Related"
 msgstr "Свързани"
@@ -9447,7 +9447,7 @@ msgstr "Направете тази връзка достъпна за всич�
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
 msgstr "Сигурни ли сте, че искате да спрете да разгласявате публикации към тази връзка?"
 
-#: modules/theme-tools/social-links.php:125 modules/publicize/ui.php:268
+#: modules/publicize/ui.php:268 modules/theme-tools/social-links.php:125
 #: class.jetpack-network-sites-list-table.php:108
 #: class.jetpack-network-sites-list-table.php:113
 msgid "Connect"
@@ -9615,8 +9615,9 @@ msgstr "Моля, решете тази задача и покажете че н
 msgid "<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser's back button to return to the login form, press the \"refresh\" button to generate a new math problem, and try to log in again."
 msgstr "<strong>Не отговорихте правилно на математическата задача.</strong>  Тя се ползва за борба със спам, когато Protect API не е налично. Моля, ползвайте бутона Обратно на вашия браузър за да се върнете във формата за вход, натиснете бутона за презареждане за да генерирате нова математическа задача и пробвайте пак."
 
+#: modules/widgets/simple-payments/form.php:181
 #: modules/sharedaddy/sharing-sources.php:1345 modules/protect/config-ui.php:64
-#: modules/widgets/simple-payments/form.php:181 _inc/jetpack-strings.php:742
+#: _inc/jetpack-strings.php:742
 msgid "Save"
 msgstr "Съхраняване"
 
@@ -9640,7 +9641,7 @@ msgstr "Добавянето в списък с позволени адреси 
 msgid "Whitelist saved."
 msgstr "Списъкът е записан."
 
-#: modules/protect/config-ui.php:33 modules/protect/shared-functions.php:143
+#: modules/protect/shared-functions.php:143 modules/protect/config-ui.php:33
 #: views/admin/network-settings.php:8
 msgid "One of your IP addresses was not valid."
 msgstr "Един от вашите IP адреси не е валиден."
@@ -9693,8 +9694,8 @@ msgstr "Изключване на Публикуване по имейл"
 msgid "Regenerate Address"
 msgstr "Регенериране на адрес"
 
-#: modules/post-by-email.php:108
 #: modules/videopress/class.videopress-player.php:308
+#: modules/post-by-email.php:108
 msgid "More information"
 msgstr "Повече информация"
 
@@ -9703,7 +9704,7 @@ msgid "Enable Post By Email"
 msgstr "Включване на Публикуване по имейл"
 
 #: modules/post-by-email.php:89 modules/subscriptions.php:1039
-#: _inc/lib/class.core-rest-api-endpoints.php:1808 _inc/jetpack-strings.php:440
+#: _inc/jetpack-strings.php:440 _inc/lib/class.core-rest-api-endpoints.php:1808
 msgid "Email Address"
 msgstr "Имейл адрес"
 
@@ -9714,13 +9715,13 @@ msgstr "Имейл адрес"
 msgid "Last Modified"
 msgstr "Последна промяна"
 
+#: modules/widgets/googleplus-badge.php:227
+#: modules/widgets/milestone/milestone.php:586
+#: modules/widgets/facebook-likebox.php:154
+#: modules/widgets/gravatar-profile.php:277
 #: modules/sitemaps/sitemap-stylist.php:307
 #: modules/sitemaps/sitemap-stylist.php:447
 #: modules/sitemaps/sitemap-stylist.php:588
-#: modules/widgets/milestone/milestone.php:586
-#: modules/widgets/facebook-likebox.php:154
-#: modules/widgets/googleplus-badge.php:227
-#: modules/widgets/gravatar-profile.php:277
 msgid "Title"
 msgstr "Заглавие"
 
@@ -9786,8 +9787,8 @@ msgid ""
 "\t\tlike search engines, increasing your reach and traffic."
 msgstr "Jetpack автоматично ще споделя страхотните ви статии с търсачки, увеличавайки досега и трафика ви."
 
-#: modules/masterbar/masterbar.php:238 modules/masterbar/masterbar.php:244
-#: modules/masterbar/masterbar.php:483 modules/monitor.php:67
+#: modules/monitor.php:67 modules/masterbar/masterbar.php:238
+#: modules/masterbar/masterbar.php:244 modules/masterbar/masterbar.php:483
 #: modules/notes.php:174
 msgid "Notifications"
 msgstr "Уведомления"
@@ -10144,8 +10145,9 @@ msgstr "Показване на включените изображения "
 msgid "Hide all featured images"
 msgstr ""
 
+#: modules/minileven.php:74
 #: modules/theme-tools/content-options/customizer.php:291
-#: modules/minileven.php:74 _inc/lib/class.core-rest-api-endpoints.php:1783
+#: _inc/lib/class.core-rest-api-endpoints.php:1783
 msgid "Featured Images"
 msgstr "Картинки за публикациите"
 
@@ -10327,22 +10329,22 @@ msgstr "Публикувано от"
 msgid "Featured"
 msgstr "На фокус"
 
-#: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
+#: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:90
 msgid "<b>%</b> Replies"
 msgstr "<b>%</b> отговора"
 
-#: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
+#: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:90
 msgid "<b>1</b> Reply"
 msgstr "<b>1</b> отговор"
 
-#: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/content-gallery.php:70
-#: modules/minileven/theme/pub/minileven/image.php:74
+#: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/page.php:32
+#: modules/minileven/theme/pub/minileven/image.php:74
 msgid "Pages:"
 msgstr "Страници:"
 
@@ -10352,8 +10354,8 @@ msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
 msgstr[0] "В галерията има <a %1$s>%2$s снимка</a>."
 msgstr[1] "В галерията има <a %1$s>%2$s снимки</a>."
 
-#: modules/minileven/theme/pub/minileven/content.php:39
 #: modules/minileven/theme/pub/minileven/content-gallery.php:26
+#: modules/minileven/theme/pub/minileven/content.php:39
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
 msgstr "Има още <span class=\"meta-nav\">&rarr;</span>"
@@ -10363,9 +10365,9 @@ msgstr "Има още <span class=\"meta-nav\">&rarr;</span>"
 msgid "Gallery"
 msgstr "Галерия"
 
-#: modules/minileven/theme/pub/minileven/content.php:13
 #: modules/minileven/theme/pub/minileven/content-gallery.php:16
 #: modules/minileven/theme/pub/minileven/content-gallery.php:63
+#: modules/minileven/theme/pub/minileven/content.php:13
 #: modules/minileven/theme/pub/minileven/page.php:24
 msgid "Permalink to %s"
 msgstr "Постоянна връзка към %s"
@@ -10430,7 +10432,7 @@ msgstr "Markdown"
 msgid "<span>%d</span> bloggers like this:"
 msgstr "<span>%d</span> блогъра харесват това:"
 
-#: modules/likes.php:463 modules/comment-likes.php:189
+#: modules/comment-likes.php:189 modules/likes.php:463
 msgid "Loading..."
 msgstr "Зареждане..."
 
@@ -10457,18 +10459,17 @@ msgstr "Бутони за споделяне"
 msgid "Settings have been saved"
 msgstr "Настройките бяха запазени"
 
-#: modules/sharedaddy/sharedaddy.php:143 modules/sharedaddy/sharing.php:91
-#: modules/masterbar/masterbar.php:921
-#: modules/likes/jetpack-likes-settings.php:179 modules/publicize/ui.php:59
-#: _inc/jetpack-strings.php:717 _inc/jetpack-strings.php:727
-#: _inc/jetpack-strings.php:736
+#: modules/publicize/ui.php:59 modules/masterbar/masterbar.php:921
+#: modules/sharedaddy/sharing.php:91 modules/sharedaddy/sharedaddy.php:143
+#: modules/likes/jetpack-likes-settings.php:179 _inc/jetpack-strings.php:717
+#: _inc/jetpack-strings.php:727 _inc/jetpack-strings.php:736
 msgid "Sharing"
 msgstr "Споделяне"
 
+#: modules/publicize/ui.php:58 modules/publicize/ui.php:75
 #: modules/sharedaddy/sharing.php:90 modules/sharedaddy/sharing.php:211
 #: modules/likes/jetpack-likes-settings.php:179
-#: modules/likes/jetpack-likes-settings.php:191 modules/publicize/ui.php:58
-#: modules/publicize/ui.php:75
+#: modules/likes/jetpack-likes-settings.php:191
 msgid "Sharing Settings"
 msgstr "Настройки на споделянето"
 
@@ -10530,8 +10531,8 @@ msgstr "Показване на бутоните за споделяне."
 msgid "Show likes."
 msgstr "Показване на харесвания."
 
-#: modules/likes/jetpack-likes-settings.php:44 modules/likes.php:421
 #: modules/widgets/top-posts.php:105
+#: modules/likes/jetpack-likes-settings.php:44 modules/likes.php:421
 msgid "Likes"
 msgstr "Харесвания"
 
@@ -10699,12 +10700,13 @@ msgstr "Включване на препоръки за сайта."
 msgid "Your theme supports Testimonials"
 msgstr "Темата ви поддържа препоръки"
 
-#: modules/masterbar/masterbar.php:787 modules/masterbar/masterbar.php:800
 #: modules/custom-post-types/testimonial.php:120
 #: modules/custom-post-types/testimonial.php:295
 #: modules/custom-post-types/testimonial.php:297
 #: modules/custom-post-types/testimonial.php:461
-#: modules/custom-post-types/testimonial.php:467 _inc/jetpack-strings.php:419
+#: modules/custom-post-types/testimonial.php:467
+#: modules/masterbar/masterbar.php:787 modules/masterbar/masterbar.php:800
+#: _inc/jetpack-strings.php:419
 msgid "Testimonials"
 msgstr "Препоръки"
 
@@ -10888,9 +10890,9 @@ msgstr "Добавяне на нов проект"
 msgid "All Projects"
 msgstr "Всички проекти"
 
-#: modules/masterbar/masterbar.php:821 modules/masterbar/masterbar.php:834
 #: modules/custom-post-types/portfolios.php:268
 #: modules/custom-post-types/portfolios.php:444
+#: modules/masterbar/masterbar.php:821 modules/masterbar/masterbar.php:834
 msgid "Portfolio"
 msgstr "Портфолио"
 
@@ -10945,11 +10947,10 @@ msgstr "Добавяне на тези нови артикули"
 msgid "New Row"
 msgstr "Нов ред"
 
-#: modules/sitemaps/sitemap-stylist.php:449
-#: modules/custom-post-types/nova.php:954
 #: modules/widgets/simple-payments/form.php:103
 #: modules/widgets/milestone/milestone.php:591
-#: _inc/lib/icalendar-reader.php:790
+#: modules/custom-post-types/nova.php:954
+#: modules/sitemaps/sitemap-stylist.php:449 _inc/lib/icalendar-reader.php:790
 msgid "Description"
 msgstr "Описание"
 
@@ -10998,11 +10999,11 @@ msgstr "Записване на новата подредба"
 msgid "Order"
 msgstr "Поръчка"
 
+#: modules/widgets/simple-payments/form.php:113
 #: modules/custom-post-types/nova.php:503
 #: modules/custom-post-types/nova.php:952
 #: modules/custom-post-types/nova.php:997
 #: modules/custom-post-types/nova.php:1003
-#: modules/widgets/simple-payments/form.php:113
 msgid "Price"
 msgstr "Цена"
 
@@ -11010,9 +11011,9 @@ msgstr "Цена"
 msgid "Labels"
 msgstr "Етикети"
 
+#: modules/widgets/flickr/form.php:67 modules/custom-post-types/nova.php:501
 #: modules/sitemaps/sitemap-stylist.php:306
 #: modules/sitemaps/sitemap-stylist.php:446
-#: modules/custom-post-types/nova.php:501 modules/widgets/flickr/form.php:67
 msgid "Thumbnail"
 msgstr "Картинка"
 
@@ -11289,10 +11290,10 @@ msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
 msgstr "Черновата на комикса е обновена. <a target=\"_blank\" href=\"%s\">Преглеждане на комикса</a>"
 
 #. translators: Publish box date format, see http://php.net/date
-#: modules/custom-post-types/nova.php:282
-#: modules/custom-post-types/comics.php:315
 #: modules/custom-post-types/portfolios.php:388
 #: modules/custom-post-types/testimonial.php:356
+#: modules/custom-post-types/comics.php:315
+#: modules/custom-post-types/nova.php:282
 msgid "M j, Y @ G:i"
 msgstr "d M Y @ G:i"
 
@@ -11321,17 +11322,17 @@ msgstr "Комиксът е върнат до ревизия от %s"
 msgid "Comic updated."
 msgstr "Комиксът е обновен."
 
-#: modules/custom-post-types/nova.php:268
-#: modules/custom-post-types/comics.php:306
 #: modules/custom-post-types/portfolios.php:379
 #: modules/custom-post-types/testimonial.php:347
+#: modules/custom-post-types/comics.php:306
+#: modules/custom-post-types/nova.php:268
 msgid "Custom field deleted."
 msgstr "Персонализираното поле е изтрито."
 
-#: modules/custom-post-types/nova.php:267
-#: modules/custom-post-types/comics.php:305
 #: modules/custom-post-types/portfolios.php:378
 #: modules/custom-post-types/testimonial.php:346
+#: modules/custom-post-types/comics.php:305
+#: modules/custom-post-types/nova.php:267
 msgid "Custom field updated."
 msgstr "Персонализираното поле е обновено."
 
@@ -11367,10 +11368,10 @@ msgstr "Редактиране на комикс"
 msgid "Add New Comic"
 msgstr "Добавяне на нов комикс"
 
-#: modules/custom-post-types/comics.php:224
-#: modules/custom-post-types/portfolios.php:270
-#: modules/custom-post-types/testimonial.php:299 modules/publicize/ui.php:270
 #: modules/widgets/simple-payments/form.php:46
+#: modules/custom-post-types/portfolios.php:270
+#: modules/custom-post-types/testimonial.php:299
+#: modules/custom-post-types/comics.php:224 modules/publicize/ui.php:270
 msgid "Add New"
 msgstr "Добавяне на нов"
 
@@ -11438,8 +11439,8 @@ msgstr "Записване на стиловете"
 msgid "Save &amp; Buy Upgrade"
 msgstr "Запис и купуване на пълната версия"
 
-#: modules/custom-post-types/comics.php:266
 #: modules/custom-css/custom-css.php:1237
+#: modules/custom-post-types/comics.php:266
 msgid "Preview"
 msgstr "Предварителен преглед"
 
@@ -11463,9 +11464,10 @@ msgstr "Добавка"
 msgid "Mode:"
 msgstr "Формат:"
 
-#: modules/custom-css/custom-css-4.7.php:767
 #: modules/custom-css/custom-css.php:1161
-#: modules/custom-css/custom-css.php:1166 modules/widgets/image-widget.php:243
+#: modules/custom-css/custom-css.php:1166
+#: modules/custom-css/custom-css-4.7.php:767
+#: modules/widgets/image-widget.php:243
 msgid "None"
 msgstr "Нищо"
 
@@ -11473,23 +11475,21 @@ msgstr "Нищо"
 msgid "Preprocessor:"
 msgstr "Препроцесор:"
 
-#: modules/sharedaddy/sharing-sources.php:536
 #: modules/minileven/minileven.php:288 modules/custom-css/custom-css.php:1087
 #: modules/custom-css/custom-css.php:1178
 #: modules/custom-css/custom-css.php:1219
 #: modules/widgets/simple-payments/form.php:182
 #: modules/contact-form/grunion-editor-view.php:288
-#: _inc/jetpack-strings.php:743
+#: modules/sharedaddy/sharing-sources.php:536 _inc/jetpack-strings.php:743
 msgid "Cancel"
 msgstr "Отказ"
 
-#: modules/minileven/minileven.php:287 modules/publicize/ui.php:333
-#: modules/publicize/ui.php:784 modules/publicize/ui.php:812
-#: modules/publicize/publicize-jetpack.php:531
-#: modules/publicize/publicize-jetpack.php:634
-#: modules/custom-css/custom-css.php:1086
+#: modules/minileven/minileven.php:287 modules/custom-css/custom-css.php:1086
 #: modules/custom-css/custom-css.php:1177
 #: modules/custom-css/custom-css.php:1218
+#: modules/publicize/publicize-jetpack.php:531
+#: modules/publicize/publicize-jetpack.php:634 modules/publicize/ui.php:333
+#: modules/publicize/ui.php:784 modules/publicize/ui.php:812
 msgid "OK"
 msgstr "Добре"
 
@@ -11503,10 +11503,10 @@ msgstr[1] "Широчината на съдържанието за темата 
 msgid "%s px"
 msgstr "%s пиксела"
 
-#: modules/theme-tools/content-options/customizer.php:74
 #: modules/custom-css/custom-css.php:1048
 #: modules/widgets/eu-cookie-law/form.php:14
 #: modules/widgets/eu-cookie-law/form.php:51
+#: modules/theme-tools/content-options/customizer.php:74
 msgid "Default"
 msgstr "По подразбиране"
 
@@ -11544,17 +11544,17 @@ msgstr "Стиловете са запазени."
 msgid "Custom CSS Stylesheet"
 msgstr "Персонализиран CSS Stylesheet"
 
+#: modules/custom-css/custom-css.php:905
 #: modules/custom-css/custom-css-4.7.php:148
 #: modules/custom-css/custom-css-4.7.php:151
 #: modules/custom-css/custom-css-4.7.php:191
 #: modules/custom-css/custom-css-4.7.php:289
-#: modules/custom-css/custom-css.php:905
 msgid "CSS"
 msgstr "CSS"
 
+#: modules/custom-css/custom-css.php:892
 #: modules/custom-css/custom-css-4.7.php:148
 #: modules/custom-css/custom-css-4.7.php:151
-#: modules/custom-css/custom-css.php:892
 msgid "Edit CSS"
 msgstr "Редактиране на CSS"
 
@@ -11612,8 +11612,8 @@ msgstr "Така ще изглежда формата ви"
 msgid "Save this field"
 msgstr "Запазване на полето"
 
-#: modules/contact-form/grunion-editor-view.php:242
 #: modules/contact-form/grunion-form-view.php:234
+#: modules/contact-form/grunion-editor-view.php:242
 msgid "Required?"
 msgstr "Задължително?"
 
@@ -11625,35 +11625,35 @@ msgstr "Добавяне на друга опция"
 msgid "First option"
 msgstr "Първа опция"
 
-#: modules/contact-form/grunion-editor-view.php:247
 #: modules/contact-form/grunion-form-view.php:223
+#: modules/contact-form/grunion-editor-view.php:247
 msgid "Options"
 msgstr "Настройки"
 
-#: modules/contact-form/grunion-editor-view.php:220
 #: modules/contact-form/grunion-form-view.php:216
+#: modules/contact-form/grunion-editor-view.php:220
 msgid "Textarea"
 msgstr "Поле за текст"
 
-#: modules/contact-form/grunion-editor-view.php:216
 #: modules/contact-form/grunion-form-view.php:215
-#: modules/contact-form/grunion-contact-form.php:2214
+#: modules/contact-form/grunion-editor-view.php:216
+#: modules/contact-form/grunion-contact-form.php:2219
 msgid "Text"
 msgstr "Текст"
 
-#: modules/contact-form/grunion-editor-view.php:224
 #: modules/contact-form/grunion-form-view.php:214
+#: modules/contact-form/grunion-editor-view.php:224
 msgid "Radio"
 msgstr "Радио бутон"
 
-#: modules/contact-form/grunion-editor-view.php:223
 #: modules/contact-form/grunion-form-view.php:211
+#: modules/contact-form/grunion-editor-view.php:223
 msgid "Drop down"
 msgstr "Падащо меню"
 
-#: modules/contact-form/grunion-editor-view.php:221
 #: modules/contact-form/grunion-form-view.php:209
-#: modules/contact-form/grunion-contact-form.php:2228
+#: modules/contact-form/grunion-editor-view.php:221
+#: modules/contact-form/grunion-contact-form.php:2233
 msgid "Checkbox"
 msgstr "Поле за отметка"
 
@@ -11665,9 +11665,9 @@ msgstr "Тип на полето"
 msgid "New field"
 msgstr "Ново поле"
 
-#: modules/sharedaddy/sharing-sources.php:1328
-#: modules/contact-form/grunion-editor-view.php:211
 #: modules/contact-form/grunion-form-view.php:204
+#: modules/contact-form/grunion-editor-view.php:211
+#: modules/sharedaddy/sharing-sources.php:1328
 msgid "Label"
 msgstr "Текст"
 
@@ -11811,42 +11811,42 @@ msgstr "Име"
 
 #: modules/minileven/minileven.php:278
 #: modules/contact-form/grunion-editor-view.php:154
-#: modules/contact-form/grunion-contact-form.php:3235
+#: modules/contact-form/grunion-contact-form.php:3240
 msgid "Yes"
 msgstr "Да"
 
 #: modules/contact-form/grunion-editor-view.php:92
-#: modules/contact-form/grunion-contact-form.php:3315
+#: modules/contact-form/grunion-contact-form.php:3320
 msgid "(required)"
 msgstr "(задължително)"
 
 #. translators: %s is the name of a form field
-#: modules/contact-form/grunion-contact-form.php:3047
+#: modules/contact-form/grunion-contact-form.php:3052
 msgid "%s is required"
 msgstr "Полето %s е задължително."
 
 #. translators: %s is the name of a form field
-#: modules/contact-form/grunion-contact-form.php:3033
+#: modules/contact-form/grunion-contact-form.php:3038
 msgid "%s requires a valid email address"
 msgstr "Полето %s изисква валиден имейл адрес."
 
-#: modules/contact-form/grunion-contact-form.php:2650
+#: modules/contact-form/grunion-contact-form.php:2655
 msgid "Sent by an unverified visitor to your site."
 msgstr "Изпратено от непотвърден потребител от вашия сайт."
 
-#: modules/contact-form/grunion-contact-form.php:2644
+#: modules/contact-form/grunion-contact-form.php:2649
 msgid "Sent by a verified %s user."
 msgstr "Изпратено от потвърден потребител от %s."
 
-#: modules/contact-form/grunion-contact-form.php:2637
+#: modules/contact-form/grunion-contact-form.php:2642
 msgid "Contact Form URL:"
 msgstr "Адрес на формата за контакти:"
 
-#: modules/contact-form/grunion-contact-form.php:2636
+#: modules/contact-form/grunion-contact-form.php:2641
 msgid "IP Address:"
 msgstr "IP адрес:"
 
-#: modules/contact-form/grunion-contact-form.php:2635
+#: modules/contact-form/grunion-contact-form.php:2640
 msgid "Time:"
 msgstr "Час и дата:"
 
@@ -11947,8 +11947,8 @@ msgstr "Грешка при връщането от Кошчето."
 msgid "You are not allowed to move this item out of the Trash."
 msgstr "Нямате право да преместите този запис извън Кошчето."
 
-#: modules/contact-form/grunion-contact-form.php:2572
 #: modules/contact-form/admin.php:488
+#: modules/contact-form/grunion-contact-form.php:2577
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
 msgstr "%1$s \\a\\t %2$s"
@@ -11978,18 +11978,18 @@ msgstr "Възстановяване"
 msgid "Restore this item from the Trash"
 msgstr "Възстановяване от кошчето"
 
-#: modules/widgets/milestone/milestone.php:596 modules/widgets/search.php:700
-#: modules/widgets/search.php:738
-#: modules/contact-form/grunion-editor-view.php:225
-#: modules/contact-form/grunion-contact-form.php:2222
+#: modules/widgets/search.php:700 modules/widgets/search.php:738
+#: modules/widgets/milestone/milestone.php:596
 #: modules/contact-form/admin.php:269
+#: modules/contact-form/grunion-editor-view.php:225
+#: modules/contact-form/grunion-contact-form.php:2227
 msgid "Date"
 msgstr "Дата"
 
+#: modules/contact-form/admin.php:268
 #: modules/contact-form/grunion-editor-view.php:88
 #: modules/contact-form/grunion-contact-form.php:1824
-#: modules/contact-form/grunion-contact-form.php:2226
-#: modules/contact-form/admin.php:268
+#: modules/contact-form/grunion-contact-form.php:2231
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1123
 msgid "Message"
 msgstr "Съобщение"
@@ -12023,8 +12023,8 @@ msgstr "Маркиране като спам"
 msgid "Delete Permanently"
 msgstr "Изтриване завинаги"
 
-#: modules/contact-form/grunion-editor-view.php:30
 #: modules/contact-form/admin.php:14
+#: modules/contact-form/grunion-editor-view.php:30
 msgid "Add Contact Form"
 msgstr "Добавяне на форма за контакти"
 
@@ -12077,9 +12077,9 @@ msgstr "Цветова схема"
 msgid "Greeting Text"
 msgstr "Приветстващ текст"
 
-#: modules/comments/admin.php:72 modules/masterbar/masterbar.php:773
 #: modules/widgets/rsslinks-widget.php:102
-#: modules/widgets/rsslinks-widget.php:180 _inc/jetpack-strings.php:130
+#: modules/widgets/rsslinks-widget.php:180 modules/comments/admin.php:72
+#: modules/masterbar/masterbar.php:773 _inc/jetpack-strings.php:130
 msgid "Comments"
 msgstr "Коментари"
 
@@ -12088,22 +12088,22 @@ msgstr "Коментари"
 msgid "Transparent"
 msgstr "Прозрачна"
 
-#: modules/comments/admin.php:55 modules/widgets/twitter-timeline.php:481
 #: modules/widgets/googleplus-badge.php:279
-#: modules/widgets/eu-cookie-law/form.php:232
+#: modules/widgets/twitter-timeline.php:481
+#: modules/widgets/eu-cookie-law/form.php:232 modules/comments/admin.php:55
 #: _inc/lib/class.core-rest-api-endpoints.php:1655
 msgid "Dark"
 msgstr "Тъмна"
 
-#: modules/comments/admin.php:54 modules/widgets/twitter-timeline.php:478
 #: modules/widgets/googleplus-badge.php:278
-#: modules/widgets/eu-cookie-law/form.php:221
+#: modules/widgets/twitter-timeline.php:478
+#: modules/widgets/eu-cookie-law/form.php:221 modules/comments/admin.php:54
 #: _inc/lib/class.core-rest-api-endpoints.php:1654
 msgid "Light"
 msgstr "Светла"
 
-#: modules/comments/comments.php:246 modules/comments/admin.php:50
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
+#: modules/comments/admin.php:50 modules/comments/comments.php:246
 #: _inc/lib/class.core-rest-api-endpoints.php:1640
 msgid "Leave a Reply"
 msgstr "Вашият коментар"
@@ -12190,11 +12190,11 @@ msgid "Missing attachment ID."
 msgstr "Липсва ID на прикачения файл."
 
 #: modules/carousel/jetpack-carousel.php:279
+#: modules/contact-form/grunion-form-view.php:217
 #: modules/contact-form/grunion-editor-view.php:87
 #: modules/contact-form/grunion-editor-view.php:219
-#: modules/contact-form/grunion-form-view.php:217
 #: modules/contact-form/grunion-contact-form.php:1816
-#: modules/contact-form/grunion-contact-form.php:2220
+#: modules/contact-form/grunion-contact-form.php:2225
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1123
 msgid "Website"
 msgstr "Интернет страница"
@@ -12202,11 +12202,11 @@ msgstr "Интернет страница"
 #: modules/carousel/jetpack-carousel.php:275
 #: modules/widgets/simple-payments/form.php:147
 #: modules/widgets/social-icons.php:554
+#: modules/contact-form/grunion-form-view.php:212
 #: modules/contact-form/grunion-editor-view.php:86
 #: modules/contact-form/grunion-editor-view.php:218
-#: modules/contact-form/grunion-form-view.php:212
 #: modules/contact-form/grunion-contact-form.php:1815
-#: modules/contact-form/grunion-contact-form.php:2218
+#: modules/contact-form/grunion-contact-form.php:2223
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1123
 msgid "Email"
 msgstr "Имейл"
@@ -12386,7 +12386,7 @@ msgid "Ignored Phrases"
 msgstr "Пренебрегвани фрази"
 
 #: modules/after-the-deadline/config-options.php:105
-#: _inc/lib/class.core-rest-api-endpoints.php:2061 _inc/jetpack-strings.php:399
+#: _inc/jetpack-strings.php:399 _inc/lib/class.core-rest-api-endpoints.php:2061
 msgid "Use automatically detected language to proofread posts and pages"
 msgstr "Автоматично определяне на езика за коректура на публикации и страници"
 
@@ -12399,42 +12399,42 @@ msgid "Language"
 msgstr "Език"
 
 #: modules/after-the-deadline/config-options.php:86
-#: _inc/lib/class.core-rest-api-endpoints.php:2054 _inc/jetpack-strings.php:411
+#: _inc/jetpack-strings.php:411 _inc/lib/class.core-rest-api-endpoints.php:2054
 msgid "Redundant Phrases"
 msgstr "Излишни фрази"
 
 #: modules/after-the-deadline/config-options.php:84
-#: _inc/lib/class.core-rest-api-endpoints.php:2047 _inc/jetpack-strings.php:410
+#: _inc/jetpack-strings.php:410 _inc/lib/class.core-rest-api-endpoints.php:2047
 msgid "Phrases to Avoid"
 msgstr "Фрази, които да избягвате"
 
 #: modules/after-the-deadline/config-options.php:82
-#: _inc/lib/class.core-rest-api-endpoints.php:2040 _inc/jetpack-strings.php:409
+#: _inc/jetpack-strings.php:409 _inc/lib/class.core-rest-api-endpoints.php:2040
 msgid "Passive Voice"
 msgstr "Страдателен залог"
 
 #: modules/after-the-deadline/config-options.php:80
-#: _inc/lib/class.core-rest-api-endpoints.php:2033 _inc/jetpack-strings.php:408
+#: _inc/jetpack-strings.php:408 _inc/lib/class.core-rest-api-endpoints.php:2033
 msgid "Jargon"
 msgstr "Жаргон"
 
 #: modules/after-the-deadline/config-options.php:78
-#: _inc/lib/class.core-rest-api-endpoints.php:2026 _inc/jetpack-strings.php:407
+#: _inc/jetpack-strings.php:407 _inc/lib/class.core-rest-api-endpoints.php:2026
 msgid "Hidden Verbs"
 msgstr "Скрити глаголи"
 
 #: modules/after-the-deadline/config-options.php:76
-#: _inc/lib/class.core-rest-api-endpoints.php:2019 _inc/jetpack-strings.php:406
+#: _inc/jetpack-strings.php:406 _inc/lib/class.core-rest-api-endpoints.php:2019
 msgid "Double Negatives"
 msgstr "Двойни отрицателни"
 
 #: modules/after-the-deadline/config-options.php:74
-#: _inc/lib/class.core-rest-api-endpoints.php:2012 _inc/jetpack-strings.php:405
+#: _inc/jetpack-strings.php:405 _inc/lib/class.core-rest-api-endpoints.php:2012
 msgid "Diacritical Marks"
 msgstr "Акценти/ударения на букви"
 
 #: modules/after-the-deadline/config-options.php:72
-#: _inc/lib/class.core-rest-api-endpoints.php:2005 _inc/jetpack-strings.php:404
+#: _inc/jetpack-strings.php:404 _inc/lib/class.core-rest-api-endpoints.php:2005
 msgid "Complex Phrases"
 msgstr "Сложни фрази"
 
@@ -12443,7 +12443,7 @@ msgid "Clich&eacute;s"
 msgstr "Клишета"
 
 #: modules/after-the-deadline/config-options.php:68
-#: _inc/lib/class.core-rest-api-endpoints.php:1991 _inc/jetpack-strings.php:402
+#: _inc/jetpack-strings.php:402 _inc/lib/class.core-rest-api-endpoints.php:1991
 msgid "Bias Language"
 msgstr "Терминологичен език"
 
@@ -12539,13 +12539,13 @@ msgstr "Стана грешка при обновяването на разши�
 msgid "No update needed"
 msgstr "Няма нужда от обновяване"
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:287
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:181
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:287
 msgid "Plugin deactivated."
 msgstr "Разширението е деактивирано."
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:284
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:178
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:284
 msgid "There was an error deactivating your plugin"
 msgstr "Стана грешка при деактивацията"
 
@@ -12553,13 +12553,13 @@ msgstr "Стана грешка при деактивацията"
 msgid "The Plugin is already deactivated."
 msgstr "Разширението е вече деактивирано."
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:234
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:143
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:234
 msgid "Plugin activated."
 msgstr "Разширението е активирано."
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:211
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-v1-2-endpoint.php:120
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-modify-endpoint.php:211
 msgid "Plugin can only be Network Activated"
 msgstr "Разширението може да бъде активирано само за мрежата"
 
@@ -12571,10 +12571,10 @@ msgstr "Разширението е вече активно."
 msgid "The plugin is already installed"
 msgstr "Разширението е вече инсталирано"
 
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:59
+#: _inc/lib/plugins.php:83
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php:61
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-new-endpoint.php:114
-#: _inc/lib/plugins.php:83
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:59
 msgid "An unknown error occurred during installation"
 msgstr "Възникна неясна грешка при инсталацията"
 
@@ -12652,8 +12652,8 @@ msgstr "Изпълнител"
 msgid "Comment cache problem?"
 msgstr "Проблем с кеша на коментара?"
 
-#: json-endpoints/class.wpcom-json-api-post-endpoint.php:69
 #: sal/class.json-api-post-base.php:400
+#: json-endpoints/class.wpcom-json-api-post-endpoint.php:69
 msgid "This post is password protected."
 msgstr "Тази публикация е защитена с парола."
 
@@ -12854,7 +12854,7 @@ msgstr "<strong>Jetpack е активиран!</strong> Всеки сайт от
 msgid "<p><a href=\"%1$s\" title=\"Opt in to WordPress.com Site Management\" >Activate Site Management</a> to manage multiple sites from our centralized dashboard at wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Learn more</a>.</p><a href=\"%1$s\" class=\"jp-button\">Activate Now</a>"
 msgstr "<p><a href=\"%1$s\" title=\"Вход в управлението на WordPress.com\">Включване на управление на сайтове</a> за да управлявате множество сайтове от централизирано табло на wordpress.com/sites. <a href=\"%2$s\" target=\"_blank\">Научете повече</a>.</p><a href=\"%1$s\" class=\"jp-button\">Включване</a>"
 
-#: views/admin/must-connect-main-blog.php:11 _inc/jetpack-strings.php:599
+#: _inc/jetpack-strings.php:599 views/admin/must-connect-main-blog.php:11
 msgid "Connect to WordPress.com"
 msgstr "Свържете се с WordPress.com"
 
@@ -12964,8 +12964,8 @@ msgid "Video post by %s."
 msgstr "Видео публикация от %s."
 
 #. translators: %s is the post author
-#: functions.opengraph.php:121 class.jetpack-twitter-cards.php:120
-#: class.jetpack-twitter-cards.php:127
+#: class.jetpack-twitter-cards.php:120 class.jetpack-twitter-cards.php:127
+#: functions.opengraph.php:121
 msgid "Visit the post for more."
 msgstr "Посетете публикацията за повече информация."
 
@@ -12977,20 +12977,21 @@ msgstr "Сайтове"
 msgid "Jetpack Sites"
 msgstr "Сайтове, използващи Jetpack"
 
-#: modules/minileven/theme/pub/minileven/content.php:51
+#: modules/minileven/minileven.php:279
 #: modules/minileven/theme/pub/minileven/content-gallery.php:79
-#: modules/minileven/theme/pub/minileven/image.php:92
+#: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/page.php:36
-#: modules/minileven/minileven.php:279 modules/publicize/ui.php:676
-#: modules/publicize/ui.php:684 modules/custom-css/custom-css.php:1049
+#: modules/minileven/theme/pub/minileven/image.php:92
+#: modules/custom-css/custom-css.php:1049
 #: modules/custom-css/custom-css.php:1162
-#: modules/custom-css/custom-css.php:1192
-#: class.jetpack-network-sites-list-table.php:58 _inc/jetpack-strings.php:746
+#: modules/custom-css/custom-css.php:1192 modules/publicize/ui.php:676
+#: modules/publicize/ui.php:684 _inc/jetpack-strings.php:746
+#: class.jetpack-network-sites-list-table.php:58
 msgid "Edit"
 msgstr "Редактиране"
 
-#: class.jetpack-network-sites-list-table.php:16 _inc/jetpack-strings.php:255
-#: _inc/jetpack-strings.php:275
+#: _inc/jetpack-strings.php:255 _inc/jetpack-strings.php:275
+#: class.jetpack-network-sites-list-table.php:16
 msgid "Connected"
 msgstr "Свързан"
 
@@ -13006,10 +13007,10 @@ msgstr "Име на сайта"
 msgid "No Modules Found"
 msgstr "Не са открити модули"
 
-#: class.jetpack-jitm.php:187 class.jetpack-modules-list-table.php:111
+#: class.jetpack-modules-list-table.php:111
 #: class.jetpack-modules-list-table.php:211
 #: class.jetpack-modules-list-table.php:276 _inc/jetpack-strings.php:258
-#: _inc/jetpack-strings.php:386
+#: _inc/jetpack-strings.php:386 class.jetpack-jitm.php:187
 msgid "Activate"
 msgstr "Активиране"
 
@@ -13027,13 +13028,13 @@ msgstr "Търсене на модули..."
 msgid "Debug Info"
 msgstr "Информация за отстраняване на грешки"
 
-#: modules/custom-post-types/nova.php:951
 #: modules/carousel/jetpack-carousel.php:277
+#: modules/custom-post-types/nova.php:951
+#: modules/contact-form/grunion-form-view.php:213
 #: modules/contact-form/grunion-editor-view.php:85
 #: modules/contact-form/grunion-editor-view.php:217
-#: modules/contact-form/grunion-form-view.php:213
 #: modules/contact-form/grunion-contact-form.php:1814
-#: modules/contact-form/grunion-contact-form.php:2216
+#: modules/contact-form/grunion-contact-form.php:2221
 #: class.jetpack-modules-list-table.php:204
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1123
 msgid "Name"
@@ -13275,8 +13276,8 @@ msgstr "Отбележете дали искате да нулирате нас�
 msgid "jumpstart option reset"
 msgstr "нулиране на настройките за \"Бърз старт\""
 
-#: class.jetpack-cli.php:291 class.jetpack-cli.php:300
-#: _inc/lib/class.core-rest-api-endpoints.php:1420
+#: _inc/lib/class.core-rest-api-endpoints.php:1420 class.jetpack-cli.php:291
+#: class.jetpack-cli.php:300
 msgid "Modules reset to default."
 msgstr "Модулите са нулирани до стойности по подразбиране."
 
@@ -13359,8 +13360,8 @@ msgstr "В момента Jetpack не е свързан с WordPress.com"
 msgid "Jetpack Debugging Center"
 msgstr "Център за отстраняване на грешки на Jetpack"
 
-#: class.jetpack-admin.php:168 modules/masterbar/masterbar.php:911
 #: modules/stats.php:582 modules/stats.php:1200
+#: modules/masterbar/masterbar.php:911 class.jetpack-admin.php:168
 msgid "Configure"
 msgstr "Настройки"
 
@@ -13384,14 +13385,14 @@ msgstr "По азбучен ред"
 msgid "Sort by:"
 msgstr "Подредба по:"
 
-#: class.jetpack-cli.php:387
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:120
+#: class.jetpack-cli.php:387
 msgid "Inactive"
 msgstr "Неактивен"
 
-#: modules/vaultpress.php:26 class.jetpack-cli.php:386
+#: modules/vaultpress.php:26 _inc/jetpack-strings.php:505
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:119
-#: _inc/jetpack-strings.php:505
+#: class.jetpack-cli.php:386
 msgid "Active"
 msgstr "Активна"
 
@@ -13408,9 +13409,9 @@ msgstr "Преглед:"
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: modules/masterbar/masterbar.php:313 modules/widgets/search.php:62
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:115
+#: modules/widgets/search.php:62 modules/masterbar/masterbar.php:313
 #: _inc/jetpack-strings.php:125
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:115
 msgid "Search"
 msgstr "Търсене"
 
@@ -13431,20 +13432,19 @@ msgstr "Грешка, несъвместим модул."
 msgid "Feedback"
 msgstr "Обратна връзка"
 
-#: class.jetpack.php:3878 class.jetpack.php:3959
-#: modules/sharedaddy/sharedaddy.php:217 modules/sharedaddy/sharedaddy.php:224
-#: modules/masterbar/masterbar.php:1002 modules/publicize/ui.php:676
-#: class.jetpack-network.php:272
+#: class.jetpack.php:3878 class.jetpack.php:3959 modules/publicize/ui.php:676
+#: modules/masterbar/masterbar.php:1002 modules/sharedaddy/sharedaddy.php:217
+#: modules/sharedaddy/sharedaddy.php:224 class.jetpack-network.php:272
+#: _inc/jetpack-strings.php:625
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:18
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:299
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:65
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:18
-#: _inc/jetpack-strings.php:625
 msgid "Settings"
 msgstr "Настройки"
 
-#: modules/custom-content-types.php:48
 #: modules/custom-post-types/portfolios.php:140
-#: modules/custom-post-types/testimonial.php:155 _inc/jetpack-strings.php:597
+#: modules/custom-post-types/testimonial.php:155
+#: modules/custom-content-types.php:48 _inc/jetpack-strings.php:597
 #: _inc/jetpack-strings.php:616
 msgid "Learn More"
 msgstr "Научете повече"

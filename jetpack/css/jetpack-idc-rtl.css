@@ -73,8 +73,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-idc-notice .dops-button {
-  -ms-flex-item-align: start;
-      align-self: flex-start;
+  align-self: flex-start;
   margin-top: auto;
 }
 
@@ -144,11 +143,9 @@ https://github.com/thoughtbot/bourbon
 .jp-idc-notice__action {
   border: 1px solid #e9eff3;
   border-radius: 4px;
-  display: -ms-flexbox;
   display: flex;
   padding: 16px;
-  -ms-flex-direction: column;
-      flex-direction: column;
+  flex-direction: column;
   margin-top: auto;
 }
 
@@ -158,12 +155,10 @@ https://github.com/thoughtbot/bourbon
 
 @media only screen and (min-width: 960px) {
   .jp-idc-notice__actions {
-    display: -ms-flexbox;
     display: flex;
   }
   .jp-idc-notice__action {
-    -ms-flex: 1;
-        flex: 1;
+    flex: 1;
     margin: 0 0 0 8px;
   }
   .jp-idc-notice__action:last-child {

@@ -8,7 +8,8 @@
 }
 
 .jetpack-security * {
-	box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	        box-sizing: border-box;
 }
 
 /* alert msgs */

@@ -18,6 +18,7 @@
 }
 
 .slideshow-window, .slideshow-window * {
+	-webkit-box-sizing: content-box;
 	box-sizing: content-box;
 }
 
@@ -38,6 +39,7 @@ body div.slideshow-window * img {
 	max-height: 100%;
 	padding: 0 !important;
 	position: relative;
+	-webkit-transform: translateY(-50%);
 	transform: translateY(-50%);
 	top: 50%;
 }
@@ -92,6 +94,7 @@ body div.slideshow-window * img {
 	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	opacity: 0.5;
 	direction:ltr;
+	-webkit-transition: 300ms opacity ease-out;
 	transition: 300ms opacity ease-out;
 }
 
@@ -120,6 +123,7 @@ body div div.slideshow-controls a:hover {
 	line-height: 32px !important;
 	text-align: center !important;
 	border-radius: 10em !important;
+	-webkit-transition: 300ms border-color ease-out;
 	transition: 300ms border-color ease-out;
 }
 

@@ -26,9 +26,30 @@ https://github.com/thoughtbot/bourbon
   box-sizing: border-box;
 }
 
+#jetpack_summary_widget h2.hndle span.js-toggle-stats_dashboard_widget_control {
+  position: absolute;
+  top: 8px;
+  right: 36px;
+}
+
+#jetpack_summary_widget h2.hndle span:not(.js-toggle-stats_dashboard_widget_control) {
+  display: flex;
+  align-items: center;
+}
+
+#jetpack_summary_widget h2.hndle svg {
+  height: 20px;
+  margin: .15em 0 0 .5em;
+}
+
 #jetpack_summary_widget .inside {
   margin: 0;
   padding: 0;
+}
+
+#jetpack_summary_widget .inside .stats-view-all {
+  text-align: center;
+  margin: 1em 0;
 }
 
 #jetpack_summary_widget .stats,
