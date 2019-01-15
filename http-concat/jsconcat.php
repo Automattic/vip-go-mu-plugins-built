@@ -35,6 +35,26 @@ class WPcom_JS_Concat extends WP_Scripts {
 		}
 	}
 
+	protected function has_inline_content( $handle ) {
+		$before_output = $this->get_data( $handle, 'before' );
+		if ( ! empty( $before_output ) ) {
+			return true;
+		}
+	
+		$after_output = $this->get_data( $handle, 'after' );
+		if ( ! empty( $after_output ) ) {
+			return true;
+		}
+	
+		// JavaScript translations
+		$has_translations = ! empty( $this->registered[ $handle ]->textdomain );
+		if ( $has_translations ) {
+			return true;
+		}
+	
+		return false;
+	}
+
 	function do_items( $handles = false, $group = false ) {
 		$handles = false === $handles ? $this->queue : (array) $handles;
 		$javascripts= array();
@@ -89,15 +109,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 			else
 				$js_url_parsed['path'] = substr( $js_realpath, strlen( ABSPATH ) - 1 );
 
-			// Check for scripts added from wp_add_inline_script()
-			$before_handle = $this->print_inline_script( $handle, 'before', false );
-			$after_handle = $this->print_inline_script( $handle, 'after', false );
-			if ( $before_handle ) {
-				$do_concat = false;
-				$before_handle = sprintf( "<script type='text/javascript'>\n%s\n</script>\n", $before_handle );
-			}
-			if ( $after_handle ) {
-				$after_handle = sprintf( "<script type='text/javascript'>\n%s\n</script>\n", $after_handle );
+			if ( $this->has_inline_content( $handle ) ) {
 				$do_concat = false;
 			}
 
@@ -110,14 +122,6 @@ class WPcom_JS_Concat extends WP_Scripts {
 
 				$javascripts[$level]['paths'][] = $js_url_parsed['path'];
 				$javascripts[$level]['handles'][] = $handle;
-
-				// Add inline scripts to Javascripts array for later processing
-				if ( $before_handle ) {
-					$javascripts[$level]['extras']['before'][] = $before_handle;
-				}
-				if ( $after_handle ) {
-					$javascripts[$level]['extras']['after'][] = $after_handle;
-				}
 
 			} else {
 				$level++;
