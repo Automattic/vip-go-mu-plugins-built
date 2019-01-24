@@ -89,6 +89,11 @@ class User {
 	const CRON_ACTION = 'wpcom_vip_support_remove_user_via_cron';
 
 	/**
+	 * Meta key to identify support users
+	 */
+	const VIP_SUPPORT_USER_META_KEY = '_vip_support_user';
+
+	/**
 	 * A flag to indicate reversion and then to prevent recursion.
 	 *
 	 * @var bool True if the role is being reverted
@@ -677,6 +682,16 @@ class User {
 		return ( $is_a8c_email && $email_verified );
 	}
 
+	public static function has_vip_support_meta( $user_id ) {
+		$user_meta = get_user_meta( $user_id, self::VIP_SUPPORT_USER_META_KEY, true );
+
+		if ( empty( $user_meta ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public static function user_has_vip_support_role( $user_id, $active_role = true ) {
 		$user = new WP_User( $user_id );
 
@@ -871,6 +886,8 @@ class User {
 		self::init()->mark_user_email_verified( $user->ID, $user->user_email );
 		$user->set_role( Role::VIP_SUPPORT_ROLE );
 
+		update_user_meta( $user_id, self::VIP_SUPPORT_USER_META_KEY, time() );
+
 		// If this is a multisite, commence super powers!
 		if ( is_multisite() ) {
 			grant_super_admin( $user->ID );
@@ -902,10 +919,10 @@ class User {
 			return new WP_Error( 'not-removing-machine-user', 'WPCOM VIP machine user cannot be removed!' );
 		}
 
-		// Check user has the active or inactive VIP Support role,
+		// Check user is a VIP Support user,
 		// and bail out if not
-		if ( ! self::user_has_vip_support_role( $user->ID, true )
-			&& ! self::user_has_vip_support_role( $user->ID, false ) ) {
+		$is_vip_support_user = self::has_vip_support_meta( $user->ID );
+		if ( ! $is_vip_support_user ) {
 			return new WP_Error( 'not-support-user', 'Specified user is not a support user' );
 		}
 
@@ -928,24 +945,43 @@ class User {
 	 * @return array
 	 */
 	public static function remove_stale_support_users() {
-		$support_users = get_users( array(
+		$users_with_meta = get_users( array(
+			'meta_key' => self::VIP_SUPPORT_USER_META_KEY,
+			'fields' => [ 'ID', 'user_registered', 'user_email', 'user_login'  ],
+		) );
+
+		// Continue querying by role for back-compat.
+		// This is until old users without meta are cleared out.
+		$users_with_role = get_users( array(
 			'role__in' => array(
 				Role::VIP_SUPPORT_ROLE,
 				Role::VIP_SUPPORT_INACTIVE_ROLE,
 			),
+			'fields' => [ 'ID', 'user_registered', 'user_email', 'user_login' ],
 		) );
 
-		if ( empty( $support_users ) ) {
+		if ( empty( $users_with_meta )
+			&& empty( $users_with_role ) ) {
 			return array();
 		}
 
+		$users_to_remove = array_merge( (array) $users_with_meta, (array) $users_with_role );
+
+		$processed_ids = [];
+
 		// Report the users removed.
 		$removed   = array();
-		
+
 		// Remove support user after 8 hours (about 1 shift).
 		$threshold = strtotime( '-8 hours' );
 
-		foreach ( $support_users as $user ) {
+		foreach ( $users_to_remove as $user ) {
+			if ( in_array( $user->ID, $processed_ids, true ) ) {
+				continue;
+			}
+
+			$processed_ids[] = $user->ID;
+
 			// Only remove expired users.
 			$created = strtotime( $user->user_registered );
 			if ( $created > $threshold ) {

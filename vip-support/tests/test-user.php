@@ -5,12 +5,22 @@
 
 namespace Automattic\VIP\Support_User\Tests;
 use Automattic\VIP\Support_User\User;
+use Automattic\VIP\Support_User\Role;
 use WP_UnitTestCase;
 
 /**
  * @group vip_support_user
  */
 class VIPSupportUserTest extends WP_UnitTestCase {
+	public function setUp() {
+		parent::setUp();
+
+		$this->vip_support_user = User::add( array(
+			'user_email' => 'vip-support@example.test',
+			'user_login' => 'vip-support',
+			'user_pass' => 'password',
+		) );
+	}
 
 	function test_is_a8c_email() {
 
@@ -55,5 +65,17 @@ class VIPSupportUserTest extends WP_UnitTestCase {
 	 */
 	function test_cron_cleanup_has_callback() {
 		$this->assertEquals( 10, has_action( User::CRON_ACTION ) );
+	}
+
+	function test__has_vip_support_meta__yep() {
+		$is_vip_support_user = User::has_vip_support_meta( $this->vip_support_user );
+		$this->assertTrue( $is_vip_support_user );
+	}
+
+	function test__has_vip_support_meta__nope() {
+		$user = $this->factory->user->create( array( 'user_login' => 'not-vip-support' ) );
+
+		$is_vip_support_user = User::has_vip_support_meta( $user );
+		$this->assertFalse( $is_vip_support_user );
 	}
 }
