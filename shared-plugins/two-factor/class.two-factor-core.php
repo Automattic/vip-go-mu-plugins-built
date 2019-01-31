@@ -45,6 +45,7 @@ class Two_Factor_Core {
 		add_action( 'personal_options_update', array( __CLASS__, 'user_two_factor_options_update' ) );
 		add_action( 'edit_user_profile_update', array( __CLASS__, 'user_two_factor_options_update' ) );
 		add_filter( 'manage_users_columns', array( __CLASS__, 'filter_manage_users_columns' ) );
+		add_filter( 'wpmu_users_columns', array( __CLASS__, 'filter_manage_users_columns' ) );
 		add_filter( 'manage_users_custom_column', array( __CLASS__, 'manage_users_custom_column' ), 10, 3 );
 	}
 
@@ -73,15 +74,6 @@ class Two_Factor_Core {
 			'Two_Factor_Dummy'        => TWO_FACTOR_DIR . 'providers/class.two-factor-dummy.php',
 		);
 
-		// FIDO U2F is PHP 5.3+ only.
-		if ( version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
-			unset( $providers['Two_Factor_FIDO_U2F'] );
-			trigger_error( sprintf( // WPCS: XSS OK.
-				__( 'FIDO U2F is not available because you are using PHP %s. (Requires 5.3 or greater)' ),
-				PHP_VERSION
-			) );
-		}
-
 		/**
 		 * Filter the supplied providers.
 		 *
@@ -92,6 +84,16 @@ class Two_Factor_Core {
 		 *                         the value is the path to the file containing the class.
 		 */
 		$providers = apply_filters( 'two_factor_providers', $providers );
+
+		// FIDO U2F is PHP 5.3+ only.
+		if ( isset( $providers['Two_Factor_FIDO_U2F'] ) && version_compare( PHP_VERSION, '5.3.0', '<' ) ) {
+			unset( $providers['Two_Factor_FIDO_U2F'] );
+			trigger_error( sprintf( // WPCS: XSS OK.
+				/* translators: %s: version number */
+				__( 'FIDO U2F is not available because you are using PHP %s. (Requires 5.3 or greater)', 'two-factor' ),
+				PHP_VERSION
+			) );
+		}
 
 		/**
 		 * For each filtered provider,
@@ -210,6 +212,7 @@ class Two_Factor_Core {
 	 * @since 0.1-dev
 	 *
 	 * @param int $user_id Optional. User ID. Default is 'null'.
+	 * @return bool
 	 */
 	public static function is_user_using_two_factor( $user_id = null ) {
 		$provider = self::get_primary_provider_for_user( $user_id );
@@ -258,7 +261,7 @@ class Two_Factor_Core {
 	}
 
 	/**
-	 * Add short description. @todo
+	 * Display the Backup code 2fa screen.
 	 *
 	 * @since 0.1-dev
 	 */
@@ -312,8 +315,7 @@ class Two_Factor_Core {
 
 		$available_providers = self::get_available_providers_for_user( $user );
 		$backup_providers = array_diff_key( $available_providers, array( $provider_class => null ) );
-		$interim_login = isset( $_REQUEST['interim-login'] ); // WPCS: override ok.
-		$wp_login_url = wp_login_url();
+		$interim_login = isset( $_REQUEST['interim-login'] ); // WPCS: CSRF ok.
 
 		$rememberme = 0;
 		if ( isset( $_REQUEST['rememberme'] ) && $_REQUEST['rememberme'] ) {
@@ -332,7 +334,7 @@ class Two_Factor_Core {
 		}
 		?>
 
-		<form name="validate_2fa_form" id="loginform" action="<?php echo esc_url( set_url_scheme( add_query_arg( 'action', 'validate_2fa', $wp_login_url ), 'login_post' ) ); ?>" method="post" autocomplete="off">
+		<form name="validate_2fa_form" id="loginform" action="<?php echo esc_url( self::login_url( array( 'action' => 'validate_2fa' ), 'login_post' ) ); ?>" method="post" autocomplete="off">
 				<input type="hidden" name="provider"      id="provider"      value="<?php echo esc_attr( $provider_class ); ?>" />
 				<input type="hidden" name="wp-auth-id"    id="wp-auth-id"    value="<?php echo esc_attr( $user->ID ); ?>" />
 				<input type="hidden" name="wp-auth-nonce" id="wp-auth-nonce" value="<?php echo esc_attr( $login_nonce ); ?>" />
@@ -346,40 +348,79 @@ class Two_Factor_Core {
 				<?php $provider->authentication_page( $user ); ?>
 		</form>
 
-		<?php if ( 1 === count( $backup_providers ) ) :
+		<?php
+		if ( 1 === count( $backup_providers ) ) :
 			$backup_classname = key( $backup_providers );
-			$backup_provider  = $backup_providers[ $backup_classname ];
-			?>
-			<div class="backup-methods-wrap">
-				<p class="backup-methods"><a href="<?php echo esc_url( add_query_arg( urlencode_deep( array(
+			$backup_provider = $backup_providers[ $backup_classname ];
+			$login_url = self::login_url(
+				array(
 					'action'        => 'backup_2fa',
 					'provider'      => $backup_classname,
 					'wp-auth-id'    => $user->ID,
 					'wp-auth-nonce' => $login_nonce,
 					'redirect_to'   => $redirect_to,
 					'rememberme'    => $rememberme,
-				) ), $wp_login_url ) ); ?>"><?php echo esc_html( sprintf( __( 'Or, use your backup method: %s &rarr;', 'two-factor' ), $backup_provider->get_label() ) ); ?></a></p>
-			</div>
-		<?php elseif ( 1 < count( $backup_providers ) ) : ?>
+				)
+			);
+			?>
 			<div class="backup-methods-wrap">
-				<p class="backup-methods"><a href="javascript:;" onclick="document.querySelector('ul.backup-methods').style.display = 'block';"><?php esc_html_e( 'Or, use a backup method…', 'two-factor' ); ?></a></p>
+				<p class="backup-methods">
+					<a href="<?php echo esc_url( $login_url ); ?>">
+						<?php
+						echo esc_html(
+							sprintf(
+								// translators: %s: Two-factor method name.
+								__( 'Or, use your backup method: %s &rarr;', 'two-factor' ),
+								$backup_provider->get_label()
+							)
+						);
+						?>
+					</a>
+				</p>
+			</div>
+			<?php elseif ( 1 < count( $backup_providers ) ) : ?>
+			<div class="backup-methods-wrap">
+				<p class="backup-methods">
+					<a href="javascript:;" onclick="document.querySelector('ul.backup-methods').style.display = 'block';">
+						<?php esc_html_e( 'Or, use a backup method…', 'two-factor' ); ?>
+					</a>
+				</p>
 				<ul class="backup-methods">
-					<?php foreach ( $backup_providers as $backup_classname => $backup_provider ) : ?>
-						<li><a href="<?php echo esc_url( add_query_arg( urlencode_deep( array(
-							'action'        => 'backup_2fa',
-							'provider'      => $backup_classname,
-							'wp-auth-id'    => $user->ID,
-							'wp-auth-nonce' => $login_nonce,
-							'redirect_to'   => $redirect_to,
-							'rememberme'    => $rememberme,
-						) ), $wp_login_url ) ); ?>"><?php $backup_provider->print_label(); ?></a></li>
+					<?php
+					foreach ( $backup_providers as $backup_classname => $backup_provider ) :
+						$login_url = self::login_url(
+							array(
+								'action'        => 'backup_2fa',
+								'provider'      => $backup_classname,
+								'wp-auth-id'    => $user->ID,
+								'wp-auth-nonce' => $login_nonce,
+								'redirect_to'   => $redirect_to,
+								'rememberme'    => $rememberme,
+							)
+						);
+						?>
+						<li>
+							<a href="<?php echo esc_url( $login_url ); ?>">
+								<?php $backup_provider->print_label(); ?>
+							</a>
+						</li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
 		<?php endif; ?>
 
 		<p id="backtoblog">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Are you lost?' ); ?>"><?php echo esc_html( sprintf( __( '&larr; Back to %s' ), get_bloginfo( 'title', 'display' ) ) ); ?></a>
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php esc_attr_e( 'Are you lost?', 'two-factor' ); ?>">
+				<?php
+				echo esc_html(
+					sprintf(
+						// translators: %s: site name.
+						__( '&larr; Back to %s', 'two-factor' ),
+						get_bloginfo( 'title', 'display' )
+					)
+				);
+				?>
+			</a>
 		</p>
 
 		<style>
@@ -413,11 +454,30 @@ class Two_Factor_Core {
 	}
 
 	/**
+	 * Generate the two-factor login form URL.
+	 *
+	 * @param  array  $params List of query argument pairs to add to the URL.
+	 * @param  string $scheme URL scheme context.
+	 *
+	 * @return string
+	 */
+	public static function login_url( $params = array(), $scheme = 'login' ) {
+		if ( ! is_array( $params ) ) {
+			$params = array();
+		}
+
+		$params = urlencode_deep( $params );
+
+		return add_query_arg( $params, site_url( 'wp-login.php', $scheme ) );
+	}
+
+	/**
 	 * Create the login nonce.
 	 *
 	 * @since 0.1-dev
 	 *
 	 * @param int $user_id User ID.
+	 * @return array
 	 */
 	public static function create_login_nonce( $user_id ) {
 		$login_nonce               = array();
@@ -441,6 +501,7 @@ class Two_Factor_Core {
 	 * @since 0.1-dev
 	 *
 	 * @param int $user_id User ID.
+	 * @return bool
 	 */
 	public static function delete_login_nonce( $user_id ) {
 		return delete_user_meta( $user_id, self::USER_META_NONCE_KEY );
@@ -453,6 +514,7 @@ class Two_Factor_Core {
 	 *
 	 * @param int    $user_id User ID.
 	 * @param string $nonce Login nonce.
+	 * @return bool
 	 */
 	public static function verify_login_nonce( $user_id, $nonce ) {
 		$login_nonce = get_user_meta( $user_id, self::USER_META_NONCE_KEY, true );
@@ -542,7 +604,7 @@ class Two_Factor_Core {
 			if ( $customize_login ) {
 				wp_enqueue_script( 'customize-base' );
 			}
-			$message = '<p class="message">' . __( 'You have logged in successfully.' ) . '</p>';
+			$message       = '<p class="message">' . __( 'You have logged in successfully.', 'two-factor' ) . '</p>';
 			$interim_login = 'success'; // WPCS: override ok.
 			login_header( '', $message ); ?>
 			</div>
@@ -588,7 +650,7 @@ class Two_Factor_Core {
 		}
 
 		if ( ! self::is_user_using_two_factor( $user_id ) ) {
-			return sprintf( '<span class="dashicons-before dashicons-no-alt">%s</span>', esc_html__( 'Disabled' ) );
+			return sprintf( '<span class="dashicons-before dashicons-no-alt">%s</span>', esc_html__( 'Disabled', 'two-factor' ) );
 		} else {
 			$provider = self::get_primary_provider_for_user( $user_id );
 			return esc_html( $provider->get_label() );
@@ -608,7 +670,7 @@ class Two_Factor_Core {
 	public static function user_two_factor_options( $user ) {
 		wp_enqueue_style( 'user-edit-2fa', plugins_url( 'user-edit.css', __FILE__ ) );
 
-		$enabled_providers = array_keys( self::get_available_providers_for_user( $user->ID ) );
+		$enabled_providers = array_keys( self::get_available_providers_for_user( $user ) );
 		$primary_provider = self::get_primary_provider_for_user( $user->ID );
 
 		if ( ! empty( $primary_provider ) && is_object( $primary_provider ) ) {
@@ -630,9 +692,9 @@ class Two_Factor_Core {
 					<table class="two-factor-methods-table">
 						<thead>
 							<tr>
-								<th class="col-enabled" scope="col"><?php esc_html_e( 'Enabled' ); ?></th>
-								<th class="col-primary" scope="col"><?php esc_html_e( 'Primary' ); ?></th>
-								<th class="col-name" scope="col"><?php esc_html_e( 'Name' ); ?></th>
+								<th class="col-enabled" scope="col"><?php esc_html_e( 'Enabled', 'two-factor' ); ?></th>
+								<th class="col-primary" scope="col"><?php esc_html_e( 'Primary', 'two-factor' ); ?></th>
+								<th class="col-name" scope="col"><?php esc_html_e( 'Name', 'two-factor' ); ?></th>
 							</tr>
 						</thead>
 						<tbody>

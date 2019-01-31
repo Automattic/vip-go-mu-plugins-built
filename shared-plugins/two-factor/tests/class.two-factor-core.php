@@ -1,15 +1,36 @@
 <?php
 
+/**
+ * Class Test_ClassTwoFactorCore
+ *
+ * @package Two_Factor
+ * @group core
+ */
 class Test_ClassTwoFactorCore extends WP_UnitTestCase {
 
+	/**
+	 * Original User ID set in setup.
+	 *
+	 * @var int
+	 */
 	private $old_user_id;
 
+	/**
+	 * Set up error handling before test suite.
+	 *
+	 * @see WP_UnitTestCase::setUpBeforeClass()
+	 */
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
 		set_error_handler( array( 'Test_ClassTwoFactorCore', 'error_handler' ) );
 	}
 
+	/**
+	 * Clean up error settings after test suite.
+	 *
+	 * @see WP_UnitTestCase::setUpBeforeClass()
+	 */
 	public static function tearDownAfterClass() {
 		restore_error_handler();
 
@@ -179,5 +200,19 @@ class Test_ClassTwoFactorCore extends WP_UnitTestCase {
 	 */
 	public function test_is_user_using_two_factor_not_logged_in() {
 		$this->assertFalse( Two_Factor_Core::is_user_using_two_factor() );
+	}
+
+	/**
+	 * @covers Two_Factor_Core::login_url
+	 */
+	public function test_login_url() {
+		$this->assertContains( 'wp-login.php', Two_Factor_Core::login_url() );
+
+		$this->assertContains(
+			'paramencoded=%2F%3D1',
+			Two_Factor_Core::login_url( array(
+				'paramencoded' => '/=1'
+			) )
+		);
 	}
 }
