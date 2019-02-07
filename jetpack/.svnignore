@@ -11,6 +11,7 @@ readme.md
 .github
 phpunit.xml.dist
 dangerfile.js
+renovate.json
 docs
 tests
 tools

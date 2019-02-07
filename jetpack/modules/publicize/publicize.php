@@ -119,7 +119,7 @@ abstract class Publicize_Base {
 
 		add_action( 'init', array( $this, 'add_post_type_support' ) );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_action( 'init', array( $this, 'register_gutenberg_extension' ), 30 );
+		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_extension' ) );
 	}
 
 /*
@@ -139,6 +139,10 @@ abstract class Publicize_Base {
 	 * @return array
 	 */
 	abstract function get_services( $filter = 'all', $_blog_id = false, $_user_id = false );
+
+	function can_connect_service( $service_name ) {
+		return 'google_plus' !== $service_name;
+	}
 
 	/**
 	 * Does the given user have a connection to the service on the given blog?
@@ -498,7 +502,7 @@ abstract class Publicize_Base {
 					if ( ! $this->is_valid_facebook_connection( $connection ) ) {
 						$connection_test_passed = false;
 						$user_can_refresh = false;
-						$connection_test_message = __( 'Facebook no longer supports Publicize connections to Facebook Profiles, but you can still connect Facebook Pages. Please select a Facebook Page to publish updates to.' );
+						$connection_test_message = __( 'Please select a Facebook Page to publish updates.', 'jetpack' );
 					}
 				}
 
@@ -780,17 +784,15 @@ abstract class Publicize_Base {
 	 * Register the Publicize Gutenberg extension
 	 */
 	function register_gutenberg_extension() {
-		jetpack_register_plugin( 'publicize', array( 'callback' => array( $this, 'get_extension_availability' ) ) );
-	}
+		// TODO: The `gutenberg/available-extensions` endpoint currently doesn't accept a post ID,
+		// so we cannot pass one to `$this->current_user_can_access_publicize_data()`.
 
-	function get_extension_availability() {
-		$object_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		if ( $this->current_user_can_access_publicize_data() ) {
+			jetpack_register_plugin( 'publicize' );
+		} else {
+			jetpack_set_extension_unavailability_reason( 'publicize', 'unauthorized' );
 
-		if ( ! $this->current_user_can_access_publicize_data( $object_id ) ) {
-			return array( 'available' => false, 'unavailable_reason' => 'unauthorized' );
 		}
-
-		return array( 'available' => true );
 	}
 
 	/**

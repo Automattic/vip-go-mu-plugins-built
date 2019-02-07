@@ -65,6 +65,7 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
+		'jetpack-email-subscribe',
 	);
 
 	/**
@@ -538,9 +539,8 @@ class Jetpack {
 		 * Prepare Gutenberg Editor functionality
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
-		add_action( 'init', array( 'Jetpack_Gutenberg', 'load_blocks' ), 99 ); // Registers all the Jetpack blocks .
+		Jetpack_Gutenberg::init();
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
-		add_filter( 'jetpack_set_available_blocks', array( 'Jetpack_Gutenberg', 'jetpack_set_available_blocks' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
 
@@ -1549,7 +1549,7 @@ class Jetpack {
 		}
 
 		// Store the option and return true if updated
-		return update_option( 'jetpack_active_plan', $results['plan'] );
+		return update_option( 'jetpack_active_plan', $results['plan'], true );
 	}
 
 	/**
@@ -2707,7 +2707,19 @@ class Jetpack {
 	 * @return string The locale as JSON
 	 */
 	public static function get_i18n_data_json() {
-		$i18n_json = JETPACK__PLUGIN_DIR . 'languages/json/jetpack-' . get_user_locale() . '.json';
+
+		// WordPress 5.0 uses md5 hashes of file paths to associate translation
+		// JSON files with the file they should be included for. This is an md5
+		// of '_inc/build/admin.js'.
+		$path_md5 = '1bac79e646a8bf4081a5011ab72d5807';
+
+		$i18n_json =
+				   JETPACK__PLUGIN_DIR
+				   . 'languages/json/jetpack-'
+				   . get_user_locale()
+				   . '-'
+				   . $path_md5
+				   . '.json';
 
 		if ( is_file( $i18n_json ) && is_readable( $i18n_json ) ) {
 			$locale_data = @file_get_contents( $i18n_json );
@@ -6871,6 +6883,11 @@ p {
 	public function implode_frontend_css( $travis_test = false ) {
 		$do_implode = true;
 		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
+			$do_implode = false;
+		}
+
+		// Do not implode CSS when the page loads via the AMP plugin.
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			$do_implode = false;
 		}
 
