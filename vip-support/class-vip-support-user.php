@@ -94,6 +94,22 @@ class User {
 	const VIP_SUPPORT_USER_META_KEY = '_vip_support_user';
 
 	/**
+	 * Base email address for VIP Support user aliases.
+	 */
+	const VIP_SUPPORT_EMAIL_ADDRESS = 'vip-support@automattic.com';
+
+	/**
+	 * Regex Pattern for `VIP_SUPPORT_EMAIL_ADDRESS` to match aliases like:
+	 * `vip-support+<username>@automattic.com`
+	 */
+	const VIP_SUPPORT_EMAIL_ADDRESS_PATTERN = '/vip-support\+[^@]+@automattic\.com/i';
+
+	/**
+	 * The Gravatar URL for `VIP_SUPPORT_EMAIL_ADDRESS`.
+	 */
+	const VIP_SUPPORT_EMAIL_ADDRESS_GRAVATAR = 'https://secure.gravatar.com/avatar/c83fd21f1122c4d1d8677d6a7a1291d3';
+
+	/**
 	 * A flag to indicate reversion and then to prevent recursion.
 	 *
 	 * @var bool True if the role is being reverted
@@ -163,6 +179,8 @@ class User {
 
 		add_filter( 'wp_redirect',          array( $this, 'filter_wp_redirect' ) );
 		add_filter( 'removable_query_args', array( $this, 'filter_removable_query_args' ) );
+		add_filter( 'user_email',           array( $this, 'filter_vip_support_email_aliases' ) );
+		add_filter( 'get_avatar_url',       array( $this, 'filter_vip_support_email_gravatars' ), 10, 3 );
 
 		$this->reverting_role   = false;
 		$this->message_replace  = false;
@@ -398,6 +416,61 @@ class User {
 			$location = esc_url_raw( $location );
 		}
 		return $location;
+	}
+
+	/**
+	 * Filters a users email address, removing the username if the email
+	 * is a VIP Support email alias.
+	 *
+	 * This helps simplify support email aliases in the users list so
+	 * they're not as lengthy and easier to understand at a glance.
+	 *
+	 * @param string $email The email address of a user.
+	 *
+	 * @return string
+	 */
+	public function filter_vip_support_email_aliases( $email ) {
+		if ( is_admin() && $this->is_vip_support_email_alias( $email ) ) {
+			return self::VIP_SUPPORT_EMAIL_ADDRESS;
+		}
+		return $email;
+	}
+
+	/**
+	 * Filters a users Gravatar URL, altering it if the email is a VIP
+	 * Support email alias.
+	 *
+	 * Since the email aliases are fake, they don't have a Gravatar.
+	 * Instead of showing the mystery man, get the Gravatar for the
+	 * real `VIP_SUPPORT_EMAIL_ADDRESS` email address.
+	 *
+	 * @param string $url The Gravatar url.
+	 * @param mixed $id_or_email The users ID, email, or a WP_User object.
+	 * @param array $args Arguments passed to get_avatar_url(), after processing.
+	 *
+	 * @return string
+	 */
+	public function filter_vip_support_email_gravatars( $url, $id_or_email, $args ) {
+
+		if ( ! is_admin() ) {
+			return $url;
+		}
+
+		// Get the user's email address.
+		if ( is_numeric( $id_or_email ) ) {
+			$user       = get_user_by( 'id', $id_or_email );
+			$user_email = $user->user_email;
+		} elseif ( is_string( $id_or_email ) ) {
+			$user_email = $id_or_email;
+		} elseif ( $id_or_email instanceof WP_User ) {
+			$user_email = $id_or_email->user_email;
+		}
+
+		if ( isset( $user_email ) && $this->is_vip_support_email_alias( $user_email ) ) {
+			return self::VIP_SUPPORT_EMAIL_ADDRESS_GRAVATAR . '?d=mm&r=g&s=' . $args['size'];
+		}
+
+		return $url;
 	}
 
 	/**
@@ -655,6 +728,20 @@ class User {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Is the email provided a VIP Support email alias.
+	 *
+	 * VIP Support staff without a real a8c email addresses will receive
+	 * an email address like `vip-support+<username>@automattic.com`.
+	 *
+	 * @param string $email an email address to check.
+	 *
+	 * @return bool true if the string is a VIP support email alias.
+	 */
+	public function is_vip_support_email_alias( $email ) {
+		return (bool) preg_match( self::VIP_SUPPORT_EMAIL_ADDRESS_PATTERN, $email );
 	}
 
 	/**
@@ -945,27 +1032,14 @@ class User {
 	 * @return array
 	 */
 	public static function remove_stale_support_users() {
-		$users_with_meta = get_users( array(
+		$support_users = get_users( array(
 			'meta_key' => self::VIP_SUPPORT_USER_META_KEY,
 			'fields' => [ 'ID', 'user_registered', 'user_email', 'user_login'  ],
 		) );
 
-		// Continue querying by role for back-compat.
-		// This is until old users without meta are cleared out.
-		$users_with_role = get_users( array(
-			'role__in' => array(
-				Role::VIP_SUPPORT_ROLE,
-				Role::VIP_SUPPORT_INACTIVE_ROLE,
-			),
-			'fields' => [ 'ID', 'user_registered', 'user_email', 'user_login' ],
-		) );
-
-		if ( empty( $users_with_meta )
-			&& empty( $users_with_role ) ) {
+		if ( empty( $support_users ) ) {
 			return array();
 		}
-
-		$users_to_remove = array_merge( (array) $users_with_meta, (array) $users_with_role );
 
 		$processed_ids = [];
 
@@ -975,7 +1049,7 @@ class User {
 		// Remove support user after 8 hours (about 1 shift).
 		$threshold = strtotime( '-8 hours' );
 
-		foreach ( $users_to_remove as $user ) {
+		foreach ( $support_users as $user ) {
 			if ( in_array( $user->ID, $processed_ids, true ) ) {
 				continue;
 			}
