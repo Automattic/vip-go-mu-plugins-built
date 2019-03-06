@@ -345,10 +345,6 @@ class Jetpack_Carousel {
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
-			wp_register_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
-			$GLOBALS['wp_styles']->add_data( 'jetpack-carousel-ie8fix', 'conditional', 'lte IE 8' );
-			wp_enqueue_style( 'jetpack-carousel-ie8fix' );
-
 			/**
 			 * Fires after carousel assets are enqueued for the first time.
 			 * Allows for adding additional assets to the carousel page.
@@ -394,7 +390,8 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
-			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) ) {
+			if ( preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id ) &&
+				! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html ) ) {
 				$attachment_id = absint( $class_id[2] );
 				/**
 				 * If exactly the same image tag is used more than once, overwrite it.

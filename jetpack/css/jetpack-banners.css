@@ -42,7 +42,7 @@ https://github.com/thoughtbot/bourbon
   padding: 0.375rem 0;
   line-height: 1.5;
   font-size: 0.6875rem;
-  color: #2e4453;
+  color: #414141;
 }
 
 .jp-banner .notice-dismiss {
@@ -58,7 +58,8 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jetpack-disconnected .jp-connect-full__container {
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   position: absolute;
   top: 0;
   right: 0;
@@ -100,7 +101,8 @@ https://github.com/thoughtbot/bourbon
 .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
   position: relative;
   bottom: 0;
-  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+  -webkit-box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eeeeee;
+          box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eeeeee;
   display: none;
 }
 
@@ -128,7 +130,7 @@ https://github.com/thoughtbot/bourbon
   position: absolute;
   right: 0;
   top: 0;
-  fill: #87a6bc;
+  fill: #a2a2a2;
   padding: 1rem;
   height: 1.5rem;
   width: 1.5rem;
@@ -154,7 +156,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-connect-full__step-header h3 {
-  color: #537994;
+  color: #747474;
   font-size: 1rem;
   font-weight: normal;
   margin: 0.625rem 0 1.5rem;
@@ -167,7 +169,7 @@ https://github.com/thoughtbot/bourbon
 .jp-connect-full__tos-blurb {
   font-size: 0.6875rem;
   margin: 0 auto 1.5rem;
-  color: #537994;
+  color: #747474;
 }
 
 .jp-connect-full__tos-blurb a {
@@ -199,7 +201,7 @@ https://github.com/thoughtbot/bourbon
 
 .jp-connect-full__dismiss-paragraph a {
   cursor: pointer;
-  color: #537994;
+  color: #747474;
   text-decoration: none;
 }
 
@@ -210,36 +212,54 @@ https://github.com/thoughtbot/bourbon
 .jp-connect-full__slide {
   max-width: 750px;
   margin: 4em auto;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: row;
-  justify-content: stretch;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: stretch;
+      -ms-flex-pack: stretch;
+          justify-content: stretch;
 }
 
 @media (max-width: 782px) {
   .jp-connect-full__slide {
-    flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+        flex-wrap: wrap;
   }
 }
 
 .jp-connect-full__slide .jp-connect-full__slide-card {
-  flex: 1;
+  -webkit-box-flex: 1;
+      -ms-flex: 1;
+          flex: 1;
   text-align: left;
-  order: 2;
+  -webkit-box-ordinal-group: 3;
+      -ms-flex-order: 2;
+          order: 2;
 }
 
 @media (min-width: 782px) {
   .jp-connect-full__slide .jp-connect-full__slide-card {
-    order: unset;
+    -webkit-box-ordinal-group: unset;
+        -ms-flex-order: unset;
+            order: unset;
   }
 }
 
 .jp-connect-full__slide .illustration {
-  order: 1;
+  -webkit-box-ordinal-group: 2;
+      -ms-flex-order: 1;
+          order: 1;
 }
 
 @media (min-width: 782px) {
   .jp-connect-full__slide .illustration {
-    order: unset;
+    -webkit-box-ordinal-group: unset;
+        -ms-flex-order: unset;
+            order: unset;
   }
 }
 
@@ -270,7 +290,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-connect-full__step-support h3 {
-  color: #537994;
+  color: #747474;
   font-size: 1rem;
   font-weight: normal;
   margin: 0.625rem 0 1.5rem;
@@ -279,7 +299,8 @@ https://github.com/thoughtbot/bourbon
 .updated.jp-wpcom-connect__container {
   border-left: none;
   padding: 0;
-  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+  -webkit-box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+          box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
 @media screen and (max-width: 782px) {
@@ -327,7 +348,8 @@ https://github.com/thoughtbot/bourbon
 .jp-wpcom-connect__container {
   display: block;
   position: relative;
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
   background-color: #00BE28;
 }
 
@@ -336,10 +358,18 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__inner-container {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: left;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -webkit-box-pack: left;
+      -ms-flex-pack: left;
+          justify-content: left;
   background: #fff;
 }
 
@@ -357,7 +387,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__content-container p {
-  color: #4f748e;
+  color: #6f6f6f;
   font-size: 0.875rem;
 }
 
@@ -395,7 +425,7 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jp-wpcom-connect__slide ul li {
-  color: #4f748e;
+  color: #6f6f6f;
   font-size: 0.75rem;
 }
 
@@ -426,8 +456,13 @@ https://github.com/thoughtbot/bourbon
 
 @media (min-width: 600px) {
   .jp-wpcom-connect__vertical-nav {
-    flex-direction: column;
-    justify-content: flex-start;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-pack: start;
+        -ms-flex-pack: start;
+            justify-content: flex-start;
   }
 }
 
@@ -447,9 +482,16 @@ https://github.com/thoughtbot/bourbon
 
 @media (min-width: 600px) {
   .vertical-menu__feature-item {
+    display: -webkit-box;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    -webkit-box-orient: horizontal;
+    -webkit-box-direction: normal;
+        -ms-flex-direction: row;
+            flex-direction: row;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
     border: none;
     padding: 0.75rem 0.5rem;
     border-bottom: 1px solid #c8d7e1;

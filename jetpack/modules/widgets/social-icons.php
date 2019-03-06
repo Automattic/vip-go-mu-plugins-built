@@ -478,6 +478,16 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
+				'url'   => 'discord.gg',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
+				'url'   => 'discordapp.com',
+				'icon'  => 'discord',
+				'label' => 'Discord',
+			),
+			array(
 				'url'   => 'dribbble.com',
 				'icon'  => 'dribbble',
 				'label' => 'Dribbble',
@@ -563,7 +573,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Medium',
 			),
 			array(
-				'url'   => 'pinterest.com',
+				'url'   => 'pinterest.',
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
 			),

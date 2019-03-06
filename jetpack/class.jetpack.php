@@ -65,7 +65,6 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
-		'jetpack-email-subscribe',
 	);
 
 	/**
@@ -540,6 +539,7 @@ class Jetpack {
 		 */
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-gutenberg.php';
 		Jetpack_Gutenberg::init();
+		Jetpack_Gutenberg::load_independent_blocks();
 		add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Gutenberg', 'enqueue_block_editor_assets' ) );
 
 		add_action( 'set_user_role', array( $this, 'maybe_clear_other_linked_admins_transient' ), 10, 3 );
@@ -1619,6 +1619,8 @@ class Jetpack {
 			'jetpack_business_monthly',
 			'business-bundle',
 			'business-bundle-2y',
+			'ecommerce-bundle',
+			'ecommerce-bundle-2y',
 			'vip',
 		);
 
@@ -1725,6 +1727,25 @@ class Jetpack {
 	}
 
 	/**
+	 * Determines reason for Jetpack development mode.
+	 */
+	public static function development_mode_trigger_text() {
+		if ( ! Jetpack::is_development_mode() ) {
+			return __( 'Jetpack is not in Development Mode.', 'jetpack' );
+		}
+
+		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+			$notice =  __( 'The JETPACK_DEV_DEBUG constant is defined in wp-config.php or elsewhere.', 'jetpack' );
+		} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
+			$notice = __( 'The site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
+		} else {
+			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
+		}
+
+		return $notice;
+
+	}
+	/**
 	* Get Jetpack development mode notice text and notice class.
 	*
 	* Mirrors the checks made in Jetpack::is_development_mode
@@ -1732,25 +1753,13 @@ class Jetpack {
 	*/
 	public static function show_development_mode_notice() {
 		if ( Jetpack::is_development_mode() ) {
-			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
-				$notice = sprintf(
-					/* translators: %s is a URL */
-					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the JETPACK_DEV_DEBUG constant being defined in wp-config.php or elsewhere.', 'jetpack' ),
-					'https://jetpack.com/support/development-mode/'
-				);
-			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-				$notice = sprintf(
-					/* translators: %s is a URL */
-					__( 'In <a href="%s" target="_blank">Development Mode</a>, via site URL lacking a dot (e.g. http://localhost).', 'jetpack' ),
-					'https://jetpack.com/support/development-mode/'
-				);
-			} else {
-				$notice = sprintf(
-					/* translators: %s is a URL */
-					__( 'In <a href="%s" target="_blank">Development Mode</a>, via the jetpack_development_mode filter.', 'jetpack' ),
-					'https://jetpack.com/support/development-mode/'
-				);
-			}
+			$notice = sprintf(
+			/* translators: %s is a URL */
+				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
+				'https://jetpack.com/support/development-mode/'
+			);
+
+			$notice .= ' ' . Jetpack::development_mode_trigger_text();
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -2485,7 +2494,7 @@ class Jetpack {
 	 */
 	function handle_deprecated_modules( $modules ) {
 		$deprecated_modules = array(
-			'debug'            => null,  // Closed out and moved to ./class.jetpack-debugger.php
+			'debug'            => null,  // Closed out and moved to the debugger library.
 			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
 			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
 		);
@@ -6900,7 +6909,7 @@ p {
 		 */
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', $do_implode );
 
-		// Do not use the imploded file when default behaviour was altered through the filter
+		// Do not use the imploded file when default behavior was altered through the filter
 		if ( ! $do_implode ) {
 			return;
 		}
@@ -7107,7 +7116,10 @@ p {
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
-				esc_html__( 'Stats by %s', 'jetpack' ),
+				wp_kses(
+					__( 'Stats <span>by %s</span>', 'jetpack' ),
+					array( 'span' => array() )
+				),
 				Jetpack::get_jp_emblem( true )
 			);
 

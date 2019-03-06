@@ -1,19 +1,24 @@
 {
   "production": [
+    "business-hours",
     "contact-form",
+    "contact-info",
     "gif",
+    "mailchimp",
     "map",
     "markdown",
     "publicize",
     "related-posts",
     "shortlinks",
     "simple-payments",
+    "slideshow",
     "subscriptions",
-    "tiled-gallery"
+    "tiled-gallery",
+    "videopress",
+    "wordads"
   ],
   "beta": [
-    "mailchimp",
-    "vr",
-    "contact-info"
+    "repeat-visitor",
+    "vr"
   ]
 }
