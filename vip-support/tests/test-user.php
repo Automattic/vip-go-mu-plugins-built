@@ -60,57 +60,12 @@ class VIPSupportUserTest extends WP_UnitTestCase {
 
 	}
 
-	/**
-	 * The values in `test_is_vip_support_email_alias_*()` pressumes the value of
-	 * `User::VIP_SUPPORT_EMAIL_ADDRESS`. If that constants value changes the values in these
-	 * tests must also change as well. This test attempts to make that more clear.
-	 */
-	function test_vip_support_email_constant_for_tests() {
-		$this->assertEquals(
-			'vip-support@automattic.com',
-			User::VIP_SUPPORT_EMAIL_ADDRESS,
-			"`VIP_SUPPORT_EMAIL_ADDRESS` has changed. The data providers for the two `test_is_vip_support_email_alias_*()` tests, and this test need to be changed as well to reflect this new email address."
-		);
-	}
-
-	/**
-	 * The emails used in `test_is_vip_support_email_alias_*()` tests pressume the values of
-	 * `User::VIP_SUPPORT_EMAIL_ADDRESS` and `Users::VIP_SUPPORT_EMAIL_ADDRESS_PATTERN`.
-	 * If either of those constants changes the values in tests must also change as well.
-	 * This test attempts to make that more clear.
-	 */
-	function test_vip_support_email_pattern_constant_for_tests() {
-		$this->assertEquals(
-			'/vip-support\+[^@]+@automattic\.com/i',
-			User::VIP_SUPPORT_EMAIL_ADDRESS_PATTERN,
-			"`VIP_SUPPORT_EMAIL_ADDRESS_PATTERN` has changed. The data providers for the two `test_is_vip_support_email_alias_*()` tests, and this test need to be changed as well to reflect the new email address."
-		);
-	}
-
-	/**
-	 * @dataProvider provider_valid_vip_support_email_aliases
-	 */
-	function test_is_vip_support_email_alias_valid( $valid_email_aliases  ) {
-		foreach ( $valid_email_aliases as $valid_email_alias ) {
-			$this->assertTrue( User::init()->is_vip_support_email_alias( $valid_email_alias ) );
-		}
-	}
-
 	function provider_valid_vip_support_email_aliases() {
 		return [ [ [
 			'vip-support+test@automattic.com',
 			'vip-support+some_username@automattic.com',
 			'vip-support+areallylongusernameusedhere123@automattic.com',
 		] ] ];
-	}
-
-	/**
-	 * @dataProvider provider_invalid_vip_support_email_aliases
-	 */
-	function test_is_vip_support_email_alias_invalid( $invalid_email_aliases ) {
-		foreach ( $invalid_email_aliases as $invalid_email_alias ) {
-			$this->assertFalse( User::init()->is_vip_support_email_alias( $invalid_email_alias ) );
-		}
 	}
 
 	function provider_invalid_vip_support_email_aliases() {

@@ -99,12 +99,6 @@ class User {
 	const VIP_SUPPORT_EMAIL_ADDRESS = 'vip-support@automattic.com';
 
 	/**
-	 * Regex Pattern for `VIP_SUPPORT_EMAIL_ADDRESS` to match aliases like:
-	 * `vip-support+<username>@automattic.com`
-	 */
-	const VIP_SUPPORT_EMAIL_ADDRESS_PATTERN = '/vip-support\+[^@]+@automattic\.com/i';
-
-	/**
 	 * The Gravatar URL for `VIP_SUPPORT_EMAIL_ADDRESS`.
 	 */
 	const VIP_SUPPORT_EMAIL_ADDRESS_GRAVATAR = 'https://secure.gravatar.com/avatar/c83fd21f1122c4d1d8677d6a7a1291d3';
@@ -430,7 +424,7 @@ class User {
 	 * @return string
 	 */
 	public function filter_vip_support_email_aliases( $email ) {
-		if ( is_admin() && $this->is_vip_support_email_alias( $email ) ) {
+		if ( is_admin() && $this->is_a8c_email( $email ) ) {
 			return self::VIP_SUPPORT_EMAIL_ADDRESS;
 		}
 		return $email;
@@ -459,14 +453,16 @@ class User {
 		// Get the user's email address.
 		if ( is_numeric( $id_or_email ) ) {
 			$user       = get_user_by( 'id', $id_or_email );
-			$user_email = $user->user_email;
+			if ( false !== $user ) {
+				$user_email = $user->user_email;
+			}
 		} elseif ( is_string( $id_or_email ) ) {
 			$user_email = $id_or_email;
 		} elseif ( $id_or_email instanceof WP_User ) {
 			$user_email = $id_or_email->user_email;
 		}
 
-		if ( isset( $user_email ) && $this->is_vip_support_email_alias( $user_email ) ) {
+		if ( isset( $user_email ) && $this->is_a8c_email( $user_email ) ) {
 			return self::VIP_SUPPORT_EMAIL_ADDRESS_GRAVATAR . '?d=mm&r=g&s=' . $args['size'];
 		}
 
@@ -731,20 +727,6 @@ class User {
 	}
 
 	/**
-	 * Is the email provided a VIP Support email alias.
-	 *
-	 * VIP Support staff without a real a8c email addresses will receive
-	 * an email address like `vip-support+<username>@automattic.com`.
-	 *
-	 * @param string $email an email address to check.
-	 *
-	 * @return bool true if the string is a VIP support email alias.
-	 */
-	public function is_vip_support_email_alias( $email ) {
-		return (bool) preg_match( self::VIP_SUPPORT_EMAIL_ADDRESS_PATTERN, $email );
-	}
-
-	/**
 	 * Determine if a given user has been validated as an Automattician
 	 *
 	 * Checks their email address as well as their email address verification status
@@ -965,10 +947,6 @@ class User {
 		remove_action( 'set_user_role', array( self::init(), 'action_set_user_role' ), 10 );
 		$user = new WP_User( $user_id );
 		add_action( 'set_user_role', array( self::init(), 'action_set_user_role' ), 10, 3 );
-
-		// Seems polite to notify the admin that a support user got added to their site
-		// @TODO Tailor the notification email so it explains that this is a support user
-		wp_new_user_notification( $user_id, null, 'admin' );
 
 		self::init()->mark_user_email_verified( $user->ID, $user->user_email );
 		$user->set_role( Role::VIP_SUPPORT_ROLE );
