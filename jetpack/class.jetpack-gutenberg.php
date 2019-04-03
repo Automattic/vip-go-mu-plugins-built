@@ -19,13 +19,16 @@
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
 function jetpack_register_block( $slug, $args = array() ) {
-	if ( ! function_exists( 'register_block_type' ) ) {
-		return false;
-	}
 	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
 	}
+
+	// Checking whether block is registered to ensure it isn't registered twice.
+	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
+		return false;
+	}
+
 	return register_block_type( $slug, $args );
 }
 
@@ -205,10 +208,6 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::is_gutenberg_available() ) {
-			return;
-		}
-
 		if ( ! self::should_load() ) {
 			return;
 		}
@@ -333,10 +332,6 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availablity status
 	 */
 	public static function get_availability() {
-		if ( ! self::is_gutenberg_available() ) {
-			return array();
-		}
-
 		/**
 		 * Fires before Gutenberg extensions availability is computed.
 		 *
@@ -352,7 +347,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/' . $extension ) ||
+			$is_available = self::is_registered( 'jetpack/' . $extension ) ||
 			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
 
 			$available_extensions[ $extension ] = array(
@@ -396,6 +391,19 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Check if an extension/block is already registered
+	 *
+	 * @since 7.2
+	 *
+	 * @param string $slug Name of extension/block to check.
+	 *
+	 * @return bool
+	 */
+	public static function is_registered( $slug ) {
+		return WP_Block_Type_Registry::get_instance()->is_registered( $slug );
+	}
+
+	/**
 	 * Check if Gutenberg editor is available
 	 *
 	 * @since 6.7.0
@@ -403,7 +411,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function is_gutenberg_available() {
-		return function_exists( 'register_block_type' );
+		return true;
 	}
 
 	/**
@@ -434,7 +442,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only enqueue block assets when needed.
 	 *
-	 * @param string $type slug of the block.
+	 * @param string $type Slug of the block.
 	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
 	 *
 	 * @return void
@@ -446,12 +454,48 @@ class Jetpack_Gutenberg {
 		}
 
 		$type = sanitize_title_with_dashes( $type );
+		self::load_styles_as_required( $type );
+		self::load_scripts_as_required( $type, $script_dependencies );
+	}
+
+	/**
+	 * Only enqueue block sytles when needed.
+	 *
+	 * @param string $type Slug of the block.
+	 *
+	 * @since 7.2.0
+	 *
+	 * @return void
+	 */
+	public static function load_styles_as_required( $type ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
+
 		// Enqueue styles.
 		$style_relative_path = self::get_blocks_directory() . $type . '/view' . ( is_rtl() ? '.rtl' : '' ) . '.css';
 		if ( self::block_has_asset( $style_relative_path ) ) {
 			$style_version = self::get_asset_version( $style_relative_path );
 			$view_style    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+		}
+
+	}
+	/**
+	 * Only enqueue block scripts when needed.
+	 *
+	 * @param string $type Slug of the block.
+	 * @param array  $script_dependencies An array of view-side Javascript dependencies to be enqueued.
+	 *
+	 * @since 7.2.0
+	 *
+	 * @return void
+	 */
+	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
 		}
 
 		// Enqueue script.
@@ -568,9 +612,30 @@ class Jetpack_Gutenberg {
 			)
 		);
 
-		Jetpack::setup_wp_i18n_locale_data();
+		wp_set_script_translations( 'jetpack-blocks-editor', 'jetpack', plugins_url( 'languages/json', JETPACK__PLUGIN_FILE ) );
+
+		// Adding a filter late to allow every other filter to process the path, including the CDN.
+		add_filter( 'pre_load_script_translations', array( __CLASS__, 'filter_pre_load_script_translations' ), 1000, 3 );
 
 		wp_enqueue_style( 'jetpack-blocks-editor', $editor_style, array(), $version );
+	}
+
+	/**
+	 * A workaround for setting i18n data for WordPress client-side i18n mechanism.
+	 * We are not yet using dotorg language packs for the editor file, so this short-circuits
+	 * the translation loading and feeds our JSON data directly into the translation getter.
+	 *
+	 * @param NULL   $null     not used.
+	 * @param String $file     the file path that is being loaded, ignored.
+	 * @param String $handle   the script handle.
+	 * @return NULL|String the translation data only if we're working with our handle.
+	 */
+	public static function filter_pre_load_script_translations( $null, $file, $handle ) {
+		if ( 'jetpack-blocks-editor' !== $handle ) {
+			return null;
+		}
+
+		return Jetpack::get_i18n_data_json();
 	}
 
 	/**
@@ -581,7 +646,7 @@ class Jetpack_Gutenberg {
 	 * @since 7.1.0
 	 */
 	public static function load_independent_blocks() {
-		if ( self::should_load() && self::is_gutenberg_available() ) {
+		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.

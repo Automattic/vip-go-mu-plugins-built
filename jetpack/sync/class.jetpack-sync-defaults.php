@@ -140,6 +140,7 @@ class Jetpack_Sync_Defaults {
 		'wordads_display_archive',
 		'wordads_custom_adstxt',
 		'site_segment',
+		'site_user_type',
 		'site_vertical',
 	);
 
@@ -319,6 +320,7 @@ class Jetpack_Sync_Defaults {
 		'jp_img_sitemap_index',
 		'jp_vid_sitemap',
 		'jp_vid_sitemap_index',
+		'vip-legacy-redirect',
 	);
 
 	static $default_post_checksum_columns = array(

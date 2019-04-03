@@ -235,11 +235,11 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		if ( ! function_exists( 'get_post_thumbnail_id' ) ) {
-			return $images;
+		if ( 'attachment' === get_post_type( $post ) && wp_attachment_is_image( $post ) ) {
+			$thumb = $post_id;
+		} else {
+			$thumb = get_post_thumbnail_id( $post );
 		}
-
-		$thumb = get_post_thumbnail_id( $post_id );
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
@@ -319,11 +319,6 @@ class Jetpack_PostImages {
 	 */
 	public static function from_blocks( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
-
-		// Bail early if the site does not support the block editor.
-		if ( ! function_exists( 'parse_blocks' ) ) {
-			return $images;
-		}
 
 		$html_info = self::get_post_html( $html_or_id );
 
@@ -482,10 +477,11 @@ class Jetpack_PostImages {
 			}
 
 			$url = blavatar_url( $domain, 'img', $size );
-		} elseif ( function_exists( 'has_site_icon' ) && has_site_icon() ) {
-			$url = get_site_icon_url( $size );
 		} else {
-			return array();
+			$url = get_site_icon_url( $size );
+			if ( ! $url ) {
+				return array();
+			}
 		}
 
 		return array( array(

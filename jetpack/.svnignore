@@ -4,6 +4,7 @@
 .jshintrc
 .jshintignore
 .travis.yml
+.npmrc
 .nvmrc
 .eslines.json
 .eslintcache
@@ -37,5 +38,4 @@ _inc/build/maps
 yarn.lock
 docker
 bin/pre-commit-hook.js
-bin/travis_install.sh
 yarn-error.log

@@ -10,7 +10,7 @@
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
-	if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+	if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
 		return;
 	}
 
@@ -144,7 +144,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 				'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 				'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 				'tracksEventData'    => array(
-					'is_customizer' => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+					'is_customizer' => (int) is_customize_preview(),
 				),
 				'i18n'               => array(
 					'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),

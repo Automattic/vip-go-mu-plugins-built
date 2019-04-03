@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-testcase.php';
+
 /**
  * Tests that Attachments do have VideoPress data in REST API
  * responses if the VideoPress Module is active.
@@ -42,7 +44,7 @@ class Test_WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WP_Test_Jetpack
 					$this->returnValue( 'mocked_videopress_guid' )
 				);
 
-		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
+		$attachment_id = $this->factory->attachment->create_upload_object( dirname( dirname( __DIR__ ) ) . '/jetpack-icon.jpg', 0 );
 		$object        = array(
 			'id' => $attachment_id,
 		);

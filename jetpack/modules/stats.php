@@ -202,7 +202,7 @@ function stats_build_view_data() {
 	$blog = Jetpack_Options::get_option( 'id' );
 	$tz = get_option( 'gmt_offset' );
 	$v = 'ext';
-	$blog_url = parse_url( site_url() );
+	$blog_url = wp_parse_url( site_url() );
 	$srv = $blog_url['host'];
 	$j = sprintf( '%s:%s', JETPACK__API_VERSION, JETPACK__VERSION );
 	if ( $wp_the_query->is_single || $wp_the_query->is_page || $wp_the_query->is_posts_page ) {
@@ -465,7 +465,7 @@ function stats_reports_load() {
 	add_action( 'admin_print_styles', 'stats_reports_css' );
 
 	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) {
-		$parsed = parse_url( admin_url() );
+		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
 		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
 	}
@@ -513,7 +513,7 @@ function stats_reports_css() {
  * @return void
  */
 function stats_js_remove_stnojs_cookie() {
-	$parsed = parse_url( admin_url() );
+	$parsed = wp_parse_url( admin_url() );
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -931,7 +931,7 @@ function stats_admin_bar_head() {
 	if ( ! current_user_can( 'view_stats' ) )
 		return;
 
-	if ( function_exists( 'is_admin_bar_showing' ) && ! is_admin_bar_showing() ) {
+	if ( ! is_admin_bar_showing() ) {
 		return;
 	}
 
@@ -1757,7 +1757,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	// Do the dirty work.
 	$response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, $api_version, $args );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		$data = $response;
+		$data = is_wp_error( $response ) ? $response : new WP_Error( 'stats_error' );
 	} else {
 		$data = json_decode( wp_remote_retrieve_body( $response ) );
 	}

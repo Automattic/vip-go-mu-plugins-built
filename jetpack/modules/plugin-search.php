@@ -287,8 +287,10 @@ class Jetpack_Plugin_Search {
 			);
 			uasort( $jetpack_modules_list, array( $this, 'by_sorting_option' ) );
 
-			// Record event when user searches for a term
-			JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+			// Record event when user searches for a term over 3 chars (less than 3 is not very useful.)
+			if ( strlen( $args->search ) >= 3 ) {
+				JetpackTracking::record_user_event( 'wpa_plugin_search_term', array( 'search_term' => $args->search ) );
+			}
 
 			// Lowercase, trim, remove punctuation/special chars, decode url, remove 'jetpack'
 			$normalized_term = $this->sanitize_search_term( $args->search );
@@ -338,7 +340,10 @@ class Jetpack_Plugin_Search {
 	}
 
 	/**
-	 * Remove cards for Akismet, Jetpack and VaultPress plugins since we don't want duplicates.
+	 * Remove cards for Jetpack plugins since we don't want duplicates.
+	 *
+	 * @since 7.1.0
+	 * @since 7.2.0 Only remove Jetpack.
 	 *
 	 * @param array|object $plugin
 	 *
@@ -348,7 +353,7 @@ class Jetpack_Plugin_Search {
 		// Take in account that before WordPress 5.1, the list of plugins is an array of objects.
 		// With WordPress 5.1 the list of plugins is an array of arrays.
 		$slug = is_array( $plugin ) ? $plugin['slug'] : $plugin->slug;
-		return ! in_array( $slug, array( 'akismet', 'jetpack', 'vaultpress' ), true );
+		return ! in_array( $slug, array( 'jetpack' ), true );
 	}
 
 	/**
@@ -452,7 +457,7 @@ class Jetpack_Plugin_Search {
 			current_user_can( 'jetpack_activate_modules' ) &&
 			! Jetpack::is_module_active( $plugin['module'] )
 		) {
-			$links[] = Jetpack::active_plan_supports( $plugin['module'] )
+			$links[] = Jetpack_Plan::supports( $plugin['module'] )
 				? '<button
 					id="plugin-select-activate"
 					class="jetpack-plugin-search__primary button"

@@ -70,47 +70,23 @@
   }
 }
 
-@-webkit-keyframes "candy" {
-  0% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-  20% {
-    -webkit-transform: scale(1.15);
-            transform: scale(1.15);
-  }
-  60% {
-    -webkit-transform: scale(0.95);
-            transform: scale(0.95);
-  }
-  100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
-  }
-}
-
 @keyframes "candy" {
   0% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
+    transform: scale(1);
   }
   20% {
-    -webkit-transform: scale(1.15);
-            transform: scale(1.15);
+    transform: scale(1.15);
   }
   60% {
-    -webkit-transform: scale(0.95);
-            transform: scale(0.95);
+    transform: scale(0.95);
   }
   100% {
-    -webkit-transform: scale(1);
-            transform: scale(1);
+    transform: scale(1);
   }
 }
 
 .button,
 .download-jetpack {
-  -webkit-transition: all .1s ease-in-out;
   transition: all .1s ease-in-out;
 }
 
@@ -158,8 +134,7 @@
 .jp-button--settings.current {
   background: #3c6621;
   color: #fff;
-  -webkit-box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
-          box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
+  box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
 }
 
 .download-jetpack {
@@ -173,8 +148,7 @@
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-          box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 
 .download-jetpack:visited {
@@ -184,14 +158,12 @@
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-          box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 
 .download-jetpack:active {
   top: 6px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
-          box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
 
 .download-jetpack:active:after {
@@ -435,8 +407,7 @@
   right: 20px;
   margin-right: 160px;
   display: none;
-  -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   z-index: 500;
 }
 
@@ -780,8 +751,7 @@
 }
 
 .footer .a8c-attribution a:hover:after {
-  -webkit-animation: candy .4s ease-in-out;
-          animation: candy .4s ease-in-out;
+  animation: candy .4s ease-in-out;
 }
 
 @media (min-width: 782px) {
@@ -813,8 +783,7 @@
   padding: 10px 15px;
   background: #fff;
   border: 0;
-  -webkit-box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
-          box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
   font-size: 13px;
   text-align: center;
 }
@@ -823,8 +792,7 @@
   margin: 0;
   padding-bottom: 0;
   background: transparent;
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
 }
 
 .subhead .jetpack-message.is-opt-in .jp-button, .subhead .jetpack-message.is-opt-in .jp-button--settings {
@@ -955,8 +923,7 @@
 
 .configure .frame.top {
   border: none;
-  -webkit-box-shadow: none;
-          box-shadow: none;
+  box-shadow: none;
   padding-top: 1.42857em;
   position: relative;
   top: auto;
@@ -972,15 +939,13 @@
   top: 32px;
   width: 100%;
   z-index: 4;
-  -webkit-box-shadow: 0 2px 2px -2px #eee;
-          box-shadow: 0 2px 2px -2px #eee;
+  box-shadow: 0 2px 2px -2px #eee;
 }
 
 @media (max-width: 782px) {
   .configure .frame.top.fixed {
     border: none;
-    -webkit-box-shadow: none;
-            box-shadow: none;
+    box-shadow: none;
     padding-top: 1.42857em;
     position: relative;
     top: auto;
@@ -1064,7 +1029,6 @@
 .table-bordered.jetpack-modules tr.jetpack-module td {
   background: #fff;
   margin: 0;
-  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -1318,8 +1282,7 @@
     left: 0;
     top: 0;
     z-index: 13;
-    -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   }
   .wrap .manage-right .bumper {
     margin: 13px;

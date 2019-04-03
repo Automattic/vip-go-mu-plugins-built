@@ -23,7 +23,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_repeat_visitor_block_render( $attributes, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'repeat-visitor' );
+	Jetpack_Gutenberg::load_assets_as_required( 'repeat-visitor', array( 'wp-polyfill' ) );
 
 	$count     = isset( $_COOKIE['jp-visit-counter'] ) ? intval( $_COOKIE['jp-visit-counter'] ) : 0;
 	$criteria  = isset( $attributes['criteria'] ) ? $attributes['criteria'] : 'after-visits';
@@ -31,7 +31,7 @@ function jetpack_repeat_visitor_block_render( $attributes, $content ) {
 
 	if (
 		( 'after-visits' === $criteria && $count >= $threshold ) ||
-		( 'before-visits' === $criteria && $count <= $threshold )
+		( 'before-visits' === $criteria && $count < $threshold )
 	) {
 		return $content;
 	}

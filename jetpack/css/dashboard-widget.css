@@ -23,8 +23,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 https://github.com/thoughtbot/bourbon
 */
 #jetpack_summary_widget * {
-  -webkit-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 #jetpack_summary_widget h2.hndle span.js-toggle-stats_dashboard_widget_control {
@@ -34,12 +33,8 @@ https://github.com/thoughtbot/bourbon
 }
 
 #jetpack_summary_widget h2.hndle span:not(.js-toggle-stats_dashboard_widget_control) {
-  display: -webkit-box;
-  display: -ms-flexbox;
   display: flex;
-  -webkit-box-align: center;
-      -ms-flex-align: center;
-          align-items: center;
+  align-items: center;
 }
 
 #jetpack_summary_widget h2.hndle span:not(.js-toggle-stats_dashboard_widget_control) span {
@@ -119,29 +114,25 @@ https://github.com/thoughtbot/bourbon
   background: #00BE28;
   border-color: #008b1d;
   color: white;
-  -webkit-box-shadow: inset 0 1px 0 #0cff3f, 0 1px 0 rgba(0, 0, 0, 0.15);
-          box-shadow: inset 0 1px 0 #0cff3f, 0 1px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 0 #0cff3f, 0 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 #jetpack_summary_widget .button-jetpack:hover, #jetpack_summary_widget .button-jetpack:focus {
   background: #00a523;
   border-color: #007218;
   color: white;
-  -webkit-box-shadow: inset 0 1px 0 #00f133;
-          box-shadow: inset 0 1px 0 #00f133;
+  box-shadow: inset 0 1px 0 #00f133;
 }
 
 #jetpack_summary_widget .button-jetpack:focus {
-  -webkit-box-shadow: inset 0 1px 0 #00f133, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
-          box-shadow: inset 0 1px 0 #00f133, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+  box-shadow: inset 0 1px 0 #00f133, 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 #jetpack_summary_widget .button-jetpack:active {
   background: #008b1d;
   border-color: #007218;
   color: white;
-  -webkit-box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
-          box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
+  box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, 0.8);
 }
 
 #jetpack_summary_widget .button-jetpack[disabled], #jetpack_summary_widget .button-jetpack:disabled, #jetpack_summary_widget .button-jetpack.button-primary-disabled, #jetpack_summary_widget .button-jetpack.disabled {

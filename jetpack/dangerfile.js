@@ -29,7 +29,7 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 }
 // skip if there are no warnings.
 if ( results.warnings.length > 0 || results.fails.length > 0 ) {
-	markdown( "This is automated check which relies on [`PULL_REQUEST_TEMPLATE`](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md).We encourage you to follow that template as it helps Jetpack maintainers do their job. If you think 'Testing instructions' or 'Proposed changelog entry' are not needed for your PR - please explain why you think so. Thanks for cooperation :robot:" );
+	markdown( "This is an automated check which relies on [`PULL_REQUEST_TEMPLATE`](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md). We encourage you to follow that template as it helps Jetpack maintainers do their job. If you think 'Testing instructions' or 'Proposed changelog entry' are not needed for your PR - please explain why you think so. Thanks for cooperation :robot:" );
 } else {
 	markdown(
 `**Thank you for the great PR description!**
@@ -40,7 +40,7 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 
 // Adds release and code freeze dates according to x.x milestone due date
 function setReleaseDates() {
-	schedule( async () => {
+	schedule( async() => {
 		let jetpackReleaseDate;
 		let codeFreezeDate;
 		const milestones = await github.api.issues.listMilestonesForRepo( { owner: 'Automattic', repo: 'jetpack' } );
@@ -63,7 +63,7 @@ function setReleaseDates() {
 			}
 			jetpackReleaseDate = firstTuesdayOfMonth.format( 'LL' );
 			// Calculate next code freeze date
-			codeFreezeDate = firstTuesdayOfMonth.subtract( 7, 'd' ).format( 'LL' );
+			codeFreezeDate = firstTuesdayOfMonth.subtract( 8, 'd' ).format( 'LL' );
 		}
 
 		markdown( `
