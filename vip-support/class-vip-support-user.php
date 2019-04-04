@@ -917,17 +917,22 @@ class User {
 		/** Include admin user functions to get access to wp_delete_user() */
 		require_once ABSPATH . 'wp-admin/includes/user.php';
 
-		// If the user already exists, we should delete and recreate them,
-		// it's the only way to be sure we get the right user_login
+		// If the user already exists with a different login, change their email.
+		// This is to avoid conflicts between the old user and new one we're creating.
+		// We used to delete the users but that could lead to lost data.
 		if ( false !== $user && $user_data['user_login'] !== $user->user_login ) {
-			if ( is_multisite() ) {
-				revoke_super_admin( $user->ID );
-				wpmu_delete_user( $user->ID );
-			} else {
-				wp_delete_user( $user->ID, null );
-			}
+			add_filter( 'send_password_change_email', '__return_false' );
+			$updated_email_for_old_user = str_replace( '@', '+old@', $user->user_email );
+			wp_update_user( [
+				'ID' => $user->ID,
+				'user_email' => $updated_email_for_old_user,
+			] );
+			remove_filter( 'send_password_change_email', '__return_false' );
+
+			// Force create a new user below.
 			$user = false;
 		} elseif ( $user && $user->ID ) {
+			// If the user exists, let's update it.
 			$user_data['ID'] = $user->ID;
 		}
 

@@ -97,4 +97,46 @@ class VIPSupportUserTest extends WP_UnitTestCase {
 		$is_vip_support_user = User::has_vip_support_meta( $user );
 		$this->assertFalse( $is_vip_support_user );
 	}
+
+	function test__add__update_email_for_existing_user_with_different_login() {
+		$existing_user_id = $this->factory->user->create( [
+			'user_email' => 'existing123@automattic.com',
+			'user_login' => 'existing-user-123',
+		] );
+
+		$new_user_id = $this->vip_support_user = User::add( [
+			'user_email' => 'existing123@automattic.com',
+			'user_login' => 'new-vip-support-user-123',
+			'user_pass' => 'password',
+		] );
+
+		$this->assertNotEquals( $existing_user_id, $new_user_id, 'Existing and new IDs are the same which should not happen' );
+
+		$existing_user_obj = get_userdata( $existing_user_id );
+		$this->assertEquals( 'existing123+old@automattic.com', $existing_user_obj->user_email, 'Email for existing user was not updated to avoid conflict' );
+
+		$new_user_obj = get_userdata( $new_user_id );
+		$this->assertEquals( 'existing123@automattic.com', $new_user_obj->user_email, 'Email for new user was not correctly set.' );
+	}
+
+	function test__add__update_account_for_existing_user_with_same_login() {
+		$existing_user_id = $this->factory->user->create( [
+			'user_email' => 'existing456@automattic.com',
+			'user_login' => 'vip-support-user-456',
+			'display_name' => 'Existing User',
+		] );
+
+		$new_user_id = $this->vip_support_user = User::add( [
+			'user_email' => 'existing456@automattic.com',
+			'user_login' => 'vip-support-user-456',
+			'display_name' => 'New User',
+			'user_pass' => 'password',
+		] );
+
+		$this->assertEquals( $existing_user_id, $new_user_id, 'Existing and new IDs are not the same. Existing account was not updated.' );
+
+		$new_user_obj = get_userdata( $new_user_id );
+		$this->assertEquals( 'existing456@automattic.com', $new_user_obj->user_email, 'Email for new user was changed but should not have.' );
+		$this->assertEquals( 'New User', $new_user_obj->display_name, 'Display name for new user was not updated.' );
+	}
 }
