@@ -205,16 +205,23 @@ class Rewrite_Rules_Inspector
 			}
 		</style>
 		<div class="wrap">
-		<?php screen_icon( 'tools' ); ?>
 		<h2><?php _e( 'Rewrite Rules Inspector', 'rewrite-rules-inspector' ); ?></h2>
 
 		<?php
 		$rules = $this->get_rules();
+		
+		$missing_count = 0;
+		foreach( $rules as $regex => $rule ) {
+			if ( 'missing' === $rules[ $regex ]['source'] ) {
+				$missing_count++;
+			}
+		}
+
 		if ( empty( $rules ) ) {
 			$error_message = apply_filters( 'rri_message_no_rules', __( 'No rewrite rules yet, try flushing.', 'rewrite-rules-inspector' ) );
 			echo '<div class="message error"><p>' . $error_message . '</p></div>';
 		} else if ( in_array( 'missing', $this->sources ) ) {
-			$error_message = apply_filters( 'rri_message_missing_rules', __( 'Some rewrite rules may be missing, try flushing.', 'rewrite-rules-inspector' ) );
+			$error_message = apply_filters( 'rri_message_missing_rules', sprintf( _n( '%d rewrite rule may be missing, try flushing.', '%d rewrite rules may be missing, try flushing.', $missing_count, 'rewrite-rules-inspector' ), $missing_count ) );
 			echo '<div class="message error"><p>' . $error_message . '</p></div>';
 		}
 		?>
@@ -355,7 +362,7 @@ class Rewrite_Rules_Inspector_List_Table extends WP_List_Table {
 					);
 				$flush_url = add_query_arg( $args, menu_page_url( $plugin_page, false ) );
 			?>
-			<a title="<?php _e( 'Flush your rewrite rules to regenerate them', 'rewrite-rules-inspector' ); ?>" class="button-secondary" href="<?php echo esc_url( $flush_url ); ?>"><?php _e( 'Flush Rules', 'rewrite-rules-inspector' ); ?></a>
+			<a title="<?php esc_attr_e( 'Flush your rewrite rules to regenerate them', 'rewrite-rules-inspector' ); ?>" class="button-secondary" href="<?php echo esc_url( $flush_url ); ?>"><?php _e( 'Flush Rules', 'rewrite-rules-inspector' ); ?></a>
 			<?php endif; ?>
 			<?php
 				// Prepare the link to download a set of rules
@@ -372,7 +379,7 @@ class Rewrite_Rules_Inspector_List_Table extends WP_List_Table {
 
 				$download_url = add_query_arg( $args, menu_page_url( $plugin_page, false ) );
 			?>
-			<a title="<?php _e( 'Download current list of rules as a .txt file', 'rewrite-rules-inspector' ); ?>" class="button-secondary" href="<?php echo esc_url( $download_url ); ?>"><?php _e( 'Download', 'rewrite-rules-inspector' ); ?></a>
+			<a title="<?php esc_attr_e( 'Download current list of rules as a .txt file', 'rewrite-rules-inspector' ); ?>" class="button-secondary" href="<?php echo esc_url( $download_url ); ?>"><?php _e( 'Download', 'rewrite-rules-inspector' ); ?></a>
 		</div>
 		<form method="GET">
 			<label for="s"><?php _e( 'Match URL:', 'rewrite-rules-inspector' ); ?></label>
