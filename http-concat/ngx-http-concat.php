@@ -117,6 +117,16 @@ if ( ! $args )
 if ( 0 == count( $args ) || count( $args ) > $concat_max_files )
 	concat_http_status_exit( 400 );
 
+// If we're in a subdirectory context, use that as the root.
+// We can't assume that the root serves the same content as the subdir.
+$subdir_path_prefix = '';
+$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+$_static_index = strpos( $request_path, '/_static/' );
+if ( $_static_index > 0 ) {
+	$subdir_path_prefix = substr( $request_path, 0, $_static_index );
+}
+unset( $request_path, $_static_index );
+
 $last_modified = 0;
 $pre_output = '';
 $output = '';
@@ -153,7 +163,7 @@ foreach ( $args as $uri ) {
 		concat_http_status_exit( 500 );
 
 	if ( 'text/css' == $mime_type ) {
-		$dirpath = dirname( $uri );
+		$dirpath = $subdir_path_prefix . dirname( $uri );
 
 		// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 		$buf = WPCOM_Concat_Utils::relative_path_replace( $buf, $dirpath );
