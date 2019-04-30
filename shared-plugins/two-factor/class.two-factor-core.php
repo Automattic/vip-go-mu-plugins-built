@@ -337,7 +337,7 @@ class Two_Factor_Core {
 		if ( isset( $providers[ $_GET['provider'] ] ) ) {
 			$provider = $providers[ $_GET['provider'] ];
 		} else {
-			wp_die( esc_html__( 'Cheatin&#8217; uh?' ), 403 );
+			wp_die( esc_html__( 'Cheatin&#8217; uh?', 'two-factor' ), 403 );
 		}
 
 		self::login_html( $user, $_GET['wp-auth-nonce'], $_GET['redirect_to'], '', $provider );
@@ -474,7 +474,7 @@ class Two_Factor_Core {
 				?>
 			</a>
 		</p>
-
+		</div>
 		<style>
 		/* @todo: migrate to an external stylesheet. */
 		.backup-methods-wrap {
@@ -608,7 +608,7 @@ class Two_Factor_Core {
 			if ( isset( $providers[ $_POST['provider'] ] ) ) {
 				$provider = $providers[ $_POST['provider'] ];
 			} else {
-				wp_die( esc_html__( 'Cheatin&#8217; uh?' ), 403 );
+				wp_die( esc_html__( 'Cheatin&#8217; uh?', 'two-factor' ), 403 );
 			}
 		} else {
 			$provider = self::get_primary_provider_for_user( $user->ID );
@@ -683,7 +683,7 @@ class Two_Factor_Core {
 	 * @return array          Updated array of columns.
 	 */
 	public static function filter_manage_users_columns( array $columns ) {
-		$columns['two-factor'] = __( 'Two-Factor' );
+		$columns['two-factor'] = __( 'Two-Factor', 'two-factor' );
 		return $columns;
 	}
 
@@ -735,10 +735,10 @@ class Two_Factor_Core {
 
 		?>
 		<input type="hidden" name="<?php echo esc_attr( self::ENABLED_PROVIDERS_USER_META_KEY ); ?>[]" value="<?php /* Dummy input so $_POST value is passed when no providers are enabled. */ ?>" />
-		<table class="form-table">
+		<table class="form-table" id="two-factor-options">
 			<tr>
 				<th>
-					<?php esc_html_e( 'Two-Factor Options' ); ?>
+					<?php esc_html_e( 'Two-Factor Options', 'two-factor' ); ?>
 				</th>
 				<td>
 					<table class="two-factor-methods-table">

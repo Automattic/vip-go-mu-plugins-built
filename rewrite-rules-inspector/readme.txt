@@ -1,7 +1,7 @@
 === Rewrite Rules Inspector ===
 Contributors: danielbachhuber, automattic, tmoorewp
 Tags: rewrite rules, tools
-Tested up to: 4.8
+Tested up to: 3.5.1
 Requires at least: 3.1
 Stable tag: 1.2.1
 
@@ -11,7 +11,7 @@ Straightforward WordPress admin tool for inspecting your rewrite rules
 
 A straightforward WordPress admin tool for inspecting your rewrite rules. View a listing of all your rewrite rules, see which rewrite rules match a given URL (and the priorites they match in), or filter by different sources of rewrite rules. Perform a soft flush of your rewrite rules to regenerate them.
 
-Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted clients, we thought it would be useful for development environments, etc. too. Feel free to [fork the plugin in GitHub](https://github.com/Automattic/Rewrite-Rules-Inspector/) — pull requests are always welcome. Hit us with feedback, questions, bug reports, and feature requests in the forums.
+Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted clients, we thought it would be useful for development environments, etc. too. Feel free to [fork the plugin in Github](https://github.com/Automattic/Rewrite-Rules-Inspector/) — pull requests are always welcome. Hit us with feedback, questions, bug reports, and feature requests in the forums.
 
 == Screenshots ==
 
