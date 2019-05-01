@@ -1,9 +1,10 @@
 {
-  "name": "vip-dashboard",
+  "name": "@automattic/vip-dashboard",
   "version": "2.0.4",
   "homepage": "http://vip.wordpress.com",
   "description": "WordPress.com VIP Go Dashboard",
   "license": "GPL-2.0+",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Automattic/vip-go-admin-console.git"

@@ -265,12 +265,18 @@ function vip_echo_mailto_vip_hosting( $linktext = 'Send an email to VIP Hosting.
  * @return void
  */
 function wpcom_vip_admin_menu() {
-	$vip_page_slug = 'vip-dashboard';
-	$vip_page_cap  = 'publish_posts';
+	/**
+	 * Limit access to the VIP Menu to users with this capability.
+	 *
+	 * @param string  $vip_page_cap The cap to use; default is `publish_posts`.
+	 */
+	$vip_page_cap = apply_filters( 'vip_dashboard_page_cap', 'publish_posts' );
 
 	if ( ! current_user_can( $vip_page_cap ) ) {
 		return;
 	}
+
+	$vip_page_slug = 'vip-dashboard';
 
 	$page = add_menu_page( __( 'VIP Dashboard' ), __( 'VIP' ), $vip_page_cap, $vip_page_slug, 'vip_dashboard_page', 'dashicons-tickets' );
 
