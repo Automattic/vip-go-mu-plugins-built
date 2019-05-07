@@ -46,6 +46,7 @@ class Command extends WP_CLI_Command {
 		$user_data['display_name'] = $display_name;
 		$user_data['first_name'] = ! empty( $display_name ) ? $display_name : $user_login;
 		$user_data['last_name'] = '(VIP Support)';
+		$user_data['locale'] = 'en_US';
 
 		$user_id = User::add( $user_data );
 
