@@ -51,11 +51,6 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		// Set flag for newly purchased plan.
-		if ( 'jetpack_free' !== $results['plan']['product_slug'] ) {
-			update_option( 'show_welcome_for_new_plan', true );
-		}
-
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		if ( ! $result ) {
@@ -130,6 +125,7 @@ class Jetpack_Plan {
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 			'personal-bundle',
+			'personal-bundle-monthly',
 			'personal-bundle-2y',
 		);
 
@@ -144,6 +140,7 @@ class Jetpack_Plan {
 			'jetpack_premium',
 			'jetpack_premium_monthly',
 			'value_bundle',
+			'value_bundle-monthly',
 			'value_bundle-2y',
 		);
 
@@ -160,8 +157,10 @@ class Jetpack_Plan {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'business-bundle-monthly',
 			'business-bundle-2y',
 			'ecommerce-bundle',
+			'ecommerce-bundle-monthly',
 			'ecommerce-bundle-2y',
 			'vip',
 		);

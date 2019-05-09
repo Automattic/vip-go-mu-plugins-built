@@ -92,10 +92,12 @@ function onBuild( done, err, stats ) {
 		log( 'Uglifying JS...' );
 		gulp
 			.src( '_inc/build/admin.js' )
-			.pipe( minify( {
-				noSource: true,
-				ext: { min: '.js' },
-			} ) )
+			.pipe(
+				minify( {
+					noSource: true,
+					ext: { min: '.js' },
+				} )
+			)
 			.pipe( gulp.dest( '_inc/build' ) )
 			.on( 'end', function() {
 				log( 'Your JS is now uglified!' );
@@ -107,7 +109,6 @@ function onBuild( done, err, stats ) {
 	const supportedModules = [
 		'shortcodes',
 		'widgets',
-		'after-the-deadline',
 		'widget-visibility',
 		'custom-css',
 		'publicize',
@@ -169,6 +170,10 @@ function buildStatic( done ) {
 	global.window = window;
 	global.document = document;
 	global.navigator = window.navigator;
+	global.React = require( 'react' );
+	global.ReactDOM = require( 'react-dom' );
+	global.lodash = require( 'lodash' );
+	global.moment = require( 'moment' );
 
 	window.Initial_State = {
 		dismissedNotices: [],
@@ -211,7 +216,6 @@ function buildStatic( done ) {
 					__dirname + '/../../_inc/build/static-version-notice.html',
 					window.versionNotice
 				);
-				fs.writeFileSync( __dirname + '/../../_inc/build/static-ie-notice.html', window.ieNotice );
 
 				done();
 			} );

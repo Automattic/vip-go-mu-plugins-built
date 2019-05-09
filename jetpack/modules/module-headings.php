@@ -12,11 +12,6 @@ function jetpack_get_module_i18n( $key ) {
 	static $modules;
 	if ( ! isset( $modules ) ) {
 		$modules = array(
-			'after-the-deadline' => array(
-				'name' => _x( 'Spelling and Grammar', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
-			),
-
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -50,7 +45,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'custom-css' => array(
 				'name' => _x( 'Custom CSS', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Tweak your site’s CSS without modifying your theme.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Adds options for CSS preprocessor use, disabling the theme\'s CSS, or custom image width.', 'Module Description', 'jetpack' ),
 			),
 
 			'enhanced-distribution' => array(
@@ -80,7 +75,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'latex' => array(
 				'name' => _x( 'Beautiful Math', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use LaTeX markup for complex equations and other geekery.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas.', 'Module Description', 'jetpack' ),
 			),
 
 			'lazy-images' => array(
@@ -92,12 +87,6 @@ function jetpack_get_module_i18n( $key ) {
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
-			),
-
-			'manage' => array(
-				'name' => _x( 'Manage', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Manage all of your sites from a centralized dashboard.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Helps you remotely manage plugins, turn on automated updates, and more from <a href="https://wordpress.com/plugins/" target="_blank">wordpress.com</a>.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'markdown' => array(
@@ -179,12 +168,12 @@ function jetpack_get_module_i18n( $key ) {
 
 			'shortcodes' => array(
 				'name' => _x( 'Shortcode Embeds', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Embed media from popular sites without any coding.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Shortcodes are WordPress-specific markup that let you add media from popular sites. This feature is no longer necessary as the editor now handles media embeds rather gracefully.', 'Module Description', 'jetpack' ),
 			),
 
 			'shortlinks' => array(
 				'name' => _x( 'WP.me Shortlinks', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Create short and simple links for all posts and pages.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Generates shorter links so you can have more space to write on social media sites.', 'Module Description', 'jetpack' ),
 			),
 
 			'sitemaps' => array(
@@ -235,7 +224,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'widgets' => array(
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add images, Twitter streams, and more to your sidebar.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Provides additional widgets for use on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'wordads' => array(
@@ -262,18 +251,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/notes.php
 			'Other' =>_x( 'Other', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Writing` tag:
-			//  - modules/after-the-deadline.php
-			//  - modules/copy-post.php
-			//  - modules/custom-content-types.php
-			//  - modules/enhanced-distribution.php
-			//  - modules/json-api.php
-			//  - modules/latex.php
-			//  - modules/markdown.php
-			//  - modules/post-by-email.php
-			//  - modules/shortcodes.php
-			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
 			//  - modules/photon-cdn.php
@@ -296,6 +273,17 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/subscriptions.php
 			//  - modules/widgets.php
 			'Social' =>_x( 'Social', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Writing` tag:
+			//  - modules/copy-post.php
+			//  - modules/custom-content-types.php
+			//  - modules/enhanced-distribution.php
+			//  - modules/json-api.php
+			//  - modules/latex.php
+			//  - modules/markdown.php
+			//  - modules/post-by-email.php
+			//  - modules/shortcodes.php
+			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Appearance` tag:
 			//  - modules/custom-css.php
@@ -320,7 +308,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Recommended` tag:
 			//  - modules/lazy-images.php
-			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
 			//  - modules/photon-cdn.php
@@ -332,10 +319,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Centralized Management` tag:
-			//  - modules/manage.php
-			'Centralized Management' =>_x( 'Centralized Management', 'Module Tag', 'jetpack' ),
 
 			// Modules with `General` tag:
 			//  - modules/masterbar.php
@@ -355,5 +338,5 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Site Stats' =>_x( 'Site Stats', 'Module Tag', 'jetpack' ),
 		);
 	}
-	return $module_tags[ $key ];
+	return ! empty( $module_tags[ $key ] ) ? $module_tags[ $key ] : '';
 }

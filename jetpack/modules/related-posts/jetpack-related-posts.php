@@ -1535,7 +1535,7 @@ EOT;
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
 					$post_cat_context = sprintf(
-						esc_html_x( 'In “%s”', 'in {category/tag name}', 'jetpack' ),
+						esc_html_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
 					/**
@@ -1604,12 +1604,15 @@ EOT;
 	 */
 	protected function _enabled_for_request() {
 		$enabled = is_single()
-			&&
-				! is_admin()
-			&&
-				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) )
-			&&
-				! Jetpack_AMP_Support::is_amp_request();
+			&& ! is_admin()
+			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
+
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
+			$enabled = false;
+		}
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.

@@ -1045,6 +1045,7 @@
   float: left;
   padding: 0 0 1px;
   visibility: visible;
+  position: static;
 }
 
 .table-bordered.jetpack-modules tr.jetpack-module td .row-actions span {
@@ -1071,14 +1072,6 @@
 
 .table-bordered.jetpack-modules.with-transparency tr.jetpack-module.unavailable {
   opacity: 0.3;
-}
-
-.table-bordered.jetpack-modules.with-transparency tr.jetpack-module td .row-actions span a {
-  opacity: 0;
-}
-
-.table-bordered.jetpack-modules.with-transparency tr.jetpack-module td .row-actions span a:focus {
-  opacity: 1;
 }
 
 .table-bordered.jetpack-modules > thead > tr > th {

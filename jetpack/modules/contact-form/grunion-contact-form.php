@@ -2792,6 +2792,23 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
+		/**
+		 * Fires an action hook right after the email(s) have been sent.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 7.3.0
+		 *
+		 * @param int $post_id Post contact form lives on.
+		 * @param string|array $to Array of valid email addresses, or single email address.
+		 * @param string $subject Feedback email subject.
+		 * @param string $message Feedback email message.
+		 * @param string|array $headers Optional. Additional headers.
+		 * @param array $all_values Contact form fields.
+		 * @param array $extra_values Contact form fields not included in $all_values
+		 */
+		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
 		}
@@ -3371,6 +3388,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
+
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
 		$wrap_classes = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
@@ -3389,6 +3407,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ) );
 
 		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		// If they are logged in, and this is their site, don't pre-populate fields
+		if ( current_user_can( 'manage_options' ) ) {
+			$value = '';
+		}
 		switch ( $type ) {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );

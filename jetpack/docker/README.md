@@ -17,7 +17,7 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 
 ### Prerequisites
 
-* [Docker](https://www.docker.com/community-edition)
+* [Docker](https://hub.docker.com/search/?type=edition&offering=community)
 * [NodeJS](https://nodejs.org)
 * [Yarn](https://yarnpkg.com/) — please make sure your version is higher than v1.3: `yarn --version`
 * Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
@@ -149,6 +149,11 @@ This will run unit tests for Jetpack. You can pass arguments to `phpunit` like s
 yarn docker:phpunit --filter=Protect
 ```
 
+This command runs the tests as a multi site install
+```sh
+yarn docker:phpunit:multisite --filter=Protect
+```
+
 ### Starting over
 
 To remove all docker images, all mysql data, and all docker-related files from your local machine run:
@@ -212,7 +217,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 
@@ -238,11 +243,9 @@ If you are an Automattician, sign up on Ngrok.com using your a8c Google account;
 
 Once you’ve done that, follow [these steps](https://ngrok.com/download) to download and set up ngrok. However, instead of step four, edit your [config file](https://ngrok.com/docs#default-config-location) as explained below:
 
-
-
 ```
 authtoken: YOUR_AUTH_TOKEN # This should already be here
-region: eu # only needed for subdomains in Europe
+region: eu # only needed for subdomains in Europe (eu), Asia/Pacific (ap) or Australia (au)
 tunnels:
   jetpack:
     subdomain: YOUR_RESERVED_SUBDOMAIN # without the .ngrok.io
@@ -313,9 +316,9 @@ ngrok start jetpack jetpack-sftp
 
 You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
 
-### Configuring Jetpack Rewind with Ngrok tunnel
+### Configuring Jetpack Backup & Scan with Ngrok tunnel
 
-You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
+You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/support/backups/) credentials point to your Docker container:
 
 - Credential Type: `SSH/SFTP`
 - Server Address: `0.tcp.ngrok.io`
@@ -323,6 +326,29 @@ You should now be able to configure [Jetpack Rewind](https://jetpack.com/support
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
+
+## Custom plugins & themes in the container
+
+Jetpack Docker environment can be wonderful for developing your own plugins and themes, too.
+
+Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
+
+1. First ensure your containers are stopped (`yarn docker:stop`).
+2. Create a docker-compose file. You can place it anywhere in your computer:
+	```yml
+	version: '3.3'
+	services:
+	  wordpress:
+	    volumes:
+	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
+	```
+	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
+3. Start containers and include your custom volumes by running:
+	```bash
+	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
+	```
+
+You can pass multiple configuration files by adding more `-f/--file` arguments. Docker Compose [combines them into a single configuration](https://docs.docker.com/compose/reference/overview/#use--f-to-specify-name-and-path-of-one-or-more-compose-files).
 
 ## Debugging
 

@@ -313,7 +313,7 @@ https://github.com/thoughtbot/bourbon
   text-decoration: none;
 }
 
-.updated .notice-dismiss:before {
+.jp-wpcom-connect__container-top-text + .jp-wpcom-connect__inner-container .notice-dismiss::before {
   color: white;
 }
 
