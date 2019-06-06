@@ -17,7 +17,12 @@ renovate.json
 docs
 tests
 tools
-vendor
+vendor/bin
+vendor/dealerdirect
+vendor/phpcompatibility
+vendor/sirbrillig
+vendor/squizlabs
+vendor/wp-coding-standards
 composer.lock
 package.json
 gulpfile.js
@@ -52,4 +57,5 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
+packages
 **/__snapshots__

@@ -16,7 +16,10 @@ module.exports = [
 	'modules/module-extras.php',
 	'modules/module-info.php',
 	'modules/sharedaddy.php',
+	'modules/shortcodes/',
+	'modules/sitemaps/sitemaps.php',
 	'modules/theme-tools/social-menu/',
 	'modules/verification-tools.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'packages',
 ];

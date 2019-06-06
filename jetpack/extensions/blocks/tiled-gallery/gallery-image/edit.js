@@ -68,6 +68,7 @@ class GalleryImageEdit extends Component {
 			linkTo,
 			onRemove,
 			origUrl,
+			srcSet,
 			url,
 			width,
 		} = this.props;
@@ -102,8 +103,9 @@ class GalleryImageEdit extends Component {
 					onKeyDown={ this.onImageKeyDown }
 					ref={ this.img }
 					src={ isTransient ? undefined : url }
+					srcSet={ isTransient ? undefined : srcSet }
 					tabIndex="0"
-					style={ isTransient ? { backgroundImage: `url(${ url })` } : undefined }
+					style={ isTransient ? { backgroundImage: `url(${ origUrl })` } : undefined }
 				/>
 				{ isTransient && <Spinner /> }
 			</Fragment>

@@ -37,6 +37,8 @@ class Jetpack_Calypsoify {
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
+			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
+			add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -56,8 +58,6 @@ class Jetpack_Calypsoify {
 		}
 
 		add_action( 'admin_init', array( $this, 'check_page' ) );
-		add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-		add_action( 'admin_menu', array( $this, 'add_plugin_menus' ), 101 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
 		add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
 		add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
@@ -269,6 +269,7 @@ class Jetpack_Calypsoify {
 			'calypsoifyGutenberg',
 			array(
 				'closeUrl'   => $this->get_close_gutenberg_url(),
+				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block' . $this->get_site_suffix(),
 			)
 		);
 	}
@@ -323,6 +324,19 @@ class Jetpack_Calypsoify {
 			'https://wordpress.com',
 		);
 		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
+
+		function get_site_suffix() {
+			if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
+				$site_suffix = Jetpack::build_raw_urls( home_url() );
+			} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
+				$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
+			}
+
+			if ( $site_suffix ) {
+				return "/${site_suffix}";
+			}
+			return '';
+		}
 	}
 
 	/**

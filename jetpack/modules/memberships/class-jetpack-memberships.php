@@ -34,7 +34,14 @@ class Jetpack_Memberships {
 	 *
 	 * @var string
 	 */
-	private static $button_block_name = 'membership-button';
+	private static $button_block_name = 'recurring-payments';
+
+	/**
+	 * These are defaults for wp_kses ran on the membership button.
+	 *
+	 * @var array
+	 */
+	private static $tags_allowed_in_the_button = array( 'br' => array() );
 	/**
 	 * Classic singleton pattern
 	 *
@@ -113,7 +120,7 @@ class Jetpack_Memberships {
 		);
 		$order_args   = array(
 			'label'               => esc_html__( 'Plan', 'jetpack' ),
-			'description'         => esc_html__( 'Memberships plans', 'jetpack' ),
+			'description'         => esc_html__( 'Recurring Payments plans', 'jetpack' ),
 			'supports'            => array( 'title', 'custom-fields', 'content' ),
 			'hierarchical'        => false,
 			'public'              => false,
@@ -202,6 +209,7 @@ class Jetpack_Memberships {
 		);
 
 		$classes = array(
+			'wp-block-button__link',
 			'components-button',
 			'is-primary',
 			'is-button',
@@ -243,7 +251,7 @@ class Jetpack_Memberships {
 			esc_attr( get_locale() ),
 			esc_attr( implode( $classes, ' ' ) ),
 			esc_attr( $button_styles ),
-			esc_html( $data['button_label'] )
+			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
 		);
 	}
 

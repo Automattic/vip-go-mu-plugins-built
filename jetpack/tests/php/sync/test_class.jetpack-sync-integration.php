@@ -1,7 +1,6 @@
 <?php
 
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
-
 	function test_sending_empties_queue() {
 		$this->factory->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
@@ -101,6 +100,21 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( !! has_filter( 'jetpack_sync_sender_should_load', '__return_true' ) );
 		$this->assertTrue( Jetpack_Sync_Actions::$sender !== null );
+	}
+
+	function test_do_not_load_sender_if_is_cron_and_cron_sync_disabled() {
+		Jetpack_Constants::set_constant( 'DOING_CRON', true );
+		$settings = Jetpack_Sync_Settings::get_settings();
+		$settings['sync_via_cron'] = 0;
+		Jetpack_Sync_Settings::update_settings( $settings );
+		Jetpack_Sync_Actions::$sender = null;
+
+		Jetpack_Sync_Actions::add_sender_shutdown();
+
+		$this->assertNull( Jetpack_Sync_Actions::$sender );
+
+		Jetpack_Constants::clear_constants();
+		Jetpack_Sync_Settings::reset_data();
 	}
 
 	function test_cleanup_cron_jobs_with_non_staggered_start() {
