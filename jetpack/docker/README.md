@@ -184,6 +184,8 @@ yarn docker:wp cron event list
 yarn docker:wp shell
 ```
 
+By default it will use rich REPL [`PsySH`](https://psysh.org/), to run the default REPL use `yarn docker:wp shell --basic`
+
 Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
 
 ```
@@ -265,7 +267,7 @@ yarn docker:up -d
 ```
 ### Docker Ngrok
 
-Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts docker inside a container and you don't have to install it or configure as a standalone software on your machine.
+Alternative to the above configuration file is running ngrok in the container with docker-compose file. That starts ngrok inside a container and you don't have to install it or configure as a standalone software on your machine.
 
 **1. Configure environment**
 

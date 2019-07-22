@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
@@ -13,7 +15,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 	}
 
 	/**
@@ -127,6 +129,35 @@ EXPECTED;
 	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url(){
 		return 'http://bjk.staging.wpengine.com';
 	}
+
+	/**
+	 * @dataProvider get_is_staging_site_known_hosting_providers_data
+	 */
+	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
+		$original_site_url = get_option( 'siteurl' );
+		update_option( 'siteurl', $site_url );
+		$result = MockJetpack::is_staging_site();
+		update_option( 'siteurl', $original_site_url );
+		$this->assertTrue(
+			$result,
+			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
+		);
+	}
+
+	public function get_is_staging_site_known_hosting_providers_data() {
+		return array(
+			'wpengine' => array(
+				'http://bjk.staging.wpengine.com',
+			),
+			'kinsta' => array(
+				'http://test.staging.kinsta.com',
+			),
+			'dreampress' => array(
+				'http://ebinnion.stage.site',
+			),
+		);
+	}
+
 	/*
 	 * @author tonykova
 	 * @covers Jetpack::implode_frontend_css
@@ -251,11 +282,11 @@ EXPECTED;
 
 	public function test_active_modules_filter_restores_state() {
 		self::reset_tracking_of_module_activation();
-	
+
 		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activated_modules' ) );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivated_modules' ) );
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
-	
+
 		Jetpack::update_active_modules( array( 'monitor' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor' ) );
 		$this->assertEquals(  self::$deactivated_modules, array() );
@@ -263,32 +294,32 @@ EXPECTED;
 		// Simce we override the 'monitor' module, verify it does not appear in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
 		$this->assertEquals(  $active_modules, array() );
-	
+
 		// Verify that activating a new module does not deactivate 'monitor' module.
 		Jetpack::update_active_modules( array( 'stats' ) );
 		$this->assertEquals( self::$activated_modules, array( 'monitor', 'stats') );
 		$this->assertEquals(  self::$deactivated_modules, array() );
-	
+
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'e2e_test_filter' ) );
-	
+
 		// With the module override filter removed, verify that monitor module appears in get_active_modules().
 		$active_modules = Jetpack::get_active_modules();
 		$this->assertEquals(  $active_modules, array( 'monitor', 'stats' ) );
 	}
-	
+
 	 // This filter overrides the 'monitor' module.
 	public static function e2e_test_filter( $modules ) {
 		$disabled_modules = array( 'monitor' );
-	
+
 		foreach ( $disabled_modules as $module_slug ) {
 			$found = array_search( $module_slug, $modules );
 			if ( false !== $found ) {
 				unset( $modules[ $found ] );
 			}
 		}
-	
+
 		return $modules;
-	}	
+	}
 
 	public function test_get_other_linked_admins_one_admin_returns_false() {
 		delete_transient( 'jetpack_other_linked_admins' );
@@ -379,17 +410,17 @@ EXPECTED;
 	}
 
 	function test_idc_optin_true_when_constant_true() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		$this->assertTrue( Jetpack::sync_idc_optin() );
 	}
 
 	function test_idc_optin_false_when_constant_false() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 	}
 
 	function test_idc_optin_filter_overrides_constant() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', true );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
 		$this->assertFalse( Jetpack::sync_idc_optin() );
 		remove_filter( 'jetpack_sync_idc_optin', '__return_false' );
@@ -429,7 +460,7 @@ EXPECTED;
 
 	function test_sync_error_idc_validation_returns_false_and_cleans_up_when_opted_out() {
 		Jetpack_Options::update_option( 'sync_error_idc', Jetpack::get_sync_error_idc_option() );
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
+		Constants::set_constant( 'JETPACK_SYNC_IDC_OPTIN', false );
 
 		$this->assertFalse( Jetpack::validate_sync_error_idc_option() );
 		$this->assertFalse( Jetpack_Options::get_option( 'sync_error_idc' ) );
@@ -507,27 +538,27 @@ EXPECTED;
 	}
 
 	function test_is_dev_version_true_with_alpha() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
+		Constants::set_constant( 'JETPACK__VERSION', '4.3.1-alpha' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_true_with_beta() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
+		Constants::set_constant( 'JETPACK__VERSION', '4.3-beta2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_true_with_rc() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
+		Constants::set_constant( 'JETPACK__VERSION', '4.3-rc2' );
 		$this->assertTrue( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_false_with_number_dot_number() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3' );
+		Constants::set_constant( 'JETPACK__VERSION', '4.3' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
 	function test_is_dev_version_false_with_number_dot_number_dot_number() {
-		Jetpack_Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
+		Constants::set_constant( 'JETPACK__VERSION', '4.3.1' );
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
@@ -798,7 +829,7 @@ EXPECTED;
 	 * @dataProvider get_file_url_for_environment_data_provider
 	 */
 	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
-		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
+		Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
 		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
 
 		$this->assertContains( $$expected, $file_url );
@@ -820,6 +851,39 @@ EXPECTED;
 				false,
 				'min_path',
 				'non_min_path'
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_content_width_data
+	 */
+	public function test_get_content_width( $expected, $content_width ) {
+		$GLOBALS['content_width'] = $content_width;
+		$this->assertSame( $expected, Jetpack::get_content_width() );
+	}
+
+	public function get_content_width_data() {
+		return array(
+			'zero' => array(
+				0,
+				0,
+			),
+			'int' => array(
+				100,
+				100,
+			),
+			'numeric_string' => array(
+				'100',
+				'100',
+			),
+			'non_numeric_string' => array(
+				false,
+				'meh'
+			),
+			'content_width_not_set' => array(
+				false,
+				null,
 			),
 		);
 	}

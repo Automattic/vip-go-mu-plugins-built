@@ -211,8 +211,6 @@ hash composer 2>/dev/null || {
     exit 1;
 }
 
-composer install
-
 # Checking for yarn
 hash yarn 2>/dev/null || {
 	echo >&2 "This script requires you to have yarn package manager installed."
@@ -222,7 +220,7 @@ hash yarn 2>/dev/null || {
 
 # Start cleaning the cache.
 yarn cache clean
-yarn run build-production
+COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.

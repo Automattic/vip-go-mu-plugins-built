@@ -63,8 +63,6 @@ hash composer 2>/dev/null || {
     exit 1;
 }
 
-composer --cwd $TARGET_DIR install
-
 # Checking for yarn
 hash yarn 2>/dev/null || {
     echo >&2 "This script requires you to have yarn package manager installed."
@@ -72,7 +70,7 @@ hash yarn 2>/dev/null || {
     exit 1;
 }
 yarn --cwd $TARGET_DIR cache clean
-yarn --cwd $TARGET_DIR run build
+COMPOSER_MIRROR_PATH_REPOS=1 yarn --cwd $TARGET_DIR run build
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
 # check .svnignore

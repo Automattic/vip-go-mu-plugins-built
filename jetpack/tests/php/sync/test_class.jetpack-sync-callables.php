@@ -1,6 +1,9 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
+use Automattic\Jetpack\Sync\Sender;
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -93,7 +96,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
-			$callables['wp_super_cache_globals'] = Jetpack_Sync_Module_WP_Super_Cache::get_wp_super_cache_globals();
+			$callables['wp_super_cache_globals'] = WP_Super_Cache::get_wp_super_cache_globals();
 		}
 
 		if ( is_multisite() ) {
@@ -141,8 +144,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_white_listed_callables_doesnt_get_synced_twice() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
@@ -151,7 +154,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
@@ -250,8 +253,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_home_site_urls_synced_while_migrate_for_idc_set() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$home_option    = get_option( 'home' );
 		$siteurl_option = get_option( 'siteurl' );
@@ -266,7 +269,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Second, let's make sure that values don't get synced again if the migrate_for_idc option is not set
 		$this->server_replica_storage->reset();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -277,7 +280,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
 
 		$this->server_replica_storage->reset();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -401,7 +404,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertInternalType( 'array', get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
 		}
 
-		Jetpack_Sync_Sender::get_instance()->uninstall();
+		Sender::get_instance()->uninstall();
 
 		foreach( $url_callables as $callable ) {
 			$this->assertFalse( get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
@@ -412,8 +415,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$original_site_url = site_url();
 
@@ -424,8 +427,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'site_url', array( $this, 'add_www_subdomain_to_siteurl' ) );
 
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
@@ -654,8 +657,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_get_raw_url_by_constant_bypasses_filters() {
-		Jetpack_Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
-		Jetpack_Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
+		Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
+		Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
@@ -669,7 +672,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 	}
 
 	function test_get_raw_url_returns_with_http_if_is_ssl() {
@@ -688,7 +691,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_raw_home_url_is_https_when_is_ssl() {
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
 
 		$home_option = get_option( 'home' );
 
@@ -715,9 +718,9 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::home_url() );
 
 		// Now, without, which should return the filtered URL
-		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
+		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
 		$this->assertEquals( $this->__return_filtered_url(), Jetpack_Sync_Functions::home_url() );
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
@@ -940,7 +943,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
 
 		// call one of the authenticated endpoints
-		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
+		Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
 		$jetpack->xmlrpc_methods( array() );
 		$jetpack->require_jetpack_authentication();
@@ -948,7 +951,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 
 		unset( $_GET['token'] );

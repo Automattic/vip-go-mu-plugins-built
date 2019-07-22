@@ -18,6 +18,9 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
+
 // Keep compatibility with the PollDaddy plugin.
 if (
 	! class_exists( 'CrowdsignalShortcode' )
@@ -62,14 +65,14 @@ if (
 		public static function register_scripts() {
 			wp_register_script(
 				'crowdsignal-shortcode',
-				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
 				array( 'jquery' ),
 				JETPACK__VERSION,
 				true
 			);
 			wp_register_script(
 				'crowdsignal-survey',
-				Jetpack::get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/crowdsignal-survey.min.js', '_inc/crowdsignal-survey.js' ),
 				array(),
 				JETPACK__VERSION,
 				true
@@ -213,7 +216,7 @@ if (
 			);
 
 			$inline = ! in_the_loop()
-				&& ! Jetpack_Constants::is_defined( 'TESTING_IN_JETPACK' );
+				&& ! Constants::is_defined( 'TESTING_IN_JETPACK' );
 
 			$no_script       = false;
 			$infinite_scroll = false;
@@ -432,7 +435,7 @@ if (
 								'crowdsignal_shortcode_options',
 								array(
 									'script_url' => esc_url_raw(
-										Jetpack::get_file_url_for_environment(
+										Assets::get_file_url_for_environment(
 											'_inc/build/polldaddy-shortcode.min.js',
 											'_inc/polldaddy-shortcode.js'
 										)
@@ -710,7 +713,7 @@ if (
 					'crowdsignal_shortcode_options',
 					array(
 						'script_url' => esc_url_raw(
-							Jetpack::get_file_url_for_environment(
+							Assets::get_file_url_for_environment(
 								'_inc/build/polldaddy-shortcode.min.js',
 								'_inc/polldaddy-shortcode.js'
 							)
