@@ -173,7 +173,7 @@ class User {
 
 		add_filter( 'wp_redirect',          array( $this, 'filter_wp_redirect' ) );
 		add_filter( 'removable_query_args', array( $this, 'filter_removable_query_args' ) );
-		add_filter( 'user_email',           array( $this, 'filter_vip_support_email_aliases' ) );
+		add_filter( 'user_email',           array( $this, 'filter_vip_support_email_aliases' ), 10, 2 );
 		add_filter( 'get_avatar_url',       array( $this, 'filter_vip_support_email_gravatars' ), 10, 3 );
 
 		$this->reverting_role   = false;
@@ -423,10 +423,11 @@ class User {
 	 *
 	 * @return string
 	 */
-	public function filter_vip_support_email_aliases( $email ) {
-		if ( is_admin() && $this->is_a8c_email( $email ) ) {
+	public function filter_vip_support_email_aliases( $email, $id ) {
+		if ( is_admin() && $this->is_a8c_email( $email ) && $this->has_vip_support_meta( $id ) ) {
 			return self::VIP_SUPPORT_EMAIL_ADDRESS;
 		}
+
 		return $email;
 	}
 
@@ -462,7 +463,7 @@ class User {
 			$user_email = $id_or_email->user_email;
 		}
 
-		if ( isset( $user_email ) && $this->is_a8c_email( $user_email ) ) {
+		if ( isset( $user_email ) && $this->is_a8c_email( $user_email ) && ( ! $user || $this->has_vip_support_meta( $user->ID ) ) ) {
 			return self::VIP_SUPPORT_EMAIL_ADDRESS_GRAVATAR . '?d=mm&r=g&s=' . $args['size'];
 		}
 
