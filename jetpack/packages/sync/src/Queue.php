@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Sync\Defaults;
+
 /**
  * A persistent queue that can be flushed in increments of N items,
  * and which blocks reads until checked-out buffers are checked in or
@@ -61,6 +63,15 @@ class Queue {
 	// Peek at the front-most item on the queue without checking it out
 	function peek( $count = 1 ) {
 		$items = $this->fetch_items( $count );
+		if ( $items ) {
+			return Utils::get_item_values( $items );
+		}
+
+		return array();
+	}
+
+	function peek_by_id( $item_ids ) {
+		$items = $this->fetch_items_by_id( $item_ids );
 		if ( $items ) {
 			return Utils::get_item_values( $items );
 		}
@@ -347,7 +358,7 @@ class Queue {
 	private function set_checkout_id( $checkout_id ) {
 		global $wpdb;
 
-		$expires     = time() + \Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
+		$expires     = time() + Defaults::$default_sync_queue_lock_timeout;
 		$updated_num = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
@@ -408,11 +419,34 @@ class Queue {
 			$query_sql = $wpdb->prepare( "SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC", "jpsq_{$this->id}-%" );
 		}
 
-		$items = $wpdb->get_results( $query_sql, OBJECT );
-		foreach ( $items as $item ) {
-			$item->value = maybe_unserialize( $item->value );
-		}
+		return $this->query_for_items( $query_sql );
+	}
 
+	private function fetch_items_by_id( $items_ids ) {
+		global $wpdb;
+		$ids_placeholders = implode( ', ', array_fill( 0, count( $items_ids ), '%s' ) );
+
+		$query_sql = $wpdb->prepare(
+			"
+			SELECT option_name AS id, option_value AS value
+			FROM $wpdb->options
+			WHERE option_name IN ( $ids_placeholders )",
+			$items_ids
+		);
+
+		return $this->query_for_items( $query_sql );
+	}
+
+	private function query_for_items( $query_sql ) {
+		global $wpdb;
+
+		$items = $wpdb->get_results( $query_sql, OBJECT );
+		array_walk(
+			$items,
+			function( $item ) {
+				$item->value = maybe_unserialize( $item->value );
+			}
+		);
 		return $items;
 	}
 

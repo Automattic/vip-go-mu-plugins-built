@@ -1,8 +1,8 @@
 [
     {
         "name": "automattic/jetpack-assets",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/assets",
@@ -35,8 +35,8 @@
     },
     {
         "name": "automattic/jetpack-autoloader",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/autoloader",
@@ -71,8 +71,8 @@
     },
     {
         "name": "automattic/jetpack-compat",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/compat",
@@ -105,8 +105,8 @@
     },
     {
         "name": "automattic/jetpack-connection",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/connection",
@@ -143,8 +143,8 @@
     },
     {
         "name": "automattic/jetpack-constants",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/constants",
@@ -173,8 +173,8 @@
     },
     {
         "name": "automattic/jetpack-jitm",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/jitm",
@@ -213,8 +213,8 @@
     },
     {
         "name": "automattic/jetpack-logo",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/logo",
@@ -244,8 +244,8 @@
     },
     {
         "name": "automattic/jetpack-options",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/options",
@@ -271,17 +271,82 @@
         "description": "A wrapper for wp-options to manage specific Jetpack options."
     },
     {
+        "name": "automattic/jetpack-roles",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/roles",
+            "reference": "f38b3379c11a05e4711b4fb29b390c8107daccd7"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Utilities, related with user roles and capabilities."
+    },
+    {
+        "name": "automattic/jetpack-status",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
+        "dist": {
+            "type": "path",
+            "url": "./packages/status",
+            "reference": "99ecd79ed31dc3432892df709ba745ebc6f747e9"
+        },
+        "require-dev": {
+            "php-mock/php-mock": "^2.1",
+            "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Automattic\\Jetpack\\": "src/"
+            }
+        },
+        "scripts": {
+            "phpunit": [
+                "@composer install",
+                "./vendor/phpunit/phpunit/phpunit --colors=always"
+            ]
+        },
+        "license": [
+            "GPL-2.0-or-later"
+        ],
+        "description": "Used to retrieve information about the current status of Jetpack and the site overall."
+    },
+    {
         "name": "automattic/jetpack-sync",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/sync",
-            "reference": "b0d6e62ff20115d1ef5575ff46940fcbdb4bd2b0"
+            "reference": "1cad05fcfd38ad123af0bbf08b5a1224bd95312a"
         },
         "require": {
+            "automattic/jetpack-connection": "@dev",
             "automattic/jetpack-constants": "@dev",
-            "automattic/jetpack-options": "@dev"
+            "automattic/jetpack-options": "@dev",
+            "automattic/jetpack-roles": "@dev",
+            "automattic/jetpack-status": "@dev"
         },
         "type": "library",
         "installation-source": "dist",
@@ -298,8 +363,8 @@
     },
     {
         "name": "automattic/jetpack-tracking",
-        "version": "dev-add/jetpack-compat-package",
-        "version_normalized": "dev-add/jetpack-compat-package",
+        "version": "dev-update/sync-use-roles-package",
+        "version_normalized": "dev-update/sync-use-roles-package",
         "dist": {
             "type": "path",
             "url": "./packages/tracking",

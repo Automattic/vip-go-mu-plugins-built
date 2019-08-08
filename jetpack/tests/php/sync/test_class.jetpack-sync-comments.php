@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing CRUD on Comments
  */
@@ -350,7 +352,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_returns_comment_object_by_id() {
-		$comment_sync_module = Jetpack_Sync_Modules::get_module( "comments" );
+		$comment_sync_module = Modules::get_module( "comments" );
 
 		$comment_id = $this->comment_ids[0];
 		
@@ -366,5 +368,25 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		) );
 
 		$this->assertEquals( $synced_comment, $retrieved_comment );
+	}
+
+	/**
+	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
+	 */
+	public function test_allows_custom_comment_types() {
+		$comments_sync_module = Modules::get_module( 'comments' );
+
+		$this->assertNotContains( 'product_feedback', $comments_sync_module->get_whitelisted_comment_types() );
+
+		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+
+		$this->assertContains( 'product_feedback', $comments_sync_module->get_whitelisted_comment_types() );
+
+		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+	}
+
+	public function add_custom_comment_type( $comment_types ) {
+		$comment_types[] = 'product_feedback';
+		return $comment_types;
 	}
 }
