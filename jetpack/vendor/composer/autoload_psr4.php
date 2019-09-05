@@ -11,5 +11,5 @@ return array(
     'Automattic\\Jetpack\\Connection\\' => array($vendorDir . '/automattic/jetpack-connection/src'),
     'Automattic\\Jetpack\\Autoloader\\' => array($vendorDir . '/automattic/jetpack-autoloader/src'),
     'Automattic\\Jetpack\\Assets\\' => array($vendorDir . '/automattic/jetpack-logo/src'),
-    'Automattic\\Jetpack\\' => array($vendorDir . '/automattic/jetpack-constants/src', $vendorDir . '/automattic/jetpack-tracking/src', $vendorDir . '/automattic/jetpack-assets/src', $vendorDir . '/automattic/jetpack-jitm/src', $vendorDir . '/automattic/jetpack-status/src', $vendorDir . '/automattic/jetpack-roles/src'),
+    'Automattic\\Jetpack\\' => array($vendorDir . '/automattic/jetpack-error/src', $vendorDir . '/automattic/jetpack-constants/src', $vendorDir . '/automattic/jetpack-abtest/src', $vendorDir . '/automattic/jetpack-tracking/src', $vendorDir . '/automattic/jetpack-assets/src', $vendorDir . '/automattic/jetpack-jitm/src', $vendorDir . '/automattic/jetpack-status/src', $vendorDir . '/automattic/jetpack-roles/src'),
 );

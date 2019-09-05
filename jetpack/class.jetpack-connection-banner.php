@@ -1,7 +1,8 @@
 <?php
 
-use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
+use Automattic\Jetpack\Constants;
 
 class Jetpack_Connection_Banner {
 	/**
@@ -25,6 +26,7 @@ class Jetpack_Connection_Banner {
 	 */
 	private function __construct() {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_connect_button_scripts' ) );
 	}
 
 	/**
@@ -69,6 +71,7 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+
 		// Kill if banner has been dismissed
 		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
 			return;
@@ -125,6 +128,55 @@ class Jetpack_Connection_Banner {
 		);
 	}
 
+	public static function enqueue_connect_button_scripts() {
+		wp_enqueue_script(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'_inc/build/connect-button.min.js',
+				'_inc/connect-button.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+
+		wp_enqueue_style(
+			'jetpack-connect-button',
+			Assets::get_file_url_for_environment(
+				'css/jetpack-connect.min.css',
+				'css/jetpack-connect.css'
+			)
+		);
+
+		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+
+		if ( jetpack_is_mobile() ) {
+			$force_variation = 'original';
+		} else if ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'in_place';
+		} else if ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+			$force_variation = 'original';
+		} else {
+			$force_variation = null;
+		}
+
+		wp_localize_script(
+			'jetpack-connect-button',
+			'jpConnect',
+			array(
+				'apiBaseUrl'            => esc_url_raw( rest_url( 'jetpack/v4' ) ),
+				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
+				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
+				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
+				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
+				'forceVariation'        => $force_variation,
+				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
+				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+			)
+		);
+	}
+
 	/**
 	 * Performs an A/B test showing or hiding the green bar at the top of the connection dialog displayed in Dashboard or Plugins.
 	 * We save which version we're showing so we always show the same to the same user.
@@ -145,7 +197,7 @@ class Jetpack_Connection_Banner {
 			<div class="jp-wpcom-connect__container-top-text">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
 				<span>
-			    <?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
+					<?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
 				</span>
 			</div>
 			<?php
@@ -218,11 +270,12 @@ class Jetpack_Connection_Banner {
 							<div class="jp-banner__button-container">
 								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
 								<a
-									href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-									class="dops-button is-primary">
+										href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
+										class="dops-button is-primary">
 									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 								</a>
 							</div>
+
 						</div>
 					</div> <!-- end slide 1 -->
 				</div>
@@ -258,6 +311,17 @@ class Jetpack_Connection_Banner {
 				<div class="jp-connect-full__step-header">
 					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ) ?></h2>
 				</div>
+
+				<p class="jp-connect-full__tos-blurb">
+					<?php jetpack_render_tos_blurb(); ?>
+				</p>
+
+				<p class="jp-connect-full__button-container">
+					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
+					   class="dops-button is-primary jp-connect-button">
+						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
+					</a>
+				</p>
 
 				<div class="jp-connect-full__row">
 					<div class="jp-connect-full__slide">
@@ -298,14 +362,6 @@ class Jetpack_Connection_Banner {
 					</div>
 				</div>
 
-				<p class="jp-connect-full__tos-blurb">
-					<?php jetpack_render_tos_blurb(); ?>
-				</p>
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>" class="dops-button is-primary">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-					</a>
-				</p>
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 					<p class="jp-connect-full__dismiss-paragraph">
 						<a>
@@ -315,7 +371,8 @@ class Jetpack_Connection_Banner {
 						</a>
 					</p>
 				<?php endif; ?>
-			</div></div>
+			</div>
+		</div>
 		<?php
 	}
 

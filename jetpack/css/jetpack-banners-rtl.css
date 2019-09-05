@@ -106,6 +106,12 @@ https://github.com/thoughtbot/bourbon
   margin: 1em;
 }
 
+@media (max-width: 530px) {
+  .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
+    padding: 2rem 2rem;
+  }
+}
+
 .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card img.jetpack-logo {
   width: 160px;
 }
@@ -141,12 +147,24 @@ https://github.com/thoughtbot/bourbon
 
 @media (max-width: 782px) {
   .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
-    top: 46px;
+    top: 32px;
+  }
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-connect-full__container {
+    top: 0px;
   }
 }
 
 .jetpack-disconnected.toplevel_page_jetpack .jp-jetpack-connect__container .jp-connect-full__container {
   display: block;
+}
+
+@media (max-width: 530px) {
+  .jetpack-disconnected.toplevel_page_jetpack .jp-jetpack-connect__container .jp-connect-full__container .jp-connect-full__step-header h2 {
+    margin: 0;
+  }
 }
 
 .jp-connect-full__svg-dismiss {
@@ -161,8 +179,14 @@ https://github.com/thoughtbot/bourbon
 
 .jp-connect-full__step-header {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 0 auto 40px auto;
   line-height: 1.5;
+}
+
+@media (max-width: 530px) {
+  .jp-connect-full__step-header {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .jp-connect-full__step-header h2 {
@@ -174,7 +198,7 @@ https://github.com/thoughtbot/bourbon
 
 @media (max-width: 530px) {
   .jp-connect-full__step-header h2 {
-    margin: 1.5rem 0 0;
+    margin-top: 1rem;
   }
 }
 
@@ -187,22 +211,6 @@ https://github.com/thoughtbot/bourbon
 
 .jp-connect-full__step-header.bottom {
   margin-top: 5rem;
-}
-
-.jp-connect-full__button-container {
-  margin: 0;
-}
-
-.jp-connect-full__button-container .dops-button.is-primary {
-  background: #00BE28;
-  border-color: #00a523;
-  padding-right: 1.5rem;
-  padding-left: 1.5rem;
-}
-
-.jp-connect-full__button-container .dops-button.is-primary:hover, .jp-connect-full__button-container .dops-button.is-primary:focus {
-  background: #00a523;
-  border-color: #008b1d;
 }
 
 .jp-connect-full__tos-blurb {
@@ -286,9 +294,6 @@ https://github.com/thoughtbot/bourbon
   .jp-connect-full__slide {
     margin: 2em 0;
     max-width: 100%;
-  }
-  .jetpack-disconnected .jp-connect-full__container .jp-connect-full__container-card {
-    padding: 3rem 2rem;
   }
 }
 
