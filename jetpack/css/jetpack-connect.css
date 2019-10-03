@@ -23,7 +23,7 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 https://github.com/thoughtbot/bourbon
 */
 .jp-jetpack-connect__iframe {
-  height: 240px;
+  height: 340px;
   width: 380px;
   max-width: 100%;
   margin: 1rem auto 0;
@@ -31,8 +31,13 @@ https://github.com/thoughtbot/bourbon
 
 @media (min-width: 491px) {
   .jp-jetpack-connect__iframe {
-    height: 290px;
+    height: 390px;
   }
+}
+
+.jp-connect-full__button-container-loading {
+  margin-top: 84px;
+  display: block;
 }
 
 .jp-connect-full__button-container .dops-button.jp-connect-button.is-primary {

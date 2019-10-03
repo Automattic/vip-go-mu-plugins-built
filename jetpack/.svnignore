@@ -11,12 +11,13 @@ readme.md
 babel.config*
 phpunit.xml.dist
 dangerfile.js
-renovate.json
 bin/phpcs-whitelist.js
 bin/pre-commit-hook.js
+bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
 bin/release-package.php
 css/*.css.map
+css/*.css.min.map
 docs
 tests
 scss

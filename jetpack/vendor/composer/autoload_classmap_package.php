@@ -319,7 +319,7 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-roles/src/Roles.php'
 	),
 	'Automattic\\Jetpack\\Plugin\\Tracking' => array(
-		'version' => 'dev-branch-7.7',
+		'version' => 'dev-branch-7.8',
 		'path'    => $baseDir . '/src/Tracking.php'
 	),
 	'JetpackTracking' => array(

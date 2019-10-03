@@ -5,9 +5,11 @@ jQuery( document ).ready( function( $ ) {
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	connectButton.click( function( event ) {
 		event.preventDefault();
+		$( '#jetpack-connection-cards' ).fadeOut( 600 );
 		if ( ! jetpackConnectButton.isRegistering ) {
 			if ( 'original' === jpConnect.forceVariation ) {
-				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`.
+				// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`
+				// or we're dealing with Safari which has issues with handling 3rd party cookies.
 				jetpackConnectButton.handleOriginalFlow();
 			} else if ( 'in_place' === jpConnect.forceVariation ) {
 				// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
@@ -24,7 +26,7 @@ jQuery( document ).ready( function( $ ) {
 		isRegistering: false,
 		isPaidPlan: false,
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place';
+			var abTestName = 'jetpack_connect_in_place_v2';
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
@@ -48,26 +50,53 @@ jQuery( document ).ready( function( $ ) {
 		handleConnectInPlaceFlow: function() {
 			jetpackConnectButton.isRegistering = true;
 			tosText.hide();
-			connectButton
-				.text( jpConnect.buttonTextRegistering )
-				.attr( 'disabled', true )
-				.blur();
+			connectButton.hide();
+			jetpackConnectButton.triggerLoadingState();
+
+			var registerUrl = jpConnect.apiBaseUrl + '/connection/register';
+
+			// detect Calypso Env and add to API URL
+			if ( window.Initial_State && window.Initial_State.calypsoEnv ) {
+				registerUrl =
+					registerUrl + '?' + $.param( { calypso_env: window.Initial_State.calypsoEnv } );
+			}
 
 			$.ajax( {
-				url: jpConnect.apiBaseUrl + '/connection/register',
+				url: registerUrl,
 				type: 'POST',
 				data: {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: function( data ) {
-					jetpackConnectButton.fetchPlanType();
-					window.addEventListener( 'message', jetpackConnectButton.receiveData );
-					jetpackConnectIframe.attr( 'src', data.authorizeUrl );
-					$( '.jp-connect-full__button-container' ).html( jetpackConnectIframe );
-				},
+				success: jetpackConnectButton.handleConnectionSuccess,
 			} );
+		},
+		triggerLoadingState: function() {
+			var loadingText = $( '<span>' )
+				.addClass( 'jp-connect-full__button-container-loading' )
+				.text( jpConnect.buttonTextRegistering )
+				.appendTo( '.jp-connect-full__button-container' );
+
+			var spinner = $( '<div>' ).addClass( 'jp-spinner' );
+			var spinnerOuter = $( '<div>' )
+				.addClass( 'jp-spinner__outer' )
+				.appendTo( spinner );
+			$( '<div>' )
+				.addClass( 'jp-spinner__inner' )
+				.appendTo( spinnerOuter );
+			loadingText.after( spinner );
+		},
+		handleConnectionSuccess: function( data ) {
+			jetpackConnectButton.fetchPlanType();
+			window.addEventListener( 'message', jetpackConnectButton.receiveData );
+			jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+			jetpackConnectIframe.on( 'load', function() {
+				jetpackConnectIframe.show();
+				$( '.jp-connect-full__button-container' ).hide();
+			} );
+			jetpackConnectIframe.hide();
+			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
@@ -103,7 +132,6 @@ jQuery( document ).ready( function( $ ) {
 			window.location.reload( true );
 		},
 		handleConnectionError: function( error ) {
-			console.warn( 'Connection failed. Falling back to the regular flow', error );
 			jetpackConnectButton.isRegistering = false;
 			jetpackConnectButton.handleOriginalFlow();
 		},

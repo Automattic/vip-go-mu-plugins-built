@@ -110,17 +110,17 @@ __( "Jetpack’s downtime monitor will continuously monitor your site, and alert
 __( "Jetpack is monitoring your site. If we think your site is down, you will receive an email.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:46
 __( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:63
 __( "{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes down.", "jetpack" ), // _inc/client/at-a-glance/monitor.jsx:64
-__( "Image Performance", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:25
+__( "Image Accelerator", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:25
 __( "Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:28
-__( "Jetpack is improving and optimizing your image speed.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:38
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:53
-__( "{{a}}Activate{{/a}} to enhance the performance and speed of your images.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:54
+__( "Jetpack is optimizing your image sizes and download speed using our fast global network of servers. This improves your site's performance on desktop and mobile devices.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:38
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:55
+__( "{{a}}Activate{{/a}} to optimize image sizes and load images from Jetpack's fast global network of servers. This improves your site's performance on desktop and mobile devices.", "jetpack" ), // _inc/client/at-a-glance/photon.jsx:56
 __( "Plugin Updates", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:39
 __( "Jetpack’s Plugin Updates allows you to choose which plugins update automatically.", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:43
 __( "Loading…", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:53
 _n( "%(number)s", "%(number)s", 1, "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:72
 _n( "Plugin needs updating.", "Plugins need updating.", 1, "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:81
-__( "{{a}}Turn on plugin autoupdates{{/a}}", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:85
+__( "{{a}}Turn on plugin autoupdates.{{/a}}", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:85
 __( "All plugins are up-to-date. Awesome work!", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:89
 __( "Manage your plugins", "jetpack" ), // _inc/client/at-a-glance/plugins.jsx:101
 __( "Protect", "jetpack" ), // _inc/client/at-a-glance/protect.jsx:28
@@ -151,7 +151,7 @@ __( "Jetpack Search is a powerful replacement for the search capability built in
 __( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/at-a-glance/search.jsx:80
 __( "Upgrade", "jetpack" ), // _inc/client/at-a-glance/search.jsx:91
 __( "Replace your site's basic search with customizable search that helps visitors find answers faster.", "jetpack" ), // _inc/client/at-a-glance/search.jsx:92
-__( "Search", "jetpack" ), // _inc/client/at-a-glance/search.jsx:110
+__( "Jetpack Search", "jetpack" ), // _inc/client/at-a-glance/search.jsx:110
 __( "Jetpack Search is a powerful replacement for the search capability built into WordPress.", "jetpack" ), // _inc/client/at-a-glance/search.jsx:113
 __( "Jetpack Search is powering search on your site.", "jetpack" ), // _inc/client/at-a-glance/search.jsx:123
 __( "Add Search (Jetpack) Widget", "jetpack" ), // _inc/client/at-a-glance/search.jsx:131
@@ -289,13 +289,13 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:269
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:286
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:300
-__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:57
-__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:65
-__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:67
-__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:69
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:28
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:43
+__( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:62
+__( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:70
+__( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:72
+__( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:74
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:68
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
@@ -465,11 +465,11 @@ __( "Note that {{b}}verifying your site with these services is not necessary{{/b
 __( "Bing", "jetpack" ), // _inc/client/traffic/verification-services.jsx:157
 __( "Pinterest", "jetpack" ), // _inc/client/traffic/verification-services.jsx:168
 __( "Yandex", "jetpack" ), // _inc/client/traffic/verification-services.jsx:179
-__( "Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more.", "jetpack" ), // _inc/client/writing/composing.jsx:57
-__( "Allows you to compose content with links, lists, and other styles using the Markdown syntax.", "jetpack" ), // _inc/client/writing/composing.jsx:81
-__( "LaTeX is a powerful markup language for writing complex mathematical equations and formulas.", "jetpack" ), // _inc/client/writing/composing.jsx:112
-__( "Compose using shortcodes to embed media from popular sites", "jetpack" ), // _inc/client/writing/composing.jsx:148
-_x( "Composing", "Settings header", "jetpack" ), // _inc/client/writing/composing.jsx:158
+__( "Duplicate existing posts, pages, Testimonials, and Portfolios. All the content will be copied including text, featured images, sharing settings, and more.", "jetpack" ), // _inc/client/writing/composing.jsx:56
+__( "Use Markdown syntax to compose content with links, lists, and other styles. This setting enables Markdown in the Classic Editor as well as within a Classic Editor block.", "jetpack" ), // _inc/client/writing/composing.jsx:80
+__( "LaTeX is a powerful markup language for writing complex mathematical equations and formulas.", "jetpack" ), // _inc/client/writing/composing.jsx:113
+__( "Compose using shortcodes to embed media from popular sites", "jetpack" ), // _inc/client/writing/composing.jsx:149
+_x( "Composing", "Settings header", "jetpack" ), // _inc/client/writing/composing.jsx:159
 __( "This feature has been disabled by a site administrator.", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:67
 __( "Add {{testimonialLink}}testimonials{{/testimonialLink}} to your website to attract new customers. If your theme doesn’t support Jetpack Testimonials, you can still use a simple shortcode to display them on your site.", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:78
 __( "Testimonials", "jetpack" ), // _inc/client/writing/custom-content-types.jsx:96
@@ -720,8 +720,5 @@ __( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.j
 __( "Verify with Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:319
 __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:321
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:323
-__( "hookAdded", "jetpack" ), // _inc/blocks/components.js:136
-__( "hookRemoved", "jetpack" ), // _inc/blocks/components.js:136
-__( "deprecated", "jetpack" ), // _inc/blocks/components.js:136
 );
 /* THIS IS THE END OF THE GENERATED FILE */
