@@ -75,6 +75,7 @@ class Jetpack_Signature {
 		}
 
 		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
+		$host_port = intval( $host_port );
 
 		/**
 		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
@@ -155,7 +156,6 @@ class Jetpack_Signature {
 	 *
 	 * @todo Having body_hash v. body-hash is annoying. Refactor to accept an array?
 	 * @todo Use wp_json_encode() instead of json_encode()?
-	 * @todo Use wp_parse_url() instead of parse_url()?
 	 *
 	 * @param string $token            Request token.
 	 * @param int    $timestamp        Timestamp of the request.
@@ -224,8 +224,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
-		$parsed = parse_url( $url );
+		$parsed = wp_parse_url( $url );
 		if ( ! isset( $parsed['host'] ) ) {
 			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'url' ), compact( 'signature_details' ) );
 		}
@@ -294,9 +293,6 @@ class Jetpack_Signature {
 	 */
 	public function normalized_query_parameters( $query_string ) {
 		parse_str( $query_string, $array );
-		if ( get_magic_quotes_gpc() ) {
-			$array = stripslashes_deep( $array );
-		}
 
 		unset( $array['signature'] );
 

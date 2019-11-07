@@ -154,7 +154,7 @@ class Jetpack_Connection_Banner {
 			)
 		);
 
-		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.
@@ -168,6 +168,9 @@ class Jetpack_Connection_Banner {
 			$force_variation = null;
 		}
 
+		$tracking = new Automattic\Jetpack\Tracking();
+		$identity = $tracking->tracks_get_identity( get_current_user_id() );
+
 		wp_localize_script(
 			'jetpack-connect-button',
 			'jpConnect',
@@ -179,8 +182,10 @@ class Jetpack_Connection_Banner {
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
 				'jetpackApiDomain'      => $jetpackApiUrl['scheme'] . '://' . $jetpackApiUrl['host'],
 				'forceVariation'        => $force_variation,
+				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+				'identity'              => $identity,
 			)
 		);
 	}
@@ -284,7 +289,7 @@ class Jetpack_Connection_Banner {
 								<span class="jp-banner__tos-blurb"><?php jetpack_render_tos_blurb(); ?></span>
 								<a
 										href="<?php echo esc_url( $this->build_connect_url_for_slide( '72' ) ); ?>"
-										class="dops-button is-primary">
+										class="dops-button is-primary jp-banner__alt-connect-button">
 									<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 								</a>
 							</div>

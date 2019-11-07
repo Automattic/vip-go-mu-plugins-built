@@ -274,6 +274,10 @@ return array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-connection/src/Client.php'
 	),
+	'Automattic\\Jetpack\\Backup\\Helper_Script_Manager' => array(
+		'version' => 'dev-add/jetpack-backups-helper-apis',
+		'path'    => $vendorDir . '/automattic/jetpack-backup/src/Helper_Script_Manager.php'
+	),
 	'Automattic\\Jetpack\\Autoloader\\AutoloadGenerator' => array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-autoloader/src/AutoloadGenerator.php'
@@ -298,6 +302,14 @@ return array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-abtest/src/Abtest.php'
 	),
+	'Automattic\\Jetpack\\Status' => array(
+		'version' => '9999999-dev',
+		'path'    => $vendorDir . '/automattic/jetpack-status/src/Status.php'
+	),
+	'Automattic\\Jetpack\\Terms_Of_Service' => array(
+		'version' => '9999999-dev',
+		'path'    => $vendorDir . '/automattic/jetpack-terms-of-service/src/Terms_Of_Service.php'
+	),
 	'Automattic\\Jetpack\\Tracking' => array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-tracking/src/Tracking.php'
@@ -310,16 +322,12 @@ return array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-jitm/src/JITM.php'
 	),
-	'Automattic\\Jetpack\\Status' => array(
-		'version' => '9999999-dev',
-		'path'    => $vendorDir . '/automattic/jetpack-status/src/Status.php'
-	),
 	'Automattic\\Jetpack\\Roles' => array(
 		'version' => '9999999-dev',
 		'path'    => $vendorDir . '/automattic/jetpack-roles/src/Roles.php'
 	),
 	'Automattic\\Jetpack\\Plugin\\Tracking' => array(
-		'version' => 'dev-branch-7.8',
+		'version' => 'dev-branch-7.9',
 		'path'    => $baseDir . '/src/Tracking.php'
 	),
 	'JetpackTracking' => array(

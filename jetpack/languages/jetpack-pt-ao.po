@@ -11,6 +11,10 @@ msgstr ""
 "Language: pt_AO\n"
 "Project-Id-Version: Plugins - Jetpack by WordPress.com - Development (trunk)\n"
 
+#: _inc/jetpack-strings.php:469
+msgid "Use Markdown syntax to compose content with links, lists, and other styles. This setting enables Markdown in the Classic Editor as well as within a Classic Editor block."
+msgstr ""
+
 #: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "You cancelled connecting your site to Stripe."
 msgstr ""
@@ -21,10 +25,6 @@ msgstr ""
 
 #: _inc/blocks/editor.js:24 _inc/blocks/editor-beta.js:24
 msgid "Display multiple images in an elegantly organized tiled layout. Serves images using Jetpack's fast global network of servers."
-msgstr ""
-
-#: _inc/jetpack-strings.php:469
-msgid "Allows you to compose content with links, lists, and other styles using the Markdown syntax. This setting will allow you to write with the help of Markdown in the Classic Editor or within a Classic Editor block."
 msgstr ""
 
 #: _inc/jetpack-strings.php:117
@@ -1776,28 +1776,28 @@ msgstr "A senha deve ter no mínimo %d caracteres."
 msgid "Passwords may not contain the character \"\\\"."
 msgstr "Senhas não podem conter o caracter \"\\\"."
 
-#: class.jetpack-connection-banner.php:364
+#: class.jetpack-connection-banner.php:370
 msgid "Activate site accelerator tools and watch your page load times decrease—we'll optimize your images and serve them from our own powerful global network of servers, and speed up your mobile site to reduce bandwidth usage."
 msgstr "Ative as ferramentas de aceleração de site para ver o tempo de carregamento de suas páginas e o custo com servidor diminuírem. Nós otimizaremos suas imagens e as carregaremos de nossos poderosos servidores além de acelerar seu site em dispositivos móveis para diminuir o uso de banda."
 
-#: class.jetpack-connection-banner.php:319
+#: class.jetpack-connection-banner.php:325
 msgid "Activate essential WordPress security and performance tools by setting up Jetpack"
 msgstr "Ative ferramentas essenciais de desempenho e segurança do WordPress ao configurar o Jetpack"
 
-#: class.jetpack-connection-banner.php:268
+#: class.jetpack-connection-banner.php:274
 msgid "Activate site accelerator tools and watch your page load times decrease—we’ll optimize your images and serve them from our own powerful global network of servers, and speed up your mobile site to reduce bandwidth usage."
 msgstr "Ative as ferramentas de aceleração de site para ver o tempo de carregamento de suas páginas e o custo com servidor diminuírem. Nós otimizaremos suas imagens e as carregaremos de nossos poderosos servidores além de acelerar seu site em dispositivos móveis para diminuir o uso de banda."
 
-#: class.jetpack-connection-banner.php:257
-#: class.jetpack-connection-banner.php:344
+#: class.jetpack-connection-banner.php:263
+#: class.jetpack-connection-banner.php:350
 msgid "Jetpack protects you against brute force attacks and unauthorized logins. Basic protection is always free, while premium plans add unlimited backups of your whole site, spam protection, malware scanning, and automated fixes."
 msgstr "O Jetpack protege seu site contra ataques de força bruta e acessos não autorizados. A proteção básica é gratuita, porém, os planos pagos adicionam backups ilimitados para todo seu site, proteção contra spam, rastreio de malware e correções automáticas."
 
-#: class.jetpack-connection-banner.php:253
+#: class.jetpack-connection-banner.php:259
 msgid "Simplify your site security and performance with Jetpack"
 msgstr "Simplifique a segurança e desempenho de seu site com o Jetpack"
 
-#: class.jetpack-connection-banner.php:202
+#: class.jetpack-connection-banner.php:208
 msgid "You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress."
 msgstr "Você está quase lá! Configure o Jetpack para ativar ferramentas poderosas de segurança e desempenho para o WordPress."
 
@@ -3264,7 +3264,7 @@ msgstr "Tem interesse em saber mais sobre como o Secure Sign On mantém a segura
 msgid "You've successfully signed in with WordPress.com Secure Sign On!"
 msgstr "Você se conectou com êxito ao Secure Sign On do WordPress.com!"
 
-#: class.jetpack-connection-banner.php:358
+#: class.jetpack-connection-banner.php:364
 msgid "Built-in Performance"
 msgstr "Desempenho integrado"
 
@@ -3272,7 +3272,7 @@ msgstr "Desempenho integrado"
 msgid "Simple Payments button"
 msgstr "Botão de pagamento simples"
 
-#: class.jetpack-connection-banner.php:240
+#: class.jetpack-connection-banner.php:246
 msgid "Jetpack premium services offer even more powerful performance, security, and revenue tools to help you keep your site safe, fast, and help generate income."
 msgstr "Os serviços premium do Jetpack oferecem um desempenho ainda mais avançado, além de ferramentas de segurança e receita, que vão ajudá-lo a manter a segurança e rapidez do seu site, ajudando-o a gerar receita."
 
@@ -4022,11 +4022,11 @@ msgstr "Limitar a largura em %1$s pixels para imagens em tamanho grande. (<a hre
 msgid "Show photo metadata (<a href=\"https://en.wikipedia.org/wiki/Exchangeable_image_file_format\" rel=\"noopener noreferrer\" target=\"_blank\">Exif</a>) in carousel, when available."
 msgstr "Mostre metadados de fotos (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" rel=\"noopener noreferrer\" target=\"_blank\">Exif</a>) em carrossel, quando disponível."
 
-#: class.jetpack-connection-banner.php:338
+#: class.jetpack-connection-banner.php:344
 msgid "Security & Backups"
 msgstr "Segurança e backups"
 
-#: class.jetpack-connection-banner.php:380
+#: class.jetpack-connection-banner.php:386
 msgctxt "a link that closes the modal window that offers to connect Jetpack"
 msgid "Not now, thank you."
 msgstr "Agora não, obrigado."
@@ -5013,8 +5013,8 @@ msgstr "Idioma principal do site."
 msgid "Design the perfect website"
 msgstr "Crie o site perfeito"
 
-#: class.jetpack-connection-banner.php:282
-#: class.jetpack-connection-banner.php:329 _inc/jetpack-strings.php:560
+#: class.jetpack-connection-banner.php:288
+#: class.jetpack-connection-banner.php:335 _inc/jetpack-strings.php:560
 #: views/admin/must-connect-main-blog.php:10
 msgid "Set up Jetpack"
 msgstr "Configurar o Jetpack"
@@ -9244,7 +9244,7 @@ msgstr "O WordPress indica nenhum suporte a SSL"
 msgid "JETPACK_CLIENT__HTTPS is set to NEVER"
 msgstr "JETPACK_CLIENT__HTTPS está configurado como NEVER"
 
-#: class.jetpack-connection-banner.php:222
+#: class.jetpack-connection-banner.php:228
 msgid "Dismiss this notice"
 msgstr "Ignorar este aviso"
 
@@ -12065,7 +12065,7 @@ msgstr "Markdown"
 msgid "<span>%d</span> bloggers like this:"
 msgstr "<span>%d</span> blogueiros gostam disto:"
 
-#: class.jetpack-connection-banner.php:173 modules/comment-likes.php:188
+#: class.jetpack-connection-banner.php:179 modules/comment-likes.php:188
 #: modules/likes.php:473
 msgid "Loading..."
 msgstr "Carregando..."
@@ -14254,7 +14254,7 @@ msgstr "{{s}}Seu Jetpack tem uma falha.{{/s}} Não é possível conectar este si
 msgid "Your website needs to be publicly accessible to use Jetpack: %(error_key)s"
 msgstr "Seu site precisa ser acessível ao público para usar o Jetpack: %(error_key)s"
 
-#: class.jetpack-connection-banner.php:404
+#: class.jetpack-connection-banner.php:410
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>O Jetpack está ativado!</strong> Cada site na sua rede deve ser conectado individualmente por um administrador neste site."
 

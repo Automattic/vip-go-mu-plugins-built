@@ -14,6 +14,7 @@ import { withSelect } from '@wordpress/data';
 import analytics from '../../../../_inc/client/lib/analytics';
 import BlockNudge from '../block-nudge';
 import getSiteFragment from '../../get-site-fragment';
+import { isSimpleSite } from '../../site-type-utils';
 import './store';
 
 import './style.scss';
@@ -40,7 +41,7 @@ export const UpgradeNudge = ( { planName, trackEvent, upgradeUrl } ) => (
 				: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
 		}
 		subtitle={ __(
-			'You can try it out before upgrading, but only you will see it. It will be hidden from visitors until you upgrade.',
+			'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
 			'jetpack'
 		) }
 	/>
@@ -62,10 +63,8 @@ export default compose( [
 		// The editor for CPTs has an `edit/` route fragment prefixed
 		const postTypeEditorRoutePrefix = [ 'page', 'post' ].includes( postType ) ? '' : 'edit';
 
-		const isWpcom = get( window, [ '_currentSiteType' ] ) === 'simple';
-
 		// Post-checkout: redirect back here
-		const redirect_to = isWpcom
+		const redirect_to = isSimpleSite()
 			? addQueryArgs(
 					'/' +
 						compact( [ postTypeEditorRoutePrefix, postType, getSiteFragment(), postId ] ).join(

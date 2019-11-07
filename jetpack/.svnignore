@@ -69,6 +69,7 @@ extensions/**/*.png
 extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
+extensions/**/*.snap
 packages
 **/__snapshots__
 modules/search/instant-search
