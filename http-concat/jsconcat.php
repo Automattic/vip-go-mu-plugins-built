@@ -67,16 +67,16 @@ class WPcom_JS_Concat extends WP_Scripts {
 			if ( in_array( $handle, $this->done ) || !isset( $this->registered[$handle] ) )
 				continue;
 
+			if ( 0 === $group && $this->groups[$handle] > 0 ) {
+				$this->in_footer[] = $handle;
+				unset( $this->to_do[$key] );
+				continue;
+			}
+
 			if ( ! $this->registered[$handle]->src ) { // Defines a group.
 				// if there are localized items, echo them
 				$this->print_extra_script( $handle );
 				$this->done[] = $handle;
-				continue;
-			}
-
-			if ( 0 === $group && $this->groups[$handle] > 0 ) {
-				$this->in_footer[] = $handle;
-				unset( $this->to_do[$key] );
 				continue;
 			}
 
@@ -142,7 +142,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 			} else if ( 'concat' == $js_array['type'] ) {
 				array_map( array( $this, 'print_extra_script' ), $js_array['handles'] );
 
-				if ( count( $js_array['paths'] ) > 1) {
+				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1) {
 					$paths = array_map( function( $url ) { return ABSPATH . $url; }, $js_array['paths'] );
 					$mtime = max( array_map( 'filemtime', $paths ) );
 					$path_str = implode( $js_array['paths'], ',' ) . "?m=${mtime}j";
@@ -154,7 +154,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 					}
 
 					$href = $siteurl . "/_static/??" . $path_str;
-				} else {
+				} elseif ( isset( $js_array['paths'] ) && is_array( $js_array['paths'] ) ) {
 					$href = $this->cache_bust_mtime( $siteurl . $js_array['paths'][0], $siteurl );
 				}
 
@@ -166,7 +166,9 @@ class WPcom_JS_Concat extends WP_Scripts {
 						echo $inline_before;
 					}
 				}
-				echo "<script type='text/javascript' src='$href'></script>\n";
+				if ( isset( $href ) ) {
+					echo "<script type='text/javascript' src='$href'></script>\n";
+				}
 				if ( isset( $js_array['extras']['after'] ) ) {
 					foreach ( $js_array['extras']['after'] as $inline_after ) {
 						echo $inline_after;
