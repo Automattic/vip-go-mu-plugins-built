@@ -112,6 +112,11 @@ class WPcom_JS_Concat extends WP_Scripts {
 			if ( $this->has_inline_content( $handle ) ) {
 				$do_concat = false;
 			}
+			
+			// Skip core scripts that use Strict Mode
+			if ( 'react' === $handle || 'react-dom' === $handle ) {
+				$do_concat = false;
+			}
 
 			// Allow plugins to disable concatenation of certain scripts.
 			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
