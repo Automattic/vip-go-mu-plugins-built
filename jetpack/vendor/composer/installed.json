@@ -1,8 +1,8 @@
 [
     {
         "name": "automattic/jetpack-abtest",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/abtest",
@@ -36,8 +36,8 @@
     },
     {
         "name": "automattic/jetpack-assets",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/assets",
@@ -70,8 +70,8 @@
     },
     {
         "name": "automattic/jetpack-autoloader",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/autoloader",
@@ -106,8 +106,8 @@
     },
     {
         "name": "automattic/jetpack-backup",
-        "version": "dev-add/jetpack-backups-helper-apis",
-        "version_normalized": "dev-add/jetpack-backups-helper-apis",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/backup",
@@ -130,8 +130,8 @@
     },
     {
         "name": "automattic/jetpack-compat",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/compat",
@@ -164,8 +164,8 @@
     },
     {
         "name": "automattic/jetpack-connection",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/connection",
@@ -205,8 +205,8 @@
     },
     {
         "name": "automattic/jetpack-constants",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/constants",
@@ -235,8 +235,8 @@
     },
     {
         "name": "automattic/jetpack-error",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/error",
@@ -265,8 +265,8 @@
     },
     {
         "name": "automattic/jetpack-jitm",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/jitm",
@@ -305,8 +305,8 @@
     },
     {
         "name": "automattic/jetpack-logo",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/logo",
@@ -336,8 +336,8 @@
     },
     {
         "name": "automattic/jetpack-options",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/options",
@@ -364,8 +364,8 @@
     },
     {
         "name": "automattic/jetpack-roles",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/roles",
@@ -395,8 +395,8 @@
     },
     {
         "name": "automattic/jetpack-status",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/status",
@@ -426,8 +426,8 @@
     },
     {
         "name": "automattic/jetpack-sync",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/sync",
@@ -455,8 +455,8 @@
     },
     {
         "name": "automattic/jetpack-terms-of-service",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/terms-of-service",
@@ -491,12 +491,12 @@
     },
     {
         "name": "automattic/jetpack-tracking",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "version": "dev-retry/phpcs-changed",
+        "version_normalized": "dev-retry/phpcs-changed",
         "dist": {
             "type": "path",
             "url": "./packages/tracking",
-            "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85"
+            "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb"
         },
         "require": {
             "automattic/jetpack-options": "@dev",

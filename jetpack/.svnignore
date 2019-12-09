@@ -1,3 +1,5 @@
+.eslintrc.js
+.eslintignore
 .git
 .gitignore
 .sass-cache
@@ -30,6 +32,7 @@ vendor/squizlabs
 vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
 vendor/automattic/**/tests/
+vendor/automattic/**/.gitattributes
 vendor/automattic/**/README.md
 vendor/automattic/**/phpunit.xml
 vendor/automattic/**/phpunit.xml.dist
@@ -48,6 +51,7 @@ modules/calypsoify/*.scss
 to-test.md
 webpack.config*
 .editorconfig
+_inc/.eslintrc.js
 _inc/client
 _inc/build/*.js.map
 _inc/build/*.css.map
@@ -70,6 +74,8 @@ extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
 extensions/**/*.snap
+extensions/.eslintrc.js
 packages
 **/__snapshots__
 modules/search/instant-search
+modules/search/.eslintrc.js
