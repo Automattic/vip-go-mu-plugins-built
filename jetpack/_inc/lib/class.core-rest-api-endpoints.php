@@ -2056,6 +2056,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			'social_notifications_subscribe' => array(
+				'description'       => esc_html__( 'Send email notification when someone follows my blog', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'subscriptions',
+			),
 
 			// Related Posts
 			'show_headline' => array(
@@ -2907,9 +2914,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( isset( $definition['type'] ) ) {
 			switch ( $definition['type'] ) {
 				case 'boolean':
-					if ( 'true' === $value ) {
+					if ( 'true' === $value || 'on' === $value ) {
 						return true;
-					} elseif ( 'false' === $value ) {
+					} elseif ( 'false' === $value || 'off' === $value ) {
 						return false;
 					}
 					return (bool) $value;

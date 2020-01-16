@@ -21,6 +21,7 @@ return array(
     'Automattic\\Jetpack\\Constants' => $vendorDir . '/automattic/jetpack-constants/src/class-constants.php',
     'Automattic\\Jetpack\\Error' => $vendorDir . '/automattic/jetpack-error/src/class-error.php',
     'Automattic\\Jetpack\\JITM' => $vendorDir . '/automattic/jetpack-jitm/src/class-jitm.php',
+    'Automattic\\Jetpack\\Partner' => $vendorDir . '/automattic/jetpack-partner/src/class-partner.php',
     'Automattic\\Jetpack\\Plugin\\Tracking' => $baseDir . '/src/class-tracking.php',
     'Automattic\\Jetpack\\Roles' => $vendorDir . '/automattic/jetpack-roles/src/class-roles.php',
     'Automattic\\Jetpack\\Status' => $vendorDir . '/automattic/jetpack-status/src/class-status.php',
