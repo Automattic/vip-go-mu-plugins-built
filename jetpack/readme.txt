@@ -96,58 +96,46 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 8.1.1 =
+= 8.2 =
 
-* Release date: January 23, 2020
-* Release post: https://wp.me/p1moTy-lJT
+* Release date: February 11, 2020
+* Release post: https://wp.me/p1moTy-mVu
 
-**Bug fixes**
+**Major Enhancements**
 
-* Dashboard: ensure that connection issues with WordPress.com are displayed in the Jetpack dashboard.
-* Block Editor: ensure that the Jetpack block sidebar icon is properly displayed, even with the latest version of the Gutenberg plugin.
-* WordPress.com Block Editor: fix compatibility issues with Chrome's upcoming cross-site cookie changes.
-
-= 8.1 =
-
-* Release date: January 14, 2020
-* Release post: https://wp.me/p1moTy-lJT
+* Calendly Block: a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website.
+* EventBrite Block: allow your visitors to register to events right from your site with this new block.
+* OpenTable Block: restaurant owners, you can now add a reservation form to your site to make it easy for anyone to book a table online, via your site.
 
 **Enhancements**
 
-* Dashboard: preload connection flow script to improve performance.
-* Dashboard: improvements to backup interface.
-* Mobile Theme: allow one to temporary disable Jetpack's Mobile Theme for testing.
-* Mobile Theme: disable settings when feature is inactive.
-* Site Accelerator: disable a helper library by default and allow themes to enable it when required.
-* Subscriptions: add a wp-admin setting to alert the admin when someone follows the blog.
-* WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
-* WordPress.com synchronization: improve the reliability of the synchronization events triggered to keep your site up to date with WordPress.com.
-* WordPress.com Toolbar: update the link directing to the WordPress.com Reader.
-* WordPress.com Toolbar: add "My Home" link to the toolbar.
+* Contact Form: add IP and Feedback date to data that can be exported via the CSV tool.
+* Dashboard: display a notice when a site uses conflicting plans.
+* Map Block: improve the calculation and persistence of maps' center points.
+* Map Block: improve the generation of an access token on WordPress.com sites.
+* Map Block: update Mapbox GL library to opt into map load based billing.
+* Shortcodes: add new Vimeo shortcode format.
+* Subscriptions: display a clear error message when you try to subscribe to a site where you've already subscribed but did not validate your subscription.
+* Subscriptions: display a clear message when an email having many pending confirmations tries to subscribe to a site.
+* Synchronization: improve performance of data synchronization with WordPress.com.
 
 **Improved compatibility**
 
-* General: improvements to Coding Standards for plugin compatibility files.
-* Notifications: avoid conflicts with Twenty Twenty's instrinsic video resizes.
-* PHP 7.4: fix PHP warnings that may appear on sites running PHP 7.4.
-* Sharing: avoid errors when using the Thrive Architect plugin.
-* Tiled Galleries: fix layout when using a gallery inside a Classic block with the Twenty Twenty theme.
-* Twenty Twenty: improve the display of the Authors and Flickr widget.
-* Twenty Twenty: add Content Options to the Customizer.
-* Twenty Twenty: ensure that Infinite Scroll does not suppress the display of footer widgets.
-* Videos: automatically convert old Flash Jetpack Video embeds so they can use the new player.
-* WooCommerce Services: avoid issues when installing plugin from notification message.
+* Connnection Flow: ongoing work to improve the reliability of the connection between your site and WordPress.com.
+* Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
+* General: avoid any login issues when using other plugins that may interact with cookies on your site.
+* Gutenberg: avoid any layout issues that may appear in the block editor when using the latest version of the Gutenberg plugin.
+* Related Posts: ensure that any filters customizing the display of Related Posts also apply to posts displayed with the AMP plugin.
+* Sharing: do not output Jetpack's Open Graph Meta Tags if the Complete Open Graph plugin is present on your site.
 
 **Bug fixes**
 
-* CLI: prevent a PHP notice when running some Jetpack CLI commands.
-* Map Block: fix layout issue when selecting a marker in a map and then scrolling down.
-* Map Block: avoid errors when adding more than 2 points on a map.
-* REST API: correctly validate on/off values for booleans.
-* Star Rating Block: translate block title.
-* Widget Visibility: ensure that the visibility options always appear on old Widgets Options screen.
-* WordAds: ensure that the ads.txt file created by the feature returns a correct HTTP response code.
-* WordPress.com Block Editor: exclude WordPress.com features from Jetpack sites.
+* Blocks / Dashboard: ensure that blocks as well as Jetpack's dashboard can be used even in older browsers such as Internet Explorer 11.
+* Contact Info Block: ensure that Google's Structured Data tool can recognize phone numbers added to the block.
+* Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
+* Subscriptions: maintain email subscription settings when deactivating and reactivating the feature.
+* WordPress.com REST API: avoid PHP notices when a media file is edited via the API.
+* WordPress.com REST API: ensure that image URLs are currently set when uploading an image multiple times.
 
 --------
 

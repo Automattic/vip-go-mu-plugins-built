@@ -1,0 +1,119 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+/**
+ * Editor styles for OpenTable
+ */
+
+.wp-block-jetpack-opentable {
+	position: relative;
+
+	.components-base-control {
+		width: 100%;
+	}
+
+	.components-placeholder__fieldset {
+		p {
+			font-size: 13px;
+			margin: 0 0 1em;
+		}
+
+		form {
+			flex-direction: row;
+			@media screen and ( max-width: 479px ) {
+				display: block;
+			}
+
+			.components-form-token-field__label {
+				display: none;
+			}
+
+			p {
+				margin-top: 1em;
+			}
+
+			.components-form-token-field__input-container {
+				width: 100%;
+				@media screen and ( min-width: 480px ) {
+					width: 327px;
+				}
+			}
+
+			.components-button.is-large {
+				// Used to emulate the new Gutenberg styles
+				// TODO: remove once support for < 7.2 is removed
+				padding-bottom: 0px;
+				padding-top: 0px;
+				padding-right: 8px;
+				padding-left: 8px;
+				height: 36px;
+				align-items: center;
+				line-height: normal;
+				// End copied styles
+
+				@media screen and ( min-width: 480px ) {
+					margin: 1px 0 0 4px;
+					position: relative;
+				}
+			}
+		}
+	}
+
+	iframe {
+		height: 100%;
+		width: 100%;
+	}
+
+	&-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+	}
+
+	&-restaurant-picker {
+		margin-bottom: 1em;
+		position: relative;
+		width: 100%;
+	}
+
+	&-placeholder-links {
+		display: flex;
+		flex-direction: column;
+		@media screen and ( min-width: 480px ) {
+			display: block;
+		}
+
+		a {
+			padding: 0.25em 1em 0.25em 0;
+			&:last-child {
+				padding-right: 0;
+				padding-left: 1em;
+			}
+		}
+	}
+
+	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
+		font-family: $default-font;
+		text-align: left;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+.components-toggle-control.is-opentable {
+	padding-top: 6px;
+}
+
+.is-opentable {
+	button.is-active {
+		font-weight: bold;
+	}
+}
+
+// Display "table" is used because the preview container should only wrap the content and not take the full width.
+// Both selector rules needed because the block wrapper used in Gutenberg was removed in v7.3
+// @link https://github.com/WordPress/gutenberg/pull/19593
+.block-editor-block-preview__content [data-type='jetpack/opentable'] [data-block],
+.block-editor-block-preview__content [data-type='jetpack/opentable'][data-block] {
+	display: table;
+}
