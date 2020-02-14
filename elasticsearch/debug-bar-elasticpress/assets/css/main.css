@@ -1,0 +1,41 @@
+.ep-queries-debug .dashicons {
+	cursor: pointer;
+}
+
+.ep-queries-debug .dashicons:before {
+	content: "\f140";
+}
+
+.ep-queries-debug .hide-query-results .query-results,
+.ep-queries-debug .hide-query-args .query-args,
+.ep-queries-debug .hide-query-headers .query-headers,
+.ep-queries-debug .hide-query-errors .query-errors,
+.ep-queries-debug .hide-query-body .query-body {
+	display: none;
+}
+
+.ep-queries-debug .query-body,
+.ep-queries-debug .query-args,
+.ep-queries-debug .query-headers,
+.ep-queries-debug .query-errors,
+.ep-queries-debug .query-results {
+	background-color: white;
+}
+
+.ep-queries-debug .hide-query-results .query-result-toggle:before,
+.ep-queries-debug .hide-query-args .query-args-toggle:before,
+.ep-queries-debug .hide-query-headers .query-headers-toggle:before,
+.ep-queries-debug .hide-query-errors .query-errors-toggle:before,
+.ep-queries-debug .hide-query-body .query-body-toggle:before {
+	content: "\f142";
+}
+
+.ep-queries-debug .ep-query-failed .ep-query-response-code {
+	font-weight: bold;
+	color: red;
+}
+
+
+.ep-queries-debug .copy-curl {
+	cursor: pointer;
+}

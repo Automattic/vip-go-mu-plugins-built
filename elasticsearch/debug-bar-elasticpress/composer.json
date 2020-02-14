@@ -1,0 +1,20 @@
+{
+  "name": "10up/debug-bar-elasticpress",
+  "description": "Extends the Debug Bar plugin for usage with ElasticPress",
+  "type": "wordpress-plugin",
+  "keywords": ["wordpress", "plugin", "elasticsearch", "elasticpress", "search", "debug", "debug bar"],
+  "authors": [
+    {
+      "name": "Taylor Lovett",
+      "email": "taylorl@get10up.com"
+    },
+    {
+      "name": "10up",
+      "homepage": "http://10up.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.2"
+  },
+  "license": ["GPL-2.0-only"]
+}
