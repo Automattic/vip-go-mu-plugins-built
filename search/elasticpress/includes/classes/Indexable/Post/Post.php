@@ -341,29 +341,28 @@ class Post extends Indexable {
 	private function prepare_date_terms( $post_date_gmt ) {
 		$timestamp  = strtotime( $post_date_gmt );
 		$date_terms = array(
-			'year'          => (int) date( 'Y', $timestamp ),
-			'month'         => (int) date( 'm', $timestamp ),
-			'week'          => (int) date( 'W', $timestamp ),
-			'dayofyear'     => (int) date( 'z', $timestamp ),
-			'day'           => (int) date( 'd', $timestamp ),
-			'dayofweek'     => (int) date( 'w', $timestamp ),
-			'dayofweek_iso' => (int) date( 'N', $timestamp ),
-			'hour'          => (int) date( 'H', $timestamp ),
-			'minute'        => (int) date( 'i', $timestamp ),
-			'second'        => (int) date( 's', $timestamp ),
-			'm'             => (int) ( date( 'Y', $timestamp ) . date( 'm', $timestamp ) ), // yearmonth
+			'year'          => (int) date_i18n( 'Y', $timestamp ),
+			'month'         => (int) date_i18n( 'm', $timestamp ),
+			'week'          => (int) date_i18n( 'W', $timestamp ),
+			'dayofyear'     => (int) date_i18n( 'z', $timestamp ),
+			'day'           => (int) date_i18n( 'd', $timestamp ),
+			'dayofweek'     => (int) date_i18n( 'w', $timestamp ),
+			'dayofweek_iso' => (int) date_i18n( 'N', $timestamp ),
+			'hour'          => (int) date_i18n( 'H', $timestamp ),
+			'minute'        => (int) date_i18n( 'i', $timestamp ),
+			'second'        => (int) date_i18n( 's', $timestamp ),
+			'm'             => (int) ( date_i18n( 'Y', $timestamp ) . date_i18n( 'm', $timestamp ) ), // yearmonth
 		);
 		return $date_terms;
 	}
 
 	/**
-	 * Prepare terms to send to ES.
+	 * Get an array of taxonomies that are indexable for the given post
 	 *
 	 * @param WP_Post $post Post object
-	 * @since 0.1.0
-	 * @return array
+	 * @return array Array of taxonomy slugs that should be indexed
 	 */
-	private function prepare_terms( $post ) {
+	public function get_indexable_post_taxonomies( $post ) {
 		$taxonomies          = get_object_taxonomies( $post->post_type, 'objects' );
 		$selected_taxonomies = [];
 
@@ -383,6 +382,19 @@ class Post extends Indexable {
 		 */
 		$selected_taxonomies = apply_filters( 'ep_sync_taxonomies', $selected_taxonomies, $post );
 
+		return $selected_taxonomies;
+	}
+
+	/**
+	 * Prepare terms to send to ES.
+	 *
+	 * @param WP_Post $post Post object
+	 * @since 0.1.0
+	 * @return array
+	 */
+	private function prepare_terms( $post ) {
+		$selected_taxonomies = $this->get_indexable_post_taxonomies( $post );
+
 		if ( empty( $selected_taxonomies ) ) {
 			return [];
 		}
@@ -396,7 +408,7 @@ class Post extends Indexable {
 		 * @param  {bool} $allow True means allow
 		 * @return  {bool} New value
 		 */
-		$allow_hierarchy = apply_filters( 'ep_sync_terms_allow_hierarchy', false );
+		$allow_hierarchy = apply_filters( 'ep_sync_terms_allow_hierarchy', true );
 
 		foreach ( $selected_taxonomies as $taxonomy ) {
 			// If we get a taxonomy name, we need to convert it to taxonomy object
@@ -520,7 +532,16 @@ class Post extends Indexable {
 		$meta = apply_filters( 'ep_prepare_meta_data', (array) get_post_meta( $post->ID ), $post );
 
 		if ( empty( $meta ) ) {
-			return [];
+			/**
+			 * Filter final list of prepared meta.
+			 *
+			 * @hook ep_prepared_post_meta
+			 * @param  {array} $prepared_meta Prepared meta
+			 * @param  {WP_Post} $post Post object
+			 * @since  3.4
+			 * @return  {array} Prepared meta
+			 */
+			return apply_filters( 'ep_prepared_post_meta', [], $post );
 		}
 
 		$prepared_meta = [];
@@ -577,7 +598,16 @@ class Post extends Indexable {
 			}
 		}
 
-		return $prepared_meta;
+		/**
+		 * Filter final list of prepared meta.
+		 *
+		 * @hook ep_prepared_post_meta
+		 * @param  {array} $prepared_meta Prepared meta
+		 * @param  {WP_Post} $post Post object
+		 * @since  3.4
+		 * @return  {array} Prepared meta
+		 */
+		return apply_filters( 'ep_prepared_post_meta', $prepared_meta, $post );
 
 	}
 
@@ -697,45 +727,63 @@ class Post extends Indexable {
 		 * @since 0.9.1
 		 */
 
-		// set tax_query if it's implicitly set in the query.
-		// e.g. $args['tag'], $args['category_name'].
-		if ( empty( $args['tax_query'] ) ) {
-			switch ( $args ) {
-				case ! empty( $args['category_name'] ):
-					$args['tax_query'][] = array(
-						'taxonomy' => 'category',
-						'terms'    => array( $args['category_name'] ),
-						'field'    => 'slug',
-					);
-					break;
-				case ! empty( $args['cat'] ):
-					$args['tax_query'][] = array(
-						'taxonomy' => 'category',
-						'terms'    => array( $args['cat'] ),
-						'field'    => 'id',
-					);
-					break;
-				case ! empty( $args['tag'] ):
-					$args['tax_query'][] = array(
-						'taxonomy' => 'post_tag',
-						'terms'    => array( $args['tag'] ),
-						'field'    => 'slug',
-					);
-					break;
-				case ! empty( $args['tag__and'] ):
-					$args['tax_query'][] = array(
-						'taxonomy' => 'post_tag',
-						'terms'    => $args['tag__and'],
-						'field'    => 'term_id',
-					);
-					break;
-				case ! empty( $args['tag_id'] ) && ! is_array( $args['tag_id'] ):
-					$args['tax_query'][] = array(
-						'taxonomy' => 'post_tag',
-						'terms'    => $args['tag_id'],
-						'field'    => 'term_id',
-					);
-					break;
+		// Find root level taxonomies.
+		switch ( $args ) {
+			case ! empty( $args['category_name'] ):
+				$args['tax_query'][] = array(
+					'taxonomy' => 'category',
+					'terms'    => array( $args['category_name'] ),
+					'field'    => 'slug',
+				);
+				break;
+			case ! empty( $args['cat'] ):
+				$args['tax_query'][] = array(
+					'taxonomy' => 'category',
+					'terms'    => array( $args['cat'] ),
+					'field'    => 'id',
+				);
+				break;
+			case ! empty( $args['tag'] ):
+				$args['tax_query'][] = array(
+					'taxonomy' => 'post_tag',
+					'terms'    => array( $args['tag'] ),
+					'field'    => 'slug',
+				);
+				break;
+			case ! empty( $args['tag__and'] ):
+				$args['tax_query'][] = array(
+					'taxonomy' => 'post_tag',
+					'terms'    => $args['tag__and'],
+					'field'    => 'term_id',
+				);
+				break;
+			case ! empty( $args['tag_id'] ) && ! is_array( $args['tag_id'] ):
+				$args['tax_query'][] = array(
+					'taxonomy' => 'post_tag',
+					'terms'    => $args['tag_id'],
+					'field'    => 'term_id',
+				);
+				break;
+		}
+
+		/**
+		 * Try to find other taxonomies set in the root of WP_Query
+		 *
+		 * @since  3.4
+		 */
+		$taxonomies = get_taxonomies();
+
+		foreach ( $taxonomies as $tax_slug ) {
+			if ( 'ep_custom_result' === $tax_slug ) {
+				continue;
+			}
+
+			if ( ! empty( $args[ $tax_slug ] ) ) {
+				$args['tax_query'][] = array(
+					'taxonomy' => $tax_slug,
+					'terms'    => (array) $args[ $tax_slug ],
+					'field'    => 'slug',
+				);
 			}
 		}
 
@@ -827,10 +875,10 @@ class Post extends Indexable {
 		} elseif ( ! empty( $args['author_name'] ) ) {
 			// Since this was set to use the display name initially, there might be some code that used this feature.
 			// Let's ensure that any query vars coming in using author_name are in fact slugs.
-			$author_login             = sanitize_user( $args['author_name'] );
+			// This was changed back in ticket #1622 to use the display name, so we removed the sanitize_user() call.
 			$filter['bool']['must'][] = array(
 				'term' => array(
-					'post_author.login.raw' => $author_login,
+					'post_author.display_name' => $args['author_name'],
 				),
 			);
 
@@ -1175,6 +1223,8 @@ class Post extends Indexable {
 			// should NEVER be "any" but just in case
 			if ( 'any' !== $args['post_status'] ) {
 				$post_status    = (array) ( is_string( $args['post_status'] ) ? explode( ',', $args['post_status'] ) : $args['post_status'] );
+				// Flatten out the array
+				$post_status    = array_values( $post_status );
 				$post_status    = array_map( 'trim', $post_status );
 				$terms_map_name = 'terms';
 				if ( count( $post_status ) < 2 ) {

@@ -323,7 +323,19 @@ class Elasticsearch {
 			$hits       = $this->get_hits_from_query( $response );
 			$total_hits = $this->get_total_hits_from_query( $response );
 
-			// Check for and store aggregations.
+			if ( ! empty( $response['aggregations'] ) ) {
+				/**
+				 * Deprecated way to retrieve aggregations.
+				 *
+				 * @hook ep_retrieve_aggregations
+				 * @param {array} $aggregations Elasticsearch aggregations
+				 * @param  {array} $query Prepared Elasticsearch query
+				 * @param {string} $scope Backwards compat for scope parameter.
+				 * @param  {array} $query_args Current WP Query arguments
+				 */
+				do_action( 'ep_retrieve_aggregations', $response['aggregations'], $query, '', $query_args );
+			}
+
 			/**
 			 * Fires after valid Elasticsearch query
 			 *
@@ -388,6 +400,17 @@ class Elasticsearch {
 				$query_object
 			);
 		}
+
+		/**
+		 * Fires after invalid Elasticsearch query
+		 *
+		 * @hook ep_invalid_response
+		 * @param  {array} $request Remote request response
+		 * @param  {array} $query Prepared Elasticsearch query
+		 * @param  {array} $query_args Current WP Query arguments
+		 * @param  {mixed} $query_object Could be WP_Query, WP_User_Query, etc.
+		 */
+		do_action( 'ep_invalid_response', $request, $query, $query_args, $query_object );
 
 		return false;
 	}
@@ -530,7 +553,7 @@ class Elasticsearch {
 		}
 
 		/**
-		 * Filter Elasticsearch response headers
+		 * Filter Elasticsearch request headers
 		 *
 		 * @hook ep_format_request_headers
 		 * @param {array} $headers Current headers
