@@ -30,6 +30,7 @@ return array(
     'Automattic\\Jetpack\\Sync\\Codec_Interface' => $vendorDir . '/automattic/jetpack-sync/src/interface-codec.php',
     'Automattic\\Jetpack\\Sync\\Defaults' => $vendorDir . '/automattic/jetpack-sync/src/class-defaults.php',
     'Automattic\\Jetpack\\Sync\\Functions' => $vendorDir . '/automattic/jetpack-sync/src/class-functions.php',
+    'Automattic\\Jetpack\\Sync\\Health' => $vendorDir . '/automattic/jetpack-sync/src/class-health.php',
     'Automattic\\Jetpack\\Sync\\JSON_Deflate_Array_Codec' => $vendorDir . '/automattic/jetpack-sync/src/class-json-deflate-array-codec.php',
     'Automattic\\Jetpack\\Sync\\Listener' => $vendorDir . '/automattic/jetpack-sync/src/class-listener.php',
     'Automattic\\Jetpack\\Sync\\Lock' => $vendorDir . '/automattic/jetpack-sync/src/class-lock.php',

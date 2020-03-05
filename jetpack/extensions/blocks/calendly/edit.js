@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import 'url-polyfill';
-import { isEqual } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import queryString from 'query-string';
 
 /**
@@ -20,6 +20,7 @@ import {
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -32,7 +33,9 @@ import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
-export default function CalendlyEdit( { attributes, className, clientId, setAttributes } ) {
+export default function CalendlyEdit( props ) {
+	const { attributes, name, className, clientId, setAttributes } = props;
+	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -97,7 +100,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					</Button>
 				</div>
 			</form>
-			<div className={ `${ className }-learn-more` }>
+			<div className={ `${ defaultClassName }-learn-more` }>
 				<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
 					{ __( 'Need help finding your embed code?', 'jetpack' ) }
 				</ExternalLink>
@@ -136,7 +139,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 
 	const inlinePreview = (
 		<>
-			<div className={ `${ className }-overlay` }></div>
+			<div className={ `${ defaultClassName }-overlay` }></div>
 			<iframe
 				src={ iframeSrc() }
 				width="100%"
@@ -150,13 +153,17 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 		</>
 	);
 
-	const submitButtonPreview = (
-		<SubmitButton
-			submitButtonText={ submitButtonText }
-			attributes={ attributes }
-			setAttributes={ setAttributes }
-		/>
-	);
+	const submitButtonProps = {
+		attributes: pick( validatedAttributes, [
+			'submitButtonText',
+			'backgroundButtonColor',
+			'textButtonColor',
+			'customBackgroundButtonColor',
+			'customBackgroundButtonColor',
+		] ),
+		setAttributes,
+	};
+	const submitButtonPreview = <SubmitButton { ...submitButtonProps } />;
 
 	const linkPreview = (
 		<>
@@ -218,7 +225,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 				</>
 			) }
 			<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-				<form onSubmit={ parseEmbedCode } className={ `${ className }-embed-form-sidebar` }>
+				<form onSubmit={ parseEmbedCode } className={ `${ defaultClassName }-embed-form-sidebar` }>
 					<input
 						type="text"
 						id="embedCode"
@@ -241,7 +248,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 				/>
 			</PanelBody>
 			{ url && (
-				<Notice className={ `${ className }-color-notice` } isDismissible={ false }>
+				<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
 					<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
 						{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
 					</ExternalLink>

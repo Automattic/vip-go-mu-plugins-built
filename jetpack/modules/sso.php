@@ -37,7 +37,7 @@ class Jetpack_SSO {
 		add_action( 'login_form_logout',               array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user',           array( $this, 'delete_connection_for_user') );
 		add_action( 'wp_login',                        array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
-		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ) );
+		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ), 10, 2 );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -687,8 +687,10 @@ class Jetpack_SSO {
 				'error_message' => 'error_msg_enable_two_step'
 			) );
 
+			$error = new WP_Error( 'two_step_required', __( 'You must have Two-Step Authentication enabled on your WordPress.com account.', 'jetpack' ) );
+
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			do_action( 'wp_login_failed', $user_data->login );
+			do_action( 'wp_login_failed', $user_data->login, $error );
 			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_enable_two_step' ) );
 			return;
 		}
@@ -831,8 +833,11 @@ class Jetpack_SSO {
 		) );
 
 		$this->user_data = $user_data;
+
+		$error = new WP_Error( 'account_not_found', __( 'Account not found. If you already have an account, make sure you have connected to WordPress.com.', 'jetpack' ) );
+
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
-		do_action( 'wp_login_failed', $user_data->login );
+		do_action( 'wp_login_failed', $user_data->login, $error );
 		add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'cant_find_user' ) );
 	}
 
@@ -1087,13 +1092,21 @@ class Jetpack_SSO {
 	 *
 	 * @since 6.9.0
 	 *
-	 * @param array $envelopes Array of JITM messages received after API call.
+	 * @param array  $envelopes    Array of JITM messages received after API call.
+	 * @param string $message_path The message path to ask for.
 	 *
 	 * @return array $envelopes New array of JITM messages. May now contain only one message, about SSO.
 	 */
-	public function inject_sso_jitm( $envelopes ) {
-		// Bail early if that's not the first time the user uses SSO.
-		if ( true != Jetpack_Options::get_option( 'sso_first_login' ) ) {
+	public function inject_sso_jitm( $envelopes, $message_path = null) {
+		/*
+		 * Bail early if:
+		 * - the request does not originate from wp-admin main dashboard.
+		 * - that's not the first time the user uses SSO.
+		 */
+		if (
+			'wp:dashboard:admin_notices' !== $message_path
+			|| true !== Jetpack_Options::get_option( 'sso_first_login' )
+		) {
 			return $envelopes;
 		}
 

@@ -27,6 +27,11 @@ function jetpack_register_block( $slug, $args = array() ) {
 		$slug = 'jetpack/' . $slug;
 	}
 
+	if ( isset( $args['version_requirements'] )
+		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
+		return false;
+	}
+
 	// Checking whether block is registered to ensure it isn't registered twice.
 	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
 		return false;
@@ -88,6 +93,59 @@ class Jetpack_Gutenberg {
 	 * @var array Extensions availability information
 	 */
 	private static $availability = array();
+
+	/**
+	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
+	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
+	 * optionally fall back to that.
+	 *
+	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
+	 */
+	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
+		global $wp_version;
+
+		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
+		if ( empty( $version_requirements['gutenberg'] ) ) {
+			return false;
+		}
+
+		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		$version_available = false;
+
+		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
+		// with required version of Gutenberg is known check that.
+		if ( defined( 'GUTENBERG_VERSION' ) ) {
+			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
+		} elseif ( ! empty( $version_requirements['wp'] ) ) {
+			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
+		}
+
+		if ( ! $version_available ) {
+			self::set_extension_unavailable(
+				$slug,
+				'incorrect_gutenberg_version',
+				array(
+					'required_feature' => $slug,
+					'required_version' => $version_requirements,
+					'current_version'  => array(
+						'wp'        => $wp_version,
+						'gutenberg' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
+					),
+				)
+			);
+		}
+
+		return $version_available;
+	}
 
 	/**
 	 * Prepend the 'jetpack/' prefix to a block name
@@ -801,4 +859,71 @@ class Jetpack_Gutenberg {
 
 		return $preset_extensions;
 	}
+
+	/**
+	 * Validate a URL used in a SSR block.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param string $url      URL saved as an attribute in block.
+	 * @param array  $allowed  Array of allowed hosts for that block, or regexes to check against.
+	 * @param bool   $is_regex Array of regexes matching the URL that could be used in block.
+	 *
+	 * @return bool|string
+	 */
+	public static function validate_block_embed_url( $url, $allowed = array(), $is_regex = false ) {
+		if (
+			empty( $url )
+			|| ! is_array( $allowed )
+			|| empty( $allowed )
+		) {
+			return false;
+		}
+
+		$url_components = wp_parse_url( $url );
+
+		// Bail early if we cannot find a host.
+		if ( empty( $url_components['host'] ) ) {
+			return false;
+		}
+
+		// Normalize URL.
+		$url = sprintf(
+			'%s://%s%s%s',
+			$url_components['scheme'],
+			$url_components['host'],
+			$url_components['path'] ? $url_components['path'] : '/',
+			$url_components['query'] ? '?' . $url_components['query'] : ''
+		);
+
+		if ( ! empty( $url_components['fragment'] ) ) {
+			$url = $url . '#' . rawurlencode( $url_components['fragment'] );
+		}
+
+		/*
+		 * If we're using a whitelist of hosts,
+		 * check if the URL belongs to one of the domains allowed for that block.
+		 */
+		if (
+			false === $is_regex
+			&& in_array( $url_components['host'], $allowed, true )
+		) {
+			return $url;
+		}
+
+		/*
+		 * If we are using an array of regexes to check against,
+		 * loop through that.
+		 */
+		if ( true === $is_regex ) {
+			foreach ( $allowed as $regex ) {
+				if ( 1 === preg_match( $regex, $url ) ) {
+					return $url;
+				}
+			}
+		}
+
+		return false;
+	}
+
 }

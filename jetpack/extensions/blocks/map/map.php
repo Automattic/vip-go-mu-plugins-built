@@ -7,6 +7,10 @@
  * @package Jetpack
  */
 
+if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
+	jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+}
+
 jetpack_register_block(
 	'jetpack/map',
 	array(
@@ -15,29 +19,23 @@ jetpack_register_block(
 );
 
 /**
- * Return the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
+ * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
  *
- * @return string
+ * @param string $access_token_source The Mapbox API access token source.
  */
-function jetpack_get_mapbox_api_key() {
+function jetpack_record_mapbox_wpcom_load_event( $access_token_source ) {
+	if ( 'wpcom' !== $access_token_source ) {
+		return;
+	}
+
+	$event_name = 'map_block_mapbox_wpcom_key_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$endpoint = sprintf(
-			'https://public-api.wordpress.com/wpcom/v2/sites/%d/service-api-keys/mapbox',
-			get_current_blog_id()
-		);
-	} else {
-		$endpoint = rest_url( 'wpcom/v2/service-api-keys/mapbox' );
+		require_lib( 'tracks/client' );
+		tracks_record_event( wp_get_current_user(), $event_name );
+	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->record_user_event( $event_name );
 	}
-
-	$response      = wp_remote_get( esc_url_raw( $endpoint ) );
-	$response_code = wp_remote_retrieve_response_code( $response );
-
-	if ( 200 === $response_code ) {
-		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
-		return $response_body->service_api_key;
-	}
-
-	return Jetpack_Options::get_option( 'mapbox_api_key' );
 }
 
 /**
@@ -49,7 +47,9 @@ function jetpack_get_mapbox_api_key() {
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	$api_key = jetpack_get_mapbox_api_key();
+	$access_token = Jetpack_Mapbox_Helper::get_access_token();
+
+	jetpack_record_mapbox_wpcom_load_event( $access_token['source'] );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -81,7 +81,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
-	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $api_key ) . '" ', $content, 1 );
+	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
 }
 
 /**
@@ -136,11 +136,11 @@ function jetpack_map_block_render_single_block_page() {
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
 	$block_markup = $post_html->saveHTML( $container );
-	$api_key      = jetpack_get_mapbox_api_key();
+	$access_token = Jetpack_Mapbox_Helper::get_access_token();
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
 		$head_content,
-		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $api_key ) . '" ', $block_markup, 1 )
+		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $block_markup, 1 )
 	);
 	echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit;

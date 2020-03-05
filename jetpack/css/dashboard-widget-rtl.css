@@ -161,6 +161,13 @@ https://github.com/thoughtbot/bourbon
 }
 
 #jetpack_summary_widget footer h3 {
+  font-size: 1em;
+  font-weight: normal;
+  margin: 0 0 0.25em 0;
+  padding: 0;
+}
+
+#jetpack_summary_widget footer p.blocked-count {
   font-size: 1.5em;
   font-weight: normal;
   margin: 0;
