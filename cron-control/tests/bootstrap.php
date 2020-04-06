@@ -20,7 +20,8 @@ function _manually_load_plugin() {
 	define( 'WP_CRON_CONTROL_SECRET', 'testtesttest' );
 
 	define(
-		'CRON_CONTROL_ADDITIONAL_INTERNAL_EVENTS', array(
+		'CRON_CONTROL_ADDITIONAL_INTERNAL_EVENTS',
+		array(
 			array(
 				'schedule' => 'hourly',
 				'action'   => 'cron_control_additional_internal_event',

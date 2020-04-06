@@ -254,7 +254,9 @@ class Events extends Singleton {
 		// Validate input data.
 		if ( empty( $timestamp ) || empty( $action ) || empty( $instance ) ) {
 			return new \WP_Error(
-				'missing-data', __( 'Invalid or incomplete request data.', 'automattic-cron-control' ), array(
+				'missing-data',
+				__( 'Invalid or incomplete request data.', 'automattic-cron-control' ),
+				array(
 					'status' => 400,
 				)
 			);
@@ -263,8 +265,10 @@ class Events extends Singleton {
 		// Ensure we don't run jobs ahead of time.
 		if ( ! $force && $timestamp > time() ) {
 			return new \WP_Error(
+				'premature',
 				/* translators: 1: Job identifier */
-				'premature', sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
+				sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ),
+				array(
 					'status' => 403,
 				)
 			);
@@ -283,8 +287,10 @@ class Events extends Singleton {
 		// Nothing to do...
 		if ( ! is_object( $event ) ) {
 			return new \WP_Error(
+				'no-event',
 				/* translators: 1: Job identifier */
-				'no-event', sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ), array(
+				sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ),
+				array(
 					'status' => 404,
 				)
 			);
@@ -299,8 +305,10 @@ class Events extends Singleton {
 
 			if ( ! $this->can_run_event( $event ) ) {
 				return new \WP_Error(
+					'no-free-threads',
 					/* translators: 1: Event action, 2: Event arguments */
-					'no-free-threads', sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ), array(
+					sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ),
+					array(
 						'status' => 429,
 					)
 				);
@@ -456,16 +464,16 @@ class Events extends Singleton {
 
 			// First, we try to get it from the schedule.
 			if ( isset( $schedules[ $event->schedule ] ) ) {
-				$interval = $schedules[ $event->schedule ]['interval'];
+				$interval = (int) $schedules[ $event->schedule ]['interval'];
 			}
 
 			// Now we try to get it from the saved interval, in case the schedule disappears.
-			if ( 0 == $interval ) {
+			if ( 0 === $interval ) {
 				$interval = $event->interval;
 			}
 
 			// If we have an interval, update the existing event entry.
-			if ( 0 != $interval ) {
+			if ( 0 !== $interval ) {
 				// Determine new timestamp, according to how `wp_reschedule_event()` does.
 				$now           = time();
 				$new_timestamp = $event->timestamp;

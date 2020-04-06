@@ -34,7 +34,9 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
 
 		\WP_CLI\Utils\format_items(
-			$format, $events['events'], array(
+			$format,
+			$events['events'],
+			array(
 				'timestamp',
 				'action',
 				'instance',

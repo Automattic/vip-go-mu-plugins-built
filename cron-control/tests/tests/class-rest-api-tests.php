@@ -94,7 +94,8 @@ class REST_API_Tests extends \WP_UnitTestCase {
 				),
 				'endpoint'             => get_rest_url( null, \Automattic\WP\Cron_Control\REST_API::API_NAMESPACE . '/' . \Automattic\WP\Cron_Control\REST_API::ENDPOINT_RUN ),
 				'total_events_pending' => 1,
-			), $response
+			),
+			$response
 		);
 	}
 

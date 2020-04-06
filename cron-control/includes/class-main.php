@@ -92,7 +92,8 @@ class Main extends Singleton {
 			status_header( 403 );
 			wp_send_json_error(
 				/* translators: 1: Plugin name */
-				new \WP_Error( 'forbidden', sprintf( __( 'Normal cron execution is blocked when the %s plugin is active.', 'automattic-cron-control' ), 'Cron Control' ) ), array(
+				new \WP_Error( 'forbidden', sprintf( __( 'Normal cron execution is blocked when the %s plugin is active.', 'automattic-cron-control' ), 'Cron Control' ) ),
+				array(
 					'status' => 400,
 				)
 			);

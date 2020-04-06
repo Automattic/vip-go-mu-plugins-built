@@ -6,7 +6,7 @@ In addition to the REST API endpoints that can be used to run events, a Go-based
 # Installation
 
 1. Build the binary as described below.
-2. Copy `init.sh` to `/etc/init/cron-control-runner`
+2. Copy `init.sh` to `/etc/init.d/cron-control-runner`
 3. To override default configuration, copy `defaults` to `/etc/default/cron-control-runner` and modify as needed
 4. Run `update-rc.d cron-control-runner defaults`
 5. Start the runner: `/etc/init.d/cron-control-runner start`

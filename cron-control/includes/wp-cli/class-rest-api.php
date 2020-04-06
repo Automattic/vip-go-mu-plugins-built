@@ -63,7 +63,9 @@ class REST_API extends \WP_CLI_Command {
 		}
 
 		\WP_CLI\Utils\format_items(
-			$format, $events_for_display, array(
+			$format,
+			$events_for_display,
+			array(
 				'timestamp',
 				'action',
 				'instance',

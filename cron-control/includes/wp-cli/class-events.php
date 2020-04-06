@@ -24,6 +24,13 @@ class Events extends \WP_CLI_Command {
 	public function list_events( $args, $assoc_args ) {
 		$events = $this->get_events( $args, $assoc_args );
 
+		// Show the event count and abort. Works with --status flag.
+		if ( isset( $assoc_args['format'] ) && 'count' === $assoc_args['format'] ) {
+			\WP_CLI::log( $events['total_items'] );
+
+			return;
+		}
+
 		// Prevent one from requesting a page that doesn't exist.
 		// Shouldn't error when first page is requested, though, as that is handled below and is an odd behaviour otherwise.
 		if ( $events['page'] > $events['total_pages'] && $events['page'] > 1 ) {
@@ -64,7 +71,9 @@ class Events extends \WP_CLI_Command {
 			}
 
 			\WP_CLI\Utils\format_items(
-				$format, $events_for_display, array(
+				$format,
+				$events_for_display,
+				array(
 					'ID',
 					'action',
 					'instance',
@@ -227,7 +236,7 @@ class Events extends \WP_CLI_Command {
 		$total_items = \Automattic\WP\Cron_Control\count_events_by_status( $event_status );
 		$total_pages = ceil( $total_items / $limit );
 
-		return compact( 'status', 'limit', 'page', 'offset', 'items', 'total_items', 'total_pages' );
+		return compact( 'limit', 'page', 'offset', 'items', 'total_items', 'total_pages' );
 	}
 
 	/**
@@ -514,7 +523,9 @@ class Events extends \WP_CLI_Command {
 			}
 
 			\WP_CLI\Utils\format_items(
-				'table', $events_to_delete, array(
+				'table',
+				$events_to_delete,
+				array(
 					'ID',
 					'created',
 					'last_modified',
@@ -585,7 +596,8 @@ class Events extends \WP_CLI_Command {
 			// Limit just to failed deletes when many events are removed.
 			if ( count( $events_deleted ) > $assoc_args['limit'] ) {
 				$events_deleted = array_filter(
-					$events_deleted, function( $event ) {
+					$events_deleted,
+					function( $event ) {
 						if ( 'no' === $event['deleted'] ) {
 							return $event;
 						} else {
@@ -604,7 +616,9 @@ class Events extends \WP_CLI_Command {
 			// Don't display a table if there's nothing to display.
 			if ( count( $events_deleted ) > 0 ) {
 				\WP_CLI\Utils\format_items(
-					'table', $events_deleted, array(
+					'table',
+					$events_deleted,
+					array(
 						'ID',
 						'deleted',
 					)

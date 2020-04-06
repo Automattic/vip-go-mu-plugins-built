@@ -38,7 +38,9 @@ class REST_API extends Singleton {
 	 */
 	public function rest_api_init() {
 		register_rest_route(
-			self::API_NAMESPACE, '/' . self::ENDPOINT_LIST, array(
+			self::API_NAMESPACE,
+			'/' . self::ENDPOINT_LIST,
+			array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'get_events' ),
 				'permission_callback' => array( $this, 'check_secret' ),
@@ -47,7 +49,9 @@ class REST_API extends Singleton {
 		);
 
 		register_rest_route(
-			self::API_NAMESPACE, '/' . self::ENDPOINT_RUN, array(
+			self::API_NAMESPACE,
+			'/' . self::ENDPOINT_RUN,
+			array(
 				'methods'             => 'PUT',
 				'callback'            => array( $this, 'run_event' ),
 				'permission_callback' => array( $this, 'check_secret' ),
@@ -99,7 +103,9 @@ class REST_API extends Singleton {
 
 			return rest_ensure_response(
 				new \WP_Error(
-					'automatic-execution-disabled', $message, array(
+					'automatic-execution-disabled',
+					$message,
+					array(
 						'status' => 403,
 					)
 				)
@@ -130,7 +136,9 @@ class REST_API extends Singleton {
 		// For now, mimic original plugin's "authentication" method. This needs to be better.
 		if ( ! isset( $body['secret'] ) || ! hash_equals( \WP_CRON_CONTROL_SECRET, $body['secret'] ) ) {
 			return new \WP_Error(
-				'no-secret', __( 'Secret must be specified with all requests', 'automattic-cron-control' ), array(
+				'no-secret',
+				__( 'Secret must be specified with all requests', 'automattic-cron-control' ),
+				array(
 					'status' => 400,
 				)
 			);
