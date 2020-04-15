@@ -17,17 +17,23 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 	const RUNNER_HOST_HEARTBEAT_KEY = 'a8c_cron_control_host_heartbeats';
 
 	/**
-	 * List sites
+	 * Record a heartbeat
 	 *
-	 * [--get-events-interval=<duration>]
+	 * [--heartbeat-interval=<duration>]
 	 * : The polling interval used by the runner to retrieve events and sites
 	 */
-	public function list( $args, $assoc_args ) {
+	public function heartbeat( $args, $assoc_args ) {
 		$assoc_args = wp_parse_args( $assoc_args, [
-			'get-events-interval' => 60,
+			'heartbeat-interval' => 60,
 		] );
 
-		$this->heartbeat( intval( $assoc_args[ 'get-events-interval' ] ) );
+		$this->do_heartbeat( intval( $assoc_args[ 'heartbeat-interval' ] ) );
+	}
+
+	/**
+	 * List sites
+	 */
+	public function list() {
 		$hosts = $this->get_hosts();
 
 		// Use 2 hosts per site
@@ -64,7 +70,7 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 		$formatter->display_items( $sites );
 	}
 
-	private function heartbeat( $heartbeat_interval = 60 ) {
+	private function do_heartbeat( $heartbeat_interval = 60 ) {
 		if ( defined( 'WPCOM_SANDBOXED' ) && true === WPCOM_SANDBOXED ) {
 			return;
 		}
@@ -75,9 +81,9 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 		}
 
 		// Remove stale hosts
-		// If a host has missed 3 heartbeats, remove it from jobs processing
+		// If a host has missed 2 heartbeats, remove it from jobs processing
 		$heartbeats = array_filter( $heartbeats, function( $timestamp ) {
-			if ( time() - ( $heartbeat_interval * 3 ) > $timestamp ) {
+			if ( time() - ( $heartbeat_interval * 2 ) > $timestamp ) {
 				return false;
 			}
 

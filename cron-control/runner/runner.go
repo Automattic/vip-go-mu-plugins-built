@@ -176,6 +176,12 @@ func heartbeat(sites chan<- site, queue chan<- event) {
 			logger.Println("exiting heartbeat routine")
 			break
 		}
+
+		if smartSiteList {
+			logger.Println("heartbeat")
+			runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "heartbeat", fmt.Sprintf("--heartbeat-interval=%d", heartbeatInt)})
+		}
+
 		successCount, errCount := atomic.LoadUint64(&eventRunSuccessCount), atomic.LoadUint64(&eventRunErrCount)
 		atomic.SwapUint64(&eventRunSuccessCount, 0)
 		atomic.SwapUint64(&eventRunErrCount, 0)
@@ -257,7 +263,7 @@ func getInstanceInfo() (siteInfo, error) {
 	jsonRes := make([]siteInfo, 0)
 	if err = json.Unmarshal([]byte(raw), &jsonRes); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return siteInfo{}, err
@@ -301,7 +307,7 @@ func getMultisiteSites() ([]site, error) {
 	var raw string
 	var err error
 	if smartSiteList {
-		raw, err = runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "list", fmt.Sprintf("--get-events-interval=%d", getEventsInterval)})
+		raw, err = runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "list"})
 	} else {
 		raw, err = runWpCliCmd([]string{"site", "list", "--fields=url", "--archived=false", "--deleted=false", "--spam=false", "--format=json"})
 	}
@@ -313,7 +319,7 @@ func getMultisiteSites() ([]site, error) {
 	jsonRes := make([]site, 0)
 	if err = json.Unmarshal([]byte(raw), &jsonRes); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return nil, err
@@ -367,7 +373,7 @@ func getSiteEvents(site string) ([]event, error) {
 	siteEvents := make([]event, 0)
 	if err = json.Unmarshal([]byte(raw), &siteEvents); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return nil, err
@@ -540,11 +546,18 @@ func waitForEpoch(whom string, epoch_sec int64) {
 }
 
 func setupSignalHandler() {
+	var count int
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	for {
 		select {
 		case sig := <-sigChan:
+			count++
+			if count == 2 {
+				logger.Printf("forcing shutdown")
+				os.Exit(1)
+			}
+
 			logger.Printf("caught termination signal %s, scheduling shutdown\n", sig)
 			gRestart = true
 		}
