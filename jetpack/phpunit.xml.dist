@@ -27,6 +27,9 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="comment-likes">
+			<directory prefix="test" suffix=".php">tests/php/modules/comment-likes</directory>
+		</testsuite>
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
@@ -71,6 +74,7 @@
 			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="legacy-full-sync">
+			<file>tests/php/sync/test_class.jetpack-sync-base.php</file>
 			<file>tests/php/sync/test_class.jetpack-sync-full.php</file>
 		</testsuite>
 		<testsuite name="theme-tools">
@@ -99,6 +103,9 @@
 		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
+		</testsuite>
+		<testsuite name="extensions">
+			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
 		</testsuite>
 	</testsuites>
 	<groups>

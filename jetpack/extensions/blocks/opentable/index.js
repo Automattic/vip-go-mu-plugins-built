@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -20,16 +20,17 @@ import './view.scss';
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
+import { supportsCollections } from '../../shared/block-category';
 
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
-		__( 'opentable', 'jetpack' ),
-		__( 'reservation', 'jetpack' ),
-		__( 'restaurant', 'jetpack' ),
+		_x( 'booking', 'block search term', 'jetpack' ),
+		_x( 'reservation', 'block search term', 'jetpack' ),
+		_x( 'restaurant', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,

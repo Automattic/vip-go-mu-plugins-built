@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 
 /**
  * Class to customize search on the site.
@@ -87,7 +87,7 @@ class Jetpack_Search_Customize {
 				'type'        => 'range',
 				'section'     => $section_id,
 				'label'       => __( 'Background Opacity', 'jetpack' ),
-				'description' => __( 'Select and opacity for the search overlay.', 'jetpack' ),
+				'description' => __( 'Select an opacity for the search overlay.', 'jetpack' ),
 				'input_attrs' => array(
 					'min'  => 85,
 					'max'  => 100,

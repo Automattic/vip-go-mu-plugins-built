@@ -144,20 +144,21 @@ https://github.com/thoughtbot/bourbon
 
 #jetpack_summary_widget footer {
   background: #fafafa;
-  padding: .75em;
+  padding: .75em .75em 0 .75em;
   overflow: hidden;
   border-top: 1px solid #ccc;
 }
 
 #jetpack_summary_widget footer .protect,
 #jetpack_summary_widget footer .akismet {
-  width: 50%;
   float: right;
   text-align: right;
+  margin-bottom: .75em;
 }
 
 #jetpack_summary_widget footer .protect {
   padding-left: 3%;
+  min-width: 50%;
 }
 
 #jetpack_summary_widget footer h3 {

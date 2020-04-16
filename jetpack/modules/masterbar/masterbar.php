@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -80,7 +81,7 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
 		// Post logout on the site, also log the user out of WordPress.com.
-		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
+		add_filter( 'logout_redirect', array( $this, 'maybe_logout_user_from_wpcom' ), 10, 3 );
 	}
 
 	/**
@@ -166,8 +167,12 @@ class A8C_WPCOM_Masterbar {
 
 	/**
 	 * Log out from WordPress.com when logging out of the local site.
+	 *
+	 * @param string  $redirect_to           The redirect destination URL.
+	 * @param string  $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param WP_User $user                  The WP_User object for the user that's logging out.
 	 */
-	public function maybe_logout_user_from_wpcom() {
+	public function maybe_logout_user_from_wpcom( $redirect_to, $requested_redirect_to, $user ) {
 		/**
 		 * Whether we should sign out from wpcom too when signing out from the masterbar.
 		 *
@@ -182,8 +187,29 @@ class A8C_WPCOM_Masterbar {
 			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& $masterbar_should_logout_from_wpcom
 		) {
-			do_action( 'wp_masterbar_logout' );
+			/*
+			 * Get the associated WordPress.com User ID, if the user is connected.
+			 */
+			$connection_manager = new Connection_Manager();
+			if ( $connection_manager->is_user_connected( $user->ID ) ) {
+				$wpcom_user_data = $connection_manager->get_connected_user_data( $user->ID );
+				if ( ! empty( $wpcom_user_data['ID'] ) ) {
+					/**
+					 * Hook into the log out event happening from the Masterbar.
+					 *
+					 * @since 5.1.0
+					 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
+					 *
+					 * @module masterbar
+					 *
+					 * @param int $wpcom_user_id WordPress.com User ID.
+					 */
+					do_action( 'wp_masterbar_logout', $wpcom_user_data['ID'] );
+				}
+			}
 		}
+
+		return $redirect_to;
 	}
 
 	/**
@@ -1331,40 +1357,6 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	/**
-	 * Calls the wpcom API to get the creation date of the site
-	 * and determine if it's eligible for the 'My Home' page.
-	 *
-	 * @return bool Whether the site has 'My Home' enabled.
-	 */
-	private function is_my_home_enabled() {
-		$my_home_enabled = get_transient( 'jetpack_my_home_enabled' );
-
-		if ( false === $my_home_enabled ) {
-			$site_id       = Jetpack_Options::get_option( 'id' );
-			$site_response = Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
-				'1.1'
-			);
-
-			if ( is_wp_error( $site_response ) ) {
-				return false;
-			}
-
-			$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
-
-			$my_home_enabled = $site_data &&
-					isset( $site_data->options->created_at ) &&
-					( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
-				? 1
-				: 0;
-
-			set_transient( 'jetpack_my_home_enabled', $my_home_enabled );
-		}
-
-		return (bool) $my_home_enabled;
-	}
-
-	/**
 	 * Adds "My Home" submenu item to sites that are eligible.
 	 *
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
@@ -1375,18 +1367,16 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		if ( $this->is_my_home_enabled() ) {
-			$wp_admin_bar->add_menu(
-				array(
-					'parent' => 'blog',
-					'id'     => 'my-home',
-					'title'  => __( 'My Home', 'jetpack' ),
-					'href'   => 'https://wordpress.com/home/' . esc_attr( $this->primary_site_slug ),
-					'meta'   => array(
-						'class' => 'mb-icon',
-					),
-				)
-			);
-		}
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => 'blog',
+				'id'     => 'my-home',
+				'title'  => __( 'My Home', 'jetpack' ),
+				'href'   => 'https://wordpress.com/home/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			)
+		);
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
@@ -9,8 +9,10 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecated from './deprecated/v1';
 import edit from './edit';
 import save from './save';
+import { supportsCollections } from '../../shared/block-category';
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
@@ -40,10 +42,14 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
-	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
+	category: supportsCollections() ? 'embed' : 'jetpack',
+	keywords: [
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'tickets', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		html: false,
+		align: true,
 	},
 	attributes,
 	edit,
@@ -68,7 +74,9 @@ export const settings = {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 			eventId: 123456789,
-			useModal: true,
+			style: 'modal',
+			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
 	},
+	deprecated,
 };

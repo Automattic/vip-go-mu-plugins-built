@@ -41,6 +41,15 @@ class Jetpack_AMP_Support {
 		// Post rendering changes for legacy AMP.
 		add_action( 'pre_amp_render_post', array( 'Jetpack_AMP_Support', 'amp_disable_the_content_filters' ) );
 
+		// Disable Comment Likes.
+		add_filter( 'jetpack_comment_likes_enabled', array( 'Jetpack_AMP_Support', 'comment_likes_enabled' ) );
+
+		// Transitional mode AMP should not have comment likes.
+		add_filter( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
+
+		// Remove the Likes button from the admin bar.
+		add_filter( 'jetpack_admin_bar_likes_enabled', array( 'Jetpack_AMP_Support', 'disable_likes_admin_bar' ) );
+
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
 
@@ -49,6 +58,15 @@ class Jetpack_AMP_Support {
 
 		// Sync the amp-options.
 		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
+	}
+
+	/**
+	 * Disable the Comment Likes feature on AMP views.
+	 *
+	 * @param bool $enabled Should comment likes be enabled.
+	 */
+	public static function comment_likes_enabled( $enabled ) {
+		return $enabled && ! self::is_amp_request();
 	}
 
 	/**
@@ -99,6 +117,30 @@ class Jetpack_AMP_Support {
 
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 );
+	}
+
+	/**
+	 * Do not add comment likes on AMP requests.
+	 *
+	 * @param string $content Post content.
+	 */
+	public static function disable_comment_likes_before_the_content( $content ) {
+		if ( self::is_amp_request() ) {
+			remove_filter( 'comment_text', 'comment_like_button', 12, 2 );
+		}
+		return $content;
+	}
+
+	/**
+	 * Do not display the Likes' Admin bar on AMP requests.
+	 *
+	 * @param bool $is_admin_bar_button_visible Should the Like button be visible in the Admin bar. Default to true.
+	 */
+	public static function disable_likes_admin_bar( $is_admin_bar_button_visible ) {
+		if ( self::is_amp_request() ) {
+			return false;
+		}
+		return $is_admin_bar_button_visible;
 	}
 
 	/**

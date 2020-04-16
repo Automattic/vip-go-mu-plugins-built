@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -16,6 +16,9 @@ import { getAttributesFromEmbedCode, REGEX } from './utils';
  * Style dependencies
  */
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
+
+export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
 
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
@@ -23,11 +26,13 @@ export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
-		__( 'calendar', 'jetpack' ),
-		__( 'schedule', 'jetpack' ),
-		__( 'appointments', 'jetpack' ),
+		_x( 'calendar', 'block search term', 'jetpack' ),
+		_x( 'schedule', 'block search term', 'jetpack' ),
+		_x( 'appointments', 'block search term', 'jetpack' ),
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'dates', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
@@ -42,7 +47,7 @@ export const settings = {
 			submitButtonText: __( 'Schedule time with me', 'jetpack' ),
 			hideEventTypeDetails: false,
 			style: 'inline',
-			url: 'https://calendly.com/wordpresscom/jetpack-block-example',
+			url: CALENDLY_EXAMPLE_URL,
 		},
 	},
 	transforms: {
