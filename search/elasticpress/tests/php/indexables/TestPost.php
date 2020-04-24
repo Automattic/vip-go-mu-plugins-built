@@ -4387,7 +4387,9 @@ class TestPost extends BaseTestCase {
 
 		$this->assertTrue( is_array( $filter ) );
 		$this->assertCount( 1, $filter );
-		$this->assertSame( 'and', array_key_first( $filter ) );
+
+		$keys = array_keys( $filter );
+		$this->assertSame( 'and', $keys[0] );
 	}
 
 	/**
@@ -4884,6 +4886,13 @@ class TestPost extends BaseTestCase {
 		$this->assertEquals( 2, $query->post_count );
 		$this->assertEquals( 2, $query->found_posts );
 
+		// Verify we're only getting the posts we requested.
+		$post_names = wp_list_pluck( $query->posts, 'post_name' );
+
+		$this->assertContains( get_post_field( 'post_name', $post_id_1 ), $post_names );
+		$this->assertContains( get_post_field( 'post_name', $post_id_2 ), $post_names );
+		$this->assertNotContains( get_post_field( 'post_name', $post_id_3 ), $post_names );
+
 		$args = array(
 			's'         => 'findme',
 			'post_type' => 'post',
@@ -4900,6 +4909,7 @@ class TestPost extends BaseTestCase {
 	 * Tests the http_request_args filter.
 	 *
 	 * @return void
+	 * @group post
 	 */
 	public function testHttpRequestArgsFilter() {
 		add_action( 'ep_sync_on_transition', array( $this, 'action_sync_on_transition' ), 10, 0 );
@@ -4924,5 +4934,200 @@ class TestPost extends BaseTestCase {
 		$post_id = Functions\create_and_sync_post();
 
 		ElasticPress\Elasticsearch::factory()->refresh_indices();
+	}
+
+	/**
+	 * Tests the constructor for the Indexable\Post class.
+	 *
+	 * @return void
+	 * @group post
+	 */
+	public function testPostConstructor() {
+
+		$post = new \ElasticPress\Indexable\Post\Post();
+
+		$this->assertSame( 'Posts', $post->labels['plural'] );
+		$this->assertSame( 'Post', $post->labels['singular'] );
+
+		$this->assertTrue( is_a( $post->sync_manager, '\ElasticPress\Indexable\Post\SyncManager' ) );
+		$this->assertTrue( is_a( $post->query_integration, '\ElasticPress\Indexable\Post\QueryIntegration' ) );
+	}
+
+	/**
+	 * Tests the constructor for the Indexable\Post class.
+	 *
+	 * @return void
+	 * @group post
+	 */
+	public function testQueryDb() {
+
+		$exclude_post_id = Functions\create_and_sync_post();
+		$post_id = Functions\create_and_sync_post();
+
+		$post = new \ElasticPress\Indexable\Post\Post();
+
+		$results = $post->query_db(
+			[
+				'per_page' => 1,
+				'include'  => [ $post_id ],
+			]
+		);
+
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+
+		$this->assertCount( 1, $post_ids );
+		$this->assertContains( $post_id, $post_ids );
+		$this->assertSame( 1, absint( $results['total_objects'] ) );
+
+		$results = $post->query_db(
+			[
+				'exclude'  => [ $exclude_post_id ],
+			]
+		);
+
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+
+		$this->assertNotContains( $exclude_post_id, $post_ids );
+
+		// Set up a few posts for the filters.
+		$args_post_ids = [];
+
+		$args_post_ids[] = Functions\create_and_sync_post();
+		$args_post_ids[] = Functions\create_and_sync_post();
+		$args_post_ids[] = Functions\create_and_sync_post();
+		$args_post_ids[] = Functions\create_and_sync_post();
+
+		$defaults_filter = function( $args ) use ( $args_post_ids ) {
+			$args['post__in'] = $args_post_ids;
+			return $args;
+		};
+
+		$index_filter = function( $args ) {
+			$args['posts_per_page'] = 3;
+			$args['order'] = 'ASC';
+			return $args;
+		};
+
+		add_filter( 'ep_post_query_db_args', $defaults_filter );
+		add_filter( 'ep_index_posts_args', $index_filter );
+
+		$results = $post->query_db( [] );
+
+		remove_filter( 'ep_post_query_db_args', $defaults_filter );
+		remove_filter( 'ep_index_posts_args', $index_filter );
+
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+
+		$this->assertCount( 3, $post_ids );
+		$this->assertContains( $args_post_ids[2], $post_ids );
+		$this->assertNotContains( $args_post_ids[3], $post_ids );
+	}
+
+	/**
+	 * Tests fallback code inside prepare_document.
+	 *
+	 * @return void
+	 * @group post
+	 */
+	public function testPrepareDocumentFallbacks() {
+		global $wpdb;
+		global $wp_taxonomies;
+
+		$post = new \ElasticPress\Indexable\Post\Post();
+
+		$this->assertFalse( $post->prepare_document( null ) );
+
+		// Create a post with invalid data.
+		$post_id = Functions\create_and_sync_post();
+
+		// Manually update the post with invalid data.
+		$wpdb->update(
+			$wpdb->posts,
+			[
+				'post_author'   => 0,
+				'post_date'     => '0000-00-00 00:00:00',
+				'post_modified' => '0000-00-00 00:00:00',
+
+			],
+			[
+				'ID' => $post_id,
+			]
+		);
+
+		clean_post_cache( $post_id );
+
+		wp_set_post_terms( $post_id, 'testPrepareDocumentFallbacks', 'category', true );
+
+		add_filter( 'ep_sync_taxonomies', '__return_false' );
+
+		$post_args = $post->prepare_document( $post_id );
+
+		remove_filter( 'ep_sync_taxonomies', '__return_false' );
+
+		$this->assertTrue( is_array( $post_args ) );
+		$this->assertTrue( is_array( $post_args['terms'] ) );
+		$this->assertEmpty( $post_args['terms'] );
+		$this->assertSame( null, $post_args['post_date'] );
+		$this->assertSame( null, $post_args['post_modified'] );
+
+		// Run it again with a filter to return a taxonomy that's not
+		// a WP_Taxonomy class.
+		$terms_callback = function() {
+			return [
+				'testPrepareDocumentFallbacks',
+			];
+		};
+
+		// We need to create an object that is not a taxonomy to simulate
+		// pre 4.7 behavior.
+		$invalid_taxonomy = new \stdClass();
+		$invalid_taxonomy->object_type = 'post';
+		$invalid_taxonomy->public      = true;
+
+		$wp_taxonomies['testPrepareDocumentFallbacks'] = $invalid_taxonomy;
+
+		add_filter( 'ep_sync_taxonomies', $terms_callback );
+
+		$post_args = $post->prepare_document( $post_id );
+
+		remove_filter( 'ep_sync_taxonomies', $terms_callback );
+
+		$this->assertTrue( is_array( $post_args['terms'] ) );
+		$this->assertEmpty( $post_args['terms'] );
+
+		unset( $wp_taxonomies['testPrepareDocumentFallbacks'] );
+	}
+
+	/**
+	 * Tests additional code inside format_args.
+	 *
+	 * @return void
+	 * @group post
+	 */
+	public function testFormatArgs() {
+
+		$post = new \ElasticPress\Indexable\Post\Post();
+
+		$query = new \WP_Query();
+		$posts_per_page = (int) get_option( 'posts_per_page' );
+
+		$args = $post->format_args(
+			[
+				'cat'       => 123,
+				'tag'       => 'tag-slug',
+				'post_tag'  => 'post-tag-slug',
+			],
+			$query
+		);
+
+		$this->assertSame( $posts_per_page, $args['size'] );
+
+		$this->assertTrue( is_array( $args['post_filter']['bool']['must'][0]['bool']['must'] ) );
+
+		$must_terms = $args['post_filter']['bool']['must'][0]['bool']['must'];
+
+		$this->assertSame( 123, $must_terms[0]['terms']['terms.category.term_id'][0] );
+		$this->assertSame( 'tag-slug', $must_terms[1]['terms']['terms.post_tag.slug'][0] );
+		$this->assertSame( 'post-tag-slug', $must_terms[2]['terms']['terms.post_tag.slug'][0] );
 	}
 }
