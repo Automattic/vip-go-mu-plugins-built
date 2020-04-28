@@ -42,13 +42,13 @@ class Advanced_Post_Cache {
 
 		add_action( 'switch_blog', array( $this, 'setup_for_blog' ), 10, 2 );
 
-		add_filter( 'posts_request', array( &$this, 'posts_request' ), 10, 2 ); // Short circuits if cached
-		add_filter( 'posts_results', array( &$this, 'posts_results' ), 10, 2  ); // Collates if cached, primes cache if not
+		add_filter( 'posts_request', array( &$this, 'posts_request' ) ); // Short circuits if cached
+		add_filter( 'posts_results', array( &$this, 'posts_results' ) ); // Collates if cached, primes cache if not
 
 		add_filter( 'post_limits_request', array( &$this, 'post_limits_request' ), 999, 2 ); // Checks to see if we need to worry about found_posts
 
-		add_filter( 'found_posts_query', array( &$this, 'found_posts_query' ), 10, 2 ); // Short circuits if cached
-		add_filter( 'found_posts', array( &$this, 'found_posts' ), 10, 2 ); // Reads from cache if cached, primes cache if not
+		add_filter( 'found_posts_query', array( &$this, 'found_posts_query' ) ); // Short circuits if cached
+		add_filter( 'found_posts', array( &$this, 'found_posts' ) ); // Reads from cache if cached, primes cache if not
 	}
 
 	function setup_for_blog( $new_blog_id = false, $previous_blog_id = false ) {
@@ -106,12 +106,8 @@ class Advanced_Post_Cache {
 	 * If cached: Return query of needed post IDs.
 	 * Otherwise: Returns query unchanged.
 	 */
-	function posts_request( $sql, $query ) {
+	function posts_request( $sql ) {
 		global $wpdb;
-
-		if ( apply_filters( 'advanced_post_cache_skip_for_post_type', false, $query->get( 'post_type' ) ) ) {
-			return $sql;
-		}
 
 		$this->cache_key = md5( $sql ); // init
 		$this->all_post_ids = wp_cache_get( $this->cache_key, $this->cache_group );
@@ -157,11 +153,7 @@ class Advanced_Post_Cache {
 	 * If cached: Collates posts returned by SQL query with posts that are already cached.  Orders correctly.
 	 * Otherwise: Primes cache with data for current posts WP_Query.
 	 */
-	function posts_results( $posts, $query ) {
-		if ( apply_filters( 'advanced_post_cache_skip_for_post_type', false, $query->get( 'post_type' ) ) ) {
-			return $posts;
-		}
-
+	function posts_results( $posts ) {
 		if ( $this->found_posts && is_array( $this->all_post_ids ) ) { // is cached
 			$collated_posts = array();
 			foreach ( $this->cached_posts as $post )
@@ -193,10 +185,6 @@ class Advanced_Post_Cache {
 	 * If $limits is empty, WP_Query never calls the found_rows stuff, so we set $this->found_rows to 'NA'
 	 */
 	function post_limits_request( $limits, $query ) {
-		if ( apply_filters( 'advanced_post_cache_skip_for_post_type', false, $query->get( 'post_type' ) ) ) {
-			return $limits;
-		}
-
 		if ( empty( $limits ) || ( isset( $query->query_vars['no_found_rows'] ) && $query->query_vars['no_found_rows'] ) )
 			$this->found_posts = 'NA';
 		else
@@ -208,11 +196,7 @@ class Advanced_Post_Cache {
 	 * If cached: Blanks SELECT FOUND_ROWS() query.  This data is already stored in cache.
 	 * Otherwise: Returns query unchanged.
 	 */
-	function found_posts_query( $sql, $query ) {
-		if ( apply_filters( 'advanced_post_cache_skip_for_post_type', false, $query->get( 'post_type' ) ) ) {
-			return $sql;
-		}
-
+	function found_posts_query( $sql ) {
 		if ( $this->found_posts && is_array( $this->all_post_ids ) ) // is cached
 			return '';
 		return $sql;
@@ -222,11 +206,7 @@ class Advanced_Post_Cache {
 	 * If cached: Returns cached result of FOUND_ROWS() query.
 	 * Otherwise: Returs result unchanged
 	 */
-	function found_posts( $found_posts, $query ) {
-		if ( apply_filters( 'advanced_post_cache_skip_for_post_type', false, $query->get( 'post_type' ) ) ) {
-			return $found_posts;
-		}
-
+	function found_posts( $found_posts ) {
 		if ( $this->found_posts && is_array( $this->all_post_ids ) ) // is cached
 			return (int) $this->found_posts;
 
