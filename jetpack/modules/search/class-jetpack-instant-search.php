@@ -22,8 +22,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @since 8.3.0
 	 */
 	public function load_php() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+		$this->base_load_php();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
@@ -123,6 +122,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
+				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
 				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
 			),
 
@@ -132,10 +132,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'postsPerPage'          => get_option( 'posts_per_page' ),
 			'siteId'                => Jetpack::get_option( 'id' ),
 
-			// filtering.
-			'postTypeFilters'       => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'postTypes'             => $post_type_labels,
-			'sort'                  => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);
@@ -410,6 +407,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$sidebar_id            = false;
 		$sidebar_searchbox_idx = false;
 		if ( $has_sidebar ) {
+			if ( empty( $sidebars['sidebar-1'] ) ) {
+				// Adding to an empty sidebar is generally a bad idea.
+				$has_sidebar = false;
+			}
 			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
 				if ( 0 === strpos( $widget_id, 'search-' ) ) {
 					$sidebar_searchbox_idx = $idx;

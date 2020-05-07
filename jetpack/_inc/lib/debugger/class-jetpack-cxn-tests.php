@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Sender as Sync_Sender;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -83,8 +84,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function helper_get_support_url() {
 		return Jetpack::is_development_version()
-			? 'https://jetpack.com/contact-support/beta-group/'
-			: 'https://jetpack.com/contact-support/';
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 	}
 
 	/**
@@ -200,7 +201,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'name'              => $name,
 					'short_description' => __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ),
 					'action_label'      => __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/reconnecting-reinstalling-jetpack/',
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -236,7 +237,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					/* translators: a WordPress username */
 					'short_description' => sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login ),
 					'action_label'      => __( 'Either upgrade the user or disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/reconnecting-reinstalling-jetpack/',
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -262,7 +263,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'label'             => __( 'PHP XML manipulation libraries are not available.', 'jetpack' ),
 					'short_description' => __( 'Please ask your hosting provider to refer to our server requirements and enable PHP\'s XML module.', 'jetpack' ),
 					'action_label'      => __( 'View our server requirements', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/server-requirements/',
+					'action'            => Redirect::get_url( 'jetpack-support-server-requirements' ),
 				)
 			);
 		}
@@ -498,14 +499,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Sync Health Tests.
+	 * Full Sync Health Test.
 	 *
-	 * Disabled: Results in a failing test (recommended)
-	 * In Progress: Results in failing test (recommended)
-	 * Delayed: Results in failing test (recommended)
-	 * Error: Results in failing test (critical)
+	 * Sync Disabled: Results in a skipped test
+	 * Not In Progress : Results in a skipped test
+	 * In Progress: Results in skipped test w/ status in CLI
 	 */
-	protected function test__sync_health() {
+	protected function test__full_sync_health() {
 
 		$name = __FUNCTION__;
 
@@ -529,29 +529,75 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			// Full Sync in Progress.
 			if ( $progress_percent ) {
 
-				return self::failing_test(
+				return self::informational_test(
 					array(
 						'name'              => $name,
-						'label'             => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+						'label'             => __( 'Jetpack is performing a full sync of your site', 'jetpack' ),
 						'severity'          => 'recommended',
-						'short_description' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+						/* translators: placeholder is a percentage number. */
+						'short_description' => sprintf( __( 'Jetpack is performing a full sync of your site. Current Progress: %1$d %%', 'jetpack' ), $progress_percent ),
 						'long_description'  => sprintf(
-							'<p>%1$s</p>' .
-							'<p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p>' .
-							'<div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
-							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-							/* translators: screen reader text indicating data is updating. */
+							'<p>%1$s</p><p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p><div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
+							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ), /* translators: screen reader text indicating data is updating. */
 							__( 'Updating', 'jetpack' ),
 							__( 'Jetpack is currently performing a full sync of your site data.', 'jetpack' )
 						),
 					)
 				);
 
-			} elseif ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
+			} else {
+
+				// no Full Sync in Progress.
+				return self::skipped_test(
+					array(
+						'name'                => $name,
+						'show_in_site_health' => false,
+					)
+				);
+
+			}
+		} else {
+
+			// If sync is not enabled no Full Sync can occur.
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
+
+		}
+
+	}
+
+	/**
+	 * Sync Health Tests.
+	 *
+	 * Disabled: Results in a failing test (recommended)
+	 * Delayed: Results in failing test (recommended)
+	 * Error: Results in failing test (critical)
+	 */
+	protected function test__sync_health() {
+
+		$name = __FUNCTION__;
+
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			// If the site is not connected, there is no point in testing Sync health.
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
+		}
+
+		// Sync is enabled.
+		if ( Sync_Settings::is_sync_enabled() ) {
+
+			if ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
 				/*
 				 * Sync has experienced Data Loss.
 				 */
-
 				$description  = '<p>';
 				$description .= esc_html__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' );
 				$description .= '</p>';
@@ -577,9 +623,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'name'              => $name,
 						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'severity'          => 'critical',
-						'action'            => 'https://jetpack.com/contact-support/',
+						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
-						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected an error while syncing your site. We recommend a full sync to align Jetpack with your site data.', 'jetpack' ),
 						'long_description'  => $description,
 					)
 				);
@@ -616,7 +662,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					);
 					$description .= '</p>';
 
-					return self::failing_test(
+					return self::informational_test(
 						array(
 							'name'              => $name,
 							'label'             => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),
@@ -631,7 +677,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				} else {
 
 					// Sync is Healthy.
-					return self::skipped_test( array( 'name' => $name ) );
+					return self::passing_test( array( 'name' => $name ) );
 
 				}
 			}
@@ -695,11 +741,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
-		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		// Using PHP_INT_MAX - 1 so that there is still a way to override this if needed and since it only impacts this one call.
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( array( 'name' => $name ) );
@@ -717,7 +764,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'short_description' => sprintf(
 						/* translators: %1$s - A debugging url */
 						__( 'Jetpack.com detected an error on the WP.com Self Test. Visit the Jetpack Debug page for more info: %1$s, or contact support.', 'jetpack' ),
-						esc_url( add_query_arg( 'url', rawurlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
+						Redirect::get_url( 'jetpack-support-debug', array( 'query' => 'url=' . rawurlencode( site_url() ) ) )
 					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),

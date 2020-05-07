@@ -1,4 +1,5 @@
 /* global _wpmejsSettings, MediaElementPlayer */
+
 /**
  * External dependencies
  */
@@ -7,6 +8,8 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
 
 /**
  * Internal dependencies
@@ -17,17 +20,20 @@ class AudioPlayer extends Component {
 	audioRef = el => {
 		if ( el ) {
 			// Construct audio element.
-			this.audio = document.createElement( 'audio' );
-			this.audio.src = this.props.initialTrackSource;
+			const audio = document.createElement( 'audio' );
+			audio.src = this.props.initialTrackSource;
+
+			// Insert player into the DOM.
+			el.appendChild( audio );
+
+			// Initialize MediaElement.js.
+			this.mediaElement = new MediaElementPlayer( audio, meJsSettings );
+
+			// Save audio reference from the MediaElement.js instance.
+			this.audio = this.mediaElement.domNode;
 			this.audio.addEventListener( 'play', this.props.handlePlay );
 			this.audio.addEventListener( 'pause', this.props.handlePause );
 			this.audio.addEventListener( 'error', this.props.handleError );
-
-			// Insert player into the DOM.
-			el.appendChild( this.audio );
-
-			// Initialize MediaElement.js
-			this.mediaElement = new MediaElementPlayer( this.audio, meJsSettings );
 		} else {
 			// Cleanup.
 			this.mediaElement.remove();
@@ -36,6 +42,7 @@ class AudioPlayer extends Component {
 
 	/**
 	 * Play current audio.
+	 *
 	 * @public
 	 */
 	play = () => {
@@ -45,14 +52,17 @@ class AudioPlayer extends Component {
 
 	/**
 	 * Pause current audio.
+	 *
 	 * @public
 	 */
 	pause = () => {
 		this.audio.pause();
+		speak( __( 'Paused', 'jetpack' ), 'assertive' );
 	};
 
 	/**
 	 * Toggle playing state.
+	 *
 	 * @public
 	 */
 	togglePlayPause = () => {

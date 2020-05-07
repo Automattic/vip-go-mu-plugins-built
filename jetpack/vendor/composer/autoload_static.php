@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591
+class ComposerStaticInit69bd67ac12346324efc8f759616eaba8
 {
     public static $files = array (
         'bce4ecd6aabb2a2948e06d0e2c4ea9a6' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/load-ixr.php',
@@ -45,6 +45,7 @@ class ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591
         'Automattic\\Jetpack\\JITM' => __DIR__ . '/..' . '/automattic/jetpack-jitm/src/class-jitm.php',
         'Automattic\\Jetpack\\Partner' => __DIR__ . '/..' . '/automattic/jetpack-partner/src/class-partner.php',
         'Automattic\\Jetpack\\Plugin\\Tracking' => __DIR__ . '/../..' . '/src/class-tracking.php',
+        'Automattic\\Jetpack\\Redirect' => __DIR__ . '/..' . '/automattic/jetpack-redirect/src/class-redirect.php',
         'Automattic\\Jetpack\\Roles' => __DIR__ . '/..' . '/automattic/jetpack-roles/src/class-roles.php',
         'Automattic\\Jetpack\\Status' => __DIR__ . '/..' . '/automattic/jetpack-status/src/class-status.php',
         'Automattic\\Jetpack\\Sync\\Actions' => __DIR__ . '/..' . '/automattic/jetpack-sync/src/class-actions.php',
@@ -109,9 +110,9 @@ class ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitbcdcd4203ad048bac469ffc9de5bc591::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit69bd67ac12346324efc8f759616eaba8::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit69bd67ac12346324efc8f759616eaba8::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit69bd67ac12346324efc8f759616eaba8::$classMap;
 
         }, null, ClassLoader::class);
     }

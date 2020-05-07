@@ -155,7 +155,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	function is_coming_soon() {
 		return $this->is_private() && (int) $this->get_atomic_cloud_site_option( 'wpcom_coming_soon' ) === 1;
 	}
-	
+
 	/**
 	 * Return site's launch status.
 	 *
@@ -229,6 +229,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return true;
 	}
 
+	function is_wpforteams_site() {
+		return false;
+	}
+
 	function current_user_can( $role ) {
 		return current_user_can( $role );
 	}
@@ -265,6 +269,20 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 			return false;
 		}
 		return function_exists( '\A8C\FSE\is_site_eligible_for_full_site_editing' ) && \A8C\FSE\is_site_eligible_for_full_site_editing();
+	}
+
+	/**
+	 * Check if site should be considered as eligible for use of the core Site Editor.
+	 * The Site Editor requires the FSE plugin to be installed and activated.
+	 * The plugin can be explicitly enabled via the a8c_enable_core_site_editor filter.
+	 *
+	 * @return bool true if site is eligible for the Site Editor
+	 */
+	public function is_core_site_editor_enabled() {
+		if ( ! Jetpack::is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) ) {
+			return false;
+		}
+		return function_exists( '\A8C\FSE\is_site_editor_active' ) && \A8C\FSE\is_site_editor_active();
 	}
 
 	/**

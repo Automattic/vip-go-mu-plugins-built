@@ -1,6 +1,7 @@
 {
 	"production": [
 		"business-hours",
+		"button",
 		"calendly",
 		"contact-form",
 		"contact-info",
@@ -13,6 +14,7 @@
 		"markdown",
 		"opentable",
 		"pinterest",
+		"podcast-player",
 		"publicize",
 		"rating-star",
 		"recurring-payments",
@@ -28,6 +30,32 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
-	"experimental": [ "seo" ]
+	"beta": [ "amazon", "instagram-gallery" ],
+	"experimental": [ "seo" ],
+	"no-post-editor": [
+		"business-hours",
+		"button",
+		"calendly",
+		"contact-form",
+		"contact-info",
+		"eventbrite",
+		"gif",
+		"google-calendar",
+		"mailchimp",
+		"map",
+		"markdown",
+		"opentable",
+		"pinterest",
+		"rating-star",
+		"recurring-payments",
+		"related-posts",
+		"repeat-visitor",
+		"revue",
+		"simple-payments",
+		"slideshow",
+		"subscriptions",
+		"tiled-gallery",
+		"videopress",
+		"wordads"
+	]
 }

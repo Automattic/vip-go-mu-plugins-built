@@ -16,6 +16,7 @@ use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 
 /*
 Options:
@@ -694,19 +695,34 @@ class Jetpack {
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
+		/*
+		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
+		 * We should make sure to only do this for front end links.
+		 */
+		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
+			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
+			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
+
+			/*
+			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			 * so they point moderation links on emails to Calypso.
+			 */
+			jetpack_require_lib( 'functions.wp-notify' );
+		}
+
 		// Hide edit post link if mobile app.
 		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
 			add_filter( 'get_edit_post_link', '__return_empty_string' );
 		}
 
-		// Update the Jetpack plan from API on heartbeats
+		// Update the Jetpack plan from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.
-		 * For description and reasoning see the implode_frontend_css method
+		 * For description and reasoning see the implode_frontend_css method.
 		 *
-		 * Super late priority so we catch all the registered styles
+		 * Super late priority so we catch all the registered styles.
 		 */
 		if ( ! is_admin() ) {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
@@ -800,22 +816,6 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-
-		/*
-		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
-		 * We should make sure to only do this for front end links.
-		 */
-		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
-			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
-
-			/*
-			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
-			 * so they point moderation links on emails to Calypso.
-			 */
-			jetpack_require_lib( 'functions.wp-notify' );
-		}
-
 	}
 
 	/**
@@ -849,7 +849,7 @@ class Jetpack {
 	 * @deprecated since 7.7.0
 	 * @see Automattic\Jetpack\Connection\Manager::setup_xmlrpc_handlers()
 	 *
-	 * @param Array                 $request_params Incoming request parameters.
+	 * @param array                 $request_params Incoming request parameters.
 	 * @param Boolean               $is_active      Whether the connection is currently active.
 	 * @param Boolean               $is_signed      Whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server  (optional) An instance of the server to use instead of instantiating a new one.
@@ -926,33 +926,39 @@ class Jetpack {
 		// Mapping the allowed CPTs on WordPress.com to corresponding paths in Calypso.
 		// https://en.support.wordpress.com/custom-post-types/
 		$allowed_post_types = array(
-			'post'                => 'post',
-			'page'                => 'page',
-			'jetpack-portfolio'   => 'edit/jetpack-portfolio',
-			'jetpack-testimonial' => 'edit/jetpack-testimonial',
+			'post',
+			'page',
+			'jetpack-portfolio',
+			'jetpack-testimonial',
 		);
 
-		if ( ! in_array( $post_type, array_keys( $allowed_post_types ) ) ) {
+		if ( ! in_array( $post_type, $allowed_post_types, true ) ) {
 			return $default_url;
 		}
 
-		$path_prefix = $allowed_post_types[ $post_type ];
-
-		$site_slug = self::build_raw_urls( get_home_url() );
-
-		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+		return esc_url(
+			Redirect::get_url(
+				'calypso-edit-' . $post_type,
+				array(
+					'path' => $post_id,
+				)
+			)
+		);
 	}
 
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+
 		return esc_url(
-			sprintf(
-				'https://wordpress.com/comment/%s/%d',
-				self::build_raw_urls( get_home_url() ),
-				$query_args['amp;c']
+			Redirect::get_url(
+				'calypso-edit-comment',
+				array(
+					'path' => $query_args['amp;c'],
+				)
 			)
 		);
+
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
@@ -1723,7 +1729,7 @@ class Jetpack {
 			$notice = sprintf(
 				/* translators: %s is a URL */
 				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
-				'https://jetpack.com/support/development-mode/'
+				Redirect::get_url( 'jetpack-support-development-mode' )
 			);
 
 			$notice .= ' ' . self::development_mode_trigger_text();
@@ -1734,14 +1740,14 @@ class Jetpack {
 		// Throw up a notice if using a development version and as for feedback.
 		if ( self::is_development_version() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), 'https://jetpack.com/contact-support/beta-group/' );
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), Redirect::get_url( 'jetpack-contact-support-beta-group' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 		// Throw up a notice if using staging mode
 		if ( ( new Status() )->is_staging_site() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), 'https://jetpack.com/support/staging-sites/' );
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), Redirect::get_url( 'jetpack-support-staging-sites' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -1989,10 +1995,6 @@ class Jetpack {
 		 * @param array $args Array of REST API compat files to include.
 		 */
 		$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
-
-		if ( function_exists( 'bbpress' ) ) {
-			$_jetpack_rest_api_compat_includes[] = JETPACK__PLUGIN_DIR . 'class.jetpack-bbpress-json-api-compat.php';
-		}
 
 		foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include ) {
 			require_once $_jetpack_rest_api_compat_include;
@@ -2320,6 +2322,7 @@ class Jetpack {
 		);
 
 		self::state( 'message', 'modules_activated' );
+
 		self::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
@@ -3289,14 +3292,124 @@ p {
 	/**
 	 * Runs before bumping version numbers up to a new version
 	 *
-	 * @param  string $version    Version:timestamp
-	 * @param  string $old_version Old Version:timestamp or false if not set yet.
-	 * @return null              [description]
+	 * @param string $version    Version:timestamp.
+	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-		if ( ! $old_version ) { // For new sites
-			// There used to be stuff here, but this seems like it might  be useful to someone in the future...
+		if ( $old_version ) { // For existing Jetpack installations.
+			self::send_update_modal_data();
 		}
+	}
+
+	/**
+	 * Prepares the release post content and image data and saves it in the
+	 * state array. This data is used to create the update modal.
+	 */
+	public static function send_update_modal_data() {
+		$post_data = self::get_release_post_data();
+
+		if ( ! isset( $post_data['posts'][0] ) ) {
+			return;
+		}
+
+		$post = $post_data['posts'][0];
+
+		$post_content = isset( $post['content'] ) ? $post['content'] : null;
+		if ( empty( $post_content ) ) {
+			return;
+		}
+
+		// This allows us to embed videopress videos into the release post.
+		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+		$content = wp_kses_post( $post_content );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+
+		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$title      = wp_kses( $post_title, array() );
+
+		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		if ( ! empty( $post_thumbnail ) ) {
+			jetpack_require_lib( 'class.jetpack-photon-image' );
+			$photon_image = new Jetpack_Photon_Image(
+				array(
+					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'width'  => $post_thumbnail['width'],
+					'height' => $post_thumbnail['height'],
+				),
+				$post_thumbnail['mime_type']
+			);
+			$photon_image->resize(
+				array(
+					'width'  => 600,
+					'height' => null,
+					'crop'   => false,
+				)
+			);
+			$post_thumbnail_url = $photon_image->get_raw_filename();
+		} else {
+			$post_thumbnail_url = null;
+		}
+
+		$post_array = array(
+			'release_post_content'        => $content,
+			'release_post_featured_image' => $post_thumbnail_url,
+			'release_post_title'          => $title,
+		);
+
+		self::state( 'message_content', $post_array );
+	}
+
+	/**
+	 * Temporarily allow post content to contain iframes, e.g. for videopress.
+	 *
+	 * @param string $tags    The tags.
+	 * @param string $context The context.
+	 */
+	public static function allow_post_embed_iframe( $tags, $context ) {
+		if ( 'post' === $context ) {
+			$tags['iframe'] = array(
+				'src'             => true,
+				'height'          => true,
+				'width'           => true,
+				'frameborder'     => true,
+				'allowfullscreen' => true,
+			);
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
+	 * update modal when a post has a tag equal to the Jetpack version number.
+	 *
+	 * The response parameters for the post array can be found here:
+	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
+	 *
+	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
+	 *                    Returns null if the release post data is not available.
+	 */
+	private static function get_release_post_data() {
+		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
+			return null;
+		}
+
+		$release_post_src = add_query_arg(
+			array(
+				'order_by' => 'date',
+				'tag'      => JETPACK__VERSION,
+				'number'   => '1',
+			),
+			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
+		);
+
+		$response = wp_remote_get( $release_post_src );
+
+		if ( ! is_array( $response ) ) {
+			return null;
+		}
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
@@ -3960,10 +4073,12 @@ p {
 		}
 
 		// Help Sidebar
+		$support_url = Redirect::get_url( 'jetpack-support' );
+		$faq_url     = Redirect::get_url( 'jetpack-faq' );
 		$current_screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="https://jetpack.com/faq/" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
-			'<p><a href="https://jetpack.com/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . $faq_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . $support_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
 			'<p><a href="' . self::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
 	}
@@ -4326,7 +4441,9 @@ p {
 
 		switch ( $message_code ) {
 			case 'jetpack-manage':
-				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
+				$sites_url = esc_url( Redirect::get_url( 'calypso-sites' ) );
+				// translators: %s is the URL to the "Sites" panel on wordpress.com.
+				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), $sites_url ) . '</strong>';
 				if ( $activated_manage ) {
 					$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack' ) . '</strong>';
 				}
@@ -4789,8 +4906,8 @@ endif;
 	/**
 	 * Filters the connection URL parameter array.
 	 *
-	 * @param Array $args default URL parameters used by the package.
-	 * @return Array the modified URL arguments array.
+	 * @param array $args default URL parameters used by the package.
+	 * @return array the modified URL arguments array.
 	 */
 	public static function filter_connect_request_body( $args ) {
 		if (
@@ -5191,7 +5308,7 @@ endif;
 					printf(
 						__( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ),
 						esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
-						esc_url( 'https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/' )
+						esc_url( Redirect::get_url( 'jetpack-support-getting-started-troubleshooting-tips' ) )
 					);
 					?>
 				</p>
@@ -5372,8 +5489,8 @@ endif;
 	/**
 	 * Filters the registration request body to include tracking properties.
 	 *
-	 * @param Array $properties
-	 * @return Array amended properties.
+	 * @param array $properties
+	 * @return array amended properties.
 	 */
 	public static function filter_register_request_body( $properties ) {
 		$tracking        = new Tracking();
@@ -5391,8 +5508,8 @@ endif;
 	/**
 	 * Filters the token request body to include tracking properties.
 	 *
-	 * @param Array $properties
-	 * @return Array amended properties.
+	 * @param array $properties
+	 * @return array amended properties.
 	 */
 	public static function filter_token_request_body( $properties ) {
 		$tracking        = new Tracking();
@@ -5726,7 +5843,7 @@ endif;
 
 		// Extract state from cookies and delete cookies
 		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
-			$yum = $_COOKIE['jetpackState'];
+			$yum = wp_unslash( $_COOKIE['jetpackState'] );
 			unset( $_COOKIE['jetpackState'] );
 			foreach ( $yum as $k => $v ) {
 				if ( strlen( $v ) ) {
@@ -5738,12 +5855,14 @@ endif;
 
 		if ( $restate ) {
 			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				if ( 'message_content' !== $k ) {
+					setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				}
 			}
 			return;
 		}
 
-		// Get a state variable
+		// Get a state variable.
 		if ( isset( $key ) && ! isset( $value ) ) {
 			if ( array_key_exists( $key, $state ) ) {
 				return $state[ $key ];
@@ -5751,13 +5870,13 @@ endif;
 			return null;
 		}
 
-		// Set a state variable
+		// Set a state variable.
 		if ( isset( $key ) && isset( $value ) ) {
 			if ( is_array( $value ) && isset( $value[0] ) ) {
 				$value = $value[0];
 			}
 			$state[ $key ] = $value;
-			if ( ! headers_sent() ) {
+			if ( 'message_content' !== $key && ! headers_sent() ) {
 				setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
 			}
 		}
@@ -5994,7 +6113,7 @@ endif;
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
-				'https://jetpack.com/support/double-encoding/'
+				Redirect::get_url( 'jetpack-support-double-encoding' )
 			);
 		}
 
@@ -6552,9 +6671,9 @@ endif;
 				foreach ( $wp_filter[ $hook ] as $func => $values ) {
 					foreach ( $values as $hooked ) {
 						if ( is_callable( $hooked['function'] ) ) {
-							$function_name = 'an anonymous function';
-						} else {
 							$function_name = $hooked['function'];
+						} else {
+							$function_name = 'an anonymous function';
 						}
 						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
 					}

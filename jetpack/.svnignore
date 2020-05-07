@@ -1,3 +1,5 @@
+.eslintrc.js
+.eslintignore
 .git
 .gitignore
 .sass-cache
@@ -51,6 +53,7 @@ modules/calypsoify/*.scss
 to-test.md
 webpack.config*
 .editorconfig
+_inc/.eslintrc.js
 _inc/client
 _inc/build/*.js.map
 _inc/build/*.css.map
@@ -73,7 +76,10 @@ extensions/**/*.sass
 extensions/**/*.scss
 extensions/**/*.svg
 extensions/**/*.snap
+extensions/.eslintrc.js
 packages
 **/__snapshots__
 modules/search/instant-search
+modules/search/.eslintrc.js
 wp-cli-templates
+logs

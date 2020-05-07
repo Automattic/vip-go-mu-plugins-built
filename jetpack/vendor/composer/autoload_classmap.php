@@ -24,6 +24,7 @@ return array(
     'Automattic\\Jetpack\\JITM' => $vendorDir . '/automattic/jetpack-jitm/src/class-jitm.php',
     'Automattic\\Jetpack\\Partner' => $vendorDir . '/automattic/jetpack-partner/src/class-partner.php',
     'Automattic\\Jetpack\\Plugin\\Tracking' => $baseDir . '/src/class-tracking.php',
+    'Automattic\\Jetpack\\Redirect' => $vendorDir . '/automattic/jetpack-redirect/src/class-redirect.php',
     'Automattic\\Jetpack\\Roles' => $vendorDir . '/automattic/jetpack-roles/src/class-roles.php',
     'Automattic\\Jetpack\\Status' => $vendorDir . '/automattic/jetpack-status/src/class-status.php',
     'Automattic\\Jetpack\\Sync\\Actions' => $vendorDir . '/automattic/jetpack-sync/src/class-actions.php',

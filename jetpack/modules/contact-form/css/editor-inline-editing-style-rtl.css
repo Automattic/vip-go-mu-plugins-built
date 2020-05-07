@@ -137,17 +137,11 @@ input[type="url"] {
 	box-shadow: none;
 }
 
-input[type="text"]:-ms-input-placeholder,
-input[type="tel"]:-ms-input-placeholder,
-input[type="email"]:-ms-input-placeholder,
-input[type="url"]:-ms-input-placeholder {
+input[type="text"]:-ms-input-placeholder, input[type="tel"]:-ms-input-placeholder, input[type="email"]:-ms-input-placeholder, input[type="url"]:-ms-input-placeholder {
 	color: #87a6bc;
 }
 
-input[type="text"]::-ms-input-placeholder,
-input[type="tel"]::-ms-input-placeholder,
-input[type="email"]::-ms-input-placeholder,
-input[type="url"]::-ms-input-placeholder {
+input[type="text"]::-ms-input-placeholder, input[type="tel"]::-ms-input-placeholder, input[type="email"]::-ms-input-placeholder, input[type="url"]::-ms-input-placeholder {
 	color: #87a6bc;
 }
 
@@ -198,17 +192,11 @@ input[type="url"]:disabled:hover {
 	cursor: default;
 }
 
-input[type="text"]:disabled:-ms-input-placeholder,
-input[type="tel"]:disabled:-ms-input-placeholder,
-input[type="email"]:disabled:-ms-input-placeholder,
-input[type="url"]:disabled:-ms-input-placeholder {
+input[type="text"]:disabled:-ms-input-placeholder, input[type="tel"]:disabled:-ms-input-placeholder, input[type="email"]:disabled:-ms-input-placeholder, input[type="url"]:disabled:-ms-input-placeholder {
 	color: #a8bece;
 }
 
-input[type="text"]:disabled::-ms-input-placeholder,
-input[type="tel"]:disabled::-ms-input-placeholder,
-input[type="email"]:disabled::-ms-input-placeholder,
-input[type="url"]:disabled::-ms-input-placeholder {
+input[type="text"]:disabled::-ms-input-placeholder, input[type="tel"]:disabled::-ms-input-placeholder, input[type="email"]:disabled::-ms-input-placeholder, input[type="url"]:disabled::-ms-input-placeholder {
 	color: #a8bece;
 }
 
@@ -457,13 +445,11 @@ input[type="radio"]:disabled:hover {
 	cursor: default;
 }
 
-.radio-button:disabled:-ms-input-placeholder,
-input[type="radio"]:disabled:-ms-input-placeholder {
+.radio-button:disabled:-ms-input-placeholder, input[type="radio"]:disabled:-ms-input-placeholder {
 	color: #a8bece;
 }
 
-.radio-button:disabled::-ms-input-placeholder,
-input[type="radio"]:disabled::-ms-input-placeholder {
+.radio-button:disabled::-ms-input-placeholder, input[type="radio"]:disabled::-ms-input-placeholder {
 	color: #a8bece;
 }
 

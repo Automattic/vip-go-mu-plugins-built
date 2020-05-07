@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * WordPress dependencies
  */
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -15,6 +15,7 @@ import {
 	RangeControl,
 	TextControl,
 	Toolbar,
+	ToolbarGroup,
 	withNotices,
 	ToggleControl,
 	Spinner,
@@ -29,8 +30,8 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-
-import apiFetch from '@wordpress/api-fetch';
+import { withDispatch } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
@@ -42,7 +43,10 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import { makeCancellable } from './utils';
+import { fetchPodcastFeed } from './api';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -70,6 +74,8 @@ const PodcastPlayerEdit = ( {
 	backgroundColor: backgroundColorProp,
 	setBackgroundColor,
 	fallbackBackgroundColor,
+	isSelected,
+	replaceWithEmbedBlock,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -81,6 +87,51 @@ const PodcastPlayerEdit = ( {
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( {} );
+	const cancellableFetch = useRef();
+	const [ isInteractive, setIsInteractive ] = useState( false );
+
+	const fetchFeed = useCallback(
+		urlToFetch => {
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
+
+			cancellableFetch.current.promise.then(
+				response => {
+					if ( response?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', response );
+						return; // bail if canceled to avoid setting state
+					}
+
+					// Check what type of response we got and act accordingly.
+					switch ( response?.type ) {
+						case PODCAST_FEED:
+							return setFeedData( response.data );
+						case EMBED_BLOCK:
+							return replaceWithEmbedBlock();
+					}
+				},
+				error => {
+					if ( error?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', error );
+						return; // bail if canceled to avoid setting state
+					}
+
+					// Show error and allow to edit URL.
+					debug( 'feed error', error );
+					createErrorNotice(
+						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+					);
+					setIsEditing( true );
+				}
+			);
+		},
+		[ createErrorNotice, replaceWithEmbedBlock ]
+	);
+
+	useEffect( () => {
+		return () => {
+			cancellableFetch?.current?.cancel?.();
+		};
+	}, [] );
 
 	// Load RSS feed.
 	useEffect( () => {
@@ -93,64 +144,66 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Load feed data.
-		apiFetch( {
-			path: `/wpcom/v2/podcast-player?url=${ encodeURIComponent( url ) }`,
-		} ).then(
-			data => {
-				// Store feed data.
-				setFeedData( data );
-			},
-			err => {
-				// Show error and allow to edit URL.
-				debug( 'feed error', err );
-				createErrorNotice(
-					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-				);
-				setIsEditing( true );
-			}
-		);
-	}, [ createErrorNotice, removeAllNotices, url ] );
+		fetchFeed( url );
+	}, [ fetchFeed, removeAllNotices, url ] );
+
+	// Bring back the overlay after block gets deselected.
+	useEffect( () => {
+		if ( ! isSelected && isInteractive ) {
+			setIsInteractive( false );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isSelected ] );
 
 	/**
-	 * Check if the current URL of the Podcast RSS feed
-	 * is valid. If so, set the block attribute and changes
-	 * the edition mode.
-	 * This function is bound to the onSubmit event for the form.
+	 * Check if the current URL of the Podcast RSS feed is valid. If so, set the
+	 * block attribute and changes the edition mode. This function is bound to the
+	 * onSubmit event for the form.
 	 *
 	 * @param {object} event - Form on submit event object.
 	 */
-	const checkPodcastLink = useCallback( event => {
-		event.preventDefault();
-		removeAllNotices();
+	const checkPodcastLink = useCallback(
+		event => {
+			event.preventDefault();
+			removeAllNotices();
 
-		if ( ! editedUrl ) {
-			return;
-		}
+			if ( ! editedUrl ) {
+				return;
+			}
 
-		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
-		// allowing the user to see the most suitable keyboard on their device
-		// for entering URLs. However, this means we need to manually prepend
-		// "http" to any entry before attempting validation.
-		const prependedURL = prependHTTP( editedUrl );
+			/*
+			 * Ensure URL has `http` appended to it (if it doesn't already) before we
+			 * accept it as the entered URL.
+			 */
+			const prependedURL = prependHTTP( editedUrl );
 
-		if ( ! isURL( prependedURL ) ) {
-			createErrorNotice(
-				__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-			);
-			return;
-		}
+			if ( ! isURL( prependedURL ) ) {
+				createErrorNotice(
+					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+				);
+				return;
+			}
 
-		// Ensure URL has `http` appended to it (if it doesn't already) before
-		// we accept it as the entered URL.
-		setAttributes( { url: prependedURL } );
+			/*
+			 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
+			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
+			 */
+			if ( prependedURL === url ) {
+				fetchFeed( url );
+			} else {
+				setAttributes( { url: prependedURL } );
+			}
 
-		// Also update the temporary `input` value in order that clicking
-		// `Replace` in the UI will show the "corrected" version of the URL
-		// (ie: with `http` prepended if it wasn't originally present).
-		setEditedUrl( prependedURL );
-		setIsEditing( false );
-	} );
+			/*
+			 * Also update the temporary `input` value in order that clicking `Replace`
+			 * in the UI will show the "corrected" version of the URL (ie: with `http`
+			 * prepended if it wasn't originally present).
+			 */
+			setEditedUrl( prependedURL );
+			setIsEditing( false );
+		},
+		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes ]
+	);
 
 	if ( isEditing || ! url ) {
 		return (
@@ -158,6 +211,7 @@ const PodcastPlayerEdit = ( {
 				icon={ <BlockIcon icon={ queueMusic } /> }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
+				className={ 'jetpack-podcast-player__placeholder' }
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
@@ -182,16 +236,6 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const toolbarControls = [
-		{
-			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
-			onClick: () => setIsEditing( true ),
-			extraProps: {
-				children: __( 'Replace', 'jetpack' ),
-			},
-		},
-	];
-
 	// Loading state for fetching the feed.
 	if ( ! feedData.tracks || ! feedData.tracks.length ) {
 		return (
@@ -205,10 +249,37 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
+	const createColorChangeHandler = ( colorAttr, handler ) => color => {
+		setAttributes( { [ colorAttr ]: color } );
+		handler( color );
+	};
+
 	return (
 		<>
 			<BlockControls>
-				<Toolbar controls={ toolbarControls } />
+				{ /* @todo Fallback can be removed when WP 5.4 is the minimum supported version. */ }
+				{ ToolbarGroup ? (
+					<ToolbarGroup>
+						<Button
+							aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
+							onClick={ () => setIsEditing( true ) }
+						>
+							{ __( 'Replace', 'jetpack' ) }
+						</Button>
+					</ToolbarGroup>
+				) : (
+					<Toolbar
+						controls={ [
+							{
+								title: __( 'Edit Podcast Feed URL', 'jetpack' ),
+								onClick: () => setIsEditing( true ),
+								extraProps: {
+									children: __( 'Replace', 'jetpack' ),
+								},
+							},
+						] }
+					/>
+				) }
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
@@ -238,17 +309,17 @@ const PodcastPlayerEdit = ( {
 					colorSettings={ [
 						{
 							value: primaryColorProp.color,
-							onChange: setPrimaryColor,
+							onChange: createColorChangeHandler( 'hexPrimaryColor', setPrimaryColor ),
 							label: __( 'Primary Color', 'jetpack' ),
 						},
 						{
 							value: secondaryColorProp.color,
-							onChange: setSecondaryColor,
+							onChange: createColorChangeHandler( 'hexSecondaryColor', setSecondaryColor ),
 							label: __( 'Secondary Color', 'jetpack' ),
 						},
 						{
 							value: backgroundColorProp.color,
-							onChange: setBackgroundColor,
+							onChange: createColorChangeHandler( 'hexBackgroundColor', setBackgroundColor ),
 							label: __( 'Background Color', 'jetpack' ),
 						},
 					] }
@@ -272,12 +343,38 @@ const PodcastPlayerEdit = ( {
 					title={ feedData.title }
 					link={ feedData.link }
 				/>
+				{ /*
+				 * Disabled because the overlay div doesn't actually have a role or
+				 * functionality as far as the user is concerned. We're just catching
+				 * the first click so that the block can be selected without
+				 * interacting with the embed preview that the overlay covers.
+				 */ }
+				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
+				{ ! isInteractive && (
+					<div
+						className="jetpack-podcast-player__interactive-overlay"
+						onMouseUp={ () => setIsInteractive( true ) }
+					/>
+				) }
+				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
 			</div>
 		</>
 	);
 };
 
 export default compose( [
+	withDispatch( ( dispatch, { clientId, attributes } ) => {
+		return {
+			replaceWithEmbedBlock() {
+				dispatch( 'core/block-editor' ).replaceBlock(
+					clientId,
+					createBlock( 'core/embed', {
+						url: attributes.url,
+					} )
+				);
+			},
+		};
+	} ),
 	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
 	withNotices,
 	withInstanceId,
