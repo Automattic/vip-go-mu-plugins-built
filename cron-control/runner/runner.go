@@ -546,18 +546,11 @@ func waitForEpoch(whom string, epoch_sec int64) {
 }
 
 func setupSignalHandler() {
-	var count int
 	sigChan := make(chan os.Signal)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 	for {
 		select {
 		case sig := <-sigChan:
-			count++
-			if count == 2 {
-				logger.Printf("forcing shutdown")
-				os.Exit(1)
-			}
-
 			logger.Printf("caught termination signal %s, scheduling shutdown\n", sig)
 			gRestart = true
 		}
