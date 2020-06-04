@@ -5,6 +5,7 @@ use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
@@ -82,15 +83,6 @@ class Jetpack {
 		'jetpack-search-widget',
 		'jetpack-simple-payments-widget-style',
 		'jetpack-widget-social-icons-styles',
-	);
-
-	/**
-	 * The handles of scripts that can be loaded asynchronously.
-	 *
-	 * @var array
-	 */
-	public $async_script_handles = array(
-		'woocommerce-analytics',
 	);
 
 	/**
@@ -670,6 +662,8 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
+		add_action( 'wp_ajax_jetpack_wizard_banner', array( 'Jetpack_Wizard_Banner', 'ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
 		/**
@@ -691,7 +685,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'is_active_and_not_development_mode' ), 9 );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
@@ -739,11 +733,6 @@ class Jetpack {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
 
-		/*
-		 * Load some scripts asynchronously.
-		 */
-		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
-
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
 		add_action( 'jetpack_authorize_ending_linked', array( $this, 'authorize_ending_linked' ) );
@@ -764,7 +753,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'connection',
 				'sync',
 				'tracking',
 				'tos',
@@ -774,12 +762,20 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
+		$config->ensure(
+			'connection',
+			array(
+				'slug' => 'jetpack',
+				'name' => 'Jetpack',
+			)
+		);
+
 		if ( is_admin() ) {
 			$config->ensure( 'jitm' );
 		}
 
 		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
+			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		/*
@@ -987,7 +983,11 @@ class Jetpack {
 	function jetpack_connection_banner_callback() {
 		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
 
-		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
+		if (
+			isset( $_REQUEST['dismissBanner'] ) &&
+			! Jetpack_Connection_Banner::force_display()
+		) {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();
 		}
@@ -1632,9 +1632,12 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack active?
+	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
+	 *
+	 * @return bool
 	 */
 	public static function is_active() {
-		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		return self::connection()->is_active();
 	}
 
 	/**
@@ -3297,119 +3300,20 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 		if ( $old_version ) { // For existing Jetpack installations.
-			self::send_update_modal_data();
+
+			// If a front end page is visited after the update, the 'wp' action will fire.
+			add_action( 'wp', 'Jetpack::set_update_modal_display' );
+
+			// If an admin page is visited after the update, the 'current_screen' action will fire.
+			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
 		}
 	}
 
 	/**
-	 * Prepares the release post content and image data and saves it in the
-	 * state array. This data is used to create the update modal.
+	 * Sets the display_update_modal state.
 	 */
-	public static function send_update_modal_data() {
-		$post_data = self::get_release_post_data();
-
-		if ( ! isset( $post_data['posts'][0] ) ) {
-			return;
-		}
-
-		$post = $post_data['posts'][0];
-
-		$post_content = isset( $post['content'] ) ? $post['content'] : null;
-		if ( empty( $post_content ) ) {
-			return;
-		}
-
-		// This allows us to embed videopress videos into the release post.
-		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
-		$content = wp_kses_post( $post_content );
-		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
-
-		$post_title = isset( $post['title'] ) ? $post['title'] : null;
-		$title      = wp_kses( $post_title, array() );
-
-		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
-		if ( ! empty( $post_thumbnail ) ) {
-			jetpack_require_lib( 'class.jetpack-photon-image' );
-			$photon_image = new Jetpack_Photon_Image(
-				array(
-					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
-					'width'  => $post_thumbnail['width'],
-					'height' => $post_thumbnail['height'],
-				),
-				$post_thumbnail['mime_type']
-			);
-			$photon_image->resize(
-				array(
-					'width'  => 600,
-					'height' => null,
-					'crop'   => false,
-				)
-			);
-			$post_thumbnail_url = $photon_image->get_raw_filename();
-		} else {
-			$post_thumbnail_url = null;
-		}
-
-		$post_array = array(
-			'release_post_content'        => $content,
-			'release_post_featured_image' => $post_thumbnail_url,
-			'release_post_title'          => $title,
-		);
-
-		self::state( 'message_content', $post_array );
-	}
-
-	/**
-	 * Temporarily allow post content to contain iframes, e.g. for videopress.
-	 *
-	 * @param string $tags    The tags.
-	 * @param string $context The context.
-	 */
-	public static function allow_post_embed_iframe( $tags, $context ) {
-		if ( 'post' === $context ) {
-			$tags['iframe'] = array(
-				'src'             => true,
-				'height'          => true,
-				'width'           => true,
-				'frameborder'     => true,
-				'allowfullscreen' => true,
-			);
-		}
-
-		return $tags;
-	}
-
-	/**
-	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
-	 * update modal when a post has a tag equal to the Jetpack version number.
-	 *
-	 * The response parameters for the post array can be found here:
-	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
-	 *
-	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
-	 *                    Returns null if the release post data is not available.
-	 */
-	private static function get_release_post_data() {
-		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
-			return null;
-		}
-
-		$release_post_src = add_query_arg(
-			array(
-				'order_by' => 'date',
-				'tag'      => JETPACK__VERSION,
-				'number'   => '1',
-			),
-			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
-		);
-
-		$response = wp_remote_get( $release_post_src );
-
-		if ( ! is_array( $response ) ) {
-			return null;
-		}
-
-		return json_decode( wp_remote_retrieve_body( $response ), true );
+	public static function set_update_modal_display() {
+		self::state( 'display_update_modal', true );
 	}
 
 	/**
@@ -3442,6 +3346,8 @@ p {
 	 */
 	public static function plugin_deactivation() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'deactivate_plugin', array() );
 		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
@@ -3732,12 +3638,15 @@ p {
 			);
 		}
 
+		Jetpack_Wizard_Banner::init();
+
 		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_active() || $is_development_mode ) {
@@ -4143,6 +4052,80 @@ p {
 		}
 
 		return array_merge( $jetpack_home, $actions );
+	}
+
+	/**
+	 * Adds the deactivation warning modal if there are other active plugins using the connection
+	 *
+	 * @param string $hook The current admin page.
+	 *
+	 * @return void
+	 */
+	public function deactivate_dialog( $hook ) {
+		if (
+			'plugins.php' === $hook
+			&& self::is_active()
+		) {
+
+			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
+
+			if ( count( $active_plugins_using_connection ) > 1 ) {
+
+				add_thickbox();
+
+				wp_register_script(
+					'jp-tracks',
+					'//stats.wp.com/w.js',
+					array(),
+					gmdate( 'YW' ),
+					true
+				);
+
+				wp_register_script(
+					'jp-tracks-functions',
+					plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
+					array( 'jp-tracks' ),
+					JETPACK__VERSION,
+					false
+				);
+
+				wp_enqueue_script(
+					'jetpack-deactivate-dialog-js',
+					Assets::get_file_url_for_environment(
+						'_inc/build/jetpack-deactivate-dialog.min.js',
+						'_inc/jetpack-deactivate-dialog.js'
+					),
+					array( 'jquery', 'jp-tracks-functions' ),
+					JETPACK__VERSION,
+					true
+				);
+
+				wp_localize_script(
+					'jetpack-deactivate-dialog-js',
+					'deactivate_dialog',
+					array(
+						'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
+						'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
+						'tracksUserData'   => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+					)
+				);
+
+				add_action( 'admin_footer', array( $this, 'deactivate_dialog_content' ) );
+
+				wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			}
+		}
+	}
+
+	/**
+	 * Outputs the content of the deactivation modal
+	 *
+	 * @return void
+	 */
+	public function deactivate_dialog_content() {
+		$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
+		unset( $active_plugins_using_connection['jetpack'] );
+		$this->load_view( 'admin/deactivation-dialog.php', $active_plugins_using_connection );
 	}
 
 	/**
@@ -4914,7 +4897,7 @@ endif;
 			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 		) {
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
 			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
 				? $gp_locale->slug
 				: '';
@@ -5362,7 +5345,7 @@ endif;
 
 		// If the connection manager hasn't been instantiated, do that now.
 		if ( ! $jetpack->connection_manager ) {
-			$jetpack->connection_manager = new Connection_Manager();
+			$jetpack->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		return $jetpack->connection_manager;
@@ -5855,9 +5838,7 @@ endif;
 
 		if ( $restate ) {
 			foreach ( $state as $k => $v ) {
-				if ( 'message_content' !== $k ) {
-					setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
-				}
+				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
 			}
 			return;
 		}
@@ -5876,14 +5857,35 @@ endif;
 				$value = $value[0];
 			}
 			$state[ $key ] = $value;
-			if ( 'message_content' !== $key && ! headers_sent() ) {
-				setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+			if ( ! headers_sent() ) {
+				if ( self::should_set_cookie( $key ) ) {
+					setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+				}
 			}
 		}
 	}
 
 	public static function restate() {
 		self::state( null, null, true );
+	}
+
+	/**
+	 * Determines whether the jetpackState[$key] value should be added to the
+	 * cookie.
+	 *
+	 * @param string $key The state key.
+	 *
+	 * @return boolean Whether the value should be added to the cookie.
+	 */
+	public static function should_set_cookie( $key ) {
+		global $current_screen;
+		$page = isset( $current_screen->base ) ? $current_screen->base : null;
+
+		if ( 'toplevel_page_jetpack' === $page && 'display_update_modal' === $key ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	public static function check_privacy( $file ) {
@@ -6316,12 +6318,11 @@ endif;
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
-			if ( isset( $sync_error['home'] ) && isset ( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
-
 		}
 
 		/**
@@ -6838,21 +6839,11 @@ endif;
 	}
 
 	/**
-	 * Add an async attribute to scripts that can be loaded asynchronously.
-	 * https://www.w3schools.com/tags/att_script_async.asp
-	 *
-	 * @since 7.7.0
-	 *
-	 * @param string $tag    The <script> tag for the enqueued script.
-	 * @param string $handle The script's registered handle.
-	 * @param string $src    The script's source URL.
+	 * @deprecated
+	 * @see Automattic\Jetpack\Assets\add_aync_script
 	 */
 	public function script_add_async( $tag, $handle, $src ) {
-		if ( in_array( $handle, $this->async_script_handles, true ) ) {
-			return preg_replace( '/^<script /i', '<script async ', $tag );
-		}
-
-		return $tag;
+		_deprecated_function( __METHOD__, 'jetpack-8.6.0' );
 	}
 
 	/*
@@ -6896,7 +6887,7 @@ endif;
 			// Check PHP version
 			if ( 'php-version' == $stat ) {
 				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
-					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
+					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
 				}
 			}
@@ -7240,8 +7231,8 @@ endif;
 	}
 
 	/**
-	 * Checks for whether Jetpack Backup & Scan is enabled.
-	 * Will return true if the state of Backup & Scan is anything except "unavailable".
+	 * Checks for whether Jetpack Backup is enabled.
+	 * Will return true if the state of Backup is anything except "unavailable".
 	 *
 	 * @return bool|int|mixed
 	 */
@@ -7434,5 +7425,85 @@ endif;
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Returns the list of products that we have available for purchase.
+	 */
+	public static function get_products_for_purchase() {
+		$products = array();
+		if ( ! is_multisite() ) {
+			$products[] = array(
+				'key'               => 'backup',
+				'title'             => __( 'Jetpack Backup', 'jetpack' ),
+				'short_description' => __( 'Always-on backups ensure you never lose your site.', 'jetpack' ),
+				'learn_more'        => __( 'Which backup option is best for me?', 'jetpack' ),
+				'description'       => __( 'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.', 'jetpack' ),
+				'options_label'     => __( 'Select a backup option:', 'jetpack' ),
+				'options'           => array(
+					array(
+						'type'        => 'daily',
+						'slug'        => 'jetpack-backup-daily',
+						'key'         => 'jetpack_backup_daily',
+						'name'        => __( 'Daily Backups', 'jetpack' ),
+						'description' => __( 'Your data is being securely backed up daily.', 'jetpack' ),
+					),
+					array(
+						'type'        => 'realtime',
+						'slug'        => 'jetpack-backup-realtime',
+						'key'         => 'jetpack_backup_realtime',
+						'name'        => __( 'Real-Time Backups', 'jetpack' ),
+						'description' => __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					),
+				),
+				'default_option'    => 'realtime',
+				'show_promotion'    => true,
+				'discount_percent'  => 70,
+				'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'daily-backup-plan', 'realtime-backup-plan' ),
+			);
+
+			$products[] = array(
+				'key'               => 'scan',
+				'title'             => __( 'Jetpack Scan', 'jetpack' ),
+				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'learn_more'        => __( 'Learn More', 'jetpack' ),
+				'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'show_promotion'    => true,
+				'discount_percent'  => 30,
+				'options'           => array(
+					array(
+						'type'      => 'scan',
+						'slug'      => 'jetpack-scan',
+						'key'       => 'jetpack_scan',
+						'name'      => __( 'Daily Scan', 'jetpack' ),
+					),
+				),
+				'default_option'    => 'scan',
+				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
+			);
+		}
+
+		$products[] = array(
+			'key'               => 'search',
+			'title'             => __( 'Jetpack Search', 'jetpack' ),
+			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+			'learn_more'        => __( 'Learn More', 'jetpack' ),
+			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+			'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+			'options'           => array(
+				array(
+					'type'      => 'search',
+					'slug'      => 'jetpack-search',
+					'key'       => 'jetpack_search',
+					'name'      => __( 'Search', 'jetpack' ),
+				),
+			),
+			'tears'             => array(),
+			'default_option'    => 'search',
+			'show_promotion'    => false,
+			'included_in_plans' => array( 'search-plan' ),
+		);
+
+		return $products;
 	}
 }

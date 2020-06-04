@@ -1,20 +1,48 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import PopupMonitor from '@automattic/popup-monitor';
 
-export default function useConnectInstagram( setAttributes, setImages, noticeOperations ) {
+/**
+ * WordPress dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+
+export default function useConnectInstagram( {
+	accessToken,
+	noticeOperations,
+	setAttributes,
+	setImages,
+	setSelectedAccount,
+} ) {
 	const [ isConnecting, setIsConnecting ] = useState( false );
+	const [ isRequestingUserConnections, setIsRequestingConnections ] = useState( false );
+	const [ userConnections, setUserConnections ] = useState( [] );
+
+	useEffect( () => {
+		if ( accessToken ) {
+			return;
+		}
+
+		setIsRequestingConnections( true );
+		apiFetch( { path: '/wpcom/v2/instagram-gallery/connections' } )
+			.then( connections => {
+				setIsRequestingConnections( false );
+				setUserConnections( connections );
+			} )
+			.catch( () => {
+				setIsRequestingConnections( false );
+				setUserConnections( [] );
+			} );
+	}, [ accessToken ] );
 
 	const connectToService = () => {
 		noticeOperations.removeAllNotices();
-		setIsConnecting( true );
 
-		apiFetch( { path: `/wpcom/v2/instagram-gallery/connect-url` } )
+		setIsConnecting( true );
+		apiFetch( { path: '/wpcom/v2/instagram-gallery/connect-url' } )
 			.then( connectUrl => {
 				const popupMonitor = new PopupMonitor();
 
@@ -27,7 +55,9 @@ export default function useConnectInstagram( setAttributes, setImages, noticeOpe
 				popupMonitor.on( 'message', ( { keyring_id } ) => {
 					setIsConnecting( false );
 					if ( keyring_id ) {
-						setAttributes( { accessToken: keyring_id.toString() } );
+						const token = keyring_id.toString();
+						setAttributes( { accessToken: token } );
+						setSelectedAccount( token );
 					}
 				} );
 
@@ -45,21 +75,17 @@ export default function useConnectInstagram( setAttributes, setImages, noticeOpe
 			} );
 	};
 
-	const disconnectFromService = accessToken => {
-		setIsConnecting( true );
-		apiFetch( {
-			path: addQueryArgs( `/wpcom/v2/instagram-gallery/delete-access-token`, {
-				access_token: accessToken,
-			} ),
-			method: 'DELETE',
-		} ).then( responseCode => {
-			setIsConnecting( false );
-			if ( 200 === responseCode ) {
-				setAttributes( { accessToken: undefined } );
-				setImages( [] );
-			}
-		} );
+	const disconnectFromService = () => {
+		noticeOperations.removeAllNotices();
+		setAttributes( { accessToken: undefined, instagramUser: undefined } );
+		setImages( [] );
 	};
 
-	return { isConnecting, connectToService, disconnectFromService };
+	return {
+		connectToService,
+		disconnectFromService,
+		isConnecting,
+		isRequestingUserConnections,
+		userConnections,
+	};
 }

@@ -13,8 +13,11 @@ import { supportsCollections } from '../../shared/block-category';
 export const name = 'instagram-gallery';
 
 export const settings = {
-	title: __( 'Instagram Gallery', 'jetpack' ),
-	description: __( 'Embed posts from your Instagram account.', 'jetpack' ),
+	title: __( 'Latest Instagram Posts', 'jetpack' ),
+	description: __(
+		'Display an automatically updating list of the latest posts from your Instagram feed.',
+		'jetpack'
+	),
 	icon: 'instagram',
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
@@ -28,13 +31,14 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: ( { attributes: { instagramUser } } ) => (
-		<div>
-			<a
-				href={ `https://www.instagram.com/${ instagramUser }/` }
-				rel="noopener noreferrer"
-				target="_blank"
-			>{ `https://www.instagram.com/${ instagramUser }/` }</a>
-		</div>
-	),
+	save: ( { attributes: { instagramUser } } ) =>
+		instagramUser && (
+			<div>
+				<a
+					href={ `https://www.instagram.com/${ instagramUser }/` }
+					rel="noopener noreferrer"
+					target="_blank"
+				>{ `https://www.instagram.com/${ instagramUser }/` }</a>
+			</div>
+		),
 };

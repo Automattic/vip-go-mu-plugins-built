@@ -20,6 +20,15 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'instagram-gallery';
+		$this->is_wpcom  = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->is_wpcom = true;
+
+			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
+				\jetpack_require_lib( 'instagram-gallery-helper' );
+			}
+		}
 
 		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -43,17 +52,10 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/delete-access-token',
+			$this->rest_base . '/connections',
 			array(
-				'args'     => array(
-					'access_token' => array(
-						'description' => __( 'An Instagram Keyring access token.', 'jetpack' ),
-						'type'        => 'string',
-						'required'    => true,
-					),
-				),
-				'methods'  => WP_REST_Server::DELETABLE,
-				'callback' => array( $this, 'delete_instagram_access_token' ),
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'get_instagram_connections' ),
 			)
 		);
 
@@ -88,6 +90,10 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_connect_url() {
+		if ( $this->is_wpcom ) {
+			return WPCOM_Instagram_Gallery_Helper::get_connect_url();
+		}
+
 		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
@@ -112,34 +118,31 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	}
 
 	/**
-	 * Delete a stored Instagram access token.
-
-	 * @param  WP_REST_Request $request The request.
+	 * Get a list of stored Instagram connections for the current user.
+	 *
 	 * @return mixed
 	 */
-	public function delete_instagram_access_token( $request ) {
-		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return $site_id;
+	public function get_instagram_connections() {
+		if ( $this->is_wpcom ) {
+			return WPCOM_Instagram_Gallery_Helper::get_connections();
 		}
 
-		$path     = sprintf( '/sites/%d/instagram/%s', $site_id, $request['access_token'] );
-		$response = Client::wpcom_json_api_request_as_blog(
-			$path,
-			2,
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'DELETE',
-			),
-			null,
-			'wpcom'
-		);
+		$response = Client::wpcom_json_api_request_as_user( '/me/connections' );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
-		$response_code = wp_remote_retrieve_response_code( $response );
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
-		return $response_code;
+		$connections = array();
+		foreach ( $body->connections as $connection ) {
+			if ( 'instagram-basic-display' === $connection->service && 'ok' === $connection->status ) {
+				$connections[] = array(
+					'token'    => (string) $connection->ID,
+					'username' => $connection->external_name,
+				);
+			}
+		}
+		return $connections;
 	}
 
 	/**

@@ -4,6 +4,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -368,6 +369,11 @@ class A8C_WPCOM_Masterbar {
 		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
 			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
 		}
+
+		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
+			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
+			$scan_admin_bar_notice->add_threats_to_toolbar( $wp_admin_bar );
+		}
 	}
 
 	/**
@@ -445,7 +451,7 @@ class A8C_WPCOM_Masterbar {
 				'id'     => 'streams-header',
 				'title'  => esc_html_x(
 					'Streams',
-					'Title for Reader sub-menu that contains followed sites, likes, and recommendations',
+					'Title for Reader sub-menu that contains followed sites, likes, and search',
 					'jetpack'
 				),
 				'meta'   => array(
@@ -494,18 +500,6 @@ class A8C_WPCOM_Masterbar {
 				'id'     => 'discover-search',
 				'title'  => esc_html__( 'Search', 'jetpack' ),
 				'href'   => Redirect::get_url( 'calypso-read-search' ),
-				'meta'   => array(
-					'class' => 'mb-icon-spacer',
-				),
-			)
-		);
-
-		$wp_admin_bar->add_menu(
-			array(
-				'parent' => 'newdash',
-				'id'     => 'discover-recommended-blogs',
-				'title'  => esc_html__( 'Recommendations', 'jetpack' ),
-				'href'   => Redirect::get_url( 'calypso-recommendations' ),
 				'meta'   => array(
 					'class' => 'mb-icon-spacer',
 				),
