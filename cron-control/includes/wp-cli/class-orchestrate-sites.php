@@ -60,11 +60,6 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 			// Don't use home or siteurl since those don't always match up with the `wp_blogs` entry.
 			// That can result in a "site not found" when passed via the `--url` WP-CLI param.
 			// Instead, construct the URL from data in the `wp_blogs` table.
-
-			// Have to grab scheme from the home URL; not exposed in `$site`.
-			$home_url = get_home_url( $site->blog_id );
-			$scheme = parse_url( $home_url, PHP_URL_SCHEME );
-
 			$domain = $site->domain;
 
 			$path = '';
@@ -72,7 +67,7 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 				$path= $site->path;
 			}
 
-			$site->url = sprintf( '%s://%s%s', $scheme, $domain, $path );
+			$site->url = sprintf( '%s%s', $domain, $path );
 
 			return $site;
 		}, $sites );
