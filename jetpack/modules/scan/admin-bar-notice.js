@@ -1,4 +1,4 @@
-( function( localized ) {
+( function ( localized ) {
 	function ready( fn ) {
 		if ( document.readyState != 'loading' ) {
 			fn();
@@ -10,7 +10,7 @@
 	function fetch_scan_treats_and_add_link() {
 		var xhrRequest = new XMLHttpRequest();
 		xhrRequest.open( 'GET', localized.scan_endpoint, true );
-		xhrRequest.onload = function() {
+		xhrRequest.onload = function () {
 			if ( this.status == 200 ) {
 				// Success!
 				var body = JSON.parse( this.response );
@@ -30,12 +30,16 @@
 		xhrRequest.send();
 	}
 
-	ready( function() {
+	ready( function () {
 		fetch_scan_treats_and_add_link();
 	} );
 
 	function update_threats_link( numberOfThreats ) {
 		var element = document.getElementById( 'wp-admin-bar-jetpack-scan-notice' );
+		if ( ! element ) {
+			return;
+		}
+
 		if ( ! numberOfThreats ) {
 			element.parentNode.removeChild( element );
 			return;

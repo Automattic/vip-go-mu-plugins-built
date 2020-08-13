@@ -5,7 +5,7 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Automattic\Jetpack\Autoloader\jp706c584b40c416b3678eb907f297053b;
+namespace Automattic\Jetpack\Autoloader\jpdf10f8600d1e3fbc7a3583ae771162e8;
 
  // phpcs:ignore
 
@@ -58,6 +58,7 @@ class Autoloader_Handler {
 		global $jetpack_autoloader_latest_version;
 
 		$current_autoloader_path = trailingslashit( dirname( __FILE__ ) ) . 'autoload_packages.php';
+		$current_autoloader_path = str_replace( '\\', '/', $current_autoloader_path );
 
 		$selected_autoloader_version = null;
 		$selected_autoloader_path    = null;

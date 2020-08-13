@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Automattic\\Jetpack\\A8c_Mc_Stats' => $vendorDir . '/automattic/jetpack-a8c-mc-stats/src/class-a8c-mc-stats.php',
     'Automattic\\Jetpack\\Abtest' => $vendorDir . '/automattic/jetpack-abtest/src/class-abtest.php',
     'Automattic\\Jetpack\\Assets' => $vendorDir . '/automattic/jetpack-assets/src/class-assets.php',
     'Automattic\\Jetpack\\Assets\\Logo' => $vendorDir . '/automattic/jetpack-logo/src/class-logo.php',

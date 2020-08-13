@@ -71,7 +71,7 @@ class Jetpack_Connection_Banner {
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
-	 * This method should not be called if the site is connected to WordPress.com or if the site is in development mode.
+	 * This method should not be called if the site is connected to WordPress.com or if the site is in offline mode.
 	 *
 	 * @since 4.4.0
 	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
@@ -172,14 +172,10 @@ class Jetpack_Connection_Banner {
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari ) {
-			$force_variation = 'original';
-		} elseif ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
-			$force_variation = 'in_place';
-		} elseif ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
-			$force_variation = null;
+			$force_variation = 'in_place';
 		}
 
 		$tracking = new Automattic\Jetpack\Tracking();

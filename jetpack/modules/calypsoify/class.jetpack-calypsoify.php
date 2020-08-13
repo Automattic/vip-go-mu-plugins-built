@@ -50,6 +50,7 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup_admin() {
+		global $wp_version;
 		// Masterbar is currently required for this to work properly. Mock the instance of it
 		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
 			$this->mock_masterbar_activation();
@@ -67,9 +68,12 @@ class Jetpack_Calypsoify {
 
 		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 
-		add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
-		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
-		add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		// The following three add the autoupdates UI, which we aren't adding for WP 5.5.
+		if ( version_compare( '5.5-alpha', $wp_version, '>=' ) ) {
+			add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
+			add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
+			add_filter( 'bulk_actions-plugins', array( $this, 'bulk_actions_plugins' ) );
+		}
 
 		add_action( 'current_screen', array( $this, 'attach_views_filter' ) );
 
@@ -96,7 +100,7 @@ class Jetpack_Calypsoify {
 			$repo_plugins = self::get_dotorg_repo_plugins();
 		}
 
-		$autoupdating_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+		$autoupdating_plugins = (array) get_site_option( 'auto_update_plugins', array() );
 		// $autoupdating_plugins_translations = Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() );
 		if ( 'autoupdate' === $column_name ) {
 			if ( ! in_array( $slug, $repo_plugins ) ) {
@@ -131,6 +135,11 @@ class Jetpack_Calypsoify {
 		return array_merge( array_keys( $plugins->response ), array_keys( $plugins->no_update ) );
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 *
+	 * @param array $bulk_actions Bulk actions array.
+	 */
 	public function bulk_actions_plugins( $bulk_actions ) {
 		$bulk_actions['jetpack_enable_plugin_autoupdates'] = __( 'Enable Automatic Updates', 'jetpack' );
 		$bulk_actions['jetpack_disable_plugin_autoupdates'] = __( 'Disable Automatic Updates', 'jetpack' );
@@ -140,7 +149,7 @@ class Jetpack_Calypsoify {
 	public function handle_bulk_actions_plugins( $redirect_to, $action, $slugs ) {
 		$redirect_to = remove_query_arg( array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ), $redirect_to );
 		if ( in_array( $action, array( 'jetpack_enable_plugin_autoupdates', 'jetpack_disable_plugin_autoupdates' ) ) ) {
-			$list = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
+			$list        = (array) get_site_option( 'auto_update_plugins', array() );
 			$initial_qty = sizeof( $list );
 
 			if ( 'jetpack_enable_plugin_autoupdates' === $action ) {
@@ -149,12 +158,15 @@ class Jetpack_Calypsoify {
 				$list = array_diff( $list, $slugs );
 			}
 
-			Jetpack_Options::update_option( 'autoupdate_plugins', $list );
+			update_site_option( 'auto_update_plugins', $list );
 			$redirect_to = add_query_arg( $action, absint( sizeof( $list ) - $initial_qty ), $redirect_to );
 		}
 		return $redirect_to;
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function plugins_admin_notices() {
 		if ( ! empty( $_GET['jetpack_enable_plugin_autoupdates'] ) ) {
 			$qty = (int) $_GET['jetpack_enable_plugin_autoupdates'];
@@ -165,6 +177,9 @@ class Jetpack_Calypsoify {
 		}
 	}
 
+	/**
+	 * Remove when WP 5.5 is the min ver.
+	 */
 	public function jetpack_toggle_autoupdate() {
 		if ( ! current_user_can( 'jetpack_manage_autoupdates' ) ) {
 			wp_send_json_error();
@@ -292,9 +307,9 @@ class Jetpack_Calypsoify {
 	 */
 	public function insert_sidebar_html() {
 		$heading       = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
-		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
+		$home_url = Redirect::get_url( 'calypso-home' );
 		?>
-		<a href="<?php echo esc_url( $stats_day_url ); ?>" id="calypso-sidebar-header">
+		<a href="<?php echo esc_url( $home_url ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 			<ul>
@@ -310,7 +325,7 @@ class Jetpack_Calypsoify {
 
 		// Add proper links to masterbar top sections.
 		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = Redirect::get_url( 'calypso-stats-day' );
+		$my_sites_node->href = Redirect::get_url( 'calypso-home' );
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );

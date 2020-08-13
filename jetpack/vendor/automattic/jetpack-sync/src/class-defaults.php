@@ -79,7 +79,7 @@ class Defaults {
 		'social_notifications_like',
 		'social_notifications_reblog',
 		'social_notifications_subscribe',
-		'comment_whitelist',
+		'comment_previously_approved',
 		'comment_max_links',
 		'moderation_keys',
 		'jetpack_wga',
@@ -130,7 +130,7 @@ class Defaults {
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION.
 		'jetpack_api_cache_enabled',
 		'start_of_week',
-		'blacklist_keys',
+		'disallowed_keys',
 		'posts_per_page',
 		'posts_per_rss',
 		'show_on_front',
@@ -949,6 +949,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
 		'active_sitewide_plugins',
+		'auto_update_plugins', // WordPress 5.5+ auto-updates.
 	);
 
 	/**

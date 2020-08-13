@@ -206,7 +206,7 @@ class Actions {
 			return false;
 		}
 
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 
@@ -329,7 +329,6 @@ class Actions {
 		$rpc = new \Jetpack_IXR_Client(
 			array(
 				'url'     => $url,
-				'user_id' => Jetpack_Connection::JETPACK_MASTER_USER,
 				'timeout' => $query_args['timeout'],
 			)
 		);
@@ -388,15 +387,12 @@ class Actions {
 		}
 
 		$initial_sync_config = array(
-			'options'   => true,
-			'functions' => true,
-			'constants' => true,
-			'users'     => array( get_current_user_id() ),
+			'options'         => true,
+			'functions'       => true,
+			'constants'       => true,
+			'users'           => array( get_current_user_id() ),
+			'network_options' => true,
 		);
-
-		if ( is_multisite() ) {
-			$initial_sync_config['network_options'] = true;
-		}
 
 		self::do_full_sync( $initial_sync_config );
 	}
