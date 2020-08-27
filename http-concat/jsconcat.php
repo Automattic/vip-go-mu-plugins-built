@@ -40,18 +40,18 @@ class WPcom_JS_Concat extends WP_Scripts {
 		if ( ! empty( $before_output ) ) {
 			return true;
 		}
-	
+
 		$after_output = $this->get_data( $handle, 'after' );
 		if ( ! empty( $after_output ) ) {
 			return true;
 		}
-	
+
 		// JavaScript translations
 		$has_translations = ! empty( $this->registered[ $handle ]->textdomain );
 		if ( $has_translations ) {
 			return true;
 		}
-	
+
 		return false;
 	}
 
@@ -112,7 +112,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 			if ( $this->has_inline_content( $handle ) ) {
 				$do_concat = false;
 			}
-			
+
 			// Skip core scripts that use Strict Mode
 			if ( 'react' === $handle || 'react-dom' === $handle ) {
 				$do_concat = false;
@@ -150,7 +150,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1) {
 					$paths = array_map( function( $url ) { return ABSPATH . $url; }, $js_array['paths'] );
 					$mtime = max( array_map( 'filemtime', $paths ) );
-					$path_str = implode( $js_array['paths'], ',' ) . "?m=${mtime}j";
+					$path_str = implode( ',', $js_array['paths'] ) . "?m=${mtime}j";
 
 					if ( $this->allow_gzip_compression ) {
 						$path_64 = base64_encode( gzcompress( $path_str ) );
