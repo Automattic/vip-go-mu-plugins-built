@@ -526,11 +526,8 @@ class Events_Store extends Singleton {
 	public function get_job_by_attributes( $attrs ) {
 		global $wpdb;
 
-		if ( isset( $attrs['instance'] ) ) {
-			$cache_key = 'cron_control_job_' + $attrs['instance'];
-			if ( false !== $job = wp_cache_get( $cache_key ) ) {
-				return $job;
-			}
+		if ( false !== $job = $this->get_cached_job( $attrs['action'], $attrs['instance'] ) ) {
+			return $job;
 		}
 
 		// Validate basic inputs.
@@ -579,8 +576,8 @@ class Events_Store extends Singleton {
 		}
 
 		// Short-term cache if we have an 'instance' which serves as a unique identifier
-		if ( $cache_key && $job ) {
-			wp_cache_set( $cache_key, $job, JOB_QUEUE_WINDOW_IN_SECONDS );
+		if ( $attrs['action'] && $attrs['instance'] && $job ) {
+			$this->cache_job( $attrs['action'], $attrs['instance'], $job );
 		}
 
 		return $job;
@@ -596,11 +593,16 @@ class Events_Store extends Singleton {
 	public function get_hook_next_scheduled( $hook, $args ) {
 		global $wpdb;
 
+		$instance = $this->generate_instance_identifier( $args );
+		if ( false !== $job = $this->get_cached_job( $action, $instance ) ) {
+			return $job;
+		}
+
 		$job = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT * FROM {$this->get_table_name()} WHERE action = %s AND instance = %s AND status = %s ORDER BY timestamp ASC LIMIT 1", // Cannot prepare table name. @codingStandardsIgnoreLine
 				$hook,
-				$this->generate_instance_identifier( $args ),
+				$instance,
 				self::STATUS_PENDING
 			)
 		);
@@ -611,7 +613,28 @@ class Events_Store extends Singleton {
 			$job = null;
 		}
 
+		$this->cache_job( $action, $instance, $job );
+
 		return $job;
+	}
+
+	private function get_cached_job( $action, $instance ) {
+		$key = md5( $action + $instance );
+		return wp_cache_get( 'cron_control_job_' + $key );
+	}
+
+	private function cache_job( $action, $instance, $job ) {
+		if ( ! $action || ! $instance || ! $job ) {
+			return false;
+		}
+
+		$key = md5( $action + $instance );
+		return wp_cache_set( 'cron_control_job_' + $key, $job, JOB_QUEUE_WINDOW_IN_SECONDS );
+	}
+
+	private function purge_cached_job( $action, $instance ) {
+		$key = md5( $action + $instance );
+		return wp_cache_delete( $key );
 	}
 
 	/**
@@ -673,11 +696,14 @@ class Events_Store extends Singleton {
 
 		global $wpdb;
 
+		$instance = $this->generate_instance_identifier( $args['args'] );
+		$this->clear_cached_job( $action, $instance );
+
 		$job_post = array(
 			'timestamp'     => $timestamp,
 			'action'        => $action,
 			'action_hashed' => md5( $action ),
-			'instance'      => $this->generate_instance_identifier( $args['args'] ),
+			'instance'      => $instance,
 			'args'          => maybe_serialize( $args['args'] ),
 			'last_modified' => current_time( 'mysql', true ),
 		);
