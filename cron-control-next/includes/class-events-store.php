@@ -526,6 +526,13 @@ class Events_Store extends Singleton {
 	public function get_job_by_attributes( $attrs ) {
 		global $wpdb;
 
+		if ( isset( $attrs['instance'] ) ) {
+			$cache_key = 'cron_control_job_' + $attrs['instance'];
+			if ( false !== $job = wp_cache_get( $cache_key ) ) {
+				return $job;
+			}
+		}
+
 		// Validate basic inputs.
 		if ( ! is_array( $attrs ) || empty( $attrs ) ) {
 			return false;
@@ -571,6 +578,11 @@ class Events_Store extends Singleton {
 			$job = false;
 		}
 
+		// Short-term cache if we have an 'instance' which serves as a unique identifier
+		if ( $cache_key && $job ) {
+			wp_cache_set( $cache_key, $job, JOB_QUEUE_WINDOW_IN_SECONDS );
+		}
+
 		return $job;
 	}
 
@@ -589,7 +601,7 @@ class Events_Store extends Singleton {
 				"SELECT * FROM {$this->get_table_name()} WHERE action = %s AND instance = %s AND status = %s ORDER BY timestamp ASC LIMIT 1", // Cannot prepare table name. @codingStandardsIgnoreLine
 				$hook,
 				$this->generate_instance_identifier( $args ),
-				static::STATUS_PENDING
+				self::STATUS_PENDING
 			)
 		);
 
