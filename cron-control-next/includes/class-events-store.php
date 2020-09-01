@@ -594,7 +594,7 @@ class Events_Store extends Singleton {
 		global $wpdb;
 
 		$instance = $this->generate_instance_identifier( $args );
-		if ( false !== $job = $this->get_cached_job( $action, $instance ) ) {
+		if ( false !== $job = $this->get_cached_job( $hook, $instance ) ) {
 			return $job;
 		}
 
@@ -613,7 +613,7 @@ class Events_Store extends Singleton {
 			$job = null;
 		}
 
-		$this->cache_job( $action, $instance, $job );
+		$this->cache_job( $hook, $instance, $job );
 
 		return $job;
 	}
@@ -629,10 +629,10 @@ class Events_Store extends Singleton {
 		}
 
 		$key = md5( $action + $instance );
-		return wp_cache_set( 'cron_control_job_' + $key, $job, JOB_QUEUE_WINDOW_IN_SECONDS );
+		return wp_cache_set( 'cron_control_job_' + $key, $job, null, JOB_QUEUE_WINDOW_IN_SECONDS );
 	}
 
-	private function purge_cached_job( $action, $instance ) {
+	private function clear_cached_job( $action, $instance ) {
 		$key = md5( $action + $instance );
 		return wp_cache_delete( $key );
 	}
