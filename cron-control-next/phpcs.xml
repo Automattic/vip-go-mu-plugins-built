@@ -4,7 +4,9 @@
 
 	<config name="ignore_warnings_on_exit" value="1" />
 
-	<rule ref="WordPress-Core" />
+	<rule ref="WordPress-Core">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+	</rule>
 	<rule ref="WordPress-Docs" />
 
 	<!-- Check all PHP files in directory tree by default. -->
@@ -12,7 +14,7 @@
 	<file>.</file>
 
 	<!-- Show sniff codes in all reports -->
-	<arg value="s"/>
+	<arg value="sp"/>
 
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>

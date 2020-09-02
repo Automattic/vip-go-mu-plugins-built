@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 	"syscall"
 	"time"
@@ -48,15 +48,20 @@ var (
 	eventRunErrCount     uint64
 	eventRunSuccessCount uint64
 
-	logger  *log.Logger
-	logDest string
-	debug   bool
+	logger    *Logger
+	logDest   string
+	logFormat string
+	debug     bool
+
+	smartSiteList bool
 
 	gRestart                bool
 	gEventRetrieversRunning []bool
 	gEventWorkersRunning    []bool
 	gSiteRetrieverRunning   bool
 	gRandomDeltaMap         map[string]int64
+	gRemoteToken            string
+	gGuidLength             int
 )
 
 const getEventsBreakSec time.Duration = 1 * time.Second
@@ -71,7 +76,11 @@ func init() {
 	flag.IntVar(&getEventsInterval, "get-events-interval", 60, "Seconds between event retrieval")
 	flag.Int64Var(&heartbeatInt, "heartbeat", 60, "Heartbeat interval in seconds")
 	flag.StringVar(&logDest, "log", "os.Stdout", "Log path, omit to log to Stdout")
+	flag.StringVar(&logFormat, "log-format", "JSON", "Log format, 'Text' or 'JSON'")
 	flag.BoolVar(&debug, "debug", false, "Include additional log data for debugging")
+	flag.BoolVar(&smartSiteList, "smart-site-list", false, "Use the `wp cron-control orchestrate` command instead of `wp site list`")
+	flag.StringVar(&gRemoteToken, "token", "", "Token to authenticate remote WP CLI requests")
+	flag.IntVar(&gGuidLength, "guid-len", 36, "Sets the Guid length in use for remote WP CLI requests")
 	flag.Parse()
 
 	setUpLogger()
@@ -97,6 +106,11 @@ func main() {
 	go spawnEventRetrievers(sites, events)
 	go spawnEventWorkers(events)
 	go retrieveSitesPeriodically(sites)
+
+	// Only listen for connections from remote WP CLI commands is we have a token set
+	if 0 < len(gRemoteToken) {
+		go waitForConnect()
+	}
 
 	heartbeat(sites, events)
 }
@@ -162,13 +176,20 @@ func heartbeat(sites chan<- site, queue chan<- event) {
 			logger.Println("exiting heartbeat routine")
 			break
 		}
+
+		if smartSiteList {
+			logger.Println("heartbeat")
+			runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "heartbeat", fmt.Sprintf("--heartbeat-interval=%d", heartbeatInt)})
+		}
+
 		successCount, errCount := atomic.LoadUint64(&eventRunSuccessCount), atomic.LoadUint64(&eventRunErrCount)
 		atomic.SwapUint64(&eventRunSuccessCount, 0)
 		atomic.SwapUint64(&eventRunErrCount, 0)
-		logger.Printf("<heartbeat eventsSucceededSinceLast=%d eventsErroredSinceLast=%d>", successCount, errCount)
+		logger.Printf("eventsSucceededSinceLast=%d eventsErroredSinceLast=%d", successCount, errCount)
 	}
 
 	var StillRunning bool
+	maxWaitCount := 30
 	for {
 		StillRunning = false
 		for workerID, r := range gEventRetrieversRunning {
@@ -187,9 +208,19 @@ func heartbeat(sites chan<- site, queue chan<- event) {
 				StillRunning = true
 			}
 		}
-		if StillRunning {
+
+		if 1 == len(gGUIDttys) {
+			logger.Println("there is still 1 remote WP-CLI command running")
+			StillRunning = true
+		} else if 0 < len(gGUIDttys) {
+			logger.Printf("there are still %d remote WP-CLI commands running\n", len(gGUIDttys))
+			StillRunning = true
+		}
+
+		if StillRunning && 0 < maxWaitCount {
 			logger.Println("worker(s) still running, waiting")
 			time.Sleep(time.Duration(3) * time.Second)
+			maxWaitCount--
 			continue
 		}
 		logger.Println(".:sayonara:.")
@@ -232,7 +263,7 @@ func getInstanceInfo() (siteInfo, error) {
 	jsonRes := make([]siteInfo, 0)
 	if err = json.Unmarshal([]byte(raw), &jsonRes); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return siteInfo{}, err
@@ -273,7 +304,14 @@ func shouldGetSites(disabled int) bool {
 }
 
 func getMultisiteSites() ([]site, error) {
-	raw, err := runWpCliCmd([]string{"site", "list", "--fields=url", "--archived=false", "--deleted=false", "--spam=false", "--format=json"})
+	var raw string
+	var err error
+	if smartSiteList {
+		raw, err = runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "list"})
+	} else {
+		raw, err = runWpCliCmd([]string{"site", "list", "--fields=url", "--archived=false", "--deleted=false", "--spam=false", "--format=json"})
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -281,7 +319,7 @@ func getMultisiteSites() ([]site, error) {
 	jsonRes := make([]site, 0)
 	if err = json.Unmarshal([]byte(raw), &jsonRes); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return nil, err
@@ -335,7 +373,7 @@ func getSiteEvents(site string) ([]event, error) {
 	siteEvents := make([]event, 0)
 	if err = json.Unmarshal([]byte(raw), &siteEvents); err != nil {
 		if debug {
-			logger.Println(fmt.Sprintf("%+v", err))
+			logger.Println(fmt.Sprintf("%+v - %s", err, raw))
 		}
 
 		return nil, err
@@ -410,27 +448,39 @@ func runWpCliCmd(subcommand []string) (string, error) {
 		return wpOutStr, err
 	}
 
+	usage := wpCli.ProcessState.SysUsage().(*syscall.Rusage)
+
+	if nil != usage {
+		job_info := ""
+		for _, s := range subcommand {
+			if 0 == strings.Index(s, "--action=") {
+				job_info += strings.Replace(s, "--action=", "action: ", 1) + " "
+			} else if 0 == strings.Index(s, "--url=") {
+				job_info += strings.Replace(s, "--url=", "url: ", 1) + " "
+			}
+		}
+		if "" != job_info {
+			logger.Printf(
+				"%s: max rss: %0.0f KB : user time %0.2f sec : sys time %0.2f sec",
+				job_info,
+				float64(usage.Maxrss)/1024,
+				float64(usage.Utime.Sec)+float64(usage.Utime.Usec)/1e6,
+				float64(usage.Stime.Sec)+float64(usage.Stime.Usec)/1e6)
+		}
+	}
+
 	return wpOutStr, nil
 }
 
 func setUpLogger() {
-	logOpts := log.Ldate | log.Ltime | log.LUTC | log.Lshortfile
-
-	if logDest == "os.Stdout" {
-		logger = log.New(os.Stdout, "DEBUG: ", logOpts)
+	if "os.Stdout" == logDest {
+		logger = &Logger{FileName: "os.Stdout", Type: Text}
+	} else if "json" == strings.ToLower(logFormat) {
+		logger = &Logger{FileName: logDest, Type: JSON}
 	} else {
-		path, err := filepath.Abs(logDest)
-		if err != nil {
-			logger.Fatal(err)
-		}
-
-		logFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		logger = log.New(logFile, "", logOpts)
+		logger = &Logger{FileName: logDest, Type: Text}
 	}
+	logger.Init()
 }
 
 func validatePath(path *string, label string) {
@@ -482,7 +532,6 @@ func waitForEpoch(whom string, epoch_sec int64) {
 	for i := tDelta; time.Now().UnixNano() < tNextEpoch; i += tDelta {
 		if i > tEpochNano*2 {
 			// if we ever loop here for more than 2 full epochs, bail out
-			logger.Printf("Error in the epoch wait loop for %s\n", whom)
 			break
 		}
 		if gRestart {

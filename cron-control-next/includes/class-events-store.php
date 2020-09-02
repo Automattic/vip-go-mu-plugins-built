@@ -829,7 +829,7 @@ class Events_Store extends Singleton {
 	 * @return array|false
 	 */
 	private function get_cached_option() {
-		$cache_details = wp_cache_get( self::CACHE_KEY, null, true );
+		$cache_details = wp_cache_get( self::CACHE_KEY );
 
 		if ( ! is_array( $cache_details ) ) {
 			return false;
@@ -850,7 +850,7 @@ class Events_Store extends Singleton {
 		// Restore option from cached pieces.
 		for ( $i = 1; $i <= $cache_details['buckets']; $i++ ) {
 			$cache_key    = $this->get_cache_key_for_slice( $cache_details['incrementer'], $i );
-			$cached_slice = wp_cache_get( $cache_key, null, true );
+			$cached_slice = wp_cache_get( $cache_key );
 
 			// Bail if a chunk is missing.
 			if ( ! is_array( $cached_slice ) ) {

@@ -79,4 +79,5 @@ require __DIR__ . '/wp-cli/class-lock.php';
 require __DIR__ . '/wp-cli/class-one-time-fixers.php';
 require __DIR__ . '/wp-cli/class-orchestrate.php';
 require __DIR__ . '/wp-cli/class-orchestrate-runner.php';
+require __DIR__ . '/wp-cli/class-orchestrate-sites.php';
 require __DIR__ . '/wp-cli/class-rest-api.php';
