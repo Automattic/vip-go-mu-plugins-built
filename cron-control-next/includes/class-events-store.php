@@ -526,10 +526,6 @@ class Events_Store extends Singleton {
 	public function get_job_by_attributes( $attrs ) {
 		global $wpdb;
 
-		if ( false !== $job = $this->get_cached_job( $attrs['action'], $attrs['instance'] ) ) {
-			return $job;
-		}
-
 		// Validate basic inputs.
 		if ( ! is_array( $attrs ) || empty( $attrs ) ) {
 			return false;
@@ -573,11 +569,6 @@ class Events_Store extends Singleton {
 			$job = $this->format_job( $job );
 		} else {
 			$job = false;
-		}
-
-		// Short-term cache if we have an 'instance' which serves as a unique identifier
-		if ( $attrs['action'] && $attrs['instance'] && $job ) {
-			$this->cache_job( $attrs['action'], $attrs['instance'], $job );
 		}
 
 		return $job;
@@ -634,7 +625,7 @@ class Events_Store extends Singleton {
 		}
 
 		$key = md5( $action . $instance );
-		return wp_cache_set( 'cron_control_job_' . $key, maybe_serialize( $job ), null, JOB_QUEUE_WINDOW_IN_SECONDS );
+		return wp_cache_set( 'cron_control_job_' . $key, maybe_serialize( $job ), null, 10 );
 	}
 
 	private function clear_cached_job( $action, $instance ) {
