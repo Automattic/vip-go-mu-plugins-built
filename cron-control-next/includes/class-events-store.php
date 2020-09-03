@@ -610,13 +610,18 @@ class Events_Store extends Singleton {
 	}
 
 	private function get_cached_job( $action, $instance ) {
-		$key = md5( $action . $instance );
-		$cache = wp_cache_get( 'cron_control_job_' . $key );
+		$cache = wp_cache_get( 'cron_control_jobs' );
 		if ( ! $cache ) {
 			return false;
 		}
 
-		return maybe_unserialize( $cache );
+		$key = md5( $action . $instance );
+		$cache = unserialize( $cache );
+		if ( ! $cache[ $key ] ) {
+			return false;
+		}
+
+		return $cache[ $key ];
 	}
 
 	private function cache_job( $action, $instance, $job ) {
@@ -624,13 +629,30 @@ class Events_Store extends Singleton {
 			return false;
 		}
 
+		$cache = wp_cache_get( 'cron_control_jobs' );
+		$cache = unserialize( $cache );
+		if ( ! $cache ) {
+			$cache = [];
+		}
+
 		$key = md5( $action . $instance );
-		return wp_cache_set( 'cron_control_job_' . $key, maybe_serialize( $job ), null, 10 );
+		$cache[ $key ] = $job;
+
+		return wp_cache_set( 'cron_control_jobs', serialize( $cache ) );
 	}
 
 	private function clear_cached_job( $action, $instance ) {
+		$cache = wp_cache_get( 'cron_control_jobs' );
+		if ( ! $cache ) {
+			return false;
+		}
+
 		$key = md5( $action . $instance );
-		return wp_cache_delete( 'cron_control_job_' . $key );
+		$cache = unserialize( $cache );
+
+		unset( $cache[ $key ] );
+
+		return wp_cache_set( 'cron_control_jobs', serialize( $cache ) );
 	}
 
 	/**
