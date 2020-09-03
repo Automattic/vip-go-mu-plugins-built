@@ -130,6 +130,9 @@ class Error_Handler {
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
 		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_errors' ) );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
+		add_filter( 'jetpack_connection_delete_all_tokens', array( $this, 'delete_all_errors_and_return_unfiltered_value' ) );
+		add_action( 'jetpack_unlinked_user', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**
@@ -141,7 +144,9 @@ class Error_Handler {
 	 */
 	public function handle_verified_errors() {
 		$verified_errors = $this->get_verified_errors();
-		foreach ( $verified_errors as $error_code => $user_errors ) {
+		foreach ( array_keys( $verified_errors ) as $error_code ) {
+
+			$error_found = false;
 
 			switch ( $error_code ) {
 				case 'malformed_token':
@@ -154,8 +159,15 @@ class Error_Handler {
 				case 'token_mismatch':
 				case 'invalid_signature':
 				case 'signature_mismatch':
-					new Error_Handlers\Invalid_Blog_Token( $user_errors );
-					break;
+				case 'no_user_tokens':
+				case 'no_token_for_user':
+					add_action( 'admin_notices', array( $this, 'generic_admin_notice_error' ) );
+					add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
+					$error_found = true;
+			}
+			if ( $error_found ) {
+				// Since we are only generically handling errors, we don't need to trigger error messages for each one of them.
+				break;
 			}
 		}
 	}
@@ -304,46 +316,8 @@ class Error_Handler {
 			'nonce'         => wp_generate_password( 10, false ),
 		);
 
-		if ( $this->track_lost_active_master_user( $error->get_error_code(), $data['token'], $user_id ) ) {
-			$error_array['error_message'] = 'Site has a deleted but active master user token';
-		}
-
 		return $error_array;
 
-	}
-
-	/**
-	 * This is been used to track blogs with deleted master user but whose tokens are still actively being used
-	 *
-	 * See p9dueE-1GB-p2
-	 *
-	 * This tracking should be removed as long as we no longer need, possibly in 8.9
-	 *
-	 * @since 8.8.1
-	 *
-	 * @param string  $error_code The error code.
-	 * @param string  $token The token that triggered the error.
-	 * @param integer $user_id The user ID used to make the request that triggered the error.
-	 * @return boolean
-	 */
-	private function track_lost_active_master_user( $error_code, $token, $user_id ) {
-		if ( 'unknown_user' === $error_code ) {
-			$manager = new Manager();
-			// If the Unknown user is the master user (master user has been deleted).
-			if ( $manager->is_missing_connection_owner() && (int) $user_id === (int) $manager->get_connection_owner_id() ) {
-				$user_token = $manager->get_access_token( JETPACK_MASTER_USER );
-				// If there's still a token stored for the deleted master user.
-				if ( $user_token && is_object( $user_token ) && isset( $user_token->secret ) ) {
-					$token_parts = explode( ':', wp_unslash( $token ) );
-					// If the token stored for the deleted master user matches the token user by wpcom to make the request.
-					// This means that requests FROM this site TO wpcom using the JETPACK_MASTER_USER constant are still working.
-					if ( isset( $token_parts[0] ) && ! empty( $token_parts[0] ) && false !== strpos( $user_token->secret, $token_parts[0] ) ) {
-						return true;
-					}
-				}
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -411,7 +385,7 @@ class Error_Handler {
 	public function get_user_id_from_token( $token ) {
 		$parsed_token = explode( ':', wp_unslash( $token ) );
 
-		if ( isset( $parsed_token[2] ) && ! empty( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
+		if ( isset( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
 			$user_id = $parsed_token[2];
 		} else {
 			$user_id = 'invalid';
@@ -501,6 +475,21 @@ class Error_Handler {
 	public function delete_all_errors() {
 		$this->delete_stored_errors();
 		$this->delete_verified_errors();
+	}
+
+	/**
+	 * Delete all stored and verified errors from the database and returns unfiltered value
+	 *
+	 * This is used to hook into a couple of filters that expect true to not short circuit the disconnection flow
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param mixed $check The input sent by the filter.
+	 * @return boolean
+	 */
+	public function delete_all_errors_and_return_unfiltered_value( $check ) {
+		$this->delete_all_errors();
+		return $check;
 	}
 
 	/**
@@ -616,6 +605,78 @@ class Error_Handler {
 
 		return new \WP_REST_Response( false, 200 );
 
+	}
+
+	/**
+	 * Prints a generic error notice for all connection errors
+	 *
+	 * @since 8.9.0
+	 *
+	 * @return void
+	 */
+	public function generic_admin_notice_error() {
+		// do not add admin notice to the jetpack dashboard.
+		global $pagenow;
+		if ( 'admin.php' === $pagenow || isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore
+			return;
+		}
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
+
+		/**
+		 * Filters the message to be displayed in the admin notices area when there's a xmlrpc error.
+		 *
+		 * By default  we don't display any errors.
+		 *
+		 * Return an empty value to disable the message.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param string $message The error message.
+		 * @param array  $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+		 */
+		$message = apply_filters( 'jetpack_connection_error_notice_message', '', $this->get_verified_errors() );
+
+		/**
+		 * Fires inside the admin_notices hook just before displaying the error message for a broken connection.
+		 *
+		 * If you want to disable the default message from being displayed, return an emtpy value in the jetpack_connection_error_notice_message filter.
+		 *
+		 * @since 8.9.0
+		 *
+		 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+		 */
+		do_action( 'jetpack_connection_error_notice', $this->get_verified_errors() );
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
+		?>
+		<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
+			<p><?php echo esc_html( $message ); ?></p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Adds the error message to the Jetpack React Dashboard
+	 *
+	 * @since 8.9.0
+	 *
+	 * @param array $errors The array of errors. See Automattic\Jetpack\Connection\Error_Handler for details on the array structure.
+	 * @return array
+	 */
+	public function jetpack_react_dashboard_error( $errors ) {
+
+		$errors[] = array(
+			'code'    => 'xmlrpc_error',
+			'message' => __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ),
+			'action'  => 'reconnect',
+		);
+		return $errors;
 	}
 
 }

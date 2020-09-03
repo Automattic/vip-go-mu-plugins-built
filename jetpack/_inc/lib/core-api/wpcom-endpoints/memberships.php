@@ -38,11 +38,18 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 					'args'                => array(
-						'type' => array(
+						'type'   => array(
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function( $param ) {
 								return in_array( $param, array( 'donation', 'all' ), true );
+							},
+						),
+						'source' => array(
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => function( $param ) {
+								return in_array( $param, array( 'calypso', 'earn', 'gutenberg', 'gutenberg-wpcom' ), true );
 							},
 						),
 					),
@@ -219,18 +226,24 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 */
 	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
+		$source       = $request['source'];
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
 			return (array) get_memberships_settings_for_site( $blog_id, $product_type );
 		} else {
-			$blog_id  = Jetpack_Options::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				"/sites/$blog_id/{$this->rest_base}/status",
-				'v2',
-				array( 'type' => $product_type ),
-				null
-			);
+			$blog_id = Jetpack_Options::get_option( 'id' );
+			$path    = "/sites/$blog_id/{$this->rest_base}/status";
+			if ( $product_type ) {
+				$path = add_query_arg(
+					array(
+						'type'   => $product_type,
+						'source' => $source,
+					),
+					$path
+				);
+			}
+			$response = Client::wpcom_json_api_request_as_user( $path, 'v2' );
 			if ( is_wp_error( $response ) ) {
 				if ( $response->get_error_code() === 'missing_token' ) {
 					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );

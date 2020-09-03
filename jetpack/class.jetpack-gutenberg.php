@@ -40,11 +40,13 @@ function jetpack_register_block( $slug, $args = array() ) {
 	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
 	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 	if (
-		isset( $args['plan_check'], $args['render_callback'] )
+		isset( $args['plan_check'] )
 		&& true === $args['plan_check']
 	) {
-		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
-		$method_name             = 'set_availability_for_plan';
+		if ( isset( $args['render_callback'] ) ) {
+			$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+		}
+		$method_name = 'set_availability_for_plan';
 	} else {
 		$method_name = 'set_extension_available';
 	}
@@ -769,8 +771,11 @@ class Jetpack_Gutenberg {
 				'jetpack'          => array(
 					'is_active'                 => Jetpack::is_active(),
 					'is_current_user_connected' => $is_current_user_connected,
+					/** This filter is documented in class.jetpack-gutenberg.php */
+					'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
 				),
 				'siteFragment'     => $site_fragment,
+				'adminUrl'         => esc_url( admin_url() ),
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
 				'allowedMimeTypes' => wp_get_mime_types(),
@@ -799,6 +804,26 @@ class Jetpack_Gutenberg {
 				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
 				if ( ! empty( $extension_file_glob ) ) {
 					include_once $extension_file_glob[0];
+				}
+			}
+		}
+	}
+
+	/**
+	 * Loads PHP components of extended-blocks.
+	 *
+	 * @since 8.9.0
+	 */
+	public static function load_extended_blocks() {
+		if ( self::should_load() ) {
+			$extended_blocks = glob( JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/*' );
+
+			foreach ( $extended_blocks as $block ) {
+				$name = basename( $block );
+				$path = JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/' . $name . '/' . $name . '.php';
+
+				if ( file_exists( $path ) ) {
+					include_once $path;
 				}
 			}
 		}
@@ -1129,8 +1154,6 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
-			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
-				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 			}
 
 			return null;
