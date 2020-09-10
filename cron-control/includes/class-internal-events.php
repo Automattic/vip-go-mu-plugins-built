@@ -107,8 +107,8 @@ class Internal_Events extends Singleton {
 	private function prepare_internal_events_schedules() {
 		$internal_events_schedules = array(
 			'a8c_cron_control_minute'      => array(
-				'interval' => 1 * MINUTE_IN_SECONDS,
-				'display'  => __( 'Cron Control internal job - every minute', 'automattic-cron-control' ),
+				'interval' => 2 * MINUTE_IN_SECONDS,
+				'display'  => __( 'Cron Control internal job - every 2 minutes (used to be 1 minute)', 'automattic-cron-control' ),
 			),
 			'a8c_cron_control_ten_minutes' => array(
 				'interval' => 10 * MINUTE_IN_SECONDS,
