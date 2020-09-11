@@ -958,7 +958,7 @@ class Events_Store extends Singleton {
 	 */
 	public function flush_internal_caches() {
 		$this->is_option_cache_valid = false;
-		return wp_cache_delete( self::CACHE_KEY ) && wp_cache_flush( 'cron_control_jobs' );
+		return wp_cache_delete( self::CACHE_KEY );
 	}
 
 	/**
