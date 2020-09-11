@@ -629,7 +629,8 @@ class Events_Store extends Singleton {
 			return false;
 		}
 
-		$cache = wp_cache_get( 'cron_control_jobs' );
+		// Bypass local cache to prevent re-saving stale data
+		$cache = wp_cache_get( 'cron_control_jobs', null, true );
 		$cache = unserialize( $cache );
 		if ( ! $cache ) {
 			$cache = [];
@@ -642,7 +643,8 @@ class Events_Store extends Singleton {
 	}
 
 	private function clear_cached_job( $action, $instance ) {
-		$cache = wp_cache_get( 'cron_control_jobs' );
+		// Bypass local cache to prevent re-saving stale data
+		$cache = wp_cache_get( 'cron_control_jobs', null, true );
 		if ( ! $cache ) {
 			return false;
 		}
@@ -774,6 +776,7 @@ class Events_Store extends Singleton {
 			return false;
 		}
 
+		$this->clear_cached_job( $action, $instance );
 		return $this->mark_job_record_completed( $job_id, $flush_cache );
 	}
 
@@ -955,7 +958,7 @@ class Events_Store extends Singleton {
 	 */
 	public function flush_internal_caches() {
 		$this->is_option_cache_valid = false;
-		return wp_cache_delete( self::CACHE_KEY );
+		return wp_cache_delete( self::CACHE_KEY ) && wp_cache_flush( 'cron_control_jobs' );
 	}
 
 	/**

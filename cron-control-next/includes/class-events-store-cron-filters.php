@@ -117,7 +117,9 @@ class Events_Store_Cron_Filters extends Singleton {
 			return $unscheduled;
 		}
 
-		delete_event( $timestamp, $hook, Events_Store::instance()->generate_instance_identifier( $args ) );
+		$instance = Events_Store::instance()->generate_instance_identifier( $args );
+		Events_Store::instance()->clear_job_cache( $hook, $instance );
+		delete_event( $timestamp, $hook, $instance );
 		return true;
 	}
 
