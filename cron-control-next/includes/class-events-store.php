@@ -617,7 +617,7 @@ class Events_Store extends Singleton {
 
 		$key = md5( $action . $instance );
 		$cache = unserialize( $cache );
-		if ( ! $cache[ $key ] ) {
+		if ( ! isset( $cache[ $key ] ) || ! $cache[ $key ] ) {
 			return false;
 		}
 
