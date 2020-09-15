@@ -110,6 +110,25 @@ class Events_Store_Cron_Filter_Tests extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Check that we handle pre_unschedule_event correctly
+	 */
+	function test_unschedule_run_event() {
+		$event = Utils::create_test_event();
+
+		// Ensure previous step actually scheduled it.
+		$scheduled_ts = wp_next_scheduled( $event['action'], $event['args'] );
+
+		$this->assertEquals( $event['timestamp'], $scheduled_ts );
+
+		// Now run it
+		\Automattic\WP\Cron_Control\run_event( $event['timestamp'], $event['action'], $instance );
+
+		$scheduled_ts = wp_next_scheduled( $event['action'], $event['args'] );
+
+		$this->assertFalse( $scheduled_ts );
+	}
+
+	/**
 	 * Check that we handle pre_clear_scheduled_hook correctly
 	 */
 	function test_pre_clear_scheduled_hook_filter() {
