@@ -63,6 +63,8 @@ class Post extends Indexable {
 			'ignore_sticky_posts' => true,
 			'orderby'             => 'ID',
 			'order'               => 'desc',
+			'no_found_rows'       => true,
+			'ep_indexing_advanced_pagination' => true,
 		];
 
 		if ( isset( $args['per_page'] ) ) {
@@ -73,34 +75,112 @@ class Post extends Indexable {
 			$args['post__in'] = $args['include'];
 		}
 
-		if ( isset( $args['exclude'] ) ) {
-			$args['post__not_in'] = $args['exclude'];
-		}
-
 		/**
 		 * Filter arguments used to query posts from database
 		 *
-		 * @hook ep_post_query_db_args
-		 * @param  {array} $args Database arguments
-		 * @return  {array} New arguments
-		 */
-		$args = apply_filters( 'ep_post_query_db_args', wp_parse_args( $args, $defaults ) );
-
-		/**
-		 * Filter arguments used to query posts from database. Backwards compat with pre-3.0
+		 * The ep_index_posts_args filter is for backwards compat with pre-3.0.
 		 *
+		 * @hook ep_post_query_db_args
 		 * @hook ep_index_posts_args
-		 * @param  {array} $args Database arguments
-		 * @return  {array} New arguments
+		 * @param {array} $args Database arguments
+		 * @return {array} New arguments
 		 */
-		$args = apply_filters( 'ep_index_posts_args', $args );
+		$args = apply_filters( 'ep_index_posts_args', apply_filters( 'ep_post_query_db_args', wp_parse_args( $args, $defaults ) ) );
 
-		$query = new WP_Query( $args );
+		if ( isset( $args['include'] ) || isset( $args['post__in'] ) ) {
+			// Disable advanced pagination. Not useful if only indexing specific IDs.
+			$args['ep_indexing_advanced_pagination'] = false;
+		}
+
+		// Enforce the following query args during advanced pagination to ensure things work correctly.
+		if ( $args['ep_indexing_advanced_pagination'] ) {
+			$args = array_merge( $args, [
+				'suppress_filters' => false,
+				'orderby'          => 'ID',
+				'order'            => 'DESC',
+				'paged'            => 1,
+				'offset'           => 0,
+				'no_found_rows'    => true,
+			] );
+		}
+
+		add_filter( 'posts_where', array( $this, 'bulk_indexing_filter_posts_where' ), 9999, 2 );
+
+		$query         = new WP_Query( $args );
+		$total_objects = $this->get_total_objects_for_query( $args );
+
+		remove_filter( 'posts_where', array( $this, 'bulk_indexing_filter_posts_where' ), 9999, 2 );
 
 		return [
 			'objects'       => $query->posts,
-			'total_objects' => $query->found_posts,
+			'total_objects' => $total_objects,
 		];
+	}
+
+	/**
+	 * Manipulate the WHERE clause of the bulk indexing query to paginate by ID in order to avoid performance issues with SQL offset.
+	 *
+	 * @param string   $where The current $where clause.
+	 * @param WP_Query $query WP_Query object.
+	 * @return string WHERE clause with our pagination added if needed.
+	 */
+	public function bulk_indexing_filter_posts_where( $where, $query ) {
+		$using_advanced_pagination = $query->get( 'ep_indexing_advanced_pagination', false );
+
+		if ( $using_advanced_pagination ) {
+			$requested_start_id = $query->get( 'ep_indexing_start_object_id', PHP_INT_MAX );
+			$requested_end_id   = $query->get( 'ep_indexing_end_object_id', 0 );
+			$last_processed_id  = $query->get( 'ep_indexing_last_processed_object_id', null );
+
+			// On the first loopthrough we begin with the requested start ID. Afterwards, use the last processed ID to paginate.
+			$start_range_post_id = $requested_start_id;
+			if ( is_numeric( $last_processed_id ) ) {
+				$start_range_post_id =  $last_processed_id - 1;
+			}
+
+			// Sanitize. Abort if unexpected data at this point.
+			if ( ! is_numeric( $start_range_post_id ) || ! is_numeric( $requested_end_id ) ) {
+				return $where;
+			}
+
+			$range = [
+				'start' => "{$GLOBALS['wpdb']->posts}.ID <= {$start_range_post_id}",
+				'end'   => "{$GLOBALS['wpdb']->posts}.ID >= {$requested_end_id}",
+			];
+
+			// Skip the end range if it's unnecessary.
+			$skip_ending_range = 0 === $requested_end_id;
+			$where = $skip_ending_range ? "AND {$range['start']} {$where}" : "AND {$range['start']} AND {$range['end']} {$where}";
+		}
+
+		return $where;
+	}
+
+	/**
+	 * Get SQL_CALC_FOUND_ROWS for a specific query based on it's args.
+	 *
+	 * @param array $query_args The query args.
+	 * @return int The query result's found_posts.
+	 */
+	private function get_total_objects_for_query( $query_args ) {
+		static $object_counts = [];
+
+		// Reset the pagination-related args for optimal caching.
+		$normalized_query_args = array_merge( $query_args, [
+			'offset'         => 0,
+			'paged'          => 1,
+			'posts_per_page' => 1,
+			'no_found_rows'  => false,
+			'ep_indexing_last_processed_object_id' => null,
+		] );
+
+		$cache_key = md5( json_encode( $normalized_query_args ) );
+
+		if ( ! isset( $object_counts[ $cache_key ] ) ) {
+			$object_counts[ $cache_key ] = ( new WP_Query( $normalized_query_args ) )->found_posts;
+		}
+
+		return $object_counts[ $cache_key ];
 	}
 
 	/**
@@ -339,25 +419,36 @@ class Post extends Indexable {
 	/**
 	 * Prepare date terms to send to ES.
 	 *
-	 * @param string $post_date_gmt Post date
+	 * @param string $date_to_prepare The post date being prepared
 	 * @since 0.1.4
 	 * @return array
 	 */
-	private function prepare_date_terms( $post_date_gmt ) {
-		$timestamp  = strtotime( $post_date_gmt );
-		$date_terms = array(
-			'year'          => (int) date_i18n( 'Y', $timestamp ),
-			'month'         => (int) date_i18n( 'm', $timestamp ),
-			'week'          => (int) date_i18n( 'W', $timestamp ),
-			'dayofyear'     => (int) date_i18n( 'z', $timestamp ),
-			'day'           => (int) date_i18n( 'd', $timestamp ),
-			'dayofweek'     => (int) date_i18n( 'w', $timestamp ),
-			'dayofweek_iso' => (int) date_i18n( 'N', $timestamp ),
-			'hour'          => (int) date_i18n( 'H', $timestamp ),
-			'minute'        => (int) date_i18n( 'i', $timestamp ),
-			'second'        => (int) date_i18n( 's', $timestamp ),
-			'm'             => (int) ( date_i18n( 'Y', $timestamp ) . date_i18n( 'm', $timestamp ) ), // yearmonth
-		);
+	private function prepare_date_terms( $date_to_prepare ) {
+		$terms_to_prepare = [
+			'year'          => 'Y',
+			'month'         => 'm',
+			'week'          => 'W',
+			'dayofyear'     => 'z',
+			'day'           => 'd',
+			'dayofweek'     => 'w',
+			'dayofweek_iso' => 'N',
+			'hour'          => 'H',
+			'minute'        => 'i',
+			'second'        => 's',
+			'm'             => 'Ym', // yearmonth
+		];
+
+		// Combine all the date term formats and perform one single call to date_i18n() for performance.
+		$date_format    = implode( '||', array_values( $terms_to_prepare ) );
+		$combined_dates = explode( '||', date_i18n( $date_format, strtotime( $date_to_prepare ) ) );
+
+		// Then split up the results for individual indexing.
+		$date_terms = [];
+		foreach ( $terms_to_prepare as $term_name => $date_format ) {
+			$index_in_combined_format = array_search( $term_name, array_keys( $terms_to_prepare ) );
+			$date_terms[ $term_name ] = (int) $combined_dates[ $index_in_combined_format ];
+		}
+
 		return $date_terms;
 	}
 
@@ -365,7 +456,7 @@ class Post extends Indexable {
 	 * Get an array of taxonomies that are indexable for the given post
 	 *
 	 * @param WP_Post $post Post object
-	 * @return array Array of taxonomy slugs that should be indexed
+	 * @return array Array of WP_Taxonomy objects that should be indexed
 	 */
 	public function get_indexable_post_taxonomies( $post ) {
 		$taxonomies          = get_object_taxonomies( $post->post_type, 'objects' );
@@ -385,9 +476,25 @@ class Post extends Indexable {
 		 * @param  {WP_Post} Post object
 		 * @return  {array} New taxonomies
 		 */
-		$selected_taxonomies = apply_filters( 'ep_sync_taxonomies', $selected_taxonomies, $post );
+		$selected_taxonomies = (array) apply_filters( 'ep_sync_taxonomies', $selected_taxonomies, $post );
 
-		return $selected_taxonomies;
+		// Important we validate here to ensure there are no invalid taxonomy values returned from the filter, as just one would cause wp_get_object_terms() to fail.
+		$validated_taxonomies = [];
+		foreach ( $selected_taxonomies as $selected_taxonomy ) {
+			// If we get a taxonomy name, we need to convert it to taxonomy object
+			if ( ! is_object( $selected_taxonomy ) && taxonomy_exists( (string) $selected_taxonomy ) ) {
+				$selected_taxonomy = get_taxonomy( $selected_taxonomy );
+			}
+
+			// We check if the $taxonomy object has a valid name property. Backward compatibility since WP_Taxonomy introduced in WP 4.7
+			if ( ! is_a( $selected_taxonomy, '\WP_Taxonomy' ) || ! property_exists( $selected_taxonomy, 'name' ) || ! taxonomy_exists( $selected_taxonomy->name ) ) {
+				continue;
+			}
+
+			$validated_taxonomies[] = $selected_taxonomy;
+		}
+
+		return $validated_taxonomies;
 	}
 
 	/**
@@ -404,118 +511,101 @@ class Post extends Indexable {
 			return [];
 		}
 
-		$terms = [];
+		$object_terms = wp_get_object_terms( $post->ID, wp_list_pluck( $selected_taxonomies, 'name' ), [ 'update_term_meta_cache' => false ] );
+		if ( empty( $object_terms ) || is_wp_error( $object_terms ) ) {
+			return [];
+		}
 
 		/**
-		 * Filter to allow child terms to be indexed
+		 * Filter to allow parent terms to be indexed.
 		 *
 		 * @hook ep_sync_terms_allow_hierarchy
-		 * @param  {bool} $allow True means allow
-		 * @return  {bool} New value
+		 * @param {bool} $allow True means allow
+		 * @return {bool} New value
 		 */
 		$allow_hierarchy = apply_filters( 'ep_sync_terms_allow_hierarchy', true );
 
-		foreach ( $selected_taxonomies as $taxonomy ) {
-			// If we get a taxonomy name, we need to convert it to taxonomy object
-			if ( ! is_object( $taxonomy ) && taxonomy_exists( (string) $taxonomy ) ) {
-				$taxonomy = get_taxonomy( $taxonomy );
+		$term_orders = $this->get_term_orders( $post->ID );
+
+		$terms_dictionary = [];
+		foreach ( $object_terms as $term ) {
+			if ( ! isset( $terms_dictionary[ $term->taxonomy ] ) ) {
+				$terms_dictionary[ $term->taxonomy ] = [];
 			}
 
-			// We check if the $taxonomy object as name property. Backward compatibility since WP_Taxonomy introduced in WP 4.7
-			if ( ! is_a( $taxonomy, '\WP_Taxonomy' ) || ! property_exists( $taxonomy, 'name' ) ) {
-				continue;
-			}
+			if ( ! in_array( $term->term_taxonomy_id, wp_list_pluck( $terms_dictionary[ $term->taxonomy ], 'term_taxonomy_id' ), true ) ) {
+				$terms_dictionary[ $term->taxonomy ][] = [
+					'term_id'          => $term->term_id,
+					'slug'             => $term->slug,
+					'name'             => $term->name,
+					'parent'           => $term->parent,
+					'term_taxonomy_id' => $term->term_taxonomy_id,
+					'term_order'       => isset( $term_orders[ $term->term_taxonomy_id ] ) ? (int) $term_orders[ $term->term_taxonomy_id ]['term_order'] : 0,
+				];
 
-			$object_terms = get_the_terms( $post->ID, $taxonomy->name );
-
-			if ( ! $object_terms || is_wp_error( $object_terms ) ) {
-				continue;
-			}
-
-			$terms_dic = [];
-
-			foreach ( $object_terms as $term ) {
-				if ( ! isset( $terms_dic[ $term->term_id ] ) ) {
-					$terms_dic[ $term->term_id ] = array(
-						'term_id'          => $term->term_id,
-						'slug'             => $term->slug,
-						'name'             => $term->name,
-						'parent'           => $term->parent,
-						'term_taxonomy_id' => $term->term_taxonomy_id,
-						'term_order'       => (int) $this->get_term_order( $term->term_taxonomy_id, $post->ID ),
-					);
-					if ( $allow_hierarchy ) {
-						$terms_dic = $this->get_parent_terms( $terms_dic, $term, $taxonomy->name, $post->ID );
-					}
+				if ( $allow_hierarchy ) {
+					$terms_dictionary = $this->get_parent_terms( $terms_dictionary, $term->parent, $term->taxonomy, $term_orders );
 				}
 			}
-			$terms[ $taxonomy->name ] = array_values( $terms_dic );
 		}
 
-		return $terms;
+		return $terms_dictionary;
 	}
 
 	/**
-	 * Recursively get all the ancestor terms of the given term
+	 * Recursively get all the ancestor terms of the given term.
 	 *
-	 * @param array   $terms     Terms array
-	 * @param WP_Term $term      Current term
-	 * @param string  $tax_name  Taxonomy
-	 * @param int     $object_id Post ID
+	 * @param array   $terms_dictionary Terms array
+	 * @param WP_Term $term_parent_id   Previous term's parent ID
+	 * @param string  $taxonomy         Taxonomy
+	 * @param array   $term_orders      An array that maps term_taxonomy_id to the term_order value
 	 *
 	 * @return array
 	 */
-	private function get_parent_terms( $terms, $term, $tax_name, $object_id ) {
-		$parent_term = get_term( $term->parent, $tax_name );
+	private function get_parent_terms( $terms_dictionary, $term_parent_id, $taxonomy, $term_orders ) {
+		$parent_term = get_term( $term_parent_id, $taxonomy );
+
 		if ( ! $parent_term || is_wp_error( $parent_term ) ) {
-			return $terms;
+			return $terms_dictionary;
 		}
-		if ( ! isset( $terms[ $parent_term->term_id ] ) ) {
-			$terms[ $parent_term->term_id ] = array(
-				'term_id'    => $parent_term->term_id,
-				'slug'       => $parent_term->slug,
-				'name'       => $parent_term->name,
-				'parent'     => $parent_term->parent,
-				'term_order' => $this->get_term_order( $parent_term->term_taxonomy_id, $object_id ),
-			);
+
+		if ( in_array( $parent_term->term_taxonomy_id, wp_list_pluck( $terms_dictionary[ $parent_term->taxonomy ], 'term_taxonomy_id' ), true ) ) {
+			// Found a term we already prepared, can stop the recursion.
+			return $terms_dictionary;
 		}
-		return $this->get_parent_terms( $terms, $parent_term, $tax_name, $object_id );
+
+		$terms_dictionary[ $parent_term->taxonomy ][] = [
+			'term_id'          => $parent_term->term_id,
+			'slug'             => $parent_term->slug,
+			'name'             => $parent_term->name,
+			'parent'           => $parent_term->parent,
+			'term_taxonomy_id' => $parent_term->term_taxonomy_id,
+			'term_order'       => isset( $term_orders[ $parent_term->term_taxonomy_id ] ) ? (int) $term_orders[ $parent_term->term_taxonomy_id ]['term_order'] : 0,
+		];
+
+		return $this->get_parent_terms( $terms_dictionary, $parent_term->parent, $parent_term->taxonomy, $term_orders );
 	}
 
 	/**
-	 * Retreives term order for the object/term_taxonomy_id combination
+	 * Get term_order from the relationships table for all terms attached to our object.
 	 *
-	 * @param int $term_taxonomy_id Term Taxonomy ID
-	 * @param int $object_id        Post ID
+	 * @param WP_Term $object_id Post ID
 	 *
-	 * @return int Term Order
+	 * @return array
 	 */
-	protected function get_term_order( $term_taxonomy_id, $object_id ) {
+	private function get_term_orders( $object_id ) {
 		global $wpdb;
 
-		$cache_key   = "{$object_id}_term_order";
-		$term_orders = wp_cache_get( $cache_key );
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT term_taxonomy_id, term_order FROM $wpdb->term_relationships WHERE object_id = %d AND term_order != 0;",
+				$object_id
+			),
+			ARRAY_A
+		);
 
-		if ( false === $term_orders ) {
-			$results = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT term_taxonomy_id, term_order from $wpdb->term_relationships where object_id=%d;",
-					$object_id
-				),
-				ARRAY_A
-			);
-
-			$term_orders = [];
-
-			foreach ( $results as $result ) {
-				$term_orders[ $result['term_taxonomy_id'] ] = $result['term_order'];
-			}
-
-			wp_cache_set( $cache_key, $term_orders );
-		}
-
-		return isset( $term_orders[ $term_taxonomy_id ] ) ? (int) $term_orders[ $term_taxonomy_id ] : 0;
-
+		// Re-index results with a more useful key.
+		return array_column( $results, null, 'term_taxonomy_id' );
 	}
 
 	/**

@@ -142,12 +142,12 @@ class TestPost extends BaseTestCase {
 	 */
 	public function testPostSyncOnCommentCountUpdate() {
 		$post_id = Functions\create_and_sync_post();
-		
+
 		ElasticPress\Elasticsearch::factory()->refresh_indices();
 
 		$post_no_comments = ElasticPress\Indexables::factory()->get( 'post' )->get( $post_id );
 
-		wp_insert_comment( 
+		wp_insert_comment(
 			array(
 				'comment_post_ID' => $post_id,
 				'comment_author' => 'Testy Testman',
@@ -156,7 +156,7 @@ class TestPost extends BaseTestCase {
 		);
 
 		ElasticPress\Indexables::factory()->get( 'post' )->sync_manager->index_sync_queue();
-		
+
 		$post_with_comments = ElasticPress\Indexables::factory()->get( 'post' )->get( $post_id );
 
 		$this->assertEquals( 0, intval( $post_no_comments['comment_count'] ), 'comment count for post should be 0 initially' );
@@ -170,8 +170,9 @@ class TestPost extends BaseTestCase {
 	 * @group post
 	 */
 	public function testPaginationWithOffset() {
-		Functions\create_and_sync_post( array( 'post_title' => 'one' ) );
-		Functions\create_and_sync_post( array( 'post_title' => 'two' ) );
+		// Setting date to ensure it's not a coinflip on whether or not they share a timestamp.
+		Functions\create_and_sync_post( array( 'post_title' => 'one', 'post_date' => '2020-08-24 12:30:00' ) );
+		Functions\create_and_sync_post( array( 'post_title' => 'two', 'post_date' => '2020-08-25 12:30:00' ) );
 
 		ElasticPress\Elasticsearch::factory()->refresh_indices();
 
@@ -181,6 +182,8 @@ class TestPost extends BaseTestCase {
 				'ep_integrate'   => true,
 				'posts_per_page' => 1,
 				'offset'         => 1,
+				'orderby'        => 'date',
+				'order'          => 'ASC',
 			)
 		);
 
@@ -382,6 +385,60 @@ class TestPost extends BaseTestCase {
 		// And the post documents no longer have any tags
 		$this->assertArrayNotHasKey( 'post_tag', $post['terms'] );
 		$this->assertArrayNotHasKey( 'post_tag', $post_two['terms'] );
+	}
+
+	/**
+	 * Ensure all the expected data is present when syncing terms.
+	 *
+	 * @group post
+	 */
+	public function testPostTermSyncData() {
+		global $wpdb;
+
+		$test_post_id = Functions\create_and_sync_post();
+		$test_post    = get_post( $test_post_id );
+
+		// Create a new taxonomy & term (with a parent).
+		$taxonomy_name = rand_str( 32 );
+		register_taxonomy( $taxonomy_name, $test_post->post_type, array( 'label' => $taxonomy_name ) );
+		register_taxonomy_for_object_type( $taxonomy_name, $test_post->post_type );
+		$parent_term_parent  = wp_insert_term( rand_str( 32 ), $taxonomy_name );
+		$parent_term         = wp_insert_term( rand_str( 32 ), $taxonomy_name, [ 'parent' => $parent_term_parent['term_id'] ] );
+		$test_term           = wp_insert_term( rand_str( 32 ), $taxonomy_name, [ 'parent' => $parent_term['term_id'] ] );
+
+		// Assign the test term to our post and sync it up.
+		wp_set_object_terms( $test_post_id, array( $test_term['term_id'] ), $taxonomy_name, true );
+		$wpdb->query( $wpdb->prepare( "UPDATE $wpdb->term_relationships SET term_order = 123 WHERE object_id = %d AND term_taxonomy_id = %d;", $test_post_id, $test_term[ 'term_taxonomy_id' ] ) );
+
+		ElasticPress\Indexables::factory()->get( 'post' )->index( $test_post_id, true );
+		$indexed_post_data = ElasticPress\Indexables::factory()->get( 'post' )->get( $test_post_id );
+
+		// Now ensure all the appropiate term data is present.
+		$indexed_term_data  = $indexed_post_data['terms'][ $taxonomy_name ];
+		$this->assertTrue( count( $indexed_term_data ) === 3 );
+
+		foreach ( $indexed_term_data as $indexed_term ) {
+			$this->assertTrue( in_array( $indexed_term['term_id'], [ $test_term['term_id'], $parent_term['term_id'], $parent_term_parent['term_id'] ], true ) );
+
+			$actual_data      = get_term( $indexed_term['term_id'], $taxonomy_name, ARRAY_A );
+			$term_order_query = $wpdb->get_results( $wpdb->prepare( "SELECT term_order FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id = %d;", $test_post_id, $indexed_term[ 'term_taxonomy_id' ] ), OBJECT );
+
+			$expected_data = [
+				'term_id'          => $actual_data[ 'term_id' ],
+				'slug'             => $actual_data[ 'slug' ],
+				'name'             => $actual_data[ 'name' ],
+				'parent'           => $actual_data[ 'parent' ],
+				'term_taxonomy_id' => $actual_data[ 'term_taxonomy_id' ],
+				'term_order'       => isset( $term_order_query[0] ) ? $term_order_query[0]->term_order : 0,
+			];
+
+			$this->assertEquals( $indexed_term, $expected_data );
+
+			if ( $test_term['term_id'] === $indexed_term['term_id'] ) {
+				// Additional check to make extra sure term_order is syncing correctly.
+				$this->assertEquals( 123, $indexed_term[ 'term_order' ] );
+			}
+		}
 	}
 
 	/**
@@ -4954,44 +5011,95 @@ class TestPost extends BaseTestCase {
 	}
 
 	/**
-	 * Tests the constructor for the Indexable\Post class.
+	 * Tests the query_db method.
 	 *
 	 * @return void
 	 * @group post
 	 */
 	public function testQueryDb() {
+		$indexable_post_object = new \ElasticPress\Indexable\Post\Post();
 
-		$exclude_post_id = Functions\create_and_sync_post();
-		$post_id = Functions\create_and_sync_post();
+		$post_id_1 = Functions\create_and_sync_post();
+		$post_id_2 = Functions\create_and_sync_post();
+		$post_id_3 = Functions\create_and_sync_post();
 
-		$post = new \ElasticPress\Indexable\Post\Post();
-
-		$results = $post->query_db(
+		// Test the first loop of the indexing.
+		$results = $indexable_post_object->query_db(
 			[
 				'per_page' => 1,
-				'include'  => [ $post_id ],
 			]
 		);
 
 		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+		$this->assertEquals( $post_id_3, $post_ids[0] );
+		$this->assertCount( 1, $results['objects'] );
+		$this->assertEquals( 3, $results['total_objects'] );
 
-		$this->assertCount( 1, $post_ids );
-		$this->assertContains( $post_id, $post_ids );
-		$this->assertSame( 1, absint( $results['total_objects'] ) );
-
-		$results = $post->query_db(
+		// Second loop.
+		$results = $indexable_post_object->query_db(
 			[
-				'exclude'  => [ $exclude_post_id ],
+				'per_page' => 1,
+				'ep_indexing_last_processed_object_id' => $post_id_3,
 			]
 		);
 
 		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+		$this->assertEquals( $post_id_2, $post_ids[0] );
+		$this->assertCount( 1, $results['objects'] );
+		$this->assertEquals( 3, $results['total_objects'] );
 
-		$this->assertNotContains( $exclude_post_id, $post_ids );
+		// A custom start_object_id was passed in.
+		$results = $indexable_post_object->query_db(
+			[
+				'per_page' => 1,
+				'ep_indexing_start_object_id' => $post_id_1,
+			]
+		);
 
-		// Set up a few posts for the filters.
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+		$this->assertEquals( $post_id_1, $post_ids[0] );
+		$this->assertCount( 1, $results['objects'] );
+		$this->assertEquals( 1, $results['total_objects'] );
+
+		// Passing custom start and last post IDs. Second loop.
+		$results = $indexable_post_object->query_db(
+			[
+				'per_page' => 1,
+				'ep_indexing_start_object_id' => $post_id_3,
+				'ep_indexing_end_object_id' => $post_id_2,
+				'ep_indexing_last_processed_object_id' => $post_id_3,
+			]
+		);
+
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+		$this->assertEquals( $post_id_2, $post_ids[0] );
+		$this->assertCount( 1, $results['objects'] );
+		$this->assertEquals( 2, $results['total_objects'] );
+
+		// Specific post IDs
+		$results = $indexable_post_object->query_db(
+			[
+				'per_page' => 1,
+				'include'  => [ $post_id_1 ],
+			]
+		);
+
+		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
+		$this->assertEquals( $post_id_1, $post_ids[0] );
+		$this->assertCount( 1, $results['objects'] );
+		$this->assertEquals( 1, $results['total_objects'] );
+	}
+
+	/**
+	 * Test the filters in query_db.
+	 *
+	 * @return void
+	 * @group post
+	 */
+	function testQueryDbFilters() {
+		$indexable_post_object = new \ElasticPress\Indexable\Post\Post();
+
 		$args_post_ids = [];
-
 		$args_post_ids[] = Functions\create_and_sync_post();
 		$args_post_ids[] = Functions\create_and_sync_post();
 		$args_post_ids[] = Functions\create_and_sync_post();
@@ -5011,13 +5119,12 @@ class TestPost extends BaseTestCase {
 		add_filter( 'ep_post_query_db_args', $defaults_filter );
 		add_filter( 'ep_index_posts_args', $index_filter );
 
-		$results = $post->query_db( [] );
+		$results = $indexable_post_object->query_db( [] );
 
 		remove_filter( 'ep_post_query_db_args', $defaults_filter );
 		remove_filter( 'ep_index_posts_args', $index_filter );
 
 		$post_ids = wp_list_pluck( $results['objects'], 'ID' );
-
 		$this->assertCount( 3, $post_ids );
 		$this->assertContains( $args_post_ids[2], $post_ids );
 		$this->assertNotContains( $args_post_ids[3], $post_ids );
@@ -5058,11 +5165,11 @@ class TestPost extends BaseTestCase {
 
 		wp_set_post_terms( $post_id, 'testPrepareDocumentFallbacks', 'category', true );
 
-		add_filter( 'ep_sync_taxonomies', '__return_false' );
+		add_filter( 'ep_sync_taxonomies', '__return_empty_array' );
 
 		$post_args = $post->prepare_document( $post_id );
 
-		remove_filter( 'ep_sync_taxonomies', '__return_false' );
+		remove_filter( 'ep_sync_taxonomies', '__return_empty_array' );
 
 		$this->assertTrue( is_array( $post_args ) );
 		$this->assertTrue( is_array( $post_args['terms'] ) );
