@@ -44,7 +44,6 @@ class Internal_Events extends Singleton {
 			add_action( 'wp_loaded', array( $this, 'schedule_internal_events' ) );
 		} else {
 			add_action( 'admin_init', array( $this, 'schedule_internal_events' ) );
-			add_action( 'rest_api_init', array( $this, 'schedule_internal_events' ) );
 		}
 
 		add_filter( 'cron_schedules', array( $this, 'register_internal_events_schedules' ) );
