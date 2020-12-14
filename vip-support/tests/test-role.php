@@ -12,19 +12,27 @@ use WP_UnitTestCase;
  */
 class VIPSupportRoleTest extends WP_UnitTestCase {
 
-	function test_role_existence() {
+	public function setUp() {
+		parent::setUp();
+
+		delete_option( 'vipsupportrole_version' );
+	}
+
+	public function test_role_existence() {
+		Role::init()->maybe_upgrade_version();
+
 		$roles = get_editable_roles();
 
 		$this->assertArrayHasKey( Role::VIP_SUPPORT_ROLE, $roles );
 		$this->assertArrayHasKey( Role::VIP_SUPPORT_INACTIVE_ROLE, $roles );
 	}
 
-	function test_role_order() {
+	public function test_role_order() {
 
 		// Arrange
 		// Trigger the update method call on admin_init,
 		// this sets up the role
-		Role::init()->action_admin_init();
+		Role::init()->maybe_upgrade_version();
 
 		// Act
 		$roles = get_editable_roles();
@@ -35,5 +43,20 @@ class VIPSupportRoleTest extends WP_UnitTestCase {
 		// the first index in the array
 		$first_role = array_shift( $role_names );
 		$this->assertTrue( Role::VIP_SUPPORT_INACTIVE_ROLE === $first_role );
+	}
+
+	public function test__only_run_upgrade_once() {
+		// Run initial upgrade.
+		Role::init()->maybe_upgrade_version();
+
+		// Remove a role which we'll use to verify our test.
+		remove_role( Role::VIP_SUPPORT_ROLE );
+
+		// Attempt to run upgrade again.
+		Role::init()->maybe_upgrade_version();
+
+		// Verify that the role was not added again (because the upgrade didn't run).
+		$roles = get_editable_roles();
+		$this->assertFalse( isset( $roles[ Role::VIP_SUPPORT_ROLE ] ) );
 	}
 }

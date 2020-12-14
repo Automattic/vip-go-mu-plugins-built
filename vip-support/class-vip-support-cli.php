@@ -87,7 +87,6 @@ class Command extends WP_CLI_Command {
 	/**
 	 * Marks the user with the provided ID as having a verified email.
 	 *
-	 *
 	 * <user-id>
 	 * : The WP User ID to mark as having a verified email address
 	 *
@@ -119,6 +118,23 @@ class Command extends WP_CLI_Command {
 
 		// Print a success message
 		\WP_CLI::success( "Verified user $user_id with email {$user->user_email}, you can now change their role to VIP Support" );
+	}
+
+	/**
+	 * Reset / re-add VIP Support related roles.
+	 *
+	 * @subcommand reset-roles
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp vipsupport reset-roles
+	 */
+	public function reset_roles( $args ) {
+		delete_option( 'vipsupportrole_version' );
+
+		Role::init()->maybe_upgrade_version();
+
+		\WP_CLI::success( __( 'VIP Support roles successfully reset' ) );
 	}
 
 }

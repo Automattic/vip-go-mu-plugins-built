@@ -64,7 +64,6 @@ class Role {
 	 * and sets some properties.
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_filter( 'editable_roles', array( $this, 'filter_editable_roles' ) );
 		add_filter( 'user_has_cap', array( $this, 'filter_user_has_cap' ), PHP_INT_MAX, 4 );
@@ -74,18 +73,10 @@ class Role {
 	// =====
 
 	/**
-	 * Hooks the init action to add the role, covering the cases
-	 * where we should be using `wpcom_vip_add_role`.
-	 */
-	public function action_init() {
-		self::add_role();
-	}
-
-	/**
 	 * Hooks the admin_init action to run an update method.
 	 */
 	public function action_admin_init() {
-		$this->update();
+		$this->maybe_upgrade_version();
 	}
 
 	/**
@@ -123,13 +114,20 @@ class Role {
 	 * @return array An array of WP role data
 	 */
 	public function filter_editable_roles( array $roles ) {
-		$vip_support_roles = array(
-			self::VIP_SUPPORT_INACTIVE_ROLE => $roles[self::VIP_SUPPORT_INACTIVE_ROLE],
-			self::VIP_SUPPORT_ROLE => $roles[self::VIP_SUPPORT_ROLE],
-		);
-		unset( $roles[self::VIP_SUPPORT_INACTIVE_ROLE] );
-		unset( $roles[self::VIP_SUPPORT_ROLE] );
+		$vip_support_roles = array();
+
+		if ( isset( $roles[ self::VIP_SUPPORT_INACTIVE_ROLE ] ) ) {
+			$vip_support_roles[ self::VIP_SUPPORT_INACTIVE_ROLE ] = $roles[ self::VIP_SUPPORT_INACTIVE_ROLE ];
+			unset( $roles[ self::VIP_SUPPORT_INACTIVE_ROLE ] );
+		}
+
+		if ( isset( $roles[ self::VIP_SUPPORT_ROLE ] ) ) {
+			$vip_support_roles[ self::VIP_SUPPORT_ROLE ] = $roles[ self::VIP_SUPPORT_ROLE ];
+			unset( $roles[ self::VIP_SUPPORT_ROLE ] );
+		}
+
 		$roles = array_merge( $vip_support_roles, $roles );
+
 		return $roles;
 	}
 
@@ -148,22 +146,16 @@ class Role {
 
 	}
 
-	protected static function add_role() {
-		if ( function_exists( 'wpcom_vip_add_role' ) ) {
-			wpcom_vip_add_role( self::VIP_SUPPORT_ROLE, __( 'VIP Support', 'a8c_vip_support' ), array( 'read' => true ) );
-			wpcom_vip_add_role( self::VIP_SUPPORT_INACTIVE_ROLE, __( 'VIP Support (inactive)', 'a8c_vip_support' ), array( 'read' => true ) );
-		} else {
-			add_role( self::VIP_SUPPORT_ROLE, __( 'VIP Support', 'a8c_vip_support' ), array( 'read' => true ) );
-			add_role( self::VIP_SUPPORT_INACTIVE_ROLE, __( 'VIP Support (inactive)', 'a8c_vip_support' ), array( 'read' => true ) );
-		}
+	protected static function add_roles() {
+		add_role( self::VIP_SUPPORT_ROLE, __( 'VIP Support', 'a8c_vip_support' ), array( 'read' => true ) );
+		add_role( self::VIP_SUPPORT_INACTIVE_ROLE, __( 'VIP Support (inactive)', 'a8c_vip_support' ), array( 'read' => true ) );
 	}
 
 	/**
 	 * Checks the version option value against the version
 	 * property value, and runs update routines as appropriate.
-	 *
 	 */
-	protected function update() {
+	public function maybe_upgrade_version() {
 		$option_name = 'vipsupportrole_version';
 		$version = absint( get_option( $option_name, 0 ) );
 
@@ -171,8 +163,8 @@ class Role {
 			return;
 		}
 
-		if ( $version < 1 && function_exists( 'wpcom_vip_add_role' ) ) {
-			self::add_role();
+		if ( $version < 1 ) {
+			self::add_roles();
 			self::error_log( "VIP Support Role: Added VIP Support role " );
 		}
 
