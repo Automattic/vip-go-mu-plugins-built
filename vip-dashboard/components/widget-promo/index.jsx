@@ -17,7 +17,7 @@ var Widget_Promo = React.createClass( {
 		return (
 			<Widget className="widget-small widget__promo">
 				<div className="widget__content">
-					<a href="https://vip.wordpress.com/events/" title="VIP Events">
+					<a href="https://wpvip.com/events/" title="VIP Events">
 						<img src={ Config.asseturl + 'img/vip-workshop-logo.svg' } alt="VIP Events" className="promo-logo" />
 						<h3 className="promo-text">WordPress.com VIP Training Days</h3>
 					</a>

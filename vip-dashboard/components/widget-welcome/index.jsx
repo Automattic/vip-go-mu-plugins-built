@@ -26,16 +26,16 @@ var Widget_Welcome = React.createClass( {
 							<span>Important service updates</span>
 						</li>
 						<li>
-							<a href="https://vip.wordpress.com/documentation/vip-go/" target="_blank">VIP Go Documentation</a>
-							<span>Coding for WordPress.com VIP Go</span>
-						</li>
-						<li>
-							<a href="https://vip.wordpress.com/plugins/" target="_blank">VIP Plugins</a>
-							<span>Approved VIP plugins</span>
+							<a href="https://docs.wpvip.com/" target="_blank">VIP Documentation</a>
+							<span>Launching and developing with VIP</span>
 						</li>
 						<li>
 							<a href="https://wordpressvip.zendesk.com/" target="_blank">VIP Support Portal</a>
 							<span>Your organization’s tickets</span>
+						</li>
+						<li>
+							<a href="https://docs.wpvip.com/technical-references/vip-support/general-ticket-guidelines/" target="_blank">Ticket guidelines</a>
+							<span>How to open the perfect ticket</span>
 						</li>
 					</ul>
 				</div>
@@ -43,19 +43,19 @@ var Widget_Welcome = React.createClass( {
 				<div className="widget__col-2">
 					<ul className="widget__list">
 						<li>
-							<a href="https://vip.wordpress.com/documentation/vip-go/launch-checklist/" target="_blank">Launch Checklist</a>
+							<a href="https://docs.wpvip.com/how-tos/launch-a-site-with-vip/" target="_blank">Guidebook: Launching with VIP</a>
 							<span>Steps to launch</span>
 						</li>
 						<li>
-							<a href="https://vip.wordpress.com/your-vip-toolbox/" target="_blank">Your VIP Toolbox</a>
-							<span>Navigating VIP Tools</span>
+							<a href="https://wpvip.com/documentation/developing-with-vip/welcome-to-vip-development/" target="_blank">Guidebook: Developing with VIP</a>
+							<span>An overview of VIP development</span>
 						</li>
 						<li>
-							<a href="https://vip.wordpress.com/news/" target="_blank">VIP News</a>
+							<a href="https://wpvip.com/news/" target="_blank">VIP News</a>
 							<span>New features, case studies</span>
 						</li>
 						<li>
-							<a href="https://vip.wordpress.com/partners/" target="_blank">Featured Partners</a>
+							<a href="https://wpvip.com/partners/" target="_blank">Featured Partners</a>
 							<span>Agencies and technology partners</span>
 						</li>
 					</ul>
