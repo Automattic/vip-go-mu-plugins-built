@@ -39,6 +39,9 @@ include __DIR__ . '/inc/admin/class-gutenberg-ramp-compatibility-check.php';
  */
 function gutenberg_ramp_load_gutenberg( $criteria = true ) {
 
+	// Ignore the awkward phrasing in the 3rd param; we're skipping the word "Use" because core already adds that.
+	_deprecated_function( 'gutenberg_ramp_load_gutenberg', '0.3', ' built-in filters instead. See https://developer.wordpress.org/reference/hooks/use_block_editor_for_post/ for more information' );
+
 	// only admin requests should refresh loading behavior
 	if ( ! is_admin() ) {
 		return;
@@ -166,6 +169,59 @@ if ( Gutenberg_Ramp_Compatibility_Check::should_check_compatibility() ) {
 	$ramp_compatibility = new Gutenberg_Ramp_Compatibility_Check();
 	add_action( 'admin_init', [ $ramp_compatibility, 'maybe_display_notice' ] );
 }
+
+/**
+ * Display notice about plugin being obsolete.
+ */
+function gutenberg_ramp_admin_notice() {
+	/*
+	 * Only display when user can manage
+	 * options, i.e. only to admins.
+	 */
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$gutenberg_ramp = Gutenberg_Ramp::get_instance();
+
+	/*
+	 * Do not display if the plugin is
+	 * not loaded.
+	 */
+	if ( false === $gutenberg_ramp->active ) {
+		return;
+	}
+
+	$is_vip_env = ( ( defined( 'WPCOM_IS_VIP_ENV' ) ) && ( true === WPCOM_IS_VIP_ENV ) );
+
+	if ( $is_vip_env ) {
+		$notice_url = 'https://lobby.vip.wordpress.com/2020/11/23/removing-gutenberg-ramp/';
+	}
+
+	else {
+		$notice_url = 'https://developer.wordpress.org/reference/hooks/use_block_editor_for_post/';
+	}
+
+	?>
+	<div class="notice notice-success is-dismissible">
+		<p><?php 
+			printf(
+				esc_html__(
+					'The Gutenberg Ramp plugin is deprecated and your installation may require some changes. Please read %sour documentation%s for more information.',
+					'gutenberg-ramp' 
+				),
+				sprintf(
+					'<a href="%s" target="_new">',
+					esc_url( $notice_url )
+				),
+				'</a>'
+			); ?>
+		</p>
+	</div>
+	<?php
+}
+
+add_action( 'admin_notices', 'gutenberg_ramp_admin_notice' );
 
 /**
  * Initialize Gutenberg Ramp
