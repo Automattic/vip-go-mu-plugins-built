@@ -65,6 +65,46 @@ class TestPost extends BaseTestCase {
 	}
 
 	/**
+	 * Test the building of index mappings
+	 * 
+	 * @since 3.6
+	 * @group post
+	 */
+	public function testPostBuildMapping() {
+		$mapping_and_settings = ElasticPress\Indexables::factory()->get( 'post' )->build_mapping();
+
+		// The mapping is currently expected to have both `mappings` and `settings` elements
+		$this->assertArrayHasKey( 'settings', $mapping_and_settings, 'Built mapping is missing settings array' );
+		$this->assertArrayHasKey( 'mappings', $mapping_and_settings, 'Built mapping is missing mapping array' );
+	}
+
+	/**
+	 * Test the building of index settings
+	 * 
+	 * @since 3.6
+	 * @group post
+	 */
+	public function testPostBuildSettings() {
+		$settings = ElasticPress\Indexables::factory()->get( 'post' )->build_settings();
+
+		$expected_keys = array(
+			'index.number_of_shards',
+			'index.number_of_replicas',
+			'index.mapping.total_fields.limit',
+			'index.max_shingle_diff',
+			'index.max_result_window',
+			'index.mapping.ignore_malformed',
+			'analysis',
+		);
+
+		$actual_keys = array_keys( $settings );
+
+		$diff = array_diff( $expected_keys, $actual_keys );
+
+		$this->assertEquals( $diff, array() );
+	}
+
+	/**
 	 * Test a simple post sync
 	 *
 	 * @since 0.9
