@@ -1,9 +1,10 @@
 === Memcached Object Cache ===
-Contributors: ryan, sivel, andy
+Contributors: ryan, sivel, andy, nacin, barry, ethitter, nickdaugherty, batmoo, simonwheatley, jenkoian, bor0, aidvu
 Tags: cache, memcached
-Requires at least: 3.0
-Tested up to: 4.7
-Stable tag: 3.0.1
+Requires at least: 5.3
+Tested up to: 5.4.1
+Stable tag: 3.2.2
+Requires PHP: 5.6.20
 
 Use memcached and the PECL memcache extension to provide a backing store for the WordPress object cache.
 
@@ -16,6 +17,14 @@ Memcached Object Cache provides a persistent backend for the WordPress object ca
 1. Install the [PECL memcache extension](http://pecl.php.net/package/memcache)
 
 1. Copy object-cache.php to wp-content
+
+1. Add the `WP_CACHE_KEY_SALT` constant to the `wp-config.php`:
+
+```php
+define( 'WP_CACHE_KEY_SALT', '...long random string...' );
+```
+
+This helps prevent cache pollution when multiplte WordPress installs are using the same Memcached server. The value must be unique for each WordPress install.
 
 == Frequently Asked Questions ==
 
@@ -74,6 +83,31 @@ widget
 
 == Changelog ==
 
+= 3.2.2 =
+* Remove filter, and base key stripping on presence of `key_salt`
+
+= 3.2.1 =
+* Fix bug allowing **slow-ops** entries to have the same key, so toggling doesn't work
+
+= 3.2.0 =
+* Better stats(). Now shows cache group/individual calls with size of the payload and timings.
+* PHP 5.6.20 is now required
+* Fix **get_multi** to show per group calls
+* Added filter **(memcached_strip_keys)** to bypass memcached key stripping
+* Special group for **slow-ops** ( > 5ms ) with backtrace
+
+= 3.1.0 =
+* Add **wp_cache_get_multi**
+* Add support for the **$found** parameter
+* Set a variable for $max_expiration to 30 days
+* Code style changes
+* Different coloring for unknown stats group
+* Store host/port on failure_callback
+* Default stats counts
+
+= 3.0.2 =
+* Better output of HTML
+
 = 3.0.1 =
 * Fix key generation error in switch_to_blog()
 
@@ -99,4 +133,4 @@ widget
 * Handle limited environments where is_multisite() is not defined
 * Fix setting and getting 0
 * PHP 5.2.4 is now required
-* Use the WP_CACHE_KEY_SALT constant if available to gaurantee uniqueness of keys
+* Use the WP_CACHE_KEY_SALT constant if available to guarantee uniqueness of keys
