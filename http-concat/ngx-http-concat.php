@@ -20,7 +20,7 @@ $concat_max_files = 150;
 $concat_unique = true;
 $concat_types = array(
 	'css' => 'text/css',
-	'js' => 'application/x-javascript'
+	'js' => 'application/javascript'
 );
 
 /* Constants */
@@ -216,7 +216,7 @@ foreach ( $args as $uri ) {
 		$buf = $css_minify->run( $buf );
 	}
 
-	if ( 'application/x-javascript' == $mime_type )
+	if ( 'application/javascript' == $mime_type )
 		$output .= "$buf;\n";
 	else
 		$output .= "$buf";
