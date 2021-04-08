@@ -64,7 +64,11 @@ class Role {
 	 * and sets some properties.
 	 */
 	public function __construct() {
-		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			add_action( 'wp_loaded', array( $this, 'action_admin_init' ) );
+		} else {
+			add_action( 'admin_init', array( $this, 'action_admin_init' ) );
+		}
 		add_filter( 'editable_roles', array( $this, 'filter_editable_roles' ) );
 		add_filter( 'user_has_cap', array( $this, 'filter_user_has_cap' ), PHP_INT_MAX, 4 );
 	}
