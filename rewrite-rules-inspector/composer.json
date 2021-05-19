@@ -1,0 +1,10 @@
+{
+	"name": "automattic/rewrite-rules-inspector",
+	"type": "wordpress-plugin",
+	"description": "WordPress plugin to inspect your rewrite rules.",
+	"homepage": "https://wordpress.org/plugins/rewrite-rules-inspector/",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"composer/installers": "^1.0"
+	}
+}
