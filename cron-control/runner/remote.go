@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 	"path"
@@ -21,6 +23,7 @@ import (
 	"github.com/creack/pty"
 	"github.com/howeyc/fsnotify"
 	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/net/websocket"
 )
 
 type WpCliProcess struct {
@@ -60,7 +63,31 @@ func waitForConnect() {
 		return
 	}
 
-	addr, err := net.ResolveTCPAddr("tcp4", "0.0.0.0:22122")
+	listenAddr := "0.0.0.0:22122"
+
+	if useWebsockets {
+		s := &http.Server{
+			Addr: listenAddr,
+			ConnContext: func(ctx context.Context, c net.Conn) context.Context {
+				if tcpConn, ok := c.(*net.TCPConn); ok && tcpConn != nil {
+					tcpConn.SetKeepAlivePeriod(30 * time.Second)
+					tcpConn.SetKeepAlive(true)
+					tcpConn.SetReadBuffer(8192)
+				}
+				return ctx
+			},
+			Handler: websocket.Handler(func(wsConn *websocket.Conn) {
+				logger.Printf("websocket connection from %s\n", wsConn.RemoteAddr().String())
+				authConn(wsConn)
+			}),
+		}
+		logger.Printf("Listening for websocket protocol on %q...", listenAddr)
+		wsErr := s.ListenAndServe()
+		logger.Printf("Websocket listener stopped: %v", wsErr)
+		return
+	}
+
+	addr, err := net.ResolveTCPAddr("tcp4", listenAddr)
 	if err != nil {
 		logger.Printf("error resolving listen address: %s\n", err.Error())
 		return
@@ -85,7 +112,7 @@ func waitForConnect() {
 	}
 }
 
-func authConn(conn *net.TCPConn) {
+func authConn(conn net.Conn) {
 	var rows, cols uint16
 	var offset int64
 	var token, Guid, cmd string
@@ -165,8 +192,10 @@ func authConn(conn *net.TCPConn) {
 	logger.Println("handshake complete!")
 
 	conn.SetReadDeadline(time.Time{})
-	conn.SetKeepAlivePeriod(time.Duration(30 * time.Second.Nanoseconds()))
-	conn.SetKeepAlive(true)
+	if tcpConn, ok := conn.(*net.TCPConn); ok && tcpConn != nil {
+		tcpConn.SetKeepAlivePeriod(time.Duration(30 * time.Second.Nanoseconds()))
+		tcpConn.SetKeepAlive(true)
+	}
 
 	padlock.Lock()
 	wpCliProcess, found := gGUIDttys[Guid]
@@ -341,12 +370,13 @@ func getCleanWpCliArgumentArray(wpCliCmdString string) ([]string, error) {
 	return cleanArgs, nil
 }
 
-func processTCPConnectionData(conn *net.TCPConn, wpcli *WpCliProcess) {
+func processTCPConnectionData(conn net.Conn, wpcli *WpCliProcess) {
 	data := make([]byte, 8192)
 	var size, written int
 	var err error
-
-	conn.SetReadBuffer(8192)
+	if tcpConn, ok := conn.(*net.TCPConn); ok && tcpConn != nil {
+		tcpConn.SetReadBuffer(8192)
+	}
 	for {
 		size, err = conn.Read(data)
 
@@ -419,7 +449,7 @@ func processTCPConnectionData(conn *net.TCPConn, wpcli *WpCliProcess) {
 	}
 }
 
-func attachWpCliCmdRemote(conn *net.TCPConn, wpcli *WpCliProcess, Guid string, rows uint16, cols uint16, offset int64) error {
+func attachWpCliCmdRemote(conn net.Conn, wpcli *WpCliProcess, Guid string, rows uint16, cols uint16, offset int64) error {
 	logger.Printf("resuming %s - rows: %d, cols: %d, offset: %d\n", Guid, rows, cols, offset)
 
 	var err error
@@ -587,7 +617,7 @@ func attachWpCliCmdRemote(conn *net.TCPConn, wpcli *WpCliProcess, Guid string, r
 	return nil
 }
 
-func runWpCliCmdRemote(conn *net.TCPConn, Guid string, rows uint16, cols uint16, wpCliCmdString string) error {
+func runWpCliCmdRemote(conn net.Conn, Guid string, rows uint16, cols uint16, wpCliCmdString string) error {
 	cmdArgs := make([]string, 0)
 	cmdArgs = append(cmdArgs, strings.Fields("--path="+wpPath)...)
 
@@ -842,7 +872,7 @@ func runWpCliCmdRemote(conn *net.TCPConn, Guid string, rows uint16, cols uint16,
 	return nil
 }
 
-func streamLogs(conn *net.TCPConn, Guid string) {
+func streamLogs(conn net.Conn, Guid string) {
 	var err error
 	var logFileName string
 
