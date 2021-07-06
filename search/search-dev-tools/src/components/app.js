@@ -24,9 +24,10 @@ const AdminBarButton = props => {
  * It mounts onto an existing DOM node in the Admin Bar and then renders into a Portal
  * to avoid any interference of Admin Bar CSS.
  *
+ * @param {Object} props
  * @returns {preact.VNode} Top-level app component
  */
-const App = () => {
+const App = props => {
 	const [ visible, setVisible ] = useState( false );
 	const closeOverlay = () => setVisible( false );
 	const toggleOverlay = () => setVisible( ! visible );
@@ -34,16 +35,13 @@ const App = () => {
 	return ( <SearchContext.Provider value={window?.VIPSearchDevTools || { status: 'disabled', queries: [], information: [] }}>
 		<div className="search-dev-tools__wrapper">
 			<AdminBarButton class={style.ab_btn} onClick={ toggleOverlay } />
-			{createPortal(
-				( <Overlay isVisible={visible} closeOverlay={closeOverlay} opacity="100">
-					<div className={style.vip_search_dev_tools}>
-						<h4 className="vip-h4 main_caption">VIP Search Dev Tools</h4>
-						<GeneralInformation />
-						<Queries />
-					</div>
-				</Overlay> ),
-				document.getElementById( 'search-dev-tools-portal' ) // eslint-disable-line no-undef
-			)}
+			{createPortal( ( <Overlay isVisible={visible} closeOverlay={closeOverlay} opacity="100">
+				<div className={style.vip_search_dev_tools}>
+					<h4 className="vip-h4 main_caption">VIP Search Dev Tools</h4>
+					<GeneralInformation />
+					<Queries />
+				</div>
+			</Overlay> ), document.getElementById( 'search-dev-tools-portal' ) ) }
 		</div>
 	</SearchContext.Provider>
 	);
