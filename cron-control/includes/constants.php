@@ -29,7 +29,7 @@ unset( $job_concurrency_limit );
 /**
  * Job runtime constraints
  */
-const JOB_QUEUE_WINDOW_IN_SECONDS = 60;
+const JOB_QUEUE_WINDOW_IN_SECONDS = 30;
 const JOB_TIMEOUT_IN_MINUTES      = 10;
 const JOB_LOCK_EXPIRY_IN_MINUTES  = 30;
 
