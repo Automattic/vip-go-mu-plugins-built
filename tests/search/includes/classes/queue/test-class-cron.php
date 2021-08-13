@@ -69,8 +69,7 @@ class Cron_Test extends \WP_UnitTestCase {
 		$this->assertFalse( $next, 'After Cron:disable_sweeper_job(), job was still found' );
 	}
 
-	// TODO Remove after change of args was deployed
-	public function test_process_jobs_legacy() {
+	public function test_process_jobs() {
 		$mock_queue = $this->getMockBuilder( Queue::class )
 			->setMethods( [ 'get_jobs', 'process_jobs' ] )
 			->getMock();
@@ -111,52 +110,6 @@ class Cron_Test extends \WP_UnitTestCase {
 		$this->cron->queue = $original_queue;
 	}
 
-	public function test_process_jobs() {
-		$mock_queue = $this->getMockBuilder( Queue::class )
-			->setMethods( [ 'get_jobs_by_range', 'process_jobs' ] )
-			->getMock();
-
-
-		$options = [
-			'min_id' => 1,
-			'max_id' => 2,
-		];
-
-		$mock_jobs = array(
-			(object) array(
-				'job_id' => 1,
-				'object_id' => 1,
-				'object_type' => 'post',
-			),
-			(object) array(
-				'job_id' => 2,
-				'object_id' => 2,
-				'object_type' => 'user',
-			),
-		);
-
-		// Should call Queue::get_jobs_by_range() with the right job_ids
-		$mock_queue->expects( $this->once() )
-			->method( 'get_jobs_by_range' )
-			->with( 1, 2 )
-			->will( $this->returnValue( $mock_jobs ) );
-
-		// Then it should process those jobs
-		$mock_queue->expects( $this->once() )
-			->method( 'process_jobs' )
-			->with( $mock_jobs )
-			->will( $this->returnValue( true ) );
-
-		$original_queue = $this->cron->queue;
-		$this->cron->queue = $mock_queue;
-
-		$this->cron->process_jobs( $options );
-
-		// Restore original Queue to not affect other tests
-		$this->cron->queue = $original_queue;
-	}
-
-
 	public function test_schedule_batch_job() {
 		$partially_mocked_cron = $this->getMockBuilder( Cron::class )
 			->setMethods( [ 'get_processor_job_count', 'get_max_concurrent_processor_job_count' ] )
@@ -164,6 +117,8 @@ class Cron_Test extends \WP_UnitTestCase {
 		$mock_queue = $this->getMockBuilder( Queue::class )
 			->setMethods( [ 'checkout_jobs', 'free_deadlocked_jobs' ] )
 			->getMock();
+
+		$mock_job_ids = array( 1, 2 );
 
 		$mock_jobs = array(
 			(object) array(
@@ -192,12 +147,9 @@ class Cron_Test extends \WP_UnitTestCase {
 
 		$partially_mocked_cron->sweep_jobs();
 
-		$expected_cron_event_args = [
-			[
-				'min_id' => 1,
-				'max_id' => 2,
-			],
-		];
+		$expected_cron_event_args = array(
+			$mock_job_ids,
+		);
 
 		// Should have scheduled 1 cron event to process the posts
 		$cron_event_time = wp_next_scheduled( Cron::PROCESSOR_CRON_EVENT_NAME, $expected_cron_event_args );

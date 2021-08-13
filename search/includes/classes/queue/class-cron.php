@@ -144,18 +144,10 @@ class Cron {
 	 *
 	 * This is the cron hook for indexing a batch of objects
 	 *
-	 * @param {array} $options Containing max_id and min_id keys
+	 * @param {array} $job_ids Array of job ids to process
 	 */
-	public function process_jobs( $options ) {
-
-		if ( ! array_key_exists( 'min_id', $options ) ) {
-			// This is a temporary fix to handle deployment correctly. To cover the case when
-			// the process job would be created with the full list of ids instead of min and max.
-			// It should be possible to remove within few minutes after deploy.
-			$jobs = $this->queue->get_jobs( $options );
-		} else {
-			$jobs = $this->queue->get_jobs_by_range( $options['min_id'], $options['max_id'] );
-		}
+	public function process_jobs( $job_ids ) {
+		$jobs = $this->queue->get_jobs( $job_ids );
 
 		if ( empty( $jobs ) ) {
 			return;
@@ -293,12 +285,7 @@ class Cron {
 
 		$job_ids = wp_list_pluck( $jobs, 'job_id' );
 
-		$options = [
-			'min_id' => min( $job_ids ),
-			'max_id' => max( $job_ids ),
-		];
-
-		return wp_schedule_single_event( time(), self::PROCESSOR_CRON_EVENT_NAME, [ $options ] );
+		return wp_schedule_single_event( time(), self::PROCESSOR_CRON_EVENT_NAME, array( $job_ids ) );
 	}
 
 	public function schedule_queue_posts_for_term_taxonomy_id( $term_taxonomy_id ) {
