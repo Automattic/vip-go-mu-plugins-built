@@ -1,0 +1,35 @@
+name: Linting
+
+on:
+  push:
+    branches:
+      - develop
+      - trunk
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  lint_js_css:
+    name: Lint JS and CSS
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: npm install
+      run: npm install
+    - name: eslint
+      run: npm run lint-js
+    - name: stylelint
+      run: npm run lint-css
+  phpcs:
+    name: PHPCS
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: composer install
+      run: composer install
+    - name: PHPCS check
+      run: composer run lint
+    - name: PHP Compatibility Check
+      run: composer run check-php-compat
