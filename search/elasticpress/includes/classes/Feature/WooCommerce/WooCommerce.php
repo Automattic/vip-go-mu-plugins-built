@@ -11,7 +11,6 @@ namespace ElasticPress\Feature\WooCommerce;
 use ElasticPress\Feature as Feature;
 use ElasticPress\FeatureRequirementsStatus as FeatureRequirementsStatus;
 use ElasticPress\Indexables as Indexables;
-use ElasticPress\Utils as Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -951,7 +950,31 @@ class WooCommerce extends Feature {
 			return false;
 		}
 
-		if ( ! Utils\is_integrated_request( $this->slug ) ) {
+		/**
+		 * Filter to integrate with admin queries
+		 *
+		 * @hook ep_admin_wp_query_integration
+		 * @param  {bool} $integrate True to integrate
+		 * @return  {bool} New value
+		 */
+		$admin_integration = apply_filters( 'ep_admin_wp_query_integration', false );
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			/**
+			 * Filter to integrate with admin ajax queries
+			 *
+			 * @hook ep_ajax_wp_query_integration
+			 * @param  {bool} $integrate True to integrate
+			 * @return  {bool} New value
+			 */
+			if ( ! apply_filters( 'ep_ajax_wp_query_integration', false ) ) {
+				return false;
+			} else {
+				$admin_integration = true;
+			}
+		}
+
+		if ( is_admin() && ! $admin_integration ) {
 			return false;
 		}
 

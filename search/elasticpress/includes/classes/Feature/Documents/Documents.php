@@ -11,7 +11,6 @@ use ElasticPress\Feature as Feature;
 use ElasticPress\Elasticsearch as Elasticsearch;
 use ElasticPress\FeatureRequirementsStatus as FeatureRequirementsStatus;
 use ElasticPress\Indexables as Indexables;
-use ElasticPress\Utils as Utils;
 
 /**
  * Documents feature class.
@@ -115,7 +114,7 @@ class Documents extends Feature {
 	 * @since  2.3
 	 */
 	public function setup_document_search( $query ) {
-		if ( ! Utils\is_integrated_request( $this->slug, [ 'public', 'ajax' ] ) ) {
+		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
 
@@ -518,3 +517,5 @@ class Documents extends Feature {
 		return $weights;
 	}
 }
+
+

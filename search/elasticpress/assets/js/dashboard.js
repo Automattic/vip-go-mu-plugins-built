@@ -158,38 +158,42 @@ if (epDash.index_meta) {
 			// Sync finished
 			syncStatus = 'finished';
 			updateSyncDash();
-		} else if (epDash.auto_start_index) {
-			// We are mid sync
-			syncStatus = 'sync';
-
-			history.pushState(
-				{},
-				document.title,
-				document.location.pathname + document.location.search.replace(/&do_sync/, ''),
-			);
-
-			updateSyncDash();
-			sync();
 		} else {
-			syncStatus = 'pause';
-			updateSyncDash();
+			// We are mid sync
+			if (epDash.auto_start_index) {
+				syncStatus = 'sync';
+
+				history.pushState(
+					{},
+					document.title,
+					document.location.pathname + document.location.search.replace(/&do_sync/, ''),
+				);
+
+				updateSyncDash();
+				sync();
+			} else {
+				syncStatus = 'pause';
+				updateSyncDash();
+			}
 		}
 	}
-} else if (epDash.auto_start_index) {
+} else {
 	// Start a new sync automatically
-	syncStatus = 'initialsync';
+	if (epDash.auto_start_index) {
+		syncStatus = 'initialsync';
 
-	updateSyncDash();
+		updateSyncDash();
 
-	syncStatus = 'sync';
+		syncStatus = 'sync';
 
-	history.pushState(
-		{},
-		document.title,
-		document.location.pathname + document.location.search.replace(/&do_sync/, ''),
-	);
+		history.pushState(
+			{},
+			document.title,
+			document.location.pathname + document.location.search.replace(/&do_sync/, ''),
+		);
 
-	sync();
+		sync();
+	}
 }
 
 /**

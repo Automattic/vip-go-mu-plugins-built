@@ -23,9 +23,8 @@ class Widget extends WP_Widget {
 	 * Create widget
 	 */
 	public function __construct() {
-		// Forking name and description of the widget to better fit within VIP
-		$options = array( 'description' => esc_html__( 'Add a facet (filter) to an archive or search results page.', 'elasticpress' ) );
-		parent::__construct( 'ep-facet', esc_html__( 'Enterprise Search - Filters', 'elasticpress' ), $options );
+		$options = array( 'description' => esc_html__( 'Add a facet to an archive or search results page.', 'elasticpress' ) );
+		parent::__construct( 'ep-facet', esc_html__( 'ElasticPress - Facet', 'elasticpress' ), $options );
 	}
 
 	/**
@@ -136,6 +135,7 @@ class Widget extends WP_Widget {
 		$order   = isset( $instance['order'] ) ? $instance['order'] : 'count';
 
 		$terms     = Utils\get_term_tree( $terms, $orderby, $order, true );
+		$term_tree = Utils\get_term_tree( $terms, 'count', 'desc', false );
 
 		$outputted_terms = array();
 
@@ -217,7 +217,7 @@ class Widget extends WP_Widget {
 
 							$flat_ordered_terms[] = $top_of_tree;
 
-							$to_process = $this->order_by_selected( $top_of_tree->children, $selected_filters['taxonomies'][ $taxonomy ]['terms'], $order, $orderby );
+							$to_process = $this->order_by_selected( $top_of_tree->children, $selected_filters['taxonomies'][ $taxonomy ]['terms'] );
 
 							while ( ! empty( $to_process ) ) {
 								$term = array_shift( $to_process );
@@ -225,7 +225,7 @@ class Widget extends WP_Widget {
 								$flat_ordered_terms[] = $term;
 
 								if ( ! empty( $term->children ) ) {
-									$to_process = array_merge( $this->order_by_selected( $term->children, $selected_filters['taxonomies'][ $taxonomy ]['terms'], $order, $orderby ), $to_process );
+									$to_process = array_merge( $this->order_by_selected( $term->children, $selected_filters['taxonomies'][ $taxonomy ]['terms'] ), $to_process );
 								}
 							}
 
@@ -316,14 +316,12 @@ class Widget extends WP_Widget {
 	/**
 	 * Order terms putting selected at the top
 	 *
-	 * @param  array  $terms Array of terms
-	 * @param  array  $selected_terms Selected terms
-	 * @param  string $order The order to sort from. Desc or Asc.
-	 * @param  string $orderby The orderby to sort items from.
+	 * @param  array $terms Array of terms
+	 * @param  array $selected_terms Selected terms
 	 * @since  2.5
 	 * @return array
 	 */
-	private function order_by_selected( $terms, $selected_terms, $order = false, $orderby = false ) {
+	private function order_by_selected( $terms, $selected_terms ) {
 		$ordered_terms = [];
 		$terms_by_slug = [];
 
@@ -331,7 +329,10 @@ class Widget extends WP_Widget {
 			$terms_by_slug[ $term->slug ] = $term;
 		}
 
-		foreach ( $selected_terms as $term_slug ) {
+		ksort( $selected_terms );
+		ksort( $terms_by_slug );
+
+		foreach ( $selected_terms as $term_slug => $nothing ) {
 			if ( ! empty( $terms_by_slug[ $term_slug ] ) ) {
 				$ordered_terms[ $term_slug ] = $terms_by_slug[ $term_slug ];
 			}
@@ -340,30 +341,6 @@ class Widget extends WP_Widget {
 		foreach ( $terms_by_slug as $term_slug => $term ) {
 			if ( empty( $ordered_terms[ $term_slug ] ) ) {
 				$ordered_terms[ $term_slug ] = $terms_by_slug[ $term_slug ];
-			}
-		}
-
-		if ( 'count' === $orderby ) {
-			if ( 'asc' === $order ) {
-				uasort(
-					$ordered_terms,
-					function( $a, $b ) {
-						return $a->count > $b->count;
-					}
-				);
-			} else {
-				uasort(
-					$ordered_terms,
-					function( $a, $b ) {
-						return $a->count < $b->count;
-					}
-				);
-			}
-		} else {
-			if ( 'asc' === $order ) {
-				ksort( $ordered_terms );
-			} else {
-				krsort( $ordered_terms );
 			}
 		}
 

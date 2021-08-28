@@ -15,13 +15,18 @@ class Edit extends Component {
 	/**
 	 * Setup class
 	 *
-	 * @param {Object} props Component properties
+	 * @param {object} props Component properties
 	 */
 	constructor(props) {
 		super(props);
 
+		const {
+			attributes: { number },
+		} = props;
+
 		this.state = {
 			posts: false,
+			number,
 		};
 	}
 
@@ -82,10 +87,10 @@ class Edit extends Component {
 						</Placeholder>
 					) : (
 						<ul style={{ textAlign: alignment }}>
-							{displayPosts.map((post) => {
+							{displayPosts.map((post, i) => {
 								const titleTrimmed = post.title.rendered.trim();
 								return (
-									<li key={post.id}>
+									<li key={i}>
 										<a href={post.link}>
 											{titleTrimmed ? (
 												<RawHTML>{titleTrimmed}</RawHTML>

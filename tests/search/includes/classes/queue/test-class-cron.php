@@ -71,14 +71,10 @@ class Cron_Test extends \WP_UnitTestCase {
 
 	public function test_process_jobs() {
 		$mock_queue = $this->getMockBuilder( Queue::class )
-			->setMethods( [ 'get_jobs_by_range', 'process_jobs' ] )
+			->setMethods( [ 'get_jobs', 'process_jobs' ] )
 			->getMock();
 
-
-		$options = [
-			'min_id' => 1,
-			'max_id' => 2,
-		];
+		$mock_job_ids = array( 1, 2 );
 
 		$mock_jobs = array(
 			(object) array(
@@ -93,10 +89,10 @@ class Cron_Test extends \WP_UnitTestCase {
 			),
 		);
 
-		// Should call Queue::get_jobs_by_range() with the right job_ids
+		// Should call Queue::get_jobs() with the right job_ids
 		$mock_queue->expects( $this->once() )
-			->method( 'get_jobs_by_range' )
-			->with( 1, 2 )
+			->method( 'get_jobs' )
+			->with( $mock_job_ids )
 			->will( $this->returnValue( $mock_jobs ) );
 
 		// Then it should process those jobs
@@ -108,20 +104,21 @@ class Cron_Test extends \WP_UnitTestCase {
 		$original_queue = $this->cron->queue;
 		$this->cron->queue = $mock_queue;
 
-		$this->cron->process_jobs( $options );
+		$this->cron->process_jobs( $mock_job_ids );
 
 		// Restore original Queue to not affect other tests
 		$this->cron->queue = $original_queue;
 	}
 
-
 	public function test_schedule_batch_job() {
 		$partially_mocked_cron = $this->getMockBuilder( Cron::class )
-			->setMethods( [ 'get_processor_job_count', 'get_max_concurrent_processor_job_count' ] )
+			->setMethods( [ 'get_processor_job_count' ] )
 			->getMock();
 		$mock_queue = $this->getMockBuilder( Queue::class )
 			->setMethods( [ 'checkout_jobs', 'free_deadlocked_jobs' ] )
 			->getMock();
+
+		$mock_job_ids = array( 1, 2 );
 
 		$mock_jobs = array(
 			(object) array(
@@ -142,7 +139,6 @@ class Cron_Test extends \WP_UnitTestCase {
 
 		// Only schedule once as the second count is already maximum
 		$partially_mocked_cron->method( 'get_processor_job_count' )->willReturnOnConsecutiveCalls( 1, 5 );
-		$partially_mocked_cron->method( 'get_max_concurrent_processor_job_count' )->willReturn( 5 );
 
 		$partially_mocked_cron->queue = $mock_queue;
 
@@ -150,12 +146,9 @@ class Cron_Test extends \WP_UnitTestCase {
 
 		$partially_mocked_cron->sweep_jobs();
 
-		$expected_cron_event_args = [
-			[
-				'min_id' => 1,
-				'max_id' => 2,
-			],
-		];
+		$expected_cron_event_args = array(
+			$mock_job_ids,
+		);
 
 		// Should have scheduled 1 cron event to process the posts
 		$cron_event_time = wp_next_scheduled( Cron::PROCESSOR_CRON_EVENT_NAME, $expected_cron_event_args );
@@ -188,7 +181,7 @@ class Cron_Test extends \WP_UnitTestCase {
 	 */
 	public function test_schedule_batch_job__scheduling_limits( $job_counts, $expected_shedule_count ) {
 		$partially_mocked_cron = $this->getMockBuilder( Cron::class )
-			->setMethods( [ 'get_processor_job_count', 'schedule_batch_job', 'get_max_concurrent_processor_job_count' ] )
+			->setMethods( [ 'get_processor_job_count', 'schedule_batch_job' ] )
 			->getMock();
 
 
@@ -200,8 +193,6 @@ class Cron_Test extends \WP_UnitTestCase {
 
 		$partially_mocked_cron->method( 'get_processor_job_count' )
 			->willReturnOnConsecutiveCalls( ...$job_counts );
-		$partially_mocked_cron->method( 'get_max_concurrent_processor_job_count' )
-			->willReturn( 5 );
 
 		$partially_mocked_cron->sweep_jobs();
 	}
@@ -216,39 +207,5 @@ class Cron_Test extends \WP_UnitTestCase {
 		$enabled = $this->cron->is_enabled();
 
 		$this->assertTrue( $enabled );
-	}
-
-	public function configure_concurrency_data() {
-		return [
-			[ // min 1
-				1,
-				[ 'vip_search_queue_processor' => 1 ],
-			],
-			[ // max 25 %
-				10,
-				[ 'vip_search_queue_processor' => 3 ],
-			],
-			[
-				20,
-				[ 'vip_search_queue_processor' => 5 ],
-			],
-			[ // max of 5 takes over
-				30,
-				[ 'vip_search_queue_processor' => 5 ],
-			],
-		];
-	}
-
-	/**
-	 * @dataProvider configure_concurrency_data
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	public function test_configure_concurrency( $cron_limit, $expected ) {
-		define( 'Automattic\WP\Cron_Control\JOB_CONCURRENCY_LIMIT', $cron_limit );
-
-		$result = $this->cron->configure_concurrency( [] );
-
-		$this->assertEquals( $expected, $result );
 	}
 }

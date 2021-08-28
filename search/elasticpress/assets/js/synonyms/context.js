@@ -7,16 +7,15 @@ const Dispatch = createContext();
 /**
  * App Context.
  *
- * @param {Object} props Props.
- * @return {React.FC} AppContext component
+ * @param {object} props Props.
+ * @returns {React.FC}
  */
 const AppContext = (props) => {
-	const { children } = props;
 	const [state, dispatch] = useReducer(editorReducer, initialState);
 
 	return (
 		<State.Provider value={state}>
-			<Dispatch.Provider value={dispatch}>{children}</Dispatch.Provider>
+			<Dispatch.Provider value={dispatch}>{props.children}</Dispatch.Provider>
 		</State.Provider>
 	);
 };

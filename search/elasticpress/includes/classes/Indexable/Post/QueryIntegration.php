@@ -51,7 +51,7 @@ class QueryIntegration {
 		add_action( 'loop_end', array( $this, 'maybe_restore_blog' ), 10, 1 );
 
 		// Properly switch to blog if necessary
-		add_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 2 );
+		add_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 1 );
 
 		// Sets the correct value for found_posts
 		add_filter( 'found_posts', array( $this, 'found_posts' ), 10, 2 );
@@ -131,21 +131,12 @@ class QueryIntegration {
 	}
 
 	/**
-	 * Switch to the correct site if the post site id is different than the actual one.
+	 * Switch to the correct site if the post site id is different than the actual one
 	 *
-	 * Note: This function can bring a performance penalty in multisites with a high number of sites.
-	 *
-	 * @param WP_Post  $post Post object
-	 * @param WP_Query $query WP_Query instance. If null, the global query will be used.
+	 * @param WP_Post $post Post object
 	 * @since 0.9
-	 * @since 3.6.2 `$query` parameter added.
 	 */
-	public function maybe_switch_to_blog( $post, $query = null ) {
-		global $wp_query;
-		if ( ! $query ) {
-			$query = $wp_query;
-		}
-
+	public function maybe_switch_to_blog( $post ) {
 		if ( ! is_multisite() ) {
 			// @codeCoverageIgnoreStart
 			return;
@@ -163,15 +154,9 @@ class QueryIntegration {
 
 			$this->switched = $post->site_id;
 
-			remove_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 2 );
+			remove_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 1 );
 			setup_postdata( $post );
-			add_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 2 );
-
-			if ( $this->switched && ! $query->in_the_loop ) {
-				restore_current_blog();
-
-				$this->switched = false;
-			}
+			add_action( 'the_post', array( $this, 'maybe_switch_to_blog' ), 10, 1 );
 		}
 
 	}

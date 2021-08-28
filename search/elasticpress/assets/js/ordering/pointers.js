@@ -10,35 +10,10 @@ apiFetch.use(apiFetch.createRootURLMiddleware(window.epOrdering.restApiRoot));
 export class Pointers extends Component {
 	titleInput = null;
 
-	debouncedDefaultResults = debounce(() => {
-		this.getDefaultResults();
-	}, 200);
-
-	doSearch = debounce(() => {
-		const { searchText, searchResults } = this.state;
-		const searchTerm = searchText;
-
-		// Set loading state
-		searchResults[searchTerm] = false;
-		this.setState({ searchResults });
-
-		apiFetch({
-			path: `/elasticpress/v1/pointer_search?s=${searchTerm}`,
-		}).then((result) => {
-			searchResults[searchTerm] = result;
-
-			this.setState({ searchResults });
-		});
-	}, 200);
-
-	debouncedHandleTitleChange = debounce(() => {
-		this.handleTitleChange();
-	}, 200);
-
 	/**
 	 * Initializes the component with initial state set by WP
 	 *
-	 * @param {Object} props Component props
+	 * @param {object} props Component props
 	 */
 	constructor(props) {
 		super(props);
@@ -54,20 +29,12 @@ export class Pointers extends Component {
 			searchText: '',
 			searchResults: {},
 		};
-	}
 
-	componentDidMount() {
-		this.titleInput.addEventListener('keyup', this.debouncedHandleTitleChange);
+		this.titleInput.addEventListener('keyup', debounce(this.handleTitleChange, 200));
 
-		const { title } = this.state;
-
-		if (title?.length > 0) {
+		if (this.state.title.length > 0) {
 			this.getDefaultResults();
 		}
-	}
-
-	componentWillUnmount() {
-		this.titleInput.removeEventListener('keyup', this.debouncedHandleTitleChange);
 	}
 
 	handleTitleChange = () => {
@@ -75,8 +42,12 @@ export class Pointers extends Component {
 		this.debouncedDefaultResults();
 	};
 
+	debouncedDefaultResults = debounce(() => {
+		this.getDefaultResults();
+	}, 200);
+
 	getDefaultResults = () => {
-		const { title: searchTerm } = this.state;
+		const searchTerm = this.state.title;
 
 		apiFetch({
 			path: `/elasticpress/v1/pointer_preview?s=${searchTerm}`,
@@ -99,9 +70,8 @@ export class Pointers extends Component {
 	};
 
 	getMergedPosts = () => {
+		let merged = this.state.defaultResults[this.state.title].slice();
 		let { pointers } = this.state;
-		const { title, defaultResults } = this.state;
-		let merged = defaultResults[title].slice();
 
 		const setIds = {};
 		merged.forEach((item) => {
@@ -126,10 +96,27 @@ export class Pointers extends Component {
 		return merged;
 	};
 
+	doSearch = debounce(() => {
+		const searchTerm = this.state.searchText;
+
+		// Set loading state
+		const { searchResults } = this.state;
+		searchResults[searchTerm] = false;
+		this.setState({ searchResults });
+
+		apiFetch({
+			path: `/elasticpress/v1/pointer_search?s=${searchTerm}`,
+		}).then((result) => {
+			searchResults[searchTerm] = result;
+
+			this.setState({ searchResults });
+		});
+	}, 200);
+
 	/**
 	 * Gets the next available position for a pointer
 	 *
-	 * @return {number|false} The available position
+	 * @returns {number}
 	 */
 	getNextAvailablePosition = () => {
 		const { pointers } = this.state;
@@ -155,7 +142,7 @@ export class Pointers extends Component {
 	/**
 	 * Adds a new pointer. We place the new pointer at the highest available position
 	 *
-	 * @param {Object} post Post object
+	 * @param {object} post Post object
 	 */
 	addPointer = (post) => {
 		const id = post.ID;
@@ -191,7 +178,7 @@ export class Pointers extends Component {
 	 * Only the pointers are able to be dragged around, so all we need to do is increase any pointer by one that is
 	 * either at the current position or greater
 	 *
-	 * @param {Object} result Dragged object
+	 * @param {object} result Dragged object
 	 */
 	onDragComplete = (result) => {
 		// dropped outside the list
@@ -235,66 +222,15 @@ export class Pointers extends Component {
 		this.setState({ pointers });
 	};
 
-	searchResults = (searchResults) => {
-		const { searchText } = this.state;
-
-		if (searchText === '') {
-			return null;
-		}
-
-		if (searchResults === false) {
-			return (
-				<div className="loading">
-					<div className="spinner is-active" />
-					Loading...
-				</div>
-			);
-		}
-
-		if (searchResults.length === 0) {
-			return <div className="no-results">{__('No results found.', 'elasticpress')}</div>;
-		}
-
-		return searchResults.map((result) => {
-			return (
-				<div className="pointer-result" key={result.ID}>
-					<span className="title">{result.post_title}</span>
-					<span
-						role="button"
-						tabIndex="0"
-						className="dashicons dashicons-plus add-pointer"
-						onClick={(event) => {
-							event.preventDefault();
-							this.addPointer(result);
-						}}
-						onKeyDown={(event) => {
-							event.preventDefault();
-							this.addPointer(result);
-						}}
-					>
-						<span className="screen-reader-text">{__('Add Post', 'elasticpress')}</span>
-					</span>
-				</div>
-			);
-		});
-	};
-
 	/**
 	 * Renders the component
 	 *
-	 * @return {*} The component
+	 * @returns {*}
 	 */
 	render() {
-		const {
-			posts,
-			defaultResults,
-			title,
-			pointers,
-			searchText,
-			searchResults: searchResultsFromState,
-		} = this.state;
+		const { posts, defaultResults } = this.state;
 
-		if (title.length === 0) {
+		if (this.state.title.length === 0) {
 			return (
 				<div className="new-post">
 					<p>
@@ -307,26 +243,26 @@ export class Pointers extends Component {
 			);
 		}
 
-		if (!defaultResults[title]) {
+		if (!defaultResults[this.state.title]) {
 			return (
 				<div className="loading">
-					<div className="spinner is-active" />
-					<span>{__('Loading Result Preview…', 'elasticpress')}</span>
+					<div className="spinner is-active"></div>
+					<span>{__('Loading Result Preview...', 'elasticpress')}</span>
 				</div>
 			);
 		}
 
 		// We need to reference these by ID later
 		const defaultResultsById = {};
-		defaultResults[title].forEach((item) => {
+		defaultResults[this.state.title].forEach((item) => {
 			defaultResultsById[item.ID] = item;
 		});
 
 		const mergedPosts = this.getMergedPosts();
-		const renderedIds = pluck(pointers, 'ID');
+		const renderedIds = pluck(this.state.pointers, 'ID');
 
-		const searchResults = searchResultsFromState[searchText]
-			? searchResultsFromState[searchText].filter(
+		const searchResults = this.state.searchResults[this.state.searchText]
+			? this.state.searchResults[this.state.searchText].filter(
 					(item) => renderedIds.indexOf(item.ID) === -1,
 			  )
 			: false;
@@ -334,7 +270,11 @@ export class Pointers extends Component {
 		return (
 			<div>
 				<input type="hidden" name="search-ordering-nonce" value={window.epOrdering.nonce} />
-				<input type="hidden" name="ordered_posts" value={JSON.stringify(pointers)} />
+				<input
+					type="hidden"
+					name="ordered_posts"
+					value={JSON.stringify(this.state.pointers)}
+				/>
 				<DragDropContext onDragEnd={this.onDragComplete}>
 					<Droppable droppableId="droppable">
 						{(provided) => (
@@ -369,7 +309,7 @@ export class Pointers extends Component {
 											  );
 
 									return (
-										<React.Fragment key={item.ID}>
+										<React.Fragment key={index}>
 											{parseInt(window.epOrdering.postsPerPage, 10) ===
 												index && (
 												<Draggable
@@ -425,19 +365,13 @@ export class Pointers extends Component {
 																	'Drag post up or down to reposition',
 																	'elasticpress',
 																)}
-															/>
+															></span>
 															{item.order && (
 																<span
-																	role="button"
-																	tabIndex="0"
 																	title={tooltipText}
 																	className="dashicons dashicons-undo delete-pointer"
-																	onClick={(event) => {
-																		event.preventDefault();
-																		this.removePointer(item);
-																	}}
-																	onKeyDown={(event) => {
-																		event.preventDefault();
+																	onClick={(e) => {
+																		e.preventDefault();
 																		this.removePointer(item);
 																	}}
 																>
@@ -486,7 +420,7 @@ export class Pointers extends Component {
 								type="text"
 								className="widefat search-pointers"
 								placeholder="Search for Post"
-								value={searchText}
+								value={this.state.searchText}
 								onChange={(e) => {
 									this.setState({ searchText: e.target.value });
 									this.doSearch();
@@ -500,4 +434,40 @@ export class Pointers extends Component {
 			</div>
 		);
 	}
+
+	searchResults = (searchResults) => {
+		if (this.state.searchText === '') {
+			return null;
+		}
+
+		if (searchResults === false) {
+			return (
+				<div className="loading">
+					<div className="spinner is-active"></div>
+					Loading...
+				</div>
+			);
+		}
+
+		if (searchResults.length === 0) {
+			return <div className="no-results">{__('No results found.', 'elasticpress')}</div>;
+		}
+
+		return searchResults.map((result) => {
+			return (
+				<div className="pointer-result" key={result.ID}>
+					<span className="title">{result.post_title}</span>
+					<span
+						className="dashicons dashicons-plus add-pointer"
+						onClick={(e) => {
+							e.preventDefault();
+							this.addPointer(result);
+						}}
+					>
+						<span className="screen-reader-text">{__('Add Post', 'elasticpress')}</span>
+					</span>
+				</div>
+			);
+		});
+	};
 }

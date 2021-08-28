@@ -1019,13 +1019,9 @@ class Command extends WP_CLI_Command {
 					$peak_memory    = ' (Peak: ' . round( memory_get_peak_usage() / 1024 / 1024, 2 ) . 'mb)';
 					WP_CLI::log( WP_CLI::colorize( '%Y' . esc_html__( 'Memory Usage: ', 'elasticpress' ) . '%N' . $current_memory . $peak_memory ) );
 				}
-			} else {
-				// Only increment the offset if not using advanced pagination.
-				// For the advanced pagination should always be 0.
-				// @see Indexable\Post\Post.php::query_db.
-				$query_args['offset'] += $per_page;
 			}
 
+			$query_args['offset']                              += $per_page;
 			$total_indexable                                    = (int) $query['total_objects'];
 			$query_args['ep_indexing_last_processed_object_id'] = $last_processed_object_id;
 
@@ -1116,22 +1112,6 @@ class Command extends WP_CLI_Command {
 			$index_names[] = $user_indexable->get_index_name();
 		}
 
-		$response_cat_indices = Elasticsearch::factory()->remote_request( '_cat/indices?format=json' );
-
-		if ( is_wp_error( $response_cat_indices ) ) {
-			WP_CLI::error( implode( "\n", $response_cat_indices->get_error_messages() ) );
-		}
-
-		$indexes_from_cat_indices_api = json_decode( wp_remote_retrieve_body( $response_cat_indices ), true );
-
-		if ( is_array( $indexes_from_cat_indices_api ) ) {
-			$indexes_from_cat_indices_api = wp_list_pluck( $indexes_from_cat_indices_api, 'index' );
-
-			$index_names = array_intersect( $index_names, $indexes_from_cat_indices_api );
-		} else {
-			WP_CLI::error( esc_html__( 'Failed to return status.', 'elasticpress' ) );
-		}
-
 		$index_names_imploded = implode( ',', $index_names );
 
 		$request = wp_remote_get( trailingslashit( Utils\get_host( true ) ) . $index_names_imploded . '/_recovery/?pretty', $request_args );
@@ -1176,22 +1156,6 @@ class Command extends WP_CLI_Command {
 
 		if ( ! empty( $user_indexable ) ) {
 			$index_names[] = $user_indexable->get_index_name();
-		}
-
-		$response_cat_indices = Elasticsearch::factory()->remote_request( '_cat/indices?format=json' );
-
-		if ( is_wp_error( $response_cat_indices ) ) {
-			WP_CLI::error( implode( "\n", $response_cat_indices->get_error_messages() ) );
-		}
-
-		$indexes_from_cat_indices_api = json_decode( wp_remote_retrieve_body( $response_cat_indices ), true );
-
-		if ( is_array( $indexes_from_cat_indices_api ) ) {
-			$indexes_from_cat_indices_api = wp_list_pluck( $indexes_from_cat_indices_api, 'index' );
-
-			$index_names = array_intersect( $index_names, $indexes_from_cat_indices_api );
-		} else {
-			WP_CLI::error( esc_html__( 'Failed to return stats.', 'elasticpress' ) );
 		}
 
 		$index_names_imploded = implode( ',', $index_names );

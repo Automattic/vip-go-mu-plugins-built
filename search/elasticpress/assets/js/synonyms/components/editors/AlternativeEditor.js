@@ -5,12 +5,11 @@ import { Dispatch } from '../../context';
 /**
  * Alternative Editor
  *
- * @param {Object} props Props.
- * @return {React.FC} AlternativeEditor component
+ * @param {object} props Props.
+ * @returns {React.FC}
  */
-const AlternativeEditor = (props) => {
-	const { id, synonyms, removeAction, updateAction } = props;
-	const primary = synonyms.find((item) => item.primary);
+export default function AlternativeEditor(props) {
+	const primary = props.synonyms.find((item) => item.primary);
 	const [primaryTerm, setPrimaryTerm] = useState(primary ? primary.value : '');
 	const dispatch = useContext(Dispatch);
 	const primaryRef = useRef(null);
@@ -19,7 +18,7 @@ const AlternativeEditor = (props) => {
 	 * Create primary token
 	 *
 	 * @param {string} label Label.
-	 * @return {Object} Primary token
+	 * @returns {object}
 	 */
 	const createPrimaryToken = (label) => {
 		return {
@@ -46,17 +45,13 @@ const AlternativeEditor = (props) => {
 	useEffect(() => {
 		dispatch({
 			type: 'UPDATE_ALTERNATIVE_PRIMARY',
-			data: { id, token: createPrimaryToken(primaryTerm) },
+			data: { id: props.id, token: createPrimaryToken(primaryTerm) },
 		});
-	}, [primaryTerm, id, dispatch]);
+	}, [primaryTerm]);
 
 	useEffect(() => {
 		primaryRef.current.focus();
 	}, [primaryRef]);
-
-	const memoizedSynonyms = React.useMemo(() => {
-		return synonyms.filter((item) => !item.primary);
-	}, [synonyms]);
 
 	return (
 		<>
@@ -69,13 +64,9 @@ const AlternativeEditor = (props) => {
 				ref={primaryRef}
 			/>
 			<LinkedMultiInput
-				id={id}
-				updateAction={updateAction}
-				removeAction={removeAction}
-				synonyms={memoizedSynonyms}
+				{...props}
+				synonyms={props.synonyms.filter((item) => !item.primary)}
 			/>
 		</>
 	);
-};
-
-export default AlternativeEditor;
+}

@@ -5,11 +5,11 @@ import { Dispatch, State } from '../../context';
 /**
  * Synonyms editor component.
  *
- * @param {Object} props Props.
- * @param {Object[]} props.alternatives Defined alternatives (explicit mappings).
- * @return {React.FC} AlternativesEditor component
+ * @param {object} props Props.
+ * @param {object[]} props.alternatives Defined alternatives (explicit mappings).
+ * @returns {React.FC}
  */
-const AlternativesEditor = ({ alternatives }) => {
+export default function AlterativesEditor({ alternatives }) {
 	const dispatch = useContext(Dispatch);
 	const state = useContext(State);
 	const {
@@ -58,13 +58,11 @@ const AlternativesEditor = ({ alternatives }) => {
 							)}
 						</Fragment>
 					))}
-					<button type="button" className="button button-secondary" onClick={handleClick}>
+					<button className="button button-secondary" onClick={handleClick}>
 						{alternativesAddButtonText}
 					</button>
 				</div>
 			</div>
 		</div>
 	);
-};
-
-export default AlternativesEditor;
+}

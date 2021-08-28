@@ -111,9 +111,6 @@ return array(
 	),
 	'mappings' => array(
 		'post' => array(
-			'_meta'             => array(
-				'mapping_version' => '5-0.php',
-			),
 			'date_detection'    => false,
 			'dynamic_templates' => array(
 				array(

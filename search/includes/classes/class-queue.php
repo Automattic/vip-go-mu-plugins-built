@@ -579,28 +579,19 @@ class Queue {
 		return $job;
 	}
 
-	/**
-	 * Get the jobs using the lowest and highest job_id range
-	 */
-	public function get_jobs_by_range( $min_id, $max_id ) {
+	public function get_jobs( $job_ids ) {
 		global $wpdb;
 
-		if ( ! $min_id || ! $max_id ) {
+		if ( empty( $job_ids ) ) {
 			return array();
 		}
 
 		$table_name = $this->schema->get_table_name();
 
-		$min_job_id_value = intval( $min_id );
-		$max_job_id_value = intval( $max_id );
+		$escaped_ids = array_map( 'intval', $job_ids );
+		$escaped_ids = implode( ', ', $job_ids );
 
-		$jobs = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT * FROM {$table_name} WHERE `job_id` >= %d AND `job_id` <= %d",  // Cannot prepare table name. @codingStandardsIgnoreLine
-				$min_job_id_value,
-				$max_job_id_value
-			)
-		);
+		$jobs = $wpdb->get_results( "SELECT * FROM {$table_name} WHERE `job_id` IN ( {$escaped_ids} )" ); // Cannot prepare table name, ids already escaped. @codingStandardsIgnoreLine
 
 		return $jobs;
 	}
@@ -621,10 +612,11 @@ class Queue {
 		$table_name = $this->schema->get_table_name();
 
 		// TODO transaction
+		// TODO only find objects that aren't already running
 
 		$jobs = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table_name} WHERE ( `start_time` <= NOW() OR `start_time` IS NULL ) AND `status` = 'queued' ORDER BY `job_id` LIMIT %d", // Cannot prepare table name. @codingStandardsIgnoreLine
+				"SELECT * FROM {$table_name} WHERE ( `start_time` <= NOW() OR `start_time` IS NULL ) AND `status` = 'queued' LIMIT %d", // Cannot prepare table name. @codingStandardsIgnoreLine
 				$count
 			)
 		);
@@ -745,7 +737,7 @@ class Queue {
 	/**
 	 * We can't re-queue jobs that are already waiting in queue. We should remove such jobs instead.
 	 */
-	public function delete_jobs_on_the_already_queued_object( $deadlocked_jobs ) {
+	private function delete_jobs_on_the_already_queued_object( $deadlocked_jobs ) {
 		global $wpdb;
 
 		$table_name = $this->schema->get_table_name();
@@ -1040,11 +1032,11 @@ class Queue {
 	}
 
 	/**
-	 * Get the current queue stats
+	 * Get the current average queue wait time
 	 *
-	 * @return {object} object containing queue stats - average_wait_time, longest_wait_time, queue_count
+	 * @return {int} The current average wait time in seconds.
 	 */
-	public function get_queue_stats() {
+	public function get_average_queue_wait_time() {
 		global $wpdb;
 
 		// If run without having the queue enabled, queue wait times are 0
@@ -1060,33 +1052,18 @@ class Queue {
 
 		$table_name = $this->schema->get_table_name();
 
-		$queue_stats = $wpdb->get_row(
-			// Cannot prepare table name. @codingStandardsIgnoreStart
+		$average_wait_time = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT
-					FLOOR( AVG( TIMESTAMPDIFF( SECOND, queued_time, NOW() ) ) ) AS average_wait_time,
-					FLOOR( MAX( TIMESTAMPDIFF( SECOND, queued_time, NOW() ) ) ) AS longest_wait_time,
-					COUNT( * ) AS queue_count
-				FROM $table_name
-				WHERE 1"
+				"SELECT FLOOR( AVG( TIMESTAMPDIFF( SECOND, queued_time, NOW() ) ) ) AS average_wait_time FROM $table_name WHERE 1" // Cannot prepare table name. @codingStandardsIgnoreLine
 			)
-			// @codingStandardsIgnoreEnd
 		);
 
 		// Null value will usually mean empty table
-		if ( is_null( $queue_stats ) || ! is_object( $queue_stats ) ) {
-			return (object) [
-				'average_wait_time' => 0,
-				'longest_wait_time' => 0,
-				'queue_count' => 0,
-			];
+		if ( is_null( $average_wait_time ) || ! is_numeric( $average_wait_time ) ) {
+			return 0;
 		}
 
-		$queue_stats->average_wait_time = intval( $queue_stats->average_wait_time );
-		$queue_stats->longest_wait_time = intval( $queue_stats->longest_wait_time );
-		$queue_stats->queue_count = intval( $queue_stats->queue_count );
-
-		return $queue_stats;
+		return intval( $average_wait_time );
 	}
 
 	/**

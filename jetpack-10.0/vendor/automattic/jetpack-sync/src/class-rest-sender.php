@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-use WP_Error;
-
 /**
  * This class will handle checkout of Sync queues for REST Endpoints.
  *

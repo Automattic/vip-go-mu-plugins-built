@@ -7,9 +7,9 @@ import SolrEditor from './editors/SolrEditor';
 /**
  * Synonyms editor component.
  *
- * @return {React.FC} Synonyms component
+ * @returns {React.FC}
  */
-const SynonymsEditor = () => {
+export default function SynonymsEditor() {
 	const state = useContext(State);
 	const dispatch = useContext(Dispatch);
 	const { alternatives, sets, isSolrEditable, isSolrVisible, dirty, submit } = state;
@@ -30,8 +30,8 @@ const SynonymsEditor = () => {
 	/**
 	 * Checks if the form is valid.
 	 *
-	 * @param {Object} _state Current state.
-	 * @return {boolean} If the form is valid
+	 * @param {object} _state Current state.
+	 * @returns {boolean}
 	 */
 	const isValid = (_state) => {
 		return [..._state.sets, ..._state.alternatives].reduce((valid, item) => {
@@ -58,7 +58,7 @@ const SynonymsEditor = () => {
 		if (submit && !dirty && isValid(state)) {
 			document.querySelector('.wrap form').submit();
 		}
-	}, [submit, dirty, state]);
+	}, [submit, dirty]);
 
 	return (
 		<>
@@ -104,6 +104,4 @@ const SynonymsEditor = () => {
 			</div>
 		</>
 	);
-};
-
-export default SynonymsEditor;
+}

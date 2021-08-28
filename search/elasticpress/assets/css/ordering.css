@@ -1,6 +1,6 @@
 #ep-ordering {
-	border-left-width: 0;
 	border-right-width: 0;
+	border-left-width: 0;
 
 	& .inside {
 		background-color: #f1f1f1;
@@ -11,39 +11,38 @@
 	& .pointers,
 	& .pointer-search,
 	& .loading {
-		background-color: #fff;
-		border-left: 1px solid #eee;
 		border-right: 1px solid #eee;
+		border-left: 1px solid #eee;
+		background-color: #ffffff;
 	}
 
 	& .new-post {
-		background: #fff;
 		padding: 0 1em;
+		background: #fff;
 	}
 
 	& .loading {
 		padding: 1em;
 
 		& .spinner {
-			float: left;
-			margin-left: 0;
 			margin-top: 0;
+			margin-left: 0;
+			float: left;
 		}
 	}
 
 	& .pointer-type {
+		font-weight: bold;
 		border: 2px solid #0073aa;
 		border-radius: 2px;
-		color: #0073aa;
-		display: inline-block;
-		font-size: 0.75em;
-		font-weight: 700;
 		margin-right: 8px;
+		display: inline-block;
 		padding: 1px 2px;
+		font-size: .75em;
+		color: #0073aa;
 	}
 
 	& .pointers {
-
 		& .pointer,
 		& .post {
 			padding: 1em;
@@ -70,24 +69,24 @@
 		}
 
 		& .next-page-notice {
-			background-color: #fdeeca;
-			padding: 1em 0;
 			text-align: center;
+			padding: 1em 0;
+			background-color: #fdeeca;
 		}
 	}
 
 	& .legend {
 		background: #fff;
-		border-bottom: 1px solid #eee;
-		padding: 1em 0;
 		text-align: center;
+		padding: 1em 0;
+		border-bottom: 1px solid #eee;
 	}
 
 	& .legend-item {
 		display: inline-block;
+		margin: 0 0.5em;
 		font-size: 0.875em;
 		font-style: italic;
-		margin: 0 0.5em;
 	}
 
 	& .pointer-search {
@@ -98,10 +97,10 @@
 		}
 
 		& .section-title {
-			border-bottom: 1px solid #eee;
 			border-top: 1px solid #eee;
-			box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-			font-weight: 700;
+			border-bottom: 1px solid #eee;
+			font-weight: bold;
+			box-shadow: 0 1px 1px rgba(0,0,0,.04)
 		}
 
 		& .search-wrapper {
@@ -113,10 +112,10 @@
 		}
 
 		& .search-pointers {
-			font-size: 18px;
-			height: 1.7em;
-			line-height: 100%;
 			padding: 3px 8px;
+			font-size: 18px;
+			line-height: 100%;
+			height: 1.7em;
 		}
 
 		& .pointer-results {
