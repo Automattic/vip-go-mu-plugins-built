@@ -16,5 +16,14 @@
   "require": {
     "php": ">=5.2"
   },
-  "license": ["GPL-2.0-only"]
+  "license": ["GPL-2.0-only"],
+  "require-dev": {
+    "10up/phpcs-composer": "dev-master",
+    "phpcompatibility/phpcompatibility-wp": "*"
+  },
+  "scripts": {
+    "lint": "phpcs debug-bar-elasticpress.php classes",
+    "lint-fix": "phpcbf debug-bar-elasticpress.php classes",
+    "check-php-compat": "phpcs debug-bar-elasticpress.php classes --standard=PHPCompatibilityWP --extensions=php --runtime-set testVersion 5.4-"
+  }
 }

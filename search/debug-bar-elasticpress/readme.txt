@@ -1,10 +1,10 @@
 === Debug Bar ElasticPress ===
 Contributors: tlovett1, 10up
 Tags: debug, debug bar, elasticpress, elasticsearch
-Requires at least: 3.7.1
-Tested up to: 5.1
+Requires at least: 4.6
+Tested up to: 5.8
 Requires PHP: 5.4
-Stable tag: 1.4
+Stable tag: 2.1.0
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,8 +16,8 @@ Adds an [ElasticPress](https://wordpress.org/plugins/elasticpress) panel to the 
 
 = Requirements: =
 
-* [ElasticPress 1.8+](https://wordpress.org/plugins/elasticpress)
-* [Debug Bar 0.8.2+](https://wordpress.org/plugins/debug-bar/)
+* [ElasticPress 3.0+](https://wordpress.org/plugins/elasticpress)
+* [Debug Bar 1.0+](https://wordpress.org/plugins/debug-bar/)
 * PHP 5.4+
 
 == Installation ==
@@ -26,6 +26,23 @@ Adds an [ElasticPress](https://wordpress.org/plugins/elasticpress) panel to the 
 3. Install the plugin in WordPress.
 
 == Changelog ==
+
+= 2.1.0 =
+
+Added:
+* ElasticPress and Elasticsearch versions. Props to [@oscarssanchez](https://github.com/oscarssanchez) and [@felipeelia](https://github.com/felipeelia) via [#43](https://github.com/10up/debug-bar-elasticpress/pull/43)
+* Log of bulk_index requests. Props [@felipeelia](https://github.com/felipeelia) via [#44](https://github.com/10up/debug-bar-elasticpress/pull/44)
+* Warning when ElasticPress is indexing. Props [@nathanielks](https://github.com/nathanielks) and [@felipeelia](https://github.com/felipeelia) via [#45](https://github.com/10up/debug-bar-elasticpress/pull/45)
+
+Changed:
+* Only load CSS and JS files for logged-in users. Props [@cbratschi](https://github.com/cbratschi) and [@felipeelia](https://github.com/felipeelia) via [#47](https://github.com/10up/debug-bar-elasticpress/pull/47)
+
+= 2.0.0 =
+This release drops the support for older versions of WordPress Core, ElasticPress and Debug Bar.
+
+* Code refactoring. Props [@felipeelia](https://github.com/felipeelia)
+* Fixed Query Logs in EP Dashboard [@felipeelia](https://github.com/felipeelia)
+* Fixed typo from "clsas" to "class" in the query output. Props [@Rahmon](https://github.com/Rahmon) 
 
 = 1.4 =
 * Support ElasticPress 3.0+

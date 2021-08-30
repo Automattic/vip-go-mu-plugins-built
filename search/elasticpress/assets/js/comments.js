@@ -44,7 +44,7 @@ function hideResultsBox(inputElement) {
 /**
  * Update the result list
  *
- * @param {object} comments Comments to be showed
+ * @param {Object} comments Comments to be showed
  * @param {HTMLInputElement} inputElement The input element used in the widget
  */
 const updateResultsBox = (comments, inputElement) => {
@@ -131,7 +131,7 @@ function setIsLoading(isLoading, inputElement) {
  *	Fetch comments
  *
  * @param {HTMLInputElement} inputElement The input element used in the widget
- * @returns {(false|Promise)}
+ * @return {(false|Promise)} Try to fetch comments
  */
 function fetchResults(inputElement) {
 	if (hasMinimumLength(inputElement)) {
@@ -239,6 +239,8 @@ const handleUpDownEnter = (event) => {
 	results[selectedResultIndex]?.setAttribute('aria-selected', 'true');
 };
 
+const debounceFetchResults = debounce(fetchResults, 500);
+
 /**
  * Callback for keyup in Widget Search Comment container.
  *
@@ -265,7 +267,6 @@ const handleKeyup = (event) => {
 	}
 
 	if (hasMinimumLength(target)) {
-		const debounceFetchResults = debounce(fetchResults, 500);
 		debounceFetchResults(target);
 	} else {
 		hideResultsBox(target);

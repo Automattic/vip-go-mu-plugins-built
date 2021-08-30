@@ -313,7 +313,7 @@ class Elasticsearch {
 			(
 				Utils\is_epio() &&
 				! empty( $query_args['s'] ) &&
-				! is_admin() &&
+				Utils\is_integrated_request( 'search' ) &&
 				! isset( $_GET['post_type'] ) // phpcs:ignore WordPress.Security.NonceVerification
 			),
 			$query_args
@@ -1086,6 +1086,7 @@ class Elasticsearch {
 		$existing_headers = isset( $args['headers'] ) ? (array) $args['headers'] : [];
 
 		// Add the API Header.
+		// Note that the "User Agent" header will be changed via WordPress's `http_headers_useragent` filter later.
 		$new_headers = $this->format_request_headers();
 
 		$args['headers'] = array_merge( $existing_headers, $new_headers );
@@ -1103,6 +1104,8 @@ class Elasticsearch {
 
 		$request  = false;
 		$failures = 0;
+
+		add_filter( 'http_headers_useragent', [ $this, 'add_elasticpress_version_to_user_agent' ] );
 
 		// Optionally let us try back up hosts and account for failures.
 		while ( true ) {
@@ -1178,6 +1181,8 @@ class Elasticsearch {
 				break;
 			}
 		}
+
+		remove_filter( 'http_headers_useragent', [ $this, 'add_elasticpress_version_to_user_agent' ] );
 
 		// Return now if we're not blocking, since we won't have a response yet.
 		if ( isset( $args['blocking'] ) && false === $args['blocking'] ) {
@@ -1498,15 +1503,37 @@ class Elasticsearch {
 	}
 
 	/**
-	 * Query logging.
+	 * Conditionally add the ElasticPress version to the User Agent string.
 	 *
-	 * If EP_QUERY_LOG is defined, use its value to control if
-	 * query logging is enabled. If not, only enable it if WP_DEBUG
-	 * or WP_EP_DEBUG are enabled.
-	 *
-	 * Calls action 'ep_add_query_log' if you want to access the
-	 * query outside of the ElasticPress plugin. This runs regardless
-	 * of debug settings.
+	 * @since 3.6.1
+	 * @param string $user_agent Original User Agent.
+	 * @return string
+	 */
+	public function add_elasticpress_version_to_user_agent( $user_agent ) {
+		/**
+		 * Filter the User Agent header when submitting requests to Elasticsearch.
+		 *
+		 * @hook ep_remote_request_add_ep_user_agent
+		 * @param  {bool} $should_add_ep_verion Whether the ElasticPress version should be added to the User Agent string.
+		 * @return {bool} New value
+		 * @since  3.6.1
+		 */
+		if ( apply_filters( 'ep_remote_request_add_ep_user_agent', Utils\is_epio() ) ) {
+			$end_part   = '; ' . get_bloginfo( 'url' );
+			$user_agent = str_replace(
+				$end_part,
+				' (ElasticPress/' . EP_VERSION . ')' . $end_part,
+				$user_agent
+			);
+		}
+		return $user_agent;
+	}
+
+	/**
+	 * Query logging. Don't log anything to the queries property when
+	 * WP_DEBUG is not enabled. Calls action 'ep_add_query_log' if you
+	 * want to access the query outside of the ElasticPress plugin. This
+	 * runs regardless of debufg settings.
 	 *
 	 * @param array $query Query to log.
 	 */
