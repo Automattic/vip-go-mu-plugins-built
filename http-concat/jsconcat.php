@@ -74,9 +74,10 @@ class WPcom_JS_Concat extends WP_Scripts {
 			}
 
 			if ( ! $this->registered[$handle]->src ) { // Defines a group.
-				// if there are localized items, echo them
-				$this->print_extra_script( $handle );
-				$this->done[] = $handle;
+				if ( $this->do_item( $handle, $group ) ) {
+					$this->done[] = $handle;
+				}
+
 				continue;
 			}
 
