@@ -605,7 +605,11 @@ class Synonyms {
 		}
 
 		$screen = get_current_screen();
-		return ( 'elasticpress_page_elasticpress-synonyms' === $screen->base );
+
+		// VIP: We disable the EP page menu, so the prefix will be different for the screen base
+		$base   = ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ? 'admin' : 'elasticpress' ) . '_page_elasticpress-synonyms';
+
+		return $base === $screen->base;
 	}
 
 	/**
