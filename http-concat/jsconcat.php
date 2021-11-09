@@ -172,8 +172,38 @@ class WPcom_JS_Concat extends WP_Scripts {
 						echo $inline_before;
 					}
 				}
+			
+				// Allowed attributes taken from: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script
+				$allowed_attributes = array( 
+					'async', 
+					'defer', 
+					'nomodule', 
+					'crossorigin', 
+					'integrity', 
+					'type', 
+					'nonce', 
+					'referrerpolicy'
+				);
+				$attr_string = '';
+				/**
+				 * Allow adding extra arguments for the script tag.
+				 * Either associative array or regular array.
+				 * E.g.
+				 * [ 'async', 'defer', 'nonce' => '$random_generated_number' ]
+				 *
+				 * @param string $href URL for the script.
+				 * @param array $js_array array that contains the type, path, and handle for the scripts being processed.
+				 * @param WPcom_JS_Concat this instance of WPcom_JS_Concat.
+				 */
+				foreach ( (array) apply_filters( 'js_concat_script_attributes', [], $href, $js_array, $this ) as $k => $v ) {
+					if ( is_int( $k ) && in_array( $v, $allowed_attributes ) ) {
+						$attr_string .= sprintf( ' %s', esc_attr( $v ) );	
+					} else if ( array_search( $k, $allowed_attributes ) ){
+						$attr_string .= sprintf( ' %s="%s"', sanitize_key( is_int( $k ) ? $v : $k ), esc_attr( $v ) );
+					}
+				}
 				if ( isset( $href ) ) {
-					echo "<script type='text/javascript' src='$href'></script>\n";
+					printf( '<script type="text/javascript" src="%s" %s></script>', $href, $attr_string );
 				}
 				if ( isset( $js_array['extras']['after'] ) ) {
 					foreach ( $js_array['extras']['after'] as $inline_after ) {
