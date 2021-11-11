@@ -832,6 +832,7 @@ func runWpCliCmdRemote(conn net.Conn, Guid string, rows uint16, cols uint16, wpC
 
 	if !state.Exited() {
 		logger.Println("terminating the wp command")
+		conn.Write([]byte("Command has been terminated\n"))
 		cmd.Process.Kill()
 	}
 

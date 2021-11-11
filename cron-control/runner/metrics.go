@@ -14,6 +14,7 @@ type metrics struct {
 	histRunEventLatency           *prometheus.HistogramVec
 	histWpcliStatMaxRSS           *prometheus.HistogramVec
 	histWpcliStatCpuTime          *prometheus.HistogramVec
+	histFpmCallDurationSeconds    *prometheus.HistogramVec
 	gaugeRunWorkerStateCount      *prometheus.GaugeVec
 	gaugeRunWorkerBusyPct         prometheus.Gauge
 	ctrRunWorkersAllBusyHits      prometheus.Counter
@@ -98,6 +99,18 @@ func (m *metrics) RecordRunWorkerStats(currBusy int32, max int32) {
 	}
 }
 
+func (m *metrics) RecordFpmTiming(elapsed time.Duration, isError bool) {
+	if m != nil {
+		var labels prometheus.Labels
+		if isError {
+			labels = prometheus.Labels{"status": "error"}
+		} else {
+			labels = prometheus.Labels{"status": "success"}
+		}
+		m.histFpmCallDurationSeconds.With(labels).Observe(elapsed.Seconds())
+	}
+}
+
 const metricNamespace = "cron_control_runner"
 
 func InitializeMetrics() {
@@ -148,6 +161,13 @@ func InitializeMetrics() {
 			Help:      "CPU time (in seconds) of invoked wp-cli commands",
 			Buckets:   []float64{.1, .25, .5, 1, 2.5, 5, 10, 30, 60, 90},
 		}, []string{"cpu_mode", "status"}),
+		histFpmCallDurationSeconds: promauto.NewHistogramVec(prometheus.HistogramOpts{
+			Namespace: metricNamespace,
+			Subsystem: "fpm_client",
+			Name:      "call_duration_seconds",
+			Help:      "Wall time of full call to backend FPM",
+			Buckets:   prometheus.DefBuckets,
+		}, []string{"status"}),
 		gaugeRunWorkerStateCount: promauto.NewGaugeVec(prometheus.GaugeOpts{
 			Namespace: metricNamespace,
 			Subsystem: "run_worker",

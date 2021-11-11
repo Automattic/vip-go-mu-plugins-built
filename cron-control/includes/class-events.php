@@ -90,8 +90,15 @@ class Events extends Singleton {
 
 	/**
 	 * List events pending for the current period
+	 *
+	 * @param array $job_queue_size   Maximum number of events to return (excludes internal events).
+	 * @param array $job_queue_window How many seconds into the future events should be fetched.
+	 * @return array
 	 */
-	public function get_events() {
+	public function get_events( $job_queue_size = null, $job_queue_window = null ) {
+		$job_queue_size   = is_null( $job_queue_size ) ? JOB_QUEUE_SIZE : $job_queue_size;
+		$job_queue_window = is_null( $job_queue_window ) ? JOB_QUEUE_WINDOW_IN_SECONDS : $job_queue_window;
+
 		$events = get_option( 'cron' );
 
 		// That was easy.
@@ -108,7 +115,7 @@ class Events extends Singleton {
 		// Will include missed events as well.
 		$current_events  = array();
 		$internal_events = array();
-		$current_window  = strtotime( sprintf( '+%d seconds', JOB_QUEUE_WINDOW_IN_SECONDS ) );
+		$current_window  = strtotime( sprintf( '+%d seconds', $job_queue_window ) );
 
 		foreach ( $events as $event ) {
 			// Skip events whose time hasn't come.
@@ -139,8 +146,8 @@ class Events extends Singleton {
 		}
 
 		// Limit batch size to avoid resource exhaustion.
-		if ( count( $current_events ) > JOB_QUEUE_SIZE ) {
-			$current_events = $this->reduce_queue( $current_events );
+		if ( count( $current_events ) > $job_queue_size ) {
+			$current_events = $this->reduce_queue( $current_events, $job_queue_size );
 		}
 
 		// Combine with Internal Events.
@@ -181,13 +188,13 @@ class Events extends Singleton {
 	}
 
 	/**
-	 * Trim events queue down to the limit set by JOB_QUEUE_SIZE
+	 * Trim events queue down to a specific limit.
 	 *
-	 * @param array $events List of events to be run in the current period.
-	 *
+	 * @param array $events         List of events to be run in the current period.
+	 * @param array $max_queue_size Maximum number of events to return.
 	 * @return array
 	 */
-	private function reduce_queue( $events ) {
+	private function reduce_queue( $events, $max_queue_size ) {
 		// Loop through events, adding one of each action during each iteration.
 		$reduced_queue = array();
 		$action_counts = array();
@@ -221,7 +228,7 @@ class Events extends Singleton {
 
 				continue;
 			}
-		} while ( $i <= 15 && count( $reduced_queue ) < JOB_QUEUE_SIZE && ! empty( $events ) );
+		} while ( $i <= 15 && count( $reduced_queue ) < $max_queue_size && ! empty( $events ) );
 
 		/**
 		 * IMPORTANT: DO NOT re-sort the $reduced_queue array from this point forward.
@@ -230,12 +237,12 @@ class Events extends Singleton {
 		 * While the events are now out of order with respect to timestamp, they're ordered
 		 * such that one of each action is run before another of an already-run action.
 		 * The timestamp mis-ordering is trivial given that we're only dealing with events
-		 * for the current JOB_QUEUE_WINDOW_IN_SECONDS.
+		 * for the current $job_queue_window.
 		 */
 
 		// Finally, ensure that we don't have more than we need.
-		if ( count( $reduced_queue ) > JOB_QUEUE_SIZE ) {
-			$reduced_queue = array_slice( $reduced_queue, 0, JOB_QUEUE_SIZE );
+		if ( count( $reduced_queue ) > $max_queue_size ) {
+			$reduced_queue = array_slice( $reduced_queue, 0, $max_queue_size );
 		}
 
 		return $reduced_queue;

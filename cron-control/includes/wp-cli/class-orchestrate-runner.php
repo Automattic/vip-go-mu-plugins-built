@@ -21,6 +21,7 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 	 * Not intended for human use, rather it powers the Go-based Runner. Use the `events list` command instead.
 	 *
 	 * @subcommand list-due-batch
+	 * @synopsis [--queue-size=<numberOfEvents>] [--queue-window=<secondsIntoTheFuture>] [--format=<table|json|csv|etc>]
 	 * @param array $args Array of positional arguments.
 	 * @param array $assoc_args Array of flags.
 	 */
@@ -29,7 +30,19 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 			\WP_CLI::error( __( 'Automatic event execution is disabled', 'automattic-cron-control' ) );
 		}
 
-		$events = \Automattic\WP\Cron_Control\Events::instance()->get_events();
+		// Control how many events are fetched. Note that internal events can exceed this cap.
+		$queue_size = \WP_CLI\Utils\get_flag_value( $assoc_args, 'queue-size', null );
+		if ( ! is_numeric( $queue_size ) ) {
+			$queue_size = null;
+		}
+
+		// Control how far into the future events are fetched.
+		$queue_window = \WP_CLI\Utils\get_flag_value( $assoc_args, 'queue-window', null );
+		if ( ! is_numeric( $queue_window ) ) {
+			$queue_window = null;
+		}
+
+		$events = \Automattic\WP\Cron_Control\Events::instance()->get_events( $queue_size, $queue_window );
 
 		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
 

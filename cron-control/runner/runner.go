@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"io"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -15,6 +17,8 @@ import (
 	"sync/atomic"
 	"syscall"
 	"time"
+
+	"github.com/yookoala/gofast"
 )
 
 type siteInfo struct {
@@ -32,6 +36,10 @@ type event struct {
 	Timestamp int
 	Action    string
 	Instance  string
+}
+
+func (e event) String() string {
+	return fmt.Sprintf("event(url=%q, ts=%d, action=%q, instance=%q)", e.URL, e.Timestamp, e.Action, e.Instance)
 }
 
 var (
@@ -56,13 +64,14 @@ var (
 	logFormat string
 	debug     bool
 
+	fpm gofast.ClientFactory
+
 	smartSiteList bool
 	useWebsockets bool
 
 	gRestart                bool
 	gEventRetrieversRunning []bool
 	gEventWorkersRunning    []bool
-	gSiteRetrieverRunning   bool
 	gRandomDeltaMap         map[string]int64
 	gRemoteToken            string
 	gMetricsListenAddr      string
@@ -73,6 +82,7 @@ const getEventsBreakSec time.Duration = 1 * time.Second
 const runEventsBreakSec int64 = 10
 
 func init() {
+	fpmUrlStr := ""
 	flag.StringVar(&wpCliPath, "cli", "/usr/local/bin/wp", "Path to WP-CLI binary")
 	flag.IntVar(&wpNetwork, "network", 0, "WordPress network ID, `0` to disable")
 	flag.StringVar(&wpPath, "wp", "/var/www/html", "Path to WordPress installation")
@@ -83,6 +93,7 @@ func init() {
 	flag.StringVar(&logDest, "log", "os.Stdout", "Log path, omit to log to Stdout")
 	flag.StringVar(&logFormat, "log-format", "JSON", "Log format, 'Text' or 'JSON'")
 	flag.BoolVar(&debug, "debug", false, "Include additional log data for debugging")
+	flag.StringVar(&fpmUrlStr, "fpm-url", fpmUrlStr, "Url for the php-fpm server or socket (e.g. unix:///var/run/fastcgi.sock)")
 	flag.BoolVar(&smartSiteList, "smart-site-list", false, "Use the `wp cron-control orchestrate` command instead of `wp site list`")
 	flag.BoolVar(&useWebsockets, "use-websockets", false, "Use the websocket listener instead of raw tcp")
 	flag.StringVar(&gRemoteToken, "token", "", "Token to authenticate remote WP CLI requests")
@@ -92,15 +103,26 @@ func init() {
 
 	setUpLogger()
 
-	// TODO: Should check for wp-config.php instead?
+	// NEED to do this regardless of fpm because remote.go still will invoke wp-cli directly!
 	validatePath(&wpCliPath, "WP-CLI path")
 	validatePath(&wpPath, "WordPress path")
+
+	if fpmUrlStr != "" {
+		var err error
+		fpmUrl, err := url.Parse(fpmUrlStr)
+		if err != nil || fpmUrl == nil || fpmUrl.Scheme != "unix" || fpmUrl.Path == "" {
+			logger.Printf("error parsing FPM url %q: %v", fpmUrlStr, err)
+			panic(err)
+		}
+		logger.Printf("Using FPM runtime at %q", fpmUrlStr)
+		fpm = gofast.SimpleClientFactory(gofast.SimpleConnFactory(fpmUrl.Scheme, fpmUrl.Path))
+	}
 
 	gRandomDeltaMap = make(map[string]int64)
 }
 
 func main() {
-	logger.Printf("Starting with %d event-retreival worker(s) and %d event worker(s)", numGetWorkers, numRunWorkers)
+	logger.Printf("Starting with %d event-retrieval worker(s) and %d event worker(s)", numGetWorkers, numRunWorkers)
 	logger.Printf("Retrieving events every %d seconds", getEventsInterval)
 	go setupSignalHandler()
 
@@ -120,8 +142,12 @@ func main() {
 		})()
 	}
 
-	go spawnEventRetrievers(sites, events)
-	go spawnEventWorkers(events)
+	for w := 1; w <= numGetWorkers; w++ {
+		go queueSiteEvents(w, sites, events)
+	}
+	for w := 1; w <= numRunWorkers; w++ {
+		go runEvents(w, events)
+	}
 	go retrieveSitesPeriodically(sites)
 
 	// Only listen for connections from remote WP CLI commands is we have a token set
@@ -132,38 +158,18 @@ func main() {
 	heartbeat(sites, events)
 }
 
-func spawnEventRetrievers(sites <-chan site, queue chan<- event) {
-	for w := 1; w <= numGetWorkers; w++ {
-		go queueSiteEvents(w, sites, queue)
-	}
-}
-
-func spawnEventWorkers(queue <-chan event) {
-	workerEvents := make(chan event)
-
-	for w := 1; w <= numRunWorkers; w++ {
-		go runEvents(w, workerEvents)
-	}
-
-	for event := range queue {
-		workerEvents <- event
-	}
-
-	close(workerEvents)
-}
-
 func retrieveSitesPeriodically(sites chan<- site) {
-	gSiteRetrieverRunning = true
-
 	for {
-		waitForEpoch("retrieveSitesPeriodically", int64(getEventsInterval))
+		waitForEpoch("siteRetriever", "retrieveSitesPeriodically", int64(getEventsInterval))
 		if gRestart {
-			logger.Println("exiting site retriever")
+			logger.Println("siteRetriever: exiting")
 			break
 		}
 		t0 := time.Now()
+		logger.Printf("siteRetriever: listing sites...")
 		siteList, err := getSites()
 		duration := time.Since(t0)
+		logger.Printf("siteRetriever: listed %d sites in %v, err=%v", len(siteList), duration, err)
 		if err != nil {
 			Metrics.RecordGetSites(false, duration)
 			continue
@@ -174,15 +180,13 @@ func retrieveSitesPeriodically(sites chan<- site) {
 			sites <- site
 		}
 	}
-
-	gSiteRetrieverRunning = false
 }
 
 func heartbeat(sites chan<- site, queue chan<- event) {
 	if heartbeatInt == 0 {
-		logger.Println("heartbeat disabled")
+		logger.Println("heartbeater: heartbeat disabled")
 		for {
-			waitForEpoch("heartbeat", 60)
+			waitForEpoch("heartbeater", "heartbeat", 60)
 			if gRestart {
 				logger.Println("exiting heartbeat routine")
 				break
@@ -192,21 +196,21 @@ func heartbeat(sites chan<- site, queue chan<- event) {
 	}
 
 	for {
-		waitForEpoch("heartbeat", heartbeatInt)
+		waitForEpoch("heartbeater", "heartbeat", heartbeatInt)
 		if gRestart {
-			logger.Println("exiting heartbeat routine")
+			logger.Println("heartbeater: exiting heartbeat routine")
 			break
 		}
 
 		if smartSiteList {
-			logger.Println("heartbeat")
-			runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "heartbeat", fmt.Sprintf("--heartbeat-interval=%d", heartbeatInt)})
+			logger.Println("heartbeater: heartbeat")
+			runWpCmd([]string{"cron-control", "orchestrate", "sites", "heartbeat", fmt.Sprintf("--heartbeat-interval=%d", heartbeatInt)})
 		}
 
 		successCount, errCount := atomic.LoadUint64(&eventRunSuccessCount), atomic.LoadUint64(&eventRunErrCount)
 		atomic.SwapUint64(&eventRunSuccessCount, 0)
 		atomic.SwapUint64(&eventRunErrCount, 0)
-		logger.Printf("eventsSucceededSinceLast=%d eventsErroredSinceLast=%d", successCount, errCount)
+		logger.Printf("heartbeater: eventsSucceededSinceLast=%d eventsErroredSinceLast=%d", successCount, errCount)
 	}
 
 	var StillRunning bool
@@ -215,32 +219,29 @@ func heartbeat(sites chan<- site, queue chan<- event) {
 		StillRunning = false
 		for workerID, r := range gEventRetrieversRunning {
 			if r {
-				logger.Printf("event retriever ID %d still running\n", workerID+1)
-				logger.Printf("sending empty site object for worker %d\n", workerID+1)
+				logger.Printf("heartbeater (shutdown): event retriever ID %d still running\n", workerID+1)
+				logger.Printf("heartbeater (shutdown):sending empty site object for worker %d\n", workerID+1)
 				sites <- site{}
 				StillRunning = true
 			}
 		}
 		for workerID, r := range gEventWorkersRunning {
 			if r {
-				logger.Printf("event worker ID %d still running\n", workerID+1)
-				logger.Printf("sending empty event for worker %d\n", workerID+1)
+				logger.Printf("heartbeater (shutdown):event worker ID %d still running\n", workerID+1)
+				logger.Printf("heartbeater (shutdown):sending empty event for worker %d\n", workerID+1)
 				queue <- event{}
 				StillRunning = true
 			}
 		}
 
-		if 1 == len(gGUIDttys) {
-			logger.Println("there is still 1 remote WP-CLI command running")
-			StillRunning = true
-		} else if 0 < len(gGUIDttys) {
-			logger.Printf("there are still %d remote WP-CLI commands running\n", len(gGUIDttys))
+		if 0 < len(gGUIDttys) {
+			logger.Printf("heartbeater (shutdown): there are still %d remote WP-CLI commands running\n", len(gGUIDttys))
 			StillRunning = true
 		}
 
 		if StillRunning && 0 < maxWaitCount {
 			logger.Println("worker(s) still running, waiting")
-			time.Sleep(time.Duration(3) * time.Second)
+			time.Sleep(1 * time.Second)
 			maxWaitCount--
 			continue
 		}
@@ -276,7 +277,7 @@ func getSites() ([]site, error) {
 }
 
 func getInstanceInfo() (siteInfo, error) {
-	raw, err := runWpCliCmd([]string{"cron-control", "orchestrate", "runner-only", "get-info", "--format=json"})
+	raw, err := runWpCmd([]string{"cron-control", "orchestrate", "runner-only", "get-info", "--format=json"})
 	if err != nil {
 		return siteInfo{}, err
 	}
@@ -328,9 +329,9 @@ func getMultisiteSites() ([]site, error) {
 	var raw string
 	var err error
 	if smartSiteList {
-		raw, err = runWpCliCmd([]string{"cron-control", "orchestrate", "sites", "list"})
+		raw, err = runWpCmd([]string{"cron-control", "orchestrate", "sites", "list"})
 	} else {
-		raw, err = runWpCliCmd([]string{"site", "list", "--fields=url", "--archived=false", "--deleted=false", "--spam=false", "--format=json"})
+		raw, err = runWpCmd([]string{"site", "list", "--fields=url", "--archived=false", "--deleted=false", "--spam=false", "--format=json"})
 	}
 
 	if err != nil {
@@ -357,38 +358,37 @@ func getMultisiteSites() ([]site, error) {
 
 func queueSiteEvents(workerID int, sites <-chan site, queue chan<- event) {
 	gEventRetrieversRunning[workerID-1] = true
-	logger.Printf("started retriever %d\n", workerID)
+	logger.Printf("getEvents-%d: started retrieving events", workerID)
 
-OuterLoop:
+	defer (func() {
+		logger.Printf("getEvents-%d: deferred exit", workerID)
+		gEventRetrieversRunning[workerID-1] = false
+	})()
+
 	for site := range sites {
 		if gRestart {
-			logger.Printf("exiting event retriever ID %d\n", workerID)
-			break
+			return
 		}
-		if debug {
-			logger.Printf("getEvents-%d processing %s", workerID, site.URL)
-		}
+		logger.Printf("getEvents-%d: retrieving events for site %s", workerID, site.URL)
 
 		t0 := time.Now()
 		events, err := getSiteEvents(site.URL)
 		Metrics.RecordGetSiteEvents(site.URL, err == nil, time.Since(t0), len(events))
+		logger.Printf("getEvents-%d: got %d events for site %s; err=%v", workerID, len(events), site.URL, err)
 		if err == nil && len(events) > 0 {
 			for _, event := range events {
-				if gRestart {
-					break OuterLoop
-				}
 				event.URL = site.URL
+				logger.Printf("getEvents-%d: enqueueing event %v", workerID, event)
 				queue <- event
 			}
 		}
 		time.Sleep(getEventsBreakSec)
 	}
-	// Mark this event retriever as not running for graceful exit
-	gEventRetrieversRunning[workerID-1] = false
+
 }
 
 func getSiteEvents(site string) ([]event, error) {
-	raw, err := runWpCliCmd([]string{"cron-control", "orchestrate", "runner-only", "list-due-batch", fmt.Sprintf("--url=%s", site), "--format=json"})
+	raw, err := runWpCmd([]string{"cron-control", "orchestrate", "runner-only", "list-due-batch", fmt.Sprintf("--url=%s", site), "--format=json"})
 	if err != nil {
 		return nil, err
 	}
@@ -407,17 +407,17 @@ func getSiteEvents(site string) ([]event, error) {
 
 func runEvents(workerID int, events <-chan event) {
 	gEventWorkersRunning[workerID-1] = true
-	logger.Printf("started event worker %d\n", workerID)
+	logger.Printf("runEvents-%d: started", workerID)
 
 	for event := range events {
 		if gRestart {
-			logger.Printf("exiting event worker ID %d\n", workerID)
+			logger.Printf("runEvents-%d: exiting", workerID)
 			break
 		}
 		t0 := time.Now()
 		if event.Timestamp > int(t0.Unix()) {
 			if debug {
-				logger.Printf("runEvents-%d skipping premature job %d|%s|%s for %s", workerID, event.Timestamp, event.Action, event.Instance, event.URL)
+				logger.Printf("runEvents-%d: skipping premature job %v", workerID, event)
 			}
 			Metrics.RecordRunEvent(event.URL, false, "premature", time.Since(t0))
 			continue
@@ -429,24 +429,22 @@ func runEvents(workerID int, events <-chan event) {
 		subcommand := []string{"cron-control", "orchestrate", "runner-only", "run", fmt.Sprintf("--timestamp=%d", event.Timestamp),
 			fmt.Sprintf("--action=%s", event.Action), fmt.Sprintf("--instance=%s", event.Instance), fmt.Sprintf("--url=%s", event.URL)}
 
-		_, err := runWpCliCmd(subcommand)
+		_, err := runWpCmd(subcommand)
+		duration := time.Since(t0)
+		logger.Printf("runEvents-%d: finished job %v after %v; err=%v", workerID, event, duration, err)
 		if err == nil {
-			Metrics.RecordRunEvent(event.URL, true, "ok", time.Since(t0))
+			Metrics.RecordRunEvent(event.URL, true, "ok", duration)
 			if heartbeatInt > 0 {
 				atomic.AddUint64(&eventRunSuccessCount, 1)
 			}
-
-			if debug {
-				logger.Printf("runEvents-%d finished job %d|%s|%s for %s", workerID, event.Timestamp, event.Action, event.Instance, event.URL)
-			}
 		} else {
-			Metrics.RecordRunEvent(event.URL, false, "error", time.Since(t0))
+			Metrics.RecordRunEvent(event.URL, false, "error", duration)
 			if heartbeatInt > 0 {
 				atomic.AddUint64(&eventRunErrCount, 1)
 			}
 		}
 
-		waitForEpoch("runEvents", runEventsBreakSec)
+		waitForEpoch(fmt.Sprintf("runEvents-%d", workerID), "runEvents", runEventsBreakSec)
 
 		// this worker is now considered "idle". we explicitly include the above waitForEpoch in the "busy" time
 		// even though it is wasted, since it is time this worker could not be doing something else.
@@ -454,7 +452,7 @@ func runEvents(workerID int, events <-chan event) {
 		Metrics.RecordRunWorkerStats(atomic.AddInt32(&busyEventWorkers, -1), int32(numRunWorkers))
 
 		if gRestart {
-			logger.Printf("exiting event worker ID %d\n", workerID)
+			logger.Printf("runEvents-%d: exiting", workerID)
 			break
 		}
 
@@ -464,13 +462,139 @@ func runEvents(workerID int, events <-chan event) {
 	gEventWorkersRunning[workerID-1] = false
 }
 
-func runWpCliCmd(subcommand []string) (string, error) {
+func runWpCmd(subcommand []string) (string, error) {
 	// `--quiet`` included to prevent WP-CLI commands from generating invalid JSON
 	subcommand = append(subcommand, "--allow-root", "--quiet", fmt.Sprintf("--path=%s", wpPath))
 	if wpNetwork > 0 {
 		subcommand = append(subcommand, fmt.Sprintf("--network=%d", wpNetwork))
 	}
+	if fpm != nil {
+		return runWpFpmCmdWithMetrics(subcommand)
+	} else {
+		return runWpCliCmd(subcommand)
+	}
+}
 
+func fpmEnv(args url.Values) map[string]string {
+	return map[string]string{
+		"REQUEST_METHOD":    "GET",
+		"SCRIPT_FILENAME":   "/var/wpvip/fpm-cron-runner.php",
+		"GATEWAY_INTERFACE": "FastCGI/1.0",
+		"QUERY_STRING":      args.Encode(),
+	}
+}
+
+func runWpFpmCmdWithMetrics(subcommand []string) (string, error) {
+	t0 := time.Now()
+	res, err := runWpFpmCmdSafe(subcommand)
+	elapsed := time.Since(t0)
+	Metrics.RecordFpmTiming(elapsed, err != nil)
+	return res, err
+}
+
+type fakeHttpResponseWriter struct {
+	Dest       io.Writer
+	LastStatus int
+	Headers    http.Header
+}
+
+func (f *fakeHttpResponseWriter) Header() http.Header {
+	if f.Headers == nil {
+		f.Headers = http.Header{}
+	}
+	return f.Headers
+}
+
+func (f *fakeHttpResponseWriter) Write(bytes []byte) (int, error) {
+	return f.Dest.Write(bytes)
+}
+
+func (f *fakeHttpResponseWriter) WriteHeader(statusCode int) {
+	f.LastStatus = statusCode
+}
+
+type SiteUrl struct {
+	Url string `json:"url"`
+}
+
+func runWpFpmCmdSafe(subcommand []string) (string, error) {
+
+	fpmClient, err := fpm()
+	if err != nil {
+		return "", err
+	}
+	defer (func(){ _ = fpmClient.Close() })()
+
+	args, err := buildFpmQuery(subcommand)
+	if err != nil {
+		return "", err
+	}
+
+	fcgiReq := gofast.NewRequest(nil)
+	fcgiReq.Params = fpmEnv(args)
+
+	fcgiResp, err := fpmClient.Do(fcgiReq)
+	if err != nil {
+		return "", err
+	}
+	defer fcgiResp.Close()
+
+	stdErr := &strings.Builder{}
+	stdOut := &strings.Builder{}
+	hrw := &fakeHttpResponseWriter{Dest: stdOut}
+
+	if err = fcgiResp.WriteTo(hrw, stdErr); err != nil {
+		return "", err
+	}
+
+	stdOutStr := stdOut.String()
+	if hrw.LastStatus != http.StatusOK {
+		return "", fmt.Errorf("fpm error: lastStatus=%d, headers=%v, stdout=%q, stderr=%q", hrw.LastStatus, hrw.Headers, stdOutStr, stdErr.String())
+	}
+
+	var res struct {
+		Buf    string `json:"buf"`
+		Stdout string `json:"stdout"`
+		Stderr string `json:"stderr"`
+	}
+
+	err = json.Unmarshal([]byte(stdOutStr), &res)
+
+	if debug {
+		logger.Printf("fpm result: lastStatus=%d, headers=%v, stdout=%q, stderr=%q, res=%+v, err=%v", hrw.LastStatus, hrw.Headers, stdOutStr, stdErr.String(), res, err)
+	}
+
+	if err != nil {
+		if idx := strings.Index(stdOutStr, `[{"url":`); idx >= 0 {
+			var urls []SiteUrl
+			// if a site manages to escape the output buffering, this will try to find the output anyways...
+			err = json.NewDecoder(strings.NewReader(stdOutStr[idx:])).Decode(&urls)
+			if err == nil {
+				var buf []byte
+				buf, err = json.Marshal(&urls)
+				res.Buf = string(buf)
+			}
+		}
+	}
+
+	if err != nil {
+		return "", fmt.Errorf("fpm error: could not decode json response from %q: err=%v", stdOutStr, err)
+	}
+
+	return res.Buf, err
+}
+
+func buildFpmQuery(subcommand []string) (url.Values, error) {
+	jsonBytes, err := json.Marshal(subcommand)
+	if err != nil {
+		return nil, err
+	}
+	return url.Values{
+		"payload": []string{string(jsonBytes)},
+	}, nil
+}
+
+func runWpCliCmd(subcommand []string) (string, error) {
 	var stdout, stderr strings.Builder
 	wpCli := exec.Command(wpCliPath, subcommand...)
 	wpCli.Stdout = &stdout
@@ -483,7 +607,6 @@ func runWpCliCmd(subcommand []string) (string, error) {
 			logger.Printf("STDERR for command[%s]: %s", strings.Join(subcommand, " "), stderrStr)
 		}
 	}
-
 
 	// always log stats, even in case of an error:
 	if stats, ok := wpCli.ProcessState.SysUsage().(*syscall.Rusage); ok && stats != nil {
@@ -514,7 +637,6 @@ func runWpCliCmd(subcommand []string) (string, error) {
 
 		return wpOutStr, err
 	}
-
 
 	return wpOutStr, nil
 }
@@ -555,7 +677,7 @@ func usage() {
 	os.Exit(3)
 }
 
-func waitForEpoch(whom string, epoch_sec int64) {
+func waitForEpoch(waiter, whom string, epoch_sec int64) {
 	tEpochNano := epoch_sec * time.Second.Nanoseconds()
 	tEpochDelta := tEpochNano - (time.Now().UnixNano() % tEpochNano)
 	if tEpochDelta < 1*time.Second.Nanoseconds() {
@@ -571,6 +693,10 @@ func waitForEpoch(whom string, epoch_sec int64) {
 	}
 
 	tNextEpoch := time.Now().UnixNano() + tEpochDelta + gRandomDeltaMap[whom]
+
+	if totalWait := time.Unix(0, tNextEpoch).Sub(time.Now()); totalWait > 1*time.Second {
+		logger.Printf("%s: LONG wait (%v) for epoch %q", waiter, totalWait, whom)
+	}
 
 	// Sleep in 3sec intervals by default, less if we are running out of time
 	tMaxDelta := 3 * time.Second.Nanoseconds()
