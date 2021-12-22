@@ -1,0 +1,21 @@
+{
+  "name": "automattic/cron-control",
+  "description": "Execute WordPress cron events in parallel, with custom event storage for high-volume cron.",
+  "license": "GPL-2.0",
+  "require": {
+    "php": ">=7.0.0"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
+    "johnpbloch/wordpress-core": "^5.8",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "phpunit/phpunit": "^7",
+    "wp-cli/wp-cli": "*",
+    "wp-coding-standards/wpcs": "^2.3",
+    "wp-phpunit/wp-phpunit": "^5.8",
+    "yoast/phpunit-polyfills": "^1.0"
+  },
+  "config": {
+    "sort-packages": true
+  }
+}
