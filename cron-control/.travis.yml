@@ -1,0 +1,66 @@
+dist: xenial
+
+services:
+  - mysql
+
+language: php
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+
+env:
+  - WP_VERSION=latest
+  - WP_VERSION=latest WP_MULTISITE=1
+  - WP_VERSION=trunk
+  - WP_VERSION=trunk WP_MULTISITE=1
+
+stages:
+  - name: test
+  - name: phpcs
+
+jobs:
+  fast_finish: true
+  include: 
+    # Use PHP 7.2 whilst still on Xenial, to save the job having to install a later version of PHP.
+    - stage: phpcs
+      php: 7.2
+
+before_install:
+    # Speed up build time by disabling Xdebug.
+    # https://johnblackbourn.com/reducing-travis-ci-build-times-for-wordpress-projects/
+    # https://twitter.com/kelunik/status/954242454676475904
+    - phpenv config-rm xdebug.ini || echo 'No xdebug config.'
+
+install:
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - |
+    if [[ "$TRAVIS_BUILD_STAGE_NAME" == "Test" ]]; then
+      bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+      composer global require --dev "phpunit/phpunit=5.7.*"
+    fi
+  - |
+    if [[ "$TRAVIS_BUILD_STAGE_NAME" == "Phpcs" ]]; then
+      composer global require --dev dealerdirect/phpcodesniffer-composer-installer wp-coding-standards/wpcs
+    fi
+
+script:
+  - |
+    if [[ "$TRAVIS_BUILD_STAGE_NAME" == "Test" ]]; then
+      phpunit
+    fi
+  - |
+    if [[ "$TRAVIS_BUILD_STAGE_NAME" == "Phpcs" ]]; then
+      phpcs
+    fi

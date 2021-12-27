@@ -1,0 +1,65 @@
+sudo: false
+
+language: php
+
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+
+branches:
+  only:
+    - master
+    - develop
+
+matrix:
+  include:
+    - php: 5.6
+      env: WP_VERSION=latest PHP_LINT=1
+    - php: 7.0
+      env: WP_VERSION=latest PHP_LINT=1 
+    - php: 7.1
+      env: WP_VERSION=latest PHP_LINT=1
+    - php: 7.2
+      env: WP_VERSION=latest PHP_LINT=1 WP_PHPCS=1
+    - php: 7.2
+      env: WP_VERSION=nightly WP_TEST_OBJECT_CACHE=1
+    - php: 7.3
+      env: WP_VERSION=nightly PHP_LINT=1
+  fast_finish: true
+
+cache:
+  - composer
+  - $HOME/.composer/cache
+
+before_script:
+  - |
+    if [[ ! -z "$WP_VERSION" ]] ; then
+      bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+    fi
+  - |
+    if [[ "$WP_TEST_OBJECT_CACHE" == "1" ]]; then
+      WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
+      curl https://raw.githubusercontent.com/tollmanz/wordpress-pecl-memcached-object-cache/584392b56dc4adbe52bd2c7b86f875e23a3e5f75/object-cache.php > $WP_CORE_DIR/wp-content/object-cache.php
+      ls -la $WP_CORE_DIR/wp-content/
+      echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+    fi
+  - export PATH="$HOME/.composer/vendor/bin:$PATH"
+  - |
+    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+      composer global require "phpunit/phpunit=5.7.*"
+    else
+      composer global require "phpunit/phpunit=4.8.*"
+    fi
+  - |
+    if [[ "$WP_PHPCS" == "1" ]]; then
+      composer global require wp-coding-standards/wpcs
+      phpcs --config-set installed_paths $HOME/.composer/vendor/wp-coding-standards/wpcs
+    fi
+  - phpunit --version
+
+script:
+  - if [[ "$PHP_LINT" == "1" ]]; then find . -type "f" -iname "*.php" | xargs -L "1" php -l; fi
+  - if [[ "$WP_PHPCS" == "1" ]]; then phpcs -n --standard=phpcs.ruleset.xml lightweight-term-count-update.php; fi
+  - phpunit
+  - phpunit -c multisite.xml
