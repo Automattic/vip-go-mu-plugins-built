@@ -646,7 +646,7 @@ class Events_Store extends Singleton {
 			if ( $parsed_args[ $arg_name ] !== $arg_checks['default'] ) {
 				// The arg was changed from the default, let's validate it.
 				if ( ! call_user_func( $arg_checks['validation'], $parsed_args[ $arg_name ] ) ) {
-					trigger_error( 'Invalid arguments passed in for the events query', E_USER_NOTICE );
+					trigger_error( 'Cron-Control: Invalid arguments passed in for the events query', E_USER_WARNING );
 					return [];
 				}
 			}
@@ -659,7 +659,7 @@ class Events_Store extends Singleton {
 		// Timestamp can be:
 		if ( ! is_null( $parsed_args['timestamp'] ) ) {
 			// 1) A direct integer.
-			if ( is_int( $parsed_args['timestamp'] ) ) {
+			if ( is_numeric( $parsed_args['timestamp'] ) ) {
 				$sql .= ' AND timestamp = %d';
 				$placeholders[] = $parsed_args['timestamp'];
 			}
@@ -766,7 +766,7 @@ class Events_Store extends Singleton {
 	}
 
 	private static function validate_timestamp( $ts ): bool {
-		if ( is_int( $ts ) ) {
+		if ( is_numeric( $ts ) ) {
 			return true;
 		}
 
@@ -775,7 +775,7 @@ class Events_Store extends Singleton {
 		}
 
 		if ( is_array( $ts ) ) {
-			return isset( $ts['from'], $ts['to'] ) && is_int( $ts['from'] ) && is_int( $ts['to'] );
+			return isset( $ts['from'], $ts['to'] ) && is_numeric( $ts['from'] ) && is_numeric( $ts['to'] );
 		}
 
 		return false;

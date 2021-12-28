@@ -147,7 +147,7 @@ function pre_clear_scheduled_hook( $pre, $hook, $args ) {
 	$query_args = [
 		'action' => $hook,
 		'args'   => $args,
-		'limit'  => 100,
+		'limit'  => 500,
 		'page'   => 1,
 	];
 
@@ -245,8 +245,8 @@ function pre_get_cron_option( $pre ) {
 	}
 
 	// For maximum BC, we need to truly give all events here.
-	// Still stepping in increments of 100 to allow query caching to do it's job.
-	$query_args = [ 'limit' => 100, 'page' => 1 ];
+	// Stepping in increments of 500 to allow query caching to do it's job.
+	$query_args = [ 'limit' => 500, 'page' => 1 ];
 	$all_events = [];
 	do {
 		$events     = Events::query( $query_args );

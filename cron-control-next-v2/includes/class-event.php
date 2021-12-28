@@ -325,6 +325,11 @@ class Event {
 			}
 		}
 
+		// Don't prevent event creation, but do warn about overly large arguments.
+		if ( ! $this->args_array_is_reasonably_sized() ) {
+			trigger_error( sprintf( 'Cron-Control: Event (action: %s) was added w/ abnormally large arguments. This can badly effect performance.', $this->get_action() ), E_USER_WARNING );
+		}
+
 		return true;
 	}
 
@@ -353,5 +358,33 @@ class Event {
 
 		// If we couldn't get from schedule (was removed), use whatever was saved already.
 		return $this->interval;
+	}
+
+	private function args_array_is_reasonably_sized(): bool {
+		// We aim to cache queries w/ up to 500 events.
+		$max_events_per_page = 500;
+
+		// A compressed db row of an event is around 300 bytes.
+		$db_row_size_of_normal_event = 300;
+
+		// Note: Memcache can only cache up to 1mb values, after compression.
+		$reasonable_size = ( MB_IN_BYTES / $max_events_per_page ) - $db_row_size_of_normal_event;
+
+		// First a quick uncompressed test.
+		$uncompressed_size = mb_strlen( serialize( $this->get_args() ), '8bit' );
+		if ( $uncompressed_size < $reasonable_size * 4 ) {
+			// After compression, this is for sure generously under the limit.
+			return true;
+		}
+
+		// Now the more expensive test, accounting for compression.
+		$compressed_args = gzdeflate( serialize( $this->get_args() ) );
+		if ( false === $compressed_args ) {
+			// Wasn't able to compress, let's assume it is above the ideal limit.
+			return false;
+		}
+
+		$compressed_size = mb_strlen( $compressed_args, '8bit' );
+		return $compressed_size < $reasonable_size;
 	}
 }
