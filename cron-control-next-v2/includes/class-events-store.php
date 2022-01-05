@@ -537,7 +537,12 @@ class Events_Store extends Singleton {
 
 		$result = $wpdb->insert( $this->get_table_name(), $row_data, self::row_formatting( $row_data ) );
 
-		self::flush_event_cache();
+		if ( isset( $row_data['action'], $row_data['instance'] ) ) {
+			self::flush_event_cache( $row_data['action'], $row_data['instance'] );
+		} else {
+			self::flush_event_cache();
+		}
+
 		return false === $result ? 0 : $wpdb->insert_id;
 	}
 
@@ -559,7 +564,14 @@ class Events_Store extends Singleton {
 		$where  = [ 'ID' => $event_id ];
 		$result = $wpdb->update( $this->get_table_name(), $row_data, $where, self::row_formatting( $row_data ), self::row_formatting( $where ) );
 
-		self::flush_event_cache();
+		if ( isset( $row_data['action'], $row_data['args'] ) ) {
+			// Regenerate the initial instance because "completed" events have it randomized to avoid db constraint conflicts.
+			$instance = Event::create_instance_hash( maybe_unserialize( $row_data['args'] ) );
+			self::flush_event_cache( $row_data['action'], $instance );
+		} else {
+			self::flush_event_cache();
+		}
+
 		return false !== $result;
 	}
 
@@ -735,16 +747,30 @@ class Events_Store extends Singleton {
 			}
 		}
 
-		$last_changed = wp_cache_get_last_changed( 'cron-control-events' );
-		$query_hash   = sha1( serialize( [ $sql, $placeholders ] ) ) . "::{$last_changed}";
+		$cache_group = 'cron-control-queries';
+		$query_hash  = sha1( serialize( [ $sql, $placeholders ] ) );
+		$cache_key   = "events::{$query_hash}::" . wp_cache_get_last_changed( $cache_group );
 
-		$results = wp_cache_get( "events::{$query_hash}", 'cron-control-events' );
+		// Conditionally use a more specific cache for common FE queries, helping avoid most bulk invalidations.
+		$allowed_arg_count = array_key_exists( 'timestamp', $args ) ? 4 : 3;
+		if ( 1 === $args['limit'] && count( $args ) === $allowed_arg_count ) {
+			$has_timestamp = array_key_exists( 'timestamp', $args ) && ! is_null( $args['timestamp'] );
+
+			// Request was for the next event based on action/args, i.e. wp_next_scheduled()
+			if ( isset( $args['action'], $args['args'] ) && ! $has_timestamp ) {
+				$cache_group = 'cron-control-event';
+				$hashed_args = sha1( serialize( [ 'action' => $args['action'], 'instance' => Event::create_instance_hash( $args['args'] ) ] ) );
+				$cache_key   = "event::{$hashed_args}::" . wp_cache_get_last_changed( $cache_group );
+			}
+		}
+
+		$results = wp_cache_get( $cache_key, $cache_group );
 		if ( false === $results ) {
 			// Already prepared @codingStandardsIgnoreLine
 			$results = $wpdb->get_results( $wpdb->prepare( $sql, $placeholders ) );
 			$results = is_array( $results ) ? $results : [];
 
-			wp_cache_set( "events::{$query_hash}", $results, 'cron-control-events' );
+			wp_cache_set( $cache_key, $results, $cache_group );
 		}
 
 		return $results;
@@ -797,8 +823,19 @@ class Events_Store extends Singleton {
 		return $formatting;
 	}
 
-	private static function flush_event_cache() {
-		wp_cache_set( 'last_changed', microtime(), 'cron-control-events' );
+	private static function flush_event_cache( string $event_action = null, string $event_instance = null ) {
+		// Always have to flush the query caches.
+		wp_cache_set( 'last_changed', microtime(), 'cron-control-queries' );
+
+		$cache_group = 'cron-control-event';
+		if ( is_null( $event_action ) || is_null( $event_instance ) ) {
+			// Flush the whole group when a specific event was not specified.
+			wp_cache_set( 'last_changed', microtime(), $cache_group );
+		} else {
+			$hashed_args = sha1( serialize( [ 'action' => $event_action, 'instance' => $event_instance ] ) );
+			$cache_key   = "event::{$hashed_args}::" . wp_cache_get_last_changed( $cache_group );
+			wp_cache_delete( $cache_key, $cache_group );
+		}
 	}
 }
 

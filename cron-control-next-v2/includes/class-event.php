@@ -177,7 +177,7 @@ class Event {
 		// Prevent conflicts with the unique constraints in the table.
 		// Is a bit unfortunate since it won't be as easy to query for the event anymore.
 		// Perhaps in the future could remove the unique constraint in favor of stricter duplicate checking.
-		$this->instance = (string) mt_rand( 1000000, 9999999999999 );
+		$this->instance = 'randomized:' . (string) mt_rand( 1000000, 9999999999999 );
 
 		$this->set_status( Events_Store::STATUS_COMPLETED );
 		return $this->save();
