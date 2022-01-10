@@ -43,12 +43,13 @@ class Orchestrate_Runner extends \WP_CLI_Command {
 		}
 
 		$events = \Automattic\WP\Cron_Control\Events::instance()->get_events( $queue_size, $queue_window );
+		$events = is_array( $events['events'] ) ? $events['events'] : [];
 
 		$format = \WP_CLI\Utils\get_flag_value( $assoc_args, 'format', 'table' );
 
 		\WP_CLI\Utils\format_items(
 			$format,
-			$events['events'],
+			$events,
 			array(
 				'timestamp',
 				'action',
