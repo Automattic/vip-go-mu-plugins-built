@@ -7,6 +7,9 @@
 
 namespace Automattic\WP\Cron_Control\Tests;
 
+use Automattic\WP\Cron_Control\Events_Store;
+use Automattic\WP\Cron_Control\Event;
+
 /**
  * Events Store Tests
  */
@@ -145,81 +148,200 @@ class Events_Store_Tests extends \WP_UnitTestCase {
 		$this->assertEmpty( Utils::get_events_from_store() );
 	}
 
-	/**
-	 * Test event-cache splitting
-	 */
-	function test_excessive_event_creation() {
-		$timestamp_base = time() + ( 1 * \HOUR_IN_SECONDS );
+	/*
+	|--------------------------------------------------------------------------
+	| New event's store methods. The above may be deprecated in the future.
+	|--------------------------------------------------------------------------
+	| These are pretty extensively covered in the Event() testing already.
+	*/
 
-		$dummy_text = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam enim ante, maximus nec nisi ut, finibus ultrices orci. Maecenas suscipit, est eu suscipit sagittis, enim massa dignissim augue, sagittis gravida dolor nulla ut mi. Phasellus venenatis bibendum cursus. Aliquam a erat purus. Nulla elit nunc, egestas eget eros iaculis, interdum tincidunt elit. Vivamus vel blandit nisl. Proin in ornare dolor, convallis porta sem. Mauris rutrum nibh et ornare egestas. Mauris ultricies diam at nunc tristique rutrum. Aliquam varius non leo vel luctus. Vestibulum sagittis scelerisque ante, non faucibus nibh accumsan sed.';
-		$args       = array_fill( 0, 15, $dummy_text );
+	function test_event_creation() {
+		$store = Events_Store::instance();
 
-		for ( $i = 1; $i <= 100; $i++ ) {
-			$timestamp = $timestamp_base + $i;
-			$action    = 'excessive_test_event_' . $i;
-			wp_schedule_single_event( $timestamp, $action, $args );
-		}
+		// We don't validate fields here, so not much to test other than return values.
+		$result = $store->_create_event( [
+			'status'        => Events_Store::STATUS_PENDING,
+			'action'        => 'test_raw_event',
+			'action_hashed' => md5( 'test_raw_event' ),
+			'timestamp'     => 1637447873,
+			'args'          => serialize( [] ),
+			'instance'      => Event::create_instance_hash( [] ),
+		] );
+		$this->assertTrue( is_int( $result ) && $result > 0, 'event was inserted' );
 
-		get_option( 'cron' );
-
-		$cached = wp_cache_get( \Automattic\WP\Cron_Control\Events_Store::CACHE_KEY );
-
-		$this->assertArrayHasKey( 'incrementer', $cached );
-		$this->assertArrayHasKey( 'buckets', $cached );
-		$this->assertArrayHasKey( 'event_count', $cached );
-
-		$this->assertEquals( 4, $cached['buckets'] );
-		$this->assertEquals( 100, $cached['event_count'] );
+		$empty_result = $store->_create_event( [] );
+		$this->assertTrue( 0 === $empty_result, 'empty event was not inserted' );
 	}
 
-	/**
-	 * Test retrieving an event without requesting a status
-	 */
-	function test_get_job_by_attributes() {
-		$event = Utils::create_test_event();
+	function test_event_updates() {
+		$store = Events_Store::instance();
 
-		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes(
-			[
-				'timestamp' => $event['timestamp'],
-				'action'    => $event['action'],
-				'instance'  => md5( maybe_serialize( $event['args'] ) ),
-			]
-		);
+		// Make a valid event.
+		$event = new Event();
+		$event->set_action( 'test_get_action' );
+		$event->set_timestamp( 1637447875 );
+		$event->save();
 
-		$this->assertInternalType( 'object', $event_from_store );
+		$result = $store->_update_event( $event->get_id(), [ 'timestamp' => 1637447875 + 100 ] );
+		$this->assertTrue( $result, 'event was updated' );
+
+		// Spot check the updated property.
+		$raw_event = $store->_get_event_raw( $event->get_id() );
+		$this->assertEquals( 1637447875 + 100, $raw_event->timestamp );
+
+		$failed_result = $store->_update_event( $event->get_id(), [] );
+		$this->assertFalse( $failed_result, 'event was not updated due to invalid args' );
 	}
 
-	/**
-	 * Test retrieving an event with any status
-	 */
-	function test_get_job_by_attributes_with_any_status() {
-		$event = Utils::create_test_event();
+	function test_get_raw_event() {
+		$store = Events_Store::instance();
 
-		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes(
-			[
-				'timestamp' => $event['timestamp'],
-				'action'    => $event['action'],
-				'instance'  => md5( maybe_serialize( $event['args'] ) ),
-				'status'    => 'any',
-			]
-		);
+		$result = $store->_get_event_raw( -1 );
+		$this->assertNull( $result, 'returns null when given invalid ID' );
 
-		$this->assertInternalType( 'object', $event_from_store );
+		$result = $store->_get_event_raw( PHP_INT_MAX );
+		$this->assertNull( $result, 'returns null when given an non-existant ID' );
+
+		// Event w/ all defaults.
+		$this->run_get_raw_event_test( [
+			'creation_args' => [
+				'action'    => 'test_event',
+				'timestamp' => 1637447873,
+			],
+			'expected_data' => [
+				'status'    => Events_Store::STATUS_PENDING,
+				'action'    => 'test_event',
+				'args'      => [],
+				'schedule'  => null,
+				'interval'  => 0,
+				'timestamp' => 1637447873,
+			],
+		] );
+
+		// Event w/ all non-defaults.
+		$this->run_get_raw_event_test( [
+			'creation_args' => [
+				'status'    => Events_Store::STATUS_COMPLETED,
+				'action'    => 'test_event',
+				'args'      => [ 'some' => 'data' ],
+				'schedule'  => 'hourly',
+				'interval'  => HOUR_IN_SECONDS,
+				'timestamp' => 1637447873,
+			],
+			'expected_data' => [
+				'status'    => Events_Store::STATUS_COMPLETED,
+				'action'    => 'test_event',
+				'args'      => [ 'some' => 'data' ],
+				'schedule'  => 'hourly',
+				'interval'  => HOUR_IN_SECONDS,
+				'timestamp' => 1637447873,
+			],
+		] );
 	}
 
-	/**
-	 * Test retrieving an event with insufficient information
-	 */
-	function test_get_job_by_attributes_with_insufficient_args() {
-		$event = Utils::create_test_event();
+	private function run_get_raw_event_test( array $event_data ) {
+		// Create test event.
+		$test_event = new Event();
+		Utils::apply_event_props( $test_event, $event_data['creation_args'] );
+		$save_result = $test_event->save();
 
-		$event_from_store = \Automattic\WP\Cron_Control\get_event_by_attributes(
-			[
-				'timestamp' => $event['timestamp'],
-				'action'    => $event['action'],
-			]
-		);
+		// Check if we got expected values from the DB.
+		$raw_event = Events_Store::instance()->_get_event_raw( $test_event->get_id() );
+		$expected_data = $event_data['expected_data'];
+		$expected_data['id'] = $test_event->get_id();
+		Utils::assert_event_raw_data_equals( $raw_event, $expected_data, $this );
+	}
 
-		$this->assertFalse( $event_from_store );
+	public function test_query_raw_events() {
+		$store = Events_Store::instance();
+
+		$args = [
+			'status'    => Events_Store::STATUS_PENDING,
+			'action'    => 'test_query_raw_events',
+			'args'      => [ 'some' => 'data' ],
+			'schedule'  => 'hourly',
+			'interval'  => HOUR_IN_SECONDS,
+		];
+
+		$event_one   = $this->create_test_event( array_merge( $args, [ 'timestamp' => 1 ] ) );
+		$event_two   = $this->create_test_event( array_merge( $args, [ 'timestamp' => 2 ] ) );
+		$event_three = $this->create_test_event( array_merge( $args, [ 'timestamp' => 3 ] ) );
+		$event_four  = $this->create_test_event( array_merge( $args, [ 'timestamp' => 4 ] ) );
+
+		// Should give us just the first event that has the oldest timestamp.
+		$result = $store->_query_events_raw( [
+			'status'   => [ Events_Store::STATUS_PENDING ],
+			'action'   => 'test_query_raw_events',
+			'args'     => [ 'some' => 'data' ],
+			'schedule' => 'hourly',
+			'limit'    => 1,
+		] );
+
+		$this->assertEquals( 1, count( $result ), 'returns one event w/ oldest timestamp' );
+		$this->assertEquals( $event_one->get_timestamp(), $result[0]->timestamp, 'found the right event' );
+
+		// Should give two events now, in desc order
+		$result = $store->_query_events_raw( [
+			'status'   => [ Events_Store::STATUS_PENDING ],
+			'action'   => 'test_query_raw_events',
+			'args'     => [ 'some' => 'data' ],
+			'schedule' => 'hourly',
+			'limit'    => 2,
+			'order'    => 'desc',
+		] );
+
+		$this->assertEquals( 2, count( $result ), 'returned 2 events' );
+		$this->assertEquals( $event_four->get_timestamp(), $result[0]->timestamp, 'found the right event' );
+		$this->assertEquals( $event_three->get_timestamp(), $result[1]->timestamp, 'found the right event' );
+
+		// Should find just the middle two events that match the timeframe.
+		$result = $store->_query_events_raw( [
+			'status'    => [ Events_Store::STATUS_PENDING ],
+			'action'    => 'test_query_raw_events',
+			'args'      => [ 'some' => 'data' ],
+			'schedule'  => 'hourly',
+			'limit'     => 100,
+			'timestamp' => [ 'from' => 2, 'to' => 3 ],
+		] );
+
+		$this->assertEquals( 2, count( $result ), 'returned middle events that match the timeframe' );
+		$this->assertEquals( $event_two->get_timestamp(), $result[0]->timestamp, 'found the right event' );
+		$this->assertEquals( $event_three->get_timestamp(), $result[1]->timestamp, 'found the right event' );
+
+		$event_five = $this->create_test_event( array_merge( $args, [ 'timestamp' => time() + 5 ] ) );
+
+		// Should find all but the last event that is not due yet.
+		$result = $store->_query_events_raw( [
+			'status'    => [ Events_Store::STATUS_PENDING ],
+			'action'    => 'test_query_raw_events',
+			'args'      => [ 'some' => 'data' ],
+			'schedule'  => 'hourly',
+			'limit'     => 100,
+			'timestamp' => 'due_now',
+		] );
+
+		$this->assertEquals( 4, count( $result ), 'returned all due now events' );
+		$this->assertEquals( $event_one->get_timestamp(), $result[0]->timestamp, 'found the right event' );
+		$this->assertEquals( $event_four->get_timestamp(), $result[3]->timestamp, 'found the right event' );
+
+		// Grab the second page.
+		$result = $store->_query_events_raw( [
+			'status'   => [ Events_Store::STATUS_PENDING ],
+			'action'   => 'test_query_raw_events',
+			'args'     => [ 'some' => 'data' ],
+			'schedule' => 'hourly',
+			'limit'    => 1,
+			'page'     => 2,
+		] );
+
+		$this->assertEquals( 1, count( $result ), 'returned event from second page' );
+		$this->assertEquals( $event_two->get_timestamp(), $result[0]->timestamp, 'found the right event' );
+	}
+
+	private function create_test_event( $props ) {
+		$event = new Event();
+		Utils::apply_event_props( $event, $props );
+		$event->save();
+		return $event;
 	}
 }

@@ -37,13 +37,18 @@ function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/cron-control.php';
 
 	// Plugin loads after `wp_install()` is called, so we compensate.
-	// See the `class_init()` method in Events_Store for the logic behind this.
 	\Automattic\WP\Cron_Control\Events_Store::instance()->prepare_table();
-	remove_filter( 'schedule_event', '__return_false' );
-	add_filter( 'pre_option_cron', array( \Automattic\WP\Cron_Control\Events_Store::instance(), 'get_option' ) );
-	add_filter( 'pre_update_option_cron', array( \Automattic\WP\Cron_Control\Events_Store::instance(), 'update_option' ), 10, 2 );
-	add_filter( 'schedule_event', array( \Automattic\WP\Cron_Control\Events_Store::instance(), 'block_creation_if_job_exists' ) );
-	\Automattic\WP\Cron_Control\_resume_event_creation();
+
+	// Need to re-add the filters since they would have been skipped over in wp-adapter.php the first time around.
+	add_filter( 'pre_schedule_event', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_schedule_event', 10, 2 );
+	add_filter( 'pre_reschedule_event', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_reschedule_event', 10, 2 );
+	add_filter( 'pre_unschedule_event', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_unschedule_event', 10, 4 );
+	add_filter( 'pre_clear_scheduled_hook', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_clear_scheduled_hook', 10, 3 );
+	add_filter( 'pre_unschedule_hook', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_unschedule_hook', 10, 2 );
+	add_filter( 'pre_get_scheduled_event', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_get_scheduled_event', 10, 4 );
+	add_filter( 'pre_get_ready_cron_jobs', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_get_ready_cron_jobs', 10, 1 );
+	add_filter( 'pre_option_cron', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_get_cron_option', 10 );
+	add_filter( 'pre_update_option_cron', __NAMESPACE__ . '\Automattic\WP\Cron_Control\pre_update_cron_option', 10, 2 );
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

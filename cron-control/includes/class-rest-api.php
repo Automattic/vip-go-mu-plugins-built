@@ -131,6 +131,16 @@ class REST_API extends Singleton {
 	 * @return bool|\WP_Error
 	 */
 	public function check_secret( $request ) {
+		if ( false === \WP_CRON_CONTROL_SECRET ) {
+			return new \WP_Error(
+				'api-disabled',
+				__( 'Cron Control REST API endpoints are disabled', 'automattic-cron-control' ),
+				array(
+					'status' => 403,
+				)
+			);
+		}
+
 		$body = $request->get_json_params();
 
 		// For now, mimic original plugin's "authentication" method. This needs to be better.

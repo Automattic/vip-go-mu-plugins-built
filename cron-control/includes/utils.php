@@ -176,3 +176,36 @@ function set_doing_cron() {
 	// These can be used to override the `DOING_CRON` constant, which may cause problems for plugin's requests.
 	add_filter( 'wp_doing_cron', '__return_true', 99999 );
 }
+
+// Helper method for deprecating publicly accessibly functions/methods.
+function _deprecated_function( string $function, string $replacement = '', $error_level = 2 ) {
+	$error_levels = [
+		'debug'  => 1,
+		'notice' => 2,
+		'warn'   => 3,
+	];
+
+	$message = sprintf( 'Cron-Control: %s is deprecated and will soon be removed.', $function );
+	if ( ! empty( $replacement ) ) {
+		$message .= sprintf( ' Use %s instead.', $replacement );
+	}
+
+	// Use E_WARNING error level.
+	$warning_constant = defined( 'CRON_CONTROL_WARN_FOR_DEPRECATIONS' ) && CRON_CONTROL_WARN_FOR_DEPRECATIONS;
+	if ( $warning_constant || $error_level >= $error_levels['warn'] ) {
+		trigger_error( $message, E_USER_WARNING );
+		return;
+	}
+
+	// Use E_USER_NOTICE regardless of Debug mode.
+	if ( $error_level >= $error_levels['notice'] ) {
+		trigger_error( $message, E_USER_NOTICE );
+		return;
+	}
+
+	// Use E_USER_NOTICE only in Debug mode.
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		trigger_error( $message, E_USER_NOTICE );
+		return;
+	}
+}

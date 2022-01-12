@@ -147,21 +147,9 @@ class Internal_Events extends Singleton {
 	 * Schedule internal events
 	 */
 	public function schedule_internal_events() {
-		$when = strtotime( sprintf( '+%d seconds', JOB_QUEUE_WINDOW_IN_SECONDS ) );
-
-		$schedules = wp_get_schedules();
-
 		foreach ( $this->internal_events as $event_args ) {
 			if ( ! wp_next_scheduled( $event_args['action'] ) ) {
-				$interval = array_key_exists( $event_args['schedule'], $schedules ) ? $schedules[ $event_args['schedule'] ]['interval'] : 0;
-
-				$args = array(
-					'schedule' => $event_args['schedule'],
-					'args'     => array(),
-					'interval' => $interval,
-				);
-
-				schedule_event( $when, $event_args['action'], $args );
+				wp_schedule_event( time(), $event_args['schedule'], $event_args['action'] );
 			}
 		}
 	}
@@ -268,26 +256,16 @@ class Internal_Events extends Singleton {
 				continue;
 			}
 
-			$event_details = get_event_by_attributes(
-				array(
-					'timestamp' => $timestamp,
-					'action'    => $internal_event['action'],
-					'instance'  => md5( maybe_serialize( array() ) ),
-				)
-			);
+			$event = Event::find( [
+				'timestamp' => $timestamp,
+				'action'    => $internal_event['action'],
+				'instance'  => md5( maybe_serialize( [] ) ),
+			] );
 
-			if ( $event_details->schedule !== $internal_event['schedule'] ) {
-				if ( $timestamp <= time() ) {
-					$timestamp = time() + ( 1 * \MINUTE_IN_SECONDS );
-				}
-
-				$args = array(
-					'schedule' => $internal_event['schedule'],
-					'args'     => $event_details->args,
-					'interval' => $schedules[ $internal_event['schedule'] ]['interval'],
-				);
-
-				schedule_event( $timestamp, $event_details->action, $args, $event_details->ID );
+			if ( ! is_null( $event ) && $event->get_schedule() !== $internal_event['schedule'] ) {
+				// Update to the new schedule.
+				$event->set_schedule( $internal_event['schedule'], $schedules[ $internal_event['schedule'] ]['interval'] );
+				$event->save();
 			}
 		}
 	}

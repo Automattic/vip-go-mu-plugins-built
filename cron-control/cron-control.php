@@ -4,7 +4,9 @@
  * Plugin URI: https://vip.wordpress.com/
  * Description: Execute WordPress cron events in parallel, using a custom post type for event storage.
  * Author: Erick Hitter, Automattic
- * Version: 2.0
+ * Version: 3.0
+ * Requires at least: 5.1
+ * Requires PHP: 7.4
  * Text Domain: automattic-cron-control
  * Domain Path: /languages
  *

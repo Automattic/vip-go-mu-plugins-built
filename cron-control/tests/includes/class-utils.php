@@ -97,4 +97,40 @@ class Utils {
 			return $tested_data;
 		}
 	}
+
+	static function apply_event_props( $event, $props ) {
+		$props_to_set = array_keys( $props );
+
+		if ( in_array( 'status', $props_to_set, true ) ) {
+			$event->set_status( $props['status'] );
+		}
+
+		if ( in_array( 'action', $props_to_set, true ) ) {
+			$event->set_action( $props['action'] );
+		}
+
+		if ( in_array( 'args', $props_to_set, true ) ) {
+			$event->set_args( $props['args'] );
+		}
+
+		if ( in_array( 'schedule', $props_to_set, true ) ) {
+			$event->set_schedule( $props['schedule'], $props['interval'] );
+		}
+
+		if ( in_array( 'timestamp', $props_to_set, true ) ) {
+			$event->set_timestamp( $props['timestamp'] );
+		}
+	}
+
+	static function assert_event_raw_data_equals( object $raw_event, array $expected_data, $context ) {
+		$context->assertEquals( $raw_event->ID, $expected_data['id'], 'id matches' );
+		$context->assertEquals( $raw_event->status, $expected_data['status'], 'status matches' );
+		$context->assertEquals( $raw_event->action, $expected_data['action'], 'action matches' );
+		$context->assertEquals( $raw_event->action_hashed, md5( $expected_data['action'] ), 'action_hash matches' );
+		$context->assertEquals( $raw_event->args, serialize( $expected_data['args'] ), 'args match' );
+		$context->assertEquals( $raw_event->instance, md5( serialize( $expected_data['args'] ) ), 'instance matches' );
+		$context->assertEquals( $raw_event->schedule, $expected_data['schedule'], 'schedule matches' );
+		$context->assertEquals( $raw_event->interval, $expected_data['interval'], 'interval matches' );
+		$context->assertEquals( $raw_event->timestamp, $expected_data['timestamp'], 'timestamp matches' );
+	}
 }

@@ -15,7 +15,7 @@ module.exports = function( grunt ) {
 				options: {
 					updateDomains: true
 				},
-				src: [ '*.php', '**/*.php', '!node_modules/**', '!php-tests/**', '!bin/**' ]
+				src: [ '*.php', '**/*.php', '!node_modules/**', '!tests/**', '!bin/**', '!vendor/**', '!runner/**' ]
 			}
 		},
 
@@ -38,7 +38,8 @@ module.exports = function( grunt ) {
 						'x-poedit-keywordslist': true
 					},
 					type: 'wp-plugin',
-					updateTimestamp: true
+					updateTimestamp: true,
+					exclude: [ 'node_modules/.*', 'tests/.*', 'bin/.*', 'vendor/.*', 'runner/.*' ],
 				}
 			}
 		},
@@ -48,6 +49,7 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( 'grunt-wp-readme-to-markdown' );
 	grunt.registerTask( 'i18n', ['addtextdomain', 'makepot'] );
 	grunt.registerTask( 'readme', ['wp_readme_to_markdown'] );
+	grunt.registerTask( 'default', ['i18n', 'readme'] );
 
 	grunt.util.linefeed = '\n';
 

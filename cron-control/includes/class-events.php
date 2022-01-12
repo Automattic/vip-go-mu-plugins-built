@@ -7,6 +7,8 @@
 
 namespace Automattic\WP\Cron_Control;
 
+use WP_Error;
+
 /**
  * Events class
  */
@@ -30,9 +32,9 @@ class Events extends Singleton {
 	private $concurrent_action_whitelist = array();
 
 	/**
-	 * Name of action currently being executed
+	 * The event currently being executed.
 	 *
-	 * @var mixed
+	 * @var null|Event
 	 */
 	private $running_event = null;
 
@@ -89,56 +91,41 @@ class Events extends Singleton {
 	}
 
 	/**
-	 * List events pending for the current period
+	 * List events pending for the current period.
 	 *
-	 * @param array $job_queue_size   Maximum number of events to return (excludes internal events).
-	 * @param array $job_queue_window How many seconds into the future events should be fetched.
-	 * @return array
+	 * @param null|int $job_queue_size   Maximum number of events to return (excludes internal events).
+	 * @param null|int $job_queue_window How many seconds into the future events should be fetched.
+	 * @return array Events to be run in the next batch.
 	 */
-	public function get_events( $job_queue_size = null, $job_queue_window = null ) {
+	public function get_events( $job_queue_size = null, $job_queue_window = null ): array {
 		$job_queue_size   = is_null( $job_queue_size ) ? JOB_QUEUE_SIZE : $job_queue_size;
 		$job_queue_window = is_null( $job_queue_window ) ? JOB_QUEUE_WINDOW_IN_SECONDS : $job_queue_window;
 
-		$events = get_option( 'cron' );
+		// Grab relevant events that are due, or soon will be.
+		$current_time = time();
+		$events = self::query( [
+			'timestamp' => [ 'from' => 0, 'to' => $current_time + $job_queue_window ],
+			'status'    => Events_Store::STATUS_PENDING,
+			'limit'     => -1, // Need to get all, to ensure we grab internals even when queue is backed up.
+		] );
 
 		// That was easy.
-		if ( ! is_array( $events ) || empty( $events ) ) {
-			return array(
-				'events' => null,
-			);
+		if ( empty( $events ) ) {
+			return [ 'events' => null ];
 		}
 
-		// Simplify array format for further processing.
-		$events = collapse_events_array( $events );
-
-		// Select only those events to run in the next sixty seconds.
-		// Will include missed events as well.
-		$current_events  = array();
-		$internal_events = array();
-		$current_window  = strtotime( sprintf( '+%d seconds', $job_queue_window ) );
-
+		$current_events  = [];
+		$internal_events = [];
 		foreach ( $events as $event ) {
-			// Skip events whose time hasn't come.
-			if ( $event['timestamp'] > $current_window ) {
-				continue;
-			}
-
-			// Skip events that don't have any callbacks hooked to their actions, unless their execution is requested.
-			if ( ! $this->action_has_callback_or_should_run_anyway( $event ) ) {
-				continue;
-			}
-
-			// Necessary data to identify an individual event.
-			// `$event['action']` is hashed to avoid information disclosure.
-			// Core hashes `$event['instance']` for us.
-			$event_data_public = array(
-				'timestamp' => $event['timestamp'],
-				'action'    => md5( $event['action'] ),
-				'instance'  => $event['instance'],
-			);
+			// action is hashed to avoid information disclosure.
+			$event_data_public = [
+				'timestamp' => $event->get_timestamp(),
+				'action'    => md5( $event->get_action() ),
+				'instance'  => $event->get_instance(),
+			];
 
 			// Queue internal events separately to avoid them being blocked.
-			if ( is_internal_event( $event['action'] ) ) {
+			if ( $event->is_internal() ) {
 				$internal_events[] = $event_data_public;
 			} else {
 				$current_events[] = $event_data_public;
@@ -152,39 +139,7 @@ class Events extends Singleton {
 
 		// Combine with Internal Events.
 		// TODO: un-nest array, which is nested for legacy reasons.
-		return array(
-			'events' => array_merge( $current_events, $internal_events ),
-		);
-	}
-
-	/**
-	 * Check that an event has a callback to run, and allow the check to be overridden
-	 * Empty events are, by default, skipped and removed/rescheduled
-	 *
-	 * @param array $event Event data.
-	 * @return bool
-	 */
-	private function action_has_callback_or_should_run_anyway( $event ) {
-		// Event has a callback, so let's get on with it.
-		if ( false !== has_action( $event['action'] ) ) {
-			return true;
-		}
-
-		// Run the event anyway, perhaps because callbacks are added using the `all` action.
-		if ( apply_filters( 'a8c_cron_control_run_event_with_no_callbacks', false, $event ) ) {
-			return true;
-		}
-
-		// Remove or reschedule the empty event.
-		if ( false === $event['args']['schedule'] ) {
-			wp_unschedule_event( $event['timestamp'], $event['action'], $event['args']['args'] );
-		} else {
-			$timestamp = $event['timestamp'] + ( isset( $event['args']['interval'] ) ? $event['args']['interval'] : 0 );
-			wp_reschedule_event( $timestamp, $event['args']['schedule'], $event['action'], $event['args']['args'] );
-			unset( $timestamp );
-		}
-
-		return false;
+		return [ 'events' => array_merge( $current_events, $internal_events ) ];
 	}
 
 	/**
@@ -194,7 +149,7 @@ class Events extends Singleton {
 	 * @param array $max_queue_size Maximum number of events to return.
 	 * @return array
 	 */
-	private function reduce_queue( $events, $max_queue_size ) {
+	private function reduce_queue( $events, $max_queue_size ): array {
 		// Loop through events, adding one of each action during each iteration.
 		$reduced_queue = array();
 		$action_counts = array();
@@ -255,52 +210,33 @@ class Events extends Singleton {
 	 * @param string $action md5 hash of the action used when the event is registered.
 	 * @param string $instance  md5 hash of the event's arguments array, which Core uses to index the `cron` option.
 	 * @param bool   $force Run event regardless of timestamp or lock status? eg, when executing jobs via wp-cli.
-	 * @return array|\WP_Error
+	 * @return array|WP_Error
 	 */
 	public function run_event( $timestamp, $action, $instance, $force = false ) {
 		// Validate input data.
 		if ( empty( $timestamp ) || empty( $action ) || empty( $instance ) ) {
-			return new \WP_Error(
-				'missing-data',
-				__( 'Invalid or incomplete request data.', 'automattic-cron-control' ),
-				array(
-					'status' => 400,
-				)
-			);
+			return new WP_Error( 'missing-data', __( 'Invalid or incomplete request data.', 'automattic-cron-control' ), [ 'status' => 400 ] );
 		}
 
 		// Ensure we don't run jobs ahead of time.
 		if ( ! $force && $timestamp > time() ) {
-			return new \WP_Error(
-				'premature',
-				/* translators: 1: Job identifier */
-				sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ),
-				array(
-					'status' => 403,
-				)
-			);
+			/* translators: 1: Job identifier */
+			$error_message = sprintf( __( 'Job with identifier `%1$s` is not scheduled to run yet.', 'automattic-cron-control' ), "$timestamp-$action-$instance" );
+			return new WP_Error( 'premature', $error_message, [ 'status' => 404 ] );
 		}
 
-		// Find the event to retrieve the full arguments.
-		$event = get_event_by_attributes(
-			array(
-				'timestamp'     => $timestamp,
-				'action_hashed' => $action,
-				'instance'      => $instance,
-				'status'        => Events_Store::STATUS_PENDING,
-			)
-		);
+		$event = Event::find( [
+			'timestamp'     => $timestamp,
+			'action_hashed' => $action,
+			'instance'      => $instance,
+			'status'        => Events_Store::STATUS_PENDING,
+		] );
 
 		// Nothing to do...
-		if ( ! is_object( $event ) ) {
-			return new \WP_Error(
-				'no-event',
-				/* translators: 1: Job identifier */
-				sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" ),
-				array(
-					'status' => 404,
-				)
-			);
+		if ( is_null( $event ) ) {
+			/* translators: 1: Job identifier */
+			$error_message = sprintf( __( 'Job with identifier `%1$s` could not be found.', 'automattic-cron-control' ), "$timestamp-$action-$instance" );
+			return new WP_Error( 'no-event', $error_message, [ 'status' => 404 ] );
 		}
 
 		unset( $timestamp, $action, $instance );
@@ -311,40 +247,37 @@ class Events extends Singleton {
 			$this->prime_event_action_lock( $event );
 
 			if ( ! $this->can_run_event( $event ) ) {
-				return new \WP_Error(
-					'no-free-threads',
-					/* translators: 1: Event action, 2: Event arguments */
-					sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ),
-					array(
-						'status' => 429,
-					)
-				);
+				/* translators: 1: Event action, 2: Event arguments */
+				$error_message = sprintf( __( 'No resources available to run the job with action `%1$s` and arguments `%2$s`.', 'automattic-cron-control' ), $event->get_action(), maybe_serialize( $event->get_args() ) );
+				return new WP_Error( 'no-free-threads', $error_message, [ 'status' => 429 ] );
 			}
 
-			// Free locks should event throw uncatchable error.
+			// Free locks later in case event throws an uncatchable error.
 			$this->running_event = $event;
 			add_action( 'shutdown', array( $this, 'do_lock_cleanup_on_shutdown' ) );
 		}
 
-		// Mark the event completed, and reschedule if desired.
-		// Core does this before running the job, so we respect that.
-		$this->update_event_record( $event );
+		// Core reschedules/conpletes an event before running it, so we respect that.
+		if ( $event->is_recurring() ) {
+			$event->reschedule();
+		} else {
+			$event->complete();
+		}
 
-		// Run the event.
 		try {
-			do_action_ref_array( $event->action, $event->args );
+			$event->run();
 		} catch ( \Throwable $t ) {
 			/**
 			 * Note that timeouts and memory exhaustion do not invoke this block.
 			 * Instead, those locks are freed in `do_lock_cleanup_on_shutdown()`.
 			 */
 
-			do_action( 'a8c_cron_control_event_threw_catchable_error', $event, $t );
+			do_action( 'a8c_cron_control_event_threw_catchable_error', $event->get_legacy_event_format(), $t );
 
 			$return = array(
 				'success' => false,
 				/* translators: 1: Event action, 2: Event arguments, 3: Throwable error, 4: Line number that raised Throwable error */
-				'message' => sprintf( __( 'Callback for job with action `%1$s` and arguments `%2$s` raised a Throwable - %3$s in %4$s on line %5$d.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ), $t->getMessage(), $t->getFile(), $t->getLine() ),
+				'message' => sprintf( __( 'Callback for job with action `%1$s` and arguments `%2$s` raised a Throwable - %3$s in %4$s on line %5$d.', 'automattic-cron-control' ), $event->get_action(), maybe_serialize( $event->get_args() ), $t->getMessage(), $t->getFile(), $t->getLine() ),
 			);
 		}
 
@@ -362,36 +295,24 @@ class Events extends Singleton {
 			$return = array(
 				'success' => true,
 				/* translators: 1: Event action, 2: Event arguments */
-				'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event->action, maybe_serialize( $event->args ) ),
+				'message' => sprintf( __( 'Job with action `%1$s` and arguments `%2$s` executed.', 'automattic-cron-control' ), $event->get_action(), maybe_serialize( $event->get_args() ) ),
 			);
 		}
 
 		return $return;
 	}
 
-	/**
-	 * Prime the event-specific lock
-	 *
-	 * Used to ensure only one instance of a particular event, such as `wp_version_check` runs at one time
-	 *
-	 * @param object $event Event data.
-	 */
-	private function prime_event_action_lock( $event ) {
+	private function prime_event_action_lock( Event $event ): void {
 		Lock::prime_lock( $this->get_lock_key_for_event_action( $event ), JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS );
 	}
 
-	/**
-	 * Are resources available to run this event?
-	 *
-	 * @param object $event Event data.
-	 * @return bool
-	 */
-	private function can_run_event( $event ) {
+	// Checks concurrency locks, deciding if the event can be run at this moment.
+	private function can_run_event( Event $event ): bool {
 		// Limit to one concurrent execution of a specific action by default.
 		$limit = 1;
 
-		if ( isset( $this->concurrent_action_whitelist[ $event->action ] ) ) {
-			$limit = absint( $this->concurrent_action_whitelist[ $event->action ] );
+		if ( isset( $this->concurrent_action_whitelist[ $event->get_action() ] ) ) {
+			$limit = absint( $this->concurrent_action_whitelist[ $event->get_action() ] );
 			$limit = min( $limit, JOB_CONCURRENCY_LIMIT );
 		}
 
@@ -400,7 +321,7 @@ class Events extends Singleton {
 		}
 
 		// Internal Events aren't subject to the global lock.
-		if ( is_internal_event( $event->action ) ) {
+		if ( $event->is_internal() ) {
 			return true;
 		}
 
@@ -415,14 +336,9 @@ class Events extends Singleton {
 		return true;
 	}
 
-	/**
-	 * Free locks after event completes
-	 *
-	 * @param object $event Event data.
-	 */
-	private function do_lock_cleanup( $event ) {
-		// Lock isn't set when event is Internal, so we don't want to alter it.
-		if ( ! is_internal_event( $event->action ) ) {
+	private function do_lock_cleanup( Event $event ): void {
+		// Site-level lock isn't set when event is Internal, so we don't want to alter it.
+		if ( ! $event->is_internal() ) {
 			Lock::free_lock( self::LOCK );
 		}
 
@@ -430,17 +346,11 @@ class Events extends Singleton {
 		$this->reset_event_lock( $event );
 	}
 
-	/**
-	 * Frees the lock for an individual event
-	 *
-	 * @param object $event Event data.
-	 * @return bool
-	 */
-	private function reset_event_lock( $event ) {
+	private function reset_event_lock( Event $event ): bool {
 		$lock_key = $this->get_lock_key_for_event_action( $event );
 		$expires  = JOB_LOCK_EXPIRY_IN_MINUTES * \MINUTE_IN_SECONDS;
 
-		if ( isset( $this->concurrent_action_whitelist[ $event->action ] ) ) {
+		if ( isset( $this->concurrent_action_whitelist[ $event->get_action() ] ) ) {
 			return Lock::free_lock( $lock_key, $expires );
 		} else {
 			return Lock::reset_lock( $lock_key, $expires );
@@ -450,81 +360,30 @@ class Events extends Singleton {
 	/**
 	 * Turn the event action into a string that can be used with a lock
 	 *
-	 * @param object $event Event data.
+	 * @param Event|stdClass $event
 	 * @return string
 	 */
-	public function get_lock_key_for_event_action( $event ) {
+	public function get_lock_key_for_event_action( $event ): string {
 		// Hashed solely to constrain overall length.
-		return md5( 'ev-' . $event->action );
-	}
-
-	/**
-	 * Mark an event completed, and reschedule when requested
-	 *
-	 * @param object $event Event data.
-	 */
-	private function update_event_record( $event ) {
-		if ( false !== $event->schedule ) {
-			// Re-implements much of the logic from `wp_reschedule_event()`.
-			$schedules = wp_get_schedules();
-			$interval  = 0;
-
-			// First, we try to get it from the schedule.
-			if ( isset( $schedules[ $event->schedule ] ) ) {
-				$interval = (int) $schedules[ $event->schedule ]['interval'];
-			}
-
-			// Now we try to get it from the saved interval, in case the schedule disappears.
-			if ( 0 === $interval ) {
-				$interval = $event->interval;
-			}
-
-			// If we have an interval, update the existing event entry.
-			if ( 0 !== $interval ) {
-				// Determine new timestamp, according to how `wp_reschedule_event()` does.
-				$now           = time();
-				$new_timestamp = $event->timestamp;
-
-				if ( $new_timestamp >= $now ) {
-					$new_timestamp = $now + $interval;
-				} else {
-					$new_timestamp = $now + ( $interval - ( ( $now - $new_timestamp ) % $interval ) );
-				}
-
-				// Build the expected arguments format.
-				$event_args = array(
-					'schedule' => $event->schedule,
-					'args'     => $event->args,
-					'interval' => $interval,
-				);
-
-				// Update event store.
-				schedule_event( $new_timestamp, $event->action, $event_args, $event->ID );
-
-				// If the event could be rescheduled, don't then delete it.
-				return;
-			}
-		}
-
-		// Either event doesn't recur, or the interval couldn't be determined.
-		delete_event( $event->timestamp, $event->action, $event->instance );
+		$action = method_exists( $event, 'get_action' ) ? $event->get_action() : $event->action;
+		return md5( 'ev-' . $action );
 	}
 
 	/**
 	 * If event execution throws uncatchable error, free locks
-	 *
 	 * Covers situations such as timeouts and memory exhaustion, which aren't \Throwable errors
-	 *
 	 * Under normal conditions, this callback isn't hooked to `shutdown`
 	 */
 	public function do_lock_cleanup_on_shutdown() {
-		if ( is_null( $this->running_event ) ) {
+		$event = $this->running_event;
+
+		if ( is_null( $event ) ) {
 			return;
 		}
 
-		do_action( 'a8c_cron_control_freeing_event_locks_after_uncaught_error', $this->running_event );
+		do_action( 'a8c_cron_control_freeing_event_locks_after_uncaught_error', $event->get_legacy_event_format() );
 
-		$this->do_lock_cleanup( $this->running_event );
+		$this->do_lock_cleanup( $event );
 	}
 
 	/**
@@ -558,6 +417,99 @@ class Events extends Singleton {
 		}
 
 		return update_option( self::DISABLE_RUN_OPTION, $new_status );
+	}
+
+	/**
+	 * Query for multiple events.
+	 *
+	 * @param array $query_args Event query args.
+	 * @return array An array of Event objects.
+	 */
+	public static function query( array $query_args = [] ): array {
+		$event_db_rows = Events_Store::instance()->_query_events_raw( $query_args );
+		$events = array_map( fn( $db_row ) => Event::get_from_db_row( $db_row ), $event_db_rows );
+		return array_filter( $events, fn( $event ) => ! is_null( $event ) );
+	}
+
+	/**
+	 * Format multiple events the way WP expects them.
+	 *
+	 * @param array $events Array of Event objects that need formatting.
+	 * @return array Array of event data in the deeply nested format WP expects.
+	 */
+	public static function format_events_for_wp( array $events ): array {
+		$crons = [];
+
+		foreach ( $events as $event ) {
+			// Level 1: Ensure the root timestamp node exists.
+			$timestamp = $event->get_timestamp();
+			if ( ! isset( $crons[ $timestamp ] ) ) {
+				$crons[ $timestamp ] = [];
+			}
+
+			// Level 2: Ensure the action node exists.
+			$action = $event->get_action();
+			if ( ! isset( $crons[ $timestamp ][ $action ] ) ) {
+				$crons[ $timestamp ][ $action ] = [];
+			}
+
+			// Finally, add the rest of the event details.
+			$formatted_event = [
+				'schedule' => empty( $event->get_schedule() ) ? false : $event->get_schedule(),
+				'args'     => $event->get_args(),
+			];
+
+			$interval = $event->get_interval();
+			if ( ! empty( $interval ) ) {
+				$formatted_event['interval'] = $interval;
+			}
+
+			$instance = $event->get_instance();
+			$crons[ $timestamp ][ $action ][ $instance ] = $formatted_event;
+		}
+
+		// Re-sort the array just as core does when events are scheduled.
+		uksort( $crons, 'strnatcasecmp' );
+		return $crons;
+	}
+
+	/**
+	 * Flatten the WP events array.
+	 * Each event will have a unique key for quick comparisons.
+	 *
+	 * @param array $events Deeply nested array of event data in the format WP core uses.
+	 * @return array Flat array that is easier to compare and work with :)
+	 */
+	public static function flatten_wp_events_array( array $events ): array {
+		// Core legacy thing, we don't need this.
+		unset( $events['version'] );
+
+		$flattened = [];
+		foreach ( $events as $timestamp => $ts_events ) {
+			foreach ( $ts_events as $action => $action_instances ) {
+				foreach ( $action_instances as $instance => $event_details ) {
+					$unique_key = "$timestamp:$action:$instance";
+
+					$flat_event = [
+						'timestamp' => $timestamp,
+						'action'    => $action,
+						'instance'  => $instance,
+						'args'      => $event_details['args'],
+					];
+
+					if ( ! empty( $event_details['schedule'] ) ) {
+						$unique_key = "$unique_key:{$event_details['schedule']}:{$event_details['interval']}";
+
+						$flat_event['schedule'] = $event_details['schedule'];
+						$flat_event['interval'] = $event_details['interval'];
+					}
+
+					$flattened[ sha1( $unique_key ) ] = $flat_event;
+				}
+			}
+		}
+
+		return $flattened;
 	}
 }
 

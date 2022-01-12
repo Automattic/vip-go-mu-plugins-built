@@ -62,12 +62,14 @@ function is_rest_endpoint_request( $type ) {
 /**
  * Schedule an event directly, bypassing the plugin's filtering to capture Core's scheduling functions
  *
+ * @deprecated
  * @param int      $timestamp Time event should run.
  * @param string   $action    Hook to fire.
  * @param array    $args      Array of arguments, such as recurrence and parameters to pass to hook callback.
  * @param int|null $job_id    Optional. Job ID to update.
  */
 function schedule_event( $timestamp, $action, $args, $job_id = null ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\schedule_event' );
 	Events_Store::instance()->create_or_update_job( $timestamp, $action, $args, $job_id );
 }
 
@@ -87,52 +89,62 @@ function run_event( $timestamp, $action_hashed, $instance, $force = false ) {
 /**
  * Delete an event entry directly, bypassing the plugin's filtering to capture same
  *
+ * @deprecated
  * @param int    $timestamp Time event should run.
  * @param string $action    Hook to fire.
  * @param string $instance  Hashed version of event's arguments.
  */
 function delete_event( $timestamp, $action, $instance ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\delete_event' );
 	Events_Store::instance()->mark_job_completed( $timestamp, $action, $instance );
 }
 
 /**
  * Delete an event by its ID
  *
+ * @deprecated
  * @param int  $id Event ID.
  * @param bool $flush_cache Flush internal caches.
  * @return bool
  */
 function delete_event_by_id( $id, $flush_cache = false ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\mark_job_record_completed' );
 	return Events_Store::instance()->mark_job_record_completed( $id, $flush_cache );
 }
 
 /**
  * Retrieve jobs given a set of parameters
  *
+ * @deprecated
  * @param array $args Event arguments to filter by.
  * @return array
  */
 function get_events( $args ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\get_events' );
 	return Events_Store::instance()->get_jobs( $args );
 }
 
 /**
  * Retrieve a single event by ID, or by a combination of its timestamp, instance identifier, and either action or the action's hashed representation
  *
+ * @deprecated
  * @param  array $attributes Array of event attributes to query by.
  * @return object|false
  */
 function get_event_by_attributes( $attributes ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\get_event_by_attributes' );
 	return Events_Store::instance()->get_job_by_attributes( $attributes );
 }
 
 /**
  * Retrieve a single event by its ID
  *
+ * @deprecated
  * @param  int $jid Job ID.
  * @return object|false
  */
 function get_event_by_id( $jid ) {
+	_deprecated_function( 'Automattic\WP\Cron_Control\get_event_by_id' );
 	return Events_Store::instance()->get_job_by_id( $jid );
 }
 
@@ -148,25 +160,32 @@ function count_events_by_status( $status ) {
 
 /**
  * Flush plugin's internal caches
+ * FOR INTERNAL USE ONLY; all other cache clearance should happen automatically.
  *
- * FOR INTERNAL USE ONLY - see WP-CLI; all other cache clearance should happen automatically through the `Events_Store` class
+ * @deprecated
  */
 function _flush_internal_caches() {
+	_deprecated_function( 'Automattic\WP\Cron_Control\_flush_internal_caches' );
 	return Events_Store::instance()->flush_internal_caches();
 }
 
 /**
  * Prevent event store from creating new entries
- *
  * Should be used sparingly, and followed by a call to resume_event_creation(), during bulk operations
+ *
+ * @deprecated
  */
 function _suspend_event_creation() {
+	_deprecated_function( 'Automattic\WP\Cron_Control\_suspend_event_creation' );
 	Events_Store::instance()->suspend_event_creation();
 }
 
 /**
  * Stop discarding events, once again storing them in the table
+ *
+ * @deprecated
  */
 function _resume_event_creation() {
+	_deprecated_function( 'Automattic\WP\Cron_Control\_resume_event_creation' );
 	Events_Store::instance()->resume_event_creation();
 }

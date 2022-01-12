@@ -7,35 +7,59 @@
 
 namespace Automattic\WP\Cron_Control;
 
-/**
- * Main class
- */
 class Main extends Singleton {
-	/**
-	 * PLUGIN SETUP
-	 */
 
-	/**
-	 * Register hooks
-	 */
 	protected function class_init() {
-		// Bail when plugin conditions aren't met.
-		if ( ! defined( '\WP_CRON_CONTROL_SECRET' ) ) {
-			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
+		$missing_requirements = $this->check_requirements();
+		if ( ! empty( $missing_requirements ) ) {
+			$this->alert_for_missing_requirements( $missing_requirements );
+
+			// Avoid loading any of the rest of the plugin.
 			return;
 		}
 
-		// Load balance of plugin.
 		$this->load_plugin_classes();
+		$this->block_normal_cron_execution();
+	}
 
-		// Block normal cron execution.
-		$this->set_constants();
+	private function check_requirements() {
+		global $wp_version;
 
-		$block_action = did_action( 'muplugins_loaded' ) ? 'plugins_loaded' : 'muplugins_loaded';
-		add_action( $block_action, array( $this, 'block_direct_cron' ) );
-		remove_action( 'init', 'wp_cron' );
+		$missing_reqs = [];
 
-		add_filter( 'cron_request', array( $this, 'block_spawn_cron' ) );
+		if ( ! defined( '\WP_CRON_CONTROL_SECRET' ) ) {
+			/* translators: 1: Constant name */
+			$missing_reqs[] = sprintf( __( 'Must define the constant %1$s.', 'automattic-cron-control' ), '<code>WP_CRON_CONTROL_SECRET</code>' );
+		}
+
+		$required_php_version = '7.4';
+		if ( version_compare( phpversion(), $required_php_version, '<' ) ) {
+			/* translators: 1: PHP version */
+			$missing_reqs[] = sprintf( __( 'The PHP version must be %1$s or above.', 'automattic-cron-control' ), $required_php_version );
+		}
+
+		$required_wp_version = '5.1';
+		if ( version_compare( $wp_version, $required_wp_version, '<' ) ) {
+			/* translators: 1: WP version */
+			$missing_reqs[] = sprintf( __( 'The WP version must be %1$s or above.', 'automattic-cron-control' ), $required_wp_version );
+		}
+
+		return $missing_reqs;
+	}
+
+	private function alert_for_missing_requirements( $missing_requirements ) {
+		foreach ( $missing_requirements as $requirement_message ) {
+			trigger_error( 'Cron-Control: ' . $requirement_message, E_USER_WARNING );
+		}
+
+		$admin_message = '<strong>Cron Control</strong>: ' . implode( ' ', $missing_requirements );
+		add_action( 'admin_notices', function () use ( $admin_message ) {
+			?>
+			<div class="notice notice-error">
+				<p><?php echo wp_kses( $admin_message, [ 'strong' => [], 'code' => [] ] ); ?></p>
+			</div>
+			<?php
+		} );
 	}
 
 	/**
@@ -54,49 +78,34 @@ class Main extends Singleton {
 		require __DIR__ . '/class-lock.php';
 
 		// Load remaining functionality.
+		require __DIR__ . '/class-event.php';
 		require __DIR__ . '/class-events.php';
 		require __DIR__ . '/class-internal-events.php';
 		require __DIR__ . '/class-rest-api.php';
 		require __DIR__ . '/functions.php';
 		require __DIR__ . '/wp-cli.php';
+		require __DIR__ . '/wp-adapter.php';
 	}
 
-	/**
-	 * Define constants that block Core's cron
-	 *
-	 * If a constant is already defined and isn't what we expect, log it
-	 */
-	private function set_constants() {
-		$constants = array(
-			'DISABLE_WP_CRON'   => true,
-			'ALTERNATE_WP_CRON' => false,
-		);
+	private function block_normal_cron_execution() {
+		$block_action = did_action( 'muplugins_loaded' ) ? 'plugins_loaded' : 'muplugins_loaded';
+		add_action( $block_action, array( $this, 'block_direct_cron' ) );
 
-		foreach ( $constants as $constant => $expected_value ) {
-			if ( defined( $constant ) ) {
-				if ( constant( $constant ) !== $expected_value ) {
-					/* translators: 1: Plugin name, 2: Constant name */
-					error_log( sprintf( __( '%1$s: %2$s set to unexpected value; must be corrected for proper behaviour.', 'automattic-cron-control' ), 'Cron Control', $constant ) );
-				}
-			} else {
-				define( $constant, $expected_value );
-			}
-		}
+		add_filter( 'cron_request', array( $this, 'block_spawn_cron' ) );
+		remove_action( 'init', 'wp_cron' );
+
+		$this->set_disable_cron_constants();
 	}
 
 	/**
 	 * Block direct cron execution as early as possible
+	 *
+	 * NOTE: We cannot influence the response if php-fpm is in use, as WP core calls fastcgi_finish_request() very early on
 	 */
 	public function block_direct_cron() {
 		if ( false !== stripos( $_SERVER['REQUEST_URI'], '/wp-cron.php' ) || false !== stripos( $_SERVER['SCRIPT_NAME'], '/wp-cron.php' ) ) {
-			status_header( 403 );
-			wp_send_json_error(
-				/* translators: 1: Plugin name */
-				new \WP_Error( 'forbidden', sprintf( __( 'Normal cron execution is blocked when the %s plugin is active.', 'automattic-cron-control' ), 'Cron Control' ) ),
-				array(
-					'status' => 400,
-				)
-			);
+			$wp_error = new \WP_Error( 'forbidden', __( 'Normal cron execution is blocked when the Cron Control plugin is active.', 'automattic-cron-control' ) );
+			wp_send_json_error( $wp_error, 403 );
 		}
 	}
 
@@ -117,18 +126,25 @@ class Main extends Singleton {
 	}
 
 	/**
-	 * Display an error if the plugin's conditions aren't met
+	 * Define constants that block Core's cron
+	 *
+	 * If a constant is already defined and isn't what we expect, log it
 	 */
-	public function admin_notice() {
-		?>
-		<div class="notice notice-error">
-			<p>
-			<?php
-				/* translators: 1: Plugin name, 2: Constant name */
-				printf( __( '<strong>%1$s</strong>: To use this plugin, define the constant %2$s.', 'automattic-cron-control' ), 'Cron Control', '<code>WP_CRON_CONTROL_SECRET</code>' );
-			?>
-			</p>
-		</div>
-		<?php
+	private function set_disable_cron_constants() {
+		$constants = array(
+			'DISABLE_WP_CRON'   => true,
+			'ALTERNATE_WP_CRON' => false,
+		);
+
+		foreach ( $constants as $constant => $expected_value ) {
+			if ( defined( $constant ) ) {
+				if ( constant( $constant ) !== $expected_value ) {
+					/* translators: 1: Constant name */
+					trigger_error( 'Cron-Control: ' . sprintf( __( '%1$s set to unexpected value; must be corrected for proper behaviour.', 'automattic-cron-control' ), $constant ), E_USER_WARNING );
+				}
+			} else {
+				define( $constant, $expected_value );
+			}
+		}
 	}
 }
