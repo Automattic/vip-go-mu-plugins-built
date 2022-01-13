@@ -64,6 +64,9 @@ function pre_schedule_event( $pre, $event ) {
 
 	/** This filter is documented in wordpress/wp-includes/cron.php */
 	$event = apply_filters( 'schedule_event', $event );
+	if ( ! isset( $event->hook, $event->timestamp, $event->args ) ) {
+		return new WP_Error( 'cron-control:wp:schedule-event-prevented' );
+	}
 
 	// Passed duplicate checks, all clear to create an event.
 	$new_event = new Event();
