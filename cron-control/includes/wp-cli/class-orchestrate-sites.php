@@ -9,7 +9,6 @@
 
 namespace Automattic\WP\Cron_Control\CLI;
 
-
 /**
  * Commands used by the Go-based runner to list sites
  */
@@ -61,44 +60,40 @@ class Orchestrate_Sites extends \WP_CLI_Command {
 	 * @param int $group      Group number.
 	 */
 	private function display_sites( $num_groups = 1, $group = 0 ) {
-		$sites = get_sites( [ 'number' => 10000 ] );
+		$site_count = get_sites( [ 'count' => 1 ] );
+		if ( $site_count > 10000 ) {
+			trigger_error( 'Cron-Control: This multisite has more than 10000 subsites, currently unsupported.', E_USER_WARNING );
+		}
 
-		// Only return sites in our group.
-		$sites = array_filter(
-			$sites,
-			function( $id ) use ( $num_groups, $group ) {
-				return $id % $num_groups === $group;
-			},
-			ARRAY_FILTER_USE_KEY
-		);
+		// Keep the query simple, then process the results.
+		$all_sites = get_sites( [ 'number' => 10000 ] );
+		$sites_to_display = [];
+		foreach ( $all_sites as $index => $site ) {
+			if ( ! ( $index % $num_groups === $group ) ) {
+				// The site does not belong to this group.
+				continue;
+			}
 
-		// Add the site URL to each site object.
-		$sites = array_map(
-			function( $site ) {
-				// Don't use home or siteurl since those don't always match up with the `wp_blogs` entry.
-				// That can result in a "site not found" when passed via the `--url` WP-CLI param.
-				// Instead, construct the URL from data in the `wp_blogs` table.
-				$domain = $site->domain;
+			if ( in_array( '1', array( $site->archived, $site->spam, $site->deleted ), true ) ) {
+				// Deactivated subsites don't need cron run on them.
+				continue;
+			}
 
-				$path = '';
-				if ( $site->path && '/' !== $site->path ) {
-					$path = $site->path;
-				}
+			// We just need the url to display.
+			$sites_to_display[] = [ 'url' => $this->get_raw_site_url( $site->path, $site->domain ) ];
+		}
 
-				$site->url = sprintf( '%s%s', $domain, $path );
+		\WP_CLI\Utils\format_items( 'json', $sites_to_display, 'url' );
+	}
 
-				return $site;
-			},
-			$sites
-		);
-
-		$assoc_args = [
-			'fields' => 'url',
-			'format' => 'json',
-		];
-
-		$formatter = new \WP_CLI\Formatter( $assoc_args, null, 'site' );
-		$formatter->display_items( $sites );
+	/**
+	 * We can't use the home or siteurl since those don't always match with the `wp_blogs` entry.
+	 * And that can lead to "site not found" errors when passed via the `--url` WP-CLI param.
+	 * Instead, we construct the URL from data in the `wp_blogs` table.
+	 */
+	private function get_raw_site_url( string $site_path, string $site_domain ): string {
+		$path = ( $site_path && '/' !== $site_path ) ? $site_path : '';
+		return $site_domain . $path;
 	}
 
 	/**

@@ -1,7 +1,4 @@
 <?php
-/**
- * Test the Event class.
- */
 
 namespace Automattic\WP\Cron_Control\Tests;
 
@@ -12,13 +9,11 @@ use WP_Error;
 class Event_Tests extends \WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-
-		// delete existing crons
-		_set_cron_array( [] );
+		Utils::clear_cron_table();
 	}
 
 	function tearDown() {
-		_set_cron_array( [] );
+		Utils::clear_cron_table();
 		parent::tearDown();
 	}
 
@@ -49,7 +44,7 @@ class Event_Tests extends \WP_UnitTestCase {
 		$result = $event->complete();
 		$this->assertTrue( $result, 'event was successfully completed' );
 		$this->assertEquals( Events_Store::STATUS_COMPLETED, $event->get_status(), 'the status was updated' );
-		$this->assertNotEquals( Event::create_instance_hash( [ 'test', 'args' ] ), $event->get_instance(), 'the instance was updated' );
+		$this->assertNotEquals( Event::create_instance_hash( [ 'test', 'args' ] ), $event->get_instance(), 'the instance was updated/randomized' );
 	}
 
 	function test_reschedule() {
@@ -316,13 +311,11 @@ class Event_Tests extends \WP_UnitTestCase {
 		$this->assertTrue( $actual_result, 'event was saved' );
 		$expected_result['id'] = $test_event->get_id();
 
-		// Grab straight from the DB so we can make sure the enclosed properties worked correctly.
-		$raw_event = Events_Store::instance()->_get_event_raw( $test_event->get_id() );
-		Utils::assert_event_raw_data_equals( $raw_event, $expected_result, $this );
+		Utils::assert_event_object_matches_database( $test_event, $expected_result, $this );
 
 		// Initiate the event again, testing the getters and ensuring data is hydrated correctly.
-		$check_event = Event::get_from_db_row( $raw_event );
-		$this->assert_props_are_correct( $check_event, $expected_result );
+		$check_event = Event::get( $test_event->get_id() );
+		Utils::assert_event_object_has_correct_props( $check_event, $expected_result, $this );
 	}
 
 	public function test_get_from_db_row() {
@@ -346,25 +339,11 @@ class Event_Tests extends \WP_UnitTestCase {
 
 		// Will populate the event w/ full data from database.
 		$event = Event::get_from_db_row( $raw_event );
-		$this->assert_props_are_correct( $event, $expected_result );
+		Utils::assert_event_object_has_correct_props( $event, $expected_result, $this );
 
 		// Will not populate event w/ partial data from database.
 		unset( $raw_event->ID );
 		$by_missing_data = Event::get_from_db_row( $raw_event );
 		$this->assertNull( $by_missing_data, 'event could not be populated' );
-	}
-
-	private function assert_props_are_correct( Event $event, array $expected_data ) {
-		$this->assertEquals( $event->get_id(), $expected_data['id'], 'id matches' );
-		$this->assertEquals( $event->get_status(), $expected_data['status'], 'status matches' );
-		$this->assertEquals( $event->get_action(), $expected_data['action'], 'action matches' );
-		$this->assertEquals( $event->get_args(), $expected_data['args'], 'args match' );
-		$this->assertEquals( $event->get_instance(), Event::create_instance_hash( $expected_data['args'] ), 'instance matches' );
-		$this->assertEquals( $event->get_schedule(), $expected_data['schedule'], 'schedule matches' );
-		$this->assertEquals( $event->get_timestamp(), $expected_data['timestamp'], 'timestamp matches' );
-
-		// Special case: In the db it's "0", but in our class we keep as null.
-		$expected_interval = 0 === $expected_data['interval'] ? null : $expected_data['interval'];
-		$this->assertEquals( $event->get_interval(), $expected_interval, 'interval matches' );
 	}
 }

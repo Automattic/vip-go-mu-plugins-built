@@ -7,9 +7,7 @@
 
 namespace Automattic\WP\Cron_Control\CLI;
 
-if ( ! defined( '\WP_CLI' ) || ! \WP_CLI ) {
-	return;
-}
+use Automattic\WP\Cron_Control\Events_Store;
 
 /**
  * Prepare environment
@@ -26,9 +24,8 @@ function prepare_environment() {
 	}
 
 	// Create table and die, to ensure command runs with proper state.
-	if ( ! \Automattic\WP\Cron_Control\Events_Store::is_installed() ) {
-		\Automattic\WP\Cron_Control\Events_Store::instance()->cli_create_tables();
-
+	if ( ! Events_Store::is_installed() ) {
+		Events_Store::instance()->install();
 		\WP_CLI::error( __( 'Cron Control installation completed. Please try again.', 'automattic-cron-control' ) );
 	}
 
@@ -38,7 +35,6 @@ function prepare_environment() {
 		\Automattic\WP\Cron_Control\set_doing_cron();
 	}
 }
-prepare_environment();
 
 /**
  * Consistent time format across commands

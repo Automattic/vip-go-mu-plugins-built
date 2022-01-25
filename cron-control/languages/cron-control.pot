@@ -1,14 +1,14 @@
-# Copyright (C) 2021 Erick Hitter, Automattic
+# Copyright (C) 2022 Erick Hitter, Automattic
 # This file is distributed under the same license as the Cron Control package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Cron Control 3.0\n"
+"Project-Id-Version: Cron Control 3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/cron-control\n"
-"POT-Creation-Date: 2021-12-17 04:54:26+00:00\n"
+"POT-Creation-Date: 2022-01-25 18:26:12+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2021-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2022-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: en\n"
@@ -58,34 +58,34 @@ msgstr ""
 msgid "Job with action `%1$s` and arguments `%2$s` executed."
 msgstr ""
 
-#: includes/class-internal-events.php:110
+#: includes/class-internal-events.php:90
 msgid "Cron Control internal job - every 2 minutes (used to be 1 minute)"
 msgstr ""
 
-#: includes/class-internal-events.php:114
+#: includes/class-internal-events.php:94
 msgid "Cron Control internal job - every 10 minutes"
 msgstr ""
 
-#: includes/class-main.php:32
+#: includes/class-main.php:35
 #. translators: 1: Constant name
 msgid "Must define the constant %1$s."
 msgstr ""
 
-#: includes/class-main.php:38
+#: includes/class-main.php:41
 #. translators: 1: PHP version
 msgid "The PHP version must be %1$s or above."
 msgstr ""
 
-#: includes/class-main.php:44
+#: includes/class-main.php:47
 #. translators: 1: WP version
 msgid "The WP version must be %1$s or above."
 msgstr ""
 
-#: includes/class-main.php:107
+#: includes/class-main.php:119
 msgid "Normal cron execution is blocked when the Cron Control plugin is active."
 msgstr ""
 
-#: includes/class-main.php:143
+#: includes/class-main.php:155
 #. translators: 1: Constant name
 msgid "%1$s set to unexpected value; must be corrected for proper behaviour."
 msgstr ""
@@ -275,7 +275,7 @@ msgid "Removed event %d"
 msgstr ""
 
 #: includes/wp-cli/class-events.php:440
-#: includes/wp-cli/class-orchestrate-runner.php:84
+#: includes/wp-cli/class-orchestrate-runner.php:85
 msgid "Invalid action"
 msgstr ""
 
@@ -374,19 +374,19 @@ msgid "Last modified: %s UTC"
 msgstr ""
 
 #: includes/wp-cli/class-orchestrate-runner.php:30
-#: includes/wp-cli/class-orchestrate-runner.php:72
+#: includes/wp-cli/class-orchestrate-runner.php:73
 msgid "Automatic event execution is disabled"
 msgstr ""
 
-#: includes/wp-cli/class-orchestrate-runner.php:80
+#: includes/wp-cli/class-orchestrate-runner.php:81
 msgid "Invalid timestamp"
 msgstr ""
 
-#: includes/wp-cli/class-orchestrate-runner.php:88
+#: includes/wp-cli/class-orchestrate-runner.php:89
 msgid "Invalid instance"
 msgstr ""
 
-#: includes/wp-cli/class-orchestrate-runner.php:94
+#: includes/wp-cli/class-orchestrate-runner.php:95
 #. translators: 1: Event execution time in UTC, 2: Human time diff
 msgid ""
 "Given timestamp is for %1$s UTC, %2$s from now. The event's existence was "
@@ -451,7 +451,7 @@ msgstr[1] ""
 msgid "Invalid output format requested"
 msgstr ""
 
-#: includes/wp-cli.php:32
+#: includes/wp-cli.php:29
 msgid "Cron Control installation completed. Please try again."
 msgstr ""
 

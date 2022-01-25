@@ -157,5 +157,3 @@ class REST_API extends Singleton {
 		return true;
 	}
 }
-
-REST_API::instance();

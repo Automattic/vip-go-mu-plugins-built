@@ -7,9 +7,6 @@
 
 namespace Automattic\WP\Cron_Control;
 
-/**
- * Event's Store class
- */
 class Events_Store extends Singleton {
 	const TABLE_SUFFIX = 'a8c_cron_control_jobs';
 
@@ -23,24 +20,17 @@ class Events_Store extends Singleton {
 	const ALLOWED_STATUSES = [ self::STATUS_PENDING, self::STATUS_RUNNING, self::STATUS_COMPLETED ];
 
 	protected function class_init() {
-		// Create tables during installation.
-		add_action( 'wp_install', array( $this, 'create_table_during_install' ) );
-		// TODO: This is deprecated hook, switch to wp_insert_site.
-		add_action( 'wpmu_new_blog', array( $this, 'create_tables_during_multisite_install' ) );
-
-		// Remove table when a multisite subsite is deleted.
-		add_filter( 'wpmu_drop_tables', array( $this, 'remove_multisite_table' ) );
-
-		// Try to get the table installed.
 		if ( ! self::is_installed() ) {
-			if ( ! defined( 'WP_INSTALLING' ) || ! WP_INSTALLING ) {
-				// Prime plugin's option before the options table exists.
-				add_option( self::DB_VERSION_OPTION, 0, null, false );
-			}
+			// Create tables during site installations.
+			add_action( 'wp_install', array( $this, 'install' ) );
 
-			// In limited circumstances, try creating the table.
-			add_action( 'shutdown', array( $this, 'maybe_create_table_on_shutdown' ) );
+			// Keep trying in case we weren't around during the site installation.
+			add_action( 'shutdown', array( $this, 'maybe_install_during_shutdown' ) );
 		}
+
+		// Handle adding/removing tables when subsites are created/deleted.
+		add_action( 'wp_insert_site', array( $this, 'install' ) );
+		add_filter( 'wpmu_drop_tables', array( $this, 'drop_tables_on_subsite_removal' ) );
 	}
 
 	/*
@@ -50,15 +40,25 @@ class Events_Store extends Singleton {
 	*/
 
 	/**
-	 * Check if events store is ready
-	 *
-	 * Plugin breaks spectacularly if events store isn't available
-	 *
-	 * @return bool
+	 * Check if the table is installed.
 	 */
-	public static function is_installed() {
-		$db_version = (int) get_option( self::DB_VERSION_OPTION );
-		return version_compare( $db_version, 0, '>' );
+	public static function is_installed(): bool {
+		global $wpdb;
+
+		// Can't rely on the DB_VERSION_OPTION here due to subsite copy/paste scenarios.
+		// Must truly check that the table is installed.
+		if ( wp_cache_get( 'is_installed', 'cron-control' ) ) {
+			return true;
+		}
+
+		$table_name = $wpdb->prefix . self::TABLE_SUFFIX;
+		$is_installed = 1 === count( $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) );
+
+		if ( $is_installed ) {
+			wp_cache_set( 'is_installed', true, 'cron-control' );
+		}
+
+		return $is_installed;
 	}
 
 	/**
@@ -70,78 +70,55 @@ class Events_Store extends Singleton {
 	}
 
 	/**
-	 * Create table during initial install
+	 * Run the installation process, usually for freshly created sites/subsites.
+	 *
+	 * @param WP_Site|null $new_site New site object during subsite creation, null for single/root site creation.
 	 */
-	public function create_table_during_install() {
-		if ( 'wp_install' !== current_action() ) {
+	public function install( $new_site = null ) {
+		if ( ! isset( $new_site->blog_id ) ) {
+			$this->_prepare_table();
 			return;
 		}
 
+		// Swap over to the new subsite being created.
+		switch_to_blog( (int) $new_site->blog_id );
 		$this->_prepare_table();
-	}
-
-	/**
-	 * Create table when new subsite is added to a multisite
-	 *
-	 * @param int $bid Blog ID.
-	 */
-	public function create_tables_during_multisite_install( $bid ) {
-		switch_to_blog( $bid );
-
-		if ( ! self::is_installed() ) {
-			$this->_prepare_table();
-		}
-
 		restore_current_blog();
 	}
 
 	/**
-	 * For certain requests, create the table on shutdown
-	 * Does not include front-end requests
+	 * For certain requests, create the table on shutdown if needed.
 	 */
-	public function maybe_create_table_on_shutdown() {
-		// TODO: Also let it try to create in CLI automatically, not just is_admin().
-		if ( ! is_admin() && ! is_rest_endpoint_request( REST_API::ENDPOINT_LIST ) ) {
+	public function maybe_install_during_shutdown() {
+		$is_cron_or_cli = wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI );
+		$is_admin = is_admin() && ! wp_doing_ajax();
+
+		if ( ! $is_cron_or_cli && ! $is_admin ) {
+			// Not a request we should try to install on.
 			return;
 		}
 
-		$this->prepare_table();
-	}
-
-	/**
-	 * Create table in non-setup contexts, with some protections
-	 */
-	public function prepare_table() {
-		// Table installed.
 		if ( self::is_installed() ) {
+			// Must have been installed earlier on in this request already.
 			return;
 		}
 
-		// Nothing to do.
-		$current_version = (int) get_option( self::DB_VERSION_OPTION );
-		if ( version_compare( $current_version, self::DB_VERSION, '>=' ) ) {
-			return;
+		if ( wp_cache_add( 'installation_lock', true, 'cron-control', \MINUTE_IN_SECONDS ) ) {
+			// We've claimed the lock, run the installation.
+			$this->_prepare_table();
 		}
-
-		// Limit chance of race conditions when creating table.
-		$create_lock_set = wp_cache_add( 'a8c_cron_control_creating_table', 1, null, 1 * \MINUTE_IN_SECONDS );
-		if ( false === $create_lock_set ) {
-			return;
-		}
-
-		$this->_prepare_table();
 	}
 
 	/**
 	 * Create the plugin's DB table when necessary
 	 */
 	protected function _prepare_table() {
+		global $wpdb;
+
 		// Use Core's method of creating/updating tables.
 		if ( ! function_exists( 'dbDelta' ) ) {
 			require_once ABSPATH . '/wp-admin/includes/upgrade.php';
 		}
-
-		global $wpdb;
 
 		$table_name = $this->get_table_name();
 
@@ -173,6 +150,7 @@ class Events_Store extends Singleton {
 		$table_count = count( $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) );
 
 		if ( 1 === $table_count ) {
+			wp_cache_set( 'is_installed', true, 'cron-control' );
 			update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 		}
 
@@ -181,34 +159,43 @@ class Events_Store extends Singleton {
 	}
 
 	/**
-	 * Prepare table on demand via CLI
-	 */
-	public function cli_create_tables() {
-		if ( ! defined( 'WP_CLI' ) || ! \WP_CLI ) {
-			return;
-		}
-
-		$this->_prepare_table();
-	}
-
-	/**
-	 * When deleting a subsite from a multisite instance, include the plugin's table
+	 * When deleting a subsite from a multisite instance, include the plugin's table.
 	 *
-	 * Core only drops its tables
-	 *
-	 * @param  array $tables_to_drop Array of prefixed table names to drop.
-	 * @return array
+	 * @param array $tables_to_drop Array of prefixed table names to drop.
 	 */
-	public function remove_multisite_table( $tables_to_drop ) {
-		$tables_to_drop[] = $this->get_table_name();
-		return $tables_to_drop;
+	public function drop_tables_on_subsite_removal( $tables_to_drop ): array {
+		return array_merge( $tables_to_drop, [ $this->get_table_name() ] );
 	}
 
 	/*
 	|--------------------------------------------------------------------------
-	| Deprecated (or soon to be) methods for interactions w/ the data store.
+	| Deprecated (or soon to be) methods.
 	|--------------------------------------------------------------------------
 	*/
+
+	public function create_table_during_install() {
+		_deprecated_function( 'Events_Store\create_table_during_install' );
+	}
+
+	public function create_tables_during_multisite_install( $blog_id ) {
+		_deprecated_function( 'Events_Store\create_tables_during_multisite_install' );
+	}
+
+	public function maybe_create_table_on_shutdown() {
+		_deprecated_function( 'Events_Store\maybe_create_table_on_shutdown' );
+	}
+
+	public function prepare_table() {
+		_deprecated_function( 'Events_Store\prepare_table' );
+	}
+
+	public function cli_create_tables() {
+		_deprecated_function( 'Events_Store\cli_create_tables' );
+	}
+
+	public function remove_multisite_table( $tables_to_drop ) {
+		_deprecated_function( 'Events_Store\remove_multisite_table' );
+	}
 
 	/**
 	 * Deprecated, unused by the plugin.
@@ -646,6 +633,10 @@ class Events_Store extends Singleton {
 				'default'    => 1,
 				'validation' => fn( $page ) => is_int( $page ) && $page >= 1,
 			],
+			'orderby' => [
+				'default'    => 'timestamp',
+				'validation' => fn( $orderby ) => is_null( $orderby ) || ( is_string( $orderby ) && in_array( $orderby, [ 'timestamp', 'ID' ], true ) ),
+			],
 			'order' => [
 				'default'    => 'ASC',
 				'validation' => fn( $order ) => is_string( $order ) && in_array( strtoupper( $order ), [ 'ASC', 'DESC'], true ),
@@ -729,9 +720,10 @@ class Events_Store extends Singleton {
 			}
 		}
 
-		// TODO: adjust for situations where we don't need to sort.
-		$sql .= ' ORDER BY timestamp';
-		$sql .= strtoupper( $parsed_args['order'] ) === 'ASC' ? ' ASC' : ' DESC';
+		if ( ! is_null( $parsed_args['orderby'] ) ) {
+			$sql .= ' ORDER BY ' . $parsed_args['orderby'];
+			$sql .= strtoupper( $parsed_args['order'] ) === 'ASC' ? ' ASC' : ' DESC';
+		}
 
 		// Skip paging/limits if "-1" was passed to get all events.
 		if ( $parsed_args['limit'] >= 1 ) {
@@ -753,7 +745,7 @@ class Events_Store extends Singleton {
 
 		// Conditionally use a more specific cache for common FE queries, helping avoid most bulk invalidations.
 		$allowed_arg_count = array_key_exists( 'timestamp', $args ) ? 4 : 3;
-		if ( 1 === $args['limit'] && count( $args ) === $allowed_arg_count ) {
+		if ( isset( $args['limit'] ) && 1 === $args['limit'] && count( $args ) === $allowed_arg_count ) {
 			$has_timestamp = array_key_exists( 'timestamp', $args ) && ! is_null( $args['timestamp'] );
 
 			// Request was for the next event based on action/args, i.e. wp_next_scheduled()

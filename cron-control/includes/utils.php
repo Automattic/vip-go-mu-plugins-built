@@ -12,11 +12,14 @@ namespace Automattic\WP\Cron_Control;
  *
  * Also removes superfluous, non-event data that Core stores in the option
  *
+ * @deprecated
  * @param array $events Core's cron events array.
  * @param int   $timestamp Optional. Return only events with this timestamp.
  * @return array
  */
 function collapse_events_array( $events, $timestamp = null ) {
+	_deprecated_function( 'collapse_events_array' );
+
 	$collapsed_events = array();
 
 	// Ensure an event is always returned.
@@ -62,10 +65,13 @@ function collapse_events_array( $events, $timestamp = null ) {
 /**
  * Convert simplified representation of cron events array to the format WordPress expects
  *
+ * @deprecated
  * @param array $events Flattened event list.
  * @return array
  */
 function inflate_collapsed_events_array( $events ) {
+	_deprecated_function( 'inflate_collapsed_events_array' );
+
 	$inflated = array(
 		'version' => 2, // Core versions the cron array; without this, Core will attempt to "upgrade" the value.
 	);
@@ -185,7 +191,7 @@ function _deprecated_function( string $function, string $replacement = '', $erro
 		'warn'   => 3,
 	];
 
-	$message = sprintf( 'Cron-Control: %s is deprecated and will soon be removed.', $function );
+	$message = sprintf( 'Cron-Control: Deprecation. %s is deprecated and will soon be removed.', $function );
 	if ( ! empty( $replacement ) ) {
 		$message .= sprintf( ' Use %s instead.', $replacement );
 	}

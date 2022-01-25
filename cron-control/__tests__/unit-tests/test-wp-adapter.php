@@ -13,12 +13,11 @@ use Automattic\WP\Cron_Control;
 class WP_Adapter_Tests extends \WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
-		// delete existing crons before each test
-		_set_cron_array( [] );
+		Utils::clear_cron_table();
 	}
 
 	function tearDown() {
-		_set_cron_array( [] );
+		Utils::clear_cron_table();
 		parent::tearDown();
 	}
 
@@ -244,20 +243,28 @@ class WP_Adapter_Tests extends \WP_UnitTestCase {
 		$update_result = Cron_Control\pre_update_cron_option( 'not array', [ 'old array' ] );
 		$this->assertEquals( [ 'old array' ], $update_result );
 
-		// Schedule an event, and leave one unsaved.
+		// Schedule one event, and leave two unsaved.
 		$default_args   = [ 'timestamp' => time() + 100, 'args' => [ 'some', 'args' ] ];
-		$event_to_add   = $this->create_unsaved_event( array_merge( $default_args, [ 'action' => 'test_pre_update_cron_option_new' ] ) );
-		$existing_event = $this->create_unsaved_event( array_merge( $default_args, [ 'action' => 'test_pre_update_cron_option_existing' ] ) );
+		$existing_event = Utils::create_unsaved_event( array_merge( $default_args, [ 'action' => 'test_pre_update_cron_option_existing' ] ) );
 		$existing_event->save();
 
-		// Mock the scenario of sending a fresh event into the mix.
+		$event_to_add           = Utils::create_unsaved_event( array_merge( $default_args, [ 'action' => 'test_pre_update_cron_option_new' ] ) );
+		$recurring_event_to_add = Utils::create_unsaved_event( array_merge( $default_args, [
+			'action' => 'test_pre_update_cron_option_new_recurring',
+			'schedule' => 'hourly',
+			'interval' => HOUR_IN_SECONDS,
+		] ) );
+
+		// Mock the scenario of sending a fresh events into the mix.
 		$existing_option = Events::format_events_for_wp( [ $existing_event ] );
-		$new_option      = Events::format_events_for_wp( [ $existing_event, $event_to_add ] );
+		$new_option      = Events::format_events_for_wp( [ $existing_event, $event_to_add, $recurring_event_to_add ] );
 		$update_result   = Cron_Control\pre_update_cron_option( $new_option, $existing_option );
 
 		$this->assertEquals( $existing_option, $update_result, 'return value is always the prev value' );
 		$added_event = Event::find( [ 'action' => 'test_pre_update_cron_option_new' ] );
-		$this->assertEquals( $event_to_add->get_action(), $added_event->get_action(), 'event was registered' );
+		$this->assertEquals( $event_to_add->get_action(), $added_event->get_action(), 'single event was registered' );
+		$added_recurring_event = Event::find( [ 'action' => 'test_pre_update_cron_option_new_recurring' ] );
+		$this->assertEquals( $recurring_event_to_add->get_schedule(), $added_recurring_event->get_schedule(), 'recurring event was registered' );
 
 		// Mock the scenario of deleting an event from the mix.
 		$existing_option = Events::format_events_for_wp( [ $existing_event, $added_event ] );
@@ -300,14 +307,5 @@ class WP_Adapter_Tests extends \WP_UnitTestCase {
 			'future'    => $future_event,
 			'recurring' => $recurring,
 		];
-	}
-
-	private function create_unsaved_event( array $args ) {
-		$event = new Event();
-		$event->set_action( $args['action'] );
-		$event->set_timestamp( $args['timestamp'] );
-		$event->set_args( $args['args'] );
-
-		return $event;
 	}
 }

@@ -512,5 +512,3 @@ class Events extends Singleton {
 		return $flattened;
 	}
 }
-
-Events::instance();

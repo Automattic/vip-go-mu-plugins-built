@@ -3,6 +3,14 @@ Cron Control Go Runner
 
 In addition to the REST API endpoints that can be used to run events, a Go-based runner is provided.
 
+# DEPRECATED
+
+Note that the runner located here is deprecated and will be removed in the future.
+
+The new runner can be found in it's own repository now: https://github.com/Automattic/cron-control-runner
+
+________
+
 # Installation
 
 1. Build the binary as described below.
@@ -31,8 +39,8 @@ In addition to the REST API endpoints that can be used to run events, a Go-based
 * `-wp` string
   * Path to WordPress installation (default `/var/www/html`)
 * `-metrics-listen-addr` ip:port
-  * IP and port to listen on for `/metrics` endpoint. `0.0.0.0:1234` or `:1234` etc. 
-  
+  * IP and port to listen on for `/metrics` endpoint. `0.0.0.0:1234` or `:1234` etc.
+
 # Build the binary
 
 If building on the target system, or under the same OS as the target machine, simply:
@@ -51,7 +59,7 @@ Substitute `linux` with your target OS.
 
 # Metrics
 
-If you enable the metrics system and endpoint by providing the `-metrics-listen-addr` arg, then you will get the 
+If you enable the metrics system and endpoint by providing the `-metrics-listen-addr` arg, then you will get the
 following metrics for performance monitoring.
 
 ```

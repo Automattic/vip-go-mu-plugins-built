@@ -7,6 +7,9 @@
 
 namespace Automattic\WP\Cron_Control;
 
+use Automattic\WP\Cron_Control\CLI;
+use WP_CLI;
+
 class Main extends Singleton {
 
 	protected function class_init() {
@@ -69,22 +72,31 @@ class Main extends Singleton {
 	 * but we don't want to load it prematurely.
 	 */
 	private function load_plugin_classes() {
-		// Load event store and its dependencies.
 		require __DIR__ . '/constants.php';
 		require __DIR__ . '/utils.php';
 		require __DIR__ . '/class-events-store.php';
-
-		// Load dependencies for remaining classes.
 		require __DIR__ . '/class-lock.php';
-
-		// Load remaining functionality.
 		require __DIR__ . '/class-event.php';
 		require __DIR__ . '/class-events.php';
 		require __DIR__ . '/class-internal-events.php';
 		require __DIR__ . '/class-rest-api.php';
 		require __DIR__ . '/functions.php';
-		require __DIR__ . '/wp-cli.php';
 		require __DIR__ . '/wp-adapter.php';
+
+		Events_Store::instance();
+		Events::instance();
+		Internal_Events::instance();
+		REST_API::instance();
+
+		if ( Events_Store::is_installed() ) {
+			// Once we've confirmed that the table is installed, start taking over the core cron APIs.
+			register_adapter_hooks();
+		}
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			require __DIR__ . '/wp-cli.php';
+			CLI\prepare_environment();
+		}
 	}
 
 	private function block_normal_cron_execution() {

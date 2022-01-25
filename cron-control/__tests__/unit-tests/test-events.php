@@ -1,36 +1,26 @@
 <?php
-/**
- * Test the Event's class.
- */
 
 namespace Automattic\WP\Cron_Control\Tests;
+
 use Automattic\WP\Cron_Control\Events;
 use Automattic\WP\Cron_Control\Event;
 
 class Events_Tests extends \WP_UnitTestCase {
-	private $registered_actions = [];
-
 	function setUp() {
 		parent::setUp();
-
-		// make sure the schedule is clear.
-		_set_cron_array( array() );
+		Utils::clear_cron_table();
 	}
 
 	function tearDown() {
-		foreach ( $this->registered_actions as $registered_action ) {
-			remove_action( $registered_action, '__return_true' );
-		}
-
-		_set_cron_array( array() );
+		Utils::clear_cron_table();
 		parent::tearDown();
 	}
 
 	// The actual query functionality is largely tested in the data store already, so here we just ensure the returns are as expected.
 	function test_query() {
 		// Create 2 test events.
-		$this->register_test_event( [ 'action' => 'test_query_action', 'args' => [ 'first' ], 'timestamp' => 1 ] );
-		$this->register_test_event( [ 'action' => 'test_query_action', 'args' => [ 'second' ], 'timestamp' => 2 ] );
+		Utils::create_test_event( [ 'action' => 'test_query_action', 'args' => [ 'first' ], 'timestamp' => 1 ] );
+		Utils::create_test_event( [ 'action' => 'test_query_action', 'args' => [ 'second' ], 'timestamp' => 2 ] );
 
 		// Ensure both are returned
 		$events = Events::query( [ 'action' => 'test_query_action', 'limit' => 100 ] );
@@ -95,74 +85,6 @@ class Events_Tests extends \WP_UnitTestCase {
 		// Could maybe test more here, but honestly feels like it would couple too closely to the implemention itself.
 	}
 
-	function test_get_events() {
-		$events = Events::instance();
-
-		$test_events = $this->register_test_events();
-
-		// Fetch w/ default args = (10 + internal) max events, +30 seconds window.
-		$results        = $events->get_events();
-		$due_now_events = [ $test_events['test_event_1'], $test_events['test_event_2'], $test_events['test_event_3'] ];
-		$this->check_get_events( $results, $due_now_events );
-
-		// Fetch w/ 1 max queue size.
-		$results     = $events->get_events( 1 );
-		$first_event = [ $test_events['test_event_1'] ];
-		$this->check_get_events( $results, $first_event );
-
-		// Fetch w/ +11mins queue window (should exclude just our last event +30min event).
-		$results       = $events->get_events( null, 60 * 11 );
-		$window_events = [
-			$test_events['test_event_1'],
-			$test_events['test_event_2'],
-			$test_events['test_event_3'],
-			$test_events['test_event_4'],
-			$test_events['test_event_5'],
-		];
-		$this->check_get_events( $results, $window_events );
-	}
-
-	private function check_get_events( $results, $desired_results ) {
-		$this->assertEquals( count( $results['events'] ), count( $desired_results ), 'Incorrect number of events returned' );
-
-		foreach ( $results['events'] as $event ) {
-			$this->assertContains( $event['action'], wp_list_pluck( $desired_results, 'hashed' ), 'Missing registered event' );
-		}
-	}
-
-	private function register_test_events() {
-		$test_events = [
-			[ 'timestamp' => strtotime( '-1 minute' ), 'action' => 'test_event_1' ],
-			[ 'timestamp' => time(), 'action' => 'test_event_2' ],
-			[ 'timestamp' => time(), 'action' => 'test_event_3' ],
-			[ 'timestamp' => strtotime( '+5 minutes' ), 'action' => 'test_event_4' ],
-			[ 'timestamp' => strtotime( '+10 minutes' ), 'action' => 'test_event_5' ],
-			[ 'timestamp' => strtotime( '+30 minutes' ), 'action' => 'test_event_6' ],
-		];
-
-		$scheduled = [];
-		foreach ( $test_events as $test_event ) {
-			$scheduled[ $test_event['action'] ] = $this->register_test_event( $test_event );
-		}
-
-		return $scheduled;
-	}
-
-	private function register_test_event( $args = [] ) {
-		$event = wp_parse_args( $args, [ 'timestamp' => time(), 'action' => 'test_event', 'args' => [] ] );
-
-		// Easier testing comparision.
-		$event['hashed'] = md5( $event['action'] );
-
-		// Plugin skips events with no callbacks.
-		$this->registered_actions[] = $event['action'];
-		add_action( $event['action'], '__return_true' );
-
-		wp_schedule_single_event( $event['timestamp'], $event['action'], $event['args'] );
-
-		return $event;
-	}
-
 	private function create_test_events() {
 		$time_one = 1400000000;
 		$time_two = 1500000000;
@@ -194,13 +116,66 @@ class Events_Tests extends \WP_UnitTestCase {
 
 		$events = [];
 		foreach ( $events_to_create as $event_key => $event_args ) {
-			$test_event = new Event();
-			Utils::apply_event_props( $test_event, $event_args );
-			$test_event->save();
-
-			$events[ $event_key ] = $test_event;
+			$events[ $event_key ] = Utils::create_test_event( $event_args );
 		}
 
 		return $events;
+	}
+
+	function test_get_events() {
+		$events = Events::instance();
+
+		$test_events = $this->register_active_events_for_listing();
+
+		// Fetch w/ default args = (10 + internal) max events, +30 seconds window.
+		$results        = $events->get_events();
+		$due_now_events = [ $test_events['test_event_1'], $test_events['test_event_2'], $test_events['test_event_3'] ];
+		$this->check_get_events( $results, $due_now_events );
+
+		// Fetch w/ 1 max queue size.
+		$results     = $events->get_events( 1 );
+		$first_event = [ $test_events['test_event_1'] ];
+		$this->check_get_events( $results, $first_event );
+
+		// Fetch w/ +11mins queue window (should exclude just our last event +30min event).
+		$results       = $events->get_events( null, 60 * 11 );
+		$window_events = [
+			$test_events['test_event_1'],
+			$test_events['test_event_2'],
+			$test_events['test_event_3'],
+			$test_events['test_event_4'],
+			$test_events['test_event_5'],
+		];
+		$this->check_get_events( $results, $window_events );
+	}
+
+	private function check_get_events( $results, $desired_results ) {
+		$this->assertEquals( count( $results['events'] ), count( $desired_results ), 'Incorrect number of events returned' );
+
+		foreach ( $results['events'] as $event ) {
+			$this->assertContains( $event['action'], wp_list_pluck( $desired_results, 'hashed' ), 'Missing registered event' );
+		}
+	}
+
+	private function register_active_events_for_listing() {
+		$test_events = [
+			[ 'timestamp' => strtotime( '-1 minute' ), 'action' => 'test_event_1' ],
+			[ 'timestamp' => time(), 'action' => 'test_event_2' ],
+			[ 'timestamp' => time(), 'action' => 'test_event_3' ],
+			[ 'timestamp' => strtotime( '+5 minutes' ), 'action' => 'test_event_4' ],
+			[ 'timestamp' => strtotime( '+10 minutes' ), 'action' => 'test_event_5' ],
+			[ 'timestamp' => strtotime( '+30 minutes' ), 'action' => 'test_event_6' ],
+		];
+
+		$scheduled = [];
+		foreach ( $test_events as $test_event_args ) {
+			$event = Utils::create_test_event( $test_event_args );
+			$scheduled[ $event->get_action() ] = [
+				'action' => $event->get_action(),
+				'hashed' => md5( $event->get_action() ),
+			];
+		}
+
+		return $scheduled;
 	}
 }

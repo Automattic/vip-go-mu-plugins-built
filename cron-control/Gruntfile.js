@@ -15,7 +15,7 @@ module.exports = function( grunt ) {
 				options: {
 					updateDomains: true
 				},
-				src: [ '*.php', '**/*.php', '!node_modules/**', '!tests/**', '!bin/**', '!vendor/**', '!runner/**' ]
+				src: [ '*.php', '**/*.php', '!node_modules/**', '!__tests__/**', '!vendor/**', '!runner/**' ]
 			}
 		},
 
@@ -39,7 +39,7 @@ module.exports = function( grunt ) {
 					},
 					type: 'wp-plugin',
 					updateTimestamp: true,
-					exclude: [ 'node_modules/.*', 'tests/.*', 'bin/.*', 'vendor/.*', 'runner/.*' ],
+					exclude: [ 'node_modules/.*', '__tests__/.*', 'vendor/.*', 'runner/.*' ],
 				}
 			}
 		},

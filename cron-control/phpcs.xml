@@ -5,6 +5,9 @@
 	<config name="ignore_warnings_on_exit" value="1" />
 
 	<rule ref="WordPress-Core">
+		<!-- Going to move away from naming files like this, unnecessary clutter. -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+
 		<!-- Let layouts have some flexibability to adjust for better readability -->
 		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket"/>
 		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine"/>
