@@ -79,6 +79,57 @@ class VIPSupportUserTest extends WP_UnitTestCase {
 		] ] ];
 	}
 
+	function test_is_allowed_email_with_no_config() {
+		$instance = User::init();
+
+		$is_allowed = $this->assertTrue( $instance->is_allowed_email( 'admin@automattic.com' ) );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	function test_is_allowed_email_with_config() {
+		define( 'VIP_SUPPORT_USER_ALLOWED_EMAILS', array( 'admin@automattic.com' ) );
+
+		$instance = User::init();
+
+		$this->assertTrue( $instance->is_allowed_email( 'admin@automattic.com' ) );
+		$this->assertFalse( $instance->is_allowed_email( 'foo@automattic.com' ) );
+	}
+
+	function test_is_verified_automattician() {
+		$user_id = $this->factory->user->create( [
+			'user_email' => 'admin@automattic.com',
+			'user_login' => 'vip_admin',
+		] );
+
+		$instance = User::init();
+		
+		$instance->mark_user_email_verified( $user_id, 'admin@automattic.com' );
+
+		$this->assertTrue( $instance->is_verified_automattician( $user_id ) );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	function test_is_verified_automattician_for_disallowed_user() {
+		define( 'VIP_SUPPORT_USER_ALLOWED_EMAILS', array( 'admin@automattic.com' ) );
+	
+		$user_id = $this->factory->user->create( [
+			'user_email' => 'foo@automattic.com',
+			'user_login' => 'vip_foo',
+		] );
+
+		$instance = User::init();
+		
+		$instance->mark_user_email_verified( $user_id, 'foo@automattic.com' );
+
+		$this->assertFalse( $instance->is_verified_automattician( $user_id ) );
+	}
+
 	/**
 	 * Test that cron callback is registered properly
 	 */

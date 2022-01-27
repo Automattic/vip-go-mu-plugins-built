@@ -728,9 +728,34 @@ class User {
 	}
 
 	/**
+	 * Is a provided email address allowed to be a support user on this site?
+	 * 
+	 * On certain sites with tight access restrictions, only certain support users are allowed
+	 *
+	 * @param string $email An email address to check
+	 *
+	 * @return bool True if the string is an allowed support user
+	 */
+	public function is_allowed_email( $email ) {
+		// If no override is defined, allow
+		if ( ! defined( 'VIP_SUPPORT_USER_ALLOWED_EMAILS' ) ) {
+			return true;
+		}
+		
+		// Incorrectly formatted constant, fail fast + closed
+		if ( ! is_array( VIP_SUPPORT_USER_ALLOWED_EMAILS ) ) {
+			return false;
+		}
+
+		// If the override _is_ present, then the user is only allowed if their email is in the array
+		return in_array( $email, VIP_SUPPORT_USER_ALLOWED_EMAILS, true );
+	}
+
+	/**
 	 * Determine if a given user has been validated as an Automattician
 	 *
-	 * Checks their email address as well as their email address verification status
+	 * Checks their email address as well as their email address verification status. Additionally
+	 * checks to ensure the user is allowed, in case the site has restricted which accounts can be used
 	 *
 	 * @TODO Check the A11n is also proxxied
 	 *
@@ -746,10 +771,11 @@ class User {
 
 		$instance = self::init();
 
-		$is_a8c_email 	= $instance->is_a8c_email( $user->user_email );
-		$email_verified = $instance->user_has_verified_email( $user->ID );
+		$is_a8c_email 	  = $instance->is_a8c_email( $user->user_email );
+		$is_allowed_email = $instance->is_allowed_email( $user->user_email );
+		$email_verified   = $instance->user_has_verified_email( $user->ID );
 
-		return ( $is_a8c_email && $email_verified );
+		return ( $is_a8c_email && $is_allowed_email && $email_verified );
 	}
 
 	public static function has_vip_support_meta( $user_id ) {
