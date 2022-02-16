@@ -212,7 +212,8 @@ class Post extends Indexable {
 	protected function get_total_objects_for_query_from_db( $query_args ) {
 		$post_count = 0;
 
-		if ( ! isset( $query_args['post_type'] ) ) {
+		if ( ! isset( $query_args['post_type'] ) || isset( $query_args['ep_indexing_upper_limit_object_id'] )
+		|| isset( $query_args['ep_indexing_lower_limit_object_id'] ) ) {
 			return $post_count;
 		}
 
@@ -1855,7 +1856,7 @@ class Post extends Indexable {
 
 				// Set up our terms object
 				$terms_obj = array(
-					'terms.' . $single_tax_query['taxonomy'] . '.' . $field => $terms,
+					'terms.' . $single_tax_query['taxonomy'] . '.' . $field => array_values( array_filter( $terms ) ),
 				);
 
 				$operator = ( ! empty( $single_tax_query['operator'] ) ) ? strtolower( $single_tax_query['operator'] ) : 'in';
