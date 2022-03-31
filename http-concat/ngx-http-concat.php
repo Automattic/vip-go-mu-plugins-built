@@ -197,7 +197,7 @@ foreach ( $args as $uri ) {
 		// Only @charset rule are allowed before them.
 		if ( false !== strpos( $buf, '@import' ) ) {
 			$buf = preg_replace_callback(
-				'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
+				'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*\W;)/i',
 				function ( $match ) use ( $dirpath ) {
 					global $pre_output;
 
