@@ -34,7 +34,7 @@ import {
  */
 import HelpMessage from '../../shared/help-message';
 import defaultVariations from './variations';
-import CRMConnectionSettings from './components/jetpack-crm-connection-settings';
+import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import NewsletterIntegrationSettings from './components/jetpack-newsletter-integration-settings';
 import { isSimpleSite } from '../../shared/site-type-utils';
 
@@ -63,7 +63,9 @@ const ALLOWED_BLOCKS = [
 function JetpackContactFormEdit( {
 	attributes,
 	setAttributes,
-	adminEmail,
+	siteTitle,
+	postTitle,
+	postAuthorEmail,
 	hasInnerBlocks,
 	replaceInnerBlocks,
 	selectBlock,
@@ -165,7 +167,7 @@ function JetpackContactFormEdit( {
 	const onBlurEmailField = e => {
 		if ( e.target.value.length === 0 ) {
 			setEmailErrors( false );
-			setAttributes( { to: adminEmail } );
+			setAttributes( { to: postAuthorEmail } );
 			return;
 		}
 
@@ -183,7 +185,19 @@ function JetpackContactFormEdit( {
 	};
 
 	const renderFormSettings = () => {
-		const email = to !== undefined ? to : adminEmail;
+		let emailAddr = to !== undefined ? to : '';
+
+		if ( to === undefined && postAuthorEmail ) {
+			emailAddr = postAuthorEmail;
+			setAttributes( { to: emailAddr } );
+		}
+
+		let emailSubject = subject !== undefined ? subject : '';
+
+		if ( subject === undefined && siteTitle !== undefined && postTitle !== undefined ) {
+			emailSubject = '[' + siteTitle + '] ' + postTitle;
+			setAttributes( { subject: emailSubject } );
+		}
 
 		return (
 			<>
@@ -199,7 +213,7 @@ function JetpackContactFormEdit( {
 							e.stopPropagation();
 						}
 					} }
-					value={ email }
+					value={ emailAddr }
 					onBlur={ onBlurEmailField }
 					onChange={ onChangeEmailField }
 					help={ __( 'You can enter multiple email addresses separated by commas.', 'jetpack' ) }
@@ -211,7 +225,7 @@ function JetpackContactFormEdit( {
 
 				<TextControl
 					label={ __( 'Email subject line', 'jetpack' ) }
-					value={ subject }
+					value={ emailSubject }
 					placeholder={ __( 'Enter a subject', 'jetpack' ) }
 					onChange={ newSubject => setAttributes( { subject: newSubject } ) }
 					help={ __(
@@ -323,7 +337,7 @@ function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
 				{ ! isSimpleSite() && (
 					<Fragment>
-						<CRMConnectionSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+						<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 						<NewsletterIntegrationSettings />
 					</Fragment>
 				) }
@@ -340,8 +354,13 @@ export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
-		const { getSite } = select( 'core' );
+		const { getEditedPostAttribute } = select( 'core/editor' );
+		const { getSite, getUser } = select( 'core' );
 		const innerBlocks = getBlocks( props.clientId );
+
+		const authorId = getEditedPostAttribute( 'author' );
+		const authorEmail = authorId && getUser( authorId ) && getUser( authorId ).email;
+		const postTitle = getEditedPostAttribute( 'title' );
 
 		return {
 			blockType: getBlockType && getBlockType( props.name ),
@@ -351,7 +370,9 @@ export default compose( [
 			innerBlocks,
 			hasInnerBlocks: innerBlocks.length > 0,
 
-			adminEmail: get( getSite && getSite(), [ 'email' ] ),
+			siteTitle: get( getSite && getSite(), [ 'title' ] ),
+			postTitle: postTitle,
+			postAuthorEmail: authorEmail,
 		};
 	} ),
 	withDispatch( dispatch => {

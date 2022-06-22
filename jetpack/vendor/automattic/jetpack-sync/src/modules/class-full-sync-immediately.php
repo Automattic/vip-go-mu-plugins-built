@@ -123,7 +123,7 @@ class Full_Sync_Immediately extends Module {
 	 * @return boolean
 	 */
 	public function is_started() {
-		return ! ! $this->get_status()['started'];
+		return (bool) $this->get_status()['started'];
 	}
 
 	/**
@@ -162,14 +162,14 @@ class Full_Sync_Immediately extends Module {
 		$total_items = array_reduce(
 			array_values( $status['progress'] ),
 			function ( $sum, $sync_item ) {
-				return isset( $sync_item['total'] ) ? ( $sum + intval( $sync_item['total'] ) ) : $sum;
+				return isset( $sync_item['total'] ) ? ( $sum + (int) $sync_item['total'] ) : $sum;
 			},
 			0
 		);
 		$total_sent  = array_reduce(
 			array_values( $status['progress'] ),
 			function ( $sum, $sync_item ) {
-				return isset( $sync_item['sent'] ) ? ( $sum + intval( $sync_item['sent'] ) ) : $sum;
+				return isset( $sync_item['sent'] ) ? ( $sum + (int) $sync_item['sent'] ) : $sum;
 			},
 			0
 		);
@@ -184,7 +184,7 @@ class Full_Sync_Immediately extends Module {
 	 * @return boolean
 	 */
 	public function is_finished() {
-		return ! ! $this->get_status()['finished'];
+		return (bool) $this->get_status()['finished'];
 	}
 
 	/**
@@ -194,7 +194,7 @@ class Full_Sync_Immediately extends Module {
 	 */
 	public function reset_data() {
 		$this->clear_status();
-		( new Lock() )->remove( self::LOCK_NAME );
+		( new Lock() )->remove( self::LOCK_NAME, true );
 	}
 
 	/**
@@ -330,13 +330,25 @@ class Full_Sync_Immediately extends Module {
 	 * @access public
 	 */
 	public function continue_sending() {
-		if ( ! ( new Lock() )->attempt( self::LOCK_NAME ) || ! $this->is_started() || $this->get_status()['finished'] ) {
+		// Return early if Full Sync is not running.
+		if ( ! $this->is_started() || $this->get_status()['finished'] ) {
 			return;
 		}
 
+		// Obtain send Lock.
+		$lock            = new Lock();
+		$lock_expiration = $lock->attempt( self::LOCK_NAME );
+
+		// Return if unable to obtain lock.
+		if ( false === $lock_expiration ) {
+			return;
+		}
+
+		// Send Full Sync actions.
 		$this->send();
 
-		( new Lock() )->remove( self::LOCK_NAME );
+		// Remove lock.
+		$lock->remove( self::LOCK_NAME, $lock_expiration );
 	}
 
 	/**

@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -13,14 +14,18 @@ import fetchDefaultProducts from './fetch-default-products';
 import fetchStatus from './fetch-status';
 
 const Edit = props => {
-	const { attributes, className } = props;
+	const { attributes, className, setAttributes } = props;
 	const { currency } = attributes;
 
 	const [ loadingError, setLoadingError ] = useState( '' );
 	const [ shouldUpgrade, setShouldUpgrade ] = useState( false );
 	const [ stripeConnectUrl, setStripeConnectUrl ] = useState( false );
 	const [ products, setProducts ] = useState( [] );
-	const [ siteSlug, setSiteSlug ] = useState( '' );
+
+	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+	useEffect( () => {
+		setAttributes( { fallbackLinkUrl: post.link } );
+	}, [ post.link, setAttributes ] );
 
 	const apiError = message => {
 		setLoadingError( message );
@@ -51,7 +56,6 @@ const Edit = props => {
 		}
 		setShouldUpgrade( result.should_upgrade_to_access_memberships );
 		setStripeConnectUrl( result.connect_url );
-		setSiteSlug( result.site_slug );
 
 		const filteredProducts = filterProducts( result.products );
 
@@ -91,7 +95,6 @@ const Edit = props => {
 			{ ...props }
 			products={ products }
 			shouldUpgrade={ shouldUpgrade }
-			siteSlug={ siteSlug }
 			stripeConnectUrl={ stripeConnectUrl }
 		/>
 	);

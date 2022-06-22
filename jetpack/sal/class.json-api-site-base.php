@@ -149,6 +149,15 @@ abstract class SAL_Site {
 
 	abstract protected function is_wpforteams_site();
 
+	/**
+	 * Getter for the p2 organization ID.
+	 *
+	 * @return int
+	 */
+	public function get_p2_organization_id() {
+		return 0; // WPForTeams\Constants\NO_ORG_ID not loaded.
+	}
+
 	public function is_wpcom_atomic() {
 		return false;
 	}
@@ -684,5 +693,18 @@ abstract class SAL_Site {
 
 	function get_site_creation_flow() {
 		return get_option( 'site_creation_flow' );
+	}
+
+	public function get_selected_features() {
+		return get_option( 'selected_features' );
+	}
+
+	/**
+	 * Get the option storing the Anchor podcast ID that identifies a site as a podcasting site.
+	 *
+	 * @return string
+	 */
+	public function get_anchor_podcast() {
+		return get_option( 'anchor_podcast' );
 	}
 }

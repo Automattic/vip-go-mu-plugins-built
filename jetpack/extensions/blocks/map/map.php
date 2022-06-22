@@ -9,12 +9,11 @@
 
 namespace Automattic\Jetpack\Extensions\Map;
 
+use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Tracking;
 use Jetpack;
-use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Mapbox_Helper;
-use Jetpack_Options;
 
 const FEATURE_NAME = 'map';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -29,7 +28,7 @@ if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
 			'render_callback' => __NAMESPACE__ . '\load_assets',
@@ -71,7 +70,7 @@ function load_assets( $attr, $content ) {
 
 	wpcom_load_event( $access_token['source'] );
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		static $map_block_counter = array();
 
 		$id = get_the_ID();

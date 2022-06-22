@@ -1,10 +1,13 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
+
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -615,6 +618,60 @@ class Jetpack_Core_Json_Api_Endpoints {
 				),
 			)
 		);
+
+		/*
+		 * Get and update the last licensing error message.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/error',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_licensing_error',
+					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+					'args'                => array(
+						'error' => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
+			)
+		);
+
+		/*
+		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'jetpack_crm',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_jetpack_crm_data',
+					'permission_callback' => __CLASS__ . '::jetpack_crm_data_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::activate_crm_jetpack_forms_extension',
+					'permission_callback' => __CLASS__ . '::activate_crm_extensions_permission_check',
+					'args'                => array(
+						'extension' => array(
+							'required' => true,
+							'type'     => 'text',
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -1213,7 +1270,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$signature_data = wp_json_encode(
 			array(
 				'rest_route' => $_GET['rest_route'],
-				'timestamp' => intval( $_GET['timestamp'] ),
+				'timestamp' => (int) $_GET['timestamp'],
 				'url' => wp_unslash( $_GET['url'] ),
 			)
 		);
@@ -1230,7 +1287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		// signature timestamp must be within 5min of current time
-		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
+		if ( abs( time() - (int) $_GET['timestamp'] ) > 300 ) {
 			return false;
 		}
 
@@ -1738,15 +1795,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$data     = $body ? json_decode( $body ) : null;
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$api_error_code = null;
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
 
 			if ( is_wp_error( $response ) ) {
-				$api_error_code = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
 			} elseif ( $data && ! empty( $data->error ) ) {
-				$api_error_code = $data->error;
+				$error_info['api_error_code'] = $data->error;
 			}
 
-			return new WP_Error( 'site_data_fetch_failed', '', array( 'api_error_code' => $api_error_code ) );
+			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
 		}
 
 		Jetpack_Plan::update_from_sites_response( $response );
@@ -1786,7 +1846,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack' ), $error_data['api_error_code'] );
 		}
 
-		return new WP_Error( $site_data->get_error_code(), $error_message, array( 'status' => 400 ) );
+		return new WP_Error(
+			$site_data->get_error_code(),
+			$error_message,
+			array(
+				'status'         => 400,
+				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
+				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
+			)
+		);
 	}
 
 	/**
@@ -2732,7 +2800,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_posint( $value = 0, $request, $param ) {
+	public static function validate_posint( $value, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a positive integer.', 'jetpack' ), $param ) );
 		}
@@ -2750,7 +2818,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_list_item( $value = '', $request, $param ) {
+	public static function validate_list_item( $value, $request, $param ) {
 		$attributes = $request->get_attributes();
 		if ( ! isset( $attributes['args'][ $param ] ) || ! is_array( $attributes['args'][ $param ] ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s not recognized', 'jetpack' ), $param ) );
@@ -2781,7 +2849,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_module_list( $value = '', $request, $param ) {
+	public static function validate_module_list( $value, $request, $param ) {
 		if ( ! is_array( $value ) ) {
 			return new WP_Error( 'invalid_param_value', sprintf( esc_html__( '%s must be an array', 'jetpack' ), $param ) );
 		}
@@ -2806,7 +2874,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_alphanum( $value = '', $request, $param ) {
+	public static function validate_alphanum( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
 		}
@@ -2824,7 +2892,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_verification_service( $value = '', $request, $param ) {
+	public static function validate_verification_service( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ), $param ) );
 		}
@@ -2966,7 +3034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_custom_service_id( $value = '', $request, $param ) {
+	public static function validate_custom_service_id( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/custom\-[0-1]+/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( "%s must be a string prefixed with 'custom-' and followed by a numeric ID.", 'jetpack' ), $param ) );
 		}
@@ -2995,7 +3063,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_twitter_username( $value = '', $request, $param ) {
+	public static function validate_twitter_username( $value, $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^@?\w{1,15}$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a Twitter username.', 'jetpack' ), $param ) );
 		}
@@ -3013,7 +3081,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_string( $value = '', $request, $param ) {
+	public static function validate_string( $value, $request, $param ) {
 		if ( ! is_string( $value ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be a string.', 'jetpack' ), $param ) );
 		}
@@ -3764,4 +3832,95 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 	}
+
+	/**
+	 * Get the last licensing error message, if any.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return string Licensing error message or empty string.
+	 */
+	public static function get_licensing_error() {
+		return Licensing::instance()->last_error();
+	}
+
+	/**
+	 * Update the last licensing error message.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true.
+	 */
+	public static function update_licensing_error( $request ) {
+		Licensing::instance()->log_error( $request['error'] );
+
+		return true;
+	}
+
+	/**
+	 * Returns the Jetpack CRM data.
+	 *
+	 * @return WP_REST_Response A response object containing the Jetpack CRM data.
+	 */
+	public static function get_jetpack_crm_data() {
+		$jetpack_crm_data = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->get_crm_data();
+		return rest_ensure_response( $jetpack_crm_data );
+	}
+
+	/**
+	 * Activates Jetpack CRM's Jetpack Forms extension.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @return WP_REST_Response|WP_Error A response object if the extension activation was successful, or a WP_Error object if it failed.
+	 */
+	public static function activate_crm_jetpack_forms_extension( $request ) {
+		if ( ! isset( $request['extension'] ) || 'jetpackforms' !== $request['extension'] ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Missing or invalid extension parameter.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		$result = ( new Automattic\Jetpack\Jetpack_CRM_Data() )->activate_crm_jetpackforms_extension();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( array( 'code' => 'success' ) );
+	}
+
+	/**
+	 * Verifies that the current user has the required permission for accessing the CRM data.
+	 *
+	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
+	 */
+	public static function jetpack_crm_data_permission_check() {
+		if ( current_user_can( 'publish_posts' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_jetpack_crm_data',
+			self::$user_permissions_error_msg,
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Verifies that the current user has the required capability for activating Jetpack CRM extensions.
+	 *
+	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
+	 */
+	public static function activate_crm_extensions_permission_check() {
+		if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_activate_jetpack_crm_ext',
+			self::$user_permissions_error_msg,
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
 } // class end

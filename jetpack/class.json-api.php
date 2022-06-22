@@ -145,6 +145,40 @@ class WPCOM_JSON_API {
 		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
 	}
 
+	/**
+	 * Checks if the current request is authorized with a blog token.
+	 * This method is overridden by a child class in WPCOM.
+	 *
+	 * @since 9.1.0
+	 *
+	 * @param  boolean|int $site_id The site id.
+	 * @return boolean
+	 */
+	public function is_jetpack_authorized_for_site( $site_id = false ) {
+		if ( ! $this->token_details ) {
+			return false;
+		}
+
+		$token_details = (object) $this->token_details;
+
+		$site_in_token = (int) $token_details->blog_id;
+
+		if ( $site_in_token < 1 ) {
+			return false;
+		}
+
+		if ( $site_id && $site_in_token !== (int) $site_id ) {
+			return false;
+		}
+
+		if ( (int) get_current_user_id() !== 0 ) {
+			// If Jetpack blog token is used, no logged-in user should exist.
+			return false;
+		}
+
+		return true;
+	}
+
 	function serve( $exit = true ) {
 		ini_set( 'display_errors', false );
 
@@ -590,8 +624,15 @@ class WPCOM_JSON_API {
 		if ( $this->is_restricted_blog( $blog_id ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot access this restricted blog', 403 );
 		}
-
-		if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+		/**
+		 * If this is a private site we check for 2 things:
+		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
+		 * 2. In case of site based authentication, make sure the endpoint accepts it.
+		 */
+		if ( -1 === (int) get_option( 'blog_public' ) &&
+			! current_user_can( 'read' ) &&
+			! $this->endpoint->accepts_site_based_authentication()
+		) {
 			return new WP_Error( 'unauthorized', 'User cannot access this private blog.', 403 );
 		}
 
@@ -733,10 +774,21 @@ class WPCOM_JSON_API {
 	 * @param int         $http_status  HTTP status code, 400 by default.
 	 */
 	function trap_wp_die( $error_code = null, $http_status = 400 ) {
+		// Determine the filter name; based on the conditionals inside the wp_die function.
+		if ( wp_is_json_request() ) {
+			$die_handler = 'wp_die_json_handler';
+		} elseif ( wp_is_jsonp_request() ) {
+			$die_handler = 'wp_die_jsonp_handler';
+		} elseif ( wp_is_xml_request() ) {
+			$die_handler = 'wp_die_xml_handler';
+		} else {
+			$die_handler = 'wp_die_handler';
+		}
+
 		if ( is_null( $error_code ) ) {
 			$this->trapped_error = null;
 			// Stop trapping
-			remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+			remove_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 			return;
 		}
 
@@ -757,7 +809,7 @@ class WPCOM_JSON_API {
 			'message' => '',
 		);
 		// Start trapping
-		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+		add_filter( $die_handler, array( $this, 'wp_die_handler_callback' ) );
 	}
 
 	function wp_die_handler_callback() {

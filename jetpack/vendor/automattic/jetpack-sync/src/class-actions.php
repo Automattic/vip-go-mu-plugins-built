@@ -10,8 +10,6 @@ namespace Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Sync\Health;
-use Automattic\Jetpack\Sync\Modules;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -134,6 +132,17 @@ class Actions {
 	}
 
 	/**
+	 * Define JETPACK_SYNC_READ_ONLY constant if not defined.
+	 * This notifies sync to not run in shutdown if it was initialized during init.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function mark_sync_read_only() {
+		Constants::set_constant( 'JETPACK_SYNC_READ_ONLY', true );
+	}
+
+	/**
 	 * Decides if the sender should run on shutdown for this request.
 	 *
 	 * @access public
@@ -142,6 +151,13 @@ class Actions {
 	 * @return bool
 	 */
 	public static function should_initialize_sender() {
+
+		// Allow for explicit disable of Sync from request param jetpack_sync_read_only.
+		if ( isset( $_REQUEST['jetpack_sync_read_only'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			self::mark_sync_read_only();
+			return false;
+		}
+
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
@@ -175,9 +191,16 @@ class Actions {
 	 * @access public
 	 * @static
 	 *
+	 * @param bool $enable Should we initilize sender.
 	 * @return bool
 	 */
-	public static function should_initialize_sender_enqueue() {
+	public static function should_initialize_sender_enqueue( $enable ) {
+
+		// If $enabled is false don't modify it, only check cron if enabled.
+		if ( false === $enable ) {
+			return $enable;
+		}
+
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
 		}
@@ -472,7 +495,7 @@ class Actions {
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
-			$minutes = intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
 			$display = ( 1 === $minutes ) ?
 				__( 'Every minute', 'jetpack' ) :
 				/* translators: %d is an integer indicating the number of minutes. */
@@ -675,13 +698,11 @@ class Actions {
 		 * @param string $hook
 		 * @param string $schedule
 		 */
-		return intval(
-			apply_filters(
-				'jetpack_sync_cron_start_time_offset',
-				$start_time_offset,
-				$hook,
-				$schedule
-			)
+		return (int) apply_filters(
+			'jetpack_sync_cron_start_time_offset',
+			$start_time_offset,
+			$hook,
+			$schedule
 		);
 	}
 

@@ -52,24 +52,34 @@ gulp.task( 'sass:calypsoify', function ( done ) {
 		} );
 } );
 
-gulp.task( 'sass:instant-search', function ( done ) {
-	log( 'Building Instant Search CSS bundle...' );
+gulp.task( 'sass:color-schemes', function ( done ) {
+	log( 'Building Color schemes CSS...' );
+
+	const src =
+		process.env.GULP_ENV === 'wpcom'
+			? '../masterbar/admin-color-schemes/colors/**/*.scss'
+			: './modules/masterbar/admin-color-schemes/colors/**/*.scss';
+	const dest =
+		process.env.GULP_ENV === 'wpcom'
+			? '../masterbar/admin-color-schemes/colors'
+			: './_inc/build/masterbar/admin-color-schemes/colors';
 
 	return gulp
-		.src( './modules/search/instant-search/*.scss' )
+		.src( src )
 		.pipe( sass( { outputStyle: 'compressed' } ) )
 		.pipe(
 			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
 		)
+		.pipe( prepend.prependText( '/* NOAUTORTL */\n' ) )
 		.pipe( autoprefixer() )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './_inc/build/instant-search' ) )
+		.pipe( gulp.dest( dest ) )
 		.on( 'end', function () {
-			log( 'Instant Search CSS finished.' );
+			log( 'Color Schemes CSS finished.' );
 			done();
 		} );
 } );
 
+// eslint-disable-next-line jsdoc/require-jsdoc
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
@@ -231,7 +241,8 @@ gulp.task(
 );
 
 export const build = gulp.parallel(
-	gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:instant-search' ),
+	gulp.series( 'sass:dashboard', 'sass:calypsoify' ),
+	'sass:color-schemes',
 	'sass:old',
 	'sass:packages'
 );
@@ -239,7 +250,7 @@ export const build = gulp.parallel(
 export const watch = function () {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.series( 'sass:dashboard', 'sass:instant-search', 'sass:calypsoify', 'sass:old' )
+		gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:color-schemes', 'sass:old' )
 	);
 };
 

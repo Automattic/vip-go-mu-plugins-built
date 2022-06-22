@@ -11,12 +11,15 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 			return new WP_Error( 'comment_id_not_specified', __( 'You must specify a Comment ID', 'jetpack' ), 400 );
 		}
 
-		$this->comment_id = intval( $comment_id );
+		$this->comment_id = (int) $comment_id;
 
 		return true;
 	}
 
 	protected function result() {
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$comment = get_comment( $this->comment_id );
 		if ( empty( $comment ) ) {
 			return new WP_Error( 'comment_not_found', __( 'Comment not found', 'jetpack' ), 404 );

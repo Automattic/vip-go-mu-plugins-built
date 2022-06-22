@@ -4,11 +4,15 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
@@ -17,9 +21,6 @@ use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -705,7 +706,7 @@ class Jetpack {
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'wp_head', array( $this, 'check_open_graph' ), 1 );
-		add_action( 'amp_story_head', array( $this, 'check_open_graph' ), 1 );
+		add_action( 'web_stories_story_head', array( $this, 'check_open_graph' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ), 999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
@@ -732,15 +733,17 @@ class Jetpack {
 			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
 
 			/*
-			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			 * We'll shortcircuit wp_notify_postauthor and wp_notify_moderator pluggable functions
 			 * so they point moderation links on emails to Calypso.
 			 */
 			jetpack_require_lib( 'functions.wp-notify' );
+			add_filter( 'comment_notification_recipients', 'jetpack_notify_postauthor', 1, 2 );
+			add_filter( 'notify_moderator', 'jetpack_notify_moderator', 1, 2 );
 		}
 
 		add_action(
 			'plugins_loaded',
-			function() {
+			function () {
 				if ( User_Agent_Info::is_mobile_app() ) {
 					add_filter( 'get_edit_post_link', '__return_empty_string' );
 				}
@@ -780,6 +783,15 @@ class Jetpack {
 		add_filter( 'jetpack_token_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 		add_filter( 'jetpack_token_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_token_request_body', array( __CLASS__, 'filter_token_request_body' ) );
+
+		// Actions for successful reconnect.
+		add_action( 'jetpack_reconnection_completed', array( $this, 'reconnection_completed' ) );
+
+		// Actions for licensing.
+		Licensing::instance()->initialize();
+
+		// Make resources use static domain when possible.
+		add_filter( 'jetpack_static_url', array( 'Automattic\\Jetpack\\Assets', 'staticize_subdomain' ) );
 	}
 
 	/**
@@ -1561,14 +1573,14 @@ class Jetpack {
 			)
 		);
 	}
-
+// phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
 	 *      'plugins'                       => (int) Number of plugin updates available.
 	 *      'themes'                        => (int) Number of theme updates available.
-	 *      'wordpress'                     => (int) Number of WordPress core updates available. // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+	 *      'wordpress'                     => (int) Number of WordPress core updates available.
 	 *      'translations'                  => (int) Number of translation updates available.
 	 *      'total'                         => (int) Total of all available updates.
 	 *      'wp_update_version'             => (string) The latest available version of WordPress, only present if a WordPress update is needed.
@@ -1593,6 +1605,7 @@ class Jetpack {
 		}
 		return isset( $updates ) ? $updates : array();
 	}
+	// phpcs:enable
 
 	public static function get_update_details() {
 		$update_details = array(
@@ -2663,7 +2676,6 @@ class Jetpack {
 		return $data;
 	}
 
-
 	/**
 	 * Return translated module tag.
 	 *
@@ -3165,7 +3177,7 @@ p {
 		}
 
 		// For firing one-off events (notices) immediately after activation
-		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
+		set_transient( 'activated_jetpack', true, 0.1 * MINUTE_IN_SECONDS );
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
@@ -3296,6 +3308,7 @@ p {
 	 */
 	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+
 		$connection = self::connection();
 		$connection->clean_nonces( true );
 
@@ -3559,18 +3572,13 @@ p {
 		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
-			$args       = array();
-			$connection = self::connection();
-			Client::_wp_remote_request(
-				Connection_Utils::fix_url_for_bad_hosts( $connection->api_url( 'test' ) ),
-				$args,
-				true
-			);
+			$args = array();
+			Client::_wp_remote_request( self::connection()->api_url( 'test' ), $args, true );
 		}
 
 		Jetpack_Wizard_Banner::init();
 
-		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
+		if ( current_user_can( 'manage_options' ) && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );
 		}
 
@@ -4744,7 +4752,7 @@ endif;
 
 			// Let's check the existing blog token to see if we need to re-register. We only check once per minute
 			// because otherwise this logic can get us in to a loop.
-			$last_connect_url_check = intval( Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' ) );
+			$last_connect_url_check = (int) Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' );
 			if ( ! $last_connect_url_check || ( time() - $last_connect_url_check ) > MINUTE_IN_SECONDS ) {
 				Jetpack_Options::update_raw_option( 'jetpack_last_connect_url_check', time() );
 
@@ -4944,6 +4952,17 @@ endif;
 	}
 
 	/**
+	 * This action fires at the end of the REST_Connector connection_reconnect method when the
+	 * reconnect process is completed.
+	 * Note that this currently only happens when we don't need the user to re-authorize
+	 * their WP.com account, eg in cases where we are restoring a connection with
+	 * unhealthy blog token.
+	 */
+	public static function reconnection_completed() {
+		self::state( 'message', 'reconnection_completed' );
+	}
+
+	/**
 	 * Get our assumed site creation date.
 	 * Calculated based on the earlier date of either:
 	 * - Earliest admin user registration date.
@@ -5039,13 +5058,14 @@ endif;
 	}
 
 	/**
-	 * @deprecated 8.0 Use Automattic\Jetpack\Connection\Utils::fix_url_for_bad_hosts() instead.
+	 * @deprecated 8.0
 	 *
-	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
+	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
+	 * But we no longer fix "bad hosts" anyway, outbound HTTPS is required for Jetpack to function.
 	 */
 	public static function fix_url_for_bad_hosts( $url ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Automattic\\Jetpack\\Connection\\Utils::fix_url_for_bad_hosts' );
-		return Connection_Utils::fix_url_for_bad_hosts( $url );
+		_deprecated_function( __METHOD__, 'jetpack-8.0' );
+		return $url;
 	}
 
 	public static function verify_onboarding_token( $token_data, $token, $request_data ) {
@@ -5154,32 +5174,19 @@ endif;
 			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
-				switch ( JETPACK_CLIENT__HTTPS ) {
-					case 'NEVER':
-						$ssl     = 0;
-						$message = __( 'JETPACK_CLIENT__HTTPS is set to NEVER', 'jetpack' );
-						break;
-					case 'ALWAYS':
-					case 'AUTO':
-					default:
-						$ssl = 1;
-						break;
-				}
+				$ssl = 1;
 
-				// If it's not 'NEVER', test to see
-				if ( $ssl ) {
-					if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+					$ssl     = 0;
+					$message = __( 'WordPress reports no SSL support', 'jetpack' );
+				} else {
+					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+					if ( is_wp_error( $response ) ) {
 						$ssl     = 0;
 						$message = __( 'WordPress reports no SSL support', 'jetpack' );
-					} else {
-						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
-						if ( is_wp_error( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'WordPress reports no SSL support', 'jetpack' );
-						} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
-							$ssl     = 0;
-							$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
-						}
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl     = 0;
+						$message = __( 'Response was not OK: ', 'jetpack' ) . wp_remote_retrieve_body( $response );
 					}
 				}
 			}
@@ -5191,7 +5198,7 @@ endif;
 	}
 
 	/*
-	 * Displays an admin_notice, alerting the user to their JETPACK_CLIENT__HTTPS constant being 'AUTO' but SSL isn't working.
+	 * Displays an admin_notice, alerting the user that outbound SSL isn't working.
 	 */
 	public function alert_auto_ssl_fail() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -5549,25 +5556,6 @@ endif;
 	}
 
 	/**
-	 * Add our nonce to this request.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::add_nonce()
-	 *
-	 * @param int    $timestamp Timestamp of the request.
-	 * @param string $nonce     Nonce string.
-	 */
-	public function add_nonce( $timestamp, $nonce ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::add_nonce' );
-
-		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
-		}
-
-		return $this->connection_manager->add_nonce( $timestamp, $nonce );
-	}
-
-	/**
 	 * In some setups, $HTTP_RAW_POST_DATA can be emptied during some IXR_Server paths since it is passed by reference to various methods.
 	 * Capture it here so we can verify the signature later.
 	 *
@@ -5642,19 +5630,6 @@ endif;
 		}
 
 		return $this->connection_manager->xmlrpc_options( $options );
-	}
-
-	/**
-	 * Cleans nonces that were saved when calling ::add_nonce.
-	 *
-	 * @deprecated since 7.7.0
-	 * @see Automattic\Jetpack\Connection\Manager::clean_nonces()
-	 *
-	 * @param bool $all whether to clean even non-expired nonces.
-	 */
-	public static function clean_nonces( $all = false ) {
-		_deprecated_function( __METHOD__, 'jetpack-7.7', 'Automattic\\Jetpack\\Connection\\Manager::clean_nonces' );
-		return self::connection()->clean_nonces( $all );
 	}
 
 	/**
@@ -5799,7 +5774,7 @@ endif;
 		$client_blog_id = is_multisite() ? $blog_id : 0;
 
 		if ( ! isset( $clients[ $client_blog_id ] ) ) {
-			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => JETPACK_MASTER_USER ) );
+			$clients[ $client_blog_id ] = new Jetpack_IXR_ClientMulticall( array( 'user_id' => Connection_Manager::CONNECTION_OWNER ) );
 			if ( function_exists( 'ignore_user_abort' ) ) {
 				ignore_user_abort( true );
 			}
@@ -5832,40 +5807,16 @@ endif;
 		}
 	}
 
+	/**
+	 * Serve a WordPress.com static resource via a randomized wp.com subdomain.
+	 *
+	 * @deprecated 9.3.0 Use Assets::staticize_subdomain.
+	 *
+	 * @param string $url WordPress.com static resource URL.
+	 */
 	public static function staticize_subdomain( $url ) {
-
-		// Extract hostname from URL
-		$host = wp_parse_url( $url, PHP_URL_HOST );
-
-		// Explode hostname on '.'
-		$exploded_host = explode( '.', $host );
-
-		// Retrieve the name and TLD
-		if ( count( $exploded_host ) > 1 ) {
-			$name = $exploded_host[ count( $exploded_host ) - 2 ];
-			$tld  = $exploded_host[ count( $exploded_host ) - 1 ];
-			// Rebuild domain excluding subdomains
-			$domain = $name . '.' . $tld;
-		} else {
-			$domain = $host;
-		}
-		// Array of Automattic domains.
-		$domains_allowed = array( 'wordpress.com', 'wp.com' );
-
-		// Return $url if not an Automattic domain.
-		if ( ! in_array( $domain, $domains_allowed, true ) ) {
-			return $url;
-		}
-
-		if ( is_ssl() ) {
-			return preg_replace( '|https?://[^/]++/|', 'https://s-ssl.wordpress.com/', $url );
-		}
-
-		srand( crc32( basename( $url ) ) );
-		$static_counter = rand( 0, 2 );
-		srand(); // this resets everything that relies on this, like array_rand() and shuffle()
-
-		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
+		_deprecated_function( __METHOD__, 'jetpack-9.3.0', 'Automattic\Jetpack\Assets::staticize_subdomain' );
+		return Assets::staticize_subdomain( $url );
 	}
 
 	/* JSON API Authorization */
@@ -5945,7 +5896,6 @@ endif;
 			$redirect_to
 		);
 	}
-
 
 	/**
 	 * Verifies the request by checking the signature
@@ -6167,7 +6117,18 @@ endif;
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
-				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
+
+				// If the WP.com expected home and siteurl match local home and siteurl it is not valid IDC.
+				if (
+						isset( $sync_error['wpcom_home'] ) &&
+						isset( $sync_error['wpcom_siteurl'] ) &&
+						$sync_error['wpcom_home'] === $local_options['home'] &&
+						$sync_error['wpcom_siteurl'] === $local_options['siteurl']
+				) {
+					$is_valid = false;
+					// Enable migrate_for_idc so that sync actions are accepted.
+					Jetpack_Options::update_option( 'migrate_for_idc', true );
+				} elseif ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
@@ -6268,8 +6229,8 @@ endif;
 		}
 
 		/**
-		 * Allows sites to opt in to IDC mitigation which blocks the site from syncing to WordPress.com when the home
-		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
+		 * Allows sites to opt in for IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * URL or site URL do not match what WordPress.com expects. The default value is either true, or the value of
 		 * JETPACK_SYNC_IDC_OPTIN constant if set.
 		 *
 		 * @since 4.3.2
@@ -6441,121 +6402,255 @@ endif;
 
 	/**
 	 * Throws warnings for deprecated hooks to be removed from Jetpack that cannot remain in the original place in the code.
-	 *
-	 * @todo Convert these to use apply_filters_deprecated and do_action_deprecated and remove custom code.
 	 */
 	public function deprecated_hooks() {
-		global $wp_filter;
-
-		/*
-		 * Format:
-		 * deprecated_filter_name => replacement_name
-		 *
-		 * If there is no replacement, use null for replacement_name
-		 */
-		$deprecated_list = array(
-			'jetpack_bail_on_shortcode'                    => 'jetpack_shortcodes_to_include',
-			'wpl_sharing_2014_1'                           => null,
-			'jetpack-tools-to-include'                     => 'jetpack_tools_to_include',
-			'jetpack_identity_crisis_options_to_check'     => null,
-			'update_option_jetpack_single_user_site'       => null,
-			'audio_player_default_colors'                  => null,
-			'add_option_jetpack_featured_images_enabled'   => null,
-			'add_option_jetpack_update_details'            => null,
-			'add_option_jetpack_updates'                   => null,
-			'add_option_jetpack_network_name'              => null,
-			'add_option_jetpack_network_allow_new_registrations' => null,
-			'add_option_jetpack_network_add_new_users'     => null,
-			'add_option_jetpack_network_site_upload_space' => null,
-			'add_option_jetpack_network_upload_file_types' => null,
-			'add_option_jetpack_network_enable_administration_menus' => null,
-			'add_option_jetpack_is_multi_site'             => null,
-			'add_option_jetpack_is_main_network'           => null,
-			'add_option_jetpack_main_network_site'         => null,
-			'jetpack_sync_all_registered_options'          => null,
-			'jetpack_has_identity_crisis'                  => 'jetpack_sync_error_idc_validation',
-			'jetpack_is_post_mailable'                     => null,
-			'jetpack_seo_site_host'                        => null,
-			'jetpack_installed_plugin'                     => 'jetpack_plugin_installed',
-			'jetpack_holiday_snow_option_name'             => null,
-			'jetpack_holiday_chance_of_snow'               => null,
-			'jetpack_holiday_snow_js_url'                  => null,
-			'jetpack_is_holiday_snow_season'               => null,
-			'jetpack_holiday_snow_option_updated'          => null,
-			'jetpack_holiday_snowing'                      => null,
-			'jetpack_sso_auth_cookie_expirtation'          => 'jetpack_sso_auth_cookie_expiration',
-			'jetpack_cache_plans'                          => null,
-			'jetpack_updated_theme'                        => 'jetpack_updated_themes',
-			'jetpack_lazy_images_skip_image_with_atttributes' => 'jetpack_lazy_images_skip_image_with_attributes',
-			'jetpack_enable_site_verification'             => null,
-			// Removed in Jetpack 7.3.0
-			'jetpack_widget_authors_exclude'               => 'jetpack_widget_authors_params',
-			// Removed in Jetpack 7.9.0
-			'jetpack_pwa_manifest'                         => null,
-			'jetpack_pwa_background_color'                 => null,
-			// Removed in Jetpack 8.3.0.
-			'jetpack_check_mobile'                         => null,
-			'jetpack_mobile_stylesheet'                    => null,
-			'jetpack_mobile_template'                      => null,
-			'mobile_reject_mobile'                         => null,
-			'mobile_force_mobile'                          => null,
-			'mobile_app_promo_download'                    => null,
-			'mobile_setup'                                 => null,
-			'jetpack_mobile_footer_before'                 => null,
-			'wp_mobile_theme_footer'                       => null,
-			'minileven_credits'                            => null,
-			'jetpack_mobile_header_before'                 => null,
-			'jetpack_mobile_header_after'                  => null,
-			'jetpack_mobile_theme_menu'                    => null,
-			'minileven_show_featured_images'               => null,
-			'minileven_attachment_size'                    => null,
-		);
-
-		// This is a silly loop depth. Better way?
-		foreach ( $deprecated_list as $hook => $hook_alt ) {
-			if ( has_action( $hook ) ) {
-				foreach ( $wp_filter[ $hook ] as $func => $values ) {
-					foreach ( $values as $hooked ) {
-						if ( is_callable( $hooked['function'] ) ) {
-							$function_name = $hooked['function'];
-						} else {
-							$function_name = 'an anonymous function';
-						}
-						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
-					}
-				}
-			}
-		}
-
 		$filter_deprecated_list = array(
-			'can_display_jetpack_manage_notice' => array(
+			'jetpack_bail_on_shortcode'                    => array(
+				'replacement' => 'jetpack_shortcodes_to_include',
+				'version'     => 'jetpack-3.1.0',
+			),
+			'wpl_sharing_2014_1'                           => array(
+				'replacement' => null,
+				'version'     => 'jetpack-3.6.0',
+			),
+			'jetpack-tools-to-include'                     => array(
+				'replacement' => 'jetpack_tools_to_include',
+				'version'     => 'jetpack-3.9.0',
+			),
+			'jetpack_identity_crisis_options_to_check'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.0.0',
+			),
+			'update_option_jetpack_single_user_site'       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'audio_player_default_colors'                  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_featured_images_enabled'   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_update_details'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_updates'                   => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_name'              => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_allow_new_registrations' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_add_new_users'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_site_upload_space' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_upload_file_types' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_network_enable_administration_menus' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_is_multi_site'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_is_main_network'           => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'add_option_jetpack_main_network_site'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'jetpack_sync_all_registered_options'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.3.0',
+			),
+			'jetpack_has_identity_crisis'                  => array(
+				'replacement' => 'jetpack_sync_error_idc_validation',
+				'version'     => 'jetpack-4.4.0',
+			),
+			'jetpack_is_post_mailable'                     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-4.4.0',
+			),
+			'jetpack_seo_site_host'                        => array(
+				'replacement' => null,
+				'version'     => 'jetpack-5.1.0',
+			),
+			'jetpack_installed_plugin'                     => array(
+				'replacement' => 'jetpack_plugin_installed',
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_option_name'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_chance_of_snow'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_js_url'                  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_is_holiday_snow_season'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snow_option_updated'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_holiday_snowing'                      => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.0.0',
+			),
+			'jetpack_sso_auth_cookie_expirtation'          => array(
+				'replacement' => 'jetpack_sso_auth_cookie_expiration',
+				'version'     => 'jetpack-6.1.0',
+			),
+			'jetpack_cache_plans'                          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.1.0',
+			),
+
+			'jetpack_lazy_images_skip_image_with_atttributes' => array(
+				'replacement' => 'jetpack_lazy_images_skip_image_with_attributes',
+				'version'     => 'jetpack-6.5.0',
+			),
+			'jetpack_enable_site_verification'             => array(
+				'replacement' => null,
+				'version'     => 'jetpack-6.5.0',
+			),
+			'can_display_jetpack_manage_notice'            => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_http_post_timeout'             => array(
+			'atd_http_post_timeout'                        => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_service_domain'                => array(
+			'atd_service_domain'                           => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
 			),
-			'atd_load_scripts'                  => array(
+			'atd_load_scripts'                             => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
+			),
+			'jetpack_widget_authors_exclude'               => array(
+				'replacement' => 'jetpack_widget_authors_params',
+				'version'     => 'jetpack-7.7.0',
+			),
+			// Removed in Jetpack 7.9.0
+			'jetpack_pwa_manifest'                         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.9.0',
+			),
+			'jetpack_pwa_background_color'                 => array(
+				'replacement' => null,
+				'version'     => 'jetpack-7.9.0',
+			),
+			'jetpack_check_mobile'                         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_stylesheet'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_template'                      => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_theme_menu'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_show_featured_images'               => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_attachment_size'                    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'instagram_cache_oembed_api_response_body'     => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
+			),
+			'jetpack_can_make_outbound_https'              => array(
+				'replacement' => null,
+				'version'     => 'jetpack-9.1.0',
 			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {
 			if ( has_filter( $tag ) ) {
-				apply_filters_deprecated( $tag, array(), $args['version'], $args['replacement'] );
+				apply_filters_deprecated( $tag, array( null ), $args['version'], $args['replacement'] );
 			}
 		}
 
 		$action_deprecated_list = array(
-			'atd_http_post_error' => array(
+			'jetpack_updated_theme'        => array(
+				'replacement' => 'jetpack_updated_themes',
+				'version'     => 'jetpack-6.2.0',
+			),
+			'atd_http_post_error'          => array(
 				'replacement' => null,
 				'version'     => 'jetpack-7.3.0',
+			),
+			'mobile_reject_mobile'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_force_mobile'          => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_app_promo_download'    => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'mobile_setup'                 => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_footer_before' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'wp_mobile_theme_footer'       => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'minileven_credits'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_header_before' => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
+			),
+			'jetpack_mobile_header_after'  => array(
+				'replacement' => null,
+				'version'     => 'jetpack-8.3.0',
 			),
 		);
 
@@ -6796,7 +6891,6 @@ endif;
 		return $filtered_data;
 	}
 
-
 	/*
 	 * This method is used to organize all options that can be reset
 	 * without disconnecting Jetpack.
@@ -6815,14 +6909,15 @@ endif;
 	 * Strip http:// or https:// from a url, replaces forward slash with ::,
 	 * so we can bring them directly to their site in calypso.
 	 *
+	 * @deprecated 9.2.0 Use Automattic\Jetpack\Status::get_site_suffix
+	 *
 	 * @param string | url
 	 * @return string | url without the guff
 	 */
 	public static function build_raw_urls( $url ) {
-		$strip_http = '/.*?:\/\//i';
-		$url        = preg_replace( $strip_http, '', $url );
-		$url        = str_replace( '/', '::', $url );
-		return $url;
+		_deprecated_function( __METHOD__, 'jetpack-9.2.0', 'Automattic\Jetpack\Status::get_site_suffix' );
+
+		return ( new Status() )->get_site_suffix( $url );
 	}
 
 	/**
@@ -7353,10 +7448,10 @@ endif;
 				'discount_percent'  => 30,
 				'options'           => array(
 					array(
-						'type'      => 'scan',
-						'slug'      => 'jetpack-scan',
-						'key'       => 'jetpack_scan',
-						'name'      => __( 'Daily Scan', 'jetpack' ),
+						'type' => 'scan',
+						'slug' => 'jetpack-scan',
+						'key'  => 'jetpack_scan',
+						'name' => __( 'Daily Scan', 'jetpack' ),
 					),
 				),
 				'default_option'    => 'scan',
@@ -7370,13 +7465,13 @@ endif;
 			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
 			'learn_more'        => __( 'Learn More', 'jetpack' ),
 			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-			'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+			'label_popup'       => __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.', 'jetpack' ),
 			'options'           => array(
 				array(
-					'type'      => 'search',
-					'slug'      => 'jetpack-search',
-					'key'       => 'jetpack_search',
-					'name'      => __( 'Search', 'jetpack' ),
+					'type' => 'search',
+					'slug' => 'jetpack-search',
+					'key'  => 'jetpack_search',
+					'name' => __( 'Search', 'jetpack' ),
 				),
 			),
 			'tears'             => array(),
@@ -7393,10 +7488,10 @@ endif;
 			'description'       => __( 'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.', 'jetpack' ),
 			'options'           => array(
 				array(
-					'type'      => 'anti-spam',
-					'slug'      => 'jetpack-anti-spam',
-					'key'       => 'jetpack_anti_spam',
-					'name'      => __( 'Anti-Spam', 'jetpack' ),
+					'type' => 'anti-spam',
+					'slug' => 'jetpack-anti-spam',
+					'key'  => 'jetpack_anti_spam',
+					'name' => __( 'Anti-Spam', 'jetpack' ),
 				),
 			),
 			'default_option'    => 'anti-spam',

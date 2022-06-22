@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
-use Automattic\Jetpack\Sync\Settings;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Class to handle sync for comments.
@@ -57,7 +57,7 @@ class Comments extends Module {
 	 * @return \WP_Comment|bool Filtered \WP_Comment object, or false if the object is not a comment.
 	 */
 	public function get_object_by_id( $object_type, $id ) {
-		$comment_id = intval( $id );
+		$comment_id = (int) $id;
 		if ( 'comment' === $object_type ) {
 			$comment = get_comment( $comment_id );
 			if ( $comment ) {
@@ -190,7 +190,7 @@ class Comments extends Module {
 		 */
 		return apply_filters(
 			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'comment', 'trackback', 'pingback' )
+			array( '', 'comment', 'trackback', 'pingback', 'review' )
 		);
 	}
 

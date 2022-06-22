@@ -11,12 +11,15 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 			return new WP_Error( 'user_id_not_specified', __( 'You must specify a User ID', 'jetpack' ), 400 );
 		}
 
-		$this->user_id = intval( $user_id );
+		$this->user_id = (int) $user_id;
 
 		return true;
 	}
 
 	protected function result() {
+		// Disable Sync as this is a read-only operation and triggered by sync activity.
+		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();
+
 		$user = get_user_by( 'id', $this->user_id );
 		if ( empty( $user ) ) {
 			return new WP_Error( 'user_not_found', __( 'User not found', 'jetpack' ), 404 );

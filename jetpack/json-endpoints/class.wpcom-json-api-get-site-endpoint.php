@@ -13,6 +13,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 		'$site' => '(int|string) Site ID or domain',
 	),
 	'allow_jetpack_site_auth' => true,
+
+	'allow_fallback_to_jetpack_blog_token' => true,
+
 	'query_parameters' => array(
 		'context' => false,
 		'options' => '(string) Optional. Returns specified options only. Comma-separated list. Example: options=login_url,timezone',
@@ -46,6 +49,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'single_user_site'            => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'                      => '(bool) If the site is a VIP site or not.',
 		'is_following'                => '(bool) If the current user is subscribed to this site in the reader',
+		'organization_id'             => '(int) P2 Organization identifier.',
 		'options'                     => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'plan'                        => '(array) Details of the current plan for this site.',
 		'updates'                     => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
@@ -147,6 +151,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpforteams_site',
 		'site_creation_flow',
 		'is_cloud_eligible',
+		'selected_features',
+		'anchor_podcast',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -388,6 +394,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
+
+			case 'organization_id':
+				$response[ $key ] = $this->site->get_p2_organization_id();
+				break;
+
 			case 'capabilities' :
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
@@ -632,6 +643,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_cloud_eligible':
 					$options[ $key ] = $site->is_cloud_eligible();
 					break;
+				case 'selected_features':
+					$selected_features = $site->get_selected_features();
+					if ( $selected_features ) {
+						$options[ $key ] = $selected_features;
+					}
+					break;
+				case 'anchor_podcast':
+					$options[ $key ] = $site->get_anchor_podcast();
+					break;
 			}
 		}
 
@@ -717,6 +737,8 @@ new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	'query_parameters' => array(
 		'context' => false,
 	),
+
+	'allow_fallback_to_jetpack_blog_token' => true,
 
 	'response_format' => array(
 		'formats' => '(object) An object of supported post formats, each key a supported format slug mapped to its display string.',

@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Slideshow;
 
-use Jetpack_AMP_Support;
+use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'slideshow';
@@ -21,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
+	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 	);
@@ -38,7 +38,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+	if ( Blocks::is_amp_request() ) {
 		return render_amp( $attr );
 	}
 	return $content;
@@ -66,7 +66,7 @@ function render_amp( $attr ) {
 		$autoplay ? 'wp-block-jetpack-slideshow__autoplay' : null,
 		$autoplay ? 'wp-block-jetpack-slideshow__autoplay-playing' : null,
 	);
-	$classes  = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, $extras );
+	$classes  = Blocks::classes( FEATURE_NAME, $attr, $extras );
 
 	return sprintf(
 		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper-container">%3$s%4$s%5$s</div></div>',
@@ -116,7 +116,7 @@ function amp_carousel( $attr, $block_ordinal ) {
  */
 function slides( $ids = array(), $width = 400, $height = 300 ) {
 	return array_map(
-		function( $id ) use ( $width, $height ) {
+		function ( $id ) use ( $width, $height ) {
 			$caption    = wp_get_attachment_caption( $id );
 			$figcaption = $caption ? sprintf(
 				'<figcaption class="wp-block-jetpack-slideshow_caption gallery-caption">%s</figcaption>',
@@ -151,7 +151,7 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
  */
 function bullets( $ids = array(), $block_ordinal = 0 ) {
 	$buttons = array_map(
-		function( $index ) {
+		function ( $index ) {
 			$aria_label = sprintf(
 				/* translators: %d: Slide number. */
 				__( 'Go to slide %d', 'jetpack' ),

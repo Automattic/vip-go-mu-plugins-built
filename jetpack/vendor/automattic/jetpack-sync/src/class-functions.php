@@ -272,7 +272,7 @@ class Functions {
 		}
 		$updater = new \WP_Automatic_Updater();
 
-		return (bool) strval( $updater->is_vcs_checkout( ABSPATH ) );
+		return (bool) (string) $updater->is_vcs_checkout( ABSPATH );
 	}
 
 	/**
@@ -584,7 +584,7 @@ class Functions {
 
 		$gmt_offset = get_option( 'gmt_offset', 0 );
 
-		$formatted_gmt_offset = sprintf( '%+g', floatval( $gmt_offset ) );
+		$formatted_gmt_offset = sprintf( '%+g', (float) $gmt_offset );
 
 		$formatted_gmt_offset = str_replace(
 			array( '.25', '.5', '.75' ),
@@ -599,30 +599,40 @@ class Functions {
 	/**
 	 * Return list of paused themes.
 	 *
-	 * @todo Remove function_exists check when WP 5.2 is the minimum.
-	 *
 	 * @return array|bool Array of paused themes or false if unsupported.
 	 */
 	public static function get_paused_themes() {
-		if ( function_exists( 'wp_paused_themes' ) ) {
-			$paused_themes = wp_paused_themes();
-			return $paused_themes->get_all();
-		}
-		return false;
+		$paused_themes = wp_paused_themes();
+		return $paused_themes->get_all();
 	}
 
 	/**
 	 * Return list of paused plugins.
 	 *
-	 * @todo Remove function_exists check when WP 5.2 is the minimum.
-	 *
 	 * @return array|bool Array of paused plugins or false if unsupported.
 	 */
 	public static function get_paused_plugins() {
-		if ( function_exists( 'wp_paused_plugins' ) ) {
-			$paused_plugins = wp_paused_plugins();
-			return $paused_plugins->get_all();
+		$paused_plugins = wp_paused_plugins();
+		return $paused_plugins->get_all();
+	}
+
+	/**
+	 * Return the theme's supported features.
+	 * Used for syncing the supported feature that we care about.
+	 *
+	 * @return array List of features that the theme supports.
+	 */
+	public static function get_theme_support() {
+		global $_wp_theme_features;
+
+		$theme_support = array();
+		foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			$has_support = current_theme_supports( $theme_feature );
+			if ( $has_support ) {
+				$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
+			}
 		}
-		return false;
+
+		return $theme_support;
 	}
 }

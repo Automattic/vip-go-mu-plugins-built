@@ -73,7 +73,8 @@ class Jetpack_ReCaptcha {
 	public function get_default_config() {
 		return array(
 			'language'       => get_locale(),
-			'script_async'   => true,
+			'script_async'   => false,
+			'script_defer'   => true,
 			'tag_class'      => 'g-recaptcha',
 			'tag_attributes' => array(
 				'theme'    => 'light',
@@ -128,11 +129,25 @@ class Jetpack_ReCaptcha {
 		if ( true !== $resp_decoded['success'] ) {
 			return new WP_Error( $error_code, $error_message );
 		}
-
 		// Validate the hostname matches expected source
 		if ( isset( $resp_decoded['hostname'] ) ) {
 			$url = wp_parse_url( get_home_url() );
-			if ( $url['host'] !== $resp_decoded['hostname'] ) {
+
+			/**
+			 * Allow other valid hostnames.
+			 *
+			 * This can be useful in cases where the token hostname is expected to be
+			 * different from the get_home_url (ex. AMP recaptcha token contains a different hostname)
+			 *
+			 * @module sharedaddy
+			 *
+			 * @since 9.1.0
+			 *
+			 * @param array [ $url['host'] ] List of the valid hostnames to check against.
+			 */
+			$valid_hostnames = apply_filters( 'jetpack_recaptcha_valid_hostnames', array( $url['host'] ) );
+
+			if ( ! in_array( $resp_decoded['hostname'], $valid_hostnames, true ) ) {
 				return new WP_Error( 'unexpected-host', $this->error_codes['unexpected-hostname'] );
 			}
 		}
@@ -174,7 +189,9 @@ class Jetpack_ReCaptcha {
 				data-theme="%s"
 				data-type="%s"
 				data-tabindex="%s"></div>
-			<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=%s"%s></script>
+			' .
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			'<script src="https://www.google.com/recaptcha/api.js?hl=%s"%s%s></script>
 			',
 			esc_attr( $this->config['tag_class'] ),
 			esc_attr( $this->site_key ),
@@ -182,7 +199,8 @@ class Jetpack_ReCaptcha {
 			esc_attr( $this->config['tag_attributes']['type'] ),
 			esc_attr( $this->config['tag_attributes']['tabindex'] ),
 			rawurlencode( $this->config['language'] ),
-			$this->config['script_async'] ? ' async' : ''
+			$this->config['script_async'] && ! $this->config['script_defer'] ? ' async' : '',
+			$this->config['script_defer'] ? ' defer' : ''
 		);
 	}
 }

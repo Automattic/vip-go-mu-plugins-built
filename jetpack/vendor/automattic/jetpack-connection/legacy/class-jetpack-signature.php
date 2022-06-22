@@ -74,34 +74,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $_SERVER['HTTP_X_FORWARDED_PORT'] : $_SERVER['SERVER_PORT'];
-		$host_port = intval( $host_port );
-
-		/**
-		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
-		 * Please update the test if any changes are made in this logic.
-		 */
-		if ( is_ssl() ) {
-			// 443: Standard Port
-			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
-			// with SSL termination proxies (self-served, Cloudflare, etc.) don't need to fiddle with
-			// the JETPACK_SIGNATURE__HTTPS_PORT constant. The code also implies we can't talk to a
-			// site at https://example.com:80/ (which would be a strange configuration).
-			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
-			// if the site is behind a proxy running on port 443 without
-			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
-			// though, to configure the proxy to send X-Forwarded-Port.
-			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? JETPACK_SIGNATURE__HTTPS_PORT : 443;
-			$port       = in_array( $host_port, array( 443, 80, $https_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
-		} else {
-			// 80: Standard Port
-			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
-			// if the site is behind a proxy running on port 80 without
-			// X-Forwarded-Port. It's better, though, to configure the proxy to
-			// send X-Forwarded-Port.
-			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? JETPACK_SIGNATURE__HTTP_PORT : 80;
-			$port      = in_array( $host_port, array( 80, $http_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
-		}
+		$port = $this->get_current_request_port();
 
 		$this->current_request_url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
@@ -325,20 +298,107 @@ class Jetpack_Signature {
 
 	/**
 	 * Concatenates a parameter name and a parameter value with an equals sign between them.
-	 * Supports one-dimensional arrays as `$value`.
 	 *
-	 * @param string $name  Parameter name.
-	 * @param mixed  $value Parameter value.
-	 * @return string A pair with parameter name and value (e.g. `name=value`).
+	 * @param string       $name  Parameter name.
+	 * @param string|array $value Parameter value.
+	 * @return string|array A string pair (e.g. `name=value`) or an array of string pairs.
 	 */
 	public function join_with_equal_sign( $name, $value ) {
 		if ( is_array( $value ) ) {
-			$result = array();
-			foreach ( $value as $array_key => $array_value ) {
-				$result[] = $name . '[' . $array_key . ']=' . $array_value;
-			}
-			return $result;
+			return $this->join_array_with_equal_sign( $name, $value );
 		}
 		return "{$name}={$value}";
+	}
+
+	/**
+	 * Helper function for join_with_equal_sign for handling arrayed values.
+	 * Explicitly supports nested arrays.
+	 *
+	 * @param string $name  Parameter name.
+	 * @param array  $value Parameter value.
+	 * @return array An array of string pairs (e.g. `[ name[example]=value ]`).
+	 */
+	private function join_array_with_equal_sign( $name, $value ) {
+		$result = array();
+		foreach ( $value as $value_key => $value_value ) {
+			$joined_value = $this->join_with_equal_sign( $name . '[' . $value_key . ']', $value_value );
+			if ( is_array( $joined_value ) ) {
+				foreach ( array_values( $joined_value ) as $individual_joined_value ) {
+					$result[] = $individual_joined_value;
+				}
+			} elseif ( is_string( $joined_value ) ) {
+				$result[] = $joined_value;
+			}
+		}
+
+		sort( $result );
+		return $result;
+	}
+
+	/**
+	 * Gets the port that should be considered to sign the current request.
+	 *
+	 * It will analyze the current request, as well as some Jetpack constants, to return the string
+	 * to be concatenated in the URL representing the port of the current request.
+	 *
+	 * @since 9.2.0
+	 *
+	 * @return string The port to be used in the signature
+	 */
+	public function get_current_request_port() {
+		$host_port = isset( $_SERVER['HTTP_X_FORWARDED_PORT'] ) ? $this->sanitize_host_post( $_SERVER['HTTP_X_FORWARDED_PORT'] ) : '';
+		if ( '' === $host_port && isset( $_SERVER['SERVER_PORT'] ) ) {
+			$host_port = $this->sanitize_host_post( $_SERVER['SERVER_PORT'] );
+		}
+
+		/**
+		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Please update the test if any changes are made in this logic.
+		 */
+		if ( is_ssl() ) {
+			// 443: Standard Port
+			// 80: Assume we're behind a proxy without X-Forwarded-Port. Hardcoding "80" here means most sites
+			// with SSL termination proxies (self-served, Cloudflare, etc.) don't need to fiddle with
+			// the JETPACK_SIGNATURE__HTTPS_PORT constant. The code also implies we can't talk to a
+			// site at https://example.com:80/ (which would be a strange configuration).
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
+			// if the site is behind a proxy running on port 443 without
+			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
+			// though, to configure the proxy to send X-Forwarded-Port.
+			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? $this->sanitize_host_post( JETPACK_SIGNATURE__HTTPS_PORT ) : '443';
+			$port       = in_array( $host_port, array( '443', '80', $https_port ), true ) ? '' : $host_port;
+		} else {
+			// 80: Standard Port
+			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
+			// if the site is behind a proxy running on port 80 without
+			// X-Forwarded-Port. It's better, though, to configure the proxy to
+			// send X-Forwarded-Port.
+			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? $this->sanitize_host_post( JETPACK_SIGNATURE__HTTP_PORT ) : '80';
+			$port      = in_array( $host_port, array( '80', $http_port ), true ) ? '' : $host_port;
+		}
+		return (string) $port;
+	}
+
+	/**
+	 * Sanitizes a variable checking if it's a valid port number, which can be an integer or a numeric string
+	 *
+	 * @since 9.2.0
+	 *
+	 * @param mixed $port_number Variable representing a port number.
+	 * @return string Always a string with a valid port number, or an empty string if input is invalid
+	 */
+	public function sanitize_host_post( $port_number ) {
+
+		if ( ! is_int( $port_number ) && ! is_string( $port_number ) ) {
+			return '';
+		}
+		if ( is_string( $port_number ) && ! ctype_digit( $port_number ) ) {
+			return '';
+		}
+
+		if ( 0 >= (int) $port_number || 65535 < $port_number ) {
+			return '';
+		}
+		return (string) $port_number;
 	}
 }

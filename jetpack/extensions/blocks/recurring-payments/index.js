@@ -14,6 +14,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import { SUPPORTED_CURRENCIES, minimumTransactionAmountForCurrency } from '../../shared/currencies';
@@ -32,7 +33,10 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Payments', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: getIconColor(),
+	},
 	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
 	category: 'earn',
 	keywords: [
@@ -42,6 +46,7 @@ export const settings = {
 		'stripe',
 		_x( 'memberships', 'block search term', 'jetpack' ),
 	],
+	usesContext: [ 'isPremiumContentChild' ],
 	attributes: {
 		planId: {
 			type: 'integer',

@@ -29,7 +29,7 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
 			'page_for_posts_id' => 0,
 		),
 	),
-	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0}'
+	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0}',
 ) );
 
 class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoint {

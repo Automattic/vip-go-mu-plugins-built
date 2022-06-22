@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions;
 
+use Automattic\Jetpack\Blocks;
 use Jetpack;
 use Jetpack_Gutenberg;
 
@@ -56,7 +57,7 @@ class WordAds {
 	 */
 	public static function register() {
 		if ( self::is_available() ) {
-			jetpack_register_block(
+			Blocks::jetpack_register_block(
 				self::BLOCK_NAME,
 				array(
 					'render_callback' => array( __CLASS__, 'gutenblock_render' ),
@@ -116,7 +117,7 @@ class WordAds {
 
 		$ad_tag_ids = $wordads->get_ad_tags();
 		$format     = 'mrec';
-		if ( isset( $attr['format'] ) && in_array( $attr['format'], array_keys( $ad_tag_ids ), true ) ) {
+		if ( isset( $attr['format'] ) && isset( $ad_tag_ids[ $attr['format'] ] ) ) {
 			$format = $attr['format'];
 		}
 

@@ -82,6 +82,7 @@ const PodcastPlayerEdit = ( {
 		url,
 		itemsToShow,
 		showCoverArt,
+		showEpisodeTitle,
 		showEpisodeDescription,
 		exampleFeedData,
 	} = validatedAttributes;
@@ -123,7 +124,10 @@ const PodcastPlayerEdit = ( {
 					// Show error and allow to edit URL.
 					debug( 'feed error', error );
 					createErrorNotice(
-						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+						// Error messages already come localized.
+						error.message ||
+							// Fallback to a generic message.
+							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 					);
 					setIsEditing( true );
 				}
@@ -287,6 +291,12 @@ const PodcastPlayerEdit = ( {
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
 						onChange={ value => setAttributes( { showCoverArt: value } ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Episode Title', 'jetpack' ) }
+						checked={ showEpisodeTitle }
+						onChange={ value => setAttributes( { showEpisodeTitle: value } ) }
 					/>
 
 					<ToggleControl

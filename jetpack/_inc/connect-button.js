@@ -4,10 +4,15 @@ jQuery( document ).ready( function ( $ ) {
 	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
 	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
+	// Sections that only show up in the first Set Up screen
 	var connectionHelpSections = $(
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
 	);
+	// Sections that only show up in the "Authorize user" screen
+	var authenticationHelpSections = $( '#jp-authenticate-no_user_test_mode' );
 	var connectButtonFrom = '';
+
+	authenticationHelpSections.hide();
 
 	connectButton.on( 'click', function ( event ) {
 		event.preventDefault();
@@ -52,7 +57,9 @@ jQuery( document ).ready( function ( $ ) {
 		handleConnectInPlaceFlow: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
 			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
-				window.location = jpConnect.connectInPlaceUrl;
+				// Make sure we don't lose the `from` parameter, if set.
+				var fromParam = ( connectButtonFrom && '&from=' + connectButtonFrom ) || '';
+				window.location = jpConnect.connectInPlaceUrl + fromParam;
 				return;
 			}
 
@@ -92,12 +99,12 @@ jQuery( document ).ready( function ( $ ) {
 			loadingText.after( spinner );
 		},
 		handleConnectionSuccess: function ( data ) {
-			jetpackConnectButton.fetchPlanType();
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
 			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
+				authenticationHelpSections.show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
@@ -110,7 +117,7 @@ jQuery( document ).ready( function ( $ ) {
 			document.head.appendChild( link );
 		},
 		fetchPlanType: function () {
-			$.ajax( {
+			return $.ajax( {
 				url: jpConnect.apiBaseUrl + '/site',
 				type: 'GET',
 				data: {
@@ -145,13 +152,26 @@ jQuery( document ).ready( function ( $ ) {
 		handleAuthorizationComplete: function () {
 			jetpackConnectButton.isRegistering = false;
 
-			if ( jetpackConnectButton.isPaidPlan ) {
+			// Fetch plan type late to make sure any stored license keys have been
+			// attached to the site during the connection.
+			jetpackConnectButton.fetchPlanType().always( function () {
+				if ( ! jetpackConnectButton.isPaidPlan ) {
+					window.location.assign( jpConnect.plansPromptUrl );
+					return;
+				}
+
+				var parser = document.createElement( 'a' );
+				parser.href = jpConnect.dashboardUrl;
+				var reload =
+					window.location.pathname === parser.pathname && window.location.hash !== parser.hash;
+
 				window.location.assign( jpConnect.dashboardUrl );
-				// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
-				window.location.reload( true );
-			} else {
-				window.location.assign( jpConnect.plansPromptUrl );
-			}
+
+				if ( reload ) {
+					// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+					window.location.reload( true );
+				}
+			} );
 		},
 		handleConnectionError: function ( error ) {
 			jetpackConnectButton.isRegistering = false;
@@ -160,7 +180,11 @@ jQuery( document ).ready( function ( $ ) {
 	};
 
 	// When we visit /wp-admin/admin.php?page=jetpack#/setup, immediately start the connection flow.
-	var hash = location.hash.replace( /#\//, '' );
+	var hash = location.hash.replace( /(#\/setup).*/, 'setup' );
+
+	// In case the parameter has been manually set in the URL after redirect.
+	connectButtonFrom = location.hash.split( '&from=' )[ 1 ];
+
 	if ( 'setup' === hash ) {
 		if ( connectionHelpSections.length ) {
 			connectionHelpSections.hide();

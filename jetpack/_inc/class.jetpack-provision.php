@@ -48,7 +48,7 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 
-		if ( ! Jetpack::connection()->is_registered() || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
+		if ( ! Jetpack::connection()->is_connected() || ( isset( $named_args['force_register'] ) && (int) $named_args['force_register'] ) ) {
 			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -126,11 +126,11 @@ class Jetpack_Provision { //phpcs:ignore
 		}
 
 		if ( isset( $named_args['onboarding'] ) && ! empty( $named_args['onboarding'] ) ) {
-			$request_body['onboarding'] = intval( $named_args['onboarding'] );
+			$request_body['onboarding'] = (int) $named_args['onboarding'];
 		}
 
 		if ( isset( $named_args['force_connect'] ) && ! empty( $named_args['force_connect'] ) ) {
-			$request_body['force_connect'] = intval( $named_args['force_connect'] );
+			$request_body['force_connect'] = (int) $named_args['force_connect'];
 		}
 
 		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {
@@ -173,7 +173,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$url     = esc_url_raw( sprintf(
-			'https://%s/rest/v1.3/jpphp/%d/partner-provision',
+			'%s/rest/v1.3/jpphp/%d/partner-provision',
 			self::get_api_host(),
 			$blog_id
 		) );
@@ -253,7 +253,7 @@ class Jetpack_Provision { //phpcs:ignore
 			'body'    => ''
 		);
 
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		$url    = sprintf( '%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
 		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
@@ -276,6 +276,6 @@ class Jetpack_Provision { //phpcs:ignore
 
 	private static function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true ); // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctionParameters.getenv_local_onlyFound
-		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
+		return $env_api_host ? 'https://' . $env_api_host : JETPACK__WPCOM_JSON_API_BASE;
 	}
 }

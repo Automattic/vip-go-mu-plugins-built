@@ -1,6 +1,8 @@
 <?php
+// phpcs:disable WordPress.NamingConventions.ValidVariableName
 
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 
 abstract class Publicize_Base {
 
@@ -21,6 +23,14 @@ abstract class Publicize_Base {
 	*/
 	public $ADMIN_PAGE        = 'wpas';
 	public $POST_MESS         = '_wpas_mess';
+
+	/**
+	 * Post meta key for flagging when the post is a tweetstorm.
+	 *
+	 * @var string
+	 */
+	public $POST_TWEETSTORM = '_wpas_is_tweetstorm';
+
 	public $POST_SKIP         = '_wpas_skip_'; // connection id appended to indicate that a connection should NOT be publicized to
 	public $POST_DONE         = '_wpas_done_'; // connection id appended to indicate a connection has already been publicized to
 	public $USER_AUTH         = 'wpas_authorize';
@@ -852,18 +862,29 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Registers the ->POST_MESS post_meta for use in the REST API.
+	 * Registers the post_meta for use in the REST API.
 	 *
 	 * Registers for each post type that with `publicize` feature support.
 	 */
 	function register_post_meta() {
-		$args = array(
-			'type' => 'string',
-			'description' => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
-			'single' => true,
-			'default' => '',
-			'show_in_rest' => array(
-				'name' => 'jetpack_publicize_message'
+		$message_args = array(
+			'type'          => 'string',
+			'description'   => __( 'The message to use instead of the title when sharing to Publicize Services', 'jetpack' ),
+			'single'        => true,
+			'default'       => '',
+			'show_in_rest'  => array(
+				'name' => 'jetpack_publicize_message',
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		$tweetstorm_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether or not the post should be treated as a Twitter thread.', 'jetpack' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => array(
+				'name' => 'jetpack_is_tweetstorm',
 			),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
@@ -873,9 +894,11 @@ abstract class Publicize_Base {
 				continue;
 			}
 
-			$args['object_subtype'] = $post_type;
+			$message_args['object_subtype']    = $post_type;
+			$tweetstorm_args['object_subtype'] = $post_type;
 
-			register_meta( 'post', $this->POST_MESS, $args );
+			register_meta( 'post', $this->POST_MESS, $message_args );
+			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 		}
 	}
 
@@ -982,10 +1005,11 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 				$connection_data = '';
-				if ( method_exists( $connection, 'get_meta' ) )
+				if ( is_object( $connection ) && method_exists( $connection, 'get_meta' ) ) {
 					$connection_data = $connection->get_meta( 'connection_data' );
-				elseif ( ! empty( $connection['connection_data'] ) )
+				} elseif ( ! empty( $connection['connection_data'] ) ) {
 					$connection_data = $connection['connection_data'];
+				}
 
 				/** This action is documented in modules/publicize/ui.php */
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
@@ -1240,15 +1264,5 @@ abstract class Publicize_Base {
 }
 
 function publicize_calypso_url() {
-	if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {
-		$site_suffix = Jetpack::build_raw_urls( home_url() );
-	} elseif ( class_exists( 'WPCOM_Masterbar' ) && method_exists( 'WPCOM_Masterbar', 'get_calypso_site_slug' ) ) {
-		$site_suffix = WPCOM_Masterbar::get_calypso_site_slug( get_current_blog_id() );
-	}
-
-	if ( $site_suffix ) {
-		return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => $site_suffix ) );
-	} else {
-		return Redirect::get_url( 'calypso-marketing-connections-base' );
-	}
+	return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => ( new Status() )->get_site_suffix() ) );
 }

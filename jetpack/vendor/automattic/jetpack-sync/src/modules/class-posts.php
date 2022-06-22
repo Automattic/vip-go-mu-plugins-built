@@ -96,7 +96,7 @@ class Posts extends Module {
 	 */
 	public function get_object_by_id( $object_type, $id ) {
 		if ( 'post' === $object_type ) {
-			$post = get_post( intval( $id ) );
+			$post = get_post( (int) $id );
 			if ( $post ) {
 				return $this->filter_post_content_and_add_links( $post );
 			}
@@ -116,6 +116,7 @@ class Posts extends Module {
 		$this->action_handler = $callable;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
+		add_action( 'wp_after_insert_post', array( $this, 'wp_after_insert_post' ), 11, 2 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
@@ -342,7 +343,7 @@ class Posts extends Module {
 	 * @return boolean Whether the post type is allowed.
 	 */
 	public function is_post_type_allowed( $post_id ) {
-		$post = get_post( intval( $post_id ) );
+		$post = get_post( (int) $post_id );
 
 		if ( isset( $post->post_type ) ) {
 			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );
@@ -569,6 +570,34 @@ class Posts extends Module {
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
+
+		/*
+		 * WP 5.6 introduced the wp_after_insert_post hook that triggers when
+		 * the post, meta and terms has been updated. We are migrating send_published
+		 * function to this hook to ensure we have all data for WP.com functionality.
+		 * @todo: remove full if statement when WordPress 5.6 is the minimum required version.
+		 */
+		if ( ! function_exists( 'wp_after_insert_post' ) ) {
+			$this->send_published( $post_ID, $post );
+		}
+	}
+
+	/**
+	 * Handler for the wp_after_insert_post hook.
+	 * Called after creation/update of a new post.
+	 *
+	 * @param int      $post_ID Post ID.
+	 * @param \WP_Post $post    Post object.
+	 **/
+	public function wp_after_insert_post( $post_ID, $post ) {
+		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+			return;
+		}
+
+		// Workaround for https://github.com/woocommerce/woocommerce/issues/18007.
+		if ( $post && 'shop_order' === $post->post_type ) {
+			$post = get_post( $post_ID );
+		}
 
 		$this->send_published( $post_ID, $post );
 	}
