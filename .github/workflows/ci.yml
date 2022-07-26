@@ -148,3 +148,5 @@ jobs:
               exit 1
             fi
           fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
