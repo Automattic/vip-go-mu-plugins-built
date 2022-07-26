@@ -98,7 +98,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: write
+      pull-requests: write
     steps:
       - name: Check out source code
         uses: actions/checkout@v3.0.2
@@ -132,10 +132,10 @@ jobs:
             if [ "${{ github.actor }}" = 'dependabot[bot]' ] && [[ "${{ github.ref }}" != automation/* ]]; then
               git config user.name "WordPress VIP Bot"
               git config user.email github-actions@github.com
-              git checkout -b "automation/${{ github.ref }}"
+              git checkout -b "automation/${{ github.ref }}" || git checkout "automation/${{ github.ref }}"
               git add search/search-dev-tools/
               git commit -m "Regenerate the bundle"
-              git push -u origin "automation/${{ github.ref }}"
+              git push -u origin "automation/${{ github.ref }}" --force
               gh pr create --title "Regenerate Search DevTools Bundle" --body "Regenerate the bundle" --base "${{ github.ref }}" --head "automation/${{ github.ref }}"
             elif [ "${{ github.event.head_commit.committer.email }}" != "github-actions@github.com" ]; then
               git config user.name "WordPress VIP Bot"
