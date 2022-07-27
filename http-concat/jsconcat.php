@@ -203,7 +203,8 @@ class WPcom_JS_Concat extends WP_Scripts {
 					}
 				}
 				if ( isset( $href ) ) {
-					printf( '<script type="text/javascript" src="%s" %s></script>', $href, $attr_string );
+					$script_html = sprintf( '<script type="text/javascript" src="%s" %s></script>', $href, $attr_string );
+					echo apply_filters( "ngx_http_concat_script_loader_tag",  $script_html, $href, $attr_string );
 				}
 				if ( isset( $js_array['extras']['after'] ) ) {
 					foreach ( $js_array['extras']['after'] as $inline_after ) {
