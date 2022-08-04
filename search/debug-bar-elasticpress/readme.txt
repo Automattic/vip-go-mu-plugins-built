@@ -2,9 +2,9 @@
 Contributors: tlovett1, 10up
 Tags: debug, debug bar, elasticpress, elasticsearch
 Requires at least: 4.6
-Tested up to: 5.8
+Tested up to: 6.0.1
 Requires PHP: 5.4
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,14 +27,26 @@ Adds an [ElasticPress](https://wordpress.org/plugins/elasticpress) panel to the 
 
 == Changelog ==
 
+= [2.1.1] - 2022-08-04 =
+
+Security:
+
+* Fix XSS vulnerability. Props [@piotr-bajer](https://github.com/piotr-bajer) and [@felipeelia](https://github.com/felipeelia).
+* Bumped `path-parse` from 1.0.6 to 1.0.7. Props [@dependabot](https://github.com/dependabot).
+* Bumps `minimist` from 1.2.5 to 1.2.6. Props [@dependabot](https://github.com/dependabot).
+* Bumps `ansi-regex` from 5.0.0 to 5.0.1. Props [@dependabot](https://github.com/dependabot).
+
+
 = 2.1.0 =
 
 Added:
+
 * ElasticPress and Elasticsearch versions. Props to [@oscarssanchez](https://github.com/oscarssanchez) and [@felipeelia](https://github.com/felipeelia) via [#43](https://github.com/10up/debug-bar-elasticpress/pull/43)
 * Log of bulk_index requests. Props [@felipeelia](https://github.com/felipeelia) via [#44](https://github.com/10up/debug-bar-elasticpress/pull/44)
 * Warning when ElasticPress is indexing. Props [@nathanielks](https://github.com/nathanielks) and [@felipeelia](https://github.com/felipeelia) via [#45](https://github.com/10up/debug-bar-elasticpress/pull/45)
 
 Changed:
+
 * Only load CSS and JS files for logged-in users. Props [@cbratschi](https://github.com/cbratschi) and [@felipeelia](https://github.com/felipeelia) via [#47](https://github.com/10up/debug-bar-elasticpress/pull/47)
 
 = 2.0.0 =

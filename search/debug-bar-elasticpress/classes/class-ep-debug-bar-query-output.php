@@ -88,14 +88,14 @@ class EP_Debug_Bar_Query_Output {
 			<?php if ( ! empty( $query['args']['headers'] ) ) : ?>
 				<div class="ep-query-headers">
 					<strong><?php esc_html_e( 'Headers:', 'debug-bar-elasticpress' ); ?> <div class="query-headers-toggle dashicons"></div></strong>
-					<pre class="query-headers"><?php echo wp_kses_post( var_dump( $query['args']['headers'], true ) ); ?></pre>
+					<pre class="query-headers"><?php echo esc_html( var_export( $query['args']['headers'], true ) ); ?></pre>
 				</div>
 			<?php endif; ?>
 
 			<?php if ( ! empty( $query['query_args'] ) ) : ?>
 				<div class="ep-query-args">
 					<strong><?php esc_html_e( 'Query Args:', 'debug-bar-elasticpress' ); ?> <div class="query-args-toggle dashicons"></div></strong>
-					<pre class="query-args"><?php echo wp_kses_post( var_dump( $query['query_args'], true ) ); ?></pre>
+					<pre class="query-args"><?php echo esc_html( var_export( $query['query_args'], true ) ); ?></pre>
 				</div>
 			<?php endif; ?>
 

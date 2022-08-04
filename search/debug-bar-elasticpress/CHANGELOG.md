@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file, per [the Keep a Changelog standard](http://keepachangelog.com/).
 
+## [Unreleased]
+
+## [2.1.1] - 2022-08-04
+
+### Security
+- Fix XSS vulnerability. Props [@piotr-bajer](https://github.com/piotr-bajer) and [@felipeelia](https://github.com/felipeelia) via [#52](https://github.com/10up/debug-bar-elasticpress/pull/52).
+- Bumped `path-parse` from 1.0.6 to 1.0.7. Props [@dependabot](https://github.com/dependabot) via [#49](https://github.com/10up/debug-bar-elasticpress/pull/49).
+- Bumps `minimist` from 1.2.5 to 1.2.6. Props [@dependabot](https://github.com/dependabot) via [#51](https://github.com/10up/debug-bar-elasticpress/pull/51).
+- Bumps `ansi-regex` from 5.0.0 to 5.0.1. Props [@dependabot](https://github.com/dependabot) via [#53](https://github.com/10up/debug-bar-elasticpress/pull/53).
+
 ## [2.1.0] - 2021-08-09
 
 ### Added
@@ -41,6 +51,7 @@ This release drops the support for older versions of WordPress Core, ElasticPres
 * Initial release
 
 [Unreleased]: https://github.com/10up/debug-bar-elasticpress/compare/trunk...develop
+[2.1.1]: https://github.com/10up/debug-bar-elasticpress/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/10up/debug-bar-elasticpress/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/10up/debug-bar-elasticpress/compare/1.4...2.0.0
 [1.4]: https://github.com/10up/debug-bar-elasticpress/compare/1.3...1.4
