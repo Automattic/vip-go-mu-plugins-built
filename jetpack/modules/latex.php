@@ -110,7 +110,7 @@ function latex_render( $latex, $fg, $bg, $s = 0 ) {
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
 
 	return sprintf(
-		'<img src="%1$s" alt="%2$s" title="%2$s" class="latex" />',
+		'<img src="%1$s" alt="%2$s" class="latex" />',
 		esc_url( $url ),
 		$alt
 	);
@@ -123,13 +123,17 @@ function latex_render( $latex, $fg, $bg, $s = 0 ) {
  * Example: [latex s=4 bg=00f fg=ff0]\LaTeX[/latex]
  */
 function latex_shortcode( $atts, $content = '' ) {
-	extract( shortcode_atts( array(
-		's' => 0,
-		'bg' => latex_get_default_color( 'bg' ),
-		'fg' => latex_get_default_color( 'text', '000' )
-	), $atts, 'latex' ) );
+	$attr = shortcode_atts(
+		array(
+			's'  => 0,
+			'bg' => latex_get_default_color( 'bg' ),
+			'fg' => latex_get_default_color( 'text', '000' ),
+		),
+		$atts,
+		'latex'
+	);
 
-	return latex_render( latex_entity_decode( $content ), $fg, $bg, $s );
+	return latex_render( latex_entity_decode( $content ), $attr['fg'], $attr['bg'], $attr['s'] );
 }
 
 /**

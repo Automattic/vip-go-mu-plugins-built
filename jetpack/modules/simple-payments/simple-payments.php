@@ -4,7 +4,7 @@
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
  * into module that can be enabled/disabled.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -141,7 +141,7 @@ class Jetpack_Simple_Payments {
 		}
 
 		// For all Jetpack sites
-		return Jetpack::is_active() && Jetpack_Plan::supports( 'simple-payments');
+		return Jetpack::is_connection_ready() && Jetpack_Plan::supports( 'simple-payments' );
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {

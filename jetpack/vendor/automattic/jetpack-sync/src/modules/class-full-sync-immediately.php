@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules;
@@ -68,7 +69,8 @@ class Full_Sync_Immediately extends Module {
 			/**
 			 * Fires when a full sync is cancelled.
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 */
 			do_action( 'jetpack_full_sync_cancelled' );
 			$this->send_action( 'jetpack_full_sync_cancelled' );
@@ -105,9 +107,10 @@ class Full_Sync_Immediately extends Module {
 		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
 		 * @param array $empty The modules with no items to sync during a full sync.
 		 *
-		 * @since 4.2.0
-		 * @since 7.3.0 Added $range arg.
-		 * @since 7.4.0 Added $empty arg.
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
+		 * @since-jetpack 7.4.0 Added $empty arg.
 		 */
 		do_action( 'jetpack_full_sync_start', $full_sync_config, $range );
 		$this->send_action( 'jetpack_full_sync_start', array( $full_sync_config, $range ) );
@@ -335,6 +338,16 @@ class Full_Sync_Immediately extends Module {
 			return;
 		}
 
+		// Return early if we've gotten a retry-after header response.
+		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . 'immediate-send' );
+		if ( $retry_time ) {
+			// If expired delete but don't send. Send will occurr in new request to avoid race conditions.
+			if ( microtime( true ) > $retry_time ) {
+				update_option( Actions::RETRY_AFTER_PREFIX . 'immediate-send', false, false );
+			}
+			return false;
+		}
+
 		// Obtain send Lock.
 		$lock            = new Lock();
 		$lock_expiration = $lock->attempt( self::LOCK_NAME );
@@ -345,10 +358,12 @@ class Full_Sync_Immediately extends Module {
 		}
 
 		// Send Full Sync actions.
-		$this->send();
+		$success = $this->send();
 
 		// Remove lock.
-		$lock->remove( self::LOCK_NAME, $lock_expiration );
+		if ( $success ) {
+			$lock->remove( self::LOCK_NAME, $lock_expiration );
+		}
 	}
 
 	/**
@@ -366,15 +381,19 @@ class Full_Sync_Immediately extends Module {
 
 		foreach ( $this->get_remaining_modules_to_send() as $module ) {
 			$progress[ $module->name() ] = $module->send_full_sync_actions( $config[ $module->name() ], $progress[ $module->name() ], $send_until );
-			if ( ! $progress[ $module->name() ]['finished'] ) {
+			if ( isset( $progress[ $module->name() ]['error'] ) ) {
+				unset( $progress[ $module->name() ]['error'] );
 				$this->update_status( array( 'progress' => $progress ) );
-
-				return;
+				return false;
+			} elseif ( ! $progress[ $module->name() ]['finished'] ) {
+				$this->update_status( array( 'progress' => $progress ) );
+				return true;
 			}
 		}
 
 		$this->send_full_sync_end();
 		$this->update_status( array( 'progress' => $progress ) );
+		return true;
 	}
 
 	/**
@@ -427,8 +446,9 @@ class Full_Sync_Immediately extends Module {
 		 * @param string $checksum Deprecated since 7.3.0 - @see https://github.com/Automattic/jetpack/pull/11945/
 		 * @param array $range Range of the sync items, containing min and max IDs for some item types.
 		 *
-		 * @since 4.2.0
-		 * @since 7.3.0 Added $range arg.
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
+		 * @since-jetpack 7.3.0 Added $range arg.
 		 */
 		do_action( 'jetpack_full_sync_end', '', $range );
 		$this->send_action( 'jetpack_full_sync_end', array( '', $range ) );

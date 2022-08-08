@@ -455,14 +455,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
 
 					$response[ $setting ] = array(
-						'siteTitle' => $this->decode_special_characters( get_option( 'blogname' ) ),
-						'siteDescription' => $this->decode_special_characters( get_option( 'blogdescription' ) ),
-						'siteType' => get_option( 'jpo_site_type' ),
-						'homepageFormat' => get_option( 'jpo_homepage_format' ),
-						'addContactForm' => (int) get_option( 'jpo_contact_page' ),
-						'businessAddress' => $business_address,
+						'siteTitle'          => $this->decode_special_characters( get_option( 'blogname' ) ),
+						'siteDescription'    => $this->decode_special_characters( get_option( 'blogdescription' ) ),
+						'siteType'           => get_option( 'jpo_site_type' ),
+						'homepageFormat'     => get_option( 'jpo_homepage_format' ),
+						'addContactForm'     => (int) get_option( 'jpo_contact_page' ),
+						'businessAddress'    => $business_address,
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
-						'stats' => Jetpack::is_active() && Jetpack::is_module_active( 'stats' ),
+						'stats'              => Jetpack::is_connection_ready() && Jetpack::is_module_active( 'stats' ),
 					);
 					break;
 
@@ -757,6 +757,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'bing':
 				case 'pinterest':
 				case 'yandex':
+				case 'facebook':
 					$grouped_options = $grouped_options_current = (array) get_option( 'verification_services_codes' );
 
 					// Extracts the content attribute from the HTML meta tag if needed
@@ -827,6 +828,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'do_not_track':
 				case 'hide_smile':
 				case 'version':
+				case 'collapse_nudges':
 					$grouped_options          = $grouped_options_current = (array) get_option( 'stats_options' );
 					$grouped_options[$option] = $value;
 
@@ -1122,7 +1124,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $data['stats'] ) ) {
-			if ( Jetpack::is_active() ) {
+			if ( Jetpack::is_connection_ready() ) {
 				$stats_module_active = Jetpack::is_module_active( 'stats' );
 				if ( ! $stats_module_active ) {
 					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
@@ -1332,10 +1334,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return int|string Number of spam blocked by Akismet. Otherwise, an error message.
 	 */
 	public function get_akismet_data() {
-		if ( ! is_wp_error( $status = $this->akismet_is_active_and_registered() ) ) {
-			return rest_ensure_response( Akismet_Admin::get_stats( Akismet::get_api_key() ) );
+		$akismet_status = $this->akismet_is_active_and_registered();
+		if ( ! is_wp_error( $akismet_status ) ) {
+			return number_format_i18n( get_option( 'akismet_spam_count', 0 ) );
 		} else {
-			return $status->get_error_code();
+			return $akismet_status->get_error_code();
 		}
 	}
 
@@ -1545,6 +1548,9 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 						break;
 					case 'yandex':
 						$services[] = 'Yandex';
+						break;
+					case 'facebook':
+						$services[] = 'Facebook';
 						break;
 				}
 			}

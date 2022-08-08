@@ -7,7 +7,7 @@
  * [bandcamp album=3462839126  bgcol=FFFFFF linkcol=4285BB size=venti]
  * [bandcamp track=2446959313]
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -30,6 +30,7 @@ function shortcode_handler_bandcamp( $atts ) {
 			'height'      => null,     // integer with optional "%".
 			'notracklist' => null,     // may be string "true" (defaults false).
 			'tracklist'   => null,     // may be string "false" (defaults true).
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found -- false positive
 			'artwork'     => null,     // may be string "false" (alternately: "none") or "small" (default is large).
 			'minimal'     => null,     // may be string "true" (defaults false).
 			'theme'       => null,     // may be theme identifier string ("light"|"dark" so far).

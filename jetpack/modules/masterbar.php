@@ -6,20 +6,31 @@
  * Recommendation Order: 16
  * First Introduced: 4.8
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: General
- * Additional Search Queries: adminbar, masterbar, colorschemes
+ * Additional Search Queries: adminbar, masterbar, colorschemes, profile-edit
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status\Host;
+
 require __DIR__ . '/masterbar/masterbar/class-masterbar.php';
 require __DIR__ . '/masterbar/admin-color-schemes/class-admin-color-schemes.php';
+require __DIR__ . '/masterbar/inline-help/class-inline-help.php';
 
 new Masterbar();
 new Admin_Color_Schemes();
+
+if ( ( new Host() )->is_woa_site() ) {
+	new Inline_Help();
+	require_once __DIR__ . '/masterbar/wp-posts-list/bootstrap.php';
+	require_once __DIR__ . '/masterbar/profile-edit/bootstrap.php';
+	require_once __DIR__ . '/masterbar/nudges/bootstrap.php';
+}
 
 /**
  * Whether to load the admin menu functionality.
@@ -32,12 +43,5 @@ new Admin_Color_Schemes();
  * @param bool $load_admin_menu_class Load Jetpack's custom admin menu functionality. Default to false.
  */
 if ( apply_filters( 'jetpack_load_admin_menu_class', false ) ) {
-	require_once __DIR__ . '/masterbar/admin-menu/class-admin-menu.php';
-
-	if ( jetpack_is_atomic_site() ) {
-		require_once __DIR__ . '/masterbar/admin-menu/class-atomic-admin-menu.php';
-		Atomic_Admin_Menu::get_instance();
-	} else {
-		Admin_Menu::get_instance();
-	}
+	require_once __DIR__ . '/masterbar/admin-menu/load.php';
 }

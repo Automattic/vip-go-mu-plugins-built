@@ -2,7 +2,7 @@
 /**
  * Class for photon functionality.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Assets;
@@ -21,13 +21,14 @@ class Jetpack_Photon {
 	/**
 	 * Allowed extensions.
 	 *
-	 * @var string[] Allowed extensions must match https://code.trac.wordpress.org/browser/photon/index.php#L31
+	 * @var string[] Allowed extensions must match https://code.trac.wordpress.org/browser/photon/index.php#L41
 	 */
 	protected static $extensions = array(
 		'gif',
 		'jpg',
 		'jpeg',
 		'png',
+		'webp', // Jetpack assumes Photon_OpenCV backend class is being used on the server. See link in docblock.
 	);
 
 	/**
@@ -751,8 +752,8 @@ class Jetpack_Photon {
 				}
 
 				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
-					$image_args['width']  = $image_meta['width'];
-					$image_args['height'] = $image_meta['height'];
+					$image_args['width']  = (int) $image_meta['width'];
+					$image_args['height'] = (int) $image_meta['height'];
 
 					list( $image_args['width'], $image_args['height'] ) = image_constrain_size_for_editor( $image_args['width'], $image_args['height'], $size, 'display' );
 					$has_size_meta                                      = true;
@@ -922,7 +923,7 @@ class Jetpack_Photon {
 
 			$args = array();
 			if ( 'w' === $source['descriptor'] ) {
-				if ( $height && ( $source['value'] === $width ) ) {
+				if ( $height && ( (int) $source['value'] === $width ) ) {
 					$args['resize'] = $width . ',' . $height;
 				} else {
 					$args['w'] = $source['value'];
@@ -1234,18 +1235,6 @@ class Jetpack_Photon {
 		}
 
 		return $tags;
-	}
-
-	/**
-	 * Returns empty array.
-	 *
-	 * @deprecated 8.8.0 Use filter_photon_noresize_intermediate_sizes.
-	 *
-	 * @return array Empty array.
-	 */
-	public function noresize_intermediate_sizes() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '::filter_photon_noresize_intermediate_sizes' );
-		return __return_empty_array();
 	}
 
 	/**

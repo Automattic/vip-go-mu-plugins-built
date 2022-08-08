@@ -194,13 +194,6 @@ function grunion_message_bulk_spam() {
 	echo '<div class="updated"><p>' . __( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
 }
 
-// remove admin UI parts that we don't support in feedback management
-add_action( 'admin_menu', 'grunion_admin_menu' );
-function grunion_admin_menu() {
-	global $menu, $submenu;
-	unset( $submenu['edit.php?post_type=feedback'] );
-}
-
 add_filter( 'bulk_actions-edit-feedback', 'grunion_admin_bulk_actions' );
 function grunion_admin_bulk_actions( $actions ) {
 	global $current_screen;
@@ -616,14 +609,12 @@ function grunion_ajax_spam() {
 	if ( $_POST['make_it'] == 'spam' ) {
 		$post->post_status = 'spam';
 		$status            = wp_insert_post( $post );
-		wp_transition_post_status( 'spam', 'publish', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
 		$post->post_status = 'publish';
 		$status            = wp_insert_post( $post );
-		wp_transition_post_status( 'publish', 'spam', $post );
 
 		/** This action is already documented in modules/contact-form/admin.php */
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );

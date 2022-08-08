@@ -2,7 +2,7 @@
 /**
  * Dailymotion code
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -236,6 +236,25 @@ function dailymotion_shortcode( $atts ) {
 					),
 				)
 			) . '</em>';
+		}
+	}
+
+	/**
+	 * Calypso Helper
+	 *
+	 * Makes shortcode output responsive to the location it is loaded:
+	 * Notifications, Reader, Email
+	 */
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_once WP_CONTENT_DIR . '/lib/display-context.php';
+		$context = A8C\Display_Context\get_current_context();
+
+		// Notifications.
+		if ( A8C\Display_Context\NOTIFICATIONS === $context ) {
+			return sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%1$s</a>',
+				esc_url( 'https://www.dailymotion.com/video/' . $id )
+			);
 		}
 	}
 

@@ -2,7 +2,7 @@
 /**
  * Tweetstorm block and API helper.
  *
- * @package jetpack
+ * @package automattic/jetpack
  * @since 8.7.0
  */
 
@@ -318,11 +318,6 @@ class Jetpack_Tweetstorm_Helper {
 	private static function get_block_definition( $block_name ) {
 		if ( isset( self::$supported_blocks[ $block_name ] ) ) {
 			return self::$supported_blocks[ $block_name ];
-		}
-
-		// @todo This is a fallback definition, it can be removed when WordPress 5.6 is the minimum supported version.
-		if ( 0 === strpos( $block_name, 'core-embed/' ) ) {
-			return self::$supported_blocks['core/embed'];
 		}
 
 		return null;
@@ -1196,12 +1191,10 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return string The tweet URL. Empty string if there is none available.
 	 */
 	private static function extract_tweet_from_block( $block ) {
-		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
-			return $block['attrs']['url'];
-		}
-
-		// @todo This fallback can be removed when WordPress 5.6 is the minimum supported version.
-		if ( 'core-embed/twitter' === $block['blockName'] ) {
+		if (
+			'core/embed' === $block['blockName']
+			&& ( isset( $block['attrs']['providerNameSlug'] ) && 'twitter' === $block['attrs']['providerNameSlug'] )
+		) {
 			return $block['attrs']['url'];
 		}
 
@@ -1222,12 +1215,10 @@ class Jetpack_Tweetstorm_Helper {
 		}
 
 		// Twitter embeds are handled in ::extract_tweet_from_block().
-		if ( 'core/embed' === $block['blockName'] && 'twitter' === $block['attrs']['providerNameSlug'] ) {
-			return '';
-		}
-
-		// @todo This fallback can be removed when WordPress 5.6 is the minimum supported version.
-		if ( 'core-embed/twitter' === $block['blockName'] ) {
+		if (
+			'core/embed' === $block['blockName']
+			&& ( isset( $block['attrs']['providerNameSlug'] ) && 'twitter' === $block['attrs']['providerNameSlug'] )
+		) {
 			return '';
 		}
 

@@ -6,8 +6,8 @@ and twitter-text-java projects by Matt Sanford and ported to PHP by Mike
 Cochrane, this library has been improved and made more complete by Nick Pope.
 
 <p align="center">
-    <a href="https://travis-ci.org/nojimage/twitter-text-php" target="_blank">
-        <img alt="Build Status" src="https://img.shields.io/travis/nojimage/twitter-text-php/master.svg?style=flat-square">
+    <a href="https://github.com/nojimage/twitter-text-php/actions/workflows/ci.yml" target="_blank">
+        <img alt="Build Status" src="https://github.com/nojimage/twitter-text-php/actions/workflows/ci.yml/badge.svg">
     </a>
     <a href="https://codecov.io/gh/nojimage/twitter-text-php" target="_blank">
         <img alt="Codecov" src="https://img.shields.io/codecov/c/github/nojimage/twitter-text-php.svg?style=flat-square">

@@ -2,8 +2,10 @@
 /**
  * Mapbox API helper.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Jetpack_Mapbox_Helper
@@ -46,7 +48,7 @@ class Jetpack_Mapbox_Helper {
 		}
 
 		// If not on WordPress.com or Atomic, return an empty access token.
-		if ( ! $site_id || ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) ) {
+		if ( ! $site_id || ( ! self::is_wpcom() && ! ( new Host() )->is_woa_site() ) ) {
 			return self::format_access_token();
 		}
 
@@ -87,7 +89,7 @@ class Jetpack_Mapbox_Helper {
 	private static function get_wpcom_site_id() {
 		if ( self::is_wpcom() ) {
 			return get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
 			return Jetpack_Options::get_option( 'id' );
 		}
 		return false;

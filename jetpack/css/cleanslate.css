@@ -92,6 +92,7 @@
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
   background-size: auto !important;
+  -o-border-image: none !important;
   border-image: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -106,8 +107,7 @@
   overflow-x: visible !important;
   overflow-y: visible !important;
   -webkit-hyphens: manual !important;
-  -ms-hyphens: manual !important;
-      hyphens: manual !important;
+  hyphens: manual !important;
   -ms-perspective: none !important;
   -o-perspective: none !important;
   perspective: none !important;
@@ -142,17 +142,17 @@
 
 .cleanslate h1 {
   font-size: 2em !important;
-  padding: .67em 0 !important;
+  padding: 0.67em 0 !important;
 }
 
 .cleanslate h2 {
   font-size: 1.5em !important;
-  padding: .83em 0 !important;
+  padding: 0.83em 0 !important;
 }
 
 .cleanslate h3 {
   font-size: 1.17em !important;
-  padding: .83em 0 !important;
+  padding: 0.83em 0 !important;
 }
 
 .cleanslate h4 {
@@ -160,7 +160,7 @@
 }
 
 .cleanslate h5 {
-  font-size: .83em !important;
+  font-size: 0.83em !important;
 }
 
 .cleanslate p {
@@ -200,7 +200,7 @@
 
 .cleanslate ul li, .cleanslate ul ul li, .cleanslate ul ul ul li, .cleanslate ol li, .cleanslate ol ol li, .cleanslate ol ol ol li, .cleanslate ul ol ol li, .cleanslate ul ul ol li, .cleanslate ol ul ul li, .cleanslate ol ol ul li {
   list-style-position: inside !important;
-  margin-top: .08em !important;
+  margin-top: 0.08em !important;
 }
 
 .cleanslate ol ol, .cleanslate ol ol ol, .cleanslate ul ul, .cleanslate ul ul ul, .cleanslate ol ul, .cleanslate ol ul ul, .cleanslate ol ol ul, .cleanslate ul ol, .cleanslate ul ol ol, .cleanslate ul ul ol {
@@ -285,7 +285,7 @@
   /* IE10+ */
   background: linear-gradient(to bottom, white 0%, #dddddd 100%, #d1d1d1 100%, #dddddd 100%) !important;
   /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dddddd',GradientType=0 ) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#ffffff", endColorstr="#dddddd",GradientType=0 ) !important;
   /* IE6-9 */
   -o-box-shadow: 1px 1px 0px #eee !important;
   box-shadow: 1px 1px 0px #eee !important;
@@ -468,7 +468,7 @@
   /* for IE, Opera */
   text-align: start !important;
   /* recommended W3C Spec */
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
   color: black !important;
   font-style: normal !important;
   font-weight: normal !important;
@@ -479,5 +479,4 @@
 .cleanslate pre {
   white-space: pre !important;
 }
-
 /*# sourceMappingURL=cleanslate.css.map */

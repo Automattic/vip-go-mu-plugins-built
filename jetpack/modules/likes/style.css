@@ -27,7 +27,7 @@ div.sharedaddy h3.sd-title:before {
 	display: block;
 	width: 100%;
 	min-width: 30px;
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #dcdcde;
 	margin-bottom: 1em;
 }
 
@@ -55,11 +55,6 @@ div.jetpack-likes-widget-wrapper {
 
 div.jetpack-likes-widget-wrapper .sd-link-color {
 	font-size: 12px;
-}
-
-div.jetpack-likes-widget-wrapper.slim-likes-widget {
-	width: 1px; /* initial default */
-	min-height: 0;
 }
 
 div.jetpack-comment-likes-widget-wrapper {
@@ -134,7 +129,7 @@ div.jetpack-comment-likes-widget-wrapper iframe {
 }
 
 div.sd-box {
-	border-top: 1px solid #ddd;
+	border-top: 1px solid #dcdcde;
 	border-top: 1px solid rgba(0,0,0,.13);
 }
 
@@ -192,11 +187,6 @@ div.sd-box {
 	margin-top: 4px;
 	align-self: center;
 	color: #4E4E4E;
-}
-
-.slim-likes-widget .post-likes-widget {
-	width: auto;
-	float: none;
 }
 
 /* Like Special cases (display on it's own) */

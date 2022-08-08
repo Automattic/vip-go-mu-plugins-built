@@ -4,7 +4,7 @@
  *
  * @since 8.0.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Pinterest;
@@ -29,7 +29,7 @@ const REMAINING_URL_PATH_WITH_SUBPATH_REGEX = '/^\/([^\/]+)\/([^\/]+)\/?$/';
  * @returns {string} The pin type. Empty string if it isn't a valid Pinterest URL.
  */
 function pin_type( $url ) {
-	if ( ! preg_match( PINTEREST_URL_REGEX, $url ) ) {
+	if ( null === $url || ! preg_match( PINTEREST_URL_REGEX, $url ) ) {
 		return '';
 	}
 

@@ -3,16 +3,18 @@
  * This file is meant to be the home for any generic & reusable functions
  * that can be accessed anywhere within Jetpack.
  *
- * This file is loaded whether or not Jetpack is active.
+ * This file is loaded whether Jetpack is active.
  *
  * Please namespace with jetpack_
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Sync\Functions;
 
 /**
  * Disable direct access.
@@ -142,29 +144,17 @@ function jetpack_get_future_removed_version( $version ) {
 }
 
 /**
- * Set the admin language, based on user language.
- *
- * @since 4.5.0
- * @deprecated 6.6.0 Use Core function instead.
- *
- * @return string
- */
-function jetpack_get_user_locale() {
-	_deprecated_function( __FUNCTION__, 'jetpack-6.6.0', 'get_user_locale' );
-	return get_user_locale();
-}
-
-/**
- * Determine if this site is an Atomic site or not looking first at the 'at_options' option.
+ * Determine if this site is an WoA site or not looking first at the 'at_options' option.
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
  * @since 4.8.1
+ * @deprecated  $$next_version$$
  *
  * @return bool
  */
 function jetpack_is_atomic_site() {
-	$at_options = get_option( 'at_options', array() );
-	return ! empty( $at_options ) || defined( 'WPCOMSH__PLUGIN_FILE' );
+	jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', '$$next_version$$' );
+	return ( new Host() )->is_woa_site();
 }
 
 /**
@@ -232,6 +222,8 @@ function jetpack_get_migration_data( $option_name ) {
 
 /**
  * Prints a TOS blurb used throughout the connection prompts.
+ *
+ * Note: custom ToS messages are also defined in Jetpack_Pre_Connection_JITMs->get_raw_messages()
  *
  * @since 5.3
  *
@@ -314,6 +306,8 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
  *
  * @since 6.1.0
+
+ * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  *
  * @param array|obj $any        Source data to be cleaned up.
  * @param array     $seen_nodes Built array of nodes.
@@ -321,33 +315,9 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  * @return array
  */
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
-	if ( is_object( $any ) ) {
-		$input        = get_object_vars( $any );
-		$input['__o'] = 1;
-	} else {
-		$input = &$any;
-	}
+	_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Sync\Functions' );
 
-	if ( is_array( $input ) ) {
-		$seen_nodes[] = &$any;
-
-		$return = array();
-
-		foreach ( $input as $k => &$v ) {
-			if ( ( is_array( $v ) || is_object( $v ) ) ) {
-				if ( in_array( $v, $seen_nodes, true ) ) {
-					continue;
-				}
-				$return[ $k ] = jetpack_json_wrap( $v, $seen_nodes );
-			} else {
-				$return[ $k ] = $v;
-			}
-		}
-
-		return $return;
-	}
-
-	return $any;
+	return Functions::json_wrap( $any, $seen_nodes );
 }
 
 /**
@@ -403,6 +373,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 			'image/jpeg',
 			'image/gif',
 			'image/bmp',
+			'image/webp',
 			'video/quicktime',
 			'video/mp4',
 			'video/mpeg',

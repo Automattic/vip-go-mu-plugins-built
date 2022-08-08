@@ -30,8 +30,8 @@
 /* GUTTER */
 
 .CodeMirror-gutters {
-  border-left: 1px solid #ddd;
-  background-color: #f7f7f7;
+  border-left: 1px solid #dcdcde;
+  background-color: #f6f7f7;
   white-space: nowrap;
 }
 .CodeMirror-linenumbers {}
@@ -198,7 +198,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 }
 .CodeMirror-code pre {
   border-left: 30px solid transparent;
-  width: -webkit-fit-content;
   width: -moz-fit-content;
   width: fit-content;
 }

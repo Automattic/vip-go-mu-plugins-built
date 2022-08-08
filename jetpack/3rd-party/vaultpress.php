@@ -2,7 +2,7 @@
 /**
  * Handles VaultPress->Rewind transition by deactivating VaultPress when needed.
  *
- * @package Jetpack.
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Redirect;
@@ -28,7 +28,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 				echo sprintf(
 					wp_kses(
 						/* Translators: first variable is the full URL to the new dashboard */
-						__( 'You can access your backups at <a href="%s" target="_blank" rel="noopener noreferrer">this  dashboard</a>.', 'jetpack' ),
+						__( 'You can access your backups at <a href="%s" target="_blank" rel="noopener noreferrer">this dashboard</a>.', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
@@ -53,7 +53,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
  */
 function jetpack_vaultpress_rewind_check() {
 	if (
-		Jetpack::is_active() &&
+		Jetpack::is_connection_ready() &&
 		Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) &&
 		Jetpack::is_rewind_enabled()
 	) {

@@ -10,6 +10,7 @@
  * to check for Jetpack::is_active() too early in the load flow.
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
@@ -27,14 +28,17 @@ use Automattic\Jetpack\Redirect;
  * @return array Empty array to shortcircuit wp_notify_postauthor execution. $emails if we want to disable the filter.
  */
 function jetpack_notify_postauthor( $emails, $comment_id ) {
-	// Don't do anything if Jetpack isn't active.
-	if ( ! Jetpack::is_active() || empty( $emails ) ) {
+	// Don't do anything if Jetpack isn't connected.
+	if ( ! Jetpack::is_connection_ready() || empty( $emails ) ) {
 		return $emails;
 	}
 
 	// Original function modified: Code before the comment_notification_recipients filter removed.
 
 	$comment = get_comment( $comment_id );
+	if ( ! $comment ) {
+		return $emails;
+	}
 
 	$post   = get_post( $comment->comment_post_ID );
 	$author = get_userdata( $post->post_author );
@@ -223,17 +227,28 @@ function jetpack_notify_postauthor( $emails, $comment_id ) {
  *
  * @since 5.8.0
  * @since 9.2.0 Switched from pluggable function to filter callback
+ * @since 9.5.0 Updated the passing condition to call get_option( 'moderation_notify' ); directly.
  *
  * @global wpdb $wpdb WordPress database abstraction object.
  *
- * @param string $notify_moderator The value of the moderation_notify option.
+ * @param string $notify_moderator The value of the moderation_notify option OR if the comment is awaiting moderation.
  * @param int    $comment_id Comment ID.
  * @return boolean Returns false to shortcircuit the execution of wp_notify_moderator
  */
 function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
+	/*
+	 * $notify_moderator is a tricky one. This filter is called in two places in Core. One is just to pass if a comment
+	 * is being held for moderation. See https://core.trac.wordpress.org/browser/tags/5.6/src/wp-includes/comment.php#L2296
+	 *
+	 * So we can't just assume that a true value here is what we need. The second time the filter is called, it checks
+	 * the option -- which is what we expected here. See https://core.trac.wordpress.org/browser/tags/5.6/src/wp-includes/pluggable.php#L1737
+	 *
+	 * It's possible another plugin would be filtering this value to true despite the option setting; however, since we're running at priority 1,
+	 * they can still do that. They'll just get the Core flow instead of this one.
+	 */
 
 	// If Jetpack is not active, or if Notify moderators options is not set, let the default flow go on.
-	if ( ! $notify_moderator || ! Jetpack::is_active() ) {
+	if ( ! $notify_moderator || ! get_option( 'moderation_notify' ) || ! Jetpack::is_connection_ready() ) {
 		return $notify_moderator;
 	}
 
@@ -242,8 +257,12 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
 	global $wpdb;
 
 	$comment = get_comment( $comment_id );
-	$post    = get_post( $comment->comment_post_ID );
-	$user    = get_userdata( $post->post_author );
+	if ( ! $comment ) {
+		return $notify_moderator;
+	}
+
+	$post = get_post( $comment->comment_post_ID );
+	$user = get_userdata( $post->post_author );
 	// Send to the administration and to the post author if the author can modify the comment.
 	$emails = array( get_option( 'admin_email' ) );
 	if ( $user && user_can( $user->ID, 'edit_comment', $comment_id ) && ! empty( $user->user_email ) ) {
@@ -396,5 +415,5 @@ function jetpack_notify_moderator( $notify_moderator, $comment_id ) {
  */
 function jetpack_notify_is_user_connected_by_email( $email ) {
 	$user = get_user_by( 'email', $email );
-	return Jetpack::is_user_connected( $user->ID );
+	return ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user->ID );
 }

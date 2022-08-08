@@ -23,11 +23,34 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		if ( isset( $args['url'] ) ) {
+			/**
+			 * Filters the remote request url.
+			 *
+			 * @since 1.30.12
+			 *
+			 * @param string The remote request url.
+			 */
+			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
 		$result = self::build_signed_request( $args, $body );
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
 		}
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since 1.30.8
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**
@@ -72,8 +95,7 @@ class Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$connection = new Manager();
-		$token      = $connection->get_access_token( $args['user_id'] );
+		$token = ( new Tokens() )->get_access_token( $args['user_id'] );
 		if ( ! $token ) {
 			return new \WP_Error( 'missing_token' );
 		}
@@ -204,6 +226,11 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
+		if ( false === $fallback ) {
+			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
+		}
+
 		/**
 		 * SSL verification (`sslverify`) for the JetpackClient remote request
 		 * defaults to off, use this filter to force it on.
@@ -211,17 +238,13 @@ class Client {
 		 * Return `true` to ENABLE SSL verification, return `false`
 		 * to DISABLE SSL verification.
 		 *
-		 * @since 3.6.0
+		 * @since 1.7.0
+		 * @since-jetpack 3.6.0
 		 *
 		 * @param bool Whether to force `sslverify` or not.
 		 */
 		if ( apply_filters( 'jetpack_client_verify_ssl_certs', false ) ) {
 			return wp_remote_request( $url, $args );
-		}
-
-		$fallback = \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
-		if ( false === $fallback ) {
-			\Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
 		}
 
 		if ( (int) $fallback ) {
@@ -461,18 +484,5 @@ class Client {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 9.1.0 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, 'jetpack-9.1.0' );
-
-		return 'https';
 	}
 }

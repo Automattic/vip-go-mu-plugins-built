@@ -2,7 +2,7 @@
 /**
  * REST API endpoint for the Instagram connections.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  * @since 8.5.0
  */
 
@@ -57,7 +57,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_instagram_connections' ),
-				'permission_callback' => '__return_true',
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 

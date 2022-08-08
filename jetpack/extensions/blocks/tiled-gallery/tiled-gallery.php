@@ -5,12 +5,13 @@
  *
  * @since 6.9.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Plan;
@@ -35,7 +36,8 @@ class Tiled_Gallery {
 	public static function register() {
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
-			|| Jetpack::is_active()
+			|| Jetpack::is_connection_ready()
+			|| ( new Status() )->is_offline_mode()
 		) {
 			Blocks::jetpack_register_block(
 				self::BLOCK_NAME,
@@ -78,8 +80,8 @@ class Tiled_Gallery {
 
 			foreach ( $images[0] as $image_html ) {
 				if (
-					preg_match( '/data-width="([0-9]+)"/', $image_html, $img_height )
-					&& preg_match( '/data-height="([0-9]+)"/', $image_html, $img_width )
+					preg_match( '/data-width="([0-9]+)"/', $image_html, $img_width )
+					&& preg_match( '/data-height="([0-9]+)"/', $image_html, $img_height )
 					&& preg_match( '/src="([^"]+)"/', $image_html, $img_src )
 				) {
 					// Drop img src query string so it can be used as a base to add photon params

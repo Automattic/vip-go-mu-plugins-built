@@ -242,6 +242,7 @@ class Jetpack_Memberships {
 		if ( ! empty( $content ) ) {
 			$block_id = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
 			$content  = str_replace( 'recurring-payments-id', $block_id, $content );
+			$content  = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			return $content;
 		}
 		return $this->deprecated_render_button_v1( $attrs, null );
@@ -284,7 +285,7 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attributes, $content, $block ) {
+	public function render_button( $attributes, $content = null, $block = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 
 		if ( $this->should_render_button_preview( $block ) ) {
@@ -309,6 +310,7 @@ class Jetpack_Memberships {
 		if ( ! empty( $content ) ) {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
+			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
 			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
 		}
@@ -433,7 +435,7 @@ class Jetpack_Memberships {
 		return (
 			self::is_supported_jetpack_recurring_payments() ||
 			(
-				Jetpack::is_active() &&
+				Jetpack::is_connection_ready() &&
 				/** This filter is documented in class.jetpack-gutenberg.php */
 				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
 			)
@@ -451,7 +453,7 @@ class Jetpack_Memberships {
 		}
 		// For Jetpack sites.
 		return (
-			Jetpack::is_active() &&
+			Jetpack::is_connection_ready() &&
 			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}

@@ -2,13 +2,11 @@
 /**
  * Jetpack Network Manager class file.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
 
 /**
@@ -105,19 +103,6 @@ class Jetpack_Network {
 	 */
 	public function set_connection( Manager $connection ) {
 		$this->connection = $connection;
-	}
-
-	/**
-	 * Sets which modules get activated by default on subsite connection.
-	 * Modules can be set in Network Admin > Jetpack > Settings
-	 *
-	 * @since 2.9
-	 * @deprecated since 7.7.0
-	 *
-	 * @param array $modules List of modules.
-	 */
-	public function set_auto_activated_modules( $modules ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-7.7' );
 	}
 
 	/**
@@ -493,11 +478,11 @@ class Jetpack_Network {
 	 * @param Object $token the received token.
 	 */
 	public function filter_register_user_token( $token ) {
-		$is_master_user = ! Jetpack::is_active();
-		Connection_Utils::update_user_token(
+		$is_connection_owner = ! $this->connection->has_connected_owner();
+		( new Tokens() )->update_user_token(
 			get_current_user_id(),
 			sprintf( '%s.%d', $token->secret, get_current_user_id() ),
-			$is_master_user
+			$is_connection_owner
 		);
 	}
 
@@ -563,7 +548,7 @@ class Jetpack_Network {
 
 		// We should be, but ensure we are on the main blog.
 		switch_to_blog( $current_site->blog_id );
-		$main_active = $jp->is_active();
+		$main_active = $jp->is_connection_ready();
 		restore_current_blog();
 
 		// If we are in dev mode, just show the notice and bail.
@@ -606,7 +591,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function network_admin_page_header() {
-		$is_connected = Jetpack::is_active();
+		$is_connected = Jetpack::is_connection_ready();
 
 		$data = array(
 			'is_connected' => $is_connected,

@@ -2,10 +2,10 @@
 /**
  * Class Jetpack_Post_By_Email
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -72,7 +72,7 @@ class Jetpack_Post_By_Email {
 	 * @return bool True if connected. False if not.
 	 */
 	public function check_user_connection() {
-		$user_token = ( new Connection_Manager() )->get_access_token( get_current_user_id() );
+		$user_token = ( new Tokens() )->get_access_token( get_current_user_id() );
 
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 
@@ -204,91 +204,6 @@ class Jetpack_Post_By_Email {
 		}
 
 		return $result;
-	}
-
-	/**
-	 * AJAX endpoint to create a new e-mail address.
-	 */
-	public function create_post_by_email_address() {
-		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
-
-		self::process_ajax_proxy_request(
-			'jetpack.createPostByEmailAddress',
-			__( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
-		);
-	}
-
-	/**
-	 * AJAX endpoint to regenerate PBE e-mail address.
-	 */
-	public function regenerate_post_by_email_address() {
-		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
-
-		self::process_ajax_proxy_request(
-			'jetpack.regeneratePostByEmailAddress',
-			__( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
-		);
-	}
-
-	/**
-	 * AJAX endpoint to delete a PBE e-mail address.
-	 */
-	public function delete_post_by_email_address() {
-		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
-
-		self::process_ajax_proxy_request(
-			'jetpack.deletePostByEmailAddress',
-			__( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
-		);
-	}
-
-	/**
-	 * The AJAX proxying method for backward compatibility.
-	 * To be removed in the upcoming versions.
-	 *
-	 * @param string $endpoint Jetpack API endpoint.
-	 * @param string $error_message Error message to be returned if something goes wrong.
-	 *
-	 * @deprecated
-	 */
-	public function __process_ajax_proxy_request( $endpoint, $error_message ) { // phpcs:ignore
-		$this->process_ajax_proxy_request( $endpoint, $error_message );
-	}
-
-	/**
-	 * Back end function to abstract the xmlrpc function calls to wpcom.
-	 *
-	 * @param string $endpoint Jetpack API endpoint.
-	 * @param string $error_message Error message to be returned if something goes wrong.
-	 *
-	 * @deprecated
-	 */
-	private function process_ajax_proxy_request( $endpoint, $error_message ) {
-		_deprecated_function( __METHOD__, 'jetpack-8.4', '_process_rest_proxy_request' );
-
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( $error_message );
-		}
-		if ( empty( $_REQUEST['pbe_nonce'] ) || ! wp_verify_nonce( $_REQUEST['pbe_nonce'], $endpoint ) ) {
-			wp_send_json_error( $error_message );
-		}
-
-		$xml = $this->init_rest_connection();
-		$xml->query( $endpoint );
-
-		if ( $xml->isError() ) {
-			wp_send_json_error( $error_message );
-		}
-
-		$response = $xml->getResponse();
-		if ( empty( $response ) ) {
-			wp_send_json_error( $error_message );
-		}
-
-		// Will be used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
-		update_option( 'post_by_email_address' . get_current_user_id(), $response );
-
-		wp_send_json_success( $response );
 	}
 
 	/**

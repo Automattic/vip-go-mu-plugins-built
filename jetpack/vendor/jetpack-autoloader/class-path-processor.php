@@ -5,7 +5,7 @@
  * @package automattic/jetpack-autoloader
  */
 
-namespace Automattic\Jetpack\Autoloader\jpe12a77269bbc61c939280ef237e26c51;
+namespace Automattic\Jetpack\Autoloader\jpf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_4;
 
  // phpcs:ignore
 
@@ -17,6 +17,7 @@ class Path_Processor {
 	 * Given a path this will replace any of the path constants with a token to represent it.
 	 *
 	 * @param string $path The path we want to process.
+	 *
 	 * @return string The tokenized path.
 	 */
 	public function tokenize_path_constants( $path ) {
@@ -39,6 +40,7 @@ class Path_Processor {
 	 * Given a path this will replace any of the path constant tokens with the expanded path.
 	 *
 	 * @param string $tokenized_path The path we want to process.
+	 *
 	 * @return string The expanded path.
 	 */
 	public function untokenize_path_constants( $tokenized_path ) {
@@ -64,6 +66,7 @@ class Path_Processor {
 	 *
 	 * @param string $file The plugin or theme file to resolve.
 	 * @param array  $directories_to_check The directories we should check for the file if it isn't an absolute path.
+	 *
 	 * @return string|false Returns the absolute path to the directory, otherwise false.
 	 */
 	public function find_directory_with_autoloader( $file, $directories_to_check ) {
@@ -122,6 +125,7 @@ class Path_Processor {
 	 * Indicates whether or not a path is absolute.
 	 *
 	 * @param string $path The path to check.
+	 *
 	 * @return bool True if the path is absolute, otherwise false.
 	 */
 	private function is_absolute_path( $path ) {

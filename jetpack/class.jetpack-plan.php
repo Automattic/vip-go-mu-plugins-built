@@ -5,7 +5,7 @@
  * Not to be confused with the `Jetpack_Plans` class (in `_inc/lib/plans.php`), which
  * fetches general information about all available plans from WordPress.com, side-effect free.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -44,7 +44,9 @@ class Jetpack_Plan {
 				'opentable',
 				'calendly',
 				'send-a-message',
+				'whatsapp-button',
 				'social-previews',
+				'videopress',
 
 				'core/video',
 				'core/cover',
@@ -62,6 +64,8 @@ class Jetpack_Plan {
 			'supports' => array(
 				'akismet',
 				'recurring-payments',
+				'premium-content/container',
+				'videopress',
 			),
 		),
 		'premium'  => array(
@@ -77,6 +81,7 @@ class Jetpack_Plan {
 				'simple-payments',
 				'vaultpress',
 				'videopress',
+				'republicize',
 			),
 		),
 		'security' => array(
@@ -98,7 +103,6 @@ class Jetpack_Plan {
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
-				'vip',
 			),
 			'supports' => array(),
 		),
@@ -107,6 +111,7 @@ class Jetpack_Plan {
 			'plans'    => array(
 				'jetpack_complete',
 				'jetpack_complete_monthly',
+				'vip',
 			),
 			'supports' => array(),
 		),
@@ -315,6 +320,11 @@ class Jetpack_Plan {
 	public static function supports( $feature ) {
 		// Search product bypasses plan feature check.
 		if ( 'search' === $feature && (bool) get_option( 'has_jetpack_search_product' ) ) {
+			return true;
+		}
+
+		// As of Q3 2021 - a videopress free tier is available to all plans.
+		if ( 'videopress' === $feature ) {
 			return true;
 		}
 

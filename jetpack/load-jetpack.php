@@ -2,7 +2,7 @@
 /**
  * Load all Jetpack files that do not get loaded via the autoloader.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -40,11 +40,9 @@ add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_a
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-network.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-data.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-error.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php';
 require_once JETPACK__PLUGIN_DIR . 'class.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.photon.php';
@@ -56,12 +54,22 @@ require_once JETPACK__PLUGIN_DIR . 'require-lib.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
-require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
+// Used by the API endpoints.
+require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/jetpack-seo-utils.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/jetpack-seo-titles.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/jetpack-seo-posts.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/verification-tools-utils.php';
 
-jetpack_require_lib( 'class-jetpack-wizard' );
-require_once JETPACK__PLUGIN_DIR . 'class-jetpack-wizard-banner.php';
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-xmlrpc-methods.php';
+Jetpack_XMLRPC_Methods::init();
+
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-status.php';
+Jetpack_Connection_Status::init();
+
+jetpack_require_lib( 'class-jetpack-recommendations' );
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-recommendations-banner.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
@@ -76,12 +84,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
-add_action( 'init', array( 'Jetpack', 'init' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
-
-if ( JETPACK__SANDBOX_DOMAIN ) {
-	require_once JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php';
-}
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
 

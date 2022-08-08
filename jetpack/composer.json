@@ -11,74 +11,76 @@
 		"ext-fileinfo": "*",
 		"ext-json": "*",
 		"ext-openssl": "*",
-		"nojimage/twitter-text-php": "3.1.1"
+		"automattic/jetpack-a8c-mc-stats": "^1.4",
+		"automattic/jetpack-abtest": "^1.9",
+		"automattic/jetpack-assets": "^1.13",
+		"automattic/jetpack-autoloader": "^2.10",
+		"automattic/jetpack-backup": "^1.1",
+		"automattic/jetpack-blocks": "^1.4",
+		"automattic/jetpack-compat": "^1.6",
+		"automattic/jetpack-config": "^1.5",
+		"automattic/jetpack-connection": "^1.32",
+		"automattic/jetpack-connection-ui": "^2.1",
+		"automattic/jetpack-constants": "^1.6",
+		"automattic/jetpack-device-detection": "^1.4",
+		"automattic/jetpack-error": "^1.3",
+		"automattic/jetpack-heartbeat": "^1.3",
+		"automattic/jetpack-identity-crisis": "^0.4",
+		"automattic/jetpack-jitm": "^2.1",
+		"automattic/jetpack-lazy-images": "^2.0",
+		"automattic/jetpack-licensing": "^1.5",
+		"automattic/jetpack-logo": "^1.5",
+		"automattic/jetpack-my-jetpack": "^0.1",
+		"automattic/jetpack-options": "^1.14",
+		"automattic/jetpack-partner": "^1.6",
+		"automattic/jetpack-redirect": "^1.7",
+		"automattic/jetpack-roles": "^1.4",
+		"automattic/jetpack-search": "^0.2",
+		"automattic/jetpack-status": "^1.9",
+		"automattic/jetpack-sync": "^1.27",
+		"automattic/jetpack-terms-of-service": "^1.9",
+		"automattic/jetpack-tracking": "^1.13",
+		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-codesniffer": "^2.1",
-		"dealerdirect/phpcodesniffer-composer-installer": "0.7.1",
-		"php-parallel-lint/php-parallel-lint": "1.2.0",
-		"sirbrillig/phpcs-changed": "2.5.1"
+		"antecedent/patchwork": "2.1.17",
+		"automattic/jetpack-changelogger": "^3.0",
+		"johnkary/phpunit-speedtrap": "^4.0.0 || ^2.0.0 || ^1.1.0",
+		"yoast/phpunit-polyfills": "1.0.2"
 	},
 	"scripts": {
-		"php:lint": [
-			"printf '\\e[30;43m`composer php:lint` now lints. If you want to run phpcs, use `composer phpcs:lint`.\\e[0m\\n'",
-			"bin/parallel-lint.sh"
-		],
-		"phpcs:changed": [
+		"build-production": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcs-changed -s --git"
+			"pnpm run build-production-concurrently"
 		],
-		"phpcs:compatibility": [
-			"@phpcs:lint --standard=./.phpcs.config.xml,PHPCompatibilityWP"
-		],
-		"phpcs:fix": [
+		"build-development": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcbf -p"
+			"pnpm run build-concurrently"
 		],
-		"phpcs:fix:required": [
-			"@phpcs:fix --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+		"phpunit": [
+			"tests/action-phpunit.sh"
 		],
-		"phpcs:lint": [
+		"test-coverage": [
 			"Composer\\Config::disableProcessTimeout",
-			"phpcs -p -s"
+			"@composer install",
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-coverage.sh"
 		],
-		"phpcs:lint:errors": [
-			"@phpcs:lint --runtime-set ignore_warnings_on_exit 1"
+		"test-js": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm install",
+			"pnpx concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions' 'pnpm:test-search'"
 		],
-		"phpcs:lint:required": [
-			"@phpcs:lint --filter=bin/class-jetpack-phpcs-exclude-filter.php"
+		"test-php": [
+			"Composer\\Config::disableProcessTimeout",
+			"@composer install",
+			"@php tools/build-module-headings-translations.php",
+			"tests/action-test-php.sh"
 		],
-		"php:autofix": [
-			"printf '\\e[37;41m`composer php:autofix` is deprecated. Use `composer phpcs:fix` instead.\\e[0m\\n'",
-			"@phpcs:fix"
-		],
-		"php:changed": [
-			"printf '\\e[37;41m`composer php:changed` is deprecated. Use `composer phpcs:changed` instead.\\e[0m\\n'",
-			"@phpcs:changed"
-		],
-		"php:lint:errors": [
-			"printf '\\e[37;41m`composer php:lint:errors` is deprecated. Use `composer phpcs:lint:errors` instead.\\e[0m\\n'",
-			"@phpcs:lint:errors"
-		],
-		"php:requirelist": [
-			"printf '\\e[37;41m`composer php:requirelist` is deprecated. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead.\\e[0m\\n'",
-			"@phpcs:fix:required",
-			"@phpcs:lint:required"
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
-	},
-	"scripts-descriptions": {
-		"php:lint": "Run PHP's linter (`php -l`).",
-		"phpcs:changed": "Run phpcs over git changes only. One or more files must be specified.",
-		"phpcs:compatibility": "Run PHPCompatibility checks. One or more files or directories must be specified.",
-		"phpcs:fix": "Run phpcbf (phpcs's auto-fixer).",
-		"phpcs:fix:required": "Run phpcbf on files that are not excluded by bin/phpcs-excludelist.json.",
-		"phpcs:lint": "Run phpcs.",
-		"phpcs:lint:errors": "Run phpcs, exiting with failure only if errors were encountered.",
-		"phpcs:lint:required": "Run phpcs on files that are not excluded by bin/phpcs-excludelist.json.",
-		"php:autofix": "DEPRECATED. Use `composer phpcs:fix` instead.",
-		"php:changed": "DEPRECATED. Use `composer phpcs:changed` instead.",
-		"php:lint:errors": "DEPRECATED. Use `composer phpcs:lint:errors` instead.",
-		"php:requirelist": "DEPRECATED. Use `composer phpcs:lint:required` and/or `composer phpcs:fix:required` instead."
 	},
 	"repositories": [],
 	"autoload": {
@@ -92,6 +94,27 @@
 		"sort-packages": true,
 		"platform": {
 			"ext-intl": "0.0.0"
+		},
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ10_4"
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-production",
+		"release-branch-prefix": "jetpack",
+		"version-constants": {
+			"JETPACK__VERSION": "jetpack.php"
+		},
+		"wp-plugin-slug": "jetpack",
+		"dev-releases": true,
+		"changelogger-default-type": "other",
+		"changelogger": {
+			"versioning": "wordpress",
+			"types": {
+				"major": "Major Enhancements",
+				"enhancement": "Enhancements",
+				"compat": "Improved compatibility",
+				"bugfix": "Bug fixes",
+				"other": "Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->"
+			}
 		}
 	}
 }

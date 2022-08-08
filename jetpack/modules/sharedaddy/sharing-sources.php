@@ -388,6 +388,19 @@ abstract class Sharing_Source {
 		do_action( 'sharing_bump_stats', array( 'service' => $this, 'post' => $post ) );
 	}
 
+	/**
+	 * Redirect to an external social network site to finish sharing.
+	 *
+	 * @param string $url Sharing URL for a given service.
+	 */
+	public function redirect_request( $url ) {
+		wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- We allow external redirects here; we define them ourselves.
+
+		// We set up this custom header to indicate to search engines not to index this page.
+		header( 'X-Robots-Tag: noindex, nofollow' );
+		die();
+	}
+
 	public function js_dialog( $name, $params = array() ) {
 		if ( true !== $this->open_link_in_new ) {
 			return;
@@ -409,14 +422,38 @@ abstract class Sharing_Source {
 		// Add JS after sharing-js has been enqueued.
 		wp_add_inline_script( 'sharing-js',
 			"var windowOpen;
-			jQuery( document.body ).on( 'click', 'a.share-$name', function() {
-				// If there's another sharing window open, close it.
-				if ( 'undefined' !== typeof windowOpen ) {
-					windowOpen.close();
+			( function () {
+				function matches( el, sel ) {
+					return !! (
+						el.matches && el.matches( sel ) ||
+						el.msMatchesSelector && el.msMatchesSelector( sel )
+					);
 				}
-				windowOpen = window.open( jQuery( this ).attr( 'href' ), 'wpcom$name', '$opts' );
-				return false;
-			});"
+
+				document.body.addEventListener( 'click', function ( event ) {
+					if ( ! event.target ) {
+						return;
+					}
+
+					var el;
+					if ( matches( event.target, 'a.share-$name' ) ) {
+						el = event.target;
+					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-$name' ) ) {
+						el = event.target.parentNode;
+					}
+
+					if ( el ) {
+						event.preventDefault();
+
+						// If there's another sharing window open, close it.
+						if ( typeof windowOpen !== 'undefined' ) {
+							windowOpen.close();
+						}
+						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcom$name', '$opts' );
+						return false;
+					}
+				} );
+			} )();"
 		);
 	}
 }
@@ -887,9 +924,7 @@ class Share_Twitter extends Sharing_Source {
 			'https://twitter.com/intent/tweet'
 		);
 
-		// Redirect to Twitter
-		wp_redirect( $twitter_url );
-		die();
+		parent::redirect_request( $twitter_url );
 	}
 
 	public function has_custom_button_style() {
@@ -952,9 +987,7 @@ class Share_Reddit extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Reddit
-		wp_redirect( $reddit_url );
-		die();
+		parent::redirect_request( $reddit_url );
 	}
 }
 
@@ -1010,26 +1043,50 @@ class Share_LinkedIn extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to LinkedIn
-		wp_redirect( $linkedin_url );
-		die();
+		parent::redirect_request( $linkedin_url );
 	}
 
 	public function display_footer() {
 		if ( ! $this->smart ) {
 			$this->js_dialog( $this->shortname, array( 'width' => 580, 'height' => 450 ) );
 		} else {
-			?><script type="text/javascript">
-			jQuery( document ).ready( function() {
-				jQuery.getScript( 'https://platform.linkedin.com/in.js?async=true', function success() {
-					IN.init();
-				});
-			});
-			jQuery( document.body ).on( 'post-load', function() {
-				if ( typeof IN != 'undefined' )
-					IN.parse();
-			});
-			</script><?php
+			?>
+			<script type="text/javascript">
+				( function () {
+					var currentScript = document.currentScript;
+
+					// Helper function to load an external script.
+					function loadScript( url, cb ) {
+						var script = document.createElement( 'script' );
+						var prev = currentScript || document.getElementsByTagName( 'script' )[ 0 ];
+						script.setAttribute( 'async', true );
+						script.setAttribute( 'src', url );
+						prev.parentNode.insertBefore( script, prev );
+						script.addEventListener( 'load', cb );
+					}
+
+					function init() {
+						loadScript( 'https://platform.linkedin.com/in.js?async=true', function () {
+							if ( typeof IN !== 'undefined' ) {
+								IN.init();
+							}
+						} );
+					}
+
+					if ( document.readyState === 'loading' ) {
+						document.addEventListener( 'DOMContentLoaded', init );
+					} else {
+						init();
+					}
+
+					document.body.addEventListener( 'is.post-load', function() {
+						if ( typeof IN !== 'undefined' ) {
+							IN.parse();
+						}
+					} );
+				} )();
+			</script>
+			<?php
 		}
 	}
 }
@@ -1144,9 +1201,7 @@ class Share_Facebook extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Facebook
-		wp_redirect( $fb_url );
-		die();
+		parent::redirect_request( $fb_url );
 	}
 
 	public function display_footer() {
@@ -1172,7 +1227,7 @@ class Share_Facebook extends Sharing_Source {
 			?><div id="fb-root"></div>
 			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 			<script>
-			document.body.addEventListener( 'post-load', function() {
+			document.body.addEventListener( 'is.post-load', function() {
 				if ( 'undefined' !== typeof FB ) {
 					FB.XFBML.parse();
 				}
@@ -1276,9 +1331,7 @@ class Share_PressThis extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Press This
-		wp_redirect( $url );
-		die();
+		parent::redirect_request( $url );
 	}
 
 	public function get_display( $post ) {
@@ -1396,9 +1449,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect
-		wp_redirect( $url );
-		die();
+		parent::redirect_request( $url );
 	}
 
 	public function display_options() {
@@ -1555,8 +1606,8 @@ class Share_Tumblr extends Sharing_Source {
 
 		// Redirect to Tumblr's sharing endpoint (a la their bookmarklet)
 		$url = 'https://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&s=';
-		wp_redirect( $url );
-		die();
+
+		parent::redirect_request( $url );
 	}
 
 	public function display_footer() {
@@ -1662,11 +1713,11 @@ class Share_Pinterest extends Sharing_Source {
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( ! isset( $_GET['js_only'] ) ) {
 			$pinterest_url = esc_url_raw( $this->get_external_url( $post ) );
-			wp_redirect( $pinterest_url );
+			parent::redirect_request( $pinterest_url );
 		} else {
 			echo '// share count bumped';
+			die();
 		}
-		die();
 	}
 
 	public function display_footer() {
@@ -1683,38 +1734,69 @@ class Share_Pinterest extends Sharing_Source {
 		?>
 		<?php if ( $this->smart ) : ?>
 			<script type="text/javascript">
-				// Pinterest shared resources
-				var s = document.createElement("script");
-				s.type = "text/javascript";
-				s.async = true;
-				<?php if ( $jetpack_pinit_over ) {
-				echo "s.setAttribute('data-pin-hover', true);";
-				} ?>
-				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
-				var x = document.getElementsByTagName("script")[0];
-				x.parentNode.insertBefore(s, x);
-				// if 'Pin it' button has 'counts' make container wider
-				jQuery(window).load( function(){ jQuery( 'li.share-pinterest a span:visible' ).closest( '.share-pinterest' ).width( '80px' ); } );
+				( function () {
+					// Pinterest shared resources
+					var s = document.createElement( 'script' );
+					s.type = 'text/javascript';
+					s.async = true;
+					<?php
+					if ( $jetpack_pinit_over ) {
+						echo "s.setAttribute( 'data-pin-hover', true );";
+					}
+					?>
+					s.src = window.location.protocol + '//assets.pinterest.com/js/pinit.js';
+					var x = document.getElementsByTagName( 'script' )[ 0 ];
+					x.parentNode.insertBefore(s, x);
+					// if 'Pin it' button has 'counts' make container wider
+					function init() {
+						var shares = document.querySelectorAll( 'li.share-pinterest' );
+						for ( var i = 0; i < shares.length; i++ ) {
+							var share = shares[ i ];
+							if ( share.querySelector( 'a span:visible' ) ) {
+								share.style.width = '80px';
+							}
+						}
+					}
+
+					if ( document.readyState !== 'complete' ) {
+						document.addEventListener( 'load', init );
+					} else {
+						init();
+					}
+				} )();
 			</script>
 		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
 			<script type="text/javascript">
-				jQuery(document).ready( function(){
-					jQuery('body').on('click', 'a.share-pinterest', function(e){
-						e.preventDefault();
-						// Load Pinterest Bookmarklet code
-						var s = document.createElement("script");
-						s.type = "text/javascript";
-						s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
-						var x = document.getElementsByTagName("script")[0];
-						x.parentNode.insertBefore(s, x);
-						// Trigger Stats
-						var s = document.createElement("script");
-						s.type = "text/javascript";
-						s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
-						var x = document.getElementsByTagName("script")[0];
-						x.parentNode.insertBefore(s, x);
-					});
-				});
+				( function () {
+					function init() {
+						document.body.addEventListener( 'click', function ( e ) {
+							if ( e.target && (
+								e.target.matches && e.target.matches( 'a.share-pinterest' ) ||
+								e.target.msMatchesSelector && e.target.msMatchesSelector( 'a.share-pinterest' )
+							) ) {
+								e.preventDefault();
+								// Load Pinterest Bookmarklet code
+								var s = document.createElement( 'script' );
+								s.type = 'text/javascript';
+								s.src = window.location.protocol + '//assets.pinterest.com/js/pinmarklet.js?r=' + ( Math.random() * 99999999 );
+								var x = document.getElementsByTagName( 'script' )[ 0 ];
+								x.parentNode.insertBefore( s, x );
+								// Trigger Stats
+								var s = document.createElement( 'script' );
+								s.type = 'text/javascript';
+								s.src = e.target.href + ( e.target.href.indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+								var x = document.getElementsByTagName( 'script' )[ '0' ];
+								x.parentNode.insertBefore( s, x );
+							}
+						} );
+					}
+
+					if ( document.readyState === 'loading' ) {
+						document.addEventListener( 'DOMContentLoaded', init );
+					} else {
+						init();
+					}
+				} )();
 			</script>
 		<?php endif;
 	}
@@ -1743,8 +1825,8 @@ class Share_Pocket extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-		wp_redirect( $pocket_url );
-		exit;
+
+		parent::redirect_request( $pocket_url );
 	}
 
 	public function get_display( $post ) {
@@ -1780,12 +1862,25 @@ class Share_Pocket extends Sharing_Source {
 		if ( $this->smart ) :
 		?>
 		<script>
-		// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
-		function jetpack_sharing_pocket_init() {
-			jQuery.getScript( 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
-		}
-		jQuery( document ).ready( jetpack_sharing_pocket_init );
-		jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );
+		( function () {
+			var currentScript = document.currentScript;
+
+			// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
+			function jetpack_sharing_pocket_init() {
+				var script = document.createElement( 'script' );
+				var prev = currentScript || document.getElementsByTagName( 'script' )[ 0 ];
+				script.setAttribute( 'async', true );
+				script.setAttribute( 'src', 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
+				prev.parentNode.insertBefore( script, prev );
+			}
+
+			if ( document.readyState === 'loading' ) {
+				document.addEventListener( 'DOMContentLoaded', jetpack_sharing_pocket_init );
+			} else {
+				jetpack_sharing_pocket_init();
+			}
+			document.body.addEventListener( 'is.post-load', jetpack_sharing_pocket_init );
+		} )();
 		</script>
 		<?php
 		else :
@@ -1809,9 +1904,10 @@ class Share_Telegram extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		// Record stats
 		parent::process_request( $post, $post_data );
+
 		$telegram_url = esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-		wp_redirect( $telegram_url );
-		exit;
+
+		parent::redirect_request( $telegram_url );
 	}
 
 	public function get_display( $post ) {
@@ -1876,8 +1972,8 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		}
 
 		$url .= rawurlencode( $this->get_share_title( $post->ID ) . ' ' . $this->get_share_url( $post->ID ) );
-		wp_redirect( $url );
-		exit;
+
+		parent::redirect_request( $url );
 	}
 }
 
@@ -1950,9 +2046,7 @@ class Share_Skype extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Skype
-		wp_redirect( $skype_url );
-		die();
+		parent::redirect_request( $skype_url );
 	}
 
 	public function display_footer() {

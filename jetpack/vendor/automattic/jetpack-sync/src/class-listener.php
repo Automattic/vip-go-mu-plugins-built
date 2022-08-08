@@ -14,7 +14,7 @@ use Automattic\Jetpack\Roles;
  */
 class Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes.
+	const QUEUE_STATE_CHECK_TIMEOUT   = 30; // 30 seconds.
 
 	/**
 	 * Sync queue.
@@ -230,7 +230,8 @@ class Listener {
 			/**
 			 * Modify or reject the data within an action before it is enqueued locally.
 			 *
-			 * @since 4.2.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
 			 *
 			 * @module sync
 			 *
@@ -276,14 +277,16 @@ class Listener {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.9.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.9.0
 		 */
 		do_action( 'jetpack_sync_action_before_enqueue' );
 
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param array The action parameters
 		 */
@@ -417,8 +420,15 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-			$actor['ip']         = jetpack_protect_get_ip();
+			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
+				if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
+					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+				}
+				$ip = jetpack_protect_get_ip();
+			}
+
+			$actor['ip']         = $ip;
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
 		}
 
@@ -436,7 +446,8 @@ class Listener {
 		/**
 		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
-		 * @since 5.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
 		 *
 		 * @module sync
 		 *

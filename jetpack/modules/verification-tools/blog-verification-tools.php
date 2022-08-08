@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Redirect;
-
 // Edit here to add new services
 function jetpack_verification_services() {
 	return array(
@@ -28,6 +26,12 @@ function jetpack_verification_services() {
 			'key'    => 'yandex-verification',
 			'format' => '44d68e1216009f40',
 			'url'    => 'https://webmaster.yandex.com/sites/',
+		),
+		'facebook'  => array(
+			'name'   => 'Facebook Domain Verification',
+			'key'    => 'facebook-domain-verification',
+			'format' => 'rvv8b23jxlp1lq41I9rwsvpzncy1fd',
+			'url'    => 'https://business.facebook.com/settings/',
 		),
 	);
 }
@@ -71,16 +75,3 @@ function jetpack_verification_print_meta() {
 	}
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
-
-function jetpack_verification_tool_box() {
-	?>
-		<div class="jp-verification-tools card">
-			<h3 class="title"><?php esc_html_e( 'Website Verification Services', 'jetpack' ); ?>&nbsp;<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-site-verification-tools' ) ); ?>" rel="noopener noreferrer" target="_blank">(?)</a></h3>
-			<p>
-				<?php printf( __( 'You can verify your site using the <a href="%s">"Site verification" tool in Jetpack Settings</a>.', 'jetpack' ), esc_url( admin_url( 'admin.php?page=jetpack#/traffic' ) ) ); ?>
-			</p>
-		</div>
-	<?php
-}
-
-add_action( 'tool_box', 'jetpack_verification_tool_box', 25 );

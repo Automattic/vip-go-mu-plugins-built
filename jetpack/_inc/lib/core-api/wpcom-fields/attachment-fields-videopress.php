@@ -2,7 +2,7 @@
 /**
  * Extend the REST API functionality for VideoPress users.
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -164,7 +164,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Field extends WPCOM_REST_API_V2_Fi
 }
 
 if (
-	( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) ||
+	( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) ||
 	( defined( 'IS_WPCOM' ) && IS_WPCOM )
 ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Attachment_VideoPress_Field' );

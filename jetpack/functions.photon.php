@@ -7,7 +7,7 @@ use Automattic\Jetpack\Status;
  *
  * Some are used outside of the Photon module being active, so intentionally not within the module.
  *
- * @package jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -125,16 +125,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		|| wp_parse_url( $custom_photon_url, PHP_URL_HOST ) === $image_url_parts['host']
 		|| $is_wpcom_image
 	) {
-		/*
-		 * VideoPress Poster images should only keep one param, ssl.
-		 */
-		if (
-			is_array( $args )
-			&& 'videos.files.wordpress.com' === strtolower( $image_url_parts['host'] )
-		) {
-			$args = array_intersect_key( array( 'ssl' => 1 ), $args );
-		}
-
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
 	}
@@ -315,24 +305,6 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 	return preg_replace( '#^([a-z:]+)?//#i', $scheme_slashes, $url );
 }
 
-/**
- * A wrapper for PHP's parse_url, prepending assumed scheme for network path
- * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
- *
- * WP ships with a wrapper for parse_url, wp_parse_url, that should be used instead.
- *
- * @see https://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
- * @deprecated 7.8.0 Use wp_parse_url instead.
- *
- * @param string  $url The URL to parse.
- * @param integer $component Retrieve specific URL component.
- * @return mixed Result of parse_url
- */
-function jetpack_photon_parse_url( $url, $component = -1 ) {
-	_deprecated_function( 'jetpack_photon_parse_url', 'jetpack-7.8.0', 'wp_parse_url' );
-	return wp_parse_url( $url, $component );
-}
-
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
 
 /**
@@ -353,6 +325,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.dropbox\.com$/',
 		'/\.cdninstagram\.com$/',
 		'/^(commons|upload)\.wikimedia\.org$/',
+		'/\.wikipedia\.org$/',
 	);
 
 	$host = wp_parse_url( $image_url, PHP_URL_HOST );

@@ -54,6 +54,26 @@ class Posts extends Module {
 	private $import_end = false;
 
 	/**
+	 * Max bytes allowed for post_content => length.
+	 * Current Setting : 5MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_CONTENT_LENGTH = 5000000;
+
+	/**
+	 * Max bytes allowed for post meta_value => length.
+	 * Current Setting : 2MB.
+	 *
+	 * @access public
+	 *
+	 * @var int
+	 */
+	const MAX_POST_META_LENGTH = 2000000;
+
+	/**
 	 * Default previous post state.
 	 * Used for default previous post status.
 	 *
@@ -154,7 +174,8 @@ class Posts extends Module {
 			/**
 			 * Used for syncing deletion of batch post meta
 			 *
-			 * @since 6.1.0
+			 * @since 1.6.3
+			 * @since-jetpack 6.1.0
 			 *
 			 * @module sync
 			 *
@@ -194,6 +215,11 @@ class Posts extends Module {
 	 */
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
+
+		// meta.
+		add_filter( 'jetpack_sync_before_send_added_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_updated_post_meta', array( $this, 'trim_post_meta' ) );
+		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 
 		// Full sync.
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -266,6 +292,24 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Filter meta arguments so that we don't sync meta_values over MAX_POST_META_LENGTH.
+	 *
+	 * @param array $args action arguments.
+	 *
+	 * @return array filtered action arguments.
+	 */
+	public function trim_post_meta( $args ) {
+		list( $meta_id, $object_id, $meta_key, $meta_value ) = $args;
+		// Explicitly truncate meta_value when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		$serialized_value = maybe_serialize( $meta_value );
+		if ( strlen( $serialized_value ) >= self::MAX_POST_META_LENGTH ) {
+			$meta_value = '';
+		}
+		return array( $meta_id, $object_id, $meta_key, $meta_value );
+	}
+
+	/**
 	 * Process content before send.
 	 *
 	 * @param array $args Arguments of the `wp_insert_post` hook.
@@ -332,7 +376,7 @@ class Posts extends Module {
 	 */
 	public function is_whitelisted_post_meta( $meta_key ) {
 		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || wp_startswith( $meta_key, '_wpas_skip_' );
+		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || ( 0 === strpos( $meta_key, '_wpas_skip_' ) );
 	}
 
 	/**
@@ -410,7 +454,8 @@ class Posts extends Module {
 		 * Jetpacks data but will prevent us from displaying the data on in the API as well as
 		 * other services.
 		 *
-		 * @since 4.2.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.2.0
 		 *
 		 * @param boolean false prevent post data from being synced to WordPress.com
 		 * @param mixed $post \WP_Post object
@@ -434,6 +479,12 @@ class Posts extends Module {
 			$post->post_password = 'auto-' . wp_generate_password( 10, false );
 		}
 
+		// Explicitly omit post_content when it exceeds limit.
+		// Large content will cause OOM issues and break Sync.
+		if ( strlen( $post->post_content ) >= self::MAX_POST_CONTENT_LENGTH ) {
+			$post->post_content = '';
+		}
+
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
 			global $shortcode_tags;
@@ -443,7 +494,8 @@ class Posts extends Module {
 			 * Since we can can expand some type of shortcode better on the .com side and make the
 			 * expansion more relevant to contexts. For example [galleries] and subscription emails
 			 *
-			 * @since 4.5.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.5.0
 			 *
 			 * @param array of shortcode tags to remove.
 			 */
@@ -559,7 +611,8 @@ class Posts extends Module {
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
-		 * @since 5.8.0
+		 * @since 1.6.3
+		 * @since-jetpack 5.8.0
 		 *
 		 * @param int $post_ID the post ID
 		 * @param mixed $post \WP_Post object
@@ -570,16 +623,6 @@ class Posts extends Module {
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
-
-		/*
-		 * WP 5.6 introduced the wp_after_insert_post hook that triggers when
-		 * the post, meta and terms has been updated. We are migrating send_published
-		 * function to this hook to ensure we have all data for WP.com functionality.
-		 * @todo: remove full if statement when WordPress 5.6 is the minimum required version.
-		 */
-		if ( ! function_exists( 'wp_after_insert_post' ) ) {
-			$this->send_published( $post_ID, $post );
-		}
 	}
 
 	/**
@@ -638,7 +681,8 @@ class Posts extends Module {
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
-		 * @since 4.4.0
+		 * @since 1.6.3
+		 * @since-jetpack 4.4.0
 		 *
 		 * @param mixed array post flags that are added to the post
 		 * @param mixed $post \WP_Post object
@@ -650,7 +694,8 @@ class Posts extends Module {
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
-			 * @since 4.4.0
+			 * @since 1.6.3
+			 * @since-jetpack 4.4.0
 			 *
 			 * @param int $post_ID
 			 * @param mixed array $flags post flags that are added to the post

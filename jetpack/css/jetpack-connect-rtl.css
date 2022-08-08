@@ -27,17 +27,15 @@ https://github.com/thoughtbot/bourbon
   width: 380px;
   max-width: 100%;
   margin: 1rem auto 0;
+  background: #FFFFFF;
 }
-
-@media (min-width: 491px) {
-  .jp-jetpack-connect__iframe {
-    height: 390px;
-  }
+.jp-jetpack-connect__site_connection .jp-jetpack-connect__iframe {
+  width: 600px;
+  height: 600px;
 }
 
 .jp-connect-full__button-container-loading {
   margin-top: 84px;
   display: block;
 }
-
 /*# sourceMappingURL=jetpack-connect-rtl.css.map */

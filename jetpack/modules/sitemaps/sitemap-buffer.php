@@ -6,7 +6,7 @@
  * maintaining the constraints.
  *
  * @since 4.8.0
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 /**
@@ -125,26 +125,6 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @return DOMElement $root
 	 */
 	abstract protected function get_root_element();
-
-	/**
-	 * Append an item to the buffer, if there is room for it,
-	 * and set is_empty_flag to false. If there is no room,
-	 * we set is_full_flag to true. If $item is null,
-	 * don't do anything and report success.
-	 *
-	 * @since 4.8.0
-	 * @deprecated 5.3.0 Use Jetpack_Sitemap_Buffer::append.
-	 *
-	 * @param string $item The item to be added.
-	 */
-	public function try_to_add_item( $item ) {
-		_deprecated_function(
-			'Jetpack_Sitemap_Buffer::try_to_add_item',
-			'5.3.0',
-			'Jetpack_Sitemap_Buffer::append'
-		);
-		$this->append( $item );
-	}
 
 	/**
 	 * Append an item to the buffer, if there is room for it,

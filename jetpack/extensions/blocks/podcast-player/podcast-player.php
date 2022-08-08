@@ -4,7 +4,7 @@
  *
  * @since 8.4.0
  *
- * @package Jetpack
+ * @package automattic/jetpack
  */
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
@@ -50,6 +50,9 @@ function register_block() {
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
+			// Since Gutenberg #31873.
+			'style'           => 'wp-mediaelement',
+
 		)
 	);
 }
@@ -94,9 +97,21 @@ function render_block( $attributes, $content ) {
 		return render_error( __( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
+	if ( isset( $attributes['selectedEpisodes'] ) && count( $attributes['selectedEpisodes'] ) ) {
+		$guids       = array_map(
+			function ( $episode ) {
+				return $episode['guid'];
+			},
+			$attributes['selectedEpisodes']
+		);
+		$player_args = array( 'guids' => $guids );
+	} else {
+		$player_args = array();
+	}
+
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
-	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data();
+	$player_data       = ( new Jetpack_Podcast_Helper( $attributes['url'] ) )->get_player_data( $player_args );
 
 	if ( is_wp_error( $player_data ) ) {
 		return render_error( $player_data->get_error_message() );
@@ -282,18 +297,6 @@ function render( $name, $template_props = array(), $print = true ) {
 
 	if ( ! file_exists( $template_path ) ) {
 		return '';
-	}
-
-	/*
-	 * Optionally provided an assoc array of data to pass to template.
-	 * IMPORTANT: It will be extracted into variables.
-	 */
-	if ( is_array( $template_props ) ) {
-		/*
-		 * It ignores the `discouraging` sniffer rule for extract, since it's needed
-		 * to make the templating system works.
-		 */
-		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
 	if ( $print ) {

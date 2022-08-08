@@ -206,7 +206,7 @@ class User_Agent_Info {
 		} elseif ( $this->is_Nintendo_3DS() ) {
 			return 'nintendo-3ds';
 		} else {
-			$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+			$agent       = $this->useragent;
 			$dumb_agents = $this->dumb_agents;
 			foreach ( $dumb_agents as $dumb_agent ) {
 				if ( false !== strpos( $agent, $dumb_agent ) ) {
@@ -707,6 +707,25 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * Detect modern Opera desktop
+	 *
+	 * Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 OPR/74.0.3911.203
+	 *
+	 * Looking for "OPR/" specifically.
+	 */
+	public static function is_opera_desktop() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+
+		if ( false === strpos( $_SERVER['HTTP_USER_AGENT'], 'OPR/' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Detects if the current browser is Opera Mobile
 	 *
 	 * What is the difference between Opera Mobile and Opera Mini?
@@ -775,33 +794,6 @@ class User_Agent_Info {
 				return false;
 			} else {
 				return true;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * Detects if the current browser is Opera Mobile or Mini.
-	 * DEPRECATED: use is_opera_mobile or is_opera_mini
-	 *
-	 * Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
-	 * Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
-	 */
-	public static function is_OperaMobile() {
-		_deprecated_function( __FUNCTION__, 'always', 'is_opera_mini() or is_opera_mobile()' );
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			return false;
-		}
-
-		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-
-		if ( strpos( $ua, 'opera' ) !== false ) {
-			if ( ( strpos( $ua, 'mini' ) !== false ) || ( strpos( $ua, 'mobi' ) !== false ) ) {
-				return true;
-			} else {
-				return false;
 			}
 		} else {
 			return false;
@@ -1270,6 +1262,9 @@ class User_Agent_Info {
 	 * The is_blackberry_10() method can be used to check the User Agent for a BlackBerry 10 device.
 	 */
 	public static function is_blackberry_10() {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}
@@ -1486,6 +1481,10 @@ class User_Agent_Info {
 	 */
 	public static function is_bot() {
 		static $is_bot = null;
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
 
 		if ( is_null( $is_bot ) ) {
 			$is_bot = self::is_bot_user_agent( $_SERVER['HTTP_USER_AGENT'] );

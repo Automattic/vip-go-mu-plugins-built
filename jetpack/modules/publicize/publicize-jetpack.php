@@ -1,8 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Redirect;
 
 class Publicize extends Publicize_Base {
+
+	const CONNECTION_REFRESH_WAIT_TRANSIENT = 'jetpack_publicize_connection_refresh_wait';
 
 	function __construct() {
 		parent::__construct();
@@ -36,6 +39,8 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
+		add_action( 'updating_jetpack_version', array( $this, 'init_refresh_transient' ) );
+
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 
 		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
@@ -47,7 +52,7 @@ class Publicize extends Publicize_Base {
 
 	function force_user_connection() {
 		global $current_user;
-		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
+		$user_token        = ( new Tokens() )->get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 
 		// If the user is already connected via Jetpack, then we're good
@@ -117,6 +122,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_all_connections() {
+		$this->refresh_connections();
 		$connections = Jetpack_Options::get_option( 'publicize_connections' );
 		if ( isset( $connections['google_plus'] ) ) {
 			unset( $connections['google_plus'] );
@@ -271,6 +277,51 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
+	/**
+	 * As Jetpack updates set the refresh transient to a random amount
+	 * in order to spread out updates to the connection data.
+	 *
+	 * @param string $version The Jetpack version being updated to.
+	 */
+	public function init_refresh_transient( $version ) {
+		if ( version_compare( $version, '10.2.1', '>=' ) && ! get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
+			$this->set_refresh_wait_transient( wp_rand( 10, HOUR_IN_SECONDS * 24 ) );
+		}
+	}
+
+	/**
+	 * Grabs a fresh copy of the publicize connections data.
+	 * Only refreshes once every 12 hours or retries after an hour with an error.
+	 */
+	public function refresh_connections() {
+		if ( get_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT ) ) {
+			return;
+		}
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.fetchPublicizeConnections' );
+		$wait_time = HOUR_IN_SECONDS * 24;
+
+		if ( ! $xml->isError() ) {
+			$response = $xml->getResponse();
+			$this->receive_updated_publicize_connections( $response );
+		} else {
+			// Retry a bit quicker, but still wait.
+			$wait_time = HOUR_IN_SECONDS;
+		}
+
+		$this->set_refresh_wait_transient( $wait_time );
+	}
+
+	/**
+	 * Sets the transient to expire at the specified time in seconds.
+	 * This prevents us from attempting to refresh the data too often.
+	 *
+	 * @param int $wait_time The number of seconds before the transient should expire.
+	 */
+	public function set_refresh_wait_transient( $wait_time ) {
+		set_transient( self::CONNECTION_REFRESH_WAIT_TRANSIENT, microtime( true ), $wait_time );
+	}
+
 	function connect_url( $service_name, $for = 'publicize' ) {
 		return Jetpack_Keyring_Service_Helper::connect_url( $service_name, $for );
 	}
@@ -410,17 +461,6 @@ class Publicize extends Publicize_Base {
 		}
 		// Only do this when a post transitions to being published
 		if ( get_post_meta( $post->ID, $this->PENDING ) && $this->post_type_is_publicizeable( $post->post_type ) ) {
-			$connected_services = $this->get_all_connections();
-			if ( ! empty( $connected_services ) ) {
-				/**
-				 * Fires when a post is saved that has is marked as pending publicizing
-				 *
-				 * @since 4.1.0
-				 *
-				 * @param int The post ID
-				 */
-				do_action_deprecated( 'jetpack_publicize_post', $post->ID, '4.8.0', 'jetpack_published_post_flags' );
-			}
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}

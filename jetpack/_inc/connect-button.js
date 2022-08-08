@@ -9,10 +9,7 @@ jQuery( document ).ready( function ( $ ) {
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
 	);
 	// Sections that only show up in the "Authorize user" screen
-	var authenticationHelpSections = $( '#jp-authenticate-no_user_test_mode' );
 	var connectButtonFrom = '';
-
-	authenticationHelpSections.hide();
 
 	connectButton.on( 'click', function ( event ) {
 		event.preventDefault();
@@ -28,33 +25,36 @@ jQuery( document ).ready( function ( $ ) {
 			connectionHelpSections.fadeOut( 600 );
 		}
 
-		jetpackConnectButton.selectAndStartConnectionFlow();
+		jetpackConnectButton.startConnectionFlow();
 	} );
 
 	var jetpackConnectButton = {
 		isRegistering: false,
 		isPaidPlan: false,
-		selectAndStartConnectionFlow: function () {
+		startConnectionFlow: function () {
 			var connectionHelpSections = $( '#jetpack-connection-cards, .jp-connect-full__testimonial' );
 			if ( connectionHelpSections.length ) {
 				connectionHelpSections.fadeOut( 600 );
 			}
 
 			if ( ! jetpackConnectButton.isRegistering ) {
-				if ( 'original' === jpConnect.forceVariation ) {
-					// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
-					// or we're dealing with Safari which has issues with handling 3rd party cookies.
-					jetpackConnectButton.handleOriginalFlow();
+				jetpackConnectButton.handleConnection();
+			}
+		},
+		selectAndStartAuthorizationFlow: function ( data ) {
+			if ( data.allowInplaceAuthorization && 'original' !== jpConnect.forceVariation ) {
+				jetpackConnectButton.handleAuthorizeInPlaceFlow( data );
+			} else {
+				// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
+				// or we're dealing with Safari which has issues with handling 3rd party cookies.
+				if ( data.alternateAuthorizeUrl ) {
+					window.location = data.alternateAuthorizeUrl;
 				} else {
-					// Default in-place connection flow.
-					jetpackConnectButton.handleConnectInPlaceFlow();
+					window.location = data.authorizeUrl;
 				}
 			}
 		},
-		handleOriginalFlow: function () {
-			window.location = connectButton.attr( 'href' );
-		},
-		handleConnectInPlaceFlow: function () {
+		handleConnection: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
 			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
 				// Make sure we don't lose the `from` parameter, if set.
@@ -82,9 +82,11 @@ jQuery( document ).ready( function ( $ ) {
 				data: {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
+					from: connectButtonFrom,
+					no_iframe: 'original' === jpConnect.forceVariation,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: jetpackConnectButton.handleConnectionSuccess,
+				success: jetpackConnectButton.selectAndStartAuthorizationFlow,
 			} );
 		},
 		triggerLoadingState: function () {
@@ -98,13 +100,17 @@ jQuery( document ).ready( function ( $ ) {
 			$( '<div>' ).addClass( 'jp-spinner__inner' ).appendTo( spinnerOuter );
 			loadingText.after( spinner );
 		},
-		handleConnectionSuccess: function ( data ) {
+		handleAuthorizeInPlaceFlow: function ( data ) {
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
+			jetpackConnectIframe.attr(
+				'src',
+				data.authorizeUrl + '&from=' + connectButtonFrom + '&iframe_source=jetpack-connect-main'
+			);
 			jetpackConnectIframe.on( 'load', function () {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
-				authenticationHelpSections.show();
+				$( '#jp-connect-full__step1-header' ).hide();
+				$( '#jp-connect-full__step2-header' ).show();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
@@ -163,7 +169,9 @@ jQuery( document ).ready( function ( $ ) {
 				var parser = document.createElement( 'a' );
 				parser.href = jpConnect.dashboardUrl;
 				var reload =
-					window.location.pathname === parser.pathname && window.location.hash !== parser.hash;
+					window.location.pathname === parser.pathname &&
+					window.location.hash.length &&
+					parser.hash.length;
 
 				window.location.assign( jpConnect.dashboardUrl );
 
@@ -175,21 +183,11 @@ jQuery( document ).ready( function ( $ ) {
 		},
 		handleConnectionError: function ( error ) {
 			jetpackConnectButton.isRegistering = false;
-			jetpackConnectButton.handleOriginalFlow();
+			// If something goes wrong, we take users to Calypso.
+			window.location = connectButton.attr( 'href' );
 		},
 	};
 
-	// When we visit /wp-admin/admin.php?page=jetpack#/setup, immediately start the connection flow.
-	var hash = location.hash.replace( /(#\/setup).*/, 'setup' );
-
 	// In case the parameter has been manually set in the URL after redirect.
 	connectButtonFrom = location.hash.split( '&from=' )[ 1 ];
-
-	if ( 'setup' === hash ) {
-		if ( connectionHelpSections.length ) {
-			connectionHelpSections.hide();
-		}
-
-		jetpackConnectButton.selectAndStartConnectionFlow();
-	}
 } );

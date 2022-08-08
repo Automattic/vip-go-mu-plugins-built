@@ -70,7 +70,7 @@
     "test": "phpunit --exclude-group deprecated,tld",
     "deprecated-test": "phpunit --group deprecated",
     "tld-test": "phpunit --group tld",
-    "cs": "phpcs -psn --standard=PSR2 --extensions=php ./lib ./tests",
-    "cs-fixer": "phpcbf --standard=PSR2 ./lib ./tests"
+    "cs": "phpcs -psn --standard=PSR12 --extensions=php ./lib ./tests",
+    "cs-fixer": "phpcbf --standard=PSR12 ./lib ./tests"
   }
 }
