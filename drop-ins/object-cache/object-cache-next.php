@@ -19,6 +19,11 @@ if ( ! defined( 'WP_CACHE_KEY_SALT' ) ) {
 function wp_cache_add( $key, $data, $group = '', $expire = 0 ) {
 	global $wp_object_cache;
 
+	// Falsey values for alloptions should never be cached
+	if ( 'alloptions' === $key && 'options' === $group && ! $data ) {
+		return false;
+	}
+
 	return $wp_object_cache->add( $key, $data, $group, $expire );
 }
 
