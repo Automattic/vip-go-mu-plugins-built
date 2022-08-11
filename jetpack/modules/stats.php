@@ -131,7 +131,7 @@ function stats_ignore_db_version( $version ) {
 	if (
 		is_admin() &&
 		isset( $_GET['page'] ) && 'stats' === $_GET['page'] && // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		isset( $_GET['chart'] ) && strpos( $_GET['chart'], 'admin-bar-hours' ) === 0 // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		isset( $_GET['chart'] ) && strpos( $_GET['chart'], 'admin-bar-hours' ) === 0 // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 	) {
 		global $wp_db_version;
 		return $wp_db_version;
@@ -173,7 +173,14 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() || jetpack_is_dnt_enabled() ) {
+	if (
+		is_feed()
+		|| is_robots()
+		|| is_embed()
+		|| is_trackback()
+		|| is_preview()
+		|| jetpack_is_dnt_enabled()
+	) {
 		return;
 	}
 
@@ -189,6 +196,28 @@ function stats_template_redirect() {
 		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
 			return;
 		}
+	}
+
+	/**
+	 * Allow excluding specific IP addresses from being tracked in Stats.
+	 * Note: for this to work well, visitors' IP addresses must:
+	 * - be stored and returned properly in IP address headers;
+	 * - not be impacted by any caching setup on your site.
+	 *
+	 * @module stats
+	 *
+	 * @since 10.6
+	 *
+	 * @param array $excluded_ips An array of IP address strings to exclude from tracking.
+	 */
+	$excluded_ips = (array) apply_filters( 'jetpack_stats_excluded_ips', array() );
+
+	// Should we be counting views for this IP address?
+	if (
+		! empty( $excluded_ips )
+		&& in_array( Jetpack::current_user_ip( true ), $excluded_ips, true )
+	) {
+		return;
 	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
@@ -244,8 +273,30 @@ function stats_build_view_data() {
 function stats_footer() {
 	$data = stats_build_view_data();
 	if ( Jetpack_AMP_Support::is_amp_request() ) {
+
+		/**
+		 * Filter the parameters added to the AMP pixel tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
 		stats_render_amp_footer( $data );
 	} else {
+
+		/**
+		 * Filter the parameters added to the JavaScript stats tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
 		stats_render_footer( $data );
 	}
 
@@ -278,7 +329,7 @@ END;
 /**
  * Render the stats footer for AMP output.
  *
- * @param array $data Array of data for the JS stats tracker.
+ * @param array $data Array of data for the AMP pixel tracker.
  */
 function stats_render_amp_footer( $data ) {
 	$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
@@ -370,7 +421,6 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => true,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
@@ -436,7 +486,7 @@ function stats_admin_menu() {
 	// If we're at an old Stats URL, redirect to the new one.
 	// Don't even bother with caps, menu_page_url(), etc.  Just do it.
 	if ( 'index.php' === $pagenow && isset( $_GET['page'] ) && 'stats' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$redirect_url = str_replace( array( '/wp-admin/index.php?', '/wp-admin/?' ), '/wp-admin/admin.php?', $_SERVER['REQUEST_URI'] );
+		$redirect_url = str_replace( array( '/wp-admin/index.php?', '/wp-admin/?' ), '/wp-admin/admin.php?', isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : null );
 		$relative_pos = strpos( $redirect_url, '/wp-admin/' );
 		if ( false !== $relative_pos ) {
 			wp_safe_redirect( admin_url( substr( $redirect_url, $relative_pos + 10 ) ) );
@@ -475,13 +525,13 @@ function stats_reports_load() {
 	Jetpack_Admin_Page::load_wrapper_styles();
 	add_action( 'admin_print_styles', 'stats_reports_css' );
 
-	if ( isset( $_GET['nojs'] ) && $_GET['nojs'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$parsed = wp_parse_url( admin_url() );
 		// Remember user doesn't want JS.
-		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'] ); // 2 days.
+		setcookie( 'stnojs', '1', time() + 172800, $parsed['path'], COOKIE_DOMAIN, is_ssl(), true ); // 2 days.
 	}
 
-	if ( isset( $_COOKIE['stnojs'] ) && $_COOKIE['stnojs'] ) {
+	if ( ! empty( $_COOKIE['stnojs'] ) ) {
 		// Detect if JS is on.  If so, remove cookie so next page load is via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_remove_stnojs_cookie' );
 	} elseif ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -591,7 +641,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	<div id="jp-stats-wrap">
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
+			<h1><?php esc_html_e( 'Site Stats', 'jetpack' ); ?>
 			<?php
 			if ( current_user_can( 'jetpack_manage_modules' ) ) :
 				$i18n_headers = jetpack_get_module_i18n( 'stats' );
@@ -630,7 +680,7 @@ function stats_reports_page( $main_chart_only = false ) {
 		return;
 	}
 
-	$day = isset( $_GET['day'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['day'] ) ? $_GET['day'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$day = isset( $_GET['day'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['day'] ) ? $_GET['day'] : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 	$q   = array(
 		'noheader' => 'true',
 		'proxy'    => '',
@@ -669,28 +719,29 @@ function stats_reports_page( $main_chart_only = false ) {
 		if ( ! isset( $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			continue;
 		}
+		$val = wp_unslash( $_REQUEST[ $var ] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( is_array( $vals ) ) {
-			if ( in_array( $_REQUEST[ $var ], $vals, true ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$q[ $var ] = $_REQUEST[ $var ]; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( in_array( $val, $vals, true ) ) {
+				$q[ $var ] = $val;
 			}
 		} elseif ( 'int' === $vals ) {
-			$q[ $var ] = (int) $_REQUEST[ $var ]; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$q[ $var ] = (int) $val;
 		} elseif ( 'date' === $vals ) {
-			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_REQUEST[ $var ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$q[ $var ] = $_REQUEST[ $var ]; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $val ) ) {
+				$q[ $var ] = $val;
 			}
 		} elseif ( null === $vals ) {
 			$q[ $var ] = '';
 		} elseif ( 'data' === $vals ) {
-			if ( 'index.php' === substr( $_REQUEST[ $var ], 0, 9 ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$q[ $var ] = $_REQUEST[ $var ];// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( 'index.php' === substr( $val, 0, 9 ) ) {
+				$q[ $var ] = $val;
 			}
 		}
 	}
 
 	if ( isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$chart = sanitize_title( $_GET['chart'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
+			$chart = sanitize_title( $_GET['chart'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput
 			$url   = 'https://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$chart}.php";
 		}
 	} else {
@@ -833,18 +884,16 @@ function stats_convert_post_title( $matches ) {
 }
 
 /**
- * Stats Hide Smile.
+ * CSS to hide the tracking pixel smiley.
+ * It is now hidden for everyone (used to be visible if you had set the hide_smile option).
  *
  * @access public
  * @return void
  */
 function stats_hide_smile_css() {
-	$options = stats_get_options();
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-		?>
-<style type='text/css'>img#wpstats{display:none}</style>
-		<?php
-	}
+	?>
+<style>img#wpstats{display:none}</style>
+	<?php
 }
 
 /**
@@ -1077,13 +1126,13 @@ function stats_dashboard_widget_control() {
 
 	$options = stats_dashboard_widget_options();
 
-	if ( 'post' === strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST['widget_id'] ) && 'dashboard_stats' === $_POST['widget_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$options['chart'] = $_POST['chart']; // phpcs:ignore WordPress.Security.NonceVerification
+			$options['chart'] = filter_var( wp_unslash( $_POST['chart'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		}
 		foreach ( array( 'top', 'search' ) as $key ) {
 			if ( isset( $intervals[ $_POST[ $key ] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$options[ $key ] = $_POST[ $key ]; // phpcs:ignore WordPress.Security.NonceVerification
+				$options[ $key ] = filter_var( wp_unslash( $_POST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
 			} else {
 				$options[ $key ] = $defaults[ $key ];
 			}
@@ -1143,7 +1192,7 @@ function stats_jetpack_dashboard_widget() {
 	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
-		<input type="hidden" name="widget_id" value="dashboard_stats" />
+		<input type="hidden" name="stats_id" value="dashboard_stats" />
 		<?php submit_button( __( 'Submit', 'jetpack' ) ); ?>
 	</form>
 	<button type="button" class="handlediv js-toggle-stats_dashboard_widget_control" aria-expanded="true">
@@ -1222,8 +1271,8 @@ jQuery( function($) {
  * @return void
  */
 function stats_dashboard_widget_content() {
-	$width  = isset( $_GET['width'] ) ? (int) ( $_GET['width'] / 2 ) : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	$height = isset( $_GET['height'] ) ? (int) $_GET['height'] - 36 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$width  = isset( $_GET['width'] ) ? intval( $_GET['width'] ) / 2 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	$height = isset( $_GET['height'] ) ? intval( $_GET['height'] ) - 36 : null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! $width || $width < 250 ) {
 		$width = 370;
 	}
@@ -1232,7 +1281,7 @@ function stats_dashboard_widget_content() {
 	}
 
 	$_width  = $width - 5;
-	$_height = $height - ( $GLOBALS['is_winIE'] ? 16 : 5 ); // Hack! @todo Remove WordPress 5.8 is minimum. IE should be fully deprecated.
+	$_height = $height - 5;
 
 	$options = stats_dashboard_widget_options();
 	$blog_id = Jetpack_Options::get_option( 'id' );
@@ -1404,8 +1453,8 @@ function stats_print_wp_remote_error( $get, $url ) {
 	?>
 		</p>
 	<pre>
-	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
-	Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
+	User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+	Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
 	API URL: "<?php echo esc_url( $url ); ?>"
 	<?php
 	if ( is_wp_error( $get ) ) {
@@ -1655,11 +1704,20 @@ function jetpack_stats_post_table( $columns ) {
 	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
 		return $columns;
 	}
+
 	// Array-Fu to add before comments.
 	$pos = array_search( 'comments', array_keys( $columns ), true );
+
+	// Fallback to the last position if the post type does not support comments.
+	if ( ! is_int( $pos ) ) {
+		$pos = count( $columns );
+	}
+
+	// Final fallback, if the array was malformed by another plugin for example.
 	if ( ! is_int( $pos ) ) {
 		return $columns;
 	}
+
 	$chunks             = array_chunk( $columns, $pos, true );
 	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
 

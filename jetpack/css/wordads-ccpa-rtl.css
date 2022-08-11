@@ -1,6 +1,3 @@
-/*!
-* Do not modify this file directly.  It is compiled SASS code.
-*/
 /* Include Cleanslate */
 /*!
 * CleanSlate
@@ -93,7 +90,6 @@
   -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
   background-size: auto !important;
-  -o-border-image: none !important;
   border-image: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -878,4 +874,3 @@
   color: #0085ba !important;
   text-decoration: none !important;
 }
-/*# sourceMappingURL=wordads-ccpa-rtl.css.map */

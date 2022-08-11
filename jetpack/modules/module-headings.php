@@ -28,7 +28,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Let visitors use a WordPress.com, Twitter, Facebook, or Google account to comment', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let visitors use a WordPress.com, Twitter, or Facebook account to comment', 'Module Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
@@ -59,6 +59,11 @@ function jetpack_get_module_i18n( $key ) {
 			'google-analytics' => array(
 				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Set up Google Analytics without touching a line of code.', 'Module Description', 'jetpack' ),
+			),
+
+			'google-fonts' => array(
+				'name' => _x( 'Google Fonts (Beta)', 'Module Name', 'jetpack' ),
+				'description' => _x( 'A selection of Google fonts for block enabled themes. This feature is still being developed.', 'Module Description', 'jetpack' ),
 			),
 
 			'gravatar-hovercards' => array(
@@ -127,7 +132,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'protect' => array(
-				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Brute force protection', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
 			),
 
@@ -153,7 +158,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add Twitter and Facebook buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
 			),
 
 			'shortcodes' => array(
@@ -206,6 +211,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.', 'Module Description', 'jetpack' ),
 			),
 
+			'waf' => array(
+				'name' => _x( 'Firewall', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Protect your site with Jetpack\'s Web Application Firewall', 'Module Description', 'jetpack' ),
+			),
+
 			'widget-visibility' => array(
 				'name' => _x( 'Widget Visibility', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Control where widgets appear on your site.', 'Module Description', 'jetpack' ),
@@ -229,9 +239,6 @@ function jetpack_get_module_i18n( $key ) {
 	}
 	return isset( $modules[ $key ] ) ? $modules[ $key ] : null;
 }
-
-// The lists of filenames below shouldn't be arbitrarily punctuated, but the sniff triggers anyway.
-// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar
 
 /**
  * For a given module tag, return its translated version.
@@ -298,12 +305,12 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/wordads.php
 			'Appearance' => _x( 'Appearance', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Developers` tag:
-			// - modules/json-api.php
-			// - modules/sso.php
-			'Developers' => _x( 'Developers', 'Module Tag', 'jetpack' ),
+			// Modules with `Fonts` tag:
+			// - modules/google-fonts.php
+			'Fonts' => _x( 'Fonts', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Recommended` tag:
+			// - modules/google-fonts.php
 			// - modules/lazy-images.php
 			// - modules/monitor.php
 			// - modules/photon-cdn.php
@@ -317,6 +324,11 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/woocommerce-analytics.php
 			'Recommended' => _x( 'Recommended', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Developers` tag:
+			// - modules/json-api.php
+			// - modules/sso.php
+			'Developers' => _x( 'Developers', 'Module Tag', 'jetpack' ),
+
 			// Modules with `General` tag:
 			// - modules/masterbar.php
 			'General' => _x( 'General', 'Module Tag', 'jetpack' ),
@@ -329,6 +341,14 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Site Stats` tag:
 			// - modules/stats.php
 			'Site Stats' => _x( 'Site Stats', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Firewall` tag:
+			// - modules/waf.php
+			'Firewall' => _x( 'Firewall', 'Module Tag', 'jetpack' ),
+
+			// Modules with `WAF` tag:
+			// - modules/waf.php
+			'WAF' => _x( 'WAF', 'Module Tag', 'jetpack' ),
 		);
 	}
 	return ! empty( $module_tags[ $key ] ) ? $module_tags[ $key ] : '';
@@ -382,7 +402,7 @@ function jetpack_get_module_info( $key ) {
 	  'comments' => 
 	  array (
 	    'name' => 'Comments',
-	    'description' => 'Let visitors use a WordPress.com, Twitter, Facebook, or Google account to comment',
+	    'description' => 'Let visitors use a WordPress.com, Twitter, or Facebook account to comment',
 	    'sort' => '20',
 	    'recommendation_order' => '',
 	    'introduced' => '1.4',
@@ -394,7 +414,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Social',
 	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'comments, comment, facebook, twitter, google+, social',
+	    'additional_search_queries' => 'comments, comment, facebook, twitter, social',
 	    'plan_classes' => '',
 	  ),
 	  'contact-form' => 
@@ -504,6 +524,24 @@ function jetpack_get_module_info( $key ) {
 	    'feature' => 'Engagement',
 	    'additional_search_queries' => 'webmaster, google, analytics, console',
 	    'plan_classes' => 'business, premium, security, complete',
+	  ),
+	  'google-fonts' => 
+	  array (
+	    'name' => 'Google Fonts (Beta)',
+	    'description' => 'A selection of Google fonts for block enabled themes. This feature is still being developed.',
+	    'sort' => '1',
+	    'recommendation_order' => '2',
+	    'introduced' => '10.8.0',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'No',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'No',
+	    'module_tags' => 'Fonts, Recommended',
+	    'feature' => 'Writing',
+	    'additional_search_queries' => 'fonts, webfonts, typography',
+	    'plan_classes' => '',
 	  ),
 	  'gravatar-hovercards' => 
 	  array (
@@ -741,7 +779,7 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'protect' => 
 	  array (
-	    'name' => 'Protect',
+	    'name' => 'Brute force protection',
 	    'description' => 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
 	    'sort' => '1',
 	    'recommendation_order' => '4',
@@ -832,7 +870,7 @@ function jetpack_get_module_info( $key ) {
 	  'sharedaddy' => 
 	  array (
 	    'name' => 'Sharing',
-	    'description' => 'Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.',
+	    'description' => 'Add Twitter and Facebook buttons at the bottom of each post, making it easy for visitors to share your content.',
 	    'sort' => '7',
 	    'recommendation_order' => '6',
 	    'introduced' => '1.1',
@@ -862,7 +900,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Photos and Videos, Social, Writing, Appearance',
 	    'feature' => 'Writing',
-	    'additional_search_queries' => 'shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, google+, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube',
+	    'additional_search_queries' => 'shortcodes, shortcode, embeds, media, bandcamp, dailymotion, facebook, flickr, google calendars, google maps, polldaddy, recipe, recipes, scribd, slideshare, slideshow, slideshows, soundcloud, ted, twitter, vimeo, vine, youtube',
 	    'plan_classes' => '',
 	  ),
 	  'shortlinks' => 
@@ -1025,6 +1063,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Photos and Videos',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'video, videos, videopress, video gallery, video player, videoplayer, mobile video, vimeo, youtube, html5 video, stream',
+	    'plan_classes' => '',
+	  ),
+	  'waf' => 
+	  array (
+	    'name' => 'Firewall',
+	    'description' => 'Protect your site with Jetpack\'s Web Application Firewall',
+	    'sort' => '5',
+	    'recommendation_order' => '',
+	    'introduced' => '10.9',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'No',
+	    'module_tags' => 'Firewall, WAF',
+	    'feature' => 'Security',
+	    'additional_search_queries' => '',
 	    'plan_classes' => '',
 	  ),
 	  'widget-visibility' => 
