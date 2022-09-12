@@ -884,8 +884,11 @@ class Command extends WP_CLI_Command {
 			'errors'       => $index_errors,
 		);
 
-		// VIP: Use option on a per-site basis rather than network
-		update_option( 'ep_last_cli_index', $index_results, false );
+		if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
+			update_site_option( 'ep_last_cli_index', $index_results );
+		} else {
+			update_option( 'ep_last_cli_index', $index_results, false );
+		}
 
 		/**
 		 * Fires after executing a CLI index
@@ -1530,11 +1533,11 @@ class Command extends WP_CLI_Command {
 	 * @param array $assoc_args Associative CLI args.
 	 */
 	public function get_last_cli_index( $args, $assoc_args ) {
-		// VIP: Use option on a per-site basis rather than network
-		$last_sync = get_option( 'ep_last_cli_index', array() );
+
+		$last_sync = get_site_option( 'ep_last_cli_index', array() );
 
 		if ( isset( $assoc_args['clear'] ) ) {
-			delete_option( 'ep_last_cli_index' );
+			delete_site_option( 'ep_last_cli_index' );
 		}
 
 		WP_CLI::line( wp_json_encode( $last_sync ) );
