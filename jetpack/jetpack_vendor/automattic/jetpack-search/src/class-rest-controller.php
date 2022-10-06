@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Products\Search as Search_Product;
 use Jetpack_Options;
 use WP_Error;
@@ -215,7 +214,7 @@ class REST_Controller {
 
 		$errors = array();
 		if ( $module_active !== null ) {
-			$module_active_updated = ( new Modules() )->update_status( Package::SLUG, $module_active, false, false );
+			$module_active_updated = $this->search_module->update_status( $module_active );
 			if ( is_wp_error( $module_active_updated ) ) {
 				$errors['module_active'] = $module_active_updated;
 			}
@@ -379,6 +378,14 @@ class REST_Controller {
 	 */
 	public function product_pricing() {
 		$tier_pricing = Search_Product::get_pricing_for_ui();
+		// We don't want to show the half finished new pricing, even when it's set to open from the API.
+		if ( ! Helper::is_new_pricing_202208_ready() ) {
+			unset( $tier_pricing['pricing_version'] );
+		}
+		// Unless we are testing.
+		if ( Helper::is_forced_new_pricing_202208() ) {
+			$tier_pricing['pricing_version'] = Plan::JETPACK_SEARCH_NEW_PRICING_VERSION;
+		}
 		return rest_ensure_response( $tier_pricing );
 	}
 

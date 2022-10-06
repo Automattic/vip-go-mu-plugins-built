@@ -373,16 +373,9 @@ body {
 }
 
 .jp-recommendations-banner__checkboxes {
-  display: grid;
-  gap: 1rem;
-  grid-template-rows: auto auto;
-  grid-template-columns: auto auto;
-}
-@media (max-width: 480px) {
-  .jp-recommendations-banner__checkboxes {
-    grid-template-rows: auto auto auto auto;
-    grid-template-columns: auto;
-  }
+  display: flex;
+  flex-direction: column;
+  text-align: right;
 }
 
 .jp-recommendations-answer__checkbox-label {
@@ -393,6 +386,7 @@ body {
   border-radius: 2px;
   cursor: pointer;
   background: #fff;
+  margin-bottom: 1rem;
 }
 .jp-recommendations-answer__checkbox-label.checked {
   background: #f6f7f7;

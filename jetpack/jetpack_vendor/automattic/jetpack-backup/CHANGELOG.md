@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Removed dependency connection-ui [#26381]
+
+### Fixed
+- Do not show header footer on connection screen [#26421]
+- Replace antippatern where components are returned from non-functionl components called renderSomething [#26411]
+
+## [1.8.1] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Allow other non owner admin to see Backup dashboard [#26105]
+
+## [1.8.0] - 2022-09-08
+### Added
+- Add support for JITMs to Backup plugin [#25945]
+
+### Changed
+- Modify review request logic [#25979]
+- Updated package dependencies.
+
+### Fixed
+- Backup: Fixed Automattic link in admin footer [#26075]
+
+## [1.7.3] - 2022-08-30
+### Changed
+- Updated package dependencies. [#25694, #25814]
+
+## [1.7.2] - 2022-08-23
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25628, #25665, #25762, #25764]
+
+## [1.7.1] - 2022-08-09
+### Changed
+- Updated package dependencies. [#24477, #25265]
+
+## [1.7.0] - 2022-08-03
+### Changed
+- Removed calls to deprecated components of the soft disconnect system as it is no longer in use. [#25315]
+- Updated package dependencies. [#25300, #25315]
+
 ## [1.6.0] - 2022-07-26
 ### Added
 - Add plugin review request [#24929]
@@ -199,6 +245,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.8.2]: https://github.com/Automattic/jetpack-backup/compare/v1.8.1...v1.8.2
+[1.8.1]: https://github.com/Automattic/jetpack-backup/compare/v1.8.0...v1.8.1
+[1.8.0]: https://github.com/Automattic/jetpack-backup/compare/v1.7.3...v1.8.0
+[1.7.3]: https://github.com/Automattic/jetpack-backup/compare/v1.7.2...v1.7.3
+[1.7.2]: https://github.com/Automattic/jetpack-backup/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-backup/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-backup/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Automattic/jetpack-backup/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/Automattic/jetpack-backup/compare/v1.4.3...v1.5.0
 [1.4.3]: https://github.com/Automattic/jetpack-backup/compare/v1.4.2...v1.4.3

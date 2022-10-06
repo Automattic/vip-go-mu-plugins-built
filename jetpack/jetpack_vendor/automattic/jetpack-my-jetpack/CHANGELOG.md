@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2022-09-27
+### Changed
+- Updated package dependencies.
+
+## [2.1.0] - 2022-09-20
+### Added
+- Added the ConnectionErrorNotice React component. [#26259]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixed the tests for the Module_Product class by creating and using a sample, test-only module product class as the test subject instead of relying on Videopress or other concrete products. [#26227]
+
+## [2.0.5] - 2022-09-08
+### Changed
+- Change VideoPress into a Hybrid product in My Jetpack [#25954]
+- Updated package dependencies.
+
+## [2.0.4] - 2022-08-31
+### Added
+- Allow plugins to override a product class. [#25891]
+
+### Changed
+- Updated package dependencies. [#25856]
+
+## [2.0.3] - 2022-08-29
+### Changed
+- Updated package dependencies.
+
+## [2.0.2] - 2022-08-25
+### Changed
+- Activate plugins in normal mode to trigger plugin_activated hooks [#25727]
+- Updated package dependencies. [#25814]
+
+### Fixed
+- Licensing: do not enable the Licensing UI if My Jetpack cannot be enabled. [#25667]
+- Search: increased search plan/pricing API timeouts to 5s [#25775]
+
+## [2.0.1] - 2022-08-23
+### Added
+- My Jetpack: Add container for JITMs [#22452]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25422, #25628, #25762, #25764]
+
+## [2.0.0] - 2022-08-09
+### Added
+- Make product cards compatible with disclaimers and add disclaimer for backup card [#25265]
+
+### Changed
+- Search: changed to only require site level connection [#24477]
+
+## [1.8.3] - 2022-08-03
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+## [1.8.2] - 2022-07-27
+### Changed
+- My Jetpack: changed link used in ProductCard component to a button when the plugin is absent
+
 ## [1.8.1] - 2022-07-26
 ### Changed
 - My Jetpack: changed button used in ProductCard component from WordPress to Jetpack default [#25146]
@@ -544,6 +605,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.5...2.1.0
+[2.0.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.4...2.0.5
+[2.0.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.3...2.0.0
+[1.8.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.2...1.8.3
+[1.8.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.1...1.8.2
 [1.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.8.0...1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.4...1.8.0
 [1.7.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/1.7.3...1.7.4

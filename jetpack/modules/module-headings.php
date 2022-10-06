@@ -16,6 +16,11 @@ function jetpack_get_module_i18n( $key ) {
 	static $modules;
 	if ( ! isset( $modules ) ) {
 		$modules = array(
+			'action-bar' => array(
+				'name' => _x( 'Action Bar (Experimental)', 'Module Name', 'jetpack' ),
+				'description' => _x( 'An easy to use way for visitors to follow, like, and comment on your site.', 'Module Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -131,14 +136,19 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
 			),
 
+			'post-list' => array(
+				'name' => _x( 'Post List', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Display extra information alongside each post in your dashboard’s Posts screen.', 'Module Description', 'jetpack' ),
+			),
+
 			'protect' => array(
 				'name' => _x( 'Brute force protection', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
-				'name' => _x( 'Publicize', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'Jetpack Social', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.', 'Module Description', 'jetpack' ),
 			),
 
 			'related-posts' => array(
@@ -257,16 +267,8 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/woocommerce-analytics.php
 			'Other' => _x( 'Other', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Photos and Videos` tag:
-			// - modules/carousel.php
-			// - modules/photon-cdn.php
-			// - modules/photon.php
-			// - modules/shortcodes.php
-			// - modules/tiled-gallery.php
-			// - modules/videopress.php
-			'Photos and Videos' => _x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Social` tag:
+			// - modules/action-bar.php
 			// - modules/comment-likes.php
 			// - modules/comments.php
 			// - modules/gravatar-hovercards.php
@@ -279,6 +281,15 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/subscriptions.php
 			// - modules/widgets.php
 			'Social' => _x( 'Social', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Photos and Videos` tag:
+			// - modules/carousel.php
+			// - modules/photon-cdn.php
+			// - modules/photon.php
+			// - modules/shortcodes.php
+			// - modules/tiled-gallery.php
+			// - modules/videopress.php
+			'Photos and Videos' => _x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Writing` tag:
 			// - modules/copy-post.php
@@ -333,6 +344,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/masterbar.php
 			'General' => _x( 'General', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Admin` tag:
+			// - modules/post-list.php
+			'Admin' => _x( 'Admin', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Traffic` tag:
 			// - modules/sitemaps.php
 			// - modules/wordads.php
@@ -363,6 +378,24 @@ function jetpack_get_module_i18n_tag( $key ) {
  */
 function jetpack_get_module_info( $key ) {
 	static $module_info = array (
+	  'action-bar' => 
+	  array (
+	    'name' => 'Action Bar (Experimental)',
+	    'description' => 'An easy to use way for visitors to follow, like, and comment on your site.',
+	    'sort' => '40',
+	    'recommendation_order' => '18',
+	    'introduced' => '11.4',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'No',
+	    'module_tags' => 'Social',
+	    'feature' => 'Engagement',
+	    'additional_search_queries' => 'adminbar, actionbar, comments, likes, follow, sharing',
+	    'plan_classes' => '',
+	  ),
 	  'carousel' => 
 	  array (
 	    'name' => 'Carousel',
@@ -777,6 +810,24 @@ function jetpack_get_module_info( $key ) {
 	    'additional_search_queries' => 'post by email, email',
 	    'plan_classes' => '',
 	  ),
+	  'post-list' => 
+	  array (
+	    'name' => 'Post List',
+	    'description' => 'Display extra information alongside each post in your dashboard’s Posts screen.',
+	    'sort' => '31',
+	    'recommendation_order' => '12',
+	    'introduced' => '11.3',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'No',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'No',
+	    'module_tags' => 'Admin',
+	    'feature' => 'Appearance',
+	    'additional_search_queries' => 'post, admin, list',
+	    'plan_classes' => '',
+	  ),
 	  'protect' => 
 	  array (
 	    'name' => 'Brute force protection',
@@ -797,8 +848,8 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'publicize' => 
 	  array (
-	    'name' => 'Publicize',
-	    'description' => 'Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.',
+	    'name' => 'Jetpack Social',
+	    'description' => 'Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.',
 	    'sort' => '10',
 	    'recommendation_order' => '7',
 	    'introduced' => '2.0',

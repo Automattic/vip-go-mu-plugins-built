@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.24.0] - 2022-10-03
+### Changed
+- Fix styles of Control components on page side to avoid deprecating component styles affecting.
+
+## [0.23.0] - 2022-09-27
+### Added
+- Added stories for the NoticeBox component [#26367]
+- Search: added free_tier and new_pricing_202208 to gate new pricing features [#26338]
+
+### Changed
+- Introduce PricingTable to update Upsell page [#26408]
+- Move JetpackColophon to bottom of SearchResults [#26320]
+- Updated mentions of "Search" with "Jetpack Search" as part of rebranding project [#26410]
+- Updated package dependencies.
+
+### Fixed
+- Fix error message styling in Instant Search overlay. [#26339]
+
+## [0.22.2] - 2022-09-20
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fixes the issue where search results are not loaded in customizer [#26212]
+
+## [0.22.1] - 2022-09-13
+### Changed
+- Updated package dependencies. [#26176]
+
+## [0.22.0] - 2022-09-08
+### Added
+- Search: added support to search through multiple sites [#26046]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Instant Search: Update CSS styles to removes uses of "!important" where possible. [#25825]
+- Search: Allow non-owner admins to see search dashboard [#26100]
+- Search: fixed Automattic link in footer when Jetpack plugin does not exist [#26045]
+
+## [0.21.1] - 2022-08-30
+### Added
+- Instant Search: add focus border to search input field [#25304]
+
+### Changed
+- Updated package dependencies. [#25694]
+
+### Fixed
+- Keep widget preview with settings [#25778]
+
+## [0.21.0] - 2022-08-25
+### Changed
+- Search: revert "Search should not require user connection" [#25802]
+- Updated package dependencies. [#25814]
+
+## [0.20.0] - 2022-08-23
+### Added
+- Add author filtering support [#25409]
+
+### Changed
+- Updated package dependencies. [#25338, #25339, #25377, #25628, #25762, #25769]
+
+### Fixed
+- Instant Search: Add focus styles for easier keyboard navigation. (a11y) [#25671]
+- Instant Search: Remove redundant links from search results. (a11y) [#25699]
+
+## [0.19.0] - 2022-08-16
+### Added
+- Instant Search: always use submit overlay trigger if user prefers reduced motion. [#25413]
+- Instant Search: only show animation to users who have not chosen reduced motion. [#25630]
+- Instant Search: user friendly error messaging. [#25433]
+
+### Fixed
+- Instant Search: fix button styling in Twenty Twenty One theme. [#25631]
+- Instant Search: fix the display order on mobile to match the tab order. [#25415]
+- Instant Search: use classname rather than ID for styling sort select. [#25632]
+
+## [0.18.0] - 2022-08-09
+### Added
+- Search: added proper error messages for search module control [#24476]
+
+### Changed
+- Instant Search: Updates dark mode active link color for increased contrast [#25343]
+- Search: changed to only require site level connection [#24477]
+- Updated package dependencies. [#24477, #25265]
+
+### Removed
+- Search: remove 'results' overlay trigger [#25393]
+
+### Fixed
+- Dashboard: updated Instant Search description to match changes in default overlay trigger [#25303]
+- Instant Search: Constrain tab loop to overlay when visible. [#25288]
+- Instant Search: Make "Clear filters" button accessible. [#25342]
+
+## [0.17.1] - 2022-08-03
+### Added
+- Instant Search: Adds descriptions to post type icons for accessibility purposes [#25323]
+- Record Meter: add info link to docs [#25002]
+
+### Changed
+- Updated package dependencies. [#25300, #25315]
+
+### Fixed
+- Instant Search: Improve accessibility of seach options controls.
+- Search: ensure overlay trigger is consistent for new installs [#25093]
+
+## [0.17.0] - 2022-07-29
+### Added
+- Record Meter: make feature available to all users
+- Search: re-add 'Media' to 'Excluded Post Types'
+
 ## [0.16.2] - 2022-07-26
 ### Added
 - Dashboard: added support WPCOM simple sites [#25094]
@@ -391,6 +503,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.24.0]: https://github.com/Automattic/jetpack-search/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/Automattic/jetpack-search/compare/v0.22.2...v0.23.0
+[0.22.2]: https://github.com/Automattic/jetpack-search/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-search/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-search/compare/v0.21.1...v0.22.0
+[0.21.1]: https://github.com/Automattic/jetpack-search/compare/v0.21.0...v0.21.1
+[0.21.0]: https://github.com/Automattic/jetpack-search/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-search/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-search/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-search/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/Automattic/jetpack-search/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-search/compare/v0.16.2...v0.17.0
 [0.16.2]: https://github.com/Automattic/jetpack-search/compare/v0.16.1...v0.16.2
 [0.16.1]: https://github.com/Automattic/jetpack-search/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/Automattic/jetpack-search/compare/v0.15.4...v0.16.0
