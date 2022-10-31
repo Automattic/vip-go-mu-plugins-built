@@ -1,0 +1,143 @@
+#ep-ordering {
+	border-left-width: 0;
+	border-right-width: 0;
+
+	& .inside {
+		background-color: #f1f1f1;
+		margin: 0;
+		padding: 0;
+	}
+
+	& .pointers,
+	& .pointer-search,
+	& .loading {
+		background-color: #fff;
+		border-left: 1px solid #eee;
+		border-right: 1px solid #eee;
+	}
+
+	& .new-post {
+		background: #fff;
+		padding: 0 1em;
+	}
+
+	& .loading {
+		padding: 1em;
+
+		& .spinner {
+			float: left;
+			margin-left: 0;
+			margin-top: 0;
+		}
+	}
+
+	& .pointer-type {
+		border: 2px solid #0073aa;
+		border-radius: 2px;
+		color: #0073aa;
+		display: inline-block;
+		font-size: 0.75em;
+		font-weight: 700;
+		margin-right: 8px;
+		padding: 1px 2px;
+	}
+
+	& .pointers {
+
+		& .pointer,
+		& .post {
+			padding: 1em;
+
+			&:nth-child(odd) {
+				background-color: #f9f9f9;
+			}
+		}
+
+		& .title {
+			color: #0073aa;
+		}
+
+		& .pointer-actions {
+			float: right;
+
+			& .handle {
+				cursor: move;
+			}
+
+			& .delete-pointer {
+				margin-left: 10px;
+			}
+		}
+
+		& .next-page-notice {
+			background-color: #fdeeca;
+			padding: 1em 0;
+			text-align: center;
+		}
+	}
+
+	& .legend {
+		background: #fff;
+		border-bottom: 1px solid #eee;
+		padding: 1em 0;
+		text-align: center;
+	}
+
+	& .legend-item {
+		display: inline-block;
+		font-size: 0.875em;
+		font-style: italic;
+		margin: 0 0.5em;
+	}
+
+	& .pointer-search {
+		margin-top: 2em;
+
+		& .no-results {
+			padding: 1em;
+		}
+
+		& .section-title {
+			border-bottom: 1px solid #eee;
+			border-top: 1px solid #eee;
+			box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+			font-weight: 700;
+		}
+
+		& .search-wrapper {
+			padding: 1em 0;
+		}
+
+		& .input-wrap {
+			padding: 0 1em;
+		}
+
+		& .search-pointers {
+			font-size: 18px;
+			height: 1.7em;
+			line-height: 100%;
+			padding: 3px 8px;
+		}
+
+		& .pointer-results {
+			padding: 1em 0 0;
+		}
+
+		& .pointer-result {
+			padding: 10px 2em;
+
+			& .dashicons {
+				float: right;
+			}
+
+			&:hover {
+				background-color: #f9f9f9;
+			}
+		}
+	}
+
+	& .delete-pointer,
+	& .add-pointer {
+		cursor: pointer;
+	}
+}
