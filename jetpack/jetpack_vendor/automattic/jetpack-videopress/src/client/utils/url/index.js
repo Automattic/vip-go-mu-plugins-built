@@ -45,3 +45,19 @@ export const getVideoPressUrl = (
 	};
 	return addQueryArgs( `https://videopress.com/v/${ guid }`, options );
 };
+
+export const pickGUIDFromUrl = url => {
+	if ( ! url ) {
+		return null;
+	}
+
+	const urlParts = url.match(
+		/^https?:\/\/(?<host>video(?:\.word)?press\.com)\/(?:v|embed)\/(?<guid>[a-zA-Z\d]{8})/
+	);
+
+	if ( ! urlParts?.groups?.guid ) {
+		return null;
+	}
+
+	return urlParts.groups.guid;
+};

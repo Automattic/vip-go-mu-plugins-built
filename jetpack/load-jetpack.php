@@ -56,6 +56,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
+require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-widget.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 // Used by the API endpoints.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
@@ -89,22 +90,5 @@ add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 1
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
-
-// WAF should never be available on the Atomic platform.
-
-if ( ( new Automattic\Jetpack\Status\Host() )->is_atomic_platform() ) {
-	add_filter(
-		'jetpack_get_available_modules',
-		function ( $modules ) {
-			unset( $modules['waf'] );
-
-			return $modules;
-		}
-	);
-
-	if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
-		define( 'DISABLE_JETPACK_WAF', true );
-	}
-}
 
 Jetpack::init();

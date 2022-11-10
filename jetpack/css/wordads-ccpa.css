@@ -112,7 +112,6 @@
   -ms-perspective-origin: 50% 50% !important;
   -o-perspective-origin: 50% 50% !important;
   perspective-origin: 50% 50% !important;
-  -webkit-backface-visibility: visible !important;
   backface-visibility: visible !important;
   text-shadow: none !important;
   transition: all 0s ease 0s !important;

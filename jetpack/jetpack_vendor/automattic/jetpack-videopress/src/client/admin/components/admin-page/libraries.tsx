@@ -1,26 +1,28 @@
 /**
  * External dependencies
  */
-import { Button, Text } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { Button, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
-import Pagination from '../pagination';
-import { FilterButton, FilterSection } from '../video-filter';
+import { ConnectLocalPagination, ConnectPagination } from '../pagination';
+import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
-import VideoList from '../video-list';
+import VideoList, { LocalVideoList } from '../video-list';
 import styles from './styles.module.scss';
 /**
  * Types
  */
-import { VideoLibraryProps } from './types';
+import { LocalLibraryProps, VideoLibraryProps } from './types';
+
+const LIBRARY_TYPE_LOCALSORAGE_KEY = 'videopress-library-type';
 
 const LibraryType = {
 	List: 'list',
@@ -28,22 +30,6 @@ const LibraryType = {
 } as const;
 
 type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
-
-const ConnectedPagination = ( props: { className: string; disabled: boolean } ) => {
-	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
-	return total < itemsPerPage ? (
-		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
-		<Pagination
-			{ ...props }
-			perPage={ itemsPerPage }
-			onChangePage={ setPage }
-			currentPage={ page }
-			total={ total }
-			disabled={ isFetching || props.disabled }
-		/>
-	);
-};
 
 const VideoLibraryWrapper = ( {
 	children,
@@ -64,11 +50,16 @@ const VideoLibraryWrapper = ( {
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
 	const [ searchQuery, setSearchQuery ] = useState( search );
+	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
 
-	const singularTotalVideosLabel = __( 'Video', 'jetpack-videopress-pkg' );
-	const pluralTotalVideosLabel = __( 'Videos', 'jetpack-videopress-pkg' );
+	const singularTotalVideosLabel = __( '1 Video', 'jetpack-videopress-pkg' );
+	const pluralTotalVideosLabel = sprintf(
+		/* translators: placeholder is the number of videos */
+		__( '%s Videos', 'jetpack-videopress-pkg' ),
+		totalVideos
+	);
 	const totalVideosLabel = totalVideos === 1 ? singularTotalVideosLabel : pluralTotalVideosLabel;
 
 	return (
@@ -76,14 +67,13 @@ const VideoLibraryWrapper = ( {
 			<Text variant="headline-small" mb={ 1 }>
 				{ title }
 			</Text>
+			{ ! isLg && <Text className={ styles[ 'total-sm' ] }>{ totalVideosLabel }</Text> }
 			<div className={ styles[ 'total-filter-wrapper' ] }>
-				<Text>
-					{ totalVideos } { totalVideosLabel }
-				</Text>
+				{ isLg && <Text>{ totalVideosLabel }</Text> }
 				{ hideFilter ? null : (
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
-							className={ styles[ 'search-input' ] }
+							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
 							onSearch={ setSearch }
 							value={ searchQuery }
 							loading={ isFetching }
@@ -106,28 +96,35 @@ const VideoLibraryWrapper = ( {
 					</div>
 				) }
 			</div>
-			{ isFilterActive && <FilterSection className={ styles[ 'filter-section' ] } /> }
+			{ isFilterActive && <ConnectFilterSection className={ styles[ 'filter-section' ] } /> }
 			{ children }
-			<ConnectedPagination className={ styles.pagination } disabled={ disabled } />
 		</div>
 	);
 };
 
-export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
-	const navigate = useNavigate();
-	const [ libraryType, setLibraryType ] = useState< LibraryType >( LibraryType.Grid );
-	const disabled = videos?.some?.(
-		video => video.uploading || ( ! video.finished && video.posterImage === null )
+export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
+	const history = useHistory();
+
+	const libraryTypeFromLocalStorage = localStorage.getItem(
+		LIBRARY_TYPE_LOCALSORAGE_KEY
+	) as LibraryType;
+
+	const [ libraryType, setLibraryType ] = useState< LibraryType >(
+		libraryTypeFromLocalStorage ?? LibraryType.Grid
 	);
 
+	const uploading = videos?.some?.( video => video.uploading );
+
 	const toggleType = () => {
-		setLibraryType( current =>
-			current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid
-		);
+		setLibraryType( current => {
+			const next = current === LibraryType.Grid ? LibraryType.List : LibraryType.Grid;
+			localStorage.setItem( LIBRARY_TYPE_LOCALSORAGE_KEY, next );
+			return next;
+		} );
 	};
 
 	const handleClickEditDetails = video => {
-		navigate( `/video/${ video?.id }/edit` );
+		history.push( `/video/${ video?.id }/edit` );
 	};
 
 	return (
@@ -136,32 +133,47 @@ export const VideoPressLibrary = ( { videos, totalVideos }: VideoLibraryProps ) 
 			onChangeType={ toggleType }
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
-			disabled={ disabled }
 		>
 			{ libraryType === LibraryType.Grid ? (
-				<VideoGrid videos={ videos } onVideoDetailsClick={ handleClickEditDetails } />
+				<VideoGrid
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					loading={ loading }
+					count={ uploading ? videos.length : 6 }
+				/>
 			) : (
-				<VideoList videos={ videos } onVideoDetailsClick={ handleClickEditDetails } hidePlays />
+				<VideoList
+					videos={ videos }
+					onVideoDetailsClick={ handleClickEditDetails }
+					hidePlays
+					loading={ loading }
+				/>
 			) }
+			<ConnectPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };
 
-export const LocalLibrary = ( { videos, totalVideos }: VideoLibraryProps ) => {
+export const LocalLibrary = ( {
+	videos,
+	totalVideos,
+	loading,
+	uploading,
+	onUploadClick,
+}: LocalLibraryProps ) => {
 	return (
 		<VideoLibraryWrapper
 			totalVideos={ totalVideos }
 			hideFilter
 			title={ __( 'Local videos', 'jetpack-videopress-pkg' ) }
 		>
-			<VideoList
-				hidePrivacy
-				hideDuration
-				hidePlays
-				showEditButton={ false }
-				showQuickActions={ false }
+			<LocalVideoList
 				videos={ videos }
+				loading={ loading }
+				onActionClick={ onUploadClick }
+				uploading={ uploading }
 			/>
+			<ConnectLocalPagination className={ styles.pagination } />
 		</VideoLibraryWrapper>
 	);
 };

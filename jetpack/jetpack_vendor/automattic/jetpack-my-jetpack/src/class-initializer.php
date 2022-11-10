@@ -29,7 +29,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.1.1';
+	const PACKAGE_VERSION = '2.3.2';
 
 	/**
 	 * Initialize My Jetapack

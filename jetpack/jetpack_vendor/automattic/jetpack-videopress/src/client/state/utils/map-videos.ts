@@ -11,9 +11,10 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		id,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
+		slug: filename,
 	} = video;
 
-	const { videopress: videoPressMediaDetails = {}, width, height } = mediaDetails;
+	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
 
 	const {
 		title,
@@ -32,8 +33,12 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		is_private: isPrivate,
 		file_url_base: fileURLBase,
 		finished,
-		files = {},
-	} = videoPressMediaDetails;
+		files = {
+			dvd: {
+				original_img: '',
+			},
+		},
+	} = videoPressMediaDetails || {};
 
 	const { dvd } = files;
 
@@ -64,11 +69,46 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		},
 		thumbnail,
 		finished,
+		filename,
 	};
 };
 
 export const mapVideosFromWPV2MediaEndpoint = (
 	videos: OriginalVideoPressVideo[]
+): VideoPressVideo[] => {
+	return videos?.map?.( mapVideoFromWPV2MediaEndpoint );
+};
+
+export const mapLocalVideoFromWPV2MediaEndpoint = (
+	video: OriginalVideoPressVideo
 ): VideoPressVideo => {
-	return videos.map( mapVideoFromWPV2MediaEndpoint );
+	const {
+		media_details: mediaDetails,
+		id,
+		jetpack_videopress: jetpackVideoPress,
+		source_url: url,
+		date: uploadDate,
+	} = video;
+
+	const { width, height, length: duration } = mediaDetails;
+
+	const { title, description, caption } = jetpackVideoPress;
+
+	return {
+		id,
+		title,
+		description,
+		caption,
+		width,
+		height,
+		url,
+		uploadDate,
+		duration,
+	};
+};
+
+export const mapLocalVideosFromWPV2MediaEndpoint = (
+	videos: OriginalVideoPressVideo[]
+): VideoPressVideo[] => {
+	return videos.map( mapLocalVideoFromWPV2MediaEndpoint );
 };
