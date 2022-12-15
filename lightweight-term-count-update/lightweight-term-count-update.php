@@ -140,7 +140,7 @@ class LTCU_Plugin {
 			// if the status is inherit.
 			$this->quick_update_terms_count( $object_id, $tt_ids, $taxonomy, $transition_type );
 		} else {
-			clean_term_cache( $tt_ids, $taxonomy, false );
+			clean_term_cache( $tt_ids, '', false );
 		}
 	}
 
@@ -261,7 +261,7 @@ class LTCU_Plugin {
 				}
 			} // End if().
 
-			clean_term_cache( $tt_ids, $taxonomy, false );
+			clean_term_cache( $tt_ids, '', false );
 		} // End if().
 	}
 
