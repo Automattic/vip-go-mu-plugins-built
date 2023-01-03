@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.0 - unreleased
+
+This is an alpha version! The changes listed here are not final.
+
+### Bug fixes
+- Use a newly created redirect for "Connect Google Drive" export modal's link. This new redirect will take the user directly to the site's marketing/connections page (bypassing the site selection screen)
+- Use separate nonce names for export options, wp_nonce_field would use the name also as id of the element, preventing the normal DOM operations when more than one is present.
+
 ## 11.7-beta - 2023-01-02
 ### Enhancements
 - Blaze: enable functionality within the Jetpack plugin. [#28077]
