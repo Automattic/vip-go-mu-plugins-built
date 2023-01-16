@@ -6,7 +6,7 @@ use Automattic\WP\Cron_Control\CLI;
 use WP_Site;
 
 class Orchestrate_Sites_Tests extends \WP_UnitTestCase {
-	function setUp() {
+	function setUp(): void {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Skipping tests that only run on multisites.' );
 		}
@@ -14,7 +14,7 @@ class Orchestrate_Sites_Tests extends \WP_UnitTestCase {
 		parent::setUp();
 	}
 
-	function tearDown() {
+	function tearDown(): void {
 		parent::tearDown();
 	}
 

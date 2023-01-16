@@ -11,12 +11,12 @@ use Automattic\WP\Cron_Control\Event;
 use Automattic\WP\Cron_Control;
 
 class WP_Adapter_Tests extends \WP_UnitTestCase {
-	function setUp() {
+	function setUp(): void {
 		parent::setUp();
 		Utils::clear_cron_table();
 	}
 
-	function tearDown() {
+	function tearDown(): void {
 		Utils::clear_cron_table();
 		parent::tearDown();
 	}

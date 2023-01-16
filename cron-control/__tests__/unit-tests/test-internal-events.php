@@ -5,12 +5,12 @@ namespace Automattic\WP\Cron_Control\Tests;
 use Automattic\WP\Cron_Control;
 
 class Internal_Events_Tests extends \WP_UnitTestCase {
-	function setUp() {
+	function setUp(): void {
 		parent::setUp();
 		Utils::clear_cron_table();
 	}
 
-	function tearDown() {
+	function tearDown(): void {
 		Utils::clear_cron_table();
 		parent::tearDown();
 	}

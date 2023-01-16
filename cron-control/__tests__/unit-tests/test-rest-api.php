@@ -8,7 +8,7 @@ use WP_REST_Server;
 use WP_CRON_CONTROL_SECRET;
 
 class REST_API_Tests extends \WP_UnitTestCase {
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		global $wp_rest_server;
@@ -19,7 +19,7 @@ class REST_API_Tests extends \WP_UnitTestCase {
 		Utils::clear_cron_table();
 	}
 
-	function tearDown() {
+	function tearDown(): void {
 		global $wp_rest_server;
 		$wp_rest_server = null;
 
