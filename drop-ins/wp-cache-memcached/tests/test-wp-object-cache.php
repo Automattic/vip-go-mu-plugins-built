@@ -334,8 +334,11 @@ class Test_WP_Object_Cache extends WP_UnitTestCase {
 			'found' => false,
 		] );
 
-		// Lastly, ensure we still get an empty array if no keys are found.
-		self::assertEquals( $this->object_cache->get_multiple( [ 'non-existant-key2', 'non-existant-key3' ] ), [] );
+		// Lastly, ensure we still get an array if no keys are found.
+		self::assertEquals( $this->object_cache->get_multiple( [ 'non-existant-key2', 'non-existant-key3' ] ), [
+			'non-existant-key2' => false,
+			'non-existant-key3' => false,
+		] );
 	}
 
 	public function test_get_multiple_for_non_persistant_groups() {

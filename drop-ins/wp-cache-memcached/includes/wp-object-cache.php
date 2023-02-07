@@ -53,13 +53,10 @@ class WP_Object_Cache {
 	public array $cache = [];
 
 	// Stats tracking.
-	public array $stats     = [
-		'get' => 0,
-		'add' => 0,
-	];
-	public array $group_ops = [];
-	public ?int $cache_hits;
-	public ?int $cache_misses;
+	public array $stats                = [];
+	public array $group_ops            = [];
+	public int $cache_hits             = 0;
+	public int $cache_misses           = 0;
 	public float $time_start           = 0;
 	public float $time_total           = 0;
 	public int $size_total             = 0;
@@ -78,37 +75,43 @@ class WP_Object_Cache {
 	 * @global int|numeric-string $blog_id
 	 *
 	 * @param ?Adapter_Interface $adapter Optionally inject the adapter layer, useful for unit testing.
+	 * @psalm-suppress UnsupportedReferenceUsage
 	 */
 	public function __construct( $adapter = null ) {
 		global $blog_id, $table_prefix, $memcached_servers;
 
 		$this->global_groups = [ $this->global_flush_group ];
-		$this->cache_hits    =& $this->stats['get'];
-		$this->cache_misses  =& $this->stats['add'];
 
 		$is_ms = function_exists( 'is_multisite' ) && is_multisite();
 
 		$this->global_prefix = $is_ms || ( defined( 'CUSTOM_USER_TABLE' ) && defined( 'CUSTOM_USER_META_TABLE' ) ) ? '' : $table_prefix;
 		$this->blog_prefix   = (string) ( $is_ms ? $blog_id : $table_prefix );
-		$this->salt_keys( WP_CACHE_KEY_SALT );
 
-		$servers = is_array( $memcached_servers ) ? $memcached_servers : [ 'default' => [ '127.0.0.1:11211' ] ];
+		$use_memcached = defined( 'AUTOMATTIC_MEMCACHED_USE_MEMCACHED_EXTENSION' ) && AUTOMATTIC_MEMCACHED_USE_MEMCACHED_EXTENSION;
 		if ( ! is_null( $adapter ) ) {
 			$this->adapter = $adapter;
 		} else {
-			// Default to using the Memcache extension, as this was the original/default implementation.
-			$use_memcached = defined( 'AUTOMATTIC_MEMCACHED_USE_MEMCACHED_EXTENSION' ) && AUTOMATTIC_MEMCACHED_USE_MEMCACHED_EXTENSION;
+			$servers       = is_array( $memcached_servers ) ? $memcached_servers : [ 'default' => [ '127.0.0.1:11211' ] ];
 			$this->adapter = $use_memcached ? new Memcached_Adapter( $servers ) : new Memcache_Adapter( $servers );
 		}
 
+		$this->salt_keys( WP_CACHE_KEY_SALT, $use_memcached );
+
 		// Backwards compatability as these have been public properties. Ideally we deprecate and remove in the future.
-		$this->mc          = $this->adapter->get_connections();
-		$this->default_mcs = $this->adapter->get_default_connections();
-		/** @psalm-suppress UnsupportedReferenceUsage */
+		$this->mc                = $this->adapter->get_connections();
+		$this->default_mcs       = $this->adapter->get_default_connections();
 		$this->connection_errors =& $this->adapter->get_connection_errors();
 
-
 		$this->stats_helper = new Stats( $this->key_salt );
+
+		// Also for backwards compatability since these have been public properties.
+		$this->stats                =& $this->stats_helper->stats;
+		$this->group_ops            =& $this->stats_helper->group_ops;
+		$this->time_total           =& $this->stats_helper->time_total;
+		$this->size_total           =& $this->stats_helper->size_total;
+		$this->slow_op_microseconds =& $this->stats_helper->slow_op_microseconds;
+		$this->cache_hits           =& $this->stats['get'];
+		$this->cache_misses         =& $this->stats['add'];
 	}
 
 	/*
@@ -401,12 +404,16 @@ class WP_Object_Cache {
 			if ( isset( $this->cache[ $cache_key ] ) && ! $force ) {
 				/** @psalm-suppress MixedAssignment */
 				$return[ $key ] = is_object( $this->cache[ $cache_key ]['value'] ) ? clone $this->cache[ $cache_key ]['value'] : $this->cache[ $cache_key ]['value'];
+
+				$this->group_ops_stats( 'get_local', $cache_key, $group, null, null, 'local' );
 			} elseif ( $this->is_non_persistent_group( $group ) ) {
 				$return[ $key ]             = false;
 				$return_cache[ $cache_key ] = [
 					'value' => false,
 					'found' => false,
 				];
+
+				$this->group_ops_stats( 'get_local', $cache_key, $group, null, null, 'not_in_local' );
 			} else {
 				$uncached_keys[ $key ] = $cache_key;
 			}
@@ -417,11 +424,7 @@ class WP_Object_Cache {
 			$values  = $this->adapter->get_multiple( array_values( $uncached_keys ), $group );
 			$elapsed = $this->timer_stop();
 
-			// TODO: fixup
-			$this->group_ops_stats( 'get_multiple', array_values( $uncached_keys ), $group, null, $elapsed );
-
 			$values = false === $values ? [] : $values;
-
 			foreach ( $uncached_keys as $key => $cache_key ) {
 				$found = array_key_exists( $cache_key, $values );
 				/** @psalm-suppress MixedAssignment */
@@ -434,6 +437,8 @@ class WP_Object_Cache {
 					'found' => $found,
 				];
 			}
+
+			$this->group_ops_stats( 'get_multiple', array_values( $uncached_keys ), $group, $this->get_data_size( array_values( $values ) ), $elapsed );
 		}
 
 		$this->cache = array_merge( $this->cache, $return_cache );
@@ -797,9 +802,17 @@ class WP_Object_Cache {
 		$values  = $this->adapter->get_with_redundancy( $key );
 		$elapsed = $this->timer_stop();
 
-		// TODO: fixup
-		$this->group_ops_stats( 'get_flush_number', $key, $group, null, $elapsed, 'not_in_memcache' );
-		$this->group_ops_stats( 'get_flush_number', $key, $group, $size, $elapsed, 'memcache' );
+		$replication_servers_count = max( count( $this->default_mcs ), 1 );
+		$average_time_elapsed      = $elapsed / $replication_servers_count;
+
+		/** @psalm-suppress MixedAssignment */
+		foreach ( $values as $result ) {
+			if ( false === $result ) {
+				$this->group_ops_stats( 'get_flush_number', $key, $group, null, $average_time_elapsed, 'not_in_memcache' );
+			} else {
+				$this->group_ops_stats( 'get_flush_number', $key, $group, $size, $average_time_elapsed, 'memcache' );
+			}
+		}
 
 		$values = array_map( 'intval', $values );
 		/** @psalm-suppress ArgumentTypeCoercion */
@@ -809,9 +822,6 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		// Replicate to servers not having the max.
-		$expire = 0;
-
 		/** @psalm-var int[] $servers_to_update */
 		$servers_to_update = [];
 		foreach ( $values as $index => $value ) {
@@ -820,12 +830,19 @@ class WP_Object_Cache {
 			}
 		}
 
-		$this->timer_start();
-		$this->adapter->set_with_redundancy( $key, $max, $expire, $servers_to_update );
-		$elapsed = $this->timer_stop();
+		// Replicate to servers not having the max.
+		if ( ! empty( $servers_to_update ) ) {
+			$expire = 0;
 
-		// TODO: fixup since it was actually multiple calls
-		$this->group_ops_stats( 'set_flush_number', $key, $group, $size, $elapsed, 'replication_repair' );
+			$this->timer_start();
+			$this->adapter->set_with_redundancy( $key, $max, $expire, $servers_to_update );
+			$elapsed = $this->timer_stop();
+
+			$average_time_elapsed = $elapsed / count( $servers_to_update );
+			foreach ( $servers_to_update as $updated_server ) {
+				$this->group_ops_stats( 'set_flush_number', $key, $group, $size, $average_time_elapsed, 'replication_repair' );
+			}
+		}
 
 		return $max;
 	}
@@ -922,9 +939,9 @@ class WP_Object_Cache {
 	 * Get the memcached instance for the specified group.
 	 *
 	 * @param int|string $group
-	 * @return mixed
+	 * @return Memcache|Memcached
 	 */
-	public function &get_mc( $group ) {
+	public function get_mc( $group ) {
 		if ( isset( $this->mc[ $group ] ) ) {
 			return $this->mc[ $group ];
 		}
@@ -976,19 +993,54 @@ class WP_Object_Cache {
 	 * Sets the key salt property.
 	 *
 	 * @param mixed $key_salt
+	 * @param bool $add_mc_prefix
 	 * @return void
 	 */
-	public function salt_keys( $key_salt ) {
-		$this->key_salt = is_string( $key_salt ) && strlen( $key_salt ) ? $key_salt . ':' : '';
+	public function salt_keys( $key_salt, $add_mc_prefix = false ) {
+		$key_salt = is_string( $key_salt ) && strlen( $key_salt ) ? $key_salt : '';
+		$key_salt = $add_mc_prefix ? $key_salt . '_mc' : '';
+
+		$this->key_salt = empty( $key_salt ) ? '' : $key_salt . ':';
 	}
 
+	public function timer_start(): bool {
+		$this->time_start = microtime( true );
+		return true;
+	}
+
+	public function timer_stop(): float {
+		return microtime( true ) - $this->time_start;
+	}
+
+	/**
+	 * TODO: Deprecate.
+	 *
+	 * @param string $host
+	 * @param string $port
+	 */
+	public function failure_callback( $host, $port ): void {
+		$this->connection_errors[] = array(
+			'host' => $host,
+			'port' => $port,
+		);
+	}
 
 	/*
 	|--------------------------------------------------------------------------
 	| Stat-related tracking & output.
-	| Internal use only. A lot of the below may be deprecated/removed in the future.
+	| A lot of the below should be deprecated/removed in the future.
 	|--------------------------------------------------------------------------
 	*/
+
+	/**
+	 * Echoes the stats of the caching operations that have taken place.
+	 * Ideally this should be the only method left public in this section.
+	 *
+	 * @return void Outputs the info directly, nothing is returned.
+	 */
+	public function stats() {
+		$this->stats_helper->stats();
+	}
 
 	/**
 	 * Sets the key salt property.
@@ -1006,24 +1058,43 @@ class WP_Object_Cache {
 		$this->stats_helper->group_ops_stats( $op, $keys, $group, $size, $time, $comment );
 	}
 
-	public function timer_start(): bool {
-		$this->time_start = microtime( true );
-		return true;
-	}
-
-	public function timer_stop(): float {
-		return microtime( true ) - $this->time_start;
+	/**
+	 * @param string $field The stat field/group being incremented.
+	 * @param int $num Amount to increment by.
+	 */
+	public function increment_stat( $field, $num = 1 ): void {
+		$this->stats_helper->increment_stat( $field, $num );
 	}
 
 	/**
-	 * Echoes the stats of the caching.
-	 *
-	 * Gives the cache hits, and cache misses. Also prints every cached group,
-	 * key and the data.
-	 *
-	 * @return void Outputs the info directly, nothing is returned.
+	 * @param string|string[] $keys
+	 * @return string|string[]
 	 */
-	public function stats() {
-		$this->stats_helper->stats();
+	public function strip_memcached_keys( $keys ) {
+		return $this->stats_helper->strip_memcached_keys( $keys );
+	}
+
+	public function js_toggle(): void {
+		$this->stats_helper->js_toggle();
+	}
+
+	/**
+	 * @param string $line
+	 * @param string $trailing_html
+	 * @return string
+	 */
+	public function colorize_debug_line( $line, $trailing_html = '' ) {
+		return $this->stats_helper->colorize_debug_line( $line, $trailing_html );
+	}
+
+	/**
+	 * @param string|int $index
+	 * @param array $arr
+	 * @psalm-param array{0: string, 1: string|string[], 2: int|null, 3: float|null, 4: string, 5: string, 6: string|null } $arr
+	 *
+	 * @return string
+	 */
+	public function get_group_ops_line( $index, $arr ) {
+		return $this->stats_helper->get_group_ops_line( $index, $arr );
 	}
 }

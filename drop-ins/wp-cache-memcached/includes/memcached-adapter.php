@@ -326,11 +326,12 @@ class Memcached_Adapter implements Adapter_Interface {
 		/** @psalm-suppress TypeDoesNotContainType */
 		$serializer = \Memcached::HAVE_IGBINARY && extension_loaded( 'igbinary' ) ? \Memcached::SERIALIZER_IGBINARY : \Memcached::SERIALIZER_PHP;
 
+		// TODO: Check memcached.compression_threshold / memcached.compression_factor
+		// These are all TBD still.
 		return [
 			\Memcached::OPT_BINARY_PROTOCOL => false,
 			\Memcached::OPT_SERIALIZER      => $serializer,
 			\Memcached::OPT_CONNECT_TIMEOUT => 1000,
-			\Memcached::OPT_DISTRIBUTION    => \Memcached::DISTRIBUTION_CONSISTENT,
 			\Memcached::OPT_COMPRESSION     => true,
 			\Memcached::OPT_TCP_NODELAY     => true,
 			\Memcached::OPT_NO_BLOCK        => true,

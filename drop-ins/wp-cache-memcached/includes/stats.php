@@ -88,7 +88,7 @@ class Stats {
 	}
 
 	/**
-	 * Keep stats for a memcached operation.
+	 * Increment the stat counter for a memcached operation.
 	 *
 	 * @param string $field The stat field/group being incremented.
 	 * @param int $num Amount to increment by.
@@ -131,10 +131,9 @@ class Stats {
 			}
 
 			// Strip off the flush number.
-			$flush_piece = strpos( $value, ':', $offset );
-			$offset      = false === $flush_piece ? $offset : $offset + $flush_piece + 1;
-
-			$keys[ $index ] = substr( $value, $offset );
+			$flush_piece    = strpos( $value, ':', $offset );
+			$start          = false === $flush_piece ? $offset : $flush_piece;
+			$keys[ $index ] = substr( $value, $start + 1 );
 		}
 
 		if ( 1 === count( $keys ) ) {
@@ -261,7 +260,7 @@ class Stats {
 	 * @param string $trailing_html
 	 * @return string
 	 */
-	public function colorize_debug_line( $line, $trailing_html = '' ): string {
+	public function colorize_debug_line( $line, $trailing_html = '' ) {
 		$colors = array(
 			'get'          => 'green',
 			'get_local'    => 'lightgreen',
