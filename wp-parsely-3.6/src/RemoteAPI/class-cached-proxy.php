@@ -50,8 +50,13 @@ class Cached_Proxy implements Proxy {
 	 *                                    response is empty.
 	 */
 	public function get_items( array $query ) {
-		$cache_key = 'parsely_api_' . wp_hash( (string) wp_json_encode( $this->proxy ) ) . '_' . wp_hash( (string) wp_json_encode( $query ) );
-		$items     = $this->cache->get( $cache_key, self::CACHE_GROUP );
+		$cache_key = (
+			'parsely_api_' .
+			wp_hash( $this->proxy->get_endpoint() ) . '_' .
+			wp_hash( (string) wp_json_encode( $query ) )
+		);
+
+		$items = $this->cache->get( $cache_key, self::CACHE_GROUP );
 
 		if ( false === $items ) {
 			$items = $this->proxy->get_items( $query );

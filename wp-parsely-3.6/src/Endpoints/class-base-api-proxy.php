@@ -29,6 +29,15 @@ abstract class Base_API_Proxy {
 	protected $parsely;
 
 	/**
+	 * Capability of the user based on which we should allow access to endpoint.
+	 *
+	 * `null` should be used for all public endpoints.
+	 *
+	 * @var string|null
+	 */
+	protected $user_capability;
+
+	/**
 	 * Proxy object which does the actual calls to the Parse.ly API.
 	 *
 	 * @var Proxy
@@ -62,7 +71,19 @@ abstract class Base_API_Proxy {
 	 *
 	 * @return bool
 	 */
-	abstract public function permission_callback(): bool;
+	public function permission_callback(): bool {
+		// This endpoint does not require any capability checks.
+		if ( is_null( $this->user_capability ) ) {
+			return true;
+		}
+
+		// The user has the required capability to access this endpoint.
+		if ( current_user_can( $this->user_capability ) ) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Constructor.
@@ -79,9 +100,13 @@ abstract class Base_API_Proxy {
 	/**
 	 * Registers the endpoint's WP REST route.
 	 *
-	 * @param string $endpoint The endpoint's route (e.g. /stats/posts).
+	 * @param string      $endpoint The endpoint's route (e.g. /stats/posts).
+	 * @param string|null $user_capability Capability of the user based on which we should allow access to endpoint.
+	 * @param bool        $show_in_index Show endpoint in /wp-json view if TRUE.
 	 */
-	protected function register_endpoint( string $endpoint ): void {
+	protected function register_endpoint( string $endpoint, ?string $user_capability, $show_in_index = false ): void {
+		$this->user_capability = $user_capability;
+
 		$filter_key = trim( str_replace( '/', '_', $endpoint ), '_' );
 		if ( ! apply_filters( 'wp_parsely_enable_' . $filter_key . '_api_proxy', true ) ) {
 			return;
@@ -107,6 +132,7 @@ abstract class Base_API_Proxy {
 				'callback'            => array( $this, 'get_items' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => $get_items_args,
+				'show_in_index'       => $show_in_index,
 			),
 		);
 

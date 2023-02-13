@@ -83,8 +83,8 @@
             'dev_requirement' => false,
         ),
         'automattic/jetpack-blaze' => array(
-            'pretty_version' => 'v0.5.1',
-            'version' => '0.5.1.0',
+            'pretty_version' => 'v0.5.1.1',
+            'version' => '0.5.1.1',
             'reference' => '45e8421459ba37326f969161f8cca68277db8380',
             'type' => 'jetpack-library',
             'install_path' => __DIR__ . '/../../jetpack_vendor/automattic/jetpack-blaze',
@@ -164,8 +164,8 @@
             'dev_requirement' => false,
         ),
         'automattic/jetpack-forms' => array(
-            'pretty_version' => 'v0.2.0',
-            'version' => '0.2.0.0',
+            'pretty_version' => 'v0.2.1',
+            'version' => '0.2.1.0',
             'reference' => '04e5208e40fbef110187281c347444ef2be9329d',
             'type' => 'jetpack-library',
             'install_path' => __DIR__ . '/../../jetpack_vendor/automattic/jetpack-forms',
@@ -362,8 +362,8 @@
             'dev_requirement' => false,
         ),
         'automattic/jetpack-videopress' => array(
-            'pretty_version' => 'v0.10.8',
-            'version' => '0.10.8.0',
+            'pretty_version' => 'v0.10.8.1',
+            'version' => '0.10.8.1',
             'reference' => '02d3ac24339653d0472aea28e30595d6940185c8',
             'type' => 'jetpack-library',
             'install_path' => __DIR__ . '/../../jetpack_vendor/automattic/jetpack-videopress',
@@ -371,8 +371,8 @@
             'dev_requirement' => false,
         ),
         'automattic/jetpack-waf' => array(
-            'pretty_version' => 'v0.9.0',
-            'version' => '0.9.0.0',
+            'pretty_version' => 'v0.9.1',
+            'version' => '0.9.1.0',
             'reference' => '29748f9b960e80385007c13e11cbb92a0f75fc59',
             'type' => 'jetpack-library',
             'install_path' => __DIR__ . '/../../jetpack_vendor/automattic/jetpack-waf',

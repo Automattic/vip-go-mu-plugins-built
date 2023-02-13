@@ -382,8 +382,8 @@
         },
         {
             "name": "automattic/jetpack-blaze",
-            "version": "v0.5.1",
-            "version_normalized": "0.5.1.0",
+            "version": "v0.5.1.1",
+            "version_normalized": "0.5.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blaze.git",
@@ -843,8 +843,8 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v0.2.0",
-            "version_normalized": "0.2.0.0",
+            "version": "v0.2.1",
+            "version_normalized": "0.2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
@@ -2027,8 +2027,8 @@
         },
         {
             "name": "automattic/jetpack-videopress",
-            "version": "v0.10.8",
-            "version_normalized": "0.10.8.0",
+            "version": "v0.10.8.1",
+            "version_normalized": "0.10.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-videopress.git",
@@ -2086,8 +2086,8 @@
         },
         {
             "name": "automattic/jetpack-waf",
-            "version": "v0.9.0",
-            "version_normalized": "0.9.0.0",
+            "version": "v0.9.1",
+            "version_normalized": "0.9.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-waf.git",

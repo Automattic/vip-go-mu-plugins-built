@@ -22,7 +22,7 @@ final class Related_API_Proxy extends Base_API_Proxy {
 	 * Registers the endpoint's WP REST route.
 	 */
 	public function run(): void {
-		$this->register_endpoint( '/related' );
+		$this->register_endpoint( '/related', null, true );
 	}
 
 	/**
@@ -54,15 +54,5 @@ final class Related_API_Proxy extends Base_API_Proxy {
 		);
 
 		return $result;
-	}
-
-	/**
-	 * Determines if there are enough permissions to call the endpoint.
-	 *
-	 * @return bool
-	 */
-	public function permission_callback(): bool {
-		// Unauthenticated.
-		return true;
 	}
 }
