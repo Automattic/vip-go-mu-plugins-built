@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.1.1';
+	const PACKAGE_VERSION = '0.5.1.2';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
@@ -209,7 +209,10 @@ class Blaze {
 		 * We only want it in the post editor.
 		 * Enqueueing the script in those editors would cause a fatal error.
 		 * See #20357 for more info.
-		 */
+		*/
+		if ( ! function_exists( 'get_current_screen' ) ) { // When Gutenberg is loaded in the frontend.
+			return;
+		}
 		$current_screen = get_current_screen();
 		if (
 			empty( $current_screen )
@@ -218,7 +221,6 @@ class Blaze {
 		) {
 			return;
 		}
-
 		// Bail if criteria is not met to enable Blaze features.
 		if ( ! self::should_initialize() ) {
 			return;
