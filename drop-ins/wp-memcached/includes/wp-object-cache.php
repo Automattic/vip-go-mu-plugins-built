@@ -227,7 +227,14 @@ class WP_Object_Cache {
 			$data = clone $data;
 		}
 
-		// TODO: Should handle non-persistant groups
+		if ( $this->is_non_persistent_group( $group ) ) {
+			if ( ! isset( $this->cache[ $key ] ) ) {
+				return false;
+			}
+
+			$this->cache[ $key ]['value'] = $data;
+			return true;
+		}
 
 		$expire = $this->get_expiration( $expire );
 		$size   = $this->get_data_size( $data );
@@ -269,7 +276,7 @@ class WP_Object_Cache {
 		}
 
 		if ( $this->is_non_persistent_group( $group ) ) {
-			$this->group_ops_stats( 'set_local', $key, $group, null, null );
+			$this->group_ops_stats( 'set_local', $key, $group );
 
 			$this->cache[ $key ] = [
 				'value' => $data,
@@ -347,7 +354,7 @@ class WP_Object_Cache {
 		}
 
 		if ( $this->is_non_persistent_group( $group ) ) {
-			// This is a bit suboptimal, but hard to change since the non-persistent group could later be removed.
+			// This is a bit suboptimal, but keeping for back-compat for now.
 			$found = false;
 
 			$this->cache[ $key ] = [
@@ -557,7 +564,14 @@ class WP_Object_Cache {
 	public function incr( $key, $offset = 1, $group = 'default' ) {
 		$key = $this->key( $key, $group );
 
-		// TODO: Should handle non-persistant groups
+		if ( $this->is_non_persistent_group( $group ) ) {
+			if ( ! isset( $this->cache[ $key ] ) || ! is_int( $this->cache[ $key ]['value'] ) ) {
+				return false;
+			}
+
+			$this->cache[ $key ]['value'] += $offset;
+			return $this->cache[ $key ]['value'];
+		}
 
 		$this->timer_start();
 		$incremented = $this->adapter->increment( $key, $group, $offset );
@@ -585,7 +599,19 @@ class WP_Object_Cache {
 	public function decr( $key, $offset = 1, $group = 'default' ) {
 		$key = $this->key( $key, $group );
 
-		// TODO: Should handle non-persistant groups
+		if ( $this->is_non_persistent_group( $group ) ) {
+			if ( ! isset( $this->cache[ $key ] ) || ! is_int( $this->cache[ $key ]['value'] ) ) {
+				return false;
+			}
+
+			$new_value = $this->cache[ $key ]['value'] - $offset;
+			if ( $new_value < 0 ) {
+				$new_value = 0;
+			}
+
+			$this->cache[ $key ]['value'] = $new_value;
+			return $this->cache[ $key ]['value'];
+		}
 
 		$this->timer_start();
 		$decremented = $this->adapter->decrement( $key, $group, $offset );
@@ -636,10 +662,14 @@ class WP_Object_Cache {
 
 	/**
 	 * Removes all cache items from the in-memory runtime cache.
+	 * Also reset the local stat-related tracking for individual operations.
+	 *
 	 * @return true Always returns true.
 	 */
 	public function flush_runtime() {
-		$this->cache = [];
+		$this->cache     = [];
+		$this->group_ops = [];
+
 		return true;
 	}
 
@@ -691,10 +721,10 @@ class WP_Object_Cache {
 	/**
 	 * Close the connections.
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function close() {
-		$this->adapter->close_connections();
+		return $this->adapter->close_connections();
 	}
 
 
@@ -784,8 +814,10 @@ class WP_Object_Cache {
 		$this->adapter->set_with_redundancy( $key, $value, $expire );
 		$elapsed = $this->timer_stop();
 
-		// TODO: Split up or something because multiple calls took place?
-		$this->group_ops_stats( 'set_flush_number', $key, $group, $size, $elapsed, 'replication' );
+		$average_time_elapsed = $elapsed / count( $this->default_mcs );
+		foreach ( $this->default_mcs as $_default_mc ) {
+			$this->group_ops_stats( 'set_flush_number', $key, $group, $size, $average_time_elapsed, 'replication' );
+		}
 	}
 
 	/**
@@ -822,11 +854,10 @@ class WP_Object_Cache {
 			return false;
 		}
 
-		/** @psalm-var int[] $servers_to_update */
 		$servers_to_update = [];
-		foreach ( $values as $index => $value ) {
+		foreach ( $values as $server_string => $value ) {
 			if ( $value < $max ) {
-				$servers_to_update[] = (int) $index;
+				$servers_to_update[] = $server_string;
 			}
 		}
 
@@ -1056,6 +1087,13 @@ class WP_Object_Cache {
 	 */
 	public function group_ops_stats( $op, $keys, $group, $size = null, $time = null, $comment = '' ) {
 		$this->stats_helper->group_ops_stats( $op, $keys, $group, $size, $time, $comment );
+	}
+
+	/**
+	 * Returns the collected raw stats.
+	 */
+	public function get_stats(): array {
+		return $this->stats_helper->get_stats();
 	}
 
 	/**

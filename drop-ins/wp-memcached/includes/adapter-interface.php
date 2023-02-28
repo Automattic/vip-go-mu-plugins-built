@@ -35,7 +35,7 @@ interface Adapter_Interface {
 	/**
 	 * Close the memcached connections.
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function close_connections();
 
@@ -140,10 +140,10 @@ interface Adapter_Interface {
 	/**
 	 * Set a key across all default memcached servers.
 	 *
-	 * @param string $key               The full key, including group & flush prefixes.
-	 * @param mixed  $data              The contents to store in the cache.
-	 * @param int    $expiration        When to expire the cache contents, in seconds.
-	 * @param ?int[]  $servers_to_update Specific default servers to update.
+	 * @param string    $key               The full key, including group & flush prefixes.
+	 * @param mixed     $data              The contents to store in the cache.
+	 * @param int       $expiration        When to expire the cache contents, in seconds.
+	 * @param ?string[] $servers_to_update Specific default servers to update, in string format of "host:port".
 	 *
 	 * @return void
 	 */
@@ -152,9 +152,9 @@ interface Adapter_Interface {
 	/**
 	 * Get a key across all default memcached servers.
 	 *
-	 * @param string $key   The full key, including group & flush prefixes.
+	 * @param string $key The full key, including group & flush prefixes.
 	 *
-	 * @return array<mixed> The array index refers to the same index of the memcached server in the default array.
+	 * @psalm-return array<string, mixed> Key is the server's "host:port", value is returned from Memcached.
 	 */
 	public function get_with_redundancy( $key );
 }

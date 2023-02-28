@@ -149,6 +149,55 @@ class Stats {
 	|--------------------------------------------------------------------------
 	*/
 
+	/**
+	 * Returns the collected raw stats.
+	 */
+	public function get_stats(): array {
+		$stats = [
+			'operation_counts' => $this->stats,
+			'operations'       => [],
+			'groups'           => [],
+			'slow-ops'         => [],
+			'slow-ops-groups'  => [],
+			'totals'           => [
+				'query_time' => $this->time_total,
+				'size'       => $this->size_total,
+			],
+		];
+
+		foreach ( $this->group_ops as $cache_group => $dataset ) {
+			$cache_group = empty( $cache_group ) ? 'default' : $cache_group;
+
+			foreach ( $dataset as $data ) {
+				$operation = $data[0];
+				$op        = [
+					'key'    => $data[1],
+					'size'   => $data[2],
+					'time'   => $data[3],
+					'group'  => $cache_group,
+					'result' => $data[4],
+				];
+
+				if ( 'slow-ops' === $cache_group ) {
+					$key             = 'slow-ops';
+					$groups_key      = 'slow-ops-groups';
+					$op['group']     = $data[5];
+					$op['backtrace'] = $data[6];
+				} else {
+					$key        = 'operations';
+					$groups_key = 'groups';
+				}
+
+				$stats[ $key ][ $operation ][] = $op;
+				if ( ! in_array( $op['group'], $stats[ $groups_key ], true ) ) {
+					$stats[ $groups_key ][] = $op['group'];
+				}
+			}
+		}
+
+		return $stats;
+	}
+
 	public function stats(): void {
 		$this->js_toggle();
 

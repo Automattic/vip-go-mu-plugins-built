@@ -13,6 +13,9 @@ class Memcached_Adapter implements Adapter_Interface {
 	/** @psalm-var array<int, \Memcached> */
 	private array $default_connections = [];
 
+	/** @psalm-var array<string, string> */
+	private array $redundancy_server_keys = [];
+
 	/** @psalm-var array<array{host: string, port: string}> */
 	private array $connection_errors = [];
 
@@ -28,28 +31,29 @@ class Memcached_Adapter implements Adapter_Interface {
 
 		/** @psalm-var array<string,array<string>> $memcached_servers */
 		foreach ( $memcached_servers as $bucket => $addresses ) {
-			$servers = [];
+			$bucket_servers = [];
 
-			foreach ( $addresses as $address ) {
+			foreach ( $addresses as $index => $address ) {
 				$parsed_address = $this->parse_address( $address );
-				$server_weight  = 1;
+				$server         = [
+					'host'   => $parsed_address['host'],
+					'port'   => $parsed_address['port'],
+					'weight' => 1,
+				];
 
-				$servers[] = [ $parsed_address['node'], $parsed_address['port'], $server_weight ];
+				$bucket_servers[] = $server;
 
 				// Prepare individual connections to servers in the default bucket for flush_number redundancy.
 				if ( 'default' === $bucket ) {
-					$memcached = new \Memcached();
-					$memcached->addServer( $parsed_address['node'], $parsed_address['port'], $server_weight );
-					$memcached->setOptions( $this->get_config_options() );
-
-					$this->default_connections[] = $memcached;
+					// Deprecated in this adapter. As long as no requests are made from these pools, the connections should never be established.
+					$this->default_connections[] = $this->create_connection_pool( 'redundancy-' . $index, [ $server ] );
 				}
 			}
 
-			$this->connections[ $bucket ] = new \Memcached();
-			$this->connections[ $bucket ]->addServers( $servers );
-			$this->connections[ $bucket ]->setOptions( $this->get_config_options() );
+			$this->connections[ $bucket ] = $this->create_connection_pool( 'bucket-' . $bucket, $bucket_servers );
 		}
+
+		$this->redundancy_server_keys = $this->get_server_keys_for_redundancy();
 	}
 
 	/*
@@ -91,13 +95,11 @@ class Memcached_Adapter implements Adapter_Interface {
 
 	/**
 	 * Close the memcached connections.
-	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function close_connections() {
-		foreach ( $this->connections as $connection ) {
-			$connection->quit();
-		}
+		// Memcached::quit() closes persistent connections, which we don't want to do.
+		return true;
 	}
 
 	/*
@@ -252,17 +254,19 @@ class Memcached_Adapter implements Adapter_Interface {
 	/**
 	 * Set a key across all default memcached servers.
 	 *
-	 * @param string $key               The full key, including group & flush prefixes.
-	 * @param mixed  $data              The contents to store in the cache.
-	 * @param int    $expiration        When to expire the cache contents, in seconds.
-	 * @param ?int[]  $servers_to_update Specific default servers to update.
+	 * @param string    $key               The full key, including group & flush prefixes.
+	 * @param mixed     $data              The contents to store in the cache.
+	 * @param int       $expiration        When to expire the cache contents, in seconds.
+	 * @param ?string[] $servers_to_update Specific default servers to update, in string format of "host:port".
 	 *
 	 * @return void
 	 */
 	public function set_with_redundancy( $key, $data, $expiration, $servers_to_update = null ) {
-		foreach ( $this->default_connections as $index => $mc ) {
-			if ( is_null( $servers_to_update ) || in_array( $index, $servers_to_update, true ) ) {
-				$mc->set( $key, $data, $expiration );
+		$mc = $this->connections['default'];
+
+		foreach ( $this->redundancy_server_keys as $server_string => $server_key ) {
+			if ( is_null( $servers_to_update ) || in_array( $server_string, $servers_to_update, true ) ) {
+				$mc->setByKey( $server_key, $key, $data, $expiration );
 			}
 		}
 	}
@@ -270,16 +274,17 @@ class Memcached_Adapter implements Adapter_Interface {
 	/**
 	 * Get a key across all default memcached servers.
 	 *
-	 * @param string $key   The full key, including group & flush prefixes.
+	 * @param string $key The full key, including group & flush prefixes.
 	 *
-	 * @return array<mixed> The array index refers to the same index of the memcached server in the default array.
+	 * @psalm-return array<string, mixed> Key is the server's "host:port", value is returned from Memcached.
 	 */
 	public function get_with_redundancy( $key ) {
-		$values = [];
+		$mc = $this->connections['default'];
 
-		foreach ( $this->default_connections as $index => $mc ) {
+		$values = [];
+		foreach ( $this->redundancy_server_keys as $server_string => $server_key ) {
 			/** @psalm-suppress MixedAssignment */
-			$values[ $index ] = $mc->get( $key );
+			$values[ $server_string ] = $mc->getByKey( $server_key, $key );
 		}
 
 		return $values;
@@ -300,24 +305,65 @@ class Memcached_Adapter implements Adapter_Interface {
 	}
 
 	/**
+	 * Servers and configurations are persisted between requests.
+	 * So we only want to add servers when the configuration has changed.
+	 *
+	 * @param string $name
+	 * @psalm-param array<int, array{host: string, port: int, weight: int}> $servers
+	 * @return \Memcached
+	 */
+	private function create_connection_pool( $name, $servers ) {
+		$mc = new \Memcached( $name );
+
+		// Servers and configurations are persisted between requests.
+		/** @psalm-var array<int,array{host: string, port: int, type: string}> $existing_servers */
+		$existing_servers = $mc->getServerList();
+
+		// Check if the servers have changed since they were registered.
+		$needs_refresh = count( $existing_servers ) !== count( $servers );
+		foreach ( $servers as $index => $server ) {
+			$existing_host = $existing_servers[ $index ]['host'] ?? null;
+			$existing_port = $existing_servers[ $index ]['port'] ?? null;
+
+			if ( $existing_host !== $server['host'] || $existing_port !== $server['port'] ) {
+				$needs_refresh = true;
+			}
+		}
+
+		if ( $needs_refresh ) {
+			$mc->resetServerList();
+
+			$servers_to_add = [];
+			foreach ( $servers as $server ) {
+				$servers_to_add[] = [ $server['host'], $server['port'], $server['weight'] ];
+			}
+
+			$mc->addServers( $servers_to_add );
+			$mc->setOptions( $this->get_config_options() );
+		}
+
+		return $mc;
+	}
+
+	/**
 	 * @param string $address
-	 * @psalm-return array{node: string, port: int}
+	 * @psalm-return array{host: string, port: int}
 	 */
 	private function parse_address( string $address ): array {
 		$default_port = 11211;
 
 		if ( 'unix://' == substr( $address, 0, 7 ) ) {
 			// Note: This slighly differs from the memcache adapater, as memcached wants unix:// stripped off.
-			$node = substr( $address, 7 );
+			$host = substr( $address, 7 );
 			$port = 0;
 		} else {
 			$items = explode( ':', $address, 2 );
-			$node  = $items[0];
+			$host  = $items[0];
 			$port  = isset( $items[1] ) ? intval( $items[1] ) : $default_port;
 		}
 
 		return [
-			'node' => $node,
+			'host' => $host,
 			'port' => $port,
 		];
 	}
@@ -334,7 +380,42 @@ class Memcached_Adapter implements Adapter_Interface {
 			\Memcached::OPT_CONNECT_TIMEOUT => 1000,
 			\Memcached::OPT_COMPRESSION     => true,
 			\Memcached::OPT_TCP_NODELAY     => true,
-			\Memcached::OPT_NO_BLOCK        => true,
 		];
+	}
+
+	/**
+	 * We want to find a unique string that, when hashed, will map to each
+	 * of the default servers in our pool. This will allow us to
+	 * talk with each server individually and set a key with redundancy.
+	 *
+	 * @psalm-return array<string, string> Key is the server's "host:port", value is the server_key that accesses it.
+	 */
+	private function get_server_keys_for_redundancy(): array {
+		$default_pool = $this->connections['default'];
+		$servers      = $default_pool->getServerList();
+
+		$server_keys = [];
+		for ( $i = 0; $i < 1000; $i++ ) {
+			$test_key = 'redundancy_key_' . $i;
+
+			/** @psalm-var array{host: string, port: int, weight: int}|false $result */
+			$result = $default_pool->getServerByKey( $test_key );
+
+			if ( ! $result ) {
+				continue;
+			}
+
+			$server_string = $result['host'] . ':' . $result['port'];
+			if ( ! isset( $server_keys[ $server_string ] ) ) {
+				$server_keys[ $server_string ] = $test_key;
+			}
+
+			// Keep going until every server is accounted for (capped at 1000 attempts - which is incredibly unlikely unless there are tons of servers).
+			if ( count( $server_keys ) === count( $servers ) ) {
+				break;
+			}
+		}
+
+		return $server_keys;
 	}
 }

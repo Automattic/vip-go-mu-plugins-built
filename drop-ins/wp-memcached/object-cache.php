@@ -345,12 +345,12 @@ function wp_cache_supports( $feature ) {
  *
  * @global WP_Object_Cache $wp_object_cache Object cache global instance.
  *
- * @return void
+ * @return bool
  */
 function wp_cache_close() {
 	global $wp_object_cache;
 
-	$wp_object_cache->close();
+	return $wp_object_cache->close();
 }
 
 /**

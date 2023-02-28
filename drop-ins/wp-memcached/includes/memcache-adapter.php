@@ -10,7 +10,7 @@ class Memcache_Adapter implements Adapter_Interface {
 	/** @psalm-var array<string, \Memcache> */
 	private array $connections = [];
 
-	/** @psalm-var array<int, \Memcache> */
+	/** @psalm-var array<string, \Memcache> */
 	private array $default_connections = [];
 
 	/** @psalm-var array<array{host: string, port: string}> */
@@ -35,7 +35,7 @@ class Memcache_Adapter implements Adapter_Interface {
 				$config         = $this->get_config_options();
 
 				$this->connections[ $bucket ]->addServer(
-					$parsed_address['node'],
+					$parsed_address['host'],
 					$parsed_address['port'],
 					$config['persistent'],
 					$config['weight'],
@@ -52,7 +52,7 @@ class Memcache_Adapter implements Adapter_Interface {
 					$memcache = new \Memcache();
 
 					$memcache->addServer(
-						$parsed_address['node'],
+						$parsed_address['host'],
 						$parsed_address['port'],
 						$config['persistent'],
 						$config['weight'],
@@ -62,7 +62,7 @@ class Memcache_Adapter implements Adapter_Interface {
 						$config['failure_callback'],
 					);
 
-					$this->default_connections[] = $memcache;
+					$this->default_connections[ $parsed_address['host'] . ':' . $parsed_address['port'] ] = $memcache;
 				}
 			}
 		}
@@ -89,7 +89,7 @@ class Memcache_Adapter implements Adapter_Interface {
 	 * @psalm-return array<int, \Memcache>
 	 */
 	public function get_default_connections() {
-		return $this->default_connections;
+		return array_values( $this->default_connections );
 	}
 
 	/**
@@ -103,13 +103,17 @@ class Memcache_Adapter implements Adapter_Interface {
 
 	/**
 	 * Close the memcached connections.
+	 * Note that Memcache::close() doesn't close persistent connections, but does free up some memory.
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public function close_connections() {
+		// TODO: Should probably "close" $default_connections too?
 		foreach ( $this->connections as $connection ) {
 			$connection->close();
 		}
+
+		return true;
 	}
 
 	/*
@@ -278,16 +282,16 @@ class Memcache_Adapter implements Adapter_Interface {
 	/**
 	 * Set a key across all default memcached servers.
 	 *
-	 * @param string $key               The full key, including group & flush prefixes.
-	 * @param mixed  $data              The contents to store in the cache.
-	 * @param int    $expiration        When to expire the cache contents, in seconds.
-	 * @param ?int[]  $servers_to_update Specific default servers to update.
+	 * @param string    $key               The full key, including group & flush prefixes.
+	 * @param mixed     $data              The contents to store in the cache.
+	 * @param int       $expiration        When to expire the cache contents, in seconds.
+	 * @param ?string[] $servers_to_update Specific default servers to update, in string format of "host:port".
 	 *
 	 * @return void
 	 */
 	public function set_with_redundancy( $key, $data, $expiration, $servers_to_update = null ) {
-		foreach ( $this->default_connections as $index => $mc ) {
-			if ( is_null( $servers_to_update ) || in_array( $index, $servers_to_update, true ) ) {
+		foreach ( $this->default_connections as $server_string => $mc ) {
+			if ( is_null( $servers_to_update ) || in_array( $server_string, $servers_to_update, true ) ) {
 				$mc->set( $key, $data, $expiration );
 			}
 		}
@@ -296,16 +300,16 @@ class Memcache_Adapter implements Adapter_Interface {
 	/**
 	 * Get a key across all default memcached servers.
 	 *
-	 * @param string $key   The full key, including group & flush prefixes.
+	 * @param string $key The full key, including group & flush prefixes.
 	 *
-	 * @return array<mixed> The array index refers to the same index of the memcached server in the default array.
+	 * @psalm-return array<string, mixed> Key is the server's "host:port", value is returned from Memcached.
 	 */
 	public function get_with_redundancy( $key ) {
 		$values = [];
 
-		foreach ( $this->default_connections as $index => $mc ) {
+		foreach ( $this->default_connections as $server_string => $mc ) {
 			/** @psalm-suppress MixedAssignment */
-			$values[ $index ] = $mc->get( $key );
+			$values[ $server_string ] = $mc->get( $key );
 		}
 
 		return $values;
@@ -327,22 +331,22 @@ class Memcache_Adapter implements Adapter_Interface {
 
 	/**
 	 * @param string $address
-	 * @psalm-return array{node: string, port: int}
+	 * @psalm-return array{host: string, port: int}
 	 */
 	private function parse_address( string $address ): array {
 		$default_port = ini_get( 'memcache.default_port' ) ? ini_get( 'memcache.default_port' ) : '11211';
 
 		if ( 'unix://' == substr( $address, 0, 7 ) ) {
-			$node = $address;
+			$host = $address;
 			$port = 0;
 		} else {
 			$items = explode( ':', $address, 2 );
-			$node  = $items[0];
+			$host  = $items[0];
 			$port  = isset( $items[1] ) ? intval( $items[1] ) : intval( $default_port );
 		}
 
 		return [
-			'node' => $node,
+			'host' => $host,
 			'port' => $port,
 		];
 	}
