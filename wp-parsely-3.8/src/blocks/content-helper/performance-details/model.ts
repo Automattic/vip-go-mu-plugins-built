@@ -3,11 +3,6 @@ export interface PerformanceData {
 	avgEngaged: string;
 	date: string;
 	id: number;
-	period: {
-		start: string;
-		end: string;
-		days: number;
-	};
 	referrers: PerformanceReferrerData;
 	dashUrl: string;
 	title: string;

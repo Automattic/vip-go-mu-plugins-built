@@ -1,3 +1,5 @@
+import { removeDaysFromDate } from './date';
+
 export interface AnalyticsApiQueryParams extends AnalyticsApiOptionalQueryParams {
 	type: string,
 }
@@ -31,4 +33,15 @@ export function getApiPeriodParams( days: number ): ApiPeriodRange {
 		period_start: `${ days }d`,
 		period_end: '',
 	};
+}
+
+/**
+ * Gets period start date for API.
+ *
+ * @param {number} days Number of days for which to calculate the period start date.
+ *
+ * @return {string} period start date.
+ */
+export function getApiPeriodStartDate( days: number ): string {
+	return removeDaysFromDate( new Date().toISOString(), days - 1 ) + 'T00:00';
 }

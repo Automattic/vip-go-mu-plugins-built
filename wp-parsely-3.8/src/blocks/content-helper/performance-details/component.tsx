@@ -8,10 +8,12 @@ import { useEffect, useState } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import PerformanceDetailsProvider from './provider';
+import PerformanceDetailsProvider, { PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE } from './provider';
 import { PerformanceData } from './model';
 import { ContentHelperError } from '../content-helper-error';
 import { formatToImpreciseNumber } from '../../shared/functions';
+import { getDateInUserLang, SHORT_DATE_FORMAT_WITHOUT_YEAR } from '../../shared/utils/date';
+import { getApiPeriodStartDate } from '../../shared/utils/api';
 
 // Number of attempts to fetch the data before displaying an error.
 const FETCH_RETRIES = 3;
@@ -79,7 +81,7 @@ function PerformanceDetails() {
 function PerformanceDetailsSections( props: PerformanceSectionProps ) {
 	return (
 		<div className="performance-details-panel">
-			<DataPeriodSection { ...props } />
+			<DataPeriodSection />
 			<GeneralPerformanceSection { ...props } />
 			<ReferrerTypesSection { ...props } />
 			<TopReferrersSection { ...props } />
@@ -91,23 +93,18 @@ function PerformanceDetailsSections( props: PerformanceSectionProps ) {
 /**
  * Outputs the "Period" section, which denotes the period for which data is
  * shown.
- *
- * @param {PerformanceSectionProps} props The props needed to populate the section.
  */
-function DataPeriodSection( props: PerformanceSectionProps ) {
-	const period = props.data.period;
-
-	// Get the date (in short format) on which the period starts.
-	const periodStart = Intl.DateTimeFormat(
-		document.documentElement.lang,
-		{ month: 'short', day: 'numeric' }
-	).format( new Date( period.start ) );
+function DataPeriodSection(): JSX.Element {
+	const periodStart = getDateInUserLang(
+		new Date( getApiPeriodStartDate( PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE ) ),
+		SHORT_DATE_FORMAT_WITHOUT_YEAR,
+	);
 
 	return (
 		<div className="section period">
 			{
 				/* translators: Number of days for which data is being shown */
-				sprintf( __( 'Last %d Days', 'wp-parsely' ), period.days )
+				sprintf( __( 'Last %d Days', 'wp-parsely' ), PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE )
 			}
 			<span>
 				{

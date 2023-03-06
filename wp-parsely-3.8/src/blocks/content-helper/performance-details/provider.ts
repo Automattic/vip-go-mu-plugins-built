@@ -37,7 +37,7 @@ interface ReferrersApiResponse {
 	data: PerformanceReferrerData;
 }
 
-const PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE = 7; // In days.
+export const PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE = 7; // In days.
 
 /**
  * Provides current post details data for use in other components.
@@ -83,13 +83,7 @@ class PerformanceDetailsProvider {
 			return Promise.reject( contentHelperError );
 		}
 
-		const period = {
-			start: this.apiPeriodRange.period_start as string,
-			end: this.apiPeriodRange.period_end as string,
-			days: PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE,
-		};
-
-		return { ...performanceData, referrers: referrerData, period };
+		return { ...performanceData, referrers: referrerData };
 	}
 
 	/**
