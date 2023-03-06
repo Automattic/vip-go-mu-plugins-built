@@ -1,0 +1,20 @@
+parameters:
+  level: 9
+  paths:
+    - bin/
+    - src/
+    - views/
+    - tests/
+    - wp-parsely.php
+    - uninstall.php
+  scanFiles:
+    - vendor/axepress/wp-graphql-stubs/wp-graphql-stubs.php
+    - vendor/php-stubs/wordpress-stubs/wordpress-stubs.php
+    - vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php
+  type_coverage:
+      return_type: 88
+      param_type: 59
+      property_type: 0 # We can't use property types until we support PHP 7.4.
+      print_suggestions: false
+  typeAliases:
+    Asset_Info: 'array{ dependencies: array<string>, version: string }'
