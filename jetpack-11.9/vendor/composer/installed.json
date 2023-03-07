@@ -843,17 +843,17 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v0.6.0",
-            "version_normalized": "0.6.0.0",
+            "version": "v0.6.0.1",
+            "version_normalized": "0.6.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "878123fd2241882af1040086ef859bc25de1583c"
+                "reference": "3e8972f9e4303dad36cf93db933f391ff8f06966"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/878123fd2241882af1040086ef859bc25de1583c",
-                "reference": "878123fd2241882af1040086ef859bc25de1583c",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/3e8972f9e4303dad36cf93db933f391ff8f06966",
+                "reference": "3e8972f9e4303dad36cf93db933f391ff8f06966",
                 "shasum": ""
             },
             "require": {
@@ -868,7 +868,7 @@
                 "automattic/wordbless": "^0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
-            "time": "2023-02-28T17:37:46+00:00",
+            "time": "2023-03-03T20:59:50+00:00",
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -896,7 +896,7 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v0.6.0"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v0.6.0.1"
             },
             "install-path": "../../jetpack_vendor/automattic/jetpack-forms"
         },
@@ -1179,17 +1179,17 @@
         },
         {
             "name": "automattic/jetpack-lazy-images",
-            "version": "v2.1.32",
-            "version_normalized": "2.1.32.0",
+            "version": "v2.1.32.1",
+            "version_normalized": "2.1.32.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-lazy-images.git",
-                "reference": "b9d2ca18acfa5224ef1e369bda3802475d8f69ef"
+                "reference": "072f4c3374507e6466cd54c3fb0806911a6573ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/b9d2ca18acfa5224ef1e369bda3802475d8f69ef",
-                "reference": "b9d2ca18acfa5224ef1e369bda3802475d8f69ef",
+                "url": "https://api.github.com/repos/Automattic/jetpack-lazy-images/zipball/072f4c3374507e6466cd54c3fb0806911a6573ac",
+                "reference": "072f4c3374507e6466cd54c3fb0806911a6573ac",
                 "shasum": ""
             },
             "require": {
@@ -1201,7 +1201,7 @@
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
-            "time": "2023-02-20T19:48:06+00:00",
+            "time": "2023-03-03T20:56:41+00:00",
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -1226,7 +1226,7 @@
             ],
             "description": "Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-lazy-images/tree/v2.1.32"
+                "source": "https://github.com/Automattic/jetpack-lazy-images/tree/v2.1.32.1"
             },
             "install-path": "../../jetpack_vendor/automattic/jetpack-lazy-images"
         },
