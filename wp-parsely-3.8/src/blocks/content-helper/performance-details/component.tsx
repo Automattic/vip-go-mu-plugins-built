@@ -32,9 +32,10 @@ function PerformanceDetails() {
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
 	const [ postDetailsData, setPostDetails ] = useState<PerformanceData>();
-	const provider = new PerformanceDetailsProvider();
 
 	useEffect( () => {
+		const provider = new PerformanceDetailsProvider();
+
 		const fetchPosts = async ( retries: number ) => {
 			provider.getPerformanceDetails()
 				.then( ( result ) => {

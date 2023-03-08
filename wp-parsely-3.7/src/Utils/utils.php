@@ -121,7 +121,7 @@ function get_int_query_var( $var ): int {
 	 *
 	 * @var int
 	 */
-	return get_query_var( $var );
+	return get_query_var( $var, 0 );
 }
 
 /**

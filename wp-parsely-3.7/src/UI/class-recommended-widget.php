@@ -141,7 +141,7 @@ final class Recommended_Widget extends WP_Widget {
 		// Set up the variables.
 		$api_url = $this->get_api_url(
 			$this->parsely->get_site_id(),
-			$instance['published_within'],
+			(int) $instance['published_within'], // @phpstan-ignore-line
 			$instance['sort'],
 			$instance['boost'],
 			(int) $instance['return_limit'] // @phpstan-ignore-line

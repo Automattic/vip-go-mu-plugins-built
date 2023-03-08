@@ -73,7 +73,7 @@ final class Admin_Bar {
 		 */
 		$current_object = $GLOBALS['wp_the_query']->get_queried_object();
 
-		if ( null === $current_object || '' === $current_object->post_type ) {
+		if ( null === $current_object || null === $current_object->post_type || '' === $current_object->post_type ) {
 			return;
 		}
 

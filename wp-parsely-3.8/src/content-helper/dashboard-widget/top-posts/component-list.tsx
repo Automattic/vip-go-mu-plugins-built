@@ -23,9 +23,10 @@ function TopPostList() {
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
 	const [ posts, setPosts ] = useState<TopPostData[]>( [] );
-	const provider = new DashboardWidgetProvider();
 
 	useEffect( () => {
+		const provider = new DashboardWidgetProvider();
+
 		const fetchPosts = async ( retries: number ) => {
 			provider.getTopPosts()
 				.then( ( result ): void => {

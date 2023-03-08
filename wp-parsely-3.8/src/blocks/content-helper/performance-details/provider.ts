@@ -72,7 +72,7 @@ class PerformanceDetailsProvider {
 		}
 
 		// Get post URL.
-		const postUrl = editor.getPermalink();
+		const postUrl: string = editor.getPermalink();
 
 		// Fetch all needed results using our WordPress endpoints.
 		let performanceData, referrerData;

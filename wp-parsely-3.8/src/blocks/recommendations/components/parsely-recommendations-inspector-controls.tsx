@@ -12,7 +12,6 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -40,7 +39,7 @@ const ParselyRecommendationsInspectorControls = ( {
 				<TextControl
 					label={ __( 'Title', 'wp-parsely' ) }
 					value={ title }
-					onChange={ useCallback( ( value: string ): void => setAttributes( { title: value } ), [ title ] ) }
+					onChange={ ( value: string ): void => setAttributes( { title: value } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -48,7 +47,7 @@ const ParselyRecommendationsInspectorControls = ( {
 					label={ __( 'Maximum Results', 'wp-parsely' ) }
 					min={ 1 }
 					max={ 25 }
-					onChange={ useCallback( ( value: number ): void => setAttributes( { limit: value } ), [ limit ] ) }
+					onChange={ ( value: number ): void => setAttributes( { limit: value } ) }
 					value={ limit }
 				/>
 			</PanelRow>
@@ -56,7 +55,7 @@ const ParselyRecommendationsInspectorControls = ( {
 				<ToggleControl
 					label={ __( 'Open Links in New Tab', 'wp-parsely' ) }
 					checked={ openlinksinnewtab }
-					onChange={ useCallback( (): void => setAttributes( { openlinksinnewtab: ! openlinksinnewtab } ), [ openlinksinnewtab ] ) }
+					onChange={ (): void => setAttributes( { openlinksinnewtab: ! openlinksinnewtab } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -68,7 +67,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							: __( 'Not showing images', 'wp-parsely' )
 					}
 					checked={ showimages }
-					onChange={ useCallback( (): void => setAttributes( { showimages: ! showimages } ), [ showimages ] ) }
+					onChange={ (): void => setAttributes( { showimages: ! showimages } ) }
 				/>
 			</PanelRow>
 			{ showimages && (
@@ -98,7 +97,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							value: 'pub_date',
 						},
 					] }
-					onChange={ useCallback( ( value: string ): void => setAttributes( { sort: value } ), [ sort ] ) }
+					onChange={ ( value: string ): void => setAttributes( { sort: value } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -183,7 +182,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							value: 'pi_referrals',
 						},
 					] }
-					onChange={ useCallback( ( value: string ): void => setAttributes( { boost: value } ), [ boost ] ) }
+					onChange={ ( value: string ): void => setAttributes( { boost: value } ) }
 				/>
 			</PanelRow>
 		</PanelBody>
