@@ -55,7 +55,7 @@ final class Analytics_Posts_API_Proxy extends Base_API_Proxy {
 				return (object) array(
 					'author'         => $item->author,
 					'dashUrl'        => Parsely::get_dash_url( $site_id, $item->url ),
-					'date'           => $item->pub_date ? wp_date( $date_format, strtotime( $item->pub_date ) ) : '',
+					'date'           => $item->pub_date ? wp_date( $date_format, strtotime( $item->pub_date ) ) : null,
 					// Unique ID (can be replaced by Parse.ly API ID if it becomes available).
 					'id'             => $item->url,
 					// WordPress Post ID (0 if the post cannot be found, might not be unique).

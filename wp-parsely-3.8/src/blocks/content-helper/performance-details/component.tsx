@@ -12,7 +12,7 @@ import PerformanceDetailsProvider, { PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE } fr
 import { PerformanceData } from './model';
 import { ContentHelperError } from '../content-helper-error';
 import { formatToImpreciseNumber } from '../../shared/functions';
-import { getDateInUserLang, SHORT_DATE_FORMAT_WITHOUT_YEAR } from '../../shared/utils/date';
+import { getSmartShortDate } from '../../shared/utils/date';
 import { getApiPeriodStartDate } from '../../shared/utils/api';
 
 // Number of attempts to fetch the data before displaying an error.
@@ -96,9 +96,8 @@ function PerformanceDetailsSections( props: PerformanceSectionProps ) {
  * shown.
  */
 function DataPeriodSection(): JSX.Element {
-	const periodStart = getDateInUserLang(
+	const periodStart = getSmartShortDate(
 		new Date( getApiPeriodStartDate( PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE ) ),
-		SHORT_DATE_FORMAT_WITHOUT_YEAR,
 	);
 
 	return (

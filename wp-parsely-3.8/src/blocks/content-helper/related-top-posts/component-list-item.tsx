@@ -11,6 +11,7 @@ import ViewsIcon from '../icons/views-icon';
 import OpenLinkIcon from '../icons/open-link-icon';
 import EditIcon from '../icons/edit-icon';
 import { getPostEditUrl } from '../../shared/utils/post';
+import { getSmartShortDate } from '../../../blocks/shared/utils/date';
 
 interface RelatedTopPostListItemProps {
 	post: RelatedTopPostData;
@@ -36,7 +37,7 @@ function RelatedTopPostListItem( { post }: RelatedTopPostListItemProps ): JSX.El
 				}
 			</div>
 			<p className="parsely-top-post-info">
-				<span className="parsely-top-post-date"><span className="screen-reader-text">Date </span>{ post.date }</span>
+				<span className="parsely-top-post-date"><span className="screen-reader-text">Date </span>{ getSmartShortDate( new Date( post.date ) ) }</span>
 				<span className="parsely-top-post-author"><span className="screen-reader-text">Author </span>{ post.author }</span>
 				<span className="parsely-top-post-views"><span className="screen-reader-text">Number of Views </span><ViewsIcon />{ post.views }</span>
 			</p>

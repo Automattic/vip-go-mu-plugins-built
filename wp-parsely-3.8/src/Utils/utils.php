@@ -109,24 +109,6 @@ function get_string_query_var( $var ): string {
 }
 
 /**
- * Gets 'int' query variable from WP_Query class.
- *
- * @since 3.7.0
- *
- * @param string $var Variable key to retrieve.
- *
- * @return int
- */
-function get_int_query_var( $var ): int {
-	/**
-	 * Variable.
-	 *
-	 * @var int
-	 */
-	return get_query_var( $var, 0 );
-}
-
-/**
  * Gets site date format.
  *
  * @since 3.7.0

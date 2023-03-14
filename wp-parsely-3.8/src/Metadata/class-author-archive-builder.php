@@ -13,7 +13,6 @@ namespace Parsely\Metadata;
 use WP_User;
 use stdClass;
 
-use function Parsely\Utils\get_int_query_var;
 use function Parsely\Utils\get_string_query_var;
 
 /**
@@ -56,7 +55,10 @@ class Author_Archive_Builder extends Metadata_Builder {
 		if ( false === $author ) {
 			$author = get_user_by( 'slug', $author_username );
 			if ( false === $author ) {
-				$author = get_userdata( get_int_query_var( 'author' ) );
+				$author_id = get_query_var( 'author' );
+				if ( is_numeric( $author_id ) ) {
+					$author = get_userdata( (int) $author_id );
+				}
 			}
 		}
 
