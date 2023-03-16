@@ -337,7 +337,7 @@ class Admin_Columns_Parsely_Stats {
 			$metrics         = $post_analytics['metrics'];
 			$views           = isset( $metrics['views'] ) ? $metrics['views'] : 0;
 			$visitors        = isset( $metrics['visitors'] ) ? $metrics['visitors'] : 0;
-			$engaged_seconds = isset( $metrics['avg_engaged'] ) ? $metrics['avg_engaged'] * 60 : 0;
+			$engaged_seconds = isset( $metrics['avg_engaged'] ) ? round( $metrics['avg_engaged'], 2 ) * 60 : 0;
 
 			/**
 			 * Variable.

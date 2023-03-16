@@ -149,7 +149,7 @@ function get_time_format(): string {
  * @return string
  */
 function get_formatted_number( $number ): string {
-	$number_formatter = new NumberFormatter( 'en_US', NumberFormatter::PADDING_POSITION );
+	$number_formatter = new NumberFormatter( 'en', NumberFormatter::PADDING_POSITION );
 	$formatted_number = $number_formatter->format( $number );
 
 	if ( false === $formatted_number ) {
@@ -172,7 +172,7 @@ function get_formatted_number( $number ): string {
  * @return string
  */
 function get_formatted_time( $seconds ): string {
-	$time_formatter = new NumberFormatter( 'en_US', NumberFormatter::DURATION );
+	$time_formatter = new NumberFormatter( 'en', NumberFormatter::DURATION );
 	$formatted_time = $time_formatter->format( $seconds );
 
 	if ( false === $formatted_time ) {

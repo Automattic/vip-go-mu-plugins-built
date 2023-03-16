@@ -69,17 +69,24 @@ final class Admin_Bar {
 		/**
 		 * Variable.
 		 *
-		 * @var WP_Post|null
+		 * @var \WP_Term|\WP_Post_Type|WP_Post|\WP_User|null
 		 */
-		$current_object = $GLOBALS['wp_the_query']->get_queried_object();
+		$queried_object = $GLOBALS['wp_the_query']->get_queried_object();
 
-		if ( null === $current_object || null === $current_object->post_type || '' === $current_object->post_type ) {
+		if ( null === $queried_object || WP_Post::class !== get_class( $queried_object ) ) {
 			return;
 		}
 
-		$post_type_object = get_post_type_object( $current_object->post_type );
-		if ( null !== $post_type_object && $post_type_object->show_in_admin_bar && Dashboard_Link::can_show_link( $current_object, $this->parsely ) ) {
-			$href = Dashboard_Link::generate_url( $current_object, $this->parsely->get_site_id(), 'wp-page-single', 'admin-bar' );
+		/**
+		 * Variable.
+		 *
+		 * @var WP_Post
+		 */
+		$current_post = $queried_object;
+
+		$post_type_object = get_post_type_object( $current_post->post_type );
+		if ( null !== $post_type_object && $post_type_object->show_in_admin_bar && Dashboard_Link::can_show_link( $current_post, $this->parsely ) ) {
+			$href = Dashboard_Link::generate_url( $current_post, $this->parsely->get_site_id(), 'wp-page-single', 'admin-bar' );
 
 			// Not adding the link if there were issues generating the URL.
 			if ( '' !== $href ) {

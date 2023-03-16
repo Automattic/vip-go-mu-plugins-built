@@ -511,13 +511,22 @@ class Post_Builder extends Metadata_Builder {
 	 * @return array<string> The tags of the post represented by the post id.
 	 */
 	private function get_tags( int $post_id ): array {
-		$tags      = array();
+		/**
+		 * Variable.
+		 *
+		 * @var array<\WP_Term|null>|\WP_Error
+		 */
 		$post_tags = wp_get_post_tags( $post_id );
+		$tags      = array();
+
 		if ( ! is_wp_error( $post_tags ) ) {
 			foreach ( $post_tags as $wp_tag ) {
-				$tags[] = $wp_tag->name;
+				if ( null !== $wp_tag ) {
+					$tags[] = $wp_tag->name;
+				}
 			}
 		}
+
 		return $tags;
 	}
 
