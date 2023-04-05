@@ -177,6 +177,10 @@ class SyncManager extends SyncManagerAbstract {
 	public function action_edited_term( $term_id, $tt_id, $taxonomy ) {
 		global $wpdb;
 
+		if ( $this->kill_sync() ) {
+			return;
+		}
+
 		/**
 		 * Filter to whether skip a sync during autosave, defaults to true
 		 *
@@ -290,6 +294,10 @@ class SyncManager extends SyncManagerAbstract {
 	 * @since  3.5
 	 */
 	public function action_set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+		if ( $this->kill_sync() ) {
+			return;
+		}
+
 		$post_id = $object_id;
 
 		$indexable = Indexables::factory()->get( 'post' );
