@@ -6,11 +6,15 @@
  * @package automattic/jetpack
  */
 
-if ( isset( $GLOBALS['bitly'] ) ) {
-	if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
-		remove_action( 'wp_head', array( $GLOBALS['bitly'], 'og_tags' ) );
-	}
+if ( class_exists( 'Bitly' ) ) {
+
+	if ( isset( $GLOBALS['bitly'] ) ) {
+		if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
+			remove_action( 'wp_head', array( $GLOBALS['bitly'], 'og_tags' ) );
+		}
+
 		add_action( 'wp_head', 'jetpack_bitly_og_tag', 100 );
+	}
 }
 
 /**

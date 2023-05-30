@@ -55,7 +55,7 @@
 				collapseButton.addEventListener( 'click', function ( event ) {
 					// Let's the core event listener be triggered first.
 					setTimeout( function () {
-						saveSidebarIsExpanded( event.target.parentNode.getAttribute( 'aria-expanded' ) );
+						saveSidebarIsExpanded( event.target.parentNode.ariaExpanded );
 					}, 50 );
 				} );
 			}

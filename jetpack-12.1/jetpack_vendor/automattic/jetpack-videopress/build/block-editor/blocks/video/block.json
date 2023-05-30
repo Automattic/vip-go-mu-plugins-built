@@ -19,9 +19,6 @@
 		"autoplay": {
 			"type": "boolean"
 		},
-		"anchor": {
-			"type": "string"
-		},
 		"title": {
 			"type": "string"
 		},
@@ -29,7 +26,9 @@
 			"type": "string"
 		},
 		"caption": {
-			"type": "string"
+			"type": "string",
+			"source": "html",
+			"selector": "figcaption"
 		},
 		"controls": {
 			"type": "boolean",
@@ -127,6 +126,6 @@
 	"textdomain": "jetpack-videopress",
 	"editorScript": "jetpack-videopress-video-block",
 	"editorStyle": "jetpack-videopress-video-block",
-	"style": "jetpack-videopress-video-block-view",
+	"style": "file:style-index.css",
 	"viewScript": "jetpack-videopress-video-block-view"
 }

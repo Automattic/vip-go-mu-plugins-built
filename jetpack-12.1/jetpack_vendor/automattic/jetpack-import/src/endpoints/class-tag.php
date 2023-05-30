@@ -13,14 +13,9 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Tag extends \WP_REST_Terms_Controller {
 
 	/**
-	 * Base class
-	 */
-	use Import;
-
-	/**
 	 * The Import ID add a new item to the schema.
 	 */
-	use Import_ID;
+	use Import;
 
 	/**
 	 * Whether the controller supports batching. Default true.

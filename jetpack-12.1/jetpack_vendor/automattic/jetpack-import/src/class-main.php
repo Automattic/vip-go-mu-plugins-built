@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.6.1';
 
 	/**
 	 * A list of all the routes.
@@ -69,7 +69,6 @@ class Main {
 			'categories'     => new Endpoints\Category(),
 			'comments'       => new Endpoints\Comment(),
 			'custom-css'     => new Endpoints\Custom_CSS(),
-			'end'            => new Endpoints\End(),
 			'global-styles'  => new Endpoints\Global_Style(),
 			'media'          => new Endpoints\Attachment(),
 			'menu-items'     => new Endpoints\Menu_Item(),
@@ -77,10 +76,9 @@ class Main {
 			'navigation'     => new Endpoints\Navigation(),
 			'pages'          => new Endpoints\Page(),
 			'posts'          => new Endpoints\Post(),
-			'start'          => new Endpoints\Start(),
 			'tags'           => new Endpoints\Tag(),
-			'template-parts' => new Endpoints\Template_Part(),
 			'templates'      => new Endpoints\Template(),
+			'template-parts' => new Endpoints\Template_Part(),
 		);
 
 		/**

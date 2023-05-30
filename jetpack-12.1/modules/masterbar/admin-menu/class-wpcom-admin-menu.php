@@ -46,7 +46,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 		$this->add_inbox_menu();
-		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -360,9 +359,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function remove_gutenberg_menu() {
+	public function add_gutenberg_menus() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
+		parent::add_gutenberg_menus();
 	}
 
 	/**

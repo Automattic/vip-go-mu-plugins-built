@@ -37,13 +37,6 @@ class Social extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-social';
 
 	/**
-	 * Social has a standalone plugin
-	 *
-	 * @var bool
-	 */
-	public static $has_standalone_plugin = true;
-
-	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string
@@ -128,19 +121,15 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
-	 * Get the URL where the user manages the product.
-	 *
-	 * If the standalone plugin is active,
-	 * it will redirect to the standalone plugin settings page.
-	 * Otherwise, it will redirect to the Jetpack settings page.
+	 * Get the URL where the user manages the product
 	 *
 	 * @return string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_standalone_plugin_active() ) {
+		if ( static::is_jetpack_plugin_active() ) {
+			return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+		} elseif ( static::is_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-social' );
 		}
-
-		return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
 	}
 }

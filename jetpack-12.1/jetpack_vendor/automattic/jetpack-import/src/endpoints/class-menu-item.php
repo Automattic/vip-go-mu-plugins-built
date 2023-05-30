@@ -13,14 +13,9 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Menu_Item extends \WP_REST_Menu_Items_Controller {
 
 	/**
-	 * Base class
-	 */
-	use Import;
-
-	/**
 	 * The Import ID add a new item to the schema.
 	 */
-	use Import_ID;
+	use Import;
 
 	/**
 	 * Whether the controller supports batching. Default true.

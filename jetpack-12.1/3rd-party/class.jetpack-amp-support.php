@@ -558,3 +558,7 @@ class Jetpack_AMP_Support {
 		return $options_safelist;
 	}
 }
+
+add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
+
+add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );

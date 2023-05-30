@@ -162,7 +162,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		$modules              = apply_filters( 'jetpack_modules_list_table_items', Jetpack_Admin::init()->get_modules() );
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
 		$module_tags          = array_merge( ...array_values( $array_of_module_tags ) );
-		$module_tags          = array_map( 'jetpack_get_module_i18n_tag', $module_tags );
 		$module_tags_unique   = array_count_values( $module_tags );
 		ksort( $module_tags_unique );
 
@@ -225,7 +224,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		if ( ! empty( $_REQUEST['module_tag'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 			$module_tag = sanitize_text_field( wp_unslash( $_REQUEST['module_tag'] ) );
-			if ( ! in_array( $module_tag, array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] ), true ) ) {
+			if ( ! in_array( $module_tag, $module['module_tags'], true ) ) {
 				return false;
 			}
 		}
@@ -418,7 +417,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 */
 	public function column_module_tags( $item ) {
 		$module_tags = array();
-		foreach ( array_map( 'jetpack_get_module_i18n_tag', $item['module_tags'] ) as $module_tag ) {
+		foreach ( $item['module_tags'] as $module_tag ) {
 			$module_tags[] = sprintf( '<a href="%3$s" data-title="%2$s">%1$s</a>', esc_html( $module_tag ), esc_attr( $module_tag ), esc_url( add_query_arg( 'module_tag', rawurlencode( $module_tag ) ) ) );
 		}
 		return implode( ', ', $module_tags );

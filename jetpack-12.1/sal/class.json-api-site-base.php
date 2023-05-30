@@ -483,8 +483,8 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function is_wpcom_staging_site() {
-		if ( function_exists( 'is_blog_wpcom_staging' ) ) {
-			return is_blog_wpcom_staging( $this->blog_id );
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'staging_site' );
 		}
 		return false;
 	}
@@ -1487,16 +1487,20 @@ abstract class SAL_Site {
 	/**
 	 * Get site option for the production blog id (if is a WP.com Staging Site).
 	 *
-	 * @see class.json-api-site-jetpack.php for implementation.
+	 * @return string
 	 */
-	abstract public function get_wpcom_production_blog_id();
+	public function get_wpcom_production_blog_id() {
+		return get_option( 'wpcom_production_blog_id', '' );
+	}
 
 	/**
 	 * Get site option for the staging blog ids (if it has them)
 	 *
-	 * @see class.json-api-site-jetpack.php for implementation.
+	 * @return string
 	 */
-	abstract public function get_wpcom_staging_blog_ids();
+	public function get_wpcom_staging_blog_ids() {
+		return get_option( 'wpcom_staging_blog_ids', array() );
+	}
 
 	/**
 	 * Get the site's Blaze eligibility status.

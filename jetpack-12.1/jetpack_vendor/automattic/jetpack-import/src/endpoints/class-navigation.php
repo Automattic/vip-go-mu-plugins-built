@@ -13,14 +13,9 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Navigation extends \WP_REST_Posts_Controller {
 
 	/**
-	 * Base class
-	 */
-	use Import;
-
-	/**
 	 * The Import ID add a new item to the schema.
 	 */
-	use Import_ID;
+	use Import;
 
 	/**
 	 * Whether the controller supports batching.

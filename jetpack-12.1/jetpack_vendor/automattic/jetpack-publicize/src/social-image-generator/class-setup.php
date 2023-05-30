@@ -73,9 +73,7 @@ class Setup {
 			return;
 		}
 
-		$settings = new Settings();
-
-		if ( ! $settings->is_available() ) {
+		if ( ! $publicize->has_social_image_generator_feature() ) {
 			return;
 		}
 
@@ -83,12 +81,14 @@ class Setup {
 			return;
 		}
 
-		// Set SIG to be enabled by default for new posts if the toggle is on.
+		if ( ! ( new Settings() )->is_enabled() ) {
+			return;
+		}
+
 		$post_settings = new Post_Settings( $post_id );
 		if (
 			! $update &&
 			'auto-draft' === $post->post_status &&
-			$settings->is_enabled() &&
 			empty( $post_settings->get_settings( true ) )
 		) {
 			$post_settings->update_setting( 'enabled', true );
@@ -96,10 +96,6 @@ class Setup {
 		}
 
 		if ( $post->post_status === 'auto-draft' ) {
-			return;
-		}
-
-		if ( ! $post_settings->is_enabled() ) {
 			return;
 		}
 
