@@ -220,6 +220,14 @@ class Dedicated_Sender {
 	public static function try_lock_spawn_request() {
 		$current_microtime = (string) microtime( true );
 
+		if ( apply_filters( '_vip_disable_dedicated_sync_spawning', false ) ) {
+			return false;
+		}
+
+		if ( true !== wp_cache_add( 'extra_dedicated_sync_spawn_lock', 'locked', 'vip', self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
+			return false;
+		}
+
 		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
 
 		if ( ! empty( $current_lock_value ) ) {
