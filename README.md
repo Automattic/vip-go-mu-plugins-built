@@ -1,8 +1,8 @@
-# VIP Go mu-plugins
+# VIP MU Plugins Built Mirror
 
-This is the mu-plugins folder for VIP Go, assembled without submodules for convenience.
+## This is a built version for the `develop` branch. This not what's deployed to production or staging.
 
-Please see our documentation on setting up your [local development environment](https://docs.wpvip.com/how-tos/set-up-a-vip-go-local-development-site/).
+Please see our documentation on setting up your [local development environment](https://docs.wpvip.com/how-tos/local-development/).
 
 ## Pull Requests
 
