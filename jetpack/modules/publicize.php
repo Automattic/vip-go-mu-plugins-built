@@ -10,15 +10,23 @@
  * Auto Activate: No
  * Module Tags: Social, Recommended
  * Feature: Engagement
- * Additional Search Queries: facebook, jetpack publicize, twitter, tumblr, linkedin, social, tweet, connections, sharing, social media, automated, automated sharing, auto publish, auto tweet and like, auto tweet, facebook auto post, facebook posting
+ * Additional Search Queries: facebook, jetpack publicize, tumblr, linkedin, social, tweet, connections, sharing, social media, automated, automated sharing, auto publish, auto tweet and like, auto tweet, facebook auto post, facebook posting
  *
  * @package automattic/jetpack
  */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
  * Class Jetpack_Publicize
  */
 class Jetpack_Publicize {
+	/**
+	 * Current status about Jetpack modules.
+	 *
+	 * @var Modules
+	 */
+	public $modules;
 
 	/**
 	 * If Publicize is executing within Jetpack.
@@ -96,7 +104,6 @@ class Jetpack_Publicize {
 				}
 			}
 		);
-		$publicize_ui->in_jetpack = $this->in_jetpack;
 	}
 }
 

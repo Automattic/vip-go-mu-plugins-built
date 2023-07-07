@@ -96,7 +96,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_block_update_meta' ),
 				'permission_callback' => function () {
-					return current_user_can( 'edit_posts' );
+					return Data::can_perform_action() && current_user_can( 'edit_posts' );
 				},
 			)
 		);
@@ -141,7 +141,22 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'videopress_block_update_poster' ),
 					'permission_callback' => function () {
-						return current_user_can( 'upload_files' );
+						return Data::can_perform_action() && current_user_can( 'upload_files' );
+					},
+				),
+			)
+		);
+
+		// Endpoint to know if the video metadata is editable.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<video_guid>\w+)/check-ownership/(?P<post_id>\d+)/',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'videopress_video_belong_to_site' ),
+					'permission_callback' => function () {
+						return Data::can_perform_action() && current_user_can( 'upload_files' );
 					},
 				),
 			)
@@ -155,7 +170,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_upload_jwt' ),
 				'permission_callback' => function () {
-					return current_user_can( 'upload_files' );
+					return Data::can_perform_action() && current_user_can( 'upload_files' );
 				},
 			)
 		);
@@ -172,6 +187,32 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+	}
+
+	/**
+	 * Check whether the video belongs to the current site,
+	 * considering the given post_id and the video_guid.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response True if the video belongs to the current site, false otherwise.
+	 */
+	public function videopress_video_belong_to_site( $request ) {
+		$post_id    = $request->get_param( 'post_id' );
+		$video_guid = $request->get_param( 'video_guid' );
+
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$found_guid = get_post_meta( $post_id, 'videopress_guid', true );
+		} else {
+			$blog_id    = get_current_blog_id();
+			$info       = video_get_info_by_blogpostid( $blog_id, $post_id );
+			$found_guid = $info->guid;
+		}
+
+		if ( ! $found_guid ) {
+			return rest_ensure_response( array( 'video-belong-to-site' => false ) );
+		}
+
+		return rest_ensure_response( array( 'video-belong-to-site' => $found_guid === $video_guid ) );
 	}
 
 	/**
@@ -495,6 +536,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				if ( isset( $json_params['caption'] ) ) {
 					$meta['videopress']['caption'] = $post_excerpt;
 					$should_update_meta            = true;
+				}
+
+				if ( isset( $json_params['poster'] ) ) {
+					$meta['videopress']['poster'] = $json_params['poster'];
+					$should_update_meta           = true;
 				}
 
 				if ( isset( $json_params['allow_download'] ) ) {

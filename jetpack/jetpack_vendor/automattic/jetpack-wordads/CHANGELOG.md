@@ -5,6 +5,102 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.44] - 2023-06-26
+### Changed
+- Updated package dependencies. [#31468]
+
+## [0.2.43] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [0.2.42] - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+## [0.2.41] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.2.40] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.2.39] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.2.38] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.2.37] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.2.36] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.2.36] - 2023-03-27
+### Changed
+- Updated package dependencies. [#29632]
+
+## [0.2.35] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [0.2.34] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.2.33] - 2023-02-28
+### Changed
+- Updated package dependencies.
+
+## [0.2.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [0.2.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [0.2.30] - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## [0.2.29] - 2023-01-26
+### Changed
+- Minor internal updates.
+
+## [0.2.28] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [0.2.27] - 2022-12-19
+### Changed
+- Updated package dependencies. [#27887, #27916]
+
+## [0.2.26] - 2022-12-06
+### Changed
+- Updated package dependencies. [#27688, #27696, #27697]
+
+## [0.2.25] - 2022-11-28
+### Changed
+- Updated package dependencies. [#26069]
+
+## [0.2.24] - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## [0.2.23] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [0.2.22] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
 ## [0.2.21] - 2022-10-25
 ### Changed
 - Updated package dependencies. [#26705]
@@ -117,6 +213,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.2.44]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.43...v0.2.44
+[0.2.43]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.42...v0.2.43
+[0.2.42]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.41...v0.2.42
+[0.2.41]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.40...v0.2.41
+[0.2.40]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.39...v0.2.40
+[0.2.39]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.38...v0.2.39
+[0.2.38]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.37...v0.2.38
+[0.2.37]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.36...v0.2.37
+[0.2.36]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.35...v0.2.36
+[0.2.35]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.34...v0.2.35
+[0.2.34]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.33...v0.2.34
+[0.2.33]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.32...v0.2.33
+[0.2.32]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.31...v0.2.32
+[0.2.31]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.30...v0.2.31
+[0.2.30]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.29...v0.2.30
+[0.2.29]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.28...v0.2.29
+[0.2.28]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.27...v0.2.28
+[0.2.27]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.26...v0.2.27
+[0.2.26]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.25...v0.2.26
+[0.2.25]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.24...v0.2.25
+[0.2.24]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.23...v0.2.24
+[0.2.23]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.22...v0.2.23
+[0.2.22]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.21...v0.2.22
 [0.2.21]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.20...v0.2.21
 [0.2.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.19...v0.2.20
 [0.2.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.18...v0.2.19

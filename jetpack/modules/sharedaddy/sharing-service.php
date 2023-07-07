@@ -10,6 +10,8 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -105,6 +107,8 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+			'mastodon'         => 'Share_Mastodon',
+			'nextdoor'         => 'Share_Nextdoor',
 		);
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
@@ -275,7 +279,7 @@ class Sharing_Service {
 		 *
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
-		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
+		if ( ! is_array( $options ) || ! isset( $options['button_style'] ) || ! isset( $options['global'] ) ) {
 			$global_options = array( 'global' => $this->get_global_options() );
 			$options        = is_array( $options )
 				? array_merge( $options, $global_options )
@@ -348,7 +352,7 @@ class Sharing_Service {
 		$blog = apply_filters( 'sharing_services_enabled', $blog );
 
 		// Add CSS for NASCAR
-		if ( count( $blog['visible'] ) || count( $blog['hidden'] ) ) {
+		if ( ( is_countable( $blog['visible'] ) && count( $blog['visible'] ) ) || ( is_countable( $blog['hidden'] ) && count( $blog['hidden'] ) ) ) {
 			add_filter( 'post_flair_block_css', 'post_flair_service_enabled_sharing' );
 		}
 
@@ -581,8 +585,8 @@ class Sharing_Service {
 
 		$ret = wp_cache_get( $cache_key, 'sharing' );
 		if ( $ret === false ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
-			$ret = (int) $wpdb->get_var( $sql ); // db call ok
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Prepared above.
+			$ret = (int) $wpdb->get_var( $sql );
 			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 		return $ret;
@@ -621,7 +625,7 @@ class Sharing_Service {
 		$cache_key = "sharing_service_get_posts_total_{$blog_id}";
 		$my_data   = wp_cache_get( $cache_key, 'sharing' );
 		if ( $my_data === false ) {
-			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // db call ok
+			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			wp_cache_set( $cache_key, $my_data, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 
@@ -897,11 +901,10 @@ function sharing_add_header() {
 		$service->display_header();
 	}
 
-	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
+	if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) && sharing_maybe_enqueue_scripts() ) {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
 		wp_enqueue_style( 'social-logos' );
 	}
-
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
@@ -958,8 +961,15 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST &&
-		isset( $_GET['context'] ) && 'edit' === $_GET['context'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return $text;
+	}
+
+	// Do not output sharing buttons for ActivityPub requests.
+	if (
+		function_exists( '\Activitypub\is_activitypub_request' )
+		&& \Activitypub\is_activitypub_request()
+	) {
 		return $text;
 	}
 
@@ -1084,7 +1094,7 @@ function sharing_display( $text = '', $echo = false ) {
 		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
-		if ( count( $enabled['all'] ) > 0 ) {
+		if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.
@@ -1122,10 +1132,12 @@ function sharing_display( $text = '', $echo = false ) {
 				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
 			}
 
-			$parts   = array();
-			$parts[] = $visible;
-			if ( count( $enabled['hidden'] ) > 0 ) {
-				if ( count( $enabled['visible'] ) > 0 ) {
+			$parts         = array();
+			$parts[]       = $visible;
+			$count_hidden  = is_countable( $enabled['hidden'] ) ? count( $enabled['hidden'] ) : 0;
+			$count_visible = is_countable( $enabled['visible'] ) ? count( $enabled['visible'] ) : 0;
+			if ( $count_hidden > 0 ) {
+				if ( $count_visible > 0 ) {
 					$expand = __( 'More', 'jetpack' );
 				} else {
 					$expand = __( 'Share', 'jetpack' );
@@ -1149,22 +1161,21 @@ function sharing_display( $text = '', $echo = false ) {
 				}
 			}
 
-			if ( count( $enabled['hidden'] ) > 0 ) {
+			if ( $count_hidden > 0 ) {
 				$sharing_content .= '<div class="sharing-hidden"><div class="inner" style="display: none;';
 
-				if ( count( $enabled['hidden'] ) === 1 ) {
+				if ( $count_hidden === 1 ) {
 					$sharing_content .= 'width:150px;';
 				}
 
 				$sharing_content .= '">';
 
-				if ( count( $enabled['hidden'] ) === 1 ) {
+				if ( $count_hidden === 1 ) {
 					$sharing_content .= '<ul style="background-image:none;">';
 				} else {
 					$sharing_content .= '<ul>';
 				}
 
-				$count = 1;
 				foreach ( $enabled['hidden'] as $service ) {
 					// Individual HTML for sharing service.
 					$klasses = array( 'share-' . $service->get_class() );
@@ -1177,12 +1188,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
-
-					if ( ( $count % 2 ) === 0 ) {
-						$sharing_content .= '<li class="share-end"></li>';
-					}
-
-					$count ++;
 				}
 
 				// End of wrapper.

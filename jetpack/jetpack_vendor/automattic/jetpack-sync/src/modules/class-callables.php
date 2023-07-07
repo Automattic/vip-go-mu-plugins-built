@@ -376,6 +376,10 @@ class Callables extends Module {
 			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			// Verify $action_links is still an array.
+			if ( ! is_array( $action_links ) ) {
+				$action_links = array();
+			}
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
 			// Verify $action_links is still an array to resolve warnings from filters not returning an array.
@@ -385,13 +389,13 @@ class Callables extends Module {
 				$action_links = array();
 			}
 			$formatted_action_links = null;
-			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
+			if ( $action_links ) {
 				$dom_doc = new \DOMDocument();
 				foreach ( $action_links as $action_link ) {
 					// The @ is not enough to suppress errors when dealing with libxml,
 					// we have to tell it directly how we want to handle errors.
 					libxml_use_internal_errors( true );
-					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
+					$dom_doc->loadHTML( '<?xml encoding="utf-8" ?>' . $action_link );
 					libxml_use_internal_errors( false );
 
 					$link_elements = $dom_doc->getElementsByTagName( 'a' );

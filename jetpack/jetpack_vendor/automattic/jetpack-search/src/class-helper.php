@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
@@ -239,6 +240,10 @@ class Helper {
 				$name = _x( 'Authors', 'label for filtering posts', 'jetpack-search-pkg' );
 				break;
 
+			case 'blog_id':
+				$name = _x( 'Blogs', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
 			case 'date_histogram':
 				$modified_fields = array(
 					'post_modified',
@@ -433,6 +438,10 @@ class Helper {
 					}
 
 					if ( 'filters' === $k ) {
+						if ( ! is_countable( $new_instance['filters'] ) || ! is_countable( $old_instance['filters'] ) ) {
+							continue;
+						}
+
 						if ( count( $new_instance['filters'] ) !== count( $old_instance['filters'] ) ) {
 							$widget = $new_instance;
 							break;
@@ -516,7 +525,7 @@ class Helper {
 
 			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
 			if ( isset( $filters_properties[ $key ] ) ) {
-				$filters_properties[ $key ] ++;
+				++$filters_properties[ $key ];
 			} else {
 				$filters_properties[ $key ] = 1;
 			}
@@ -831,27 +840,29 @@ class Helper {
 		);
 		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
 		// NOTE: If all post types are being excluded, ignore the option value.
-		if ( count( $unexcluded_post_types ) === 0 ) {
+		if ( array() === $unexcluded_post_types ) {
 			$excluded_post_types = array();
 		}
 
 		$is_wpcom                  = static::is_wpcom();
-		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_private_site           = ( new Status() )->is_private_site();
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
 			'overlayOptions'        => array(
-				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
-				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
-				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
-				'resultFormat'      => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
-				'showPoweredBy'     => ( new Plan() )->is_free_plan() || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
+				'colorTheme'                  => get_option( $prefix . 'color_theme', 'light' ),
+				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
+				'enablePostDate'              => get_option( $prefix . 'show_post_date', '1' ) === '1',
+				'enableSort'                  => get_option( $prefix . 'enable_sort', '1' ) === '1',
+				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
+				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
+				'resultFormat'                => get_option( $prefix . 'result_format', Options::RESULT_FORMAT_MINIMAL ),
+				'showPoweredBy'               => ( new Plan() )->is_free_plan() || ( get_option( $prefix . 'show_powered_by', '1' ) === '1' ),
 
 				// These options require kicking off a new search.
-				'defaultSort'       => get_option( $prefix . 'default_sort', 'relevance' ),
-				'excludedPostTypes' => $excluded_post_types,
+				'defaultSort'                 => get_option( $prefix . 'default_sort', 'relevance' ),
+				'excludedPostTypes'           => $excluded_post_types,
 			),
 
 			// core config.
@@ -871,7 +882,7 @@ class Helper {
 			'isWpcom'               => $is_wpcom,
 
 			// widget info.
-			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
+			'hasOverlayWidgets'     => is_countable( $overlay_widget_ids ) && count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 			'hasNonSearchWidgets'   => $has_non_search_widgets,

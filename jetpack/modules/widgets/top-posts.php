@@ -10,8 +10,12 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -24,9 +28,11 @@ add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 function jetpack_top_posts_widget_init() {
 	// Currently, this widget depends on the Stats Module.
 	if (
-		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-	&&
-		! Jetpack::is_module_active( 'stats' )
+		! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		&& (
+			! Jetpack::is_module_active( 'stats' )
+			|| ( new Status() )->is_offline_mode()
+		)
 	) {
 		return;
 	}
@@ -98,7 +104,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+		$instance = wp_parse_args( (array) $instance, static::defaults() );
 
 		if ( false === $instance['title'] ) {
 			$instance['title'] = $this->default_title;
@@ -170,7 +176,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						<?php echo esc_html( $label ); ?>
 					</label></li>
 
-				<?php } // End foreach ?>
+<?php } // End foreach ?>
 			</ul>
 		</p>
 
@@ -276,7 +282,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		/** This action is documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'top_posts' );
 
-		$instance = wp_parse_args( (array) $instance, $this->defaults() );
+		$instance = wp_parse_args( (array) $instance, static::defaults() );
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : false;
 		if ( false === $title ) {
@@ -367,7 +373,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		 */
 		if ( ! $posts ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo $this->fallback_message(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo self::fallback_message(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			$posts = $this->get_fallback_posts( $count, $types );
@@ -425,7 +431,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						$post['image'] = $image['src'];
 						if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
-							$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
+							$post['image'] = Image_CDN_Core::cdn_url( $post['image'], array( 'resize' => "$width,$height" ) );
 						}
 					}
 				}
@@ -638,19 +644,18 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$post_views = wp_cache_get( "get_top_posts_$count", 'stats' );
 			if ( false === $post_views ) {
-				$post_views = array_shift(
-					stats_get_daily_history(
-						false,
-						get_current_blog_id(),
-						'postviews',
-						'post_id',
-						false,
-						2,
-						'',
-						$count * 2 + 10,
-						true
-					)
+				$stats_get_daily_history = stats_get_daily_history(
+					false,
+					get_current_blog_id(),
+					'postviews',
+					'post_id',
+					false,
+					2,
+					'',
+					$count * 2 + 10,
+					true
 				);
+				$post_views              = array_shift( $stats_get_daily_history );
 				unset( $post_views[0] );
 				wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200 );
 			}
@@ -789,7 +794,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$post_type = $post->post_type;
 
 			$posts[] = compact( 'title', 'permalink', 'post_id', 'post_type' );
-			$counter++;
+			++$counter;
 
 			if ( $counter == $count ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				break; // only need to load and show x number of likes.

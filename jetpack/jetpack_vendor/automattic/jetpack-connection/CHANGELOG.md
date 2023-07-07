@@ -5,6 +5,126 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.53.1] - 2023-06-23
+### Changed
+- Updated package dependencies. [#31468]
+
+## [1.53.0] - 2023-06-19
+### Changed
+- Do not disconnect sites on WPCOM in Offline Mode. [#31305]
+
+## [1.52.2] - 2023-06-06
+### Changed
+- Updated package dependencies. [#31129]
+
+## [1.52.1] - 2023-05-29
+### Added
+- Include the user's email in data returned from WordPress.com Connected User data query [#30990]
+
+## [1.52.0] - 2023-05-22
+### Added
+- Add Offline Mode flag into initial state. [#30570]
+
+## [1.51.10] - 2023-05-18
+### Changed
+- PHP8 compatibility updates, mostly focusing on Jetpack. [#30714]
+
+## [1.51.9] - 2023-05-15
+### Changed
+- Internal updates.
+
+## [1.51.8] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [1.51.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.51.6] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+### Removed
+- Do not attempt to load non minified files since they are not shipped with the package anymore. [#29864]
+
+## [1.51.5] - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## [1.51.4] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [1.51.3] - 2023-03-27
+### Fixed
+- Fix redirect allow-list for Calypso domain names. [#29671]
+
+## [1.51.2] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [1.51.1] - 2023-03-08
+### Changed
+- Improve JS code in the connection owner removal notice. [#29087]
+- Updated package dependencies. [#29216]
+
+## [1.51.0] - 2023-02-20
+### Changed
+- Moving deleting connection owner notice from JITM to Connection package. [#28516]
+
+## [1.50.1] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [1.50.0] - 2023-02-07
+### Added
+- Call the Licensing package for license verification.
+
+## [1.49.1] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [1.49.0] - 2023-01-11
+### Added
+- Add new method to get a connected site's blog ID. [#28208]
+
+## [1.48.1] - 2022-12-27
+### Removed
+- Remove src/js files from final bundle [#27931]
+
+## [1.48.0] - 2022-12-19
+### Changed
+- Provide user locale when fetching info about connected WordPress.com user. [#27928]
+- Update for PHP 8.2 compatibility. [#27949]
+
+### Fixed
+- Declare fields for PHP 8.2 compatibility. [#27968]
+
+## [1.47.1] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27696]
+
+## [1.47.0] - 2022-11-30
+### Added
+- Added full response logging for failed Sync data requests. [#27644]
+
+## [1.46.4] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.46.3] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [1.46.2] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [1.46.1] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
 ## [1.46.0] - 2022-10-25
 ### Changed
 - Use blog token to unlink users from WPCOM. [#26705]
@@ -709,6 +829,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.53.1]: https://github.com/Automattic/jetpack-connection/compare/v1.53.0...v1.53.1
+[1.53.0]: https://github.com/Automattic/jetpack-connection/compare/v1.52.2...v1.53.0
+[1.52.2]: https://github.com/Automattic/jetpack-connection/compare/v1.52.1...v1.52.2
+[1.52.1]: https://github.com/Automattic/jetpack-connection/compare/v1.52.0...v1.52.1
+[1.52.0]: https://github.com/Automattic/jetpack-connection/compare/v1.51.10...v1.52.0
+[1.51.10]: https://github.com/Automattic/jetpack-connection/compare/v1.51.9...v1.51.10
+[1.51.9]: https://github.com/Automattic/jetpack-connection/compare/v1.51.8...v1.51.9
+[1.51.8]: https://github.com/Automattic/jetpack-connection/compare/v1.51.7...v1.51.8
+[1.51.7]: https://github.com/Automattic/jetpack-connection/compare/v1.51.6...v1.51.7
+[1.51.6]: https://github.com/Automattic/jetpack-connection/compare/v1.51.5...v1.51.6
+[1.51.5]: https://github.com/Automattic/jetpack-connection/compare/v1.51.4...v1.51.5
+[1.51.4]: https://github.com/Automattic/jetpack-connection/compare/v1.51.3...v1.51.4
+[1.51.3]: https://github.com/Automattic/jetpack-connection/compare/v1.51.2...v1.51.3
+[1.51.2]: https://github.com/Automattic/jetpack-connection/compare/v1.51.1...v1.51.2
+[1.51.1]: https://github.com/Automattic/jetpack-connection/compare/v1.51.0...v1.51.1
+[1.51.0]: https://github.com/Automattic/jetpack-connection/compare/v1.50.1...v1.51.0
+[1.50.1]: https://github.com/Automattic/jetpack-connection/compare/v1.50.0...v1.50.1
+[1.50.0]: https://github.com/Automattic/jetpack-connection/compare/v1.49.1...v1.50.0
+[1.49.1]: https://github.com/Automattic/jetpack-connection/compare/v1.49.0...v1.49.1
+[1.49.0]: https://github.com/Automattic/jetpack-connection/compare/v1.48.1...v1.49.0
+[1.48.1]: https://github.com/Automattic/jetpack-connection/compare/v1.48.0...v1.48.1
+[1.48.0]: https://github.com/Automattic/jetpack-connection/compare/v1.47.1...v1.48.0
+[1.47.1]: https://github.com/Automattic/jetpack-connection/compare/v1.47.0...v1.47.1
+[1.47.0]: https://github.com/Automattic/jetpack-connection/compare/v1.46.4...v1.47.0
+[1.46.4]: https://github.com/Automattic/jetpack-connection/compare/v1.46.3...v1.46.4
+[1.46.3]: https://github.com/Automattic/jetpack-connection/compare/v1.46.2...v1.46.3
+[1.46.2]: https://github.com/Automattic/jetpack-connection/compare/v1.46.1...v1.46.2
+[1.46.1]: https://github.com/Automattic/jetpack-connection/compare/v1.46.0...v1.46.1
 [1.46.0]: https://github.com/Automattic/jetpack-connection/compare/v1.45.5...v1.46.0
 [1.45.5]: https://github.com/Automattic/jetpack-connection/compare/v1.45.4...v1.45.5
 [1.45.4]: https://github.com/Automattic/jetpack-connection/compare/v1.45.3...v1.45.4

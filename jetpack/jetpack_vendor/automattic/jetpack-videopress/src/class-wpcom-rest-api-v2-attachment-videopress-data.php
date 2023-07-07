@@ -110,6 +110,26 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			/* Allows the filtering to happens using a list of privacy settings separated by comma */
 			$videopress_privacy_setting_list = explode( ',', $videopress_privacy_setting );
 
+			$site_default_is_private = Data::get_videopress_videos_private_for_site();
+
+			if ( $site_default_is_private ) {
+				/**
+				 * If the search is looking for private videos and the site default is private,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PRIVATE ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
+				/**
+				 * If the search is looking for public videos and the site default is public,
+				 * the site default setting should be included on the search.
+				 */
+				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PUBLIC ), $videopress_privacy_setting_list, true ) ) {
+					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+				}
+			}
+
 			$args['meta_query'][] = array(
 				'key'     => 'videopress_privacy_setting',
 				'value'   => $videopress_privacy_setting_list,
@@ -202,15 +222,27 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$caption     = $info->caption;
 		}
 
+		$video_privacy_setting    = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
+		$private_enabled_for_site = Data::get_videopress_videos_private_for_site();
+		$is_private               = $this->video_is_private( $video_privacy_setting, $private_enabled_for_site );
+
+		// The video needs a playback token if it's private for any reason (video privacy setting or site default privacy setting)
+		$video_needs_playback_token = $is_private;
+
 		return array(
-			'title'           => $title,
-			'description'     => $description,
-			'caption'         => $caption,
-			'guid'            => $info->guid,
-			'rating'          => $info->rating,
-			'allow_download'  =>
+			'title'                    => $title,
+			'description'              => $description,
+			'caption'                  => $caption,
+			'guid'                     => $info->guid,
+			'rating'                   => $info->rating,
+			'allow_download'           =>
 				isset( $info->allow_download ) && $info->allow_download ? 1 : 0,
-			'privacy_setting' => ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting ),
+			'display_embed'            =>
+				isset( $info->display_embed ) && $info->display_embed ? 1 : 0,
+			'privacy_setting'          => $video_privacy_setting,
+			'needs_playback_token'     => $video_needs_playback_token,
+			'is_private'               => $is_private,
+			'private_enabled_for_site' => $private_enabled_for_site,
 		);
 	}
 
@@ -240,6 +272,26 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Determines if a video is private based on the video privacy
+	 * setting and the site default privacy setting.
+	 *
+	 * @param int  $video_privacy_setting The privacy setting for the video.
+	 * @param bool $private_enabled_for_site Flag stating if the default video privacy is private.
+	 *
+	 * @return bool
+	 */
+	private function video_is_private( $video_privacy_setting, $private_enabled_for_site ) {
+		if ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PUBLIC ) {
+			return false;
+		}
+		if ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE ) {
+			return true;
+		}
+
+		return $private_enabled_for_site;
 	}
 }
 

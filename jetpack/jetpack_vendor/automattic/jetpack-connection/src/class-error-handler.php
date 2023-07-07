@@ -277,7 +277,8 @@ class Error_Handler {
 		$stored_errors[ $error_code ][ $user_id ] = $error_array;
 
 		// Let's store a maximum of 5 different user ids for each error code.
-		if ( count( $stored_errors[ $error_code ] ) > 5 ) {
+		$error_code_count = is_countable( $stored_errors[ $error_code ] ) ? count( $stored_errors[ $error_code ] ) : 0;
+		if ( $error_code_count > 5 ) {
 			// array_shift will destroy keys here because they are numeric, so manually remove first item.
 			$keys = array_keys( $stored_errors[ $error_code ] );
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
@@ -288,7 +289,6 @@ class Error_Handler {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -326,7 +326,6 @@ class Error_Handler {
 		);
 
 		return $error_array;
-
 	}
 
 	/**
@@ -380,7 +379,6 @@ class Error_Handler {
 		}
 
 		return $encrypted_data;
-
 	}
 
 	/**
@@ -401,7 +399,6 @@ class Error_Handler {
 		}
 
 		return $user_id;
-
 	}
 
 	/**
@@ -566,7 +563,6 @@ class Error_Handler {
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
 		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
-
 	}
 
 	/**
@@ -612,7 +608,6 @@ class Error_Handler {
 		}
 
 		return new \WP_REST_Response( false, 200 );
-
 	}
 
 	/**

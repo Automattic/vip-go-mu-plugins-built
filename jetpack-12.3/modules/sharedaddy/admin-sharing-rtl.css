@@ -321,13 +321,6 @@ body.settings_page_sharing .advanced input[type=submit] {
   margin-top: 2px;
 }
 
-.preview-reddit .option-smart-on {
-  background: url(../../modules/sharedaddy/images/smart-reddit.png) no-repeat top right;
-  background-size: 104px 21px;
-  width: 104px;
-  height: 21px;
-}
-
 .preview-facebook .option-smart-on {
   background: url(../../modules/sharedaddy/images/smart-like.png) no-repeat top right;
   background-size: 85px 20px;
@@ -389,10 +382,6 @@ body.settings_page_sharing .advanced input[type=submit] {
 @media (min-resolution: 120dpi) {
   .preview-digg .option-smart-on {
     background-image: url(../../modules/sharedaddy/images/smart-digg@2x.png);
-  }
-
-  .preview-reddit .option-smart-on {
-    background-image: url(../../modules/sharedaddy/images/smart-reddit@2x.png);
   }
 
   .preview-facebook .option-smart-on {

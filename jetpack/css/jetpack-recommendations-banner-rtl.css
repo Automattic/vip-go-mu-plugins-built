@@ -22,7 +22,10 @@
   --jp-gray-90: #1d2327;
   --jp-gray-100: #101517;
   --jp-gray-off: #e2e2df;
+  --jp-yellow-5: #f5e6b3;
   --jp-yellow-10: #f2cf75;
+  --jp-orange-20: #faa754;
+  --jp-blue-5: #ced9f2;
   --jp-red-0: #F7EBEC;
   --jp-red-50: #D63638;
   --jp-red-60: #B32D2E;
@@ -42,19 +45,24 @@
   --jp-green-90: #003010;
   --jp-green-100: #001c09;
   --jp-green: #069e08;
-  --jp-green-primary: var( --jp-green-40 );
-  --jp-green-secondary: var( --jp-green-30 );
+  --jp-green-primary: var(--jp-green-40);
+  --jp-green-secondary: var(--jp-green-30);
   --jp-border-radius: 4px;
+  --jp-border-radius-rna: 8px;
   --jp-menu-border-height: 1px;
   --jp-underline-thickness: 2px;
+  --jp-modal-padding-large: 32px;
+  --jp-modal-padding: 24px;
+  --jp-modal-padding-small: 16px;
+  --jp-modal-radius: 8px;
+  --jp-button-padding: 8px;
+  --jp-button-radius: 4px;
+  --jp-gap: 16px;
+  --jp-highlight: #3858e9;
 }
 
 /********* Mixins *********/
 /********* Generic styles *********/
-* {
-  box-sizing: border-box;
-}
-
 body {
   min-height: 100%;
   margin: 0;
