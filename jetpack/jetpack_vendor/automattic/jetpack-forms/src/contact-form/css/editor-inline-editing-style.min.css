@@ -55,7 +55,6 @@ body {
     margin-bottom: 16px;
     padding: 24px;
   }
-
   body {
     padding: 24px;
   }
@@ -701,8 +700,7 @@ input[type=submit].button-primary {
 .delete-field:before {
   font-family: Dashicons;
   /*	content: "\f158"; /* This is the bolder X */
-  content: "\f335";
-  /* This is the thinner X */
+  content: "\f335"; /* This is the thinner X */
   display: inline-block;
   speak: none;
 }
@@ -722,6 +720,5 @@ input[type=submit].button-primary {
   overflow: hidden;
   clip: rect(0 0 0 0);
   border: 0;
-  word-wrap: normal !important;
-  /* many screen reader and browser combinations announce broken words as they would appear visually */
+  word-wrap: normal !important; /* many screen reader and browser combinations announce broken words as they would appear visually */
 }

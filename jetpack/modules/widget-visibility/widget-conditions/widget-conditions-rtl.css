@@ -1,7 +1,5 @@
 .wp-customizer .expanded .widget-conditional .widget-conditional-inner {
-  width: 98%;
-  /* Safari/Chrome, other WebKit */
-  /* Firefox, other Gecko */
+  width: 98%; /* Safari/Chrome, other WebKit */ /* Firefox, other Gecko */
   box-sizing: border-box;
 }
 

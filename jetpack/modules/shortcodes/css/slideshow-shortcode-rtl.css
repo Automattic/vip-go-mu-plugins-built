@@ -124,12 +124,12 @@ body div div.jetpack-slideshow-controls a:hover {
 
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
   body div div.jetpack-slideshow-controls a,
-body div div.jetpack-slideshow-controls a:hover {
+  body div div.jetpack-slideshow-controls a:hover {
     background-image: url(../../../modules/shortcodes/img/slideshow-controls-2x.png) !important;
   }
 }
 body div div.jetpack-slideshow-controls a:hover {
-  border-color: white !important;
+  border-color: rgb(255, 255, 255) !important;
 }
 
 body div div.jetpack-slideshow-controls a:first-child {

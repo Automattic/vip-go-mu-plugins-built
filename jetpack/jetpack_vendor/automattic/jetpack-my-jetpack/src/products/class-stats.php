@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Jetpack_Options;
 
 /**
  * Class responsible for handling the Jetpack Stats product
@@ -71,9 +72,8 @@ class Stats extends Module_Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Access to all-time data', 'jetpack-my-jetpack' ),
+			__( 'Instant access to upcoming features', 'jetpack-my-jetpack' ),
 			__( 'Priority support', 'jetpack-my-jetpack' ),
-			__( 'No upsell or ads in the Stats page', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -91,6 +91,7 @@ class Stats extends Module_Product {
 				'wpcom_pwyw_product_slug' => static::get_wpcom_pwyw_product_slug(),
 			),
 			// TODO: replace with `Wpcom_Products::get_product_pricing` once available.
+			// This is not yet used anywhere, so it's fine to leave it as is for now.
 			array(
 				'currency_code'  => 'USD',
 				'full_price'     => 10,
@@ -145,6 +146,17 @@ class Stats extends Module_Product {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Get the WordPress.com URL for purchasing Jetpack Stats for the current site.
+	 *
+	 * @return ?string
+	 */
+	public static function get_purchase_url() {
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		// The returning URL could be customized by changing the `redirect_uri` param with relative path.
+		return sprintf( 'https://wordpress.com/stats/purchase/%d?from=jetpack-my-jetpack&redirect_uri=%s', $blog_id, rawurldecode( 'admin.php?page=stats' ) );
 	}
 
 	/**

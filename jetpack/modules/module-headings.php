@@ -202,7 +202,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'subscriptions' => array(
-				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Newsletter', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Let visitors subscribe to new posts and comments via email', 'Module Description', 'jetpack' ),
 			),
 
@@ -1057,7 +1057,7 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'subscriptions' => 
 	  array (
-	    'name' => 'Subscriptions',
+	    'name' => 'Newsletter',
 	    'description' => 'Let visitors subscribe to new posts and comments via email',
 	    'sort' => '9',
 	    'recommendation_order' => '8',
@@ -1070,7 +1070,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Social',
 	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup',
+	    'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter',
 	    'plan_classes' => '',
 	  ),
 	  'tiled-gallery' => 

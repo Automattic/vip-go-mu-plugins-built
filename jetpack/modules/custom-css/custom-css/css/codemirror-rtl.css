@@ -1,7 +1,6 @@
 /* NOAUTORTL */
 .rtl .CodeMirror {
-  direction: rtl;
-  /* code should always be written left to right */
+  direction: rtl; /* code should always be written left to right */
 }
 
 /* BASICS */
@@ -18,18 +17,15 @@
 
 /* PADDING */
 .CodeMirror-lines {
-  padding: 4px 0;
-  /* Vertical padding around content */
+  padding: 4px 0; /* Vertical padding around content */
 }
 
 .CodeMirror pre {
-  padding: 0 4px;
-  /* Horizontal padding of content */
+  padding: 0 4px; /* Horizontal padding of content */
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-  background-color: white;
-  /* The little square between H and V scrollbars */
+  background-color: white; /* The little square between H and V scrollbars */
 }
 
 /* GUTTER */
@@ -217,8 +213,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
   padding-bottom: 30px;
   padding-left: 30px;
   height: 100%;
-  outline: none;
-  /* Prevent dragging from highlighting the element */
+  outline: none; /* Prevent dragging from highlighting the element */
   position: relative;
 }
 

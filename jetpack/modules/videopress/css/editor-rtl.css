@@ -7,8 +7,7 @@
 
 .mce-videopress-checkbox .mce-checkbox {
   right: 120px !important;
-  width: 100% !important;
-  /* assigning a full width so the label area is clickable */
+  width: 100% !important; /* assigning a full width so the label area is clickable */
 }
 
 .mce-videopress-checkbox .mce-label {

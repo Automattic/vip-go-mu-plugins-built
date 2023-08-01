@@ -2,8 +2,7 @@
 * CleanSlate
 *   github.com/premasagar/cleanslate
 *
-*/
-/*
+*/ /*
     An extreme CSS reset stylesheet, for normalising the styling of a container element and its children.
 
     by Premasagar Rose
@@ -23,13 +22,11 @@
 .cleanslate article, .cleanslate aside, .cleanslate figure, .cleanslate figcaption, .cleanslate footer, .cleanslate header, .cleanslate menu, .cleanslate nav, .cleanslate section, .cleanslate time, .cleanslate mark, .cleanslate audio, .cleanslate video, .cleanslate abbr, .cleanslate address, .cleanslate area, .cleanslate blockquote, .cleanslate canvas, .cleanslate caption, .cleanslate cite, .cleanslate code, .cleanslate colgroup, .cleanslate col, .cleanslate datalist, .cleanslate fieldset, .cleanslate main, .cleanslate map, .cleanslate meta, .cleanslate optgroup, .cleanslate output, .cleanslate progress, .cleanslate svg {
   background-attachment: scroll !important;
   background-color: transparent !important;
-  background-image: none !important;
-  /* This rule affects the use of pngfix JavaScript http://dillerdesign.com/experiment/DD_BelatedPNG for IE6, which is used to force the browser to recognise alpha-transparent PNGs files that replace the IE6 lack of PNG transparency. (The rule overrides the VML image that is used to replace the given CSS background-image). If you don't know what that means, then you probably haven't used the pngfix script, and this comment may be ignored :) */
+  background-image: none !important; /* This rule affects the use of pngfix JavaScript http://dillerdesign.com/experiment/DD_BelatedPNG for IE6, which is used to force the browser to recognise alpha-transparent PNGs files that replace the IE6 lack of PNG transparency. (The rule overrides the VML image that is used to replace the given CSS background-image). If you don't know what that means, then you probably haven't used the pngfix script, and this comment may be ignored :) */
   background-position: 100% 0 !important;
   background-repeat: repeat !important;
   border-color: black !important;
-  border-color: currentColor !important;
-  /* `border-color` should match font color. Modern browsers (incl. IE9) allow the use of "currentColor" to match the current font 'color' value <http://www.w3.org/TR/css3-color/#currentcolor>. For older browsers, a default of 'black' is given before this rule. Guideline to support older browsers: if you haven't already declared a border-color for an element, be sure to do so, e.g. when you first declare the border-width. */
+  border-color: currentColor !important; /* `border-color` should match font color. Modern browsers (incl. IE9) allow the use of "currentColor" to match the current font 'color' value <http://www.w3.org/TR/css3-color/#currentcolor>. For older browsers, a default of 'black' is given before this rule. Guideline to support older browsers: if you haven't already declared a border-color for an element, be sure to do so, e.g. when you first declare the border-width. */
   border-radius: 0 !important;
   border-style: none !important;
   border-width: medium !important;
@@ -43,8 +40,7 @@
   direction: inherit !important;
   display: inline !important;
   float: none !important;
-  font-family: inherit !important;
-  /* As with other inherit values, this needs to be set on the root container element */
+  font-family: inherit !important; /* As with other inherit values, this needs to be set on the root container element */
   font-size: inherit !important;
   font-style: inherit !important;
   font-variant: normal !important;
@@ -53,8 +49,7 @@
   right: auto !important;
   letter-spacing: normal !important;
   line-height: inherit !important;
-  list-style-type: inherit !important;
-  /* Could set list-style-type to none */
+  list-style-type: inherit !important; /* Could set list-style-type to none */
   list-style-position: outside !important;
   list-style-image: none !important;
   margin: 0 !important;
@@ -95,8 +90,7 @@
   box-sizing: content-box !important;
   column-count: auto !important;
   column-gap: normal !important;
-  column-rule: medium none black !important;
-  /* doesn't exist yet but probably will */
+  column-rule: medium none black !important; /* doesn't exist yet but probably will */
   column-span: 1 !important;
   column-width: auto !important;
   font-feature-settings: normal !important;
@@ -229,8 +223,7 @@
   /* Fixes IE7 issue with positioning of nested bullets */
   min-height: auto !important;
   min-width: auto !important;
-  padding-right: 20px !important;
-  /* replace -webkit-padding-start: 40px; */
+  padding-right: 20px !important; /* replace -webkit-padding-start: 40px; */
 }
 
 .cleanslate strong {
@@ -269,34 +262,18 @@
   -webkit-appearance: push-button !important;
   color: buttontext !important;
   border: 1px #a6a6a6 solid !important;
-  background: lightgrey !important;
-  /* Old browsers */
-  background: white;
-  /* Old browsers */
-  /* FF3.6+ */
-  /* Chrome,Safari4+ */
-  /* Chrome10+,Safari5.1+ */
-  /* Opera 11.10+ */
-  /* IE10+ */
-  background: linear-gradient(to bottom, white 0%, #dddddd 100%, #d1d1d1 100%, #dddddd 100%) !important;
-  /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#ffffff", endColorstr="#dddddd",GradientType=0 ) !important;
-  /* IE6-9 */
+  background: lightgrey !important; /* Old browsers */
+  background: rgb(255, 255, 255); /* Old browsers */ /* FF3.6+ */ /* Chrome,Safari4+ */ /* Chrome10+,Safari5.1+ */ /* Opera 11.10+ */ /* IE10+ */
+  background: linear-gradient(to bottom, rgb(255, 255, 255) 0%, rgb(221, 221, 221) 100%, rgb(209, 209, 209) 100%, rgb(221, 221, 221) 100%) !important; /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#ffffff", endColorstr="#dddddd",GradientType=0 ) !important; /* IE6-9 */
   -o-box-shadow: -1px 1px 0px #eee !important;
   box-shadow: -1px 1px 0px #eee !important;
   outline: initial !important;
 }
 
 .cleanslate button:active, .cleanslate input[type=submit]:active, .cleanslate input[type=button]:active, .cleanslate button:active {
-  background: #3b679e !important;
-  /* Old browsers */
-  /* FF3.6+ */
-  /* Chrome,Safari4+ */
-  /* Chrome10+,Safari5.1+ */
-  /* Opera 11.10+ */
-  /* IE10+ */
-  background: linear-gradient(to bottom, #3b679e 0%, #2b88d9 50%, #207cca 51%, #7db9e8 100%) !important;
-  /* W3C */
+  background: rgb(59, 103, 158) !important; /* Old browsers */ /* FF3.6+ */ /* Chrome,Safari4+ */ /* Chrome10+,Safari5.1+ */ /* Opera 11.10+ */ /* IE10+ */
+  background: linear-gradient(to bottom, rgb(59, 103, 158) 0%, rgb(43, 136, 217) 50%, rgb(32, 124, 202) 51%, rgb(125, 185, 232) 100%) !important; /* W3C */
   border-color: #5259b0 !important;
 }
 
@@ -374,8 +351,7 @@
 }
 
 .cleanslate blockquote, .cleanslate q {
-  quotes: none !important;
-  /* HTML5 */
+  quotes: none !important; /* HTML5 */
 }
 
 .cleanslate blockquote:before, .cleanslate blockquote:after, .cleanslate q:before, .cleanslate q:after, .cleanslate li:before, .cleanslate li:after {
@@ -459,10 +435,8 @@
   font-size: medium !important;
   line-height: 1 !important;
   direction: rtl !important;
-  text-align: right !important;
-  /* for IE, Opera */
-  text-align: start !important;
-  /* recommended W3C Spec */
+  text-align: right !important; /* for IE, Opera */
+  text-align: start !important; /* recommended W3C Spec */
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif !important;
   color: black !important;
   font-style: normal !important;
