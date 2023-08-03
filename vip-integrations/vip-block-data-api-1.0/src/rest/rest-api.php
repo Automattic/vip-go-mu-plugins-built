@@ -1,4 +1,9 @@
 <?php
+/**
+ * Rest API
+ * 
+ * @package vip-block-data-api
+ */
 
 namespace WPCOMVIP\BlockDataApi;
 
@@ -8,15 +13,29 @@ defined( 'ABSPATH' ) || die();
 
 defined( 'WPCOMVIP__BLOCK_DATA_API__PARSE_TIME_ERROR_MS' ) || define( 'WPCOMVIP__BLOCK_DATA_API__PARSE_TIME_ERROR_MS', 500 );
 
+/**
+ * Rest API that will be used to fetch block data.
+ */
 class RestApi {
+	/**
+	 * Initialize the Rest API class.
+	 * 
+	 * @access private
+	 */
 	public static function init() {
 		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_routes' ] );
 	}
 
+	/**
+	 * Validate block names are non-empty and match a `<namespace>/<block-name>` naming convention.
+	 * 
+	 * @param string $param the block names to validate.
+	 * 
+	 * @return bool true, if they are valid or false otherwise
+	 */
 	public static function validate_block_names( $param ) {
 		$block_names = explode( ',', trim( $param ) );
 
-		// Validate that all block names are valid
 		foreach ( $block_names as $block_name ) {
 			if ( ! is_string( $block_name ) || ! preg_match( '/^[a-z0-9-]+\/[a-z0-9-]+$/', $block_name ) ) {
 				return false;
@@ -26,6 +45,11 @@ class RestApi {
 		return true;
 	}
 
+	/**
+	 * Register the rest routes
+	 * 
+	 * @return void
+	 */
 	public static function register_rest_routes() {
 		register_rest_route( WPCOMVIP__BLOCK_DATA_API__REST_ROUTE, 'posts/(?P<id>[0-9]+)/blocks', [
 			'methods'             => 'GET',
@@ -68,6 +92,11 @@ class RestApi {
 		] );
 	}
 
+	/**
+	 * Validates if a request can access the Block Data API or not.
+	 * 
+	 * @return bool true, if it can be accessed or false otherwise
+	 */
 	public static function permission_callback() {
 		/**
 		 * Validates that a request can access the Block Data API. This filter can be used to
@@ -79,6 +108,18 @@ class RestApi {
 		return apply_filters( 'vip_block_data_api__rest_permission_callback', true );
 	}
 
+	/**
+	 * Returns the block contents for a post.
+	 * 
+	 * @param array $params the params provided to the REST endpoint which include:
+	 *                 - id: the post ID
+	 *                 - (optional) include: an array of block names to include
+	 *                 - (optional) exclude: an array of block names to exclude.
+	 * 
+	 * @access private
+	 * 
+	 * @return array|WPError the block contents of the post
+	 */
 	public static function get_block_content( $params ) {
 		// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 		$filter_options['exclude'] = $params['exclude'];
@@ -100,12 +141,12 @@ class RestApi {
 			$original_error_data = $parser_results->get_error_data();
 			$wp_error_data       = '';
 
-			// Forward HTTP status if present in WP_Error
+			// Forward HTTP status if present in WP_Error.
 			if ( isset( $original_error_data['status'] ) ) {
 				$wp_error_data = [ 'status' => intval( $original_error_data['status'] ) ];
 			}
 
-			// Return API-safe error with extra data (e.g. stack trace) removed
+			// Return API-safe error with extra data (e.g. stack trace) removed.
 			return new WP_Error( $parser_results->get_error_code(), $parser_results->get_error_message(), $wp_error_data );
 		}
 
@@ -115,16 +156,27 @@ class RestApi {
 		if ( $parse_time_ms > WPCOMVIP__BLOCK_DATA_API__PARSE_TIME_ERROR_MS ) {
 			$error_message = sprintf( 'Parse time for post ID %d exceeded threshold: %dms', $post_id, $parse_time_ms );
 
-			// Record error silently, still return results
+			// Record error silently, still return results.
 			Analytics::record_error( new WP_Error( 'vip-block-data-api-parser-time', $error_message ) );
 		}
 
 		return $parser_results;
 	}
 
+	/**
+	 * Validates that a post is valid or not, based on:
+	 * 
+	 * - That it exists.
+	 * - Is a post type that is REST-accessible
+	 * - Is readable by the current user.
+	 * 
+	 * @param int $post_id the post ID to validate.
+	 * 
+	 * @return bool true if it is, false otherwise.
+	 */
 	private static function is_post_readable( $post_id ) {
 		// Borrow logic from WP_REST_Posts_Controller->check_read_permission()
-		// to only allow REST-accessible posts by default
+		// to only allow REST-accessible posts by default.
 
 		$post = get_post( $post_id );
 
@@ -146,7 +198,7 @@ class RestApi {
 			return true;
 		}
 
-		// Use parent status if inheriting
+		// Use parent status if inheriting.
 		if ( 'inherit' === $post->post_status && $post->post_parent > 0 ) {
 			return self::is_post_readable( $post->post_parent );
 		}

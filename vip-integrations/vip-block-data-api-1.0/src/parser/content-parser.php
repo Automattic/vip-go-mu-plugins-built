@@ -1,4 +1,9 @@
 <?php
+/**
+ * Content Parser
+ * 
+ * @package vip-block-data-api
+ */
 
 namespace WPCOMVIP\BlockDataApi;
 
@@ -10,13 +15,39 @@ use WP_Block_Type;
 use WP_Block_Type_Registry;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * The content parser that would be used to transform a post into an array of blocks, along with their attributes.
+ */
 class ContentParser {
+	/**
+	 * Block registry instance
+	 *
+	 * @var WP_Block_Type_Registry
+	 * 
+	 * @access private
+	 */
 	protected $block_registry;
+	/**
+	 * Post ID
+	 * 
+	 * @var int
+	 * 
+	 * @access private
+	 */
 	protected $post_id;
+	/**
+	 * Warnings that would be returned with the blocks
+	 * 
+	 * @var array
+	 * 
+	 * @access private
+	 */
 	protected $warnings = [];
 
 	/**
-	 * @param WP_Block_Type_Registry|null $block_registry
+	 * Initialize the ContentParser class.
+	 *
+	 * @param WP_Block_Type_Registry|null $block_registry the block registry instance.
 	 */
 	public function __construct( $block_registry = null ) {
 		if ( null === $block_registry ) {
@@ -26,6 +57,22 @@ class ContentParser {
 		$this->block_registry = $block_registry;
 	}
 
+	/**
+	 * Filter out a block from the blocks output based on:
+	 * 
+	 * - include parameter, if it is set or 
+	 * - exclude parameter, if it is set.
+	 * 
+	 * and finally, based on a filter vip_block_data_api__allow_block
+	 * 
+	 * @param array  $block Current block.
+	 * @param string $block_name Name of the block.
+	 * @param array  $filter_options Options to be used for filtering, if any.
+	 * 
+	 * @return bool true, if the block should be included or false otherwise
+	 * 
+	 * @access private
+	 */
 	public function should_block_be_included( $block, $block_name, $filter_options ) {
 		$is_block_included = true;
 
@@ -39,19 +86,21 @@ class ContentParser {
 		 * Filter out blocks from the blocks output
 		 *
 		 * @param bool   $is_block_included True if the block should be included, or false to filter it out.
-		 * @param string $block_name    The name of the parsed block, e.g. 'core/paragraph'.
-		 * @param string $block         The result of parse_blocks() for this block.
+		 * @param string $block_name   Name of the parsed block, e.g. 'core/paragraph'.
+		 * @param string $block         Result of parse_blocks() for this block.
 		 *                              Contains 'blockName', 'attrs', 'innerHTML', and 'innerBlocks' keys.
 		 */
 		return apply_filters( 'vip_block_data_api__allow_block', $is_block_included, $block_name, $block );
 	}
 
 	/**
-	 * @param string $post_content HTML content of a post.
+	 * Parses a post's content and returns an array of blocks with their attributes and inner blocks.
+	 * 
+	 * @param string   $post_content HTML content of a post.
 	 * @param int|null $post_id ID of the post being parsed. Required for blocks containing meta-sourced attributes and some block filters.
-	 * @param array $filter_options An associative array of options for filtering blocks. Can contain keys:
-	 *              'exclude': An array of block names to block from the response.
-	 *              'include': An array of block names that are allowed in the response.
+	 * @param array    $filter_options An associative array of options for filtering blocks. Can contain keys:
+	 *                 'exclude': An array of block names to block from the response.
+	 *                 'include': An array of block names that are allowed in the response.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -99,7 +148,7 @@ class ContentParser {
 				$result['warnings'] = $this->warnings;
 			}
 
-			// Debug output
+			// Debug output.
 			if ( $this->is_debug_enabled() ) {
 				$result['debug'] = [
 					'blocks_parsed' => $blocks,
@@ -122,10 +171,15 @@ class ContentParser {
 	}
 
 	/**
-	 * @param array[string]array $block
-	 * @param WP_Block_Type[] $registered_blocks
+	 * Processes a single block, and returns the sourced block data.
+	 * 
+	 * @param array           $block Block to be processed.
+	 * @param WP_Block_Type[] $registered_blocks Blocks that have been registered.
+	 * @param array           $filter_options Options to filter using, if any.
 	 *
-	 * @return array[string]array|null
+	 * @return array|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block( $block, $registered_blocks, $filter_options ) {
 		$block_name = $block['blockName'];
@@ -148,25 +202,25 @@ class ContentParser {
 			$attribute_default_value = $block_attribute_definition['default'] ?? null;
 
 			if ( null === $attribute_source ) {
-				// Unsourced attributes are stored in the block's delimiter attributes, skip DOM parser
+				// Unsourced attributes are stored in the block's delimiter attributes, skip DOM parser.
 
 				if ( isset( $block_attributes[ $block_attribute_name ] ) ) {
-					// Attribute is already set in the block's delimiter attributes, skip
+					// Attribute is already set in the block's delimiter attributes, skip.
 					continue;
 				} elseif ( null !== $attribute_default_value ) {
-					// Attribute is unset and has a default value, use default value
+					// Attribute is unset and has a default value, use default value.
 					$block_attributes[ $block_attribute_name ] = $attribute_default_value;
 					continue;
 				} else {
-					// Attribute is unset and has no default value, skip
+					// Attribute is unset and has no default value, skip.
 					continue;
 				}
 			}
 
-			// Specify a manual doctype so that the parser will use the HTML5 parser
+			// Specify a manual doctype so that the parser will use the HTML5 parser.
 			$crawler = new Crawler( sprintf( '<!doctype html><html><body>%s</body></html>', $block['innerHTML'] ) );
 
-			// Enter the <body> tag for block parsing
+			// Enter the <body> tag for block parsing.
 			$crawler = $crawler->filter( 'body' );
 
 			$attribute_value = $this->source_attribute( $crawler, $block_attribute_definition );
@@ -202,14 +256,14 @@ class ContentParser {
 		/**
 		 * Filters a block when parsing is complete.
 		 *
-		 * @param array[string]array $sourced_block An associative array of parsed block data with keys 'name' and 'attribute'.
-		 * @param string $block_name The name of the parsed block, e.g. 'core/paragraph'.
-		 * @param string $post_id The post ID associated with the parsed block.
-		 * @param string $block The result of parse_blocks() for this block. Contains 'blockName', 'attrs', 'innerHTML', and 'innerBlocks' keys.
+		 * @param array $sourced_block An associative array of parsed block data with keys 'name' and 'attribute'.
+		 * @param string $block_name Name of the parsed block, e.g. 'core/paragraph'.
+		 * @param int $post_id Post ID associated with the parsed block.
+		 * @param array $block Result of parse_blocks() for this block. Contains 'blockName', 'attrs', 'innerHTML', and 'innerBlocks' keys.
 		 */
 		$sourced_block = apply_filters( 'vip_block_data_api__sourced_block_result', $sourced_block, $block_name, $this->post_id, $block );
 
-		// If attributes are empty, explicitly use an object to avoid encoding an empty array in JSON
+		// If attributes are empty, explicitly use an object to avoid encoding an empty array in JSON.
 		if ( empty( $sourced_block['attributes'] ) ) {
 			$sourced_block['attributes'] = (object) [];
 		}
@@ -218,8 +272,14 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Processes the source attributes of a block.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
+	 * 
+	 *  @return array|string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_attribute( $crawler, $block_attribute_definition ) {
 		$attribute_value         = null;
@@ -227,10 +287,10 @@ class ContentParser {
 		$attribute_source        = $block_attribute_definition['source'];
 
 		// See block attribute sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#value-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#value-source.
 		if ( 'attribute' === $attribute_source || 'property' === $attribute_source ) {
 			// 'property' sources were removed in 2018. Default to attribute value.
-			// https://github.com/WordPress/gutenberg/pull/8276
+			// https://github.com/WordPress/gutenberg/pull/8276.
 
 			$attribute_value = $this->source_block_attribute( $crawler, $block_attribute_definition );
 		} elseif ( 'html' === $attribute_source ) {
@@ -240,7 +300,7 @@ class ContentParser {
 		} elseif ( 'tag' === $attribute_source ) {
 			$attribute_value = $this->source_block_tag( $crawler, $block_attribute_definition );
 		} elseif ( 'raw' === $attribute_source ) {
-			$attribute_value = $this->source_block_raw( $crawler, $block_attribute_definition );
+			$attribute_value = $this->source_block_raw( $crawler );
 		} elseif ( 'query' === $attribute_source ) {
 			$attribute_value = $this->source_block_query( $crawler, $block_attribute_definition );
 		} elseif ( 'meta' === $attribute_source ) {
@@ -259,14 +319,18 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `attribute` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_attribute( $crawler, $block_attribute_definition ) {
 		// 'attribute' sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#attribute-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#attribute-source.
 
 		$attribute_value = null;
 		$attribute       = $block_attribute_definition['attribute'];
@@ -284,14 +348,18 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `html` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_html( $crawler, $block_attribute_definition ) {
 		// 'html' sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#html-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#html-source.
 
 		$attribute_value = null;
 		$selector        = $block_attribute_definition['selector'] ?? null;
@@ -318,14 +386,18 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `text` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_text( $crawler, $block_attribute_definition ) {
 		// 'text' sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#text-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#text-source.
 
 		$attribute_value = null;
 		$selector        = $block_attribute_definition['selector'] ?? null;
@@ -342,14 +414,18 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `query` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_query( $crawler, $block_attribute_definition ) {
 		// 'query' sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#query-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#query-source.
 
 		$query_items = $block_attribute_definition['query'];
 		$selector    = $block_attribute_definition['selector'] ?? null;
@@ -363,7 +439,7 @@ class ContentParser {
 				return $this->source_attribute( $node, $query_item );
 			}, $query_items);
 
-			// Remove unsourced query values
+			// Remove unsourced query values.
 			$attribute_value = array_filter( $attribute_value, function( $value ) {
 				return null !== $value;
 			});
@@ -376,16 +452,20 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `tag` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_tag( $crawler, $block_attribute_definition ) {
 		// The only current usage of the 'tag' attribute is Gutenberg core is the 'core/table' block:
-		// https://github.com/WordPress/gutenberg/blob/796b800/packages/block-library/src/table/block.json#L39
+		// https://github.com/WordPress/gutenberg/blob/796b800/packages/block-library/src/table/block.json#L39.
 		// Also see tag attribute parsing in Gutenberg:
-		// https://github.com/WordPress/gutenberg/blob/6517008/packages/blocks/src/api/parser/get-block-attributes.js#L225
+		// https://github.com/WordPress/gutenberg/blob/6517008/packages/blocks/src/api/parser/get-block-attributes.js#L225.
 
 		$attribute_value = null;
 		$selector        = $block_attribute_definition['selector'] ?? null;
@@ -402,16 +482,19 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `raw` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
-	protected function source_block_raw( $crawler, $block_attribute_definition ) {
+	protected function source_block_raw( $crawler ) {
 		// The only current usage of the 'raw' attribute in Gutenberg core is the 'core/html' block:
-		// https://github.com/WordPress/gutenberg/blob/6517008/packages/block-library/src/html/block.json#L13
+		// https://github.com/WordPress/gutenberg/blob/6517008/packages/block-library/src/html/block.json#L13.
 		// Also see tag attribute parsing in Gutenberg:
-		// https://github.com/WordPress/gutenberg/blob/6517008/packages/blocks/src/api/parser/get-block-attributes.js#L131
+		// https://github.com/WordPress/gutenberg/blob/6517008/packages/blocks/src/api/parser/get-block-attributes.js#L131.
 
 		$attribute_value = null;
 
@@ -423,14 +506,17 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `meta` source attribute.
+	 * 
+	 * @param array $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_meta( $block_attribute_definition ) {
 		// 'meta' sources:
-		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#meta-source
+		// https://developer.wordpress.org/block-editor/reference-guides/block-api/block-attributes/#meta-source.
 
 		$post = get_post( $this->post_id );
 		if ( null === $post ) {
@@ -448,16 +534,20 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `children` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
-	 * @return string|null
+	 * @return array|string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_children( $crawler, $block_attribute_definition ) {
 		// 'children' attribute usage was removed from core in 2018, but not officically deprecated until WordPress 6.1:
-		// https://github.com/WordPress/gutenberg/pull/44265
+		// https://github.com/WordPress/gutenberg/pull/44265.
 		// Parsing code for 'children' sources can be found here:
-		// https://github.com/WordPress/gutenberg/blob/dd0504b/packages/blocks/src/api/children.js#L149
+		// https://github.com/WordPress/gutenberg/blob/dd0504b/packages/blocks/src/api/children.js#L149.
 
 		$attribute_values = [];
 		$selector         = $block_attribute_definition['selector'] ?? null;
@@ -467,7 +557,7 @@ class ContentParser {
 		}
 
 		if ( $crawler->count() === 0 ) {
-			// If the selector doesn't exist, return a default empty array
+			// If the selector doesn't exist, return a default empty array.
 			return $attribute_values;
 		}
 
@@ -496,16 +586,20 @@ class ContentParser {
 	}
 
 	/**
-	 * @param Symfony\Component\DomCrawler\Crawler $crawler
-	 * @param array $block_attribute_definition
+	 * Helper function to process the `node` source attribute.
+	 * 
+	 * @param Symfony\Component\DomCrawler\Crawler $crawler Crawler instance.
+	 * @param array                                $block_attribute_definition Definition of the block attribute.
 	 *
 	 * @return string|null
+	 * 
+	 * @access private
 	 */
 	protected function source_block_node( $crawler, $block_attribute_definition ) {
 		// 'node' attribute usage was removed from core in 2018, but not officically deprecated until WordPress 6.1:
-		// https://github.com/WordPress/gutenberg/pull/44265
+		// https://github.com/WordPress/gutenberg/pull/44265.
 		// Parsing code for 'node' sources can be found here:
-		// https://github.com/WordPress/gutenberg/blob/dd0504bd34c29b5b2824d82c8d2bb3a8d0f071ec/packages/blocks/src/api/node.js#L125
+		// https://github.com/WordPress/gutenberg/blob/dd0504bd34c29b5b2824d82c8d2bb3a8d0f071ec/packages/blocks/src/api/node.js#L125.
 
 		$attribute_value = null;
 		$selector        = $block_attribute_definition['selector'] ?? null;
@@ -532,25 +626,27 @@ class ContentParser {
 	 * Helper function to process markup used by the deprecated 'node' and 'children' sources.
 	 * These sources can return a representation of the DOM tree and bypass the $crawler to access DOMNodes directly.
 	 *
-	 * @param \DOMNode $node
+	 * @param \DOMNode $node Node currently being processed.
 	 *
 	 * @return array|string|null
+	 * 
+	 * @access private
 	 */
 	protected function from_dom_node( $node ) {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- external API calls
 
 		if ( XML_TEXT_NODE === $node->nodeType ) {
-			// For plain text nodes, return the text directly
+			// For plain text nodes, return the text directly.
 			$text = trim( $node->nodeValue );
 
-			// Exclude whitespace-only nodes
+			// Exclude whitespace-only nodes.
 			if ( ! empty( $text ) ) {
 				return $text;
 			}
 		} elseif ( XML_ELEMENT_NODE === $node->nodeType ) {
 			$children = array_map( [ $this, 'from_dom_node' ], iterator_to_array( $node->childNodes ) );
 
-			// For element nodes, recurse and return an array of child nodes
+			// For element nodes, recurse and return an array of child nodes.
 			return [
 				'type'     => $node->nodeName,
 				'children' => array_filter( $children ),
@@ -562,6 +658,15 @@ class ContentParser {
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
+	/**
+	 * Add a warning to the warnings, if a block is not registered server-side.
+	 * 
+	 * @param string $block_name Name of the block.
+	 * 
+	 * @return void
+	 * 
+	 * @access private
+	 */
 	protected function add_missing_block_warning( $block_name ) {
 		$warning_message = sprintf( 'Block type "%s" is not server-side registered. Sourced block attributes will not be available.', $block_name );
 
@@ -570,6 +675,13 @@ class ContentParser {
 		}
 	}
 
+	/**
+	 * Check if debug mode is enabled.
+	 * 
+	 * @return bool true if debug is enabled, or false otherwise
+	 * 
+	 * @access private
+	 */
 	protected function is_debug_enabled() {
 		return defined( 'VIP_BLOCK_DATA_API__PARSE_DEBUG' ) && constant( 'VIP_BLOCK_DATA_API__PARSE_DEBUG' ) === true;
 	}

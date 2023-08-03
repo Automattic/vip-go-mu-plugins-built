@@ -15,7 +15,8 @@
 ## 2. Bump plugin version
 
 1. When the version is ready for release, inside the `planned-release/...` branch, bump the version number in `vip-block-data-api.php`. Change plugin header and `WPCOMVIP__BLOCK_DATA_API__PLUGIN_VERSION` to match new version.
-2. PR version changes with feature changes and merge to `trunk`.
+2. Push the `planned-release/...` branch to GitHub.
+3. PR version changes with feature changes and merge to `trunk`.
 
 ## 3. Tag branch for release
 
