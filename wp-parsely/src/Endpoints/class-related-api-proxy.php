@@ -12,6 +12,7 @@ namespace Parsely\Endpoints;
 
 use stdClass;
 use WP_REST_Request;
+use WP_Error;
 
 /**
  * Configures the `/related` REST API endpoint.
@@ -29,8 +30,8 @@ final class Related_API_Proxy extends Base_API_Proxy {
 	 * Cached "proxy" to the Parse.ly `/related` API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return stdClass|WPError stdClass containing the data or a WP_Error
-	 *                          object on failure.
+	 *
+	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	public function get_items( WP_REST_Request $request ) {
 		return $this->get_data( $request, false, 'query' );
@@ -39,11 +40,11 @@ final class Related_API_Proxy extends Base_API_Proxy {
 	/**
 	 * Generates the final data from the passed response.
 	 *
-	 * @param array<string, mixed> $response The response received by the proxy.
+	 * @param array<stdClass> $response The response received by the proxy.
 	 * @return array<stdClass> The generated data.
 	 */
-	protected function generate_data( array $response ): array {
-		$result = array_map(
+	protected function generate_data( $response ): array {
+		return array_map(
 			static function( stdClass $item ) {
 				return (object) array(
 					'image_url'        => $item->image_url,
@@ -54,17 +55,5 @@ final class Related_API_Proxy extends Base_API_Proxy {
 			},
 			$response
 		);
-
-		return $result;
-	}
-
-	/**
-	 * Determines if there are enough permissions to call the endpoint.
-	 *
-	 * @return bool
-	 */
-	public function permission_callback(): bool {
-		// Unauthenticated.
-		return true;
 	}
 }

@@ -11,13 +11,19 @@ declare(strict_types=1);
 
 namespace Parsely;
 
+use Parsely\UI\Settings_Page;
+
 /* translators: %s: Plugin version */
 $parsely_version_string = sprintf( __( 'Version %s', 'wp-parsely' ), Parsely::VERSION );
+
+/**
+ * Variable.
+ *
+ * @var Settings_Page
+ */
+$wp_parsely_settings = $GLOBALS['parsely_settings_page'];
 ?>
-<div class="wrap">
-	<h1 class="wp-heading-inline"><?php echo esc_html( get_admin_page_title() ); ?></h1>
-	<span id="wp-parsely_version"><?php echo esc_html( $parsely_version_string ); ?></span>
-	<p><em><?php esc_html_e( 'More settings can be enabled via Screen Options (button on the top of the page).', 'wp-parsely' ); ?></em></p>
+
 <?php
 if ( is_multisite() && is_main_site() ) {
 	?>
@@ -27,10 +33,17 @@ if ( is_multisite() && is_main_site() ) {
 	<?php
 }
 ?>
-	<form name="parsely" method="post" action="options.php" novalidate>
+
+<div class="wrap">
+	<h1 class="wp-heading-inline"><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	<span id="wp-parsely_version"><?php echo esc_html( $parsely_version_string ); ?></span>
+
+	<?php $wp_parsely_settings->show_setting_tabs(); ?>
+
+	<form name="parsely" method="post" action='options.php' novalidate hidden>
 		<?php
 		settings_fields( Parsely::OPTIONS_KEY );
-		do_settings_sections( Parsely::OPTIONS_KEY );
+		$wp_parsely_settings->show_setting_tabs_content();
 		submit_button();
 		?>
 	</form>

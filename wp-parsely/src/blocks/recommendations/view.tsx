@@ -12,11 +12,11 @@ import RecommendationsStore from './recommendations-store';
 
 domReady( () => {
 	const blocks = document.querySelectorAll( '.wp-block-wp-parsely-recommendations' );
-	blocks.forEach( ( block, i ) =>
+	blocks.forEach( ( block ) =>
 		render(
 			<RecommendationsStore>
 				{ /* @ts-ignore */ }
-				<ParselyRecommendations { ...block.dataset } key={ i } />
+				<ParselyRecommendations { ...block.dataset } key={ block.id } />
 			</RecommendationsStore>,
 			block
 		)

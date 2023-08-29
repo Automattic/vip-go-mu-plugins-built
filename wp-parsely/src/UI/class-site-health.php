@@ -18,6 +18,17 @@ use Parsely\Parsely;
  * Provides debug information about the plugin.
  *
  * @since 3.4.0
+ *
+ * @phpstan-type Site_Health_Info array{
+ *   parsely?: Parsely_Health_Info
+ * }
+ *
+ * @phpstan-type Parsely_Health_Info array{
+ *   label: string,
+ *   description: string,
+ *   show_count: bool,
+ *   fields: array<string, mixed>,
+ * }
  */
 final class Site_Health {
 	/**
@@ -42,7 +53,7 @@ final class Site_Health {
 	 * @since 3.4.0
 	 */
 	public function run(): void {
-		add_filter( 'site_status_tests', array( $this, 'check_api_key' ) );
+		add_filter( 'site_status_tests', array( $this, 'check_site_id' ) );
 		add_filter( 'debug_information', array( $this, 'options_debug_info' ) );
 	}
 
@@ -53,9 +64,9 @@ final class Site_Health {
 	 *
 	 * @param array<string, mixed> $tests An associative array of direct and asynchronous tests.
 	 *
-	 * @return array
+	 * @return array<string, mixed>
 	 */
-	public function check_api_key( array $tests ): array {
+	public function check_site_id( array $tests ): array {
 		$test = function() {
 			$result = array(
 				'label'       => __( 'The Site ID is correctly set up', 'wp-parsely' ),
@@ -71,7 +82,7 @@ final class Site_Health {
 				'test'        => 'loopback_requests',
 			);
 
-			if ( $this->parsely->api_key_is_missing() ) {
+			if ( $this->parsely->site_id_is_missing() ) {
 				$result['status']  = 'critical';
 				$result['label']   = __( 'You need to provide the Site ID', 'wp-parsely' );
 				$result['actions'] = __( 'The site ID can be set in the <a href="/wp-admin/options-general.php?page=parsely">Parse.ly Settings Page</a>.', 'wp-parsely' );
@@ -80,7 +91,13 @@ final class Site_Health {
 			return $result;
 		};
 
-		$tests['direct']['parsely'] = array(
+		/**
+		 * Variable.
+		 *
+		 * @var array<mixed>
+		 */
+		$direct            = $tests['direct'];
+		$direct['parsely'] = array(
 			'label' => __( 'Parse.ly Site ID', 'wp-parsely' ),
 			'test'  => $test,
 		);
@@ -93,11 +110,11 @@ final class Site_Health {
 	 *
 	 * @since 3.4.0
 	 *
-	 * @param array<string, mixed> $args The debug information to be added to the core information page.
+	 * @param Site_Health_Info $args The debug information to be added to the core information page.
 	 *
-	 * @return array<string, mixed>
+	 * @return Site_Health_Info
 	 */
-	public function options_debug_info( array $args ): array {
+	public function options_debug_info( $args ) {
 		$options = $this->parsely->get_options();
 
 		$args['parsely'] = array(

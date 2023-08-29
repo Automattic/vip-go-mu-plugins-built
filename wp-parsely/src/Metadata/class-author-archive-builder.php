@@ -11,6 +11,9 @@ declare(strict_types=1);
 namespace Parsely\Metadata;
 
 use WP_User;
+use stdClass;
+
+use function Parsely\Utils\get_string_query_var;
 
 /**
  * Implements abstract Metadata Builder class to generate the metadata array
@@ -43,7 +46,7 @@ class Author_Archive_Builder extends Metadata_Builder {
 	 */
 	private function build_headline(): void {
 		// Use the author's username as a display name fallback.
-		$author_username     = get_query_var( 'author_name' );
+		$author_username     = get_string_query_var( 'author_name' );
 		$author_display_name = $author_username;
 
 		// Attempt to get the author from the Co-Authors Plus plugin or from
@@ -52,7 +55,10 @@ class Author_Archive_Builder extends Metadata_Builder {
 		if ( false === $author ) {
 			$author = get_user_by( 'slug', $author_username );
 			if ( false === $author ) {
-				$author = get_userdata( get_query_var( 'author' ) );
+				$author_id = get_query_var( 'author' );
+				if ( is_numeric( $author_id ) ) {
+					$author = get_userdata( (int) $author_id );
+				}
 			}
 		}
 

@@ -39,7 +39,10 @@ class Category_Builder extends Metadata_Builder {
 	 * @since 3.4.0
 	 */
 	private function build_headline(): void {
-		$category                   = get_queried_object();
-		$this->metadata['headline'] = $this->clean_value( $category->name );
+		$category = get_queried_object();
+
+		if ( isset( $category->name ) ) {
+			$this->metadata['headline'] = $this->clean_value( $category->name );
+		}
 	}
 }

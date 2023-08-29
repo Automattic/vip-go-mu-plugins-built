@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Parsely;
 
+use function Parsely\Utils\get_asset_info;
+
 /**
  * Inserts the scripts and tracking code into the site's front-end.
  *
@@ -40,14 +42,14 @@ class Scripts {
 	 */
 	public function run(): void {
 		$parsely_options = $this->parsely->get_options();
-		if ( $this->parsely->api_key_is_set() && true !== $parsely_options['disable_javascript'] ) {
+		if ( $this->parsely->site_id_is_set() && true !== $parsely_options['disable_javascript'] ) {
 			add_action( 'init', array( $this, 'register_scripts' ) );
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_js_tracker' ) );
 		}
 	}
 
 	/**
-	 * Registers scripts, if there's an API key value saved.
+	 * Registers scripts, if there's a Site ID value saved.
 	 *
 	 * @since 2.5.0
 	 * @since 3.0.0 Rename from register_js
@@ -61,7 +63,8 @@ class Scripts {
 			true
 		);
 
-		$loader_asset = require plugin_dir_path( PARSELY_FILE ) . 'build/loader.asset.php';
+		$loader_asset = get_asset_info( 'build/loader.asset.php' );
+
 		wp_register_script(
 			'wp-parsely-loader',
 			plugin_dir_url( PARSELY_FILE ) . 'build/loader.js',
@@ -116,14 +119,14 @@ class Scripts {
 		wp_enqueue_script( 'wp-parsely-loader' );
 		wp_enqueue_script( 'wp-parsely-tracker' );
 
-		// If we don't have an API secret, there's no need to set the API key.
-		// Setting the API key triggers the UUID Profile Call function.
-		if ( isset( $parsely_options['api_secret'] ) && is_string( $parsely_options['api_secret'] ) && '' !== $parsely_options['api_secret'] ) {
-			$js_api_key = "window.wpParselyApiKey = '" . esc_js( $this->parsely->get_api_key() ) . "';";
-			wp_add_inline_script( 'wp-parsely-loader', $js_api_key, 'before' );
+		// If we don't have an API secret, there's no need to set the Site ID.
+		// Setting the Site ID triggers the UUID Profile Call function.
+		if ( $this->parsely->api_secret_is_set() ) {
+			$js_site_id = "window.wpParselySiteId = '" . esc_js( $this->parsely->get_site_id() ) . "';";
+			wp_add_inline_script( 'wp-parsely-loader', $js_site_id, 'before' );
 		}
 
-		if ( isset( $parsely_options['disable_autotrack'] ) && true === $parsely_options['disable_autotrack'] ) {
+		if ( true === $parsely_options['disable_autotrack'] ) {
 			$disable_autotrack = 'window.wpParselyDisableAutotrack = true;';
 			wp_add_inline_script( 'wp-parsely-loader', $disable_autotrack, 'before' );
 		}
@@ -140,7 +143,6 @@ class Scripts {
 	 * @return string Amended `script` tag.
 	 */
 	public function script_loader_tag( string $tag, string $handle, string $src ): string {
-		$parsely_options = $this->parsely->get_options();
 		if ( \in_array(
 			$handle,
 			array(
@@ -167,11 +169,14 @@ class Scripts {
 
 		if ( null !== $tag && 'wp-parsely-tracker' === $handle ) {
 			$tag = preg_replace( '/ id=(["\'])wp-parsely-tracker-js\1/', ' id="parsely-cfg"', $tag );
-			$tag = str_replace(
-				' src=',
-				' data-parsely-site="' . esc_attr( $parsely_options['apikey'] ) . '" src=',
-				$tag
-			);
+
+			if ( null !== $tag ) {
+				$tag = str_replace(
+					' src=',
+					' data-parsely-site="' . esc_attr( $this->parsely->get_site_id() ) . '" src=',
+					$tag
+				);
+			}
 		}
 
 		return $tag ?? '';

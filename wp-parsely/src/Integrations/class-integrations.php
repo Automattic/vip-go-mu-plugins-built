@@ -40,7 +40,7 @@ class Integrations {
 	/**
 	 * Collection of registered integrations.
 	 *
-	 * @var array
+	 * @var array<Integrations>
 	 */
 	private $integrations = array();
 
@@ -49,13 +49,18 @@ class Integrations {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string        $key             A unique identifier for the integration.
-	 * @param string|object $class_or_object Fully-qualified class name, or an instantiated object.
-	 *                                       If a class name is passed, it will be instantiated.
+	 * @param string                    $key             A unique identifier for the integration.
+	 * @param class-string|Integrations $class_or_object Fully-qualified class name, or an instantiated object.
+	 *                                                   If a class name is passed, it will be instantiated.
 	 */
 	public function register( string $key, $class_or_object ): void {
 		// If a Foo::class or other fully qualified class name is passed, instantiate it.
 		if ( ! is_object( $class_or_object ) ) {
+			/**
+			 * Variable.
+			 *
+			 * @var Integrations
+			 */
 			$class_or_object = new $class_or_object( $this->parsely );
 		}
 		$this->integrations[ $key ] = $class_or_object;

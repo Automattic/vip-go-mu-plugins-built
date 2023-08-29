@@ -35,7 +35,7 @@ class Rest_Metadata extends Metadata_Endpoint {
 		 *
 		 * @param bool $enabled True if enabled, false if not.
 		 */
-		if ( apply_filters( 'wp_parsely_enable_rest_api_support', true ) && $this->parsely->api_key_is_set() ) {
+		if ( apply_filters( 'wp_parsely_enable_rest_api_support', true ) && $this->parsely->site_id_is_set() ) {
 			$this->register_meta();
 		}
 	}
@@ -46,8 +46,7 @@ class Rest_Metadata extends Metadata_Endpoint {
 	 * @since 3.1.0
 	 */
 	public function register_meta(): void {
-		$options      = $this->parsely->get_options();
-		$object_types = array_unique( array_merge( $options['track_post_types'], $options['track_page_types'] ) );
+		$object_types = $this->parsely->get_all_track_types();
 
 		/**
 		 * Filters the list of object types that the Parse.ly REST API is hooked into.
@@ -67,13 +66,19 @@ class Rest_Metadata extends Metadata_Endpoint {
 	 * Function to get hooked into the `get_callback` property of the `parsely`
 	 * REST API field. It generates the `parsely` object in the REST API.
 	 *
-	 * @param array $object         The WordPress object to extract to render the metadata for,
-	 *                              usually a post or a page.
+	 * @param array<string, mixed> $object The WordPress object to extract to render the metadata for,
+	 *                                     usually a post or a page.
+	 *
 	 * @return array<string, mixed> The `parsely` object to be rendered in the REST API. Contains a
 	 *                              version number describing the response and the `meta` object
 	 *                              containing the actual metadata.
 	 */
 	public function get_callback( array $object ): array {
+		/**
+		 * Variable.
+		 *
+		 * @var int
+		 */
 		$post_id = $object['ID'] ?? $object['id'] ?? 0;
 		$post    = WP_Post::get_instance( $post_id );
 		$options = $this->parsely->get_options();

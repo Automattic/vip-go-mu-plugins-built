@@ -26,14 +26,20 @@ interface ParselyRecommendationsInspectorControlsProps {
 const ParselyRecommendationsInspectorControls = ( {
 	attributes: { boost, imagestyle, limit, openlinksinnewtab, showimages, sort, title },
 	setAttributes,
-} : ParselyRecommendationsInspectorControlsProps ) => (
-	<InspectorControls>
+} : ParselyRecommendationsInspectorControlsProps ) => {
+	function setImageStyle( value: string ): void {
+		setAttributes( {
+			imagestyle: value === 'original' ? 'original' : 'thumbnail',
+		} );
+	}
+
+	return <InspectorControls>
 		<PanelBody title="Settings" initialOpen={ true }>
 			<PanelRow>
 				<TextControl
 					label={ __( 'Title', 'wp-parsely' ) }
 					value={ title }
-					onChange={ ( newval ) => setAttributes( { title: newval } ) }
+					onChange={ ( value: string ): void => setAttributes( { title: value } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -41,7 +47,7 @@ const ParselyRecommendationsInspectorControls = ( {
 					label={ __( 'Maximum Results', 'wp-parsely' ) }
 					min={ 1 }
 					max={ 25 }
-					onChange={ ( newval ) => setAttributes( { limit: newval } ) }
+					onChange={ ( value: number ): void => setAttributes( { limit: value } ) }
 					value={ limit }
 				/>
 			</PanelRow>
@@ -49,7 +55,7 @@ const ParselyRecommendationsInspectorControls = ( {
 				<ToggleControl
 					label={ __( 'Open Links in New Tab', 'wp-parsely' ) }
 					checked={ openlinksinnewtab }
-					onChange={ () => setAttributes( { openlinksinnewtab: ! openlinksinnewtab } ) }
+					onChange={ (): void => setAttributes( { openlinksinnewtab: ! openlinksinnewtab } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -61,7 +67,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							: __( 'Not showing images', 'wp-parsely' )
 					}
 					checked={ showimages }
-					onChange={ () => setAttributes( { showimages: ! showimages } ) }
+					onChange={ (): void => setAttributes( { showimages: ! showimages } ) }
 				/>
 			</PanelRow>
 			{ showimages && (
@@ -73,11 +79,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							{ label: __( 'Original image', 'wp-parsely' ), value: 'original' },
 							{ label: __( 'Thumbnail from Parse.ly', 'wp-parsely' ), value: 'thumbnail' },
 						] }
-						onChange={ ( newval ) =>
-							setAttributes( {
-								imagestyle: newval === 'original' ? 'original' : 'thumbnail',
-							} )
-						}
+						onChange={ setImageStyle }
 					/>
 				</PanelRow>
 			) }
@@ -95,7 +97,7 @@ const ParselyRecommendationsInspectorControls = ( {
 							value: 'pub_date',
 						},
 					] }
-					onChange={ ( newval ) => setAttributes( { sort: newval } ) }
+					onChange={ ( value: string ): void => setAttributes( { sort: value } ) }
 				/>
 			</PanelRow>
 			<PanelRow>
@@ -180,11 +182,11 @@ const ParselyRecommendationsInspectorControls = ( {
 							value: 'pi_referrals',
 						},
 					] }
-					onChange={ ( newval ) => setAttributes( { boost: newval } ) }
+					onChange={ ( value: string ): void => setAttributes( { boost: value } ) }
 				/>
 			</PanelRow>
 		</PanelBody>
-	</InspectorControls>
-);
+	</InspectorControls>;
+};
 
 export default ParselyRecommendationsInspectorControls;

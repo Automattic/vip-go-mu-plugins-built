@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -27,15 +27,15 @@ interface ApiResponse {
 
 const updateDelay = 300; // The Block's update delay in the Block Editor when settings/props change.
 
-const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element => {
+const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element | null => {
 	const {	dispatch } = useRecommendationsStore();
 
-	const query = {
+	const query = useMemo( () => ( {
 		boost,
 		limit,
 		sort,
 		url: window.location.href,
-	};
+	} ), [ boost, limit, sort ] );
 
 	async function fetchRecommendationsFromWpApi(): Promise<ApiResponse> {
 		return apiFetch( {
@@ -58,7 +58,7 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 		}
 
 		if ( error ) {
-			dispatch( setError( { error } ) );
+			dispatch( setError( { error: error as string } ) );
 			return;
 		}
 
@@ -74,9 +74,7 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 		dispatch( setRecommendations( { recommendations: data } ) );
 	}
 
-	const apiMemoProps = [ ...Object.values( query ) ];
-	const updateRecommendationsWhenPropsChange = useCallback( fetchRecommendations, apiMemoProps );
-	const debouncedUpdate = useDebounce( updateRecommendationsWhenPropsChange, updateDelay );
+	const debouncedFetchRecommendations = useDebounce( fetchRecommendations, updateDelay );
 
 	/**
 	 * Fetch recommendations:
@@ -85,8 +83,8 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 	 *   (This happens in the Editor context when someone changes a setting.)
 	 */
 	useEffect( () => {
-		debouncedUpdate();
-	}, apiMemoProps );
+		debouncedFetchRecommendations();
+	}, [ query, debouncedFetchRecommendations ] );
 
 	// This is a data-only component and does not render
 	return null;

@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 export enum ContentHelperErrorCode {
 	CannotFormulateApiQuery = 'ch_cannot_formulate_api_query',
 	FetchError = 'fetch_error', // apiFetch() failure, possibly caused by ad blocker.
-	ParselyApiForbidden = '403',
+	ParselyApiForbidden = 403, // Intentionally without quotes.
 	ParselyApiResponseContainsError = 'ch_response_contains_error',
 	ParselyApiReturnedNoData = 'ch_parsely_api_returned_no_data',
 	ParselyApiReturnedTooManyResults = 'ch_parsely_api_returned_too_many_results',
@@ -27,8 +27,7 @@ export enum ContentHelperErrorCode {
  */
 export class ContentHelperError extends Error {
 	protected code: ContentHelperErrorCode;
-	protected prefix: string;
-	protected hint: JSX.Element = null;
+	protected hint: JSX.Element | null = null;
 
 	constructor( message: string, code: ContentHelperErrorCode, prefix = __( 'Error: ', 'wp-parsely' ) ) {
 		super( prefix + message );
@@ -52,13 +51,13 @@ export class ContentHelperError extends Error {
 		// Errors that need a hint.
 		if ( this.code === ContentHelperErrorCode.FetchError ) {
 			this.hint = this.Hint( __(
-				'This error can be sometimes caused by ad-blockers or browser tracking protections. Please add this site to any applicable allow lists and try again.',
+				'This error can sometimes be caused by ad-blockers or browser tracking protections. Please add this site to any applicable allow lists and try again.',
 				'wp-parsely'
 			) );
 		}
 		if ( this.code === ContentHelperErrorCode.ParselyApiForbidden ) {
 			this.hint = this.Hint( __(
-				"Please ensure that the Site ID within the plugin's settings is correct.",
+				"Please ensure that the Site ID and API Secret given in the plugin's settings are correct.",
 				'wp-parsely'
 			) );
 		}

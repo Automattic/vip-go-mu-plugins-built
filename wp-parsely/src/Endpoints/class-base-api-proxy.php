@@ -11,11 +11,13 @@ declare(strict_types=1);
 namespace Parsely\Endpoints;
 
 use Parsely\Parsely;
-use Parsely\RemoteAPI\Proxy;
+use Parsely\RemoteAPI\Remote_API_Interface;
 use stdClass;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
+
+use function Parsely\Utils\convert_endpoint_to_filter_key;
 
 /**
  * Configures a REST API endpoint for use.
@@ -31,9 +33,9 @@ abstract class Base_API_Proxy {
 	/**
 	 * Proxy object which does the actual calls to the Parse.ly API.
 	 *
-	 * @var Proxy
+	 * @var Remote_API_Interface
 	 */
-	private $proxy;
+	private $api;
 
 	/**
 	 * Registers the endpoint's WP REST route.
@@ -43,17 +45,17 @@ abstract class Base_API_Proxy {
 	/**
 	 * Generates the final data from the passed response.
 	 *
-	 * @param array<string, mixed> $response The response received by the proxy.
+	 * @param array<stdClass> $response The response received by the proxy.
 	 * @return array<stdClass> The generated data.
 	 */
-	abstract protected function generate_data( array $response ): array;
+	abstract protected function generate_data( $response ): array;
 
 	/**
 	 * Cached "proxy" to the Parse.ly API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return stdClass|WPError stdClass containing the data or a WP_Error
-	 *                          object on failure.
+	 *
+	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	abstract public function get_items( WP_REST_Request $request );
 
@@ -62,18 +64,19 @@ abstract class Base_API_Proxy {
 	 *
 	 * @return bool
 	 */
-	abstract public function permission_callback(): bool;
+	public function permission_callback(): bool {
+		return $this->api->is_user_allowed_to_make_api_call();
+	}
 
 	/**
 	 * Constructor.
 	 *
-	 * @param Parsely $parsely Instance of Parsely class.
-	 * @param Proxy   $proxy   Proxy object which does the actual calls to the
-	 *                         Parse.ly API.
+	 * @param Parsely              $parsely Instance of Parsely class.
+	 * @param Remote_API_Interface $api API object which does the actual calls to the Parse.ly API.
 	 */
-	public function __construct( Parsely $parsely, Proxy $proxy ) {
+	public function __construct( Parsely $parsely, Remote_API_Interface $api ) {
 		$this->parsely = $parsely;
-		$this->proxy   = $proxy;
+		$this->api     = $api;
 	}
 
 	/**
@@ -82,8 +85,7 @@ abstract class Base_API_Proxy {
 	 * @param string $endpoint The endpoint's route (e.g. /stats/posts).
 	 */
 	protected function register_endpoint( string $endpoint ): void {
-		$filter_key = trim( str_replace( '/', '_', $endpoint ), '_' );
-		if ( ! apply_filters( 'wp_parsely_enable_' . $filter_key . '_api_proxy', true ) ) {
+		if ( ! apply_filters( 'wp_parsely_enable_' . convert_endpoint_to_filter_key( $endpoint ) . '_api_proxy', true ) ) {
 			return;
 		}
 
@@ -107,6 +109,7 @@ abstract class Base_API_Proxy {
 				'callback'            => array( $this, 'get_items' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => $get_items_args,
+				'show_in_index'       => $this->permission_callback(),
 			),
 		);
 
@@ -121,14 +124,14 @@ abstract class Base_API_Proxy {
 	 *                                            required.
 	 * @param string          $param_item         The param element to use to
 	 *                                            get the items.
-	 * @return stdClass|WPError stdClass containing the data or a WP_Error
-	 *                          object on failure.
+	 *
+	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	protected function get_data( WP_REST_Request $request, bool $require_api_secret = true, string $param_item = null ) {
-		if ( false === $this->parsely->api_key_is_set() ) {
+		if ( false === $this->parsely->site_id_is_set() ) {
 			return new WP_Error(
 				'parsely_site_id_not_set',
-				__( 'A Parse.ly API Key must be set in site options to use this endpoint', 'wp-parsely' ),
+				__( 'A Parse.ly Site ID must be set in site options to use this endpoint', 'wp-parsely' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -148,12 +151,14 @@ abstract class Base_API_Proxy {
 		}
 
 		// A proxy with caching behavior is used here.
-		$response = $this->proxy->get_items( $params );
+		$response = $this->api->get_items( $params ); // @phpstan-ignore-line.
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		return (object) array( 'data' => $this->generate_data( $response ) );
+		return (object) array(
+			'data' => $this->generate_data( $response ), // @phpstan-ignore-line.
+		);
 	}
 }

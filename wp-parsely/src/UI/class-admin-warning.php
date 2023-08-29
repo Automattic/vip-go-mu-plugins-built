@@ -57,7 +57,7 @@ final class Admin_Warning {
 			esc_url( Parsely::get_settings_url() )
 		);
 		?>
-		<div id="wp-parsely-apikey-error-notice" class="notice notice-error"><p><?php echo wp_kses_post( $message ); ?></p></div>
+		<div id="wp-parsely-site-id-error-notice" class="notice notice-error"><p><?php echo wp_kses_post( $message ); ?></p></div>
 		<?php
 	}
 
@@ -73,6 +73,6 @@ final class Admin_Warning {
 			return false;
 		}
 
-		return $this->parsely->api_key_is_missing();
+		return $this->parsely->site_id_is_missing();
 	}
 }

@@ -40,7 +40,7 @@ class Tag_Builder extends Metadata_Builder {
 	 */
 	private function build_headline(): void {
 		$tag = single_tag_title( '', false );
-		if ( empty( $tag ) ) {
+		if ( '' === $tag ) {
 			$tag = single_term_title( '', false );
 		}
 		/* translators: %s: Tag name */

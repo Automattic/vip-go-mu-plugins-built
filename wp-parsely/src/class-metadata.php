@@ -21,11 +21,48 @@ use Parsely\Metadata\Post_Builder;
 use Parsely\Metadata\Tag_Builder;
 use WP_Post;
 
+use function Parsely\Utils\get_page_for_posts;
+use function Parsely\Utils\get_page_on_front;
+
 /**
  * Generates and inserts metadata readable by the Parse.ly Crawler.
  *
  * @since 1.0.0
  * @since 3.3.0 Logic extracted from Parsely\Parsely class to separate file/class.
+ *
+ * @phpstan-type Metadata_Attributes array{
+ *   '@id'?: string,
+ *   '@type'?: string,
+ *   headline?: string,
+ *   url?: string,
+ *   image?: Metadata_Image,
+ *   thumbnailUrl?: string,
+ *   articleSection?: string,
+ *   creator?: string[],
+ *   author?: Metadata_Author[],
+ *   publisher?: Metadata_Publisher,
+ *   keywords?: string[],
+ *   dateCreated?: string,
+ *   datePublished?: string,
+ *   dateModified?: string,
+ *   custom_metadata?: string,
+ * }
+ *
+ * @phpstan-type Metadata_Image array{
+ *   '@type': 'ImageObject',
+ *   url: string,
+ * }
+ *
+ * @phpstan-type Metadata_Author array{
+ *   '@type': 'Person',
+ *   name: string,
+ * }
+ *
+ * @phpstan-type Metadata_Publisher array{
+ *   '@type': 'Organization',
+ *   name: string,
+ *   logo: string,
+ * }
  */
 class Metadata {
 	/**
@@ -49,9 +86,9 @@ class Metadata {
 	 *
 	 * @param WP_Post $post object.
 	 *
-	 * @return array<string, mixed>
+	 * @return Metadata_Attributes
 	 */
-	public function construct_metadata( WP_Post $post ): array {
+	public function construct_metadata( WP_Post $post ) {
 		$options           = $this->parsely->get_options();
 		$queried_object_id = get_queried_object_id();
 
@@ -61,12 +98,12 @@ class Metadata {
 			} else {
 				$builder = new Paginated_Front_Page_Builder( $this->parsely );
 			}
-		} elseif ( 'page' === get_option( 'show_on_front' ) && ! get_option( 'page_on_front' ) ) {
+		} elseif ( 'page' === get_option( 'show_on_front' ) && ! get_page_on_front() ) {
 			$builder = new Front_Page_Builder( $this->parsely );
 		} elseif (
 			is_home() && (
-				! ( 'page' === get_option( 'show_on_front' ) && ! get_option( 'page_on_front' ) ) ||
-				$queried_object_id && (int) get_option( 'page_for_posts' ) === $queried_object_id
+				! ( 'page' === get_option( 'show_on_front' ) && ! get_page_on_front() ) ||
+				get_page_for_posts() === $queried_object_id
 			)
 		) {
 			$builder = new Page_For_Posts_Builder( $this->parsely );
@@ -92,6 +129,8 @@ class Metadata {
 
 		/**
 		 * Filters the structured metadata.
+		 *
+		 * @var mixed
 		 *
 		 * @param array $parsely_page Existing structured metadata for a page.
 		 * @param WP_Post $post Post object.

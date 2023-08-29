@@ -80,7 +80,7 @@ final class Metadata_Renderer {
 		$parsely_options = $this->parsely->get_options();
 
 		if (
-			$this->parsely->api_key_is_missing() ||
+			$this->parsely->site_id_is_missing() ||
 
 			// Chosen not to track logged-in users.
 			( ! $parsely_options['track_authenticated_users'] && $this->parsely->is_blog_member_logged_in() ) ||
@@ -102,12 +102,10 @@ final class Metadata_Renderer {
 			return;
 		}
 
-		// Assign default values for LD+JSON
-		// TODO: Mapping of an install's post types to Parse.ly post types (namely page/post).
 		$metadata = ( new Metadata( $this->parsely ) )->construct_metadata( $parsed_post );
 
 		// Something went wrong - abort.
-		if ( 0 === count( $metadata ) || ! isset( $metadata['headline'] ) ) {
+		if ( ! isset( $metadata['headline'] ) ) {
 			return;
 		}
 
@@ -116,13 +114,15 @@ final class Metadata_Renderer {
 			echo '<script type="application/ld+json">' . wp_json_encode( $metadata ) . '</script>';
 		} else {
 			// Assume `meta_type` is `repeated_metas`.
-			$parsely_post_type = $this->parsely->convert_jsonld_to_parsely_type( $metadata['@type'] );
+			$parsely_post_type = $this->parsely->convert_jsonld_to_parsely_type( $metadata['@type'] ?? '' );
+
+			// @phpstan-ignore-next-line
 			if ( isset( $metadata['keywords'] ) && is_array( $metadata['keywords'] ) ) {
 				$metadata['keywords'] = implode( ',', $metadata['keywords'] );
 			}
 
 			$parsely_metas = array(
-				'title'     => $metadata['headline'] ?? null,
+				'title'     => $metadata['headline'],
 				'link'      => $metadata['url'] ?? null,
 				'type'      => $parsely_post_type,
 				'image-url' => $metadata['thumbnailUrl'] ?? null,

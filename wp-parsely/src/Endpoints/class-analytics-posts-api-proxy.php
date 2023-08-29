@@ -12,7 +12,10 @@ namespace Parsely\Endpoints;
 
 use stdClass;
 use WP_REST_Request;
+use WP_Error;
 use Parsely\Parsely;
+
+use function Parsely\Utils\get_date_format;
 
 /**
  * Configures the `/stats/posts` REST API endpoint.
@@ -30,8 +33,8 @@ final class Analytics_Posts_API_Proxy extends Base_API_Proxy {
 	 * Cached "proxy" to the Parse.ly `/analytics/posts` API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return stdClass|WPError stdClass containing the data or a WP_Error
-	 *                          object on failure.
+	 *
+	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	public function get_items( WP_REST_Request $request ) {
 		return $this->get_data( $request );
@@ -40,38 +43,30 @@ final class Analytics_Posts_API_Proxy extends Base_API_Proxy {
 	/**
 	 * Generates the final data from the passed response.
 	 *
-	 * @param array<string, mixed> $response The response received by the proxy.
+	 * @param array<stdClass> $response The response received by the proxy.
 	 * @return array<stdClass> The generated data.
 	 */
-	protected function generate_data( array $response ): array {
-		$date_format    = get_option( 'date_format' );
-		$stats_base_url = trailingslashit( Parsely::DASHBOARD_BASE_URL . '/' . $this->parsely->get_api_key() ) . 'find';
+	protected function generate_data( $response ): array {
+		$date_format = get_date_format();
+		$site_id     = $this->parsely->get_site_id();
 
-		$result = array_map(
-			static function( stdClass $item ) use ( $date_format, $stats_base_url ) {
+		return array_map(
+			static function( stdClass $item ) use ( $date_format, $site_id ) {
 				return (object) array(
-					'author'   => $item->author,
-					'date'     => wp_date( $date_format, strtotime( $item->pub_date ) ),
-					'id'       => $item->url,
-					'statsUrl' => $stats_base_url . '?url=' . rawurlencode( $item->url ),
-					'title'    => $item->title,
-					'url'      => $item->url,
-					'views'    => $item->metrics->views,
+					'author'         => $item->author,
+					'dashUrl'        => Parsely::get_dash_url( $site_id, $item->url ),
+					'date'           => $item->pub_date ? wp_date( $date_format, strtotime( $item->pub_date ) ) : null,
+					// Unique ID (can be replaced by Parse.ly API ID if it becomes available).
+					'id'             => $item->url,
+					// WordPress Post ID (0 if the post cannot be found, might not be unique).
+					'postId'         => url_to_postid( $item->url ), // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+					'thumbUrlMedium' => $item->thumb_url_medium,
+					'title'          => $item->title,
+					'url'            => $item->url,
+					'views'          => $item->metrics->views,
 				);
 			},
 			$response
 		);
-
-		return $result;
-	}
-
-	/**
-	 * Determines if there are enough permissions to call the endpoint.
-	 *
-	 * @return bool
-	 */
-	public function permission_callback(): bool {
-		// Unauthenticated.
-		return true;
 	}
 }

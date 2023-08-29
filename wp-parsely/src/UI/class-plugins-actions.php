@@ -31,10 +31,10 @@ final class Plugins_Actions {
 	/**
 	 * Adds a 'Settings' action link to the Plugins screen in WP admin.
 	 *
-	 * @param array $actions An array of plugin action links. By default, this can include 'activate',
-	 *                       'deactivate', and 'delete'. With Multisite active this can also include
-	 *                       'network_active' and 'network_only' items.
-	 * @return array
+	 * @param array<string, mixed> $actions An array of plugin action links. By default, this can include 'activate',
+	 *                                      'deactivate', and 'delete'. With Multisite active this can also include
+	 *                                      'network_active' and 'network_only' items.
+	 * @return array<string, mixed>
 	 */
 	public function add_plugin_meta_links( array $actions ): array {
 		$link_pattern = '<a href="%s">%s</a>';

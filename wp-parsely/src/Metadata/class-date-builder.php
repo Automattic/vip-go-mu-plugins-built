@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace Parsely\Metadata;
 
+use function Parsely\Utils\get_date_format;
+use function Parsely\Utils\get_time_format;
+
 /**
  * Implements abstract Metadata Builder class to generate the metadata array
  * for a date page.
@@ -39,7 +42,7 @@ class Date_Builder extends Metadata_Builder {
 	 * @since 3.4.0
 	 */
 	private function build_headline(): void {
-		$site_date_format = get_option( 'date_format' );
+		$site_date_format = get_date_format();
 
 		if ( is_year() ) {
 			/* translators: %s: Archive year */
@@ -51,7 +54,7 @@ class Date_Builder extends Metadata_Builder {
 			/* translators: %s: Archive day, formatted as F jS, Y */
 			$this->metadata['headline'] = sprintf( __( 'Daily Archive - %s', 'wp-parsely' ), get_the_time( $site_date_format ) );
 		} elseif ( is_time() ) {
-			$site_time_format = get_option( 'time_format' );
+			$site_time_format = get_time_format();
 			/* translators: %s: Archive time, formatted as F jS g:i:s A */
 			$this->metadata['headline'] = sprintf( __( 'Hourly, Minutely, or Secondly Archive - %s', 'wp-parsely' ), get_the_time( "{$site_date_format} {$site_time_format}" ) );
 		}

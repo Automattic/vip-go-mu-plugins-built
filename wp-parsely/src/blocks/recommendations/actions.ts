@@ -1,4 +1,4 @@
-import { RECOMMENDATIONS_BLOCK_ERROR, RECOMMENDATIONS_BLOCK_LOADED, RECOMMENDATIONS_BLOCK_RECOMMENDATIONS } from './constants';
+import { RecommendationsAction } from './constants';
 import { Recommendation } from './models/Recommendation';
 
 interface SetErrorPayload {
@@ -10,15 +10,15 @@ interface SetRecommendationsPayload {
 }
 
 export const setError = ( { error }: SetErrorPayload ) => ( {
-	type: RECOMMENDATIONS_BLOCK_ERROR,
+	type: RecommendationsAction.Error,
 	error,
 } );
 
 export const setRecommendations = ( { recommendations }: SetRecommendationsPayload ) => ( {
-	type: RECOMMENDATIONS_BLOCK_RECOMMENDATIONS,
+	type: RecommendationsAction.Recommendations,
 	recommendations,
 } );
 
 export const setLoaded = () => ( {
-	type: RECOMMENDATIONS_BLOCK_LOADED,
+	type: RecommendationsAction.Loaded,
 } );

@@ -77,7 +77,7 @@ final class Row_Actions {
 			return $actions;
 		}
 
-		$url = Dashboard_Link::generate_url( $post, $this->parsely->get_api_key(), 'wp-admin-posts-list', 'wp-admin' );
+		$url = Dashboard_Link::generate_url( $post, $this->parsely->get_site_id(), 'wp-admin-posts-list', 'wp-admin' );
 		if ( '' !== $url ) {
 			$actions['find_in_parsely'] = $this->generate_link_to_parsely( $post, $url );
 		}

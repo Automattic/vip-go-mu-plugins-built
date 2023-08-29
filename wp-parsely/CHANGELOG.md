@@ -5,6 +5,133 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.8.4](https://github.com/Parsely/wp-parsely/compare/3.8.3...3.8.4) - 2023-03-16
+
+### Fixed
+
+- Fix "Attempt to read property name on null" warning ([#1494](https://github.com/Parsely/wp-parsely/pull/1494))
+- Fix Admin Bar "Undefined Property" warning ([#1493](https://github.com/Parsely/wp-parsely/pull/1493))
+- Fix NumberFormatter constructor failures ([#1492](https://github.com/Parsely/wp-parsely/pull/1492))
+- PCH Stats Column: Fix avg time display issues ([#1491](https://github.com/Parsely/wp-parsely/pull/1491))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.8.4+label%3A%22Component%3A+Dependencies%22).
+
+## [3.8.3](https://github.com/Parsely/wp-parsely/compare/3.8.2...3.8.3) - 2023-03-14
+
+### Fixed
+
+- Fix Content Helper breakages due to null pub_date in API ([#1484](https://github.com/Parsely/wp-parsely/pull/1484))
+- Fix fatal errors in Co-Authors plugin integration ([#1482](https://github.com/Parsely/wp-parsely/pull/1482))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.8.3+label%3A%22Component%3A+Dependencies%22).
+
+## [3.8.2](https://github.com/Parsely/wp-parsely/compare/3.8.1...3.8.2) - 2023-03-08
+
+### Fixed
+
+- Fix some fatal errors and warnings ([#1477](https://github.com/Parsely/wp-parsely/pull/1477))
+- Fix @wordpress/eslint-plugin v14 warnings ([#1455](https://github.com/Parsely/wp-parsely/pull/1455))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.8.2+label%3A%22Component%3A+Dependencies%22).
+
+## [3.8.1](https://github.com/Parsely/wp-parsely/compare/3.8.0...3.8.1) - 2023-03-06
+
+### Fixed
+
+- Content Helper: Fix period range issue on Performance Details panel ([#1467](https://github.com/Parsely/wp-parsely/pull/1467))
+
+## [3.8.0](https://github.com/Parsely/wp-parsely/compare/3.7.1...3.8.0) - 2023-03-06
+
+### Changed
+
+- Content Helper: Update Related Top Posts range to 7 days ([#1454](https://github.com/Parsely/wp-parsely/pull/1454))
+- Content Helper: Add days info in header of Parse.ly Stats column ([#1451](https://github.com/Parsely/wp-parsely/pull/1451))
+- Update the "Track Logged-in Users" option to off by default ([#1436](https://github.com/Parsely/wp-parsely/pull/1436))
+- Make additional PHP 7.2 adjustments ([#1431](https://github.com/Parsely/wp-parsely/pull/1431))
+- Settings page: Update secret field types from text to password ([#1418](https://github.com/Parsely/wp-parsely/pull/1418))
+- Upgrade minimum PHP version to 7.2 ([#1401](https://github.com/Parsely/wp-parsely/pull/1401))
+- Settings page: Replace screen options with tabs ([#1339](https://github.com/Parsely/wp-parsely/pull/1339))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.8.0+label%3A%22Component%3A+Dependencies%22).
+
+## [3.7.2](https://github.com/Parsely/wp-parsely/compare/3.7.1...3.7.2) - 2023-03-08
+
+### Fixed
+
+- Import fatal and warning fixes from wp-parsely 3.8.2 ([#1477](https://github.com/Parsely/wp-parsely/pull/1477))
+
+## [3.7.1](https://github.com/Parsely/wp-parsely/compare/3.7.0...3.7.1) - 2023-02-27
+
+### Fixed
+
+- Fix Recommended Widget fatal error ([#1424](https://github.com/Parsely/wp-parsely/pull/1424))
+- Hide Parse.ly Stats column if API Secret is not available ([#1423](https://github.com/Parsely/wp-parsely/pull/1423))
+
+## [3.7.0](https://github.com/Parsely/wp-parsely/compare/3.6.2...3.7.0) - 2023-02-27
+
+### Added
+
+- Add filters to configure user capability on remote APIs ([#1417](https://github.com/Parsely/wp-parsely/pull/1417))
+- Content Helper: Add edit post icon and make linking behavior consistent across features ([#1346](https://github.com/Parsely/wp-parsely/pull/1346))
+- Content Helper: Add WordPress Dashboard Widget ([#1305](https://github.com/Parsely/wp-parsely/pull/1305))
+- Content Helper: Add Parse.ly Stats List Column ([#1271](https://github.com/Parsely/wp-parsely/pull/1271))
+- Add TypeScript support to all remaining JavaScript files ([#1239](https://github.com/Parsely/wp-parsely/pull/1239))
+
+### Changed
+
+- Show/hide Parse.ly widget and stats column based on user capabilities ([#1407](https://github.com/Parsely/wp-parsely/pull/1407))
+- Content Helper: Update naming ([#1380](https://github.com/Parsely/wp-parsely/pull/1380))
+- UI: Minor wording tweak for Content Helper error ([#1304](https://github.com/Parsely/wp-parsely/pull/1304))
+- UI: Fix grammar in Content Helper error ([#1303](https://github.com/Parsely/wp-parsely/pull/1303))
+- UI: Fix typo in Disable JavaScript option ([#1302](https://github.com/Parsely/wp-parsely/pull/1302))
+- Refactor Content Helper for better structure ([#1288](https://github.com/Parsely/wp-parsely/pull/1288))
+- Centralize dashboard URL generation in a single function ([#1287](https://github.com/Parsely/wp-parsely/pull/1287))
+- Improve Remote APIs naming ([#1272](https://github.com/Parsely/wp-parsely/pull/1272))
+- Rename API Key to Site ID to improve consistency ([#1244](https://github.com/Parsely/wp-parsely/pull/1244))
+
+### Fixed
+
+- Fix referral distribution in Performance Details panel ([#1381](https://github.com/Parsely/wp-parsely/pull/1381))
+- Fix Undefined warnings on Performance Details panel ([#1378](https://github.com/Parsely/wp-parsely/pull/1378))
+- Content Helper: Fix top referrers percentage displaying as "NaN" ([#1374](https://github.com/Parsely/wp-parsely/pull/1374))
+- Fix PHP 8 incompatibilities ([#1362](https://github.com/Parsely/wp-parsely/pull/1362))
+- Fix PHP Notice on Settings page: "Undefined index: title" ([#1342](https://github.com/Parsely/wp-parsely/pull/1342))
+- Content Helper: Make error hint display for all Forbidden (403) errors ([#1336](https://github.com/Parsely/wp-parsely/pull/1336))
+- Fix PHPStan Errors ([#1252](https://github.com/Parsely/wp-parsely/pull/1252))
+- Fix SonarCloud warnings ([#1246](https://github.com/Parsely/wp-parsely/pull/1246))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.7.0+label%3A%22Component%3A+Dependencies%22).
+
+## [3.6.2](https://github.com/Parsely/wp-parsely/compare/3.6.1...3.6.2) - 2023-02-13
+
+### Fixed
+
+- Fix PHP 8 Incompatibilities ([#1362](https://github.com/Parsely/wp-parsely/pull/1362))
+- Improve checks on proxy endpoints
+- Fix referral distribution in Performance Details panel ([#1382](https://github.com/Parsely/wp-parsely/pull/1382))
+
+## [3.5.3](https://github.com/Parsely/wp-parsely/compare/3.5.2...3.5.3) - 2023-02-13
+
+### Fixed
+
+- Improve checks on proxy endpoints
+
+## [3.4.3](https://github.com/Parsely/wp-parsely/compare/3.4.2...3.4.3) - 2023-02-13
+
+### Fixed
+
+- Improve checks on proxy endpoints
+
 ## [3.6.1](https://github.com/Parsely/wp-parsely/compare/3.6.0...3.6.1) - 2022-12-20
 
 ### Fixed

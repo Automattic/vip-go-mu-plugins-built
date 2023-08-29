@@ -10,12 +10,38 @@ declare(strict_types=1);
 
 namespace Parsely\Integrations;
 
-use Parsely\Parsely;
-
 /**
  * Integrates Parse.ly tracking with the AMP plugin.
  *
  * @since 2.6.0 Moved from Parsely class to this file.
+ *
+ * @phpstan-type Amp_Analytics array{
+ *   parsely: Parsely_Amp_Analytics,
+ * }
+ *
+ * @phpstan-type Amp_Native_Analytics array{
+ *   parsely: Parsely_Amp_Native_Analytics,
+ * }
+ *
+ * @phpstan-type Parsely_Amp_Analytics array{
+ *   type: string,
+ *   attributes: array<string, mixed>,
+ *   config_data: Parsely_Amp_Config
+ * }
+ *
+ * @phpstan-type Parsely_Amp_Native_Analytics array{
+ *   type: string,
+ *   attributes: array<string, mixed>,
+ *   config: string
+ * }
+ *
+ * @phpstan-type Parsely_Amp_Config array{
+ *   vars: Parsely_Amp_Config_Vars,
+ * }
+ *
+ * @phpstan-type Parsely_Amp_Config_Vars array{
+ *   apikey: string,
+ * }
  */
 class Amp extends Integration {
 	/**
@@ -55,7 +81,7 @@ class Amp extends Integration {
 	public function can_handle_amp_request(): bool {
 		$options = self::$parsely->get_options();
 
-		return $this->is_amp_request() && is_array( $options ) && ! $options['disable_amp'];
+		return $this->is_amp_request() && ! $options['disable_amp'];
 	}
 
 	/**
@@ -75,8 +101,8 @@ class Amp extends Integration {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array|null $analytics The analytics registry.
-	 * @return array The analytics registry.
+	 * @param array<string, mixed>|null $analytics The analytics registry.
+	 * @return array<string, mixed> The analytics registry.
 	 */
 	public function register_parsely_for_amp_analytics( ?array $analytics ): array {
 		if ( null === $analytics ) {
@@ -102,8 +128,9 @@ class Amp extends Integration {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array|null $analytics The analytics registry.
-	 * @return array The analytics registry.
+	 * @param array<string, mixed>|null $analytics The analytics registry.
+	 *
+	 * @return Amp_Analytics|array<string, mixed> The analytics registry.
 	 */
 	public function register_parsely_for_amp_native_analytics( ?array $analytics ): array {
 		if ( null === $analytics ) {
@@ -112,7 +139,7 @@ class Amp extends Integration {
 
 		$options = self::$parsely->get_options();
 
-		if ( isset( $options['disable_amp'] ) && true === $options['disable_amp'] ) {
+		if ( true === $options['disable_amp'] ) {
 			return $analytics;
 		}
 
@@ -154,18 +181,17 @@ class Amp extends Integration {
 	 * consists of the site's Site ID if that's defined, or an empty array
 	 * otherwise.
 	 *
+	 * @link https://docs.parse.ly/google-amp/
 	 * @since 3.2.0
 	 *
 	 * @return array<string, array<string, string>>
 	 */
 	public static function construct_amp_config(): array {
-		$options = self::$parsely->get_options();
-
-		if ( isset( $options['apikey'] ) && is_string( $options['apikey'] ) && '' !== $options['apikey'] ) {
+		if ( self::$parsely->site_id_is_set() ) {
 			return array(
 				'vars' => array(
 					// This field will be rendered in a JS context.
-					'apikey' => esc_js( $options['apikey'] ),
+					'apikey' => esc_js( self::$parsely->get_site_id() ),
 				),
 			);
 		}

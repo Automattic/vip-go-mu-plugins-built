@@ -14,11 +14,15 @@ use Parsely\Parsely;
 use WP_Post;
 use WP_User;
 
+use function Parsely\Utils\get_default_category;
+
 /**
  * Implements abstract Metadata Builder class to generate the metadata array
  * for a post page.
  *
  * @since 3.4.0
+ *
+ * @phpstan-import-type Parsely_Options from Parsely
  */
 class Post_Builder extends Metadata_Builder {
 	/**
@@ -92,16 +96,14 @@ class Post_Builder extends Metadata_Builder {
 		/**
 		 * Filters the JSON-LD @type.
 		 *
-		 * @param array $jsonld_type JSON-LD @type value, default is NewsArticle.
+		 * @param string $jsonld_type JSON-LD @type value, default is NewsArticle.
 		 * @param int $id Post ID.
 		 * @param string $post_type The Post type in WordPress.
 		 *
 		 * @since 2.5.0
 		 */
-		$type = (string) apply_filters( 'wp_parsely_post_type', 'NewsArticle', $this->post->ID, $this->post->post_type );
-
-		// TODO: Merge only once, not every execution.
-		$supported_types = array_merge( Parsely::SUPPORTED_JSONLD_POST_TYPES, Parsely::SUPPORTED_JSONLD_NON_POST_TYPES );
+		$type            = apply_filters( 'wp_parsely_post_type', 'NewsArticle', $this->post->ID, $this->post->post_type );
+		$supported_types = $this->parsely->get_all_supported_types();
 
 		// Validate type before passing it further as an invalid type will not be recognized by Parse.ly.
 		if ( ! in_array( $type, $supported_types, true ) ) {
@@ -271,25 +273,28 @@ class Post_Builder extends Metadata_Builder {
 	 *
 	 * @since 3.3.0 Moved to class-metadata
 	 *
-	 * @param WP_Post              $post_obj The object for the post.
-	 * @param array<string, mixed> $parsely_options The parsely options.
+	 * @param WP_Post         $post_obj The object for the post.
+	 * @param Parsely_Options $parsely_options The parsely options.
+	 *
 	 * @return string Cleaned category name for the post in question.
 	 */
-	private function get_category_name( WP_Post $post_obj, array $parsely_options ): string {
+	private function get_category_name( WP_Post $post_obj, $parsely_options ): string {
 		$taxonomy_dropdown_choice = get_the_terms( $post_obj->ID, $parsely_options['custom_taxonomy_section'] );
 		// Get top-level taxonomy name for chosen taxonomy and assign to $parent_name; it will be used
 		// as the category value if 'use_top_level_cats' option is checked.
 		// Assign as the default category name if no value is checked for the chosen taxonomy.
-		$category_name = get_cat_name( get_option( 'default_category' ) );
-		if ( ! empty( $taxonomy_dropdown_choice ) && ! is_wp_error( $taxonomy_dropdown_choice ) ) {
+		$category_name = get_cat_name( get_default_category() );
+		if ( false !== $taxonomy_dropdown_choice && ! is_wp_error( $taxonomy_dropdown_choice ) ) {
 			if ( $parsely_options['use_top_level_cats'] ) {
 				$first_term = array_shift( $taxonomy_dropdown_choice );
-				$term_name  = $this->get_top_level_term( $first_term->term_id, $first_term->taxonomy );
+				if ( null !== $first_term ) {
+					$term_name = $this->get_top_level_term( $first_term->term_id, $first_term->taxonomy );
+				}
 			} else {
 				$term_name = $this->get_bottom_level_term( $post_obj->ID, $parsely_options['custom_taxonomy_section'] );
 			}
 
-			if ( is_string( $term_name ) && 0 < strlen( $term_name ) ) {
+			if ( isset( $term_name ) && is_string( $term_name ) && 0 < strlen( $term_name ) ) {
 				$category_name = $term_name;
 			}
 		}
@@ -322,10 +327,12 @@ class Post_Builder extends Metadata_Builder {
 	 */
 	private function get_top_level_term( int $term_id, string $taxonomy_name ) {
 		$parent = get_term_by( 'id', $term_id, $taxonomy_name );
-		while ( false !== $parent && 0 !== $parent->parent ) {
+
+		while ( false !== $parent && isset( $parent->parent ) && 0 !== $parent->parent ) {
 			$parent = get_term_by( 'id', $parent->parent, $taxonomy_name );
 		}
-		return $parent ? $parent->name : false;
+
+		return $parent->name ?? false;
 	}
 
 	/**
@@ -357,9 +364,9 @@ class Post_Builder extends Metadata_Builder {
 		// remove array index keys.
 		$terms_not_parents_cleaned = array_values( $terms_not_parents );
 
-		if ( ! empty( $terms_not_parents_cleaned ) ) {
+		if ( isset( $terms_not_parents_cleaned[0] ) ) {
 			// If you assign multiple child terms in a custom taxonomy, will only return the first.
-			return $terms_not_parents_cleaned[0]->name ?? '';
+			return $terms_not_parents_cleaned[0]->name;
 		}
 
 		return '';
@@ -426,7 +433,7 @@ class Post_Builder extends Metadata_Builder {
 		if ( class_exists( 'coauthors_plus' ) ) {
 			global $post, $post_ID, $coauthors_plus;
 
-			if ( ! $post_id && $post_ID ) {
+			if ( ! ( $post_id > 0 ) && $post_ID ) {
 				$post_id = $post_ID;
 			}
 
@@ -442,7 +449,7 @@ class Post_Builder extends Metadata_Builder {
 						$coauthor_slug = preg_replace( '#^cap-#', '', $coauthor->slug );
 						$post_author   = $coauthors_plus->get_coauthor_by( 'user_nicename', $coauthor_slug );
 						// In case the user has been deleted while plugin was deactivated.
-						if ( ! empty( $post_author ) ) {
+						if ( false !== $post_author ) {
 							$coauthors[] = new WP_User( $post_author );
 						}
 					}
@@ -450,7 +457,7 @@ class Post_Builder extends Metadata_Builder {
 					if ( $post && $post_id === $post->ID ) {
 						$post_author = get_userdata( $post->post_author );
 					}
-					if ( ! empty( $post_author ) ) {
+					if ( isset( $post_author ) && false !== $post_author ) {
 						$coauthors[] = $post_author;
 					}
 				}
@@ -475,7 +482,7 @@ class Post_Builder extends Metadata_Builder {
 			return '';
 		}
 
-		if ( ! empty( $author->display_name ) ) {
+		if ( '' !== $author->display_name ) {
 			return $author->display_name;
 		}
 
@@ -484,11 +491,11 @@ class Post_Builder extends Metadata_Builder {
 			return $author_name;
 		}
 
-		if ( ! empty( $author->nickname ) ) {
+		if ( '' !== $author->nickname ) {
 			return $author->nickname;
 		}
 
-		if ( ! empty( $author->user_nicename ) ) {
+		if ( '' !== $author->user_nicename ) {
 			return $author->user_nicename;
 		}
 
@@ -504,13 +511,22 @@ class Post_Builder extends Metadata_Builder {
 	 * @return array<string> The tags of the post represented by the post id.
 	 */
 	private function get_tags( int $post_id ): array {
-		$tags      = array();
+		/**
+		 * Variable.
+		 *
+		 * @var array<\WP_Term|null>|\WP_Error
+		 */
 		$post_tags = wp_get_post_tags( $post_id );
+		$tags      = array();
+
 		if ( ! is_wp_error( $post_tags ) ) {
 			foreach ( $post_tags as $wp_tag ) {
-				$tags[] = $wp_tag->name;
+				if ( null !== $wp_tag ) {
+					$tags[] = $wp_tag->name;
+				}
 			}
 		}
+
 		return $tags;
 	}
 
@@ -539,7 +555,7 @@ class Post_Builder extends Metadata_Builder {
 		}
 
 		// Remove default category name from tags if needed.
-		$default_category_name = get_cat_name( get_option( 'default_category' ) );
+		$default_category_name = get_cat_name( get_default_category() );
 		return array_diff( $tags, array( $default_category_name ) );
 	}
 

@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace Parsely\UI;
 
 use Parsely\Parsely;
-use WP_Site;
 
 /**
  * Renders the additions to the WordPress Multisite Network Admin Sites List
@@ -20,7 +19,13 @@ use WP_Site;
  * @since 3.2.0
  */
 final class Network_Admin_Sites_List {
-	const COLUMN_NAME = 'parsely-api-key';
+	public const COLUMN_NAME = 'parsely-site-id';
+	/**
+	 * Instance of Parsely class.
+	 *
+	 * @var Parsely
+	 */
+	private $parsely;
 
 	/**
 	 * Constructor.
@@ -38,9 +43,9 @@ final class Network_Admin_Sites_List {
 	 * @since 3.2.0
 	 */
 	public function run(): void {
-		add_filter( 'manage_sites_action_links', array( __CLASS__, 'add_action_link' ), 10, 2 );
-		add_filter( 'wpmu_blogs_columns', array( __CLASS__, 'add_api_key_column' ) );
-		add_action( 'manage_sites_custom_column', array( $this, 'populate_api_key_column' ), 10, 2 );
+		add_filter( 'manage_sites_action_links', array( self::class, 'add_action_link' ), 10, 2 );
+		add_filter( 'wpmu_blogs_columns', array( self::class, 'add_site_id_column' ) );
+		add_action( 'manage_sites_custom_column', array( $this, 'populate_site_id_column' ), 10, 2 );
 	}
 
 	/**
@@ -49,10 +54,11 @@ final class Network_Admin_Sites_List {
 	 *
 	 * @since 3.2.0
 	 *
-	 * @param array $actions The list of actions meant to be displayed for the current site's
-	 *                       context in the row actions.
-	 * @param int   $_blog_id The blog ID for the current context.
-	 * @return array The list of actions including ours.
+	 * @param array<string, mixed> $actions  The list of actions meant to be displayed for the current site's
+	 *                                       context in the row actions.
+	 * @param int                  $_blog_id The blog ID for the current context.
+	 *
+	 * @return array<string, mixed> The list of actions including ours.
 	 */
 	public static function add_action_link( array $actions, int $_blog_id ): array {
 		if ( ! current_user_can( Parsely::CAPABILITY ) ) {
@@ -78,12 +84,13 @@ final class Network_Admin_Sites_List {
 	 * @return string ARIA label content including the blogname.
 	 */
 	private static function generate_aria_label_for_blog_id( int $_blog_id ): string {
-		$site = get_blog_details( $_blog_id );
+		$site     = get_blog_details( $_blog_id );
+		$blogname = false === $site ? '' : $site->blogname;
 
 		return sprintf(
 			/* translators: blog name or blog id if empty  */
 			__( 'Go to Parse.ly stats for "%s"', 'wp-parsely' ),
-			empty( $site->blogname ) ? $_blog_id : $site->blogname
+			'' === $blogname ? $_blog_id : $blogname
 		);
 	}
 
@@ -93,11 +100,11 @@ final class Network_Admin_Sites_List {
 	 *
 	 * @since 3.2.0
 	 *
-	 * @param array $sites_columns The list of columns meant to be displayed in the sites list table.
-	 * @return array The list of columns to display in the network admin table including ours.
+	 * @param array<string, mixed> $sites_columns The list of columns meant to be displayed in the sites list table.
+	 * @return array<string, mixed> The list of columns to display in the network admin table including ours.
 	 */
-	public static function add_api_key_column( array $sites_columns ): array {
-		$sites_columns[ self::COLUMN_NAME ] = __( 'Parse.ly API Key', 'wp-parsely' );
+	public static function add_site_id_column( array $sites_columns ): array {
+		$sites_columns[ self::COLUMN_NAME ] = __( 'Parse.ly Site ID', 'wp-parsely' );
 		return $sites_columns;
 	}
 
@@ -110,20 +117,20 @@ final class Network_Admin_Sites_List {
 	 * @param string $column_name The column name for the current context.
 	 * @param int    $_blog_id The blog ID for the current context.
 	 */
-	public function populate_api_key_column( string $column_name, int $_blog_id ): void {
+	public function populate_site_id_column( string $column_name, int $_blog_id ): void {
 		if ( self::COLUMN_NAME !== $column_name ) {
 			return;
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog
 		switch_to_blog( $_blog_id );
-		$apikey = $this->parsely->get_api_key();
+		$site_id = $this->parsely->get_site_id();
 		restore_current_blog();
 
-		if ( strlen( $apikey ) > 0 ) {
-			echo esc_html( $apikey );
+		if ( strlen( $site_id ) > 0 ) {
+			echo esc_html( $site_id );
 		} else {
-			echo '<em>' . esc_html__( 'Parse.ly API key is missing', 'wp-parsely' ) . '</em>';
+			echo '<em>' . esc_html__( 'Parse.ly Site ID is missing', 'wp-parsely' ) . '</em>';
 		}
 	}
 }

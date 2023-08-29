@@ -11,14 +11,14 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://www.parse.ly/help/integration/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.6.1
+ * Version:           3.8.4
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
  * License:           GPL-2.0-or-later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * GitHub Plugin URI: https://github.com/Parsely/wp-parsely
- * Requires PHP:      7.1
+ * Requires PHP:      7.2
  * Requires WP:       5.0.0
  */
 
@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace Parsely;
 
+use Parsely\ContentHelper\Dashboard_Widget;
 use Parsely\Endpoints\Analytics_Post_Detail_API_Proxy;
 use Parsely\Endpoints\Analytics_Posts_API_Proxy;
 use Parsely\Endpoints\GraphQL_Metadata;
@@ -36,13 +37,14 @@ use Parsely\Integrations\Amp;
 use Parsely\Integrations\Facebook_Instant_Articles;
 use Parsely\Integrations\Google_Web_Stories;
 use Parsely\Integrations\Integrations;
-use Parsely\RemoteAPI\Analytics_Post_Detail_Proxy;
-use Parsely\RemoteAPI\Analytics_Posts_Proxy;
-use Parsely\RemoteAPI\Cached_Proxy;
-use Parsely\RemoteAPI\Referrers_Post_Detail_Proxy;
-use Parsely\RemoteAPI\Related_Proxy;
+use Parsely\RemoteAPI\Analytics_Post_Detail_API;
+use Parsely\RemoteAPI\Analytics_Posts_API;
+use Parsely\RemoteAPI\Remote_API_Cache;
+use Parsely\RemoteAPI\Referrers_Post_Detail_API;
+use Parsely\RemoteAPI\Related_API;
 use Parsely\RemoteAPI\WordPress_Cache;
 use Parsely\UI\Admin_Bar;
+use Parsely\UI\Admin_Columns_Parsely_Stats;
 use Parsely\UI\Admin_Warning;
 use Parsely\UI\Metadata_Renderer;
 use Parsely\UI\Network_Admin_Sites_List;
@@ -52,11 +54,13 @@ use Parsely\UI\Row_Actions;
 use Parsely\UI\Settings_Page;
 use Parsely\UI\Site_Health;
 
+require_once __DIR__ . '/src/Utils/utils.php';
+
 if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION = '3.6.1';
+const PARSELY_VERSION = '3.8.4';
 const PARSELY_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-parsely.php';
@@ -102,27 +106,26 @@ function parsely_initialize_plugin(): void {
 	$metadata_renderer->run();
 }
 
+require_once __DIR__ . '/src/UI/class-admin-columns-parsely-stats.php';
 require_once __DIR__ . '/src/UI/class-admin-warning.php';
 require_once __DIR__ . '/src/UI/class-plugins-actions.php';
 require_once __DIR__ . '/src/UI/class-row-actions.php';
 require_once __DIR__ . '/src/UI/class-site-health.php';
+require_once __DIR__ . '/src/content-helper/dashboard-widget/class-dashboard-widget.php';
 
 add_action( 'admin_init', __NAMESPACE__ . '\\parsely_admin_init_register' );
 /**
  * Registers the Parse.ly wp-admin warnings, plugin actions and row actions.
  */
 function parsely_admin_init_register(): void {
-	$admin_warning = new Admin_Warning( $GLOBALS['parsely'] );
-	$admin_warning->run();
+	$parsely = $GLOBALS['parsely'];
 
-	$plugins_actions = new Plugins_Actions();
-	$plugins_actions->run();
-
-	$row_actions = new Row_Actions( $GLOBALS['parsely'] );
-	$row_actions->run();
-
-	$site_health = new Site_Health( $GLOBALS['parsely'] );
-	$site_health->run();
+	( new Admin_Warning( $parsely ) )->run();
+	( new Plugins_Actions() )->run();
+	( new Row_Actions( $parsely ) )->run();
+	( new Admin_Columns_Parsely_Stats( $parsely ) )->run();
+	( new Site_Health( $parsely ) )->run();
+	( new Dashboard_Widget() )->run();
 }
 
 require_once __DIR__ . '/src/UI/class-settings-page.php';
@@ -134,21 +137,21 @@ add_action( 'init', __NAMESPACE__ . '\\parsely_wp_admin_early_register' );
  * Network Admin Sites List table.
  */
 function parsely_wp_admin_early_register(): void {
-	$settings_page = new Settings_Page( $GLOBALS['parsely'] );
-	$settings_page->run();
+	$GLOBALS['parsely_settings_page'] = new Settings_Page( $GLOBALS['parsely'] );
+	$GLOBALS['parsely_settings_page']->run();
 
 	$network_admin_sites_list = new Network_Admin_Sites_List( $GLOBALS['parsely'] );
 	$network_admin_sites_list->run();
 }
 
 require_once __DIR__ . '/src/RemoteAPI/interface-cache.php';
-require_once __DIR__ . '/src/RemoteAPI/interface-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-base-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-cached-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-related-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-analytics-posts-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-analytics-post-detail-proxy.php';
-require_once __DIR__ . '/src/RemoteAPI/class-referrers-post-detail-proxy.php';
+require_once __DIR__ . '/src/RemoteAPI/interface-remote-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-remote-api-base.php';
+require_once __DIR__ . '/src/RemoteAPI/class-remote-api-cache.php';
+require_once __DIR__ . '/src/RemoteAPI/class-related-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-analytics-posts-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-analytics-post-detail-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-referrers-post-detail-api.php';
 require_once __DIR__ . '/src/RemoteAPI/class-wordpress-cache.php';
 
 require_once __DIR__ . '/src/Endpoints/class-base-api-proxy.php';
@@ -171,25 +174,25 @@ function parsely_rest_api_init(): void {
 	$rest->run();
 
 	parsely_run_rest_api_endpoint(
-		Related_Proxy::class,
+		Related_API::class,
 		Related_API_Proxy::class,
 		$wp_cache
 	);
 
 	parsely_run_rest_api_endpoint(
-		Analytics_Posts_Proxy::class,
+		Analytics_Posts_API::class,
 		Analytics_Posts_API_Proxy::class,
 		$wp_cache
 	);
 
 	parsely_run_rest_api_endpoint(
-		Analytics_Post_Detail_Proxy::class,
+		Analytics_Post_Detail_API::class,
 		Analytics_Post_Detail_API_Proxy::class,
 		$wp_cache
 	);
 
 	parsely_run_rest_api_endpoint(
-		Referrers_Post_Detail_Proxy::class,
+		Referrers_Post_Detail_API::class,
 		Referrers_Post_Detail_API_Proxy::class,
 		$wp_cache
 	);
@@ -210,7 +213,7 @@ require_once __DIR__ . '/src/blocks/content-helper/class-content-helper.php';
 
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\init_content_helper' );
 /**
- * Inserts the Content Helper into the WordPress Post Editor.
+ * Inserts the PCH Editor Sidebar.
  *
  * @since 3.5.0 Moved from Parsely\Scripts\enqueue_block_editor_assets()
  */
@@ -234,7 +237,7 @@ require_once __DIR__ . '/src/Integrations/class-amp.php';
 require_once __DIR__ . '/src/Integrations/class-facebook-instant-articles.php';
 require_once __DIR__ . '/src/Integrations/class-google-web-stories.php';
 
-add_action( 'init', __NAMESPACE__ . '\\parsely_integrations' );
+add_action( 'init', __NAMESPACE__ . '\\parsely_integrations' ); // @phpstan-ignore-line
 /**
  * Instantiates Integrations collection and registers built-in integrations.
  *
@@ -247,7 +250,7 @@ function parsely_integrations( $parsely = null ): Integrations {
 	// If $parsely value is "", then this function is being called by the init
 	// hook and we can get the value from $GLOBALS. If $parsely is an instance
 	// of the Parsely object, then this function is being called by a test.
-	if ( empty( $parsely ) || get_class( $parsely ) !== Parsely::class ) {
+	if ( ! is_object( $parsely ) || get_class( $parsely ) !== Parsely::class ) {
 		$parsely = $GLOBALS['parsely'];
 	}
 
@@ -266,17 +269,28 @@ function parsely_integrations( $parsely = null ): Integrations {
  *
  * @since 3.6.0
  *
- * @param string          $proxy_class_name The proxy class to instantiate.
- * @param string          $api_proxy_class_name The API proxy class to instantiate and run.
+ * @param string          $api_class_name The proxy class to instantiate.
+ * @param string          $proxy_api_class_name The API proxy class to instantiate and run.
  * @param WordPress_Cache $wp_cache The WordPress cache instance to be used.
  */
 function parsely_run_rest_api_endpoint(
-	string $proxy_class_name,
-	string $api_proxy_class_name,
+	string $api_class_name,
+	string $proxy_api_class_name,
 	WordPress_Cache &$wp_cache
 ): void {
-	$proxy_instance        = new $proxy_class_name( $GLOBALS['parsely'] );
-	$cached_proxy_instance = new Cached_Proxy( $proxy_instance, $wp_cache );
-	$api_proxy_instance    = new $api_proxy_class_name( $GLOBALS['parsely'], $cached_proxy_instance );
-	$api_proxy_instance->run();
+	/**
+	 * Internal Variable.
+	 *
+	 * @var RemoteAPI\Remote_API_Base
+	 */
+	$remote_api       = new $api_class_name( $GLOBALS['parsely'] );
+	$remote_api_cache = new Remote_API_Cache( $remote_api, $wp_cache );
+
+	/**
+	 * Internal Variable.
+	 *
+	 * @var Endpoints\Base_API_Proxy
+	 */
+	$remote_api_proxy = new $proxy_api_class_name( $GLOBALS['parsely'], $remote_api_cache );
+	$remote_api_proxy->run();
 }

@@ -16,6 +16,15 @@ use Parsely\Parsely;
  * Integrates Parse.ly tracking with the Facebook Instant Articles plugin.
  *
  * @since 2.6.0 Moved from Parsely class to this file.
+ *
+ * @phpstan-type FB_Instant_Articles_Registry array{
+ *   'parsely-analytics-for-wordpress'?: FB_Parsely_Registry,
+ * }
+ *
+ * @phpstan-type FB_Parsely_Registry array{
+ *   name: string,
+ *   payload: string,
+ * }
  */
 final class Facebook_Instant_Articles extends Integration {
 	private const REGISTRY_IDENTIFIER   = 'parsely-analytics-for-wordpress';
@@ -38,17 +47,17 @@ final class Facebook_Instant_Articles extends Integration {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param array $registry The registry info for Facebook Instant Articles.
+	 * @param FB_Instant_Articles_Registry $registry The registry info for Facebook Instant Articles.
 	 */
 	public function insert_parsely_tracking( &$registry ): void {
 		$parsely = new Parsely();
-		if ( $parsely->api_key_is_missing() ) {
+		if ( $parsely->site_id_is_missing() ) {
 			return;
 		}
 
 		$registry[ self::REGISTRY_IDENTIFIER ] = array(
 			'name'    => self::REGISTRY_DISPLAY_NAME,
-			'payload' => $this->get_embed_code( $parsely->get_api_key() ),
+			'payload' => $this->get_embed_code( $parsely->get_site_id() ),
 		);
 	}
 
@@ -57,10 +66,10 @@ final class Facebook_Instant_Articles extends Integration {
 	 *
 	 * @since 2.6.0
 	 *
-	 * @param string $api_key API key.
+	 * @param string $site_id Site ID.
 	 * @return string Embedded code.
 	 */
-	private function get_embed_code( string $api_key ): string {
+	private function get_embed_code( string $site_id ): string {
 		return '<script>
 			PARSELY = {
 				autotrack: false,
@@ -72,6 +81,6 @@ final class Facebook_Instant_Articles extends Integration {
 				}
 			}
 		</script>
-		<script data-cfasync="false" id="parsely-cfg" data-parsely-site="' . esc_attr( $api_key ) . '" src="//cdn.parsely.com/keys/' . esc_attr( $api_key ) . '/p.js"></script>';
+		<script data-cfasync="false" id="parsely-cfg" data-parsely-site="' . esc_attr( $site_id ) . '" src="//cdn.parsely.com/keys/' . esc_attr( $site_id ) . '/p.js"></script>';
 	}
 }

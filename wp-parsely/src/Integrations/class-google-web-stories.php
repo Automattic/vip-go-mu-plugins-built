@@ -43,7 +43,7 @@ final class Google_Web_Stories extends Integration {
 			<amp-analytics type="parsely">
 				<script type="application/json">
 					<?php
-					// Output contains the API key, and it's already escaped in the construct_amp_json function.
+					// Output contains the Site ID, and it's already escaped in the construct_amp_json function.
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $json;
 					?>
