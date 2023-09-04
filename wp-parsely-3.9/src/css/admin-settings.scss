@@ -1,0 +1,85 @@
+@import "../content-helper/common/css/variables";
+@import "../content-helper/common/css/functions";
+
+.settings_page_parsely {
+	--padding-default: 15px;
+
+	#track-post-types {
+		max-width: 550px;
+		width: 100%;
+
+		th,
+		td {
+			display: table-cell;
+			padding: var(--padding-default);
+			text-align: center;
+			vertical-align: middle;
+		}
+
+		/* Set padding to 0 so labels can take all the space */
+		td {
+			padding: 0;
+		}
+
+		/* Make radio box clickable in whole cell */
+		td label {
+			display: inline-block;
+			margin: 0 !important;
+			padding-top: var(--padding-default);
+			padding-bottom: var(--padding-default);
+			width: 100%;
+		}
+
+		thead th:nth-child(3) {
+			word-break: break-word;
+		}
+	}
+
+	fieldset:disabled,
+	tr:has(fieldset:disabled) {
+
+		* {
+			color: var(--gray-500);
+			cursor: default;
+		}
+	}
+
+	/* Can be a link or span. */
+	.managed-option-badge {
+		border-radius: to_rem(4px);
+		border: to_rem(1px) solid var(--green-500);
+		color: var(--green-500) !important;
+		display: inline-block;
+		font-size: to_rem(10px);
+		padding: to_rem(2px) to_rem(4px);
+		text-decoration: none;
+	}
+
+	a.managed-option-badge {
+		cursor: pointer !important;
+
+		&:hover {
+			background-color: var(--green-500);
+			color: #fff !important;
+		}
+	}
+
+	@media only screen and (max-width: 380px) {
+
+		#track-post-types {
+
+			th,
+			td {
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+
+			th:first-child {
+				max-width: 120px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+		}
+	}
+}
