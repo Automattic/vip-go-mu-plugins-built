@@ -1,24 +1,24 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { Spinner } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import DashboardWidgetProvider from '../provider';
-import TopPostListItem from './component-list-item';
+import { ContentHelperError } from '../../../content-helper/common/content-helper-error';
+import { DashboardWidgetProvider } from '../provider';
+import { TopPostListItem } from './component-list-item';
 import { TopPostData } from './model';
-import { ContentHelperError } from '../../../blocks/content-helper/content-helper-error';
 
-const FETCH_RETRIES = 3;
+const FETCH_RETRIES = 1;
 
 /**
  * List of the top posts.
  */
-function TopPostList() {
+export function TopPostList() {
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
 	const [ posts, setPosts ] = useState<TopPostData[]>( [] );
@@ -33,7 +33,7 @@ function TopPostList() {
 					setLoading( false );
 				} )
 				.catch( async ( err ) => {
-					if ( retries > 0 ) {
+					if ( retries > 0 && err.retryFetch ) {
 						await new Promise( ( r ) => setTimeout( r, 500 ) );
 						await fetchPosts( retries - 1 );
 					} else {
@@ -55,7 +55,7 @@ function TopPostList() {
 
 	// Show error message.
 	if ( error ) {
-		return error.ProcessedMessage( 'parsely-top-posts-descr' );
+		return error.Message( { className: 'parsely-top-posts-descr' } );
 	}
 
 	// Show top posts list.
@@ -80,5 +80,3 @@ function TopPostList() {
 			)
 	);
 }
-
-export default TopPostList;

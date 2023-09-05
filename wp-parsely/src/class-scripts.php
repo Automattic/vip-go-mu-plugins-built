@@ -16,7 +16,7 @@ use function Parsely\Utils\get_asset_info;
  * Inserts the scripts and tracking code into the site's front-end.
  *
  * @since 1.0.0
- * @since 3.0.0 Moved from class-parsely to separate file
+ * @since 3.0.0 Moved from class-parsely to separate file.
  */
 class Scripts {
 	/**
@@ -52,7 +52,7 @@ class Scripts {
 	 * Registers scripts, if there's a Site ID value saved.
 	 *
 	 * @since 2.5.0
-	 * @since 3.0.0 Rename from register_js
+	 * @since 3.0.0 Rename from register_js.
 	 */
 	public function register_scripts(): void {
 		wp_register_script(
@@ -77,8 +77,8 @@ class Scripts {
 	/**
 	 * Enqueues the JavaScript code required to send off beacon requests.
 	 *
-	 * @since 2.5.0 Rename from insert_parsely_javascript
-	 * @since 3.0.0 Rename from load_js_tracker
+	 * @since 2.5.0 Rename from insert_parsely_javascript.
+	 * @since 3.0.0 Rename from load_js_tracker.
 	 */
 	public function enqueue_js_tracker(): void {
 		if ( is_preview() ) {

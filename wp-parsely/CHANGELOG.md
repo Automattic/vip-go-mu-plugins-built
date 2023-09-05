@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.9.0](https://github.com/Parsely/wp-parsely/compare/3.8.4...3.9.0) - 2023-09-04
+
+### Added
+
+- Content Helper: Show hint when HTTP errors are encountered ([#1805](https://github.com/Parsely/wp-parsely/pull/1805))
+- Add Validator class ([#1727](https://github.com/Parsely/wp-parsely/pull/1727))
+- Add managed options feature ([#1724](https://github.com/Parsely/wp-parsely/pull/1724))
+- Implement Custom Post Types tracking by default ([#1677](https://github.com/Parsely/wp-parsely/pull/1677))
+- Add filters for disabling Content Helper features ([#1539](https://github.com/Parsely/wp-parsely/pull/1539))
+
+### Changed
+
+- Analytics_Posts_API: Increase request timeout ([#1789](https://github.com/Parsely/wp-parsely/pull/1789))
+- Rename init_content_helper() to init_content_helper_editor_sidebar() ([#1744](https://github.com/Parsely/wp-parsely/pull/1744))
+- Improve itm_source handling ([#1625](https://github.com/Parsely/wp-parsely/pull/1625))
+- PCH Dashboard Widget: Prefer post thumbnails over Parse.ly thumbnails ([#1620](https://github.com/Parsely/wp-parsely/pull/1620))
+- Content Helper: Improve error handling ([#1588](https://github.com/Parsely/wp-parsely/pull/1588))
+- Improve settings page ([#1574](https://github.com/Parsely/wp-parsely/pull/1574))
+- Content Helper: Limit unnecessary requests to the Parse.ly API ([#1541](https://github.com/Parsely/wp-parsely/pull/1541))
+
+### Removed
+
+- Remove Facebook Instant Articles integration ([#1666](https://github.com/Parsely/wp-parsely/pull/1666))
+
+### Fixed
+
+- Content Helper: Fix critical error due to direct views being null ([#1797](https://github.com/Parsely/wp-parsely/pull/1797))
+- Prevent always saving settings on Parsely->run() ([#1784](https://github.com/Parsely/wp-parsely/pull/1784))
+- Recommendations Block: Fix endless rendering loop ([#1631](https://github.com/Parsely/wp-parsely/pull/1631))
+- Recommendations Block: Fix "Children with same Name" error in WordPress Editor ([#1626](https://github.com/Parsely/wp-parsely/pull/1626))
+- Update Help / Docs Links ([#1551](https://github.com/Parsely/wp-parsely/pull/1551))
+- Settings page: Use a more specific selector to ensure the proper form is selected ([#1543](https://github.com/Parsely/wp-parsely/pull/1543))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.9.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.8.4](https://github.com/Parsely/wp-parsely/compare/3.8.3...3.8.4) - 2023-03-16
 
 ### Fixed

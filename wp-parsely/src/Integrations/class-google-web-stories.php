@@ -32,7 +32,7 @@ final class Google_Web_Stories extends Integration {
 	 * Loads additional JavaScript for Google's Web Stories WordPress plugin.
 	 * This relies on the `amp-analytics` element.
 	 *
-	 * See more at: https://www.parse.ly/help/integration/google-amp.
+	 * @see https://docs.parse.ly/google-amp/
 	 *
 	 * @since 3.2.0
 	 */

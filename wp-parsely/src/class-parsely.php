@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Parsely;
 
 use Parsely\UI\Metadata_Renderer;
+use Parsely\UI\Settings_Page;
 use WP_Post;
 
 /**
@@ -37,9 +38,17 @@ use WP_Post;
  *   meta_type: string,
  *   logo: string,
  *   metadata_secret: string,
- *   parsely_wipe_metadata_cache: bool,
  *   disable_autotrack: bool,
  *   plugin_version: string,
+ * }
+ *
+ * @phpstan-type WP_HTTP_Request_Args array{
+ *   method: string,
+ *   timeout: float,
+ *   blocking: bool,
+ *   headers: array<string, string>,
+ *   body: string,
+ *   data_format: string,
  * }
  *
  * @phpstan-import-type Metadata_Attributes from Metadata
@@ -61,31 +70,30 @@ class Parsely {
 	 * @var Parsely_Options $option_defaults The defaults we need for the class.
 	 */
 	private $option_defaults = array(
-		'apikey'                      => '',
-		'content_id_prefix'           => '',
-		'api_secret'                  => '',
-		'use_top_level_cats'          => false,
-		'custom_taxonomy_section'     => 'category',
-		'cats_as_tags'                => false,
-		'track_authenticated_users'   => false,
-		'lowercase_tags'              => true,
-		'force_https_canonicals'      => false,
-		'track_post_types'            => array( 'post' ),
-		'track_page_types'            => array( 'page' ),
-		'disable_javascript'          => false,
-		'disable_amp'                 => false,
-		'meta_type'                   => 'json_ld',
-		'logo'                        => '',
-		'metadata_secret'             => '',
-		'parsely_wipe_metadata_cache' => false,
-		'disable_autotrack'           => false,
-		'plugin_version'              => '',
+		'apikey'                    => '',
+		'content_id_prefix'         => '',
+		'api_secret'                => '',
+		'use_top_level_cats'        => false,
+		'custom_taxonomy_section'   => 'category',
+		'cats_as_tags'              => false,
+		'track_authenticated_users' => false,
+		'lowercase_tags'            => true,
+		'force_https_canonicals'    => false,
+		'track_post_types'          => array(),
+		'track_page_types'          => array(),
+		'disable_javascript'        => false,
+		'disable_amp'               => false,
+		'meta_type'                 => 'json_ld',
+		'logo'                      => '',
+		'metadata_secret'           => '',
+		'disable_autotrack'         => false,
+		'plugin_version'            => self::VERSION,
 	);
 
 	/**
 	 * Declare post types that Parse.ly will process as "posts".
 	 *
-	 * @link https://www.parse.ly/help/integration/jsonld#distinguishing-between-posts-and-pages
+	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
 	 *
 	 * @since 2.5.0
 	 * @var string[]
@@ -104,7 +112,7 @@ class Parsely {
 	/**
 	 * Declare post types that Parse.ly will process as "non-posts".
 	 *
-	 * @link https://www.parse.ly/help/integration/jsonld#distinguishing-between-posts-and-pages
+	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
 	 *
 	 * @since 2.5.0
 	 * @var string[]
@@ -126,10 +134,39 @@ class Parsely {
 	private static $all_supported_types;
 
 	/**
+	 * Returns whether credentials are being managed at the platform level.
+	 *
+	 * This allows hosting providers to provide a more customized experience for
+	 * the plugin by handling credentials automatically.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 *
+	 * @var bool
+	 */
+	public $are_credentials_managed;
+
+	/**
+	 * Holds the managed options and their values.
+	 *
+	 * This allows hosting providers to provide a more customized experience for
+	 * the plugin by handling options automatically.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 *
+	 * @var array<empty>|array<string, bool|string|null>
+	 */
+	public $managed_options = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		self::$all_supported_types = array_merge( self::SUPPORTED_JSONLD_POST_TYPES, self::SUPPORTED_JSONLD_NON_POST_TYPES );
+
+		$this->are_credentials_managed = $this->are_credentials_managed();
+		$this->set_managed_options();
 	}
 
 	/**
@@ -150,30 +187,13 @@ class Parsely {
 				$callable = array( $this, $method );
 				call_user_func_array( $callable, array( $options ) );
 			}
+
 			// Update our version info.
 			$options['plugin_version'] = self::VERSION;
 			update_option( self::OPTIONS_KEY, $options );
 		}
 
-		// phpcs:ignore WordPress.WP.CronInterval.CronSchedulesInterval
-		add_filter( 'cron_schedules', array( $this, 'wpparsely_add_cron_interval' ) );
-		add_action( 'parsely_bulk_metas_update', array( $this, 'bulk_update_posts' ) );
 		add_action( 'save_post', array( $this, 'update_metadata_endpoint' ) );
-	}
-
-	/**
-	 * Adds 10 minute cron interval.
-	 *
-	 * @param array<string, mixed> $schedules WP schedules array.
-	 *
-	 * @return array<string, mixed>
-	 */
-	public function wpparsely_add_cron_interval( array $schedules ): array {
-		$schedules['everytenminutes'] = array(
-			'interval' => 600, // time in seconds.
-			'display'  => __( 'Every 10 Minutes', 'wp-parsely' ),
-		);
-		return $schedules;
 	}
 
 	/**
@@ -326,75 +346,34 @@ class Parsely {
 
 		$parsely_api_endpoint    = self::PUBLIC_API_BASE_URL . '/metadata/posts';
 		$parsely_metadata_secret = $parsely_options['metadata_secret'];
-		$headers                 = array(
-			'Content-Type' => 'application/json',
-		);
-		$body                    = wp_json_encode(
+
+		$headers = array( 'Content-Type' => 'application/json' );
+		$body    = wp_json_encode(
 			array(
 				'secret'   => $parsely_metadata_secret,
 				'apikey'   => $this->get_site_id(),
 				'metadata' => $endpoint_metadata,
 			)
 		);
-		$response                = wp_remote_post(
-			$parsely_api_endpoint,
-			array(
-				'method'      => 'POST',
-				'headers'     => $headers,
-				'blocking'    => false,
-				'body'        => $body,
-				'data_format' => 'body',
-			)
+
+		/**
+		 * POST request options.
+		 *
+		 * @var WP_HTTP_Request_Args $options
+		*/
+		$options = array(
+			'method'      => 'POST',
+			'headers'     => $headers,
+			'blocking'    => false,
+			'body'        => $body,
+			'data_format' => 'body',
 		);
+
+		$response = wp_remote_post( $parsely_api_endpoint, $options );
 
 		if ( ! is_wp_error( $response ) ) {
 			$current_timestamp = time();
 			update_post_meta( $post_id, 'parsely_metadata_last_updated', $current_timestamp );
-		}
-	}
-
-	/**
-	 * Updates posts with Parsely metadata API in bulk.
-	 */
-	public function bulk_update_posts(): void {
-		global $wpdb;
-		$allowed_types        = $this->get_all_track_types();
-		$allowed_types_string = implode(
-			', ',
-			array_map(
-				function( $v ) {
-					return "'" . esc_sql( $v ) . "'";
-				},
-				$allowed_types
-			)
-		);
-
-		/**
-		 * Variable.
-		 *
-		 * @var int[]|false
-		 */
-		$ids = wp_cache_get( 'parsely_post_ids_need_meta_updating' );
-		if ( false === $ids ) {
-			$ids = array();
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$results = $wpdb->get_results(
-				$wpdb->prepare( "SELECT DISTINCT(id) FROM {$wpdb->posts} WHERE post_type IN (\" . %s . \") AND id NOT IN (SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'parsely_metadata_last_updated');", $allowed_types_string ),
-				ARRAY_N
-			);
-			foreach ( $results as $result ) {
-				$ids[] = $result[0];
-			}
-			wp_cache_set( 'parsely_post_ids_need_meta_updating', $ids, '', 86400 );
-		}
-
-		for ( $i = 0; $i < 100; $i++ ) {
-			$post_id = array_pop( $ids );
-			if ( null === $post_id ) {
-				wp_clear_scheduled_hook( 'parsely_bulk_metas_update' );
-				break;
-			}
-			$this->update_metadata_endpoint( $post_id );
 		}
 	}
 
@@ -413,13 +392,49 @@ class Parsely {
 		 *
 		 * @var Parsely_Options|null
 		 */
-		$options = get_option( self::OPTIONS_KEY, $this->option_defaults );
+		$options = get_option( self::OPTIONS_KEY, null );
 
 		if ( ! is_array( $options ) ) {
-			return $this->option_defaults;
+			$this->set_default_track_as_values();
+			$options = $this->option_defaults;
 		}
 
-		return array_merge( $this->option_defaults, $options );
+		/**
+		 * Final options including managed credentials and options.
+		 *
+		 * @var Parsely_Options
+		 */
+		return array_merge(
+			$this->option_defaults,
+			$options,
+			$this->get_managed_credentials(),
+			$this->managed_options
+		);
+	}
+
+	/**
+	 * Sets the default values for the track_post_types and track_page_types
+	 * options.
+	 *
+	 * @since 3.9.0
+	 */
+	public function set_default_track_as_values(): void {
+		$this->option_defaults['track_page_types'] = array();
+		$this->option_defaults['track_post_types'] = array();
+
+		$post_types = get_post_types( array( 'public' => true ) );
+
+		foreach ( $post_types as $post_type ) {
+			if ( ! post_type_supports( $post_type, 'editor' ) ) {
+				continue;
+			}
+
+			if ( is_post_type_hierarchical( $post_type ) ) {
+				$this->option_defaults['track_page_types'][] = $post_type;
+			} else {
+				$this->option_defaults['track_post_types'][] = $post_type;
+			}
+		}
 	}
 
 	/**
@@ -449,10 +464,32 @@ class Parsely {
 		$result = trailingslashit( self::DASHBOARD_BASE_URL . '/' . $site_id ) . 'find';
 
 		if ( '' !== $page_url ) {
-			$result .= '?url=' . rawurlencode( $page_url );
+			$page_url = self::get_url_with_itm_source( $page_url, null );
+			$result  .= '?url=' . rawurlencode( $page_url );
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Adds or replaces the itm_source parameter in the URL. Removes the
+	 * parameter if the passed value is null or an empty string.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param string      $url The URL to modify.
+	 * @param string|null $itm_source The value of the itm_source parameter.
+	 *
+	 * @return string The resulting URL.
+	 */
+	public static function get_url_with_itm_source( string $url, $itm_source ): string {
+		if ( null === $itm_source || '' === $itm_source ) {
+			return remove_query_arg( 'itm_source', $url );
+		}
+
+		$itm_source = rawurlencode( $itm_source );
+
+		return add_query_arg( 'itm_source', $itm_source, $url );
 	}
 
 	/**
@@ -477,7 +514,7 @@ class Parsely {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @see https://www.parse.ly/help/integration/metatags#field-description
+	 * @see https://docs.parse.ly/metatags/#h-field-description
 	 *
 	 * @param string $type JSON-LD type.
 	 * @return string "post" or "index".
@@ -490,7 +527,7 @@ class Parsely {
 	 * Determines if a Site ID is saved in the options.
 	 *
 	 * @since 2.6.0
-	 * @since 3.7.0 renamed from api_key_is_set
+	 * @since 3.7.0 renamed from api_key_is_set.
 	 *
 	 * @return bool True is Site ID is set, false if it is missing.
 	 */
@@ -504,7 +541,7 @@ class Parsely {
 	 * Determines if a Site ID is not saved in the options.
 	 *
 	 * @since 2.6.0
-	 * @since 3.7.0 renamed from api_key_is_missing
+	 * @since 3.7.0 renamed from api_key_is_missing.
 	 *
 	 * @return bool True if Site ID is missing, false if it is set.
 	 */
@@ -516,7 +553,7 @@ class Parsely {
 	 * Gets the Site ID if set.
 	 *
 	 * @since 2.6.0
-	 * @since 3.7.0 renamed from get_site_id
+	 * @since 3.7.0 renamed from get_site_id.
 	 *
 	 * @return string Site ID if set, or empty string if not.
 	 */
@@ -585,5 +622,194 @@ class Parsely {
 	 */
 	public function get_default_options() {
 		return $this->option_defaults;
+	}
+
+	/**
+	 * Returns the credentials that are being managed at the platform level.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 *
+	 * @return Parsely_Options|array<empty> The managed credentials.
+	 */
+	private function get_managed_credentials() {
+		if ( true !== $this->are_credentials_managed ) {
+			return array();
+		}
+
+		$credentials = apply_filters( 'wp_parsely_credentials', array() );
+
+		if ( ! is_array( $credentials ) || 0 === count( $credentials ) ) {
+			return array();
+		}
+
+		$result = array();
+
+		if ( isset( $credentials['site_id'] ) ) {
+			$result['apikey'] = $credentials['site_id'];
+		}
+
+		if ( isset( $credentials['api_secret'] ) ) {
+			$result['api_secret'] = $credentials['api_secret'];
+		}
+
+		if ( isset( $credentials['metadata_secret'] ) ) {
+			$result['metadata_secret'] = $credentials['metadata_secret'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Returns whether credentials are being managed at the platform level.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 *
+	 * @return bool Whether credentials are being managed at the platform level.
+	 */
+	private function are_credentials_managed(): bool {
+		$credentials = apply_filters( 'wp_parsely_credentials', array() );
+
+		if ( ! is_array( $credentials ) || 0 === count( $credentials ) ) {
+			return false;
+		}
+
+		if ( isset( $credentials['is_managed'] ) ) {
+			return $credentials['is_managed'];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the values of managed options.
+	 *
+	 * This function won't accept managing credentials or certain plugin options
+	 * that are being managed through other means. For managing credentials,
+	 * please use the `wp_parsely_credentials` filter.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 */
+	private function set_managed_options(): void {
+		$managed_options = apply_filters( 'wp_parsely_managed_options', false );
+
+		if ( ! is_array( $managed_options ) ) {
+			return;
+		}
+
+		// Don't allow certain options to be set as managed.
+		unset(
+			$managed_options['apikey'],
+			$managed_options['api_secret'],
+			$managed_options['metadata_secret'],
+			$managed_options['track_post_types'],
+			$managed_options['track_page_types'],
+			$managed_options['plugin_version']
+		);
+
+		if ( 0 === count( $managed_options ) ) {
+			return;
+		}
+
+		/**
+		 * Current options.
+		 *
+		 * @var Parsely_Options $current_options
+		 */
+		$current_options = get_option( self::OPTIONS_KEY, array() );
+
+		// Set managed options values.
+		foreach ( $managed_options as $key => $value ) {
+			$is_option_valid = isset( $this->option_defaults[ $key ] );
+
+			if ( $is_option_valid ) {
+				if ( null === $value ) {
+					// When null, the option gets its value from the database.
+					$this->managed_options[ $key ] =
+						$current_options[ $key ] ?? $this->option_defaults[ $key ];
+				} else {
+					$this->managed_options[ $key ] =
+						$this->sanitize_managed_option( $key, $value );
+				}
+			}
+		}
+	}
+
+	/**
+	 * Sanitizes the value of the passed managed option.
+	 *
+	 * @since 3.9.0
+	 * @access private
+	 *
+	 * @param string      $option_id The option's ID.
+	 * @param bool|string $value The option's value.
+	 *
+	 * @return bool|string The sanitized option value.
+	 */
+	private function sanitize_managed_option( string $option_id, $value ) {
+		$option_value_type = gettype( $this->option_defaults[ $option_id ] );
+
+		if ( 'boolean' === $option_value_type && ! is_bool( $value ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				esc_html(
+					sprintf( /* translators: 1: Option ID */
+						__( 'The value of the managed option `%1$s` must be of type `boolean`.', 'wp-parsely' ),
+						$option_id
+					)
+				),
+				''
+			);
+
+			return false;
+		}
+
+		if ( 'string' === $option_value_type ) {
+			if ( ! is_string( $value ) ) {
+				_doing_it_wrong(
+					__FUNCTION__,
+					esc_html(
+						sprintf( /* translators: 1: Option ID */
+							__( 'The value of the managed option `%1$s` must be of type `string`.', 'wp-parsely' ),
+							$option_id
+						)
+					),
+					''
+				);
+
+				$value = strval( $value );
+			}
+
+			// String options that are restricted to specific values.
+			$restricted_value_options = array(
+				'custom_taxonomy_section' => Settings_Page::get_section_taxonomies(),
+				'meta_type'               => array( 'json_ld', 'repeated_metas' ),
+			);
+
+			// Verify that the above values are respected.
+			foreach ( $restricted_value_options as $option_key => $valid_values ) {
+				if ( $option_id === $option_key ) {
+					if ( ! in_array( $value, $valid_values, true ) ) {
+						_doing_it_wrong(
+							__FUNCTION__,
+							esc_html(
+								sprintf( /* translators: 1: Option value 2: Option ID */
+									__( 'The value `%1$s` is not allowed for the managed option `%2$s`.', 'wp-parsely' ),
+									$value,
+									$option_id
+								)
+							),
+							''
+						);
+
+						$value = $this->option_defaults[ $option_id ];
+					}
+				}
+			}
+		}
+
+		return $value;
 	}
 }

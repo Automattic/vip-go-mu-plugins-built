@@ -1,9 +1,9 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import apiFetch from '@wordpress/api-fetch';
 
 /**
  * Internal dependencies
@@ -11,9 +11,9 @@ import apiFetch from '@wordpress/api-fetch';
 import {
 	ContentHelperError,
 	ContentHelperErrorCode,
-} from '../../blocks/content-helper/content-helper-error';
+} from '../common/content-helper-error';
+import { getApiPeriodParams } from '../common/utils/api';
 import { TopPostData } from './top-posts/model';
-import { getApiPeriodParams } from '../../blocks/shared/utils/api';
 
 /**
  * The form of the response returned by the /stats/posts WordPress REST API
@@ -27,7 +27,7 @@ interface TopPostsApiResponse {
 const TOP_POSTS_DEFAULT_LIMIT = 3;
 const TOP_POSTS_DEFAULT_TIME_RANGE = 7; // In days.
 
-class DashboardWidgetProvider {
+export class DashboardWidgetProvider {
 	/**
 	 * Returns the site's top posts.
 	 *
@@ -66,6 +66,7 @@ class DashboardWidgetProvider {
 				path: addQueryArgs( '/wp-parsely/v1/stats/posts', {
 					limit: TOP_POSTS_DEFAULT_LIMIT,
 					...getApiPeriodParams( TOP_POSTS_DEFAULT_TIME_RANGE ),
+					itm_source: 'wp-parsely-content-helper',
 				} ),
 			} ) as TopPostsApiResponse;
 		} catch ( wpError: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -81,8 +82,6 @@ class DashboardWidgetProvider {
 			) );
 		}
 
-		return response?.data || [];
+		return response?.data ?? [];
 	}
 }
-
-export default DashboardWidgetProvider;

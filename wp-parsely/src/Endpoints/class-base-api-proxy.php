@@ -38,6 +38,13 @@ abstract class Base_API_Proxy {
 	private $api;
 
 	/**
+	 * The itm_source value to be used for some of the returned URLs.
+	 *
+	 * @var string|null
+	 */
+	protected $itm_source = null;
+
+	/**
 	 * Registers the endpoint's WP REST route.
 	 */
 	abstract public function run(): void;
@@ -148,6 +155,10 @@ abstract class Base_API_Proxy {
 			$params = $request->get_param( $param_item );
 		} else {
 			$params = $request->get_params();
+		}
+
+		if ( is_array( $params ) && isset( $params['itm_source'] ) ) {
+			$this->itm_source = $params['itm_source'];
 		}
 
 		// A proxy with caching behavior is used here.

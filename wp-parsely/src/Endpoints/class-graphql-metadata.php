@@ -144,7 +144,7 @@ class GraphQL_Metadata extends Metadata_Endpoint {
 		$config = array(
 			'type'        => self::GRAPHQL_CONTAINER_TYPE,
 			'description' => __(
-				'Parse.ly metadata fields, to be rendered in the front-end so they can be parsed by the crawler. See https://www.parse.ly/help/integration/crawler.',
+				'Parse.ly metadata fields, to be rendered in the front-end so they can be parsed by the crawler. See https://docs.parse.ly/crawler/',
 				'wp-parsely'
 			),
 			'resolve'     => $resolve,

@@ -1,7 +1,6 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -12,6 +11,7 @@ import {
 	TextControl,
 	ToggleControl,
 } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -23,7 +23,7 @@ interface ParselyRecommendationsInspectorControlsProps {
 	setAttributes: ( attr: Partial<RecommendationsAttributes> ) => void,
 }
 
-const ParselyRecommendationsInspectorControls = ( {
+export const ParselyRecommendationsInspectorControls = ( {
 	attributes: { boost, imagestyle, limit, openlinksinnewtab, showimages, sort, title },
 	setAttributes,
 } : ParselyRecommendationsInspectorControlsProps ) => {
@@ -188,5 +188,3 @@ const ParselyRecommendationsInspectorControls = ( {
 		</PanelBody>
 	</InspectorControls>;
 };
-
-export default ParselyRecommendationsInspectorControls;

@@ -1,17 +1,17 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { EditIcon } from '../../common/icons/edit-icon';
+import { OpenLinkIcon } from '../../common/icons/open-link-icon';
+import { getSmartShortDate } from '../../common/utils/date';
+import { formatToImpreciseNumber } from '../../common/utils/number';
+import { getPostEditUrl } from '../../common/utils/post';
 import { TopPostData } from './model';
-import { formatToImpreciseNumber } from '../../../blocks/shared/functions';
-import OpenLinkIcon from '../../../blocks/content-helper/icons/open-link-icon';
-import { getSmartShortDate } from '../../../blocks/shared/utils/date';
-import EditIcon from '../../../blocks/content-helper/icons/edit-icon';
-import { getPostEditUrl } from '../../../blocks/shared/utils/post';
 
 interface TopPostListItemProps {
 	post: TopPostData;
@@ -22,7 +22,7 @@ interface TopPostListItemProps {
  *
  * @param {TopPostData} post The Post to be shown.
  */
-function TopPostListItem( { post }: TopPostListItemProps ): JSX.Element {
+export function TopPostListItem( { post }: TopPostListItemProps ): JSX.Element {
 	return (
 		<li className="parsely-top-post">
 			<div className="parsely-top-post-content">
@@ -86,11 +86,11 @@ function TopPostListItem( { post }: TopPostListItemProps ): JSX.Element {
  * @param {TopPostData} post The Post from which to get the data.
  */
 function getPostThumbnailElement( { post }: TopPostListItemProps ): JSX.Element {
-	if ( post.thumbUrlMedium ) {
+	if ( post.thumbnailUrl ) {
 		return (
 			<div className="parsely-top-post-thumbnail">
 				<span className="screen-reader-text">{ __( 'Thumbnail', 'wp-parsely' ) }</span>
-				<img src={ post.thumbUrlMedium } alt={ __( 'Post thumbnail', 'wp-parsely' ) } />
+				<img src={ post.thumbnailUrl } alt={ __( 'Post thumbnail', 'wp-parsely' ) } />
 			</div>
 		);
 	}
@@ -120,5 +120,3 @@ function getPostTitleElement( { post }: TopPostListItemProps ): JSX.Element {
 		</a>
 	);
 }
-
-export default TopPostListItem;

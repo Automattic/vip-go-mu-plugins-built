@@ -111,7 +111,7 @@ class Post_Builder extends Metadata_Builder {
 			/* translators: 1: JSON @type like NewsArticle, 2: URL */
 				__( '@type %1$s is not supported by Parse.ly. Please use a type mentioned in %2$s', 'wp-parsely' ),
 				$type,
-				'https://www.parse.ly/help/integration/jsonld#distinguishing-between-posts-and-pages'
+				'https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages'
 			);
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 			trigger_error( esc_html( $error ), E_USER_WARNING );
@@ -245,7 +245,7 @@ class Post_Builder extends Metadata_Builder {
 	 * Sets all metadata values related to post time.
 	 *
 	 * @since 3.0.2
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 */
 	private function build_metadata_post_times(): void {
 		$date_format      = 'Y-m-d\TH:i:s\Z';
@@ -271,7 +271,7 @@ class Post_Builder extends Metadata_Builder {
 	 * use the top-level category/taxonomy value, if so instructed via the
 	 * `use_top_level_cats` option.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param WP_Post         $post_obj The object for the post.
 	 * @param Parsely_Options $parsely_options The parsely options.
@@ -319,7 +319,7 @@ class Post_Builder extends Metadata_Builder {
 	 *
 	 * (WordPress calls taxonomy values 'terms').
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param int    $term_id       The ID of the top level term.
 	 * @param string $taxonomy_name The name of the taxonomy.
@@ -341,7 +341,7 @@ class Post_Builder extends Metadata_Builder {
 	 *
 	 * (WordPress calls taxonomy values 'terms').
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param int    $post_id       The post id you're interested in.
 	 * @param string $taxonomy_name The name of the taxonomy.
@@ -376,7 +376,7 @@ class Post_Builder extends Metadata_Builder {
 	 * Retrieves all the authors for a post as an array. Can include multiple
 	 * authors if the Co-Authors Plus plugin is in use.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param WP_Post $post The post object.
 	 * @return array<string>
@@ -423,7 +423,7 @@ class Post_Builder extends Metadata_Builder {
 	 * Borrowed from
 	 * https://github.com/Automattic/Co-Authors-Plus/blob/master/template-tags.php#L3-35
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param int $post_id The ID of the post.
 	 * @return array<WP_User> List of coauthors, or an empty array if the Co-Authors Plus plugin is not active.
@@ -433,7 +433,7 @@ class Post_Builder extends Metadata_Builder {
 		if ( class_exists( 'coauthors_plus' ) ) {
 			global $post, $post_ID, $coauthors_plus;
 
-			if ( ! ( $post_id > 0 ) && $post_ID ) {
+			if ( $post_id <= 0 && $post_ID ) {
 				$post_id = $post_ID;
 			}
 
@@ -471,7 +471,7 @@ class Post_Builder extends Metadata_Builder {
 	 * Determines author name from display name, falling back to firstname
 	 * lastname, then nickname and finally the nicename.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param ?WP_User $author The author of the post.
 	 * @return string An author name.
@@ -505,7 +505,7 @@ class Post_Builder extends Metadata_Builder {
 	/**
 	 * Returns the tags associated with this page or post.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param int $post_id   The ID of the post you're trying to get tags for.
 	 * @return array<string> The tags of the post represented by the post id.
@@ -533,7 +533,7 @@ class Post_Builder extends Metadata_Builder {
 	/**
 	 * Returns an array of all the child categories for the current post.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
+	 * @since 3.3.0 Moved to class-metadata.
 	 *
 	 * @param int    $post_id   The ID of the post you're trying to get categories for.
 	 * @param string $delimiter What character will delimit the categories.
@@ -562,8 +562,8 @@ class Post_Builder extends Metadata_Builder {
 	/**
 	 * Gets all term names from all custom taxonomies assigned to a post.
 	 *
-	 * @since 3.3.0 Moved to class-metadata
-	 * @since 3.4.0 Moved to class-post-builder
+	 * @since 3.3.0 Moved to class-metadata.
+	 * @since 3.4.0 Moved to class-post-builder.
 	 *
 	 * @param WP_Post $post_obj The post object to find the terms for.
 	 * @return array<string> Term names.

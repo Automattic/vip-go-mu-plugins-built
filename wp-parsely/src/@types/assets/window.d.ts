@@ -1,9 +1,9 @@
 /**
- * External dependencies.
+ * WordPress dependencies
  */
-import type{ _Hooks } from '@wordpress/hooks/build-types/createHooks';
+import type { _Hooks } from '@wordpress/hooks/build-types/createHooks';
 
-export {};
+export { };
 
 declare global {
 	interface Window {
@@ -26,5 +26,6 @@ declare global {
 		wpParselyDisableAutotrack?: boolean;
 		wpParselyHooks?: _Hooks;
 		wpParselyPostsStatsResponse: string;
+		wpParselyEmptyCredentialsMessage: string;
 	}
 }

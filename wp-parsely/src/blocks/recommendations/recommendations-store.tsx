@@ -1,7 +1,7 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { createContext, useContext, useReducer } from '@wordpress/element';
+import { createContext, useContext, useMemo, useReducer } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -53,19 +53,19 @@ interface RecommendationStore {
 	children: React.ReactNode;
 }
 
-const RecommendationsStore = ( props: RecommendationStore ) => {
+export const RecommendationsStore = ( props: RecommendationStore ) => {
 	const defaultState: RecommendationState = {
 		isLoaded: false,
 		recommendations: [],
-		uuid: window.PARSELY?.config?.uuid || null,
-		clientId: props?.clientId || null,
+		uuid: window.PARSELY?.config?.uuid ?? null,
+		clientId: props?.clientId ?? null,
 		error: null,
 	};
 
 	const [ state, dispatch ] = useReducer( reducer, defaultState );
-	return <RecommendationsContext.Provider value={ { state, dispatch } } { ...props } />;
+	return useMemo( () => {
+		return <RecommendationsContext.Provider value={ { state, dispatch } } { ...props } />;
+	}, [ props, state ] );
 };
 
 export const useRecommendationsStore = () => useContext( RecommendationsContext );
-
-export default RecommendationsStore;

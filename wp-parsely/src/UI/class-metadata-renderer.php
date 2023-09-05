@@ -72,7 +72,7 @@ final class Metadata_Renderer {
 	 * Inserts the code for the meta parameter within the head tag.
 	 *
 	 * @since 3.2.0
-	 * @since 3.3.0 Moved from `Parsely` class to `Metadata_Header`
+	 * @since 3.3.0 Moved from `Parsely` class to `Metadata_Header`.
 	 *
 	 * @param string $meta_type `json_ld` or `repeated_metas`.
 	 */
@@ -151,7 +151,7 @@ final class Metadata_Renderer {
 	 * Function to be used in `array_filter` to clean up repeated metas.
 	 *
 	 * @since 2.6.0
-	 * @since 3.3.0 Moved from `Parsely` class to `Metadata_Header`
+	 * @since 3.3.0 Moved from `Parsely` class to `Metadata_Header`.
 	 *
 	 * @param mixed $var Value to filter from the array.
 	 * @return bool True if the variable is not empty, and it's a string.

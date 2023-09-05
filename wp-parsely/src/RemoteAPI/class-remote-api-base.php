@@ -30,6 +30,8 @@ use function Parsely\Utils\convert_to_associative_array;
  *   message: string,
  *   htmlMessage: string,
  * }
+ *
+ * @phpstan-import-type WP_HTTP_Request_Args from Parsely
  */
 abstract class Remote_API_Base implements Remote_API_Interface {
 	protected const ENDPOINT     = '';
@@ -151,14 +153,19 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 	 */
 	public function get_items( $query, $associative = false ) {
 		$full_api_url = $this->get_api_url( $query );
+		/**
+		 * GET request options.
+		 *
+		 * @var WP_HTTP_Request_Args $options
+		 */
+		$options  = $this->get_request_options();
+		$response = wp_safe_remote_get( $full_api_url, $options );
 
-		$result = wp_safe_remote_get( $full_api_url, array() );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
 
-		$body    = wp_remote_retrieve_body( $result );
+		$body    = wp_remote_retrieve_body( $response );
 		$decoded = json_decode( $body );
 
 		if ( ! is_object( $decoded ) ) {
@@ -173,9 +180,9 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 			return new WP_Error( 400, __( 'Unable to parse data from upstream API', 'wp-parsely' ) );
 		}
 
-		$response = $decoded->data;
+		$data = $decoded->data;
 
-		return $associative ? convert_to_associative_array( $response ) : $response;
+		return $associative ? convert_to_associative_array( $data ) : $data;
 	}
 
 	/**
@@ -197,5 +204,16 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns the request's options for the remote API call.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @return array<string, mixed> The array of options.
+	 */
+	protected function get_request_options(): array {
+		return array();
 	}
 }

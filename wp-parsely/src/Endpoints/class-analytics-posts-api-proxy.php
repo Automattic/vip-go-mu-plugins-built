@@ -49,24 +49,32 @@ final class Analytics_Posts_API_Proxy extends Base_API_Proxy {
 	protected function generate_data( $response ): array {
 		$date_format = get_date_format();
 		$site_id     = $this->parsely->get_site_id();
+		$data        = array();
 
-		return array_map(
-			static function( stdClass $item ) use ( $date_format, $site_id ) {
-				return (object) array(
-					'author'         => $item->author,
-					'dashUrl'        => Parsely::get_dash_url( $site_id, $item->url ),
-					'date'           => $item->pub_date ? wp_date( $date_format, strtotime( $item->pub_date ) ) : null,
-					// Unique ID (can be replaced by Parse.ly API ID if it becomes available).
-					'id'             => $item->url,
-					// WordPress Post ID (0 if the post cannot be found, might not be unique).
-					'postId'         => url_to_postid( $item->url ), // phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
-					'thumbUrlMedium' => $item->thumb_url_medium,
-					'title'          => $item->title,
-					'url'            => $item->url,
-					'views'          => $item->metrics->views,
-				);
-			},
-			$response
-		);
+		foreach ( $response as $item ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+			$post_id       = url_to_postid( $item->url ); // 0 if the post cannot be found.
+			$thumbnail_url = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
+
+			// Fall back to the Parse.ly thumbnail if needed.
+			if ( false === $thumbnail_url ) {
+				$thumbnail_url = $item->thumb_url_medium;
+			}
+
+			$data [] = (object) array(
+				'author'       => $item->author,
+				'dashUrl'      => Parsely::get_dash_url( $site_id, $item->url ),
+				'date'         => $item->pub_date ? wp_date( $date_format, strtotime( $item->pub_date ) ) : null,
+				// Unique ID (can be replaced by Parse.ly API ID if it becomes available).
+				'id'           => Parsely::get_url_with_itm_source( $item->url, null ),
+				'postId'       => $post_id, // Might not be unique.
+				'thumbnailUrl' => $thumbnail_url,
+				'title'        => $item->title,
+				'url'          => Parsely::get_url_with_itm_source( $item->url, $this->itm_source ),
+				'views'        => $item->metrics->views,
+			);
+		}
+
+		return $data;
 	}
 }

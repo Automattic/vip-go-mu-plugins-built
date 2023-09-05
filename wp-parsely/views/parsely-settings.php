@@ -35,7 +35,7 @@ if ( is_multisite() && is_main_site() ) {
 ?>
 
 <div class="wrap">
-	<h1 class="wp-heading-inline"><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	<h1 class="wp-heading-inline"><?php echo esc_html_e( 'Parse.ly Settings', 'wp-parsely' ); ?></h1>
 	<span id="wp-parsely_version"><?php echo esc_html( $parsely_version_string ); ?></span>
 
 	<?php $wp_parsely_settings->show_setting_tabs(); ?>

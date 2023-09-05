@@ -103,6 +103,7 @@ function generate_release_log( string $milestone ): string {
  * @return string|false|null The result of the `shell_exec` function.
  */
 function get_pull_request_data( string $milestone, string $label, $limit = 100 ) {
+	/** @var string|false|null */
 	return shell_exec(
 		'gh pr list --repo Parsely/wp-parsely --search "milestone:' . $milestone .
 		'" --label "' . $label . '" --state merged --limit ' . $limit .
@@ -132,6 +133,7 @@ function create_pull_request( string $milestone, string $changelog ) {
 	);
 
 	// Push PR to GitHub.
+	/** @var string|false|null */
 	return shell_exec(
 		'gh pr create --repo Parsely/wp-parsely --assignee "@me" --base develop ' .
 		'--body "' . $body . '" --milestone "' . $milestone . '" --title "' . $title . '"'

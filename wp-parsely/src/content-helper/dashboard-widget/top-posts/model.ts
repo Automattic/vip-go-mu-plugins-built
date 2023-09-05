@@ -4,7 +4,7 @@ export interface TopPostData {
 	date: string;
 	id: number;
 	postId: number;
-	thumbUrlMedium: string;
+	thumbnailUrl: string;
 	title: string;
 	url: string;
 	views: number;

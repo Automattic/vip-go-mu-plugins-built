@@ -54,7 +54,7 @@ final class Plugins_Actions {
 
 		$actions['documentation'] = sprintf(
 			$link_pattern,
-			'https://www.parse.ly/help/integration/wordpress',
+			'https://docs.parse.ly/wordpress-plugin-setup/',
 			esc_html__( 'Documentation', 'wp-parsely' )
 		);
 

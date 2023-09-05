@@ -78,7 +78,7 @@ abstract class Metadata_Builder {
 	 * Sanitizes string content.
 	 *
 	 * @since 2.6.0
-	 * @since 3.4.0 Moved to class-metadata-builder
+	 * @since 3.4.0 Moved to class-metadata-builder.
 	 *
 	 * @param string|null $val The content you'd like sanitized.
 	 * @return string
@@ -97,7 +97,7 @@ abstract class Metadata_Builder {
 	 * A fall-back implementation to determine permalink.
 	 *
 	 * @since 3.0.0 $parsely_type Default parameter changed to `non-post`.
-	 * @since 3.4.0 Moved to class-metadata-builder
+	 * @since 3.4.0 Moved to class-metadata-builder.
 	 *
 	 * @param string $parsely_type Optional. Parse.ly post type you're interested in, either 'post'
 	 *                             or 'non-post'. Default is 'non-post'.

@@ -23,7 +23,7 @@ function setActiveTab(): void {
 		}
 	} );
 
-	const form = document.querySelector( 'form' );
+	const form = document.querySelector( 'form[name="parsely"]' );
 	if ( form ) {
 		form.removeAttribute( 'hidden' );
 		form.setAttribute( 'action', `options.php#${ activeTab }` );

@@ -1,6 +1,6 @@
 <?php
 /**
- * Class for Analytics Posts API (`/analytics/post`).
+ * Class for Analytics Posts API (`/analytics/posts`).
  *
  * @package Parsely
  * @since   3.4.0
@@ -10,11 +10,10 @@ declare(strict_types=1);
 
 namespace Parsely\RemoteAPI;
 
-use Parsely\Parsely;
 use WP_Error;
 
 /**
- * Class for Analytics Posts API (`/analytics/post`).
+ * Class for Analytics Posts API (`/analytics/posts`).
  *
  * @since 3.4.0
  *
@@ -78,5 +77,18 @@ class Analytics_Posts_API extends Remote_API_Base {
 	 */
 	public function get_posts_analytics( $api_params ) {
 		return $this->get_items( $api_params, true ); // @phpstan-ignore-line
+	}
+
+	/**
+	 * Returns the request's options for the remote API call.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @return array<string, mixed> The array of options.
+	 */
+	protected function get_request_options(): array {
+		return array(
+			'timeout' => 30, // phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
+		);
 	}
 }

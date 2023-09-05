@@ -1,4 +1,4 @@
-import { PUBLIC_API_BASE_URL } from '../../blocks/shared/utils/constants';
+import { PUBLIC_API_BASE_URL } from '../../content-helper/common/utils/constants';
 
 // Only enqueuing the action if the site has a defined Site ID.
 if ( typeof window.wpParselySiteId !== 'undefined' ) {

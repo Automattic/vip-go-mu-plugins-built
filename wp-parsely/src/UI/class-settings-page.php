@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Parsely\UI;
 
 use Parsely\Parsely;
+use Parsely\Validator;
 
 use function Parsely\Utils\get_asset_info;
 
@@ -61,7 +62,6 @@ use const Parsely\PARSELY_FILE;
  *   lowercase_tags?: bool,
  *   force_https_canonicals?: bool,
  *   disable_autotrack?: bool|string,
- *   parsely_wipe_metadata_cache: bool,
  * }
  */
 final class Settings_Page {
@@ -82,12 +82,33 @@ final class Settings_Page {
 	private $hook_suffix;
 
 	/**
+	 * Options for badges that are displayed for managed options.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @var array<string, mixed>
+	 */
+	private $managed_options_badge = array();
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Parsely $parsely Instance of Parsely class.
 	 */
 	public function __construct( Parsely $parsely ) {
 		$this->parsely = $parsely;
+
+		$managed_options_badge = apply_filters(
+			'wp_parsely_managed_options_badge',
+			array(
+				'text' => __( 'Upgrade', 'wp-parsely' ),
+				'url'  => 'https://www.parse.ly/getdemo/',
+			)
+		);
+
+		if ( is_array( $managed_options_badge ) ) {
+			$this->managed_options_badge = $managed_options_badge;
+		}
 	}
 
 	/**
@@ -205,7 +226,8 @@ final class Settings_Page {
 	 * @since 3.2.0
 	 */
 	private function initialize_basic_section(): void {
-		$section_key = 'basic-section';
+		$are_credentials_managed = $this->parsely->are_credentials_managed;
+		$section_key             = 'basic-section';
 
 		add_settings_section(
 			$section_key,
@@ -223,64 +245,47 @@ final class Settings_Page {
 			'optional_args' => array(
 				'required'    => 'required',
 				'placeholder' => 'mydomain.com',
+				'disabled'    => $are_credentials_managed,
 			),
 
 		);
 		add_settings_field(
 			$field_id,
-			__( 'Parse.ly Site ID <em>(required)</em>', 'wp-parsely' ),
+			__( 'Site ID <em>(required)</em>', 'wp-parsely' ),
 			array( $this, 'print_text_tag' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			$field_args
 		);
 
-		// API Secret.
-		$field_id   = 'api_secret';
-		$field_args = array(
-			'option_key'    => $field_id,
-			'help_text'     => __( 'Your API secret is your secret code to <a href="https://www.parse.ly/help/api/analytics/">access our API</a>. It can be found at <code>dash.parsely.com/<var>yoursitedomain</var>/settings/api</code> (replace <var>yoursitedomain</var> with your domain name, e.g. <samp>mydomain.com</samp>).<br />If you haven\'t purchased access to the API and would like to do so, email your account manager or <a href="mailto:support@parsely.com">support@parsely.com</a>.', 'wp-parsely' ),
-			'label_for'     => $field_id,
-			'optional_args' => array(
-				'type'                => 'password',
-				'is_obfuscated_value' => true,
-			),
-		);
-		add_settings_field(
-			$field_id,
-			__( 'Parse.ly API Secret', 'wp-parsely' ),
-			array( $this, 'print_text_tag' ),
-			Parsely::MENU_SLUG,
-			$section_key,
-			$field_args
-		);
-
-		// Metadata Secret.
-		$field_id   = 'metadata_secret';
-		$field_args = array(
-			'option_key'    => $field_id,
-			'help_text'     => __( 'Your metadata secret is given to you by Parse.ly support. DO NOT enter anything here unless given to you by Parse.ly support!', 'wp-parsely' ),
-			'label_for'     => $field_id,
-			'optional_args' => array(
-				'type'                => 'password',
-				'is_obfuscated_value' => true,
-			),
-		);
-		add_settings_field(
-			$field_id,
-			__( 'Parse.ly Metadata Secret', 'wp-parsely' ),
-			array( $this, 'print_text_tag' ),
-			Parsely::MENU_SLUG,
-			$section_key,
-			$field_args
-		);
+		if ( ! $are_credentials_managed ) {
+			// API Secret.
+			$field_id   = 'api_secret';
+			$field_args = array(
+				'option_key'    => $field_id,
+				'help_text'     => __( 'Your API secret is your secret code to <a href="https://docs.parse.ly/the-parsely-api/">access our API</a>. It can be found at <code>dash.parsely.com/<var>yoursitedomain</var>/settings/api</code> (replace <var>yoursitedomain</var> with your domain name, e.g. <samp>mydomain.com</samp>).<br />If you haven\'t purchased access to the API and would like to do so, email your account manager or <a href="mailto:support@parsely.com">support@parsely.com</a>.', 'wp-parsely' ),
+				'label_for'     => $field_id,
+				'optional_args' => array(
+					'type'                => 'password',
+					'is_obfuscated_value' => true,
+				),
+			);
+			add_settings_field(
+				$field_id,
+				__( 'API Secret', 'wp-parsely' ),
+				array( $this, 'print_text_tag' ),
+				Parsely::MENU_SLUG,
+				$section_key,
+				$field_args
+			);
+		}
 
 		// Metadata Format.
 		$field_id   = 'meta_type';
 		$field_args = array(
 			'title'         => __( 'Metadata Format', 'wp-parsely' ),
 			'option_key'    => $field_id,
-			'help_text'     => __( 'Choose the metadata format for our crawlers to access. Most publishers are fine with <a href="https://www.parse.ly/help/integration/jsonld/">JSON-LD</a>, but if you prefer to use our proprietary metadata format then you can do so here.', 'wp-parsely' ),
+			'help_text'     => __( 'Choose the metadata format for our crawlers to access. Most publishers are fine with <a href="https://docs.parse.ly/metadata-jsonld/">JSON-LD</a>, but if you prefer to use our proprietary metadata format then you can do so here.', 'wp-parsely' ),
 			'radio_options' => array(
 				'json_ld'        => 'json_ld',
 				'repeated_metas' => 'repeated_metas',
@@ -290,7 +295,7 @@ final class Settings_Page {
 		);
 		add_settings_field(
 			$field_id,
-			__( 'Metadata Format', 'wp-parsely' ),
+			$this->set_field_label_contents( __( 'Metadata Format', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
@@ -302,7 +307,7 @@ final class Settings_Page {
 		$field_id   = 'logo';
 		add_settings_field(
 			$field_id,
-			__( 'Logo', 'wp-parsely' ),
+			$this->set_field_label_contents( __( 'Logo', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_media_single_image' ),
 			Parsely::MENU_SLUG,
 			$section_key,
@@ -315,15 +320,16 @@ final class Settings_Page {
 		);
 
 		// Track logged-in users.
+		$field_id = 'track_authenticated_users';
 		add_settings_field(
-			'track_authenticated_users',
-			__( 'Track Logged-in Users', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Track Logged-in Users', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Track Logged-in Users', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'track_authenticated_users',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, track logged-in users.', 'wp-parsely' ),
 					'false' => __( 'No, do not track logged-in users. I do not want to see the Parse.ly tracking code on my site when browsing while logged in.', 'wp-parsely' ),
@@ -337,15 +343,16 @@ final class Settings_Page {
 		);
 
 		// Disable JavaScript.
+		$field_id = 'disable_javascript';
 		add_settings_field(
-			'disable_javascript',
-			__( 'Disable JavaScript', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Disable JavaScript', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Disable JavaScript', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'disable_javascript',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, disable JavaScript tracking. I want to use a separate system for tracking instead of the Parse.ly plugin.', 'wp-parsely' ),
 					'false' => __( 'No, do not disable JavaScript tracking. I want the Parse.ly plugin to load the tracker.', 'wp-parsely' ),
@@ -357,15 +364,16 @@ final class Settings_Page {
 
 		if ( defined( 'AMP__VERSION' ) ) {
 			// Disable AMP tracking.
+			$field_id = 'disable_amp';
 			add_settings_field(
-				'disable_amp',
-				__( 'Disable AMP Tracking', 'wp-parsely' ),
+				$field_id,
+				$this->set_field_label_contents( __( 'Disable AMP Tracking', 'wp-parsely' ), $field_id ),
 				array( $this, 'print_radio_tags' ),
 				Parsely::MENU_SLUG,
 				$section_key,
 				array(
 					'title'         => __( 'Disable AMP Tracking', 'wp-parsely' ), // Passed for legend element.
-					'option_key'    => 'disable_amp',
+					'option_key'    => $field_id,
 					'radio_options' => array(
 						'true'  => __( 'Yes, disable Parse.ly tracking on AMP pages. I use a different system for JavaScript tracking on AMP pages.', 'wp-parsely' ),
 						'false' => __( 'No, do not disable Parse.ly tracking on AMP pages.', 'wp-parsely' ),
@@ -426,7 +434,7 @@ final class Settings_Page {
 		);
 		add_settings_field(
 			$field_id,
-			__( 'Content ID Prefix', 'wp-parsely' ),
+			$this->set_field_label_contents( __( 'Content ID Prefix', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_text_tag' ),
 			Parsely::MENU_SLUG,
 			$section_key,
@@ -434,15 +442,16 @@ final class Settings_Page {
 		);
 
 		// Use top-level categories.
+		$field_id = 'use_top_level_cats';
 		add_settings_field(
-			'use_top_level_cats',
-			__( 'Use Top-Level Categories for Section', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Use Top-Level Categories for Section', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Use Top-Level Categories for Section', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'use_top_level_cats',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, use the first category assigned to a post as the section name.', 'wp-parsely' ),
 					'false' => __( 'No, do not use the first category assigned to a post as the section name.', 'wp-parsely' ),
@@ -456,22 +465,12 @@ final class Settings_Page {
 		$field_args = array(
 			'option_key'     => $field_id,
 			'help_text'      => __( 'By default, the section value in your Parse.ly dashboard maps to a post\'s category. You can optionally choose a custom taxonomy, if you\'ve created one, to populate the section value instead.', 'wp-parsely' ),
-			// filter WordPress taxonomies under the hood that should not appear in dropdown.
-			'select_options' => array_diff(
-				get_taxonomies(),
-				array(
-					'post_tag',
-					'nav_menu',
-					'author',
-					'link_category',
-					'post_format',
-				)
-			),
+			'select_options' => self::get_section_taxonomies(),
 			'label_for'      => Parsely::OPTIONS_KEY . "[$field_id]",
 		);
 		add_settings_field(
 			$field_id,
-			__( 'Use Custom Taxonomy for Section', 'wp-parsely' ),
+			$this->set_field_label_contents( __( 'Use Custom Taxonomy for Section', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_select_tag' ),
 			Parsely::MENU_SLUG,
 			$section_key,
@@ -479,15 +478,16 @@ final class Settings_Page {
 		);
 
 		// Use categories and custom taxonomies as tags.
+		$field_id = 'cats_as_tags';
 		add_settings_field(
-			'cats_as_tags',
-			__( 'Add Categories to Tags', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Add Categories to Tags', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Add Categories to Tags', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'cats_as_tags',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, add all assigned categories and taxonomies to my tags.', 'wp-parsely' ),
 					'false' => __( 'No, do not add all assigned categories and taxonomies to my tags.', 'wp-parsely' ),
@@ -497,15 +497,16 @@ final class Settings_Page {
 		);
 
 		// Lowercase all tags.
+		$field_id = 'lowercase_tags';
 		add_settings_field(
-			'lowercase_tags',
-			__( 'Lowercase All Tags', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Lowercase All Tags', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Lowercase All Tags', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'lowercase_tags',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, use lowercase versions of my tags to correct for potential misspellings.', 'wp-parsely' ),
 					'false' => __( 'No, do not use lowercase versions of my tags to correct for potential misspellings.', 'wp-parsely' ),
@@ -513,15 +514,16 @@ final class Settings_Page {
 			)
 		);
 
+		$field_id = 'force_https_canonicals';
 		add_settings_field(
-			'force_https_canonicals',
-			__( 'Force HTTPS Canonicals', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Force HTTPS Canonicals', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Force HTTPS Canonicals', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'force_https_canonicals',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, force <code>https</code> canonical URLs by default.', 'wp-parsely' ),
 					'false' => __( 'No, I want to use <code>http</code>.', 'wp-parsely' ),
@@ -537,7 +539,8 @@ final class Settings_Page {
 	 * @since 3.2.0
 	 */
 	private function initialize_advanced_section(): void {
-		$section_key = 'advanced-section';
+		$are_credentials_managed = $this->parsely->are_credentials_managed;
+		$section_key             = 'advanced-section';
 
 		add_settings_section(
 			$section_key,
@@ -546,34 +549,43 @@ final class Settings_Page {
 			Parsely::MENU_SLUG
 		);
 
+		if ( ! $are_credentials_managed ) {
+			// Metadata Secret.
+			$field_id   = 'metadata_secret';
+			$field_args = array(
+				'option_key'    => $field_id,
+				'help_text'     => __( 'Your metadata secret is given to you by Parse.ly support. DO NOT enter anything here unless given to you by Parse.ly support!', 'wp-parsely' ),
+				'label_for'     => $field_id,
+				'optional_args' => array(
+					'type'                => 'password',
+					'is_obfuscated_value' => true,
+				),
+			);
+			add_settings_field(
+				$field_id,
+				__( 'Metadata Secret', 'wp-parsely' ),
+				array( $this, 'print_text_tag' ),
+				Parsely::MENU_SLUG,
+				$section_key,
+				$field_args
+			);
+		}
+
 		// Disable autotrack.
+		$field_id = 'disable_autotrack';
 		add_settings_field(
-			'disable_autotrack',
-			__( 'Disable Autotracking', 'wp-parsely' ),
+			$field_id,
+			$this->set_field_label_contents( __( 'Disable Autotracking', 'wp-parsely' ), $field_id ),
 			array( $this, 'print_radio_tags' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			array(
 				'title'         => __( 'Disable Autotracking', 'wp-parsely' ), // Passed for legend element.
-				'option_key'    => 'disable_autotrack',
+				'option_key'    => $field_id,
 				'radio_options' => array(
 					'true'  => __( 'Yes, disable autotracking. I do not want the tracking code to report an event as soon as the script has finished loading. I plan to implement Dynamic Tracking myself.', 'wp-parsely' ),
 					'false' => __( 'No, do not disable autotracking. I want to make sure the default behavior of the tracking code is in place. The tracking code should report an event as soon as the script has finished loading.', 'wp-parsely' ),
 				),
-			)
-		);
-
-		// Clear metadata.
-		add_settings_field(
-			'parsely_wipe_metadata_cache',
-			__( 'Wipe Parse.ly Metadata Info', 'wp-parsely' ),
-			array( $this, 'print_checkbox_tag' ),
-			Parsely::MENU_SLUG,
-			$section_key,
-			array(
-				'option_key' => 'parsely_wipe_metadata_cache',
-				'yes_text'   => __( 'Yes, clear all metadata information for Parse.ly posts and re-send all metadata to Parse.ly.', 'wp-parsely' ),
-				'help_text'  => __( '<span style="color:#d63638">WARNING:</span> Do not do this unless explicitly instructed by Parse.ly Staff!', 'wp-parsely' ),
 			)
 		);
 	}
@@ -674,9 +686,11 @@ final class Settings_Page {
 		$name                = Parsely::OPTIONS_KEY . "[$id]";
 		$is_obfuscated_value = $optional_args['is_obfuscated_value'] ?? false;
 		$value               = $is_obfuscated_value ? $this->get_obfuscated_value( $value ) : esc_attr( $value );
-		$accepted_args       = array( 'placeholder', 'required' );
+		$accepted_args       = array( 'placeholder', 'required', 'disabled' );
 		$type                = $optional_args['type'] ?? 'text';
 
+		$is_managed = key_exists( $id, $this->parsely->managed_options );
+		echo '<fieldset', $is_managed ? ' disabled>' : '>';
 		echo sprintf( "<input type='%s' name='%s' id='%s' value='%s'", esc_attr( $type ), esc_attr( $name ), esc_attr( $id ), esc_attr( $value ) );
 
 		if ( isset( $args['help_text'] ) ) {
@@ -684,11 +698,20 @@ final class Settings_Page {
 		}
 
 		foreach ( $optional_args as $key => $val ) {
-			if ( \in_array( $key, $accepted_args, true ) ) {
-				echo ' ' . esc_attr( $key ) . '="' . esc_attr( (string) $val ) . '"';
+			if ( \in_array( $key, $accepted_args, true ) && false !== $val ) {
+				// Don't add a placeholder to managed option fields.
+				if ( $is_managed && 'placeholder' === $key ) {
+					continue;
+				}
+
+				// Support attributes without values.
+				echo ' ' . esc_attr( $key );
+				if ( true !== $val ) {
+					echo '="' . esc_attr( $val ) . '"';
+				}
 			}
 		}
-		echo ' />';
+		echo ' /></fieldset>';
 
 		$this->print_description_text( $args );
 	}
@@ -706,12 +729,14 @@ final class Settings_Page {
 		$name     = Parsely::OPTIONS_KEY . "[$id]";
 		$yes_text = $args['yes_text'] ?? '';
 
+		$is_managed = key_exists( $id, $this->parsely->managed_options );
+		echo '<fieldset', $is_managed ? ' disabled>' : '>';
 		echo sprintf( "<input type='checkbox' name='%s' id='%s_true' value='true' ", esc_attr( $name ), esc_attr( $id ) );
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
 		}
 		echo checked( true === $value, true, false );
-		echo sprintf( " /> <label for='%s_true'>%s</label>", esc_attr( $id ), esc_html( $yes_text ) );
+		echo sprintf( " /> <label for='%s_true'>%s</label><fieldset>", esc_attr( $id ), esc_html( $yes_text ) );
 
 		$this->print_description_text( $args );
 	}
@@ -729,6 +754,8 @@ final class Settings_Page {
 		$id             = esc_attr( $name );
 		$name           = Parsely::OPTIONS_KEY . "[$id]";
 
+		$is_managed = key_exists( $id, $this->parsely->managed_options );
+		echo '<fieldset', $is_managed ? ' disabled>' : '>';
 		echo sprintf( "<select name='%s' id='%s'", esc_attr( $name ), esc_attr( $name ) );
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
@@ -741,7 +768,7 @@ final class Settings_Page {
 			echo esc_html( $val );
 			echo '</option>';
 		}
-		echo '</select>';
+		echo '</select></fieldset>';
 
 		$this->print_filter_text( $args );
 		$this->print_description_text( $args );
@@ -764,8 +791,9 @@ final class Settings_Page {
 			$selected = $selected ? 'true' : 'false';
 		}
 
+		$is_managed = key_exists( $name, $this->parsely->managed_options );
 		?>
-		<fieldset>
+		<fieldset <?php echo $is_managed ? 'disabled' : ''; ?>>
 			<legend class="screen-reader-text"><span><?php echo esc_html( $title ); ?></span></legend>
 			<p>
 				<?php foreach ( $radio_options as $value => $text ) { ?>
@@ -805,9 +833,11 @@ final class Settings_Page {
 		$input_value = $this->parsely->get_options()[ $key ];
 		$input_name  = Parsely::OPTIONS_KEY . "[$key]";
 		$button_text = __( 'Browse', 'wp-parsely' );
+
+		$is_managed = key_exists( $key, $this->parsely->managed_options );
 		?>
 
-		<fieldset class="media-single-image" id="media-single-image-<?php echo esc_attr( $key ); ?>">
+		<fieldset class="media-single-image" id="media-single-image-<?php echo esc_attr( $key ); ?>"<?php echo $is_managed ? ' disabled' : ''; ?>>
 			<legend class="screen-reader-text"><span><?php echo esc_html( $title ); ?></span></legend>
 			<input class="file-path" type="text" name="<?php echo esc_attr( $input_name ); ?>" id="logo" value="<?php echo esc_attr( $input_value ); ?>" />
 			<button data-option="<?php echo esc_attr( $key ); ?>" class="browse button" type="button"><?php echo esc_html( $button_text ); ?></button>
@@ -930,44 +960,43 @@ final class Settings_Page {
 	 * @return ParselySettingOptions Validated inputs.
 	 */
 	private function validate_basic_section( $input ) {
-		$options = $this->parsely->get_options();
+		$are_credentials_managed = $this->parsely->are_credentials_managed;
+		$options                 = $this->parsely->get_options();
 
-		if ( '' === $input['apikey'] ) {
-			add_settings_error(
-				Parsely::OPTIONS_KEY,
-				'apikey',
-				__( 'Please specify the Site ID', 'wp-parsely' )
-			);
+		if ( $are_credentials_managed ) {
+			$input['apikey']     = '';
+			$input['api_secret'] = '';
 		} else {
-			$site_id = $this->sanitize_site_id( $input['apikey'] );
-			if ( false === $this->validate_site_id( $site_id ) ) {
+			if ( '' === $input['apikey'] ) {
 				add_settings_error(
 					Parsely::OPTIONS_KEY,
 					'apikey',
-					__( 'Your Parse.ly Site ID looks incorrect, it should look like "example.com".', 'wp-parsely' )
+					__( 'Please specify the Site ID', 'wp-parsely' )
 				);
 			} else {
-				$input['apikey'] = $site_id;
+				$site_id = $this->sanitize_site_id( $input['apikey'] );
+				if ( false === Validator::validate_site_id( $site_id ) ) {
+					add_settings_error(
+						Parsely::OPTIONS_KEY,
+						'apikey',
+						__( 'The Site ID was not saved because it is incorrect. It should look like "example.com".', 'wp-parsely' )
+					);
+					$input['apikey'] = $options['apikey'];
+				} else {
+					$input['apikey'] = $site_id;
+				}
 			}
-		}
 
-		$input['api_secret'] = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
-
-		$input['metadata_secret'] = $this->get_unobfuscated_value( $input['metadata_secret'], $this->parsely->get_options()['metadata_secret'] );
-		if ( '' !== $input['metadata_secret'] ) {
-			if ( strlen( $input['metadata_secret'] ) !== 10 ) {
+			$input['api_secret'] = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
+			$api_secret_length   = strlen( $input['api_secret'] );
+			if ( $api_secret_length > 0 &&
+					false === Validator::validate_api_secret( $input['api_secret'] ) ) {
 				add_settings_error(
 					Parsely::OPTIONS_KEY,
-					'metadata_secret',
-					__( 'Metadata secret is incorrect. Please contact Parse.ly support!', 'wp-parsely' )
+					'api_secret',
+					__( 'The API Secret was not saved because it is incorrect. Please contact Parse.ly support!', 'wp-parsely' )
 				);
-			} elseif (
-				isset( $input['parsely_wipe_metadata_cache'] ) && 'true' === $input['parsely_wipe_metadata_cache'] // @phpstan-ignore-line
-			) {
-				delete_post_meta_by_key( 'parsely_metadata_last_updated' );
-
-				wp_schedule_event( time() + 100, 'everytenminutes', 'parsely_bulk_metas_update' );
-				$input['parsely_wipe_metadata_cache'] = false;
+				$input['api_secret'] = $options['api_secret'];
 			}
 		}
 
@@ -1140,7 +1169,24 @@ final class Settings_Page {
 	 * @return ParselySettingOptions Validated inputs.
 	 */
 	private function validate_advanced_section( $input ) {
-		$options = $this->parsely->get_options();
+		$are_credentials_managed = $this->parsely->are_credentials_managed;
+		$options                 = $this->parsely->get_options();
+
+		if ( $are_credentials_managed ) {
+			$input['metadata_secret'] = '';
+		} else {
+			$input['metadata_secret'] = $this->get_unobfuscated_value( $input['metadata_secret'], $this->parsely->get_options()['metadata_secret'] );
+			$metadata_secret_length   = strlen( $input['metadata_secret'] );
+			if ( $metadata_secret_length > 0 &&
+					false === Validator::validate_metadata_secret( $input['metadata_secret'] ) ) {
+				add_settings_error(
+					Parsely::OPTIONS_KEY,
+					'metadata_secret',
+					__( 'The Metadata Secret was not saved because it is incorrect. Please contact Parse.ly support!', 'wp-parsely' )
+				);
+				$input['metadata_secret'] = $options['metadata_secret'];
+			}
+		}
 
 		if ( ! isset( $input['disable_autotrack'] ) ) {
 			$input['disable_autotrack'] = $options['disable_autotrack'];
@@ -1158,33 +1204,12 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Validates the passed Site ID.
-	 *
-	 * Accepts a www prefix and up to 3 periods.
-	 *
-	 * Valid examples: 'test.com', 'www.test.com', 'subdomain.test.com',
-	 * 'www.subdomain.test.com', 'subdomain.subdomain.test.com'.
-	 *
-	 * Invalid examples: 'test', 'test.com/', 'http://test.com', 'https://test.com',
-	 * 'www.subdomain.subdomain.test.com'.
-	 *
-	 * @since 3.3.0
-	 *
-	 * @param string $site_id The Site ID to be validated.
-	 * @return bool
-	 */
-	private function validate_site_id( string $site_id ): bool {
-		$key_format = '/^((\w+)\.)?(([\w-]+)?)(\.[\w-]+){1,2}$/';
-
-		return 1 === preg_match( $key_format, $site_id );
-	}
-
-	/**
 	 * Sanitizes the passed Site ID.
 	 *
 	 * @since 3.3.0
 	 *
 	 * @param string $site_id The Site ID to be sanitized.
+	 *
 	 * @return string
 	 */
 	private function sanitize_site_id( string $site_id ): string {
@@ -1302,5 +1327,63 @@ final class Settings_Page {
 		}
 
 		return $current_value;
+	}
+
+	/**
+	 * Returns the field label's title. If the option is managed, a badge is
+	 * also included.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param string $title The field's title.
+	 * @param string $option_id The option's ID.
+	 *
+	 * @return string The resulting content.
+	 */
+	public function set_field_label_contents( string $title, string $option_id ): string {
+		$is_managed = key_exists( $option_id, $this->parsely->managed_options );
+
+		if ( $is_managed ) {
+			$text = $this->managed_options_badge['text'] ?? '';
+			if ( ! is_string( $text ) || '' === $text ) {
+				return $title;
+			}
+
+			$url = filter_var( $this->managed_options_badge['url'] ?? '', FILTER_VALIDATE_URL );
+
+			if ( false === $url ) {
+				$badge = '<span class="managed-option-badge">' . esc_html( $text ) . '</span>';
+			} else {
+				$badge = '<a class="managed-option-badge" href="' . esc_url( $url ) .
+					'" target="_blank" rel="noopener">' . esc_html( $text ) . '</a>';
+			}
+
+			return "{$title}&nbsp;&nbsp;{$badge}";
+		}
+
+		return $title;
+	}
+
+	/**
+	 * Returns the taxonomies allowed to be used as custom_taxonomy_section
+	 * option values.
+	 *
+	 * @since 3.9.0
+	 *
+	 * @return array<string> Array of taxonomies.
+	 */
+	public static function get_section_taxonomies(): array {
+		return array_diff(
+			get_taxonomies(),
+			array(
+				'post_tag',
+				'nav_menu',
+				'author',
+				'link_category',
+				'post_format',
+				'wp_theme',
+				'wp_template_part_area',
+			)
+		);
 	}
 }

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Parsely\Endpoints;
 
+use Parsely\Parsely;
 use stdClass;
 use WP_REST_Request;
 use WP_Error;
@@ -44,13 +45,15 @@ final class Related_API_Proxy extends Base_API_Proxy {
 	 * @return array<stdClass> The generated data.
 	 */
 	protected function generate_data( $response ): array {
+		$itm_source = $this->itm_source;
+
 		return array_map(
-			static function( stdClass $item ) {
+			static function( stdClass $item ) use ( $itm_source ) {
 				return (object) array(
 					'image_url'        => $item->image_url,
 					'thumb_url_medium' => $item->thumb_url_medium,
 					'title'            => $item->title,
-					'url'              => $item->url,
+					'url'              => Parsely::get_url_with_itm_source( $item->url, $itm_source ),
 				);
 			},
 			$response

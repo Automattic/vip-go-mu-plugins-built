@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { Card, CardBody, CardMedia } from '@wordpress/components';
 
@@ -19,7 +19,7 @@ interface ParselyRecommendationsListItemProps {
 const getImageForLink = ( imagestyle: string, imageUrl: string, thumbUrlMedium: string ) => imagestyle === 'original' ? imageUrl : thumbUrlMedium;
 const getLinkTarget = ( openlinksinnewtab: boolean ) => Boolean( openlinksinnewtab ) === true ? { target: '_blank', rel: 'noopener' } : { target: '_self', rel: '' };
 
-const ParselyRecommendationsListItem = ( {
+export const ParselyRecommendationsListItem = ( {
 	imageAlt,
 	imagestyle,
 	openlinksinnewtab,
@@ -48,5 +48,3 @@ const ParselyRecommendationsListItem = ( {
 		</a>
 	</li>
 );
-
-export default ParselyRecommendationsListItem;

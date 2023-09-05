@@ -1,17 +1,17 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDebounce } from '@wordpress/compose';
-import { useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
 import { setError, setRecommendations } from '../actions';
-import { useRecommendationsStore } from '../recommendations-store';
 import { Recommendation } from '../models/Recommendation';
+import { useRecommendationsStore } from '../recommendations-store';
 
 interface ParselyRecommendationsFetcherProps {
 	boost: string;
@@ -27,7 +27,7 @@ interface ApiResponse {
 
 const updateDelay = 300; // The Block's update delay in the Block Editor when settings/props change.
 
-const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element | null => {
+export const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element | null => {
 	const {	dispatch } = useRecommendationsStore();
 
 	const query = useMemo( () => ( {
@@ -35,20 +35,17 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 		limit,
 		sort,
 		url: window.location.href,
+		itm_source: 'wp-parsely-recommendations-block',
 	} ), [ boost, limit, sort ] );
 
-	async function fetchRecommendationsFromWpApi(): Promise<ApiResponse> {
-		return apiFetch( {
-			path: addQueryArgs( '/wp-parsely/v1/related', { query } ),
-		} );
-	}
-
-	async function fetchRecommendations() {
+	const fetchRecommendations = useCallback( async () => {
 		let response;
 		let error;
 
 		try {
-			response = await fetchRecommendationsFromWpApi();
+			response = await apiFetch<Promise<ApiResponse>>( {
+				path: addQueryArgs( '/wp-parsely/v1/related', { query } ),
+			} );
 		} catch ( wpError ) {
 			error = wpError;
 		}
@@ -62,7 +59,7 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 			return;
 		}
 
-		let data = response?.data || [];
+		let data = response?.data ?? [];
 
 		// When in the editor, change URLs to # for better screen reader experience.
 		if ( isEditMode ) {
@@ -72,7 +69,7 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 		}
 
 		dispatch( setRecommendations( { recommendations: data } ) );
-	}
+	}, [ query, dispatch, isEditMode ] );
 
 	const debouncedFetchRecommendations = useDebounce( fetchRecommendations, updateDelay );
 
@@ -89,5 +86,3 @@ const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : Par
 	// This is a data-only component and does not render
 	return null;
 };
-
-export default ParselyRecommendationsFetcher;

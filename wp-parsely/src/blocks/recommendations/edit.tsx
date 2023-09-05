@@ -1,21 +1,21 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { createBlock, registerBlockType } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
+import { createBlock, registerBlockType } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import ParselyRecommendations from './components/parsely-recommendations';
-import ParselyRecommendationsInspectorControls from './components/parsely-recommendations-inspector-controls';
-import RecommendationsStore from './recommendations-store';
-import LeafIcon from '../shared/components/leaf-icon';
-import './style.scss';
-import './editor.scss';
+import { LeafIcon } from '../../content-helper/common/icons/leaf-icon';
 import json from './block.json';
+import { ParselyRecommendations } from './components/parsely-recommendations';
+import { ParselyRecommendationsInspectorControls } from './components/parsely-recommendations-inspector-controls';
+import './editor.scss';
 import { RecommendationsAttributes } from './models/RecommendationsAttributes';
+import { RecommendationsStore } from './recommendations-store';
+import './style.scss';
 
 interface ParselyRecommendationsEditProps {
 	clientId: string;

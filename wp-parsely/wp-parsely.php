@@ -9,9 +9,9 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Parse.ly
- * Plugin URI:        https://www.parse.ly/help/integration/wordpress
+ * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.8.4
+ * Version:           3.9.0
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -26,7 +26,9 @@ declare(strict_types=1);
 
 namespace Parsely;
 
-use Parsely\ContentHelper\Dashboard_Widget;
+use Parsely\Content_Helper\Dashboard_Widget;
+use Parsely\Content_Helper\Editor_Sidebar;
+use Parsely\Content_Helper\Post_List_Stats;
 use Parsely\Endpoints\Analytics_Post_Detail_API_Proxy;
 use Parsely\Endpoints\Analytics_Posts_API_Proxy;
 use Parsely\Endpoints\GraphQL_Metadata;
@@ -34,17 +36,15 @@ use Parsely\Endpoints\Referrers_Post_Detail_API_Proxy;
 use Parsely\Endpoints\Related_API_Proxy;
 use Parsely\Endpoints\Rest_Metadata;
 use Parsely\Integrations\Amp;
-use Parsely\Integrations\Facebook_Instant_Articles;
 use Parsely\Integrations\Google_Web_Stories;
 use Parsely\Integrations\Integrations;
 use Parsely\RemoteAPI\Analytics_Post_Detail_API;
 use Parsely\RemoteAPI\Analytics_Posts_API;
-use Parsely\RemoteAPI\Remote_API_Cache;
 use Parsely\RemoteAPI\Referrers_Post_Detail_API;
 use Parsely\RemoteAPI\Related_API;
+use Parsely\RemoteAPI\Remote_API_Cache;
 use Parsely\RemoteAPI\WordPress_Cache;
 use Parsely\UI\Admin_Bar;
-use Parsely\UI\Admin_Columns_Parsely_Stats;
 use Parsely\UI\Admin_Warning;
 use Parsely\UI\Metadata_Renderer;
 use Parsely\UI\Network_Admin_Sites_List;
@@ -60,12 +60,13 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION = '3.8.4';
+const PARSELY_VERSION = '3.9.0';
 const PARSELY_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-parsely.php';
 require_once __DIR__ . '/src/class-scripts.php';
 require_once __DIR__ . '/src/class-dashboard-link.php';
+require_once __DIR__ . '/src/class-validator.php';
 require_once __DIR__ . '/src/UI/class-admin-bar.php';
 require_once __DIR__ . '/src/UI/class-metadata-renderer.php';
 require_once __DIR__ . '/src/Endpoints/class-metadata-endpoint.php';
@@ -106,7 +107,8 @@ function parsely_initialize_plugin(): void {
 	$metadata_renderer->run();
 }
 
-require_once __DIR__ . '/src/UI/class-admin-columns-parsely-stats.php';
+require_once __DIR__ . '/src/content-helper/common/class-content-helper-feature.php';
+require_once __DIR__ . '/src/content-helper/post-list-stats/class-post-list-stats.php';
 require_once __DIR__ . '/src/UI/class-admin-warning.php';
 require_once __DIR__ . '/src/UI/class-plugins-actions.php';
 require_once __DIR__ . '/src/UI/class-row-actions.php';
@@ -123,9 +125,9 @@ function parsely_admin_init_register(): void {
 	( new Admin_Warning( $parsely ) )->run();
 	( new Plugins_Actions() )->run();
 	( new Row_Actions( $parsely ) )->run();
-	( new Admin_Columns_Parsely_Stats( $parsely ) )->run();
+	( new Post_List_Stats( $parsely ) )->run();
 	( new Site_Health( $parsely ) )->run();
-	( new Dashboard_Widget() )->run();
+	( new Dashboard_Widget( $parsely ) )->run();
 }
 
 require_once __DIR__ . '/src/UI/class-settings-page.php';
@@ -209,16 +211,17 @@ function init_recommendations_block(): void {
 	$recommendations_block->run();
 }
 
-require_once __DIR__ . '/src/blocks/content-helper/class-content-helper.php';
+require_once __DIR__ . '/src/content-helper/editor-sidebar/class-editor-sidebar.php';
 
-add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\init_content_helper' );
+add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\init_content_helper_editor_sidebar' );
 /**
  * Inserts the PCH Editor Sidebar.
  *
- * @since 3.5.0 Moved from Parsely\Scripts\enqueue_block_editor_assets()
+ * @since 3.5.0 Moved from Parsely\Scripts\enqueue_block_editor_assets().
+ * @since 3.9.0 Renamed from init_content_helper().
  */
-function init_content_helper(): void {
-	( new Content_Helper() )->run();
+function init_content_helper_editor_sidebar(): void {
+	( new Editor_Sidebar( $GLOBALS['parsely'] ) )->run();
 }
 
 require_once __DIR__ . '/src/UI/class-recommended-widget.php';
@@ -234,7 +237,6 @@ function parsely_recommended_widget_register(): void {
 require_once __DIR__ . '/src/Integrations/class-integration.php';
 require_once __DIR__ . '/src/Integrations/class-integrations.php';
 require_once __DIR__ . '/src/Integrations/class-amp.php';
-require_once __DIR__ . '/src/Integrations/class-facebook-instant-articles.php';
 require_once __DIR__ . '/src/Integrations/class-google-web-stories.php';
 
 add_action( 'init', __NAMESPACE__ . '\\parsely_integrations' ); // @phpstan-ignore-line
@@ -256,7 +258,6 @@ function parsely_integrations( $parsely = null ): Integrations {
 
 	$parsely_integrations = new Integrations( $parsely );
 	$parsely_integrations->register( 'amp', Amp::class );
-	$parsely_integrations->register( 'fbia', Facebook_Instant_Articles::class );
 	$parsely_integrations->register( 'webstories', Google_Web_Stories::class );
 	$parsely_integrations = apply_filters( 'wp_parsely_add_integration', $parsely_integrations );
 	$parsely_integrations->integrate();

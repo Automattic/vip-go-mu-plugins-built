@@ -1,13 +1,13 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
-import ParselyRecommendationsListItem from './parsely-recommendations-list-item';
 import { Recommendation } from '../models/Recommendation';
+import { ParselyRecommendationsListItem } from './parsely-recommendations-list-item';
 
 interface ParselyRecommendationsListProps {
 	imagestyle: string;
@@ -16,13 +16,13 @@ interface ParselyRecommendationsListProps {
 	showimages: boolean;
 }
 
-const ParselyRecommendationsList = ( { imagestyle, recommendations, showimages, openlinksinnewtab }: ParselyRecommendationsListProps ) => (
+export const ParselyRecommendationsList = ( { imagestyle, recommendations, showimages, openlinksinnewtab }: ParselyRecommendationsListProps ) => (
 	<ul className="parsely-recommendations-list">
 		{ recommendations.map( ( recommendation ) => (
 			<ParselyRecommendationsListItem
 				imageAlt={ __( 'Image for link', 'wp-parsely' ) }
 				imagestyle={ imagestyle }
-				key={ recommendation.url }
+				key={ recommendation.url + ' ' + recommendation.title }
 				openlinksinnewtab={ openlinksinnewtab }
 				recommendation={ recommendation }
 				showimages={ showimages }
@@ -30,5 +30,3 @@ const ParselyRecommendationsList = ( { imagestyle, recommendations, showimages, 
 		) ) }
 	</ul>
 );
-
-export default ParselyRecommendationsList;
