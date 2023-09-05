@@ -64,6 +64,7 @@ class Defaults {
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
 		'jetpack-memberships-connected-account-id',
+		'jetpack-memberships-has-connected-account',
 		'jetpack-twitter-cards-site-tag',
 		'jetpack_activated',
 		'jetpack_allowed_xsite_search_ids',
@@ -87,6 +88,7 @@ class Defaults {
 		'jetpack_protect_key',
 		'jetpack_publicize_options',
 		'jetpack_relatedposts',
+		'jetpack_social_settings',
 		'jetpack_sso_match_by_email',
 		'jetpack_sso_require_two_step',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
@@ -96,6 +98,7 @@ class Defaults {
 		'jetpack_sync_settings_post_types_blacklist',
 		'jetpack_sync_settings_taxonomies_blacklist',
 		'jetpack_sync_settings_dedicated_sync_enabled', // is Dedicated Sync flow enabled.
+		'jetpack_sync_settings_custom_queue_table_enabled', // is custom queue table enabled.
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
@@ -174,6 +177,7 @@ class Defaults {
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
 		'wpcom_featured_image_in_email',
+		'wpcom_newsletter_categories_enabled',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
@@ -1300,5 +1304,12 @@ class Defaults {
 	 * @var int Bool-ish. Default 0.
 	 */
 	public static $default_dedicated_sync_enabled = 0;
+
+	/**
+	 * Default for enabling custom queue table for Sync.
+	 *
+	 * @var int Bool-ish. Default 0.
+	 */
+	public static $default_custom_queue_table_enabled = 0;
 
 }

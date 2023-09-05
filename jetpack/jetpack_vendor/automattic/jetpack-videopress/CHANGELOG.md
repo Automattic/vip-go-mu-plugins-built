@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.3-alpha] - unreleased
+
+This is an alpha version! The changes listed here are not final.
+
+### Changed
+- General: remove WP 6.1 backwards compatibility checks
+
+## [0.15.2] - 2023-09-04
+### Changed
+- Updated package dependencies. [#32803]
+- Updated package dependencies. [#32804]
+
+## [0.15.1] - 2023-08-23
+### Changed
+- Updated package dependencies. [#32605]
+
+## [0.15.0] - 2023-08-21
+### Changed
+- Update icons of Jetpack blocks [#32568]
+- Use the new method to render Connection initial state. [#32499]
+
+### Fixed
+- Fix false values not working on shortcodes [#32541]
+
+## [0.14.13] - 2023-08-09
+### Added
+- Added comment note about IS_WPCOM. [#32136]
+
+### Changed
+- Updated package dependencies. [#32166]
+
+## [0.14.12] - 2023-08-01
+### Added
+- VideoPress: handle uploading video files when dropping in the editor canvas. [#32084]
+
+### Removed
+- VideoPress: Remove HTML support. [#32123]
+
 ## [0.14.11] - 2023-07-25
 ### Changed
 - Updated package dependencies. [#31923]
@@ -1063,6 +1101,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.15.3-alpha]: https://github.com/Automattic/jetpack-videopress/compare/v0.15.2...v0.15.3-alpha
+[0.15.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.15.1...v0.15.2
+[0.15.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.15.0...v0.15.1
+[0.15.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.13...v0.15.0
+[0.14.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.12...v0.14.13
+[0.14.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.11...v0.14.12
 [0.14.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.10...v0.14.11
 [0.14.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.9...v0.14.10
 [0.14.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.8...v0.14.9
