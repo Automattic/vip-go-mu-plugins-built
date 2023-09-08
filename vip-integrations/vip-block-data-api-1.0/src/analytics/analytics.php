@@ -9,9 +9,6 @@ namespace WPCOMVIP\BlockDataApi;
 
 defined( 'ABSPATH' ) || die();
 
-define( 'WPCOMVIP__BLOCK_DATA_API__STAT_NAME__USAGE', 'vip-block-data-api-usage' );
-define( 'WPCOMVIP__BLOCK_DATA_API__STAT_NAME__ERROR', 'vip-block-data-api-error' );
-
 /**
  * Analytics Class that will be used to send data to the WP Pixel.
  */
@@ -35,15 +32,15 @@ class Analytics {
 	/**
 	 * Record the usage of the plugin, for VIP sites only. For non-VIP sites, this is a no-op.
 	 * 
+	 * This is done based on our sampling algorithm.
+	 * 
 	 * @return void
 	 */
 	public static function record_usage() {
-		// Record usage on WPVIP sites only.
-		if ( ! self::is_wpvip_site() ) {
-			return;
+		// Record usage on WPVIP sites only, and only when it matches the sampling time.
+		if ( self::is_wpvip_site() && self::is_it_sampling_time() ) {
+			self::$analytics_to_send[ WPCOMVIP__BLOCK_DATA_API__STAT_NAME__USAGE ] = constant( 'FILES_CLIENT_SITE_ID' );
 		}
-
-		self::$analytics_to_send[ WPCOMVIP__BLOCK_DATA_API__STAT_NAME__USAGE ] = constant( 'FILES_CLIENT_SITE_ID' );
 	}
 
 	/**
@@ -104,6 +101,27 @@ class Analytics {
 			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
 			&& defined( 'FILES_CLIENT_SITE_ID' )
 			&& function_exists( '\Automattic\VIP\Stats\send_pixel' );
+	}
+
+	/**
+	 * Check if the current request should be sampled for analytics.
+	 * 
+	 * Current sampling algorithm is that every 10s, we send analytics.
+	 *
+	 * @return boolean true, if it should be sampled or false otherwise.
+	 */
+	private static function is_it_sampling_time() {
+		$current_timestamp = current_datetime();
+
+		// Get the seconds from the date.
+		$seconds = intval( $current_timestamp->format( 's' ) );
+
+		// Only send analytics every 10 seconds.
+		if ( 0 === ( $seconds % WPCOMVIP__BLOCK_DATA_API__STAT_SAMPLING_RATE_SEC ) ) {
+			return true;
+		}
+
+		return false;
 	}
 }
 
