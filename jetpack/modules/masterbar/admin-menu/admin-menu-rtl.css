@@ -38,6 +38,7 @@
 @media (min-width: 961px) {
   body:not(.folded).auto-fold .interface-interface-skeleton,
   .auto-fold .edit-post-layout .components-editor-notices__snackbar,
+  .components-snackbar-list.edit-widgets-notices__snackbar,
   .jp-dialogue-modern-full__container {
     right: 272px;
   }
@@ -542,8 +543,7 @@ body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a {
   line-height: 22px;
   border-radius: 2px;
   padding: 8px 14px;
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
 }
 
 body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a:hover {

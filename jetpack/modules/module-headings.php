@@ -98,7 +98,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'lazy-images' => array(
 				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary.', 'Module Description', 'jetpack' ),
 			),
 
 			'likes' => array(
@@ -680,7 +680,7 @@ function jetpack_get_module_info( $key ) {
 	  'lazy-images' => 
 	  array (
 	    'name' => 'Lazy Images',
-	    'description' => 'Speed up your site and create a smoother viewing experience by loading images as visitors scroll down the screen, instead of all at once.',
+	    'description' => 'Most modern browsers already support lazy loading. With over 90% of current browsers offering native support, enabling this feature may be unnecessary.',
 	    'sort' => '24',
 	    'recommendation_order' => '14',
 	    'introduced' => '5.6.0',
