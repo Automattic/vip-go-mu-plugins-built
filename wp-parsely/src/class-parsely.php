@@ -675,11 +675,7 @@ class Parsely {
 			return false;
 		}
 
-		if ( isset( $credentials['is_managed'] ) ) {
-			return $credentials['is_managed'];
-		}
-
-		return false;
+		return $credentials['is_managed'] ?? false;
 	}
 
 	/**

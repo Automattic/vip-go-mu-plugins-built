@@ -6,7 +6,7 @@
 	.parsely-spinner-wrapper {
 		display: flex;
 		justify-content: center;
-		margin: to_rem(103px) 0;
+		margin: to_rem(90px) 0;
 
 		svg {
 			height: 22px;
@@ -27,10 +27,10 @@
 	font-family: var(--base-font);
 	color: var(--base-text);
 
-	.page-views-title {
-		margin-bottom: to_rem(4px);
-		text-align: right;
-		width: 100%;
+	.parsely-top-posts-filters {
+		margin-bottom: to_rem(10px);
+		display: flex;
+		justify-content: space-between;
 	}
 
 	.parsely-top-post-content {
@@ -116,7 +116,7 @@
 		}
 	}
 
-	.parsely-top-post-views {
+	.parsely-top-post-metric-data {
 		float: right;
 		font-family: var(--numeric-font);
 		font-size: to_rem(18px);

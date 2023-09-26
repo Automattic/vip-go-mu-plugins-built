@@ -12,6 +12,12 @@ use Rector\Php54\Rector\Array_\LongArrayToShortArrayRector;
 use Rector\Set\ValueObject\LevelSetList;
 
 return static function ( RectorConfig $rector_config ): void {
+	$rector_config->bootstrapFiles(
+		array(
+			__DIR__ . '/vendor/php-stubs/wordpress-stubs/wordpress-stubs.php',
+		)
+	);
+
 	$rector_config->paths(
 		array(
 			__DIR__ . '/src',

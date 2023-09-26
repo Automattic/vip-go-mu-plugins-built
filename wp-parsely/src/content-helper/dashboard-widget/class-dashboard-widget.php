@@ -109,7 +109,7 @@ class Dashboard_Widget extends Content_Helper_Feature {
 
 		wp_add_dashboard_widget(
 			static::get_script_id(),
-			__( 'Parse.ly Top Posts (Last 7 Days)', 'wp-parsely' ),
+			__( 'Parse.ly Top Posts', 'wp-parsely' ),
 			'__return_empty_string' // Content will be populated by JavaScript.
 		);
 	}

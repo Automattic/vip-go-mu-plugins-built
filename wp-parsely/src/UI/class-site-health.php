@@ -67,7 +67,7 @@ final class Site_Health {
 	 * @return array<string, mixed>
 	 */
 	public function check_site_id( array $tests ): array {
-		$test = function() {
+		$test = function () {
 			$result = array(
 				'label'       => __( 'The Site ID is correctly set up', 'wp-parsely' ),
 				'status'      => 'good',

@@ -153,10 +153,10 @@ final class Metadata_Renderer {
 	 * @since 2.6.0
 	 * @since 3.3.0 Moved from `Parsely` class to `Metadata_Header`.
 	 *
-	 * @param mixed $var Value to filter from the array.
+	 * @param mixed $value Value to filter from the array.
 	 * @return bool True if the variable is not empty, and it's a string.
 	 */
-	private function filter_empty_and_not_string_from_array( $var ): bool {
-		return is_string( $var ) && '' !== $var;
+	private function filter_empty_and_not_string_from_array( $value ): bool {
+		return is_string( $value ) && '' !== $value;
 	}
 }

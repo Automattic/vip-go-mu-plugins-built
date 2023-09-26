@@ -48,7 +48,7 @@ final class Related_API_Proxy extends Base_API_Proxy {
 		$itm_source = $this->itm_source;
 
 		return array_map(
-			static function( stdClass $item ) use ( $itm_source ) {
+			static function ( stdClass $item ) use ( $itm_source ) {
 				return (object) array(
 					'image_url'        => $item->image_url,
 					'thumb_url_medium' => $item->thumb_url_medium,

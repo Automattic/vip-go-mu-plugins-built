@@ -199,6 +199,7 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 		}
 
 		// The user has the required capability to access this endpoint.
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined
 		if ( current_user_can( $this->user_capability ) ) {
 			return true;
 		}

@@ -47,7 +47,7 @@ export const ParselyRecommendationsInspectorControls = ( {
 					label={ __( 'Maximum Results', 'wp-parsely' ) }
 					min={ 1 }
 					max={ 25 }
-					onChange={ ( value: number ): void => setAttributes( { limit: value } ) }
+					onChange={ ( value: number | undefined ): void => setAttributes( { limit: value } ) }
 					value={ limit }
 				/>
 			</PanelRow>

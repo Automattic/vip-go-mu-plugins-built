@@ -18,6 +18,8 @@ use WP_REST_Request;
 use WP_REST_Server;
 
 use function Parsely\Utils\convert_endpoint_to_filter_key;
+use function Parsely\Utils\get_date_format;
+use function Parsely\Utils\get_formatted_duration;
 
 /**
  * Configures a REST API endpoint for use.
@@ -171,5 +173,89 @@ abstract class Base_API_Proxy {
 		return (object) array(
 			'data' => $this->generate_data( $response ), // @phpstan-ignore-line.
 		);
+	}
+
+	/**
+	 * Extracts the post data from the passed object.
+	 *
+	 * Should only be used with endpoints that return post data.
+	 *
+	 * @since 3.10.0
+	 *
+	 * @param stdClass $item The object to extract the data from.
+	 *
+	 * @return array<string, mixed> The extracted data.
+	 */
+	protected function extract_post_data( stdClass $item ): array {
+		$data = array();
+
+		if ( isset( $item->author ) ) {
+			$data['author'] = $item->author;
+		}
+
+		if ( isset( $item->metrics->views ) ) {
+			$data['views'] = number_format_i18n( $item->metrics->views );
+		}
+
+		if ( isset( $item->metrics->visitors ) ) {
+			$data['visitors'] = number_format_i18n( $item->metrics->visitors );
+		}
+
+		// The avg_engaged metric can be in different locations depending on the
+		// endpoint and passed sort/url parameters.
+		$avg_engaged = $item->metrics->avg_engaged ?? $item->avg_engaged ?? null;
+		if ( null !== $avg_engaged ) {
+			$data['avgEngaged'] = get_formatted_duration( (float) $avg_engaged );
+		}
+
+		if ( isset( $item->pub_date ) ) {
+			$data['date'] = wp_date( get_date_format(), strtotime( $item->pub_date ) );
+		}
+
+		if ( isset( $item->title ) ) {
+			$data['title'] = $item->title;
+		}
+
+		if ( isset( $item->url ) ) {
+			$site_id = $this->parsely->get_site_id();
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
+			$post_id = url_to_postid( $item->url ); // 0 if the post cannot be found.
+
+			$data['dashUrl'] = Parsely::get_dash_url( $site_id, $item->url );
+			$data['id']      = Parsely::get_url_with_itm_source( $item->url, null ); // Unique.
+			$data['postId']  = $post_id; // Might not be unique.
+			$data['url']     = Parsely::get_url_with_itm_source( $item->url, $this->itm_source );
+
+			// Set thumbnail URL, falling back to the Parse.ly thumbnail if needed.
+			$thumbnail_url = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
+			if ( false !== $thumbnail_url ) {
+				$data['thumbnailUrl'] = $thumbnail_url;
+			} elseif ( isset( $item->thumb_url_medium ) ) {
+				$data['thumbnailUrl'] = $item->thumb_url_medium;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Generates the post data from the passed response.
+	 *
+	 * Should only be used with endpoints that return post data.
+	 *
+	 * @since 3.10.0
+	 *
+	 * @param array<stdClass> $response The response received by the proxy.
+	 *
+	 * @return array<stdClass> The generated data.
+	 */
+	protected function generate_post_data( array $response ): array {
+		$data = array();
+
+		foreach ( $response as $item ) {
+			$data [] = (object) $this->extract_post_data( $item );
+		}
+
+		return $data;
 	}
 }

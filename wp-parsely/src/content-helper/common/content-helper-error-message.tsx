@@ -2,7 +2,6 @@
  * Defines the props structure for ContentHelperErrorMessage.
  *
  * @since 3.9.0
- *
  */
 export interface ContentHelperErrorMessageProps {
 	children?: string;
@@ -63,4 +62,3 @@ export const EmptyCredentialsMessage = (
 		</ContentHelperErrorMessage>
 	);
 };
-

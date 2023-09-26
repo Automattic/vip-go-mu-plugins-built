@@ -12,7 +12,7 @@
  *
  * Usage: Run the command from a terminal that is logged into GitHub. Upgrading
  * from 3.6.2 to 3.7.0 example:
- *   `bin/release.php 3.6.2 3.7.0`
+ *   `php bin/release.php 3.6.2 3.7.0`
  */
 
 // Exit if the GitHub CLI is not available.

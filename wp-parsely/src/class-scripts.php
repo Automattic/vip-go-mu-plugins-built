@@ -140,9 +140,14 @@ class Scripts {
 	 * @param string $tag    The `script` tag for the enqueued script.
 	 * @param string $handle The script's registered handle.
 	 * @param string $src    Unused? The script's source URL.
+	 *
 	 * @return string Amended `script` tag.
 	 */
-	public function script_loader_tag( string $tag, string $handle, string $src ): string {
+	public function script_loader_tag( // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		string $tag,
+		string $handle,
+		string $src
+	): string {
 		if ( \in_array(
 			$handle,
 			array(

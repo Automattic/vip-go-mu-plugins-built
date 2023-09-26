@@ -77,7 +77,7 @@ class GraphQL_Metadata extends Metadata_Endpoint {
 						'HTML string containing the metadata in JSON-LD. Intended to be rendered in the front-end as is.',
 						'wp-parsely'
 					),
-					'resolve'     => function() {
+					'resolve'     => function () {
 						return self::get_rendered_meta( 'repeated_metas' );
 					},
 				),
@@ -93,7 +93,7 @@ class GraphQL_Metadata extends Metadata_Endpoint {
 						'HTML string containing the metadata in JSON-LD. Intended to be rendered in the front-end as is.',
 						'wp-parsely'
 					),
-					'resolve'     => function( array $parsely_meta, array $args ) {
+					'resolve'     => function ( array $parsely_meta, array $args ) {
 						$json_ld = self::get_rendered_meta( 'json_ld' );
 
 						if ( isset( $args['removeWrappingTag'] ) && true === $args['removeWrappingTag'] ) {

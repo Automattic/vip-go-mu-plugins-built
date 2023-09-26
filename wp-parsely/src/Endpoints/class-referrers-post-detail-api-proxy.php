@@ -180,7 +180,9 @@ final class Referrers_Post_Detail_API_Proxy extends Base_API_Proxy {
 	 * @return stdClass The generated data.
 	 */
 	private function generate_referrers_data(
-		int $limit, array $response, int $direct_views
+		int $limit,
+		array $response,
+		int $direct_views
 	): stdClass {
 		$temp_views     = array();
 		$totals         = 0;

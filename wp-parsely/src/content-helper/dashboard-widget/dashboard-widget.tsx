@@ -7,14 +7,14 @@ import { render } from '@wordpress/element';
  * Internal dependencies
  */
 import { VerifyCredentials } from '../common/verify-credentials';
-import { TopPostList } from './top-posts/component-list';
+import { TopPosts } from './components/top-posts';
 
 window.addEventListener(
 	'load',
 	function() {
 		render(
 			<VerifyCredentials>
-				<TopPostList />
+				<TopPosts />
 			</VerifyCredentials>,
 			document.querySelector( '#wp-parsely-dashboard-widget > .inside' )
 		);

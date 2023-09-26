@@ -66,20 +66,20 @@ class Rest_Metadata extends Metadata_Endpoint {
 	 * Function to get hooked into the `get_callback` property of the `parsely`
 	 * REST API field. It generates the `parsely` object in the REST API.
 	 *
-	 * @param array<string, mixed> $object The WordPress object to extract to render the metadata for,
-	 *                                     usually a post or a page.
+	 * @param array<string, mixed> $object_data The data of the object to render the metadata for,
+	 *                                          usually a post or a page.
 	 *
 	 * @return array<string, mixed> The `parsely` object to be rendered in the REST API. Contains a
 	 *                              version number describing the response and the `meta` object
 	 *                              containing the actual metadata.
 	 */
-	public function get_callback( array $object ): array {
+	public function get_callback( array $object_data ): array {
 		/**
 		 * Variable.
 		 *
 		 * @var int
 		 */
-		$post_id = $object['ID'] ?? $object['id'] ?? 0;
+		$post_id = $object_data['ID'] ?? $object_data['id'] ?? 0;
 		$post    = WP_Post::get_instance( $post_id );
 		$options = $this->parsely->get_options();
 

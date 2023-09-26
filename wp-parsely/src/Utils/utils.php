@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace Parsely\Utils;
 
-use NumberFormatter;
 use WP_Post;
 use WP_Error;
 
@@ -61,17 +60,17 @@ function get_default_category(): int {
  *
  * @since 3.7.0
  *
- * @param bool $default Default Value.
+ * @param bool $default_value Default Value.
  *
  * @return int|WP_Post
  */
-function get_page_for_posts( $default = false ) {
+function get_page_for_posts( $default_value = false ) {
 	/**
 	 * Variable.
 	 *
 	 * @var int|WP_Post
 	 */
-	return get_option( 'page_for_posts', $default );
+	return get_option( 'page_for_posts', $default_value );
 }
 
 /**
@@ -95,17 +94,17 @@ function get_page_on_front() {
  *
  * @since 3.7.0
  *
- * @param string $var Variable key to retrieve.
+ * @param string $key Variable key to retrieve.
  *
  * @return string
  */
-function get_string_query_var( $var ): string {
+function get_string_query_var( string $key ): string {
 	/**
 	 * Variable.
 	 *
 	 * @var string
 	 */
-	return get_query_var( $var );
+	return get_query_var( $key );
 }
 
 /**
@@ -137,26 +136,69 @@ function get_time_format(): string {
 }
 
 /**
- * Gets number in formatted form i.e. express bigger numbers in form of thousands (K), millions (M), billions (B).
+ * Gets number in formatted form i.e. express bigger numbers in form of
+ * thousands (k), millions (M), billions (B).
+ *
+ * Note: This function is not made to process float numbers, and it is a PHP
+ * port of our formatToImpreciseNumber() TypeScript function.
  *
  * Example:
  *   - Represent 10000 as 10K.
  *
  * @since 3.7.0
  *
- * @param int|float $number Number that we have to format.
+ * @param string $value           The number to process. It can be formatted.
+ * @param int    $fraction_digits The number of desired fraction digits.
+ * @param string $glue            A string to put between the number and unit.
  *
- * @return string
+ * @return string The number formatted as an imprecise number.
  */
-function get_formatted_number( $number ): string {
-	$number_formatter = new NumberFormatter( 'en', NumberFormatter::PADDING_POSITION );
-	$formatted_number = $number_formatter->format( $number );
+function get_formatted_number( string $value, int $fraction_digits = 1, string $glue = '' ): string {
+	$number = (int) preg_replace( '/\D/', '', $value );
 
-	if ( false === $formatted_number ) {
-		return '';
+	if ( $number < 1000 ) {
+		return $value;
+	} elseif ( $number < 10000 ) {
+		$fraction_digits = 1;
 	}
 
-	return $formatted_number;
+	$unit_names               = array(
+		'1000'             => 'k',
+		'1000000'          => 'M',
+		'1000000000'       => 'B',
+		'1000000000000'    => 'T',
+		'1000000000000000' => 'Q',
+	);
+	$current_number           = $number;
+	$current_number_as_string = (string) $number;
+	$unit                     = '';
+	$previous_number          = 0;
+
+	foreach ( $unit_names as $thousands => $suffix ) {
+		$thousands_int = (int) preg_replace( '/\D/', '', (string) $thousands );
+
+		if ( $number >= $thousands_int ) {
+			$current_number = $number / $thousands_int;
+			$precision      = $fraction_digits;
+
+			// For over 10 units, we reduce the precision to 1 fraction digit.
+			$modulo = (int) fmod( $current_number, 1 );
+			if ( 0 !== $previous_number && $modulo > 1 / $previous_number ) {
+				$precision = $current_number > 10 ? 1 : 2;
+			}
+
+			// Precision override, where we want to show 2 fraction digits.
+			$zeroes                   = floatval( number_format( $current_number, 2 ) ) ===
+										floatval( number_format( $current_number, 0 ) );
+			$precision                = $zeroes ? 0 : $precision;
+			$current_number_as_string = number_format( $current_number, $precision, '.', '' );
+			$unit                     = $suffix;
+		}
+
+		$previous_number = $current_number;
+	}
+
+	return $current_number_as_string . $glue . $unit;
 }
 
 /**
@@ -167,19 +209,62 @@ function get_formatted_number( $number ): string {
  *
  * @since 3.7.0
  *
- * @param int|float $seconds Time in seconds that we have to format.
+ * @param float $seconds Time in seconds to be formatted.
  *
  * @return string
  */
 function get_formatted_time( $seconds ): string {
-	$time_formatter = new NumberFormatter( 'en', NumberFormatter::DURATION );
-	$formatted_time = $time_formatter->format( $seconds );
+	$seconds = round( $seconds );
+	$hours   = floor( $seconds / 3600 );
 
-	if ( false === $formatted_time ) {
-		return '';
+	if ( $hours >= 1 ) {
+		$seconds = $seconds - ( $hours * 3600 );
+		$minutes = floor( $seconds / 60 );
+		$seconds = round( $seconds % 60 );
+
+		return esc_html( /* translators: 1: Number of hours 2: Number of minutes 3: Number of seconds */
+			sprintf( __( '%1$d:%2$02d:%3$02d', 'wp-parsely' ), $hours, $minutes, $seconds )
+		);
 	}
 
-	return $formatted_time;
+	$minutes = floor( $seconds / 60 );
+	$seconds = round( $seconds % 60 );
+
+	if ( $minutes >= 1 ) {
+		return esc_html( /* translators: 1: Number of minutes 2: Number of seconds */
+			sprintf( __( '%1$d:%2$02d', 'wp-parsely' ), $minutes, $seconds )
+		);
+	}
+
+	return esc_html( /* translators: 1: Number of seconds */
+		sprintf( __( '%1$d sec.', 'wp-parsely' ), round( $seconds ) )
+	);
+}
+
+/**
+ * Returns the passed float as a time duration in m:ss format.
+ *
+ * Examples:
+ *   - $time of 1.005 yields '1:00'.
+ *   - $time of 1.5 yields '1:30'.
+ *   - $time of 1.999 yields '2:00'.
+ *
+ * @since 3.6.0
+ *
+ * @param float $time The time as a float number.
+ *
+ * @return string The resulting formatted time duration.
+ */
+function get_formatted_duration( float $time ): string {
+	$minutes = absint( $time );
+	$seconds = absint( round( fmod( $time, 1 ) * 60 ) );
+
+	if ( 60 === $seconds ) {
+		++$minutes;
+		$seconds = 0;
+	}
+
+	return sprintf( '%d:%02d', $minutes, $seconds );
 }
 
 /**
@@ -210,11 +295,11 @@ function convert_to_associative_array( $obj ) {
  * Converts a string to a positive integer, removing any non-numeric
  * characters.
  *
- * @param string $string The string to be converted to an integer.
+ * @param string $value The string to be converted to an integer.
  * @return int The integer resulting from the conversion.
  */
-function convert_to_positive_integer( string $string ): int {
-	return (int) preg_replace( '/\D/', '', $string );
+function convert_to_positive_integer( string $value ): int {
+	return (int) preg_replace( '/\D/', '', $value );
 }
 
 /**

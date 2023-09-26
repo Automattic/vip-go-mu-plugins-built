@@ -61,6 +61,7 @@ final class Network_Admin_Sites_List {
 	 * @return array<string, mixed> The list of actions including ours.
 	 */
 	public static function add_action_link( array $actions, int $_blog_id ): array {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined
 		if ( ! current_user_can( Parsely::CAPABILITY ) ) {
 			return $actions;
 		}
@@ -130,7 +131,7 @@ final class Network_Admin_Sites_List {
 		if ( strlen( $site_id ) > 0 ) {
 			echo esc_html( $site_id );
 		} else {
-			echo '<em>' . esc_html__( 'Parse.ly Site ID is missing', 'wp-parsely' ) . '</em>';
+			echo esc_html( '—' );
 		}
 	}
 }

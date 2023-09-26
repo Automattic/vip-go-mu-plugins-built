@@ -10,7 +10,6 @@ import {
  * Defines the props structure for VerifyCredentials.
  *
  * @since 3.9.0
- *
  */
 interface VerifyCredentialsProps {
 	children: JSX.Element|JSX.Element[];
@@ -37,4 +36,3 @@ export const VerifyCredentials = (
 
 	return <>{ children }</>;
 };
-

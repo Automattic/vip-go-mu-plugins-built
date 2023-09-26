@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.10.0](https://github.com/Parsely/wp-parsely/compare/3.9.0...3.10.0) - 2023-09-25
+
+### Added
+
+- Dashboard Widget: Add period and metric filters ([#1876](https://github.com/Parsely/wp-parsely/pull/1876))
+
+### Changed
+
+- Update Site ID column in Network Admin List to show — instead of text ([#1859](https://github.com/Parsely/wp-parsely/pull/1859))
+- Update WPCS and VIPCS to version 3 ([#1852](https://github.com/Parsely/wp-parsely/pull/1852))
+- Upgrade to React 18 and fix depedency issues ([#1847](https://github.com/Parsely/wp-parsely/pull/1847))
+
+### Fixed
+
+- Remove Intl dependency from utils.php ([#1860](https://github.com/Parsely/wp-parsely/pull/1860))
+- PCH Top Related Posts: Respect tag case sensitivity ([#1858](https://github.com/Parsely/wp-parsely/pull/1858))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.10.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.9.0](https://github.com/Parsely/wp-parsely/compare/3.8.4...3.9.0) - 2023-09-04
 
 ### Added

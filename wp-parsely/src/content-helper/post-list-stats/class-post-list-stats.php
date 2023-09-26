@@ -352,7 +352,7 @@ class Post_List_Stats extends Content_Helper_Feature {
 			$metrics         = $post_analytics['metrics'];
 			$views           = $metrics['views'] ?? 0;
 			$visitors        = $metrics['visitors'] ?? 0;
-			$engaged_seconds = isset( $metrics['avg_engaged'] ) ? round( $metrics['avg_engaged'], 2 ) * 60 : 0;
+			$engaged_seconds = isset( $metrics['avg_engaged'] ) ? round( $metrics['avg_engaged'] * 60, 2 ) : 0;
 
 			/**
 			 * Variable.
@@ -360,8 +360,8 @@ class Post_List_Stats extends Content_Helper_Feature {
 			 * @var Parsely_Post_Stats
 			 */
 			$stats = array(
-				'page_views' => get_formatted_number( $views ) . ' ' . _n( 'page view', 'page views', $views, 'wp-parsely' ),
-				'visitors'   => get_formatted_number( $visitors ) . ' ' . _n( 'visitor', 'visitors', $visitors, 'wp-parsely' ),
+				'page_views' => get_formatted_number( (string) $views ) . ' ' . _n( 'page view', 'page views', $views, 'wp-parsely' ),
+				'visitors'   => get_formatted_number( (string) $visitors ) . ' ' . _n( 'visitor', 'visitors', $visitors, 'wp-parsely' ),
 				'avg_time'   => get_formatted_time( $engaged_seconds ) . ' ' . __( 'avg time', 'wp-parsely' ),
 			);
 

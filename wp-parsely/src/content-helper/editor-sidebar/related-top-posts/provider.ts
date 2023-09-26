@@ -143,9 +143,9 @@ export class RelatedTopPostsProvider {
 		const commonQueryParams = { ...getApiPeriodParams( RELATED_POSTS_DEFAULT_TIME_RANGE ) };
 
 		// A tag exists.
-		if ( tag?.slug ) {
+		if ( tag?.name ) {
 			return ( {
-				query: { limit, tag: tag.slug, ...commonQueryParams },
+				query: { limit, tag: tag.name, ...commonQueryParams },
 				/* translators: %s: message such as "with tag Foo" */
 				message: sprintf( __( 'with tag "%1$s"', 'wp-parsely' ), tag.name ),
 			} );

@@ -159,7 +159,7 @@ final class Settings_Page {
 		$suffix = add_options_page(
 			__( 'Parse.ly Settings', 'wp-parsely' ),
 			__( 'Parse.ly', 'wp-parsely' ),
-			Parsely::CAPABILITY,
+			Parsely::CAPABILITY, // phpcs:ignore WordPress.WP.Capabilities.Undetermined
 			Parsely::MENU_SLUG,
 			array( $this, 'display_settings' )
 		);
@@ -197,6 +197,7 @@ final class Settings_Page {
 	 * Displays the Parse.ly settings screen (options-general.php?page=[SLUG]).
 	 */
 	public function display_settings(): void {
+		// phpcs:ignore WordPress.WP.Capabilities.Undetermined
 		if ( ! current_user_can( Parsely::CAPABILITY ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'wp-parsely' ) );
 		}
@@ -691,7 +692,7 @@ final class Settings_Page {
 
 		$is_managed = key_exists( $id, $this->parsely->managed_options );
 		echo '<fieldset', $is_managed ? ' disabled>' : '>';
-		echo sprintf( "<input type='%s' name='%s' id='%s' value='%s'", esc_attr( $type ), esc_attr( $name ), esc_attr( $id ), esc_attr( $value ) );
+		printf( "<input type='%s' name='%s' id='%s' value='%s'", esc_attr( $type ), esc_attr( $name ), esc_attr( $id ), esc_attr( $value ) );
 
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
@@ -731,12 +732,12 @@ final class Settings_Page {
 
 		$is_managed = key_exists( $id, $this->parsely->managed_options );
 		echo '<fieldset', $is_managed ? ' disabled>' : '>';
-		echo sprintf( "<input type='checkbox' name='%s' id='%s_true' value='true' ", esc_attr( $name ), esc_attr( $id ) );
+		printf( "<input type='checkbox' name='%s' id='%s_true' value='true' ", esc_attr( $name ), esc_attr( $id ) );
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
 		}
 		echo checked( true === $value, true, false );
-		echo sprintf( " /> <label for='%s_true'>%s</label><fieldset>", esc_attr( $id ), esc_html( $yes_text ) );
+		printf( " /> <label for='%s_true'>%s</label><fieldset>", esc_attr( $id ), esc_html( $yes_text ) );
 
 		$this->print_description_text( $args );
 	}
@@ -756,7 +757,7 @@ final class Settings_Page {
 
 		$is_managed = key_exists( $id, $this->parsely->managed_options );
 		echo '<fieldset', $is_managed ? ' disabled>' : '>';
-		echo sprintf( "<select name='%s' id='%s'", esc_attr( $name ), esc_attr( $name ) );
+		printf( "<select name='%s' id='%s'", esc_attr( $name ), esc_attr( $name ) );
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
 		}
@@ -1290,15 +1291,16 @@ final class Settings_Page {
 	/**
 	 * Sanitizes all elements in an option array.
 	 *
-	 * @param array<int, string> $array Array of options to be sanitized.
+	 * @param array<int, string> $options Array of options to be sanitized.
 	 * @return array<int, string>
 	 */
-	private static function sanitize_option_array( array $array ): array {
-		$new_array = $array;
-		foreach ( $array as $key => $val ) {
-			$new_array[ $key ] = sanitize_text_field( $val );
+	private static function sanitize_option_array( array $options ): array {
+		$sanitized_options = $options;
+		foreach ( $options as $key => $val ) {
+			$sanitized_options[ $key ] = sanitize_text_field( $val );
 		}
-		return $new_array;
+
+		return $sanitized_options;
 	}
 
 	/**

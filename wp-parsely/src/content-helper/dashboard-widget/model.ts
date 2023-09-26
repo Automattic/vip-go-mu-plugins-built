@@ -1,5 +1,6 @@
 export interface TopPostData {
 	author: string;
+	avgEngaged: string;
 	dashUrl: string;
 	date: string;
 	id: number;
