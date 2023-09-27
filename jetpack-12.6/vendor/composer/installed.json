@@ -472,17 +472,17 @@
         },
         {
             "name": "automattic/jetpack-blocks",
-            "version": "v1.6.0",
-            "version_normalized": "1.6.0.0",
+            "version": "v1.6.1",
+            "version_normalized": "1.6.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blocks.git",
-                "reference": "a592a52c7d1b10216f8b2c075bfd34d759ca53a5"
+                "reference": "adf664fc4ee8344e6dfe591cd53f00e300bdb27b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/a592a52c7d1b10216f8b2c075bfd34d759ca53a5",
-                "reference": "a592a52c7d1b10216f8b2c075bfd34d759ca53a5",
+                "url": "https://api.github.com/repos/Automattic/jetpack-blocks/zipball/adf664fc4ee8344e6dfe591cd53f00e300bdb27b",
+                "reference": "adf664fc4ee8344e6dfe591cd53f00e300bdb27b",
                 "shasum": ""
             },
             "require": {
@@ -497,7 +497,7 @@
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
-            "time": "2023-09-19T18:19:12+00:00",
+            "time": "2023-09-26T20:54:45+00:00",
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -521,7 +521,7 @@
             ],
             "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-blocks/tree/v1.6.0"
+                "source": "https://github.com/Automattic/jetpack-blocks/tree/v1.6.1"
             },
             "install-path": "../../jetpack_vendor/automattic/jetpack-blocks"
         },

@@ -92,9 +92,9 @@
             'dev_requirement' => false,
         ),
         'automattic/jetpack-blocks' => array(
-            'pretty_version' => 'v1.6.0',
-            'version' => '1.6.0.0',
-            'reference' => 'a592a52c7d1b10216f8b2c075bfd34d759ca53a5',
+            'pretty_version' => 'v1.6.1',
+            'version' => '1.6.1.0',
+            'reference' => 'adf664fc4ee8344e6dfe591cd53f00e300bdb27b',
             'type' => 'jetpack-library',
             'install_path' => __DIR__ . '/../../jetpack_vendor/automattic/jetpack-blocks',
             'aliases' => array(),
