@@ -1,0 +1,176 @@
+{
+	"$schema": "https://json-schema.org/draft-07/schema",
+	"title": "VIP governance rules JSON schema",
+	"definitions": {
+		"allowedFeaturesArray": {
+			"description": "Array of allowed features for this rule. Supported features are: codeEditor and lockBlocks",
+			"type": "array",
+			"items": {
+				"type": "string",
+				"enum": [ "codeEditor", "lockBlocks" ]
+			},
+			"uniqueItems": true,
+			"examples": [ [ "codeEditor", "lockBlocks" ] ]
+		},
+		"allowedBlocksArray": {
+			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
+			"type": "array",
+			"items": [
+				{
+					"type": "string",
+					"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
+				}
+			]
+		},
+		"blockSettingsProperties": {
+			"description": "Block settings for block or nested inner block types",
+			"type": "object",
+			"properties": {
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				}
+			},
+			"patternProperties": {
+				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				}
+			}
+		},
+		"ruleBlockSettingsProperties": {
+			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
+			"type": "object",
+			"patternProperties": {
+				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				}
+			},
+			"additionalProperties": false,
+			"examples": [
+				{
+					"core/paragraph": {
+						"color": {
+							"text": false
+						}
+					},
+					"core/quote": {
+						"allowedBlocks": [ "core/paragraph", "core/heading" ]
+					},
+					"core/media-text": {
+						"core/heading": {
+							"typography": {
+								"customFontSize": false
+							}
+						}
+					}
+				}
+			]
+		},
+		"ruleDefaultProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Default rule - applies additively to all users.",
+					"type": "string",
+					"enum": [ "default" ]
+				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
+				}
+			},
+			"required": [ "type" ],
+			"additionalProperties": false
+		},
+		"ruleRoleProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Role rule - applies to one or more specific roles.",
+					"type": "string",
+					"enum": [ "role" ]
+				},
+				"roles": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"examples": [ [ "administrator", "editor" ] ],
+					"minItems": 1
+				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
+				}
+			},
+			"required": [ "type", "roles" ],
+			"additionalProperties": false
+		},
+		"rulePostTypeProperties": {
+			"type": "object",
+			"properties": {
+				"type": {
+					"description": "Post Type rule - applies to one or more specific post types.",
+					"type": "string",
+					"enum": [ "postType" ]
+				},
+				"postTypes": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"examples": [ [ "page", "post" ] ],
+					"minItems": 1
+				},
+				"allowedFeatures": {
+					"$ref": "#/definitions/allowedFeaturesArray"
+				},
+				"allowedBlocks": {
+					"$ref": "#/definitions/allowedBlocksArray"
+				},
+				"blockSettings": {
+					"$ref": "#/definitions/ruleBlockSettingsProperties"
+				}
+			},
+			"required": [ "type", "postTypes" ],
+			"additionalProperties": false
+		}
+	},
+	"type": "object",
+	"default": {},
+	"required": [ "rules", "version" ],
+	"properties": {
+		"$schema": {
+			"description": "JSON schema URI for governance JSON",
+			"type": "string"
+		},
+		"version": {
+			"description": "Version of governance JSON",
+			"type": "string",
+			"enum": [ "1.0.0" ]
+		},
+		"rules": {
+			"description": "Array of governance rules",
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"oneOf": [
+					{ "$ref": "#/definitions/ruleDefaultProperties" },
+					{ "$ref": "#/definitions/ruleRoleProperties" },
+					{ "$ref": "#/definitions/rulePostTypeProperties" }
+				]
+			}
+		}
+	},
+	"additionalProperties": false
+}

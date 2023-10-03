@@ -1,0 +1,55 @@
+.governance-rules pre, .combined-governance-rules pre {
+	background: rgba(0, 0, 0, .07);
+	padding: 1rem 2rem 1rem 1rem;
+	margin: 0;
+	overflow-x: auto;
+}
+
+.governance-rules pre code {
+	background: none;
+}
+
+.governance-rules-validation {
+	margin-bottom: 1rem;
+}
+
+.governance-rules.with-errors .governance-rules-validation {
+	border-left: 2px solid #d63638;
+	padding-left: 1.25rem;
+}
+
+.governance-rules-validation pre {
+	white-space: pre-wrap;
+	display: inline-block;
+}
+
+.governance-rules-json summary, .combined-governance-rules summary {
+	cursor: pointer;
+	padding: 0.5rem 0 1rem 0;
+}
+
+.validation-errors {
+	font-size: 1rem;
+	font-weight: 700;
+}
+
+.vip-governance-query-spinner span {
+	float: none;
+	margin-top: 0;
+}
+
+pre {
+	counter-reset: line;
+	tab-size: 4;
+}
+
+code {
+	counter-increment: line;
+}
+
+code:before {
+	content: counter(line);
+	width: 2rem;
+	display: inline-block;
+	color: #777;
+}

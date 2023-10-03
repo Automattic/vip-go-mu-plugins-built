@@ -1,0 +1,24 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Listen for Xdebug",
+			"type": "php",
+			"request": "launch",
+			"port": 9003,
+			"pathMappings": {
+				"/wp/wp-content/plugins/vip-governance-plugin": "${workspaceFolder}",
+			},
+		},
+		{
+			// Start wp-env with `wp-env start --xdebug`
+			"name": "Listen for tests",
+			"type": "php",
+			"request": "launch",
+			"port": 9003,
+			"pathMappings": {
+				"/var/www/html/wp-content/plugins/vip-governance-plugin": "${workspaceFolder}",
+			},
+		},
+	]
+}
