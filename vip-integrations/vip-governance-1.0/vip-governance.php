@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: VIP Governance Plugin
- * Plugin URI: https://wpvip.com
+ * Plugin Name: WordPress VIP Block Governance
+ * Plugin URI: https://github.com/Automattic/vip-governance-plugin
  * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 5.8.0
  * Tested up to: 6.3.0
  * Requires PHP: 7.4
@@ -20,7 +20,7 @@ namespace WPCOMVIP\Governance;
 if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	define( 'VIP_GOVERNANCE_LOADED', true );
 
-	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.0' );
+	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.1' );
 	define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '1.0.0' );
 
 	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {

@@ -17,7 +17,7 @@ $governance_rules_formatted = join("\n", array_map(function ( $line ) {
 ?>
 
 <div class="wrap">
-	<h1><?php esc_html_e( 'VIP Governance' ); ?></h1>
+	<h1><?php esc_html_e( 'WordPress VIP Block Governance' ); ?></h1>
 
 	<form action="options.php" method="post">
 		<?php
