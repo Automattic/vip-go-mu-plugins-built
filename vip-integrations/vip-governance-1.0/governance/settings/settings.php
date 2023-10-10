@@ -15,7 +15,7 @@ use Exception;
  * Settings class used for the settings page.
  */
 class Settings {
-	public const MENU_SLUG              = 'vip-governance';
+	public const MENU_SLUG              = 'vip-block-governance';
 	public const OPTIONS_KEY            = 'vip-governance';
 	public const OPTIONS_KEY_IS_ENABLED = 'is-enabled';
 
@@ -56,7 +56,7 @@ class Settings {
 	 * @access private
 	 */
 	public static function register_menu() {
-		$hook = add_menu_page( 'VIP Governance', 'VIP Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+		$hook = add_menu_page( 'VIP Block Governance', 'VIP Block Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
 	}
