@@ -841,7 +841,7 @@ class hyperdb extends wpdb {
 	 * This is also the reason why we don't allow certain charsets. See set_charset().
 	 */
 	public function _real_escape( $string ) {   // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-		$escaped = addslashes( $string );
+		$escaped = addslashes( (string) $string );
 		if ( method_exists( get_parent_class( $this ), 'add_placeholder_escape' ) ) {
 			$escaped = $this->add_placeholder_escape( $escaped );
 		}
