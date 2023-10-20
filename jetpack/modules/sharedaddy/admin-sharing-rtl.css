@@ -183,6 +183,10 @@ li.service.share-nextdoor span:before {
   content: "\f10c";
 }
 
+li.service.share-x span:before {
+  content: "\f10e";
+}
+
 /**
  * Preview section
  */

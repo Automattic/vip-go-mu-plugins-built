@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/mailchimp",
     "title": "Mailchimp",
-    "description": "A form enabling readers to join a Mailchimp audience.",
+    "description": "Allow readers to join a Mailchimp audience.",
     "keywords": [
         "email",
         "subscription",
@@ -62,8 +62,5 @@
             "default": false
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

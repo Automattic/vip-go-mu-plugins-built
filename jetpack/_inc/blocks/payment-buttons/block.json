@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/payment-buttons",
     "title": "Payment Buttons",
-    "description": "Prompt visitors to purchase your products and subscriptions with a group of buttons.",
+    "description": "Sell products and subscriptions.",
     "keywords": [
         "buy",
         "contribution",
@@ -70,8 +70,5 @@
         }
     },
     "attributes": {},
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

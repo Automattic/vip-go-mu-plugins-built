@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/cookie-consent",
     "title": "Cookie Consent",
-    "description": "Displays a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.",
+    "description": "Display a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.",
     "keywords": [
         "cookie",
         "consent",
@@ -76,8 +76,5 @@
             "default": false
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

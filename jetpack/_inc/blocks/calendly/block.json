@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/calendly",
     "title": "Calendly",
-    "description": "Embed a calendar for customers to schedule appointments",
+    "description": "Embed a calendar for customers to schedule appointments.",
     "keywords": [
         "calendar",
         "schedule",
@@ -20,8 +20,5 @@
         "alignWide": false,
         "html": false
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

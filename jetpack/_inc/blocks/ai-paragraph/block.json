@@ -41,6 +41,5 @@
             "content": "I'm afraid I can't do that, Dave."
         }
     },
-    "editorScript": "file:../editor-experimental.js",
-    "editorStyle": "file:../editor-experimental.css"
+    "editorScript": "file:../editor-experimental.js"
 }

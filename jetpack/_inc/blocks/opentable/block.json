@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/opentable",
     "title": "OpenTable",
-    "description": "Allow visitors to book a reservation with OpenTable",
+    "description": "Book a reservation with OpenTable.",
     "keywords": [
         "booking",
         "reservation",
@@ -17,8 +17,5 @@
         "align": true,
         "html": false
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

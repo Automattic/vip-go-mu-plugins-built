@@ -90,8 +90,5 @@
             ]
         }
     ],
-    "editorScript": "file:../editor-beta.js",
-    "editorStyle": "file:../editor-beta.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor-beta.js"
 }

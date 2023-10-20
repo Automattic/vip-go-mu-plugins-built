@@ -27,6 +27,5 @@
             "url": "https://pinterest.com/anapinskywalker/"
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css"
+    "editorScript": "file:../editor.js"
 }

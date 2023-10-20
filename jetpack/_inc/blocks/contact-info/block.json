@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/contact-info",
     "title": "Contact Info",
-    "description": "Lets you add an email address, phone number, and physical address with improved markup for better SEO results.",
+    "description": "Add an email address, phone number, and physical address with improved markup for better SEO results.",
     "keywords": [
         "email",
         "phone",
@@ -32,8 +32,5 @@
             "lineHeight": true
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

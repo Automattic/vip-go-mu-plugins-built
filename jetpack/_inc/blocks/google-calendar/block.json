@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/google-calendar",
     "title": "Google Calendar",
-    "description": "Embed a Google Calendar",
+    "description": "Embed a Google Calendar.",
     "keywords": [
         "events",
         "dates",
@@ -28,8 +28,5 @@
             "default": 600
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

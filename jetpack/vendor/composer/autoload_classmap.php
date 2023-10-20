@@ -158,6 +158,7 @@ return array(
     'Automattic\\Jetpack\\My_Jetpack\\Products\\Stats' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-stats.php',
     'Automattic\\Jetpack\\My_Jetpack\\Products\\Videopress' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-videopress.php',
     'Automattic\\Jetpack\\My_Jetpack\\REST_AI' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-ai.php',
+    'Automattic\\Jetpack\\My_Jetpack\\REST_Product_Data' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-product-data.php',
     'Automattic\\Jetpack\\My_Jetpack\\REST_Products' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-products.php',
     'Automattic\\Jetpack\\My_Jetpack\\REST_Purchases' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-purchases.php',
     'Automattic\\Jetpack\\My_Jetpack\\REST_Zendesk_Chat' => $baseDir . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-zendesk-chat.php',

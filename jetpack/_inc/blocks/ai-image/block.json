@@ -36,6 +36,5 @@
             "default": false
         }
     },
-    "editorScript": "file:../editor-experimental.js",
-    "editorStyle": "file:../editor-experimental.css"
+    "editorScript": "file:../editor-experimental.js"
 }

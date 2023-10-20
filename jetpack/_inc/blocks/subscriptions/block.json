@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/subscriptions",
     "title": "Subscribe",
-    "description": "Let readers subscribe to this blog's posts as a newsletter.",
+    "description": "Subscribe to this blog's posts as a newsletter.",
     "keywords": [
         "newsletter",
         "email",
@@ -117,8 +117,5 @@
             "default": "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "viewScript": "file:./view.js",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }

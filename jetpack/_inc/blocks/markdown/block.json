@@ -3,7 +3,7 @@
     "apiVersion": 3,
     "name": "jetpack/markdown",
     "title": "Markdown",
-    "description": "Use regular characters and punctuation to style text, links, and lists.",
+    "description": "Add headings, lists, or links to plain text with ease.",
     "keywords": [
         "formatting",
         "syntax",
@@ -33,6 +33,5 @@
             "type": "string"
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css"
+    "editorScript": "file:../editor.js"
 }

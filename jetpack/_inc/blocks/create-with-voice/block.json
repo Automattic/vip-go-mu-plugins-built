@@ -26,6 +26,5 @@
             "type": "string"
         }
     },
-    "editorScript": "file:../editor-beta.js",
-    "editorStyle": "file:../editor-beta.css"
+    "editorScript": "file:../editor-beta.js"
 }

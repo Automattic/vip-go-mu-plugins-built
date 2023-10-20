@@ -81,7 +81,5 @@
             "postsToShow": 2
         }
     },
-    "editorScript": "file:../editor.js",
-    "editorStyle": "file:../editor.css",
-    "style": "file:./view.css"
+    "editorScript": "file:../editor.js"
 }
