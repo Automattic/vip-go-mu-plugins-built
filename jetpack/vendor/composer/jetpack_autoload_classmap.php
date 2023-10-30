@@ -1143,115 +1143,115 @@ return array(
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-connection/src/class-tracking.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\AJAX' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-ajax.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Admin_UI' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-admin-ui.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Attachment_Handler' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-attachment-handler.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Block_Editor_Content' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-block-editor-content.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Block_Editor_Extensions' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-block-editor-extensions.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Data' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-data.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Divi' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-divi.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Initializer' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-initializer.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Jwt_Token_Bridge' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-jwt-token-bridge.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Module_Control' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-module-control.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Options' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-options.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Package_Version' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-package-version.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Plan' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-plan.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Site' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-site.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Stats' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-stats.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Status' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-status.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Upload_Exception' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-upload-exception.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Uploader' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-uploader.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Uploader_Rest_Endpoints' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-uploader-rest-endpoints.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\Utils' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-utils.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\VideoPressToken' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-videopresstoken.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\VideoPress_Rest_Api_V1_Settings' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-videopress-rest-api-v1-settings.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\VideoPress_Rest_Api_V1_Site' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-videopress-rest-api-v1-site.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\VideoPress_Rest_Api_V1_Stats' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-videopress-rest-api-v1-stats.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\WPCOM_REST_API_V2_Attachment_VideoPress_Data' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-wpcom-rest-api-v2-attachment-videopress-data.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\WPCOM_REST_API_V2_Attachment_VideoPress_Field' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-wpcom-rest-api-v2-attachment-field-videopress.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\WPCOM_REST_API_V2_Endpoint_VideoPress' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-wpcom-rest-api-v2-endpoint-videopress.php'
 	),
 	'Automattic\\Jetpack\\VideoPress\\XMLRPC' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/class-xmlrpc.php'
 	),
 	'Automattic\\Jetpack\\Waf\\Brute_Force_Protection\\Brute_Force_Protection' => array(
@@ -1499,7 +1499,7 @@ return array(
 		'path'    => $vendorDir . '/nojimage/twitter-text-php/lib/Twitter/Text/Validator.php'
 	),
 	'VIDEOPRESS_PRIVACY' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/utility-functions.php'
 	),
 	'Version_Loader' => array(
@@ -1511,39 +1511,39 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-autoloader/src/class-version-selector.php'
 	),
 	'VideoPressUploader\\File_Exception' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-file-exception.php'
 	),
 	'VideoPressUploader\\Transient_Store' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-transient-store.php'
 	),
 	'VideoPressUploader\\Tus_Abstract_Cache' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-tus-abstract-cache.php'
 	),
 	'VideoPressUploader\\Tus_Client' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-tus-client.php'
 	),
 	'VideoPressUploader\\Tus_Date_Utils' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-tus-date-utils.php'
 	),
 	'VideoPressUploader\\Tus_Exception' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-tus-exception.php'
 	),
 	'VideoPressUploader\\Tus_File' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/tus/class-tus-file.php'
 	),
 	'VideoPress_Divi_Extension' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/videopress-divi/class-videopress-divi-extension.php'
 	),
 	'VideoPress_Divi_Module' => array(
-		'version' => '0.17.4.0',
+		'version' => '0.17.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-videopress/src/videopress-divi/class-videopress-divi-module.php'
 	),
 );
