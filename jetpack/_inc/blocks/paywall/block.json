@@ -28,5 +28,5 @@
     "parent": [
         "core/post-content"
     ],
-    "editorScript": "file:../editor.js"
+    "editorScript": "jetpack-blocks-editor"
 }

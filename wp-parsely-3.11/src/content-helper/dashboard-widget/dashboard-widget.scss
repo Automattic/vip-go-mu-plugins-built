@@ -1,0 +1,146 @@
+@import "../common/css/variables";
+@import "../common/css/functions";
+
+#wp-parsely-dashboard-widget {
+	font-family: var(--base-font);
+	color: var(--base-text);
+
+	.parsely-spinner-wrapper {
+		display: flex;
+		justify-content: center;
+		margin: to_rem(190px) 0;
+
+		svg {
+			height: 22px;
+			width: 22px;
+		}
+	}
+
+	.content-helper-error-message {
+		margin-top: to_rem(18px);
+	}
+
+	p.content-helper-error-message-hint {
+		color: var(--gray-700);
+	}
+
+	.parsely-top-posts-filters {
+		margin-bottom: to_rem(10px);
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.parsely-top-posts-navigation {
+		display: flex;
+		justify-content: space-between;
+		margin-top: to_rem(10px);
+
+		button {
+			border: none;
+			background: none;
+			color: var(--blue-550);
+			font-size: to_rem(12px);
+			font-weight: 600;
+			text-decoration: none;
+
+			&:disabled {
+				visibility: hidden;
+			}
+
+			&:not([disabled]):hover {
+				cursor: pointer;
+			}
+
+		}
+
+	}
+
+	.parsely-top-post-content {
+		display: flex;
+
+		// Number at left of thumbnails.
+		&::before {
+			content: counter(item) "";
+			counter-increment: item;
+			padding-right: to_rem(8px);
+		}
+
+		@media only screen and (max-width: 380px) {
+
+			&::before {
+				content: "";
+				padding-right: 0;
+			}
+		}
+	}
+
+	.parsely-top-posts {
+		list-style: none;
+		margin: to_rem(16px) 0 0;
+	}
+
+	.parsely-top-post {
+		margin-bottom: to_rem(16px);
+	}
+
+	.parsely-top-post-thumbnail {
+		height: 46px;
+		min-width: 46px;
+
+		img {
+			height: 100%;
+			width: 100%;
+		}
+	}
+
+	.parsely-top-post-data {
+		border-top: 1px solid var(--gray-300);
+		flex-grow: 1; // Take all remaining width.
+		margin-left: to_rem(8px);
+		padding-top: to_rem(4px);
+	}
+
+	// This element can be a link or div.
+	.parsely-top-post-title {
+		color: var(--base-text);
+		font-size: to_rem(14px);
+		margin-right: to_rem(7px);
+	}
+
+	a.parsely-top-post-title:hover {
+		color: var(--blue-550);
+	}
+
+	.parsely-top-post-icon-link {
+		position: relative;
+		top: to_rem(4px);
+
+		svg {
+			fill: #8d98a1;
+			margin-right: to_rem(3px);
+
+			&:hover {
+				fill: var(--blue-550);
+			}
+		}
+	}
+
+	.parsely-top-post-metadata {
+		margin: to_rem(4px) 0 0;
+
+		>span {
+			color: var(--gray-500);
+
+			&:not(:first-child) {
+				margin-left: to_rem(12px);
+			}
+		}
+	}
+
+	.parsely-top-post-metric-data {
+		float: right;
+		font-family: var(--numeric-font);
+		font-size: to_rem(18px);
+		padding-left: to_rem(10px);
+	}
+}

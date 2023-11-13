@@ -90,5 +90,5 @@
             ]
         }
     ],
-    "editorScript": "file:../editor-beta.js"
+    "editorScript": "jetpack-blocks-editor"
 }

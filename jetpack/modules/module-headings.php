@@ -96,11 +96,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas', 'Module Description', 'jetpack' ),
 			),
 
-			'lazy-images' => array(
-				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Improve your site\'s speed by only loading images visible on the screen. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be removed from Jetpack in November 2023.', 'Module Description', 'jetpack' ),
-			),
-
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
@@ -318,7 +313,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/custom-css.php
 			// - modules/gravatar-hovercards.php
 			// - modules/infinite-scroll.php
-			// - modules/lazy-images.php
 			// - modules/photon-cdn.php
 			// - modules/photon.php
 			// - modules/seo-tools.php
@@ -334,7 +328,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Recommended` tag:
 			// - modules/google-fonts.php
-			// - modules/lazy-images.php
 			// - modules/monitor.php
 			// - modules/photon-cdn.php
 			// - modules/photon.php
@@ -675,24 +668,6 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Writing',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'latex, math, equation, equations, formula, code',
-	    'plan_classes' => '',
-	  ),
-	  'lazy-images' => 
-	  array (
-	    'name' => 'Lazy Images',
-	    'description' => 'Improve your site\'s speed by only loading images visible on the screen. Modern browsers now support lazy loading, and WordPress itself bundles lazy loading features for images and videos. This feature will consequently be removed from Jetpack in November 2023.',
-	    'sort' => '24',
-	    'recommendation_order' => '14',
-	    'introduced' => '5.6.0',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'No',
-	    'requires_user_connection' => '',
-	    'auto_activate' => 'No',
-	    'module_tags' => 'Appearance, Recommended',
-	    'feature' => 'Appearance',
-	    'additional_search_queries' => 'mobile, theme, fast images, fast image, image, lazy, lazy load, lazyload, images, lazy images, thumbnail, image lazy load, lazy loading, load, loading',
 	    'plan_classes' => '',
 	  ),
 	  'likes' => 
@@ -1274,10 +1249,11 @@ function jetpack_get_all_module_header_names() {
 function jetpack_has_no_module_info( $slug ) {
 	$no_info_slugs = array (
 	  0 => 'geo-location',
-	  1 => 'module-extras',
-	  2 => 'module-info',
-	  3 => 'plugin-search',
-	  4 => 'theme-tools',
+	  1 => 'lazy-images',
+	  2 => 'module-extras',
+	  3 => 'module-info',
+	  4 => 'plugin-search',
+	  5 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );

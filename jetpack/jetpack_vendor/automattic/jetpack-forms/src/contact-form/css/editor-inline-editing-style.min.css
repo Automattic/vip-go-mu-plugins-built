@@ -100,7 +100,8 @@ input[type=tel],
 input[type=email],
 input[type=url] {
   border-radius: 0;
-  appearance: none;
+  -webkit-appearance: none;
+          appearance: none;
   box-sizing: border-box;
   margin: 0;
   padding: 7px 14px;
@@ -173,7 +174,8 @@ input[type=url]:disabled::placeholder {
 ** ======================================================================= */
 textarea {
   border-radius: 0;
-  appearance: none;
+  -webkit-appearance: none;
+          appearance: none;
   box-sizing: border-box;
   margin: 0;
   padding: 7px 14px;
@@ -444,6 +446,7 @@ select {
   box-sizing: border-box;
   /* Aligns the text to the 8px baseline grid and adds padding on right to allow for the arrow. */
   padding: 7px 32px 9px 14px;
+  -webkit-appearance: none;
   appearance: none;
 }
 
@@ -509,6 +512,7 @@ select:-moz-focusring {
 input[type=submit] {
   padding: 0;
   font-size: 14px;
+  -webkit-appearance: none;
   appearance: none;
   vertical-align: baseline;
   background: white;
@@ -530,6 +534,7 @@ input[type=submit] {
   line-height: 21px;
   border-radius: 4px;
   padding: 7px 14px 9px;
+  -webkit-appearance: none;
   appearance: none;
 }
 

@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.wp.org/trunk/block.json",
-    "apiVersion": 3,
+    "apiVersion": 1,
     "name": "jetpack/opentable",
     "title": "OpenTable",
     "description": "Book a reservation with OpenTable.",
@@ -17,5 +17,63 @@
         "align": true,
         "html": false
     },
-    "editorScript": "file:../editor.js"
+    "attributes": {
+        "rid": {
+            "default": [],
+            "type": "array"
+        },
+        "style": {
+            "default": "standard",
+            "type": "string",
+            "enum": [
+                "button",
+                "standard",
+                "wide",
+                "tall"
+            ]
+        },
+        "iframe": {
+            "default": true,
+            "type": "boolean"
+        },
+        "domain": {
+            "default": "com",
+            "type": "string"
+        },
+        "lang": {
+            "default": "en-US",
+            "type": "string",
+            "enum": [
+                "en-US",
+                "fr-CA",
+                "de-DE",
+                "es-MX",
+                "ja-JP",
+                "nl-NL",
+                "it-IT"
+            ]
+        },
+        "newtab": {
+            "default": false,
+            "type": "boolean"
+        },
+        "negativeMargin": {
+            "default": false,
+            "type": "boolean"
+        }
+    },
+    "example": {
+        "attributes": {
+            "rid": [
+                "1"
+            ],
+            "style": "standard",
+            "iframe": true,
+            "domain": "com",
+            "lang": "en-US",
+            "newtab": false,
+            "negativeMargin": false
+        }
+    },
+    "editorScript": "jetpack-blocks-editor"
 }

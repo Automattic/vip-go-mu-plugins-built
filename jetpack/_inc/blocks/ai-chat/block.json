@@ -45,5 +45,5 @@
             "default": true
         }
     },
-    "editorScript": "file:../editor.js"
+    "editorScript": "jetpack-blocks-editor"
 }

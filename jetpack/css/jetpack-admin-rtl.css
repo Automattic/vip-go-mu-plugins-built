@@ -327,7 +327,7 @@
 .header {
   right: 0;
   left: 0;
-  background: #81a844;
+  background: #008710;
 }
 
 .header-nav li {
@@ -622,13 +622,13 @@
 .footer nav a:hover, .footer nav a:focus,
 .footer nav a:visited:hover,
 .footer nav a:visited:focus {
-  color: #81A844;
+  color: #008710;
 }
 @media (max-width: 1147px) {
   .footer nav a:hover, .footer nav a:focus,
   .footer nav a:visited:hover,
   .footer nav a:visited:focus {
-    color: #81a844;
+    color: #008710;
   }
 }
 @media (max-width: 530px) {
@@ -730,8 +730,8 @@
 }
 
 .jetpack-message {
-  background: #8eb74e;
-  border: 1px solid #73963d;
+  background: #00a113;
+  border: 1px solid #006e0d;
   margin: 33px auto 0;
   max-width: 90%;
   position: relative;
@@ -1305,7 +1305,7 @@ tr.jetpack-module .row-actions span.configure {
   padding: 10px;
 }
 .configure-module p.success {
-  background-color: #81a844;
+  background-color: #008710;
 }
 .configure-module p.error {
   background-color: #d94f4f;
@@ -1328,7 +1328,7 @@ tr.jetpack-module .row-actions span.configure {
   color: #d94f4f;
 }
 .protect-status.working {
-  color: #81a844;
+  color: #008710;
 }
 
 .protect-whitelist textarea {
@@ -1412,7 +1412,7 @@ tr.jetpack-module .row-actions span.configure {
   text-align: center;
 }
 .jp-content h1.success {
-  color: #81a844;
+  color: #008710;
 }
 .jp-content .footer {
   padding-top: 0;

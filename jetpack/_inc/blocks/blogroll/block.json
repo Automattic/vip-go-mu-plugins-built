@@ -58,5 +58,5 @@
         "showDescription": "show_description",
         "openLinksNewWindow": "open_links_new_window"
     },
-    "editorScript": "file:../editor.js"
+    "editorScript": "jetpack-blocks-editor"
 }
