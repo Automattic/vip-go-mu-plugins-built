@@ -223,10 +223,6 @@ class WP_Filesystem_VIP extends \WP_Filesystem_Base {
 			return false;
 		}
 
-		if ( $source_transport instanceof WP_Filesystem_Direct && $destination_transport instanceof WP_Filesystem_Direct ) {
-			return $source_transport->copy( $source, $destination, $overwrite, $mode );
-		}
-
 		$destination_exists = $destination_transport->exists( $destination );
 		if ( ! $overwrite && $destination_exists ) {
 			/* translators: 1: destination file path 2: overwrite param 3: `true` boolean value */
