@@ -209,11 +209,18 @@ final class Settings_Page {
 	 * Initializes the settings for Parse.ly.
 	 */
 	public function initialize_settings(): void {
+		// Add the option first, to prevent double sanitization of the uninitialized option as reported
+		// in https://core.trac.wordpress.org/ticket/21989.
+		add_option( Parsely::OPTIONS_KEY, array() );
+
 		// All our options are actually stored in one single array to reduce DB queries.
 		register_setting(
 			Parsely::OPTIONS_KEY,
 			Parsely::OPTIONS_KEY,
-			array( $this, 'validate_options' )
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'validate_options' ),
+			)
 		);
 
 		$this->initialize_basic_section();
