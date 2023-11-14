@@ -68,7 +68,6 @@ class Rest_Metadata extends Metadata_Endpoint {
 	 *
 	 * @param array<string, mixed> $object_data The data of the object to render the metadata for,
 	 *                                          usually a post or a page.
-	 *
 	 * @return array<string, mixed> The `parsely` object to be rendered in the REST API. Contains a
 	 *                              version number describing the response and the `meta` object
 	 *                              containing the actual metadata.

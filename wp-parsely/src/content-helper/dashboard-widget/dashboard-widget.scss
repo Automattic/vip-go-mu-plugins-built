@@ -2,11 +2,13 @@
 @import "../common/css/functions";
 
 #wp-parsely-dashboard-widget {
+	font-family: var(--base-font);
+	color: var(--base-text);
 
 	.parsely-spinner-wrapper {
 		display: flex;
 		justify-content: center;
-		margin: to_rem(90px) 0;
+		margin: to_rem(190px) 0;
 
 		svg {
 			height: 22px;
@@ -15,22 +17,42 @@
 	}
 
 	.content-helper-error-message {
-		margin-top: to_rem(15px) !important;
+		margin-top: to_rem(18px);
 	}
 
 	p.content-helper-error-message-hint {
 		color: var(--gray-700);
 	}
-}
-
-#wp-parsely-dashboard-widget .parsely-top-posts-wrapper {
-	font-family: var(--base-font);
-	color: var(--base-text);
 
 	.parsely-top-posts-filters {
 		margin-bottom: to_rem(10px);
 		display: flex;
 		justify-content: space-between;
+	}
+
+	.parsely-top-posts-navigation {
+		display: flex;
+		justify-content: space-between;
+		margin-top: to_rem(10px);
+
+		button {
+			border: none;
+			background: none;
+			color: var(--blue-550);
+			font-size: to_rem(12px);
+			font-weight: 600;
+			text-decoration: none;
+
+			&:disabled {
+				visibility: hidden;
+			}
+
+			&:not([disabled]):hover {
+				cursor: pointer;
+			}
+
+		}
+
 	}
 
 	.parsely-top-post-content {
@@ -53,9 +75,8 @@
 	}
 
 	.parsely-top-posts {
-		counter-reset: item; // Needed to increment post numbers.
 		list-style: none;
-		margin: 0;
+		margin: to_rem(16px) 0 0;
 	}
 
 	.parsely-top-post {
@@ -64,7 +85,7 @@
 
 	.parsely-top-post-thumbnail {
 		height: 46px;
-		width: 46px;
+		min-width: 46px;
 
 		img {
 			height: 100%;

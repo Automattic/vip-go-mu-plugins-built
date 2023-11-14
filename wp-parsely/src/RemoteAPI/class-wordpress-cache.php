@@ -26,7 +26,6 @@ class WordPress_Cache implements Cache {
 	 *                          from the persistent cache. Default false.
 	 * @param bool       $found Optional. Whether the key was found in the cache (passed by reference).
 	 *                          Disambiguates a return of false, a storable value. Default null.
-	 *
 	 * @return mixed|false The cache contents on success, false on failure to retrieve contents.
 	 */
 	public function get( $key, string $group = '', bool $force = false, bool $found = null ) {

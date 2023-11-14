@@ -93,10 +93,10 @@ class Parsely {
 	/**
 	 * Declare post types that Parse.ly will process as "posts".
 	 *
-	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
-	 *
 	 * @since 2.5.0
 	 * @var string[]
+	 *
+	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
 	 */
 	public const SUPPORTED_JSONLD_POST_TYPES = array(
 		'NewsArticle',
@@ -107,15 +107,24 @@ class Parsely {
 		'Report',
 		'Review',
 		'CreativeWork',
+		'OpinionNewsArticle',
+		'AnalysisNewsArticle',
+		'BackgroundNewsArticle',
+		'ReviewNewsArticle',
+		'ReportageNewsArticle',
+		'Recipe',
+		'AdvertiserContentArticle',
+		'MedicalWebPage',
+		'PodcastEpisode',
 	);
 
 	/**
 	 * Declare post types that Parse.ly will process as "non-posts".
 	 *
-	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
-	 *
 	 * @since 2.5.0
 	 * @var string[]
+	 *
+	 * @link https://docs.parse.ly/metadata-jsonld/#distinguishing-between-posts-and-non-posts-pages
 	 */
 	public const SUPPORTED_JSONLD_NON_POST_TYPES = array(
 		'WebPage',
@@ -141,7 +150,6 @@ class Parsely {
 	 *
 	 * @since 3.9.0
 	 * @access private
-	 *
 	 * @var bool
 	 */
 	public $are_credentials_managed;
@@ -154,7 +162,6 @@ class Parsely {
 	 *
 	 * @since 3.9.0
 	 * @access private
-	 *
 	 * @var array<empty>|array<string, bool|string|null>
 	 */
 	public $managed_options = array();
@@ -272,7 +279,7 @@ class Parsely {
 		 * @param bool $skip True if the password check should be skipped.
 		 * @param int|WP_Post $post Which post object or ID is being checked.
 		 *
-		 * @returns bool
+		 * @return bool
 		 */
 		$skip_password_check = apply_filters( 'wp_parsely_skip_post_password_check', false, $post );
 		if ( ! $skip_password_check && post_password_required( $post ) ) {
@@ -306,7 +313,6 @@ class Parsely {
 	 *
 	 * @param array<string, mixed> $parsely_options parsely_options array.
 	 * @param WP_Post              $post object.
-	 *
 	 * @return Metadata_Attributes
 	 */
 	public function construct_parsely_metadata( array $parsely_options, WP_Post $post ) {
@@ -360,7 +366,7 @@ class Parsely {
 		 * POST request options.
 		 *
 		 * @var WP_HTTP_Request_Args $options
-		*/
+		 */
 		$options = array(
 			'method'      => 'POST',
 			'headers'     => $headers,
@@ -442,7 +448,6 @@ class Parsely {
 	 *
 	 * @param int|null $_blog_id The Blog ID for the multisite subsite to use
 	 *                           for context (Default null for current).
-	 *
 	 * @return string
 	 */
 	public static function get_settings_url( int $_blog_id = null ): string {
@@ -479,7 +484,6 @@ class Parsely {
 	 *
 	 * @param string      $url The URL to modify.
 	 * @param string|null $itm_source The value of the itm_source parameter.
-	 *
 	 * @return string The resulting URL.
 	 */
 	public static function get_url_with_itm_source( string $url, $itm_source ): string {
@@ -741,7 +745,6 @@ class Parsely {
 	 *
 	 * @param string      $option_id The option's ID.
 	 * @param bool|string $value The option's value.
-	 *
 	 * @return bool|string The sanitized option value.
 	 */
 	private function sanitize_managed_option( string $option_id, $value ) {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Remote API: Base class for all Parse.ly API endpoints
+ * Remote API: Base class for remote API endpoints
  *
  * @package Parsely
  * @since   3.2.0
@@ -10,20 +10,21 @@ declare(strict_types=1);
 
 namespace Parsely\RemoteAPI;
 
+use Parsely\Endpoints\Base_Endpoint;
 use Parsely\Parsely;
 use UnexpectedValueException;
 use WP_Error;
 
-use function Parsely\Utils\convert_endpoint_to_filter_key;
 use function Parsely\Utils\convert_to_associative_array;
 
 /**
- * Base API for all Parse.ly API endpoints.
+ * Base class for remote API endpoints.
  *
  * Child classes must add a protected `ENDPOINT` constant, and a protected
  * QUERY_FILTER constant.
  *
- * @since 3.2.0
+ * @since 3.2.0 Introduced as Remote_API_Base.
+ * @since 3.11.0 Renamed to Base_Endpoint_Remote and moved some members into Base_Endpoint.
  *
  * @phpstan-type Remote_API_Error array{
  *   code: int,
@@ -33,68 +34,8 @@ use function Parsely\Utils\convert_to_associative_array;
  *
  * @phpstan-import-type WP_HTTP_Request_Args from Parsely
  */
-abstract class Remote_API_Base implements Remote_API_Interface {
-	protected const ENDPOINT     = '';
+abstract class Base_Endpoint_Remote extends Base_Endpoint implements Remote_API_Interface {
 	protected const QUERY_FILTER = '';
-
-	/**
-	 * Indicates whether the endpoint is public or protected behind permissions.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @var bool
-	 */
-	protected $is_public_endpoint = false;
-
-	/**
-	 * Parsely Instance.
-	 *
-	 * @var Parsely
-	 */
-	private $parsely;
-
-	/**
-	 * User capability based on which we should allow access to the endpoint.
-	 *
-	 * `null` should be used for all public endpoints.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @var string|null
-	 */
-	private $user_capability;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param Parsely $parsely Parsely instance.
-	 *
-	 * @since 3.2.0
-	 * @since 3.7.0 Added user capability checks based on `is_public_endpoint` attribute.
-	 */
-	public function __construct( Parsely $parsely ) {
-		$this->parsely = $parsely;
-
-		if ( $this->is_public_endpoint ) {
-			$this->user_capability = null;
-		} else {
-			/**
-			 * Filter to change the default user capability for all private remote apis.
-			 *
-			 * @var string
-			 */
-			$default_user_capability = apply_filters( 'wp_parsely_user_capability_for_all_private_apis', 'publish_posts' );
-
-			/**
-			 * Filter to change the user capability for specific remote api.
-			 *
-			 * @var string
-			 */
-			$endpoint_specific_user_capability = apply_filters( 'wp_parsely_user_capability_for_' . convert_endpoint_to_filter_key( static::ENDPOINT ) . '_api', $default_user_capability );
-
-			$this->user_capability = $endpoint_specific_user_capability;
-		}
-	}
 
 	/**
 	 * Gets Parse.ly API endpoint.
@@ -112,10 +53,9 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 	 *
 	 * @since 3.2.0
 	 *
+	 * @param array<string, mixed> $query The query arguments to send to the remote API.
 	 * @throws UnexpectedValueException If the endpoint constant is not defined.
 	 * @throws UnexpectedValueException If the query filter constant is not defined.
-	 *
-	 * @param array<string, mixed> $query The query arguments to send to the remote API.
 	 * @return string
 	 */
 	public function get_api_url( array $query ): string {
@@ -148,10 +88,9 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 	 *
 	 * @param array<string, mixed> $query The query arguments to send to the remote API.
 	 * @param bool                 $associative When TRUE, returned objects will be converted into associative arrays.
-	 *
-	 * @return WP_Error|array<string, mixed>
+	 * @return array<string, mixed>|object|WP_Error
 	 */
-	public function get_items( $query, $associative = false ) {
+	public function get_items( array $query, bool $associative = false ) {
 		$full_api_url = $this->get_api_url( $query );
 		/**
 		 * GET request options.
@@ -183,28 +122,6 @@ abstract class Remote_API_Base implements Remote_API_Interface {
 		$data = $decoded->data;
 
 		return $associative ? convert_to_associative_array( $data ) : $data;
-	}
-
-	/**
-	 * Checks if the current user is allowed to make the API call.
-	 *
-	 * @since 3.7.0
-	 *
-	 * @return bool
-	 */
-	public function is_user_allowed_to_make_api_call(): bool {
-		// This endpoint does not require any capability checks.
-		if ( is_null( $this->user_capability ) ) {
-			return true;
-		}
-
-		// The user has the required capability to access this endpoint.
-		// phpcs:ignore WordPress.WP.Capabilities.Undetermined
-		if ( current_user_can( $this->user_capability ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

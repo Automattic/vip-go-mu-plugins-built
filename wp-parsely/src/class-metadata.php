@@ -85,7 +85,6 @@ class Metadata {
 	 * Creates Parse.ly metadata object from post metadata.
 	 *
 	 * @param WP_Post $post object.
-	 *
 	 * @return Metadata_Attributes
 	 */
 	public function construct_metadata( WP_Post $post ) {
@@ -130,13 +129,12 @@ class Metadata {
 		/**
 		 * Filters the structured metadata.
 		 *
+		 * @since 2.5.0
 		 * @var mixed
 		 *
 		 * @param array $parsely_page Existing structured metadata for a page.
 		 * @param WP_Post $post Post object.
 		 * @param array $options The Parse.ly options.
-		 *
-		 * @since 2.5.0
 		 */
 		$filtered = apply_filters( 'wp_parsely_metadata', $parsely_page, $post, $options );
 		if ( is_array( $filtered ) ) {

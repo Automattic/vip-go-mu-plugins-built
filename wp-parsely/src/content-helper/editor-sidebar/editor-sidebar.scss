@@ -56,11 +56,22 @@
 		}
 	}
 
-	.parsely-top-post-views svg {
-		position: relative;
-		top: 2px;
-		margin-right: to_rem(3px);
-		fill: var(--gray-600);
+	.parsely-top-post-metric-data {
+
+		svg,
+		span.dashicon {
+			position: relative;
+			top: 2px;
+			margin-right: to_rem(3px);
+			fill: var(--gray-600);
+		}
+
+		span.dashicon {
+			color: var(--gray-600);
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+		}
 	}
 
 	.parsely-top-post-view-link,
@@ -124,13 +135,10 @@
 		}
 	}
 
-	// Data Period section (Last x days).
+	// Data Period section.
 	div.section.period {
 		margin-top: 0.8rem;
-
-		span {
-			color: var(--base-text-2);
-		}
+		color: var(--base-text-2);
 	}
 
 	// General Performance section (Views, Visitors, Time).

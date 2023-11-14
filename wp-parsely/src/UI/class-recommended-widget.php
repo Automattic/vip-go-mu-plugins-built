@@ -27,7 +27,6 @@ use const Parsely\PARSELY_FILE;
  *   display_direction: string,
  *   published_within: int,
  *   sort: string,
- *   boost: string,
  *   personalize_results: bool,
  *   img_src: string,
  *   display_author: bool,
@@ -52,7 +51,6 @@ final class Recommended_Widget extends WP_Widget {
 		'display_direction'   => 'vertical',
 		'published_within'    => 0,
 		'sort'                => 'score',
-		'boost'               => 'views',
 		'personalize_results' => false,
 		'img_src'             => 'parsely_thumb',
 		'display_author'      => false,
@@ -79,11 +77,11 @@ final class Recommended_Widget extends WP_Widget {
 	/**
 	 * Gets the URL for the Recommendations API (GET /related).
 	 *
+	 * @since 2.5.0
+	 *
 	 * @see https://docs.parse.ly/content-recommendations/
 	 *
 	 * @internal While this is a public method now, this should be moved to a new class.
-	 *
-	 * @since 2.5.0
 	 *
 	 * @param string      $site_id          Publisher Site ID.
 	 * @param int|null    $published_within Publication filter start date; see https://docs.parse.ly/api-date-time/ for
@@ -91,12 +89,10 @@ final class Recommended_Widget extends WP_Widget {
 	 * @param string|null $sort             What to sort the results by. There are currently 2 valid options: `score`,
 	 *                                      which will sort articles by overall relevance and `pub_date` which will sort
 	 *                                      results by their publication date. The default is `score`.
-	 * @param string|null $boost            Available for sort=score only. Sub-sort value to re-rank relevant posts that
-	 *                                      received high e.g. views; default is undefined.
 	 * @param int         $return_limit     Number of records to retrieve; defaults to "10".
 	 * @return string API URL.
 	 */
-	private function get_api_url( string $site_id, ?int $published_within, ?string $sort, ?string $boost, int $return_limit ): string {
+	private function get_api_url( string $site_id, ?int $published_within, ?string $sort, int $return_limit ): string {
 		$related_api_endpoint = Parsely::PUBLIC_API_BASE_URL . '/related';
 
 		$query_args = array(
@@ -104,10 +100,6 @@ final class Recommended_Widget extends WP_Widget {
 			'sort'   => $sort,
 			'limit'  => $return_limit,
 		);
-
-		if ( 'score' === $sort && 'no-boost' !== $boost ) {
-			$query_args['boost'] = $boost;
-		}
 
 		if ( null !== $published_within && 0 !== $published_within ) {
 			$query_args['pub_date_start'] = $published_within . 'd';
@@ -145,7 +137,6 @@ final class Recommended_Widget extends WP_Widget {
 			$this->parsely->get_site_id(),
 			(int) $instance['published_within'], // @phpstan-ignore-line
 			$instance['sort'],
-			$instance['boost'],
 			(int) $instance['return_limit'] // @phpstan-ignore-line
 		);
 
@@ -214,7 +205,6 @@ final class Recommended_Widget extends WP_Widget {
 		$display_direction   = $instance['display_direction'];
 		$published_within    = $instance['published_within'];
 		$sort                = $instance['sort'];
-		$boost               = $instance['boost'];
 		$personalize_results = $instance['personalize_results'];
 		$img_src             = $instance['img_src'];
 		$display_author      = $instance['display_author'];
@@ -223,12 +213,10 @@ final class Recommended_Widget extends WP_Widget {
 		$instance['display_direction']   = $display_direction;
 		$instance['published_within']    = $published_within;
 		$instance['sort']                = $sort;
-		$instance['boost']               = $boost;
 		$instance['personalize_results'] = $personalize_results;
 		$instance['img_src']             = $img_src;
 		$instance['display_author']      = $display_author;
 
-		$boost_params = $this->get_boost_params();
 		?>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wp-parsely' ); ?></label>
@@ -261,19 +249,9 @@ final class Recommended_Widget extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'sort' ) ); ?>"><?php esc_html_e( 'Sort by:', 'wp-parsely' ); ?></label>
 			<br>
 			<select id="<?php echo esc_attr( $this->get_field_id( 'sort' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
-				<option<?php selected( $instance['sort'], 'score' ); ?> value="score"><?php esc_html_e( 'Score (relevancy, boostable)', 'wp-parsely' ); ?></option>
-				<option<?php selected( $instance['sort'], 'pub_date' ); ?> value="pub_date"><?php esc_html_e( 'Publish date (not boostable)', 'wp-parsely' ); ?></option>
+				<option<?php selected( $instance['sort'], 'score' ); ?> value="score"><?php esc_html_e( 'Score', 'wp-parsely' ); ?></option>
+				<option<?php selected( $instance['sort'], 'pub_date' ); ?> value="pub_date"><?php esc_html_e( 'Publish date', 'wp-parsely' ); ?></option>
 			</select>
-		</p>
-		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'boost' ) ); ?>"><?php esc_html_e( 'Boost by:', 'wp-parsely' ); ?></label>
-			<br>
-			<select id="<?php echo esc_attr( $this->get_field_id( 'boost' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'boost' ) ); ?>" class="widefat">
-				<?php foreach ( $boost_params as $boost_param => $description ) { ?>
-				<option<?php selected( $instance['boost'], $boost_param ); ?> value="<?php echo esc_attr( $boost_param ); ?>"><?php echo esc_html( $description ); ?></option>
-			<?php } ?>
-			</select>
-
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'img_src' ) ); ?>"><?php esc_html_e( 'Image source:', 'wp-parsely' ); ?></label>
@@ -301,7 +279,6 @@ final class Recommended_Widget extends WP_Widget {
 	 *
 	 * @param Widget_Settings $new_instance The new values for the db.
 	 * @param Widget_Settings $old_instance Values saved to the db.
-	 *
 	 * @return Widget_Settings
 	 */
 	public function update( $new_instance, $old_instance ) /* @phpstan-ignore-line */ {
@@ -311,44 +288,11 @@ final class Recommended_Widget extends WP_Widget {
 		$instance['return_limit']        = $new_instance['return_limit'] <= 20 ? $new_instance['return_limit'] : 20;
 		$instance['display_direction']   = trim( $new_instance['display_direction'] );
 		$instance['sort']                = trim( $new_instance['sort'] );
-		$instance['boost']               = trim( $new_instance['boost'] );
 		$instance['display_author']      = $new_instance['display_author'];
 		$instance['personalize_results'] = $new_instance['personalize_results'];
 		$instance['img_src']             = trim( $new_instance['img_src'] );
 
 		return $instance;
-	}
-
-	/**
-	 * Returns the list of boost parameters, values and labels.
-	 *
-	 * @since 2.5.0
-	 *
-	 * @return array<string, string> Boost parameters values and labels.
-	 */
-	private function get_boost_params(): array {
-		return array(
-			'no-boost'              => __( 'No boost', 'wp-parsely' ),
-			'views'                 => __( 'Page views', 'wp-parsely' ),
-			'mobile_views'          => __( 'Page views on mobile devices', 'wp-parsely' ),
-			'tablet_views'          => __( 'Page views on tablet devices', 'wp-parsely' ),
-			'desktop_views'         => __( 'Page views on desktop devices', 'wp-parsely' ),
-			'visitors'              => __( 'Unique page visitors, total', 'wp-parsely' ),
-			'visitors_new'          => __( 'New visitors', 'wp-parsely' ),
-			'visitors_returning'    => __( 'Returning visitors', 'wp-parsely' ),
-			'engaged_minutes'       => __( 'Total engagement time in minutes', 'wp-parsely' ),
-			'avg_engaged'           => __( 'Engaged minutes spent by total visitors', 'wp-parsely' ),
-			'avg_engaged_new'       => __( 'Average engaged minutes spent by new visitors', 'wp-parsely' ),
-			'avg_engaged_returning' => __( 'Average engaged minutes spent by returning visitors', 'wp-parsely' ),
-			'social_interactions'   => __( 'Total social interactions', 'wp-parsely' ),
-			'fb_interactions'       => __( 'Count of Facebook shares, likes, and comments', 'wp-parsely' ),
-			'tw_interactions'       => __( 'Count of Twitter tweets and retweets', 'wp-parsely' ),
-			'pi_interactions'       => __( 'Count of Pinterest pins', 'wp-parsely' ),
-			'social_referrals'      => __( 'Page views where the referrer was any social network', 'wp-parsely' ),
-			'fb_referrals'          => __( 'Page views where the referrer was facebook.com', 'wp-parsely' ),
-			'tw_referrals'          => __( 'Page views where the referrer was twitter.com', 'wp-parsely' ),
-			'pi_referrals'          => __( 'Page views where the referrer was pinterest.com', 'wp-parsely' ),
-		);
 	}
 
 	/**
@@ -370,7 +314,6 @@ final class Recommended_Widget extends WP_Widget {
 	 * @since 3.7.0
 	 *
 	 * @param array<string, mixed> $settings Widget Options.
-	 *
 	 * @return Widget_Settings
 	 */
 	public function get_widget_settings( array $settings ) {

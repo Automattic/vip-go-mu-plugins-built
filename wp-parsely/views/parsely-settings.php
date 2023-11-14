@@ -44,6 +44,14 @@ if ( is_multisite() && is_main_site() ) {
 		<?php
 		settings_fields( Parsely::OPTIONS_KEY );
 		$wp_parsely_settings->show_setting_tabs_content();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['e2e_parsely_skip_api_validate'] ) && 'y' === $_GET['e2e_parsely_skip_api_validate'] ) {
+			?>
+			<input type="hidden" name="e2e_parsely_skip_api_validate" value="y" />
+			<?php
+		}
+
 		submit_button();
 		?>
 	</form>

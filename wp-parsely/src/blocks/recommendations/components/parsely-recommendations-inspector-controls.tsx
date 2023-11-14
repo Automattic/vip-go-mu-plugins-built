@@ -24,7 +24,7 @@ interface ParselyRecommendationsInspectorControlsProps {
 }
 
 export const ParselyRecommendationsInspectorControls = ( {
-	attributes: { boost, imagestyle, limit, openlinksinnewtab, showimages, sort, title },
+	attributes: { imagestyle, limit, openlinksinnewtab, showimages, sort, title },
 	setAttributes,
 } : ParselyRecommendationsInspectorControlsProps ) => {
 	function setImageStyle( value: string ): void {
@@ -98,91 +98,6 @@ export const ParselyRecommendationsInspectorControls = ( {
 						},
 					] }
 					onChange={ ( value: string ): void => setAttributes( { sort: value } ) }
-				/>
-			</PanelRow>
-			<PanelRow>
-				<SelectControl
-					label={ __( 'Boost', 'wp-parsely' ) }
-					value={ boost }
-					options={ [
-						{
-							label: __( 'Page views', 'wp-parsely' ),
-							value: 'views',
-						},
-						{
-							label: __( 'Page views on mobile devices', 'wp-parsely' ),
-							value: 'mobile_views',
-						},
-						{
-							label: __( 'Page views on tablet devices', 'wp-parsely' ),
-							value: 'tablet_views',
-						},
-						{
-							label: __( 'Page views on desktop devices', 'wp-parsely' ),
-							value: 'desktop_views',
-						},
-						{
-							label: __( 'Unique page visitors', 'wp-parsely' ),
-							value: 'visitors',
-						},
-						{
-							label: __( 'New visitors', 'wp-parsely' ),
-							value: 'visitors_new',
-						},
-						{
-							label: __( 'Returning visitors', 'wp-parsely' ),
-							value: 'visitors_returning',
-						},
-						{
-							label: __( 'Total engagement time in minutes', 'wp-parsely' ),
-							value: 'engaged_minutes',
-						},
-						{
-							label: __( 'Engaged minutes spent by total visitors', 'wp-parsely' ),
-							value: 'avg_engaged',
-						},
-						{
-							label: __( 'Average engaged minutes spent by new visitors', 'wp-parsely' ),
-							value: 'avg_engaged_new',
-						},
-						{
-							label: __( 'Average engaged minutes spent by returning visitors', 'wp-parsely' ),
-							value: 'avg_engaged_returning',
-						},
-						{
-							label: __( 'Total social interactions', 'wp-parsely' ),
-							value: 'social_interactions',
-						},
-						{
-							label: __( 'Count of Facebook shares, likes, and comments', 'wp-parsely' ),
-							value: 'fb_interactions',
-						},
-						{
-							label: __( 'Count of Twitter tweets and retweets', 'wp-parsely' ),
-							value: 'tw_interactions',
-						},
-						{
-							label: __( 'Count of Pinterest pins', 'wp-parsely' ),
-							value: 'pi_interactions',
-						},
-						{
-							label: __( 'Page views where the referrer was any social network', 'wp-parsely' ),
-							value: 'social_referrals',
-						},
-						{
-							label: __( 'Page views where the referrer was facebook.com', 'wp-parsely' ),
-							value: 'fb_referrals',
-						},
-						{
-							label: __( 'Page views where the referrer was twitter.com', 'wp-parsely' ),
-							value: 'tw_referrals',
-						},
-						{
-							label: __( 'Page views where the referrer was pinterest.com', 'wp-parsely' ),
-							value: 'pi_referrals',
-						},
-					] }
-					onChange={ ( value: string ): void => setAttributes( { boost: value } ) }
 				/>
 			</PanelRow>
 		</PanelBody>

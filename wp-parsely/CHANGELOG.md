@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.11.1](https://github.com/Parsely/wp-parsely/compare/3.11.0...3.11.1) - 2023-11-13
+
+### Fixed
+
+- Initialize Parse.ly option before registering the setting ([#2001](https://github.com/Parsely/wp-parsely/pull/2001))
+
+
+## [3.11.0](https://github.com/Parsely/wp-parsely/compare/3.10.0...3.11.0) - 2023-11-13
+
+### Added
+
+- Metadata: Add filter for custom taxonomies ([#1995](https://github.com/Parsely/wp-parsely/pull/1995))
+- PCH Related Top Posts: Add filter values drop-down ([#1986](https://github.com/Parsely/wp-parsely/pull/1986))
+- Dashboard Widget: Change number of visible top posts to 5 and add pagination ([#1929](https://github.com/Parsely/wp-parsely/pull/1929))
+- Content Helper: Add more period filters ([#1922](https://github.com/Parsely/wp-parsely/pull/1922))
+- PCH Related Top Posts: Add filter type drop-down ([#1916](https://github.com/Parsely/wp-parsely/pull/1916))
+- Content Helper Sidebar: Add period and metric settings ([#1898](https://github.com/Parsely/wp-parsely/pull/1898))
+- Validate API credentials using the Parse.ly API validation endpoint ([#1897](https://github.com/Parsely/wp-parsely/pull/1897))
+
+### Changed
+
+- Update required WordPress version to 5.2 ([#1994](https://github.com/Parsely/wp-parsely/pull/1994))
+- Implement a base endpoint class ([#1976](https://github.com/Parsely/wp-parsely/pull/1976))
+- PCH Related Top Posts: Use screen-reader-text instead of title ([#1933](https://github.com/Parsely/wp-parsely/pull/1933))
+
+### Removed
+
+- Remove "boost" field from Recommendations Block and Widget ([#1894](https://github.com/Parsely/wp-parsely/pull/1894))
+
+### Fixed
+
+- PCH Dashboard Widget: Fix vanishing filters after error ([#1925](https://github.com/Parsely/wp-parsely/pull/1925))
+- PCH Performance Details: Fix freeze after error ([#1924](https://github.com/Parsely/wp-parsely/pull/1924))
+- Add 9 missing supported Post Types ([#1915](https://github.com/Parsely/wp-parsely/pull/1915))
+- Dashboard Widget: Fix periods letter casing ([#1901](https://github.com/Parsely/wp-parsely/pull/1901))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.11.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.10.0](https://github.com/Parsely/wp-parsely/compare/3.9.0...3.10.0) - 2023-09-25
 
 ### Added
@@ -828,7 +868,7 @@ If you are using the plugin without any code-level customizations (for instance,
 
 ## [2.2.1](https://github.com/Parsely/wp-parsely/compare/2.2...2.2.1) - 2020-12-18
 
-- Add logo to JSON LD publisher object.
+- Add logo to JSON-LD publisher object.
 
 ## [2.2](https://github.com/Parsely/wp-parsely/compare/2.1.3...2.2) - 2020-09-14
 
@@ -909,7 +949,7 @@ If you are using the plugin without any code-level customizations (for instance,
 
 ## [1.12](https://github.com/Parsely/wp-parsely/compare/1.11.2...1.12) - 2018-01-26
 
-- Add ability to use repeated meta tags instead of ld+json tags for metadata.
+- Add ability to use repeated meta tags instead of JSON-LD for metadata.
 - Cleanup code to conform to WordPress VIP standards.
 - Fix minor bugs.
 

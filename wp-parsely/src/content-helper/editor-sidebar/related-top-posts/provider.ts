@@ -2,10 +2,7 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { select } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-// eslint-disable-next-line import/named
-import { Post, Taxonomy, User } from '@wordpress/core-data';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -15,8 +12,18 @@ import {
 	ContentHelperError,
 	ContentHelperErrorCode,
 } from '../../common/content-helper-error';
-import { AnalyticsApiOptionalQueryParams, getApiPeriodParams } from '../../common/utils/api';
-import { RelatedTopPostData } from './model';
+import {
+	AnalyticsApiOptionalQueryParams,
+	getApiPeriodParams,
+} from '../../common/utils/api';
+import {
+	Metric,
+	Period,
+	PostFilter,
+	PostFilterType,
+	getPeriodDescription,
+} from '../../common/utils/constants';
+import { PostData } from '../../common/utils/post';
 
 /**
  * The form of the query that gets posted to the analytics/posts WordPress REST
@@ -33,7 +40,7 @@ interface RelatedTopPostsApiQuery {
  */
 interface RelatedTopPostsApiResponse {
 	error?: Error;
-	data?: RelatedTopPostData[];
+	data?: PostData[];
 }
 
 /**
@@ -41,11 +48,10 @@ interface RelatedTopPostsApiResponse {
  */
 export interface GetRelatedTopPostsResult {
 	message: string;
-	posts: RelatedTopPostData[];
+	posts: PostData[];
 }
 
 export const RELATED_POSTS_DEFAULT_LIMIT = 5;
-export const RELATED_POSTS_DEFAULT_TIME_RANGE = 7; // In days.
 
 export class RelatedTopPostsProvider {
 	/**
@@ -55,27 +61,21 @@ export class RelatedTopPostsProvider {
 	 * The 'related' status is determined by the current post's Author, Category
 	 * or tag.
 	 *
+	 * @param {Period}     period The period for which to fetch data.
+	 * @param {Metric}     metric The metric to sort by.
+	 * @param {PostFilter} filter The selected filter type and value to use.
+	 *
 	 * @return {Promise<GetRelatedTopPostsResult>} Object containing message and posts.
 	 */
-	static async getRelatedTopPosts(): Promise<GetRelatedTopPostsResult> {
-		const editor = select( 'core/editor' );
-
-		// Get post's author.
-		const currentPost: Post = editor.getCurrentPost();
-		const author: User = select( 'core' ).getEntityRecord( 'root', 'user', currentPost.author );
-
-		// Get post's first category.
-		const categoryIds = editor.getEditedPostAttribute( 'categories' ) as Array<number>;
-		const category: Taxonomy = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryIds?.[ 0 ] );
-
-		// Get post's first tag.
-		const tagIds = editor.getEditedPostAttribute( 'tags' ) as Array<number>;
-		const tag: Taxonomy = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagIds?.[ 0 ] );
-
+	static async getRelatedTopPosts(
+		period: Period, metric: Metric, filter: PostFilter
+	): Promise<GetRelatedTopPostsResult> {
 		// Create API query.
 		let apiQuery;
 		try {
-			apiQuery = this.buildRelatedTopPostsApiQuery( author, category, tag );
+			apiQuery = this.buildRelatedTopPostsApiQuery(
+				period, metric, filter
+			);
 		} catch ( contentHelperError ) {
 			return Promise.reject( contentHelperError );
 		}
@@ -88,22 +88,51 @@ export class RelatedTopPostsProvider {
 			return Promise.reject( contentHelperError );
 		}
 
-		/* translators: %s: message such as "in category Foo", %d: number of days */
-		let message = sprintf( __( 'Top posts %1$s in last %2$d days.', 'wp-parsely' ), apiQuery.message, RELATED_POSTS_DEFAULT_TIME_RANGE );
-		if ( data.length === 0 ) {
-			message = `${ __( 'The Parse.ly API did not return any results for related top posts', 'wp-parsely' ) } ${ apiQuery.message }.`;
-		}
+		const message = this.generateMessage(
+			data.length === 0, period, apiQuery.message
+		);
 
 		return { message, posts: data };
+	}
+
+	/**
+	 * Generates the message that will be displayed above the related top posts.
+	 *
+	 * @since 3.11.0
+	 *
+	 * @param {boolean} dataIsEmpty     Whether the API returned no data.
+	 * @param {Period}  period          The period for which data was fetched.
+	 * @param {string}  apiQueryMessage The message within the query.
+	 *
+	 * @return {string} The generated message.
+	 */
+	private static generateMessage(
+		dataIsEmpty: boolean, period: Period, apiQueryMessage: string
+	): string {
+		if ( dataIsEmpty ) {
+			return sprintf(
+				/* translators: 1: message such as "in category Foo" */
+				__(
+					'No top posts %1$s were found for the specified period and metric.',
+					'wp-parsely'
+				), apiQueryMessage
+			);
+		}
+
+		return sprintf(
+			/* translators: 1: message such as "in category Foo", 2: period such as "last 7 days"*/
+			__( 'Top posts %1$s in the %2$s.', 'wp-parsely' ),
+			apiQueryMessage, getPeriodDescription( period, true )
+		);
 	}
 
 	/**
 	 * Fetches the related top posts data from the WordPress REST API.
 	 *
 	 * @param {RelatedTopPostsApiQuery} query
-	 * @return {Promise<Array<RelatedTopPostData>>} Array of fetched posts.
+	 * @return {Promise<Array<PostData>>} Array of fetched posts.
 	 */
-	private static async fetchRelatedTopPostsFromWpEndpoint( query: RelatedTopPostsApiQuery ): Promise<RelatedTopPostData[]> {
+	private static async fetchRelatedTopPostsFromWpEndpoint( query: RelatedTopPostsApiQuery ): Promise<PostData[]> {
 		let response;
 
 		try {
@@ -133,45 +162,48 @@ export class RelatedTopPostsProvider {
 	 * Builds the query object used in the API for performing the related
 	 * top posts request.
 	 *
-	 * @param {User}     author   The post's author.
-	 * @param {Taxonomy} category The post's category.
-	 * @param {Taxonomy} tag      The post's tag.
+	 * @param {Period}     period The period for which to fetch data.
+	 * @param {Metric}     metric The metric to sort by.
+	 * @param {PostFilter} filter The selected filter type and value to use.
+	 *
 	 * @return {RelatedTopPostsApiQuery} The query object.
 	 */
-	private static buildRelatedTopPostsApiQuery( author: User, category: Taxonomy, tag: Taxonomy ): RelatedTopPostsApiQuery {
-		const limit = RELATED_POSTS_DEFAULT_LIMIT;
-		const commonQueryParams = { ...getApiPeriodParams( RELATED_POSTS_DEFAULT_TIME_RANGE ) };
+	private static buildRelatedTopPostsApiQuery(
+		period: Period, metric:Metric, filter: PostFilter
+	): RelatedTopPostsApiQuery {
+		const commonQueryParams = {
+			...getApiPeriodParams( period ),
+			limit: RELATED_POSTS_DEFAULT_LIMIT,
+			sort: metric,
+		};
 
-		// A tag exists.
-		if ( tag?.name ) {
+		if ( PostFilterType.Tag === filter.type ) {
 			return ( {
-				query: { limit, tag: tag.name, ...commonQueryParams },
+				query: { tag: filter.value, ...commonQueryParams },
 				/* translators: %s: message such as "with tag Foo" */
-				message: sprintf( __( 'with tag "%1$s"', 'wp-parsely' ), tag.name ),
+				message: sprintf( __( 'with tag "%1$s"', 'wp-parsely' ), filter.value ),
 			} );
 		}
 
-		// A category exists.
-		if ( category?.name ) {
+		if ( PostFilterType.Section === filter.type ) {
 			return ( {
-				query: { limit, section: category.name, ...commonQueryParams },
+				query: { section: filter.value, ...commonQueryParams },
 				/* translators: %s: message such as "in category Foo" */
-				message: sprintf( __( 'in category "%1$s"', 'wp-parsely' ), category.name ),
+				message: sprintf( __( 'in section "%1$s"', 'wp-parsely' ), filter.value ),
 			} );
 		}
 
-		// Fallback to author.
-		if ( author?.name ) {
+		if ( PostFilterType.Author === filter.type ) {
 			return ( {
-				query: { limit, author: author.name, ...commonQueryParams },
+				query: { author: filter.value, ...commonQueryParams },
 				/* translators: %s: message such as "by author John" */
-				message: sprintf( __( 'by author "%1$s"', 'wp-parsely' ), author.name ),
+				message: sprintf( __( 'by author "%1$s"', 'wp-parsely' ), filter.value ),
 			} );
 		}
 
-		// No filter could be picked. The query cannot be formulated.
+		// No filter type has been specified. The query cannot be formulated.
 		throw new ContentHelperError(
-			__( "Cannot formulate query because the post's Tag, Category and Author are empty.", 'wp-parsely' ),
+			__( 'No valid filter type has been specified.', 'wp-parsely' ),
 			ContentHelperErrorCode.CannotFormulateApiQuery
 		);
 	}

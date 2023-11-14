@@ -209,11 +209,18 @@ final class Settings_Page {
 	 * Initializes the settings for Parse.ly.
 	 */
 	public function initialize_settings(): void {
+		// Add the option first, to prevent double sanitization of the uninitialized option as reported
+		// in https://core.trac.wordpress.org/ticket/21989.
+		add_option( Parsely::OPTIONS_KEY, array() );
+
 		// All our options are actually stored in one single array to reduce DB queries.
 		register_setting(
 			Parsely::OPTIONS_KEY,
 			Parsely::OPTIONS_KEY,
-			array( $this, 'validate_options' )
+			array(
+				'type'              => 'array',
+				'sanitize_callback' => array( $this, 'validate_options' ),
+			)
 		);
 
 		$this->initialize_basic_section();
@@ -942,7 +949,6 @@ final class Settings_Page {
 	 * Validates the options provided by the user.
 	 *
 	 * @param ParselySettingOptions $input Options from the settings page.
-	 *
 	 * @return ParselySettingOptions
 	 */
 	public function validate_options( $input ) {
@@ -957,7 +963,6 @@ final class Settings_Page {
 	 * Validates fields of Basic Section.
 	 *
 	 * @param ParselySettingOptions $input Options from the settings page.
-	 *
 	 * @return ParselySettingOptions Validated inputs.
 	 */
 	private function validate_basic_section( $input ) {
@@ -968,36 +973,31 @@ final class Settings_Page {
 			$input['apikey']     = '';
 			$input['api_secret'] = '';
 		} else {
-			if ( '' === $input['apikey'] ) {
-				add_settings_error(
-					Parsely::OPTIONS_KEY,
-					'apikey',
-					__( 'Please specify the Site ID', 'wp-parsely' )
-				);
-			} else {
-				$site_id = $this->sanitize_site_id( $input['apikey'] );
-				if ( false === Validator::validate_site_id( $site_id ) ) {
-					add_settings_error(
-						Parsely::OPTIONS_KEY,
-						'apikey',
-						__( 'The Site ID was not saved because it is incorrect. It should look like "example.com".', 'wp-parsely' )
-					);
-					$input['apikey'] = $options['apikey'];
-				} else {
-					$input['apikey'] = $site_id;
-				}
+			$site_id    = $this->sanitize_site_id( $input['apikey'] );
+			$api_secret = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
+
+			$valid_credentials = Validator::validate_api_credentials( $this->parsely, $site_id, $api_secret );
+
+			// When running e2e tests, we need to update the API keys without validating them, as they will be invalid.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			if ( isset( $_POST['e2e_parsely_skip_api_validate'] ) && 'y' === $_POST['e2e_parsely_skip_api_validate'] ) {
+				$valid_credentials = true;
 			}
 
-			$input['api_secret'] = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
-			$api_secret_length   = strlen( $input['api_secret'] );
-			if ( $api_secret_length > 0 &&
-					false === Validator::validate_api_secret( $input['api_secret'] ) ) {
+			if ( is_wp_error( $valid_credentials ) && Validator::INVALID_API_CREDENTIALS === $valid_credentials->get_error_code() ) {
 				add_settings_error(
 					Parsely::OPTIONS_KEY,
 					'api_secret',
-					__( 'The API Secret was not saved because it is incorrect. Please contact Parse.ly support!', 'wp-parsely' )
+					__( 'The Site ID and API Secret weren\'t saved as they failed to authenticate with the Parse.ly API. Try again with different credentials or contact Parse.ly support', 'wp-parsely' )
 				);
+				$input['apikey']     = $options['apikey'];
 				$input['api_secret'] = $options['api_secret'];
+			}
+
+			// Since the API secret is obfuscated, we need to make sure that the value
+			// is not changed when the credentials are valid.
+			if ( true === $valid_credentials && $input['api_secret'] !== $api_secret ) {
+				$input['api_secret'] = $api_secret;
 			}
 		}
 
@@ -1058,7 +1058,6 @@ final class Settings_Page {
 	 * Validates fields of Recrawl Section.
 	 *
 	 * @param ParselySettingOptions $input Options from the settings page.
-	 *
 	 * @return ParselySettingOptions Validated inputs.
 	 */
 	private function validate_recrawl_section( $input ) {
@@ -1166,7 +1165,6 @@ final class Settings_Page {
 	 * Validates fields of Advanced Section.
 	 *
 	 * @param ParselySettingOptions $input Options from the settings page.
-	 *
 	 * @return ParselySettingOptions Validated inputs.
 	 */
 	private function validate_advanced_section( $input ) {
@@ -1210,7 +1208,6 @@ final class Settings_Page {
 	 * @since 3.3.0
 	 *
 	 * @param string $site_id The Site ID to be sanitized.
-	 *
 	 * @return string
 	 */
 	private function sanitize_site_id( string $site_id ): string {
@@ -1307,7 +1304,6 @@ final class Settings_Page {
 	 * Gets obfuscated value.
 	 *
 	 * @param string $current_value Current value of the field.
-	 *
 	 * @return string
 	 */
 	private function get_obfuscated_value( $current_value ): string {
@@ -1320,7 +1316,6 @@ final class Settings_Page {
 	 * @param string $current_value Current value of the field.
 	 * @param string $previous_value Previous value of the field. If current
 	 *                               value is obfuscated then we will use this.
-	 *
 	 * @return string
 	 */
 	private function get_unobfuscated_value( $current_value, $previous_value ): string {
@@ -1339,7 +1334,6 @@ final class Settings_Page {
 	 *
 	 * @param string $title The field's title.
 	 * @param string $option_id The option's ID.
-	 *
 	 * @return string The resulting content.
 	 */
 	public function set_field_label_contents( string $title, string $option_id ): string {

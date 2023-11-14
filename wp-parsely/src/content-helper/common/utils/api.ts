@@ -1,3 +1,4 @@
+import { Period } from './constants';
 import { removeDaysFromDate } from './date';
 
 export interface AnalyticsApiQueryParams extends AnalyticsApiOptionalQueryParams {
@@ -24,13 +25,13 @@ export interface ApiPeriodRange {
 /**
  * Gets `period_start` and `period_end` params for API.
  *
- * @param {number} days Number of days for which to calculate the period range.
+ * @param {Period} period Number of days for which to calculate the period range.
  *
  * @return {ApiPeriodRange} API query params.
  */
-export function getApiPeriodParams( days: number ): ApiPeriodRange {
+export function getApiPeriodParams( period: Period ): ApiPeriodRange {
 	return {
-		period_start: `${ days }d`,
+		period_start: period,
 		period_end: '',
 	};
 }

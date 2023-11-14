@@ -30,7 +30,6 @@ class Dashboard_Link {
 	 * @param string  $site_id Site ID or empty string.
 	 * @param string  $campaign Campaign name for the `utm_campaign` URL parameter.
 	 * @param string  $source Source name for the `utm_source` URL parameter.
-	 *
 	 * @return string
 	 */
 	public static function generate_url( WP_Post $post, string $site_id, string $campaign, string $source ): string {

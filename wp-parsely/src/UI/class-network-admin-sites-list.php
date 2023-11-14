@@ -57,7 +57,6 @@ final class Network_Admin_Sites_List {
 	 * @param array<string, mixed> $actions  The list of actions meant to be displayed for the current site's
 	 *                                       context in the row actions.
 	 * @param int                  $_blog_id The blog ID for the current context.
-	 *
 	 * @return array<string, mixed> The list of actions including ours.
 	 */
 	public static function add_action_link( array $actions, int $_blog_id ): array {

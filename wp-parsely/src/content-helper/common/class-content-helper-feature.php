@@ -22,7 +22,6 @@ abstract class Content_Helper_Feature {
 	 * Instance of Parsely class.
 	 *
 	 * @since 3.9.0
-	 *
 	 * @var Parsely
 	 */
 	protected $parsely;
@@ -83,6 +82,7 @@ abstract class Content_Helper_Feature {
 	 * - Possible invalid filter values will resolve to false.
 	 *
 	 * @since 3.9.0
+	 *
 	 * @param bool ...$conditions Conditions that need to be met besides filters
 	 *                            for the function to return true.
 	 * @return bool Whether the feature can be enabled.

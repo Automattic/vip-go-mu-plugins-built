@@ -9,35 +9,47 @@ import { __, _n, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ContentHelperError } from '../../common/content-helper-error';
-import { getApiPeriodStartDate } from '../../common/utils/api';
-import { getSmartShortDate } from '../../common/utils/date';
+import { Period, getPeriodDescription } from '../../common/utils/constants';
 import { formatToImpreciseNumber } from '../../common/utils/number';
 import { PerformanceData } from './model';
-import { PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE, PerformanceDetailsProvider } from './provider';
+import { PerformanceDetailsProvider } from './provider';
 
 // Number of attempts to fetch the data before displaying an error.
 const FETCH_RETRIES = 1;
 
 /**
- * Specifies the form of component props.
+ * Defines the props structure for PerformanceDetails.
+ *
+ * @since 3.11.0
  */
-interface PerformanceSectionProps {
+interface PerformanceDetailsProps {
+	period: Period;
+}
+
+/**
+ * Specifies props structure for PerformanceDetailsSections.
+ */
+interface PerformanceSectionProps extends PerformanceDetailsProps {
 	data: PerformanceData;
 }
 
 /**
  * Outputs the current post's details or shows an error message on failure.
+ *
+ * @param {PerformanceDetailsProps} props The component's props.
  */
-export function PerformanceDetails() {
+export function PerformanceDetails(
+	{ period }: Readonly<PerformanceDetailsProps>
+): JSX.Element {
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
-	const [ postDetailsData, setPostDetails ] = useState<PerformanceData>();
+	const [ postDetails, setPostDetails ] = useState<PerformanceData>();
 
 	useEffect( () => {
 		const provider = new PerformanceDetailsProvider();
 
 		const fetchPosts = async ( retries: number ) => {
-			provider.getPerformanceDetails()
+			provider.getPerformanceDetails( period )
 				.then( ( result ) => {
 					setPostDetails( result );
 					setLoading( false );
@@ -55,7 +67,11 @@ export function PerformanceDetails() {
 
 		setLoading( true );
 		fetchPosts( FETCH_RETRIES );
-	}, [] );
+
+		return (): void => {
+			setError( undefined );
+		};
+	}, [ period ] );
 
 	if ( error ) {
 		return error.Message();
@@ -69,7 +85,10 @@ export function PerformanceDetails() {
 				</div>
 			)
 			: (
-				<PerformanceDetailsSections data={ postDetailsData as PerformanceData } />
+				<PerformanceDetailsSections
+					data={ postDetails as PerformanceData }
+					period={ period }
+				/>
 			)
 	);
 }
@@ -79,10 +98,14 @@ export function PerformanceDetails() {
  *
  * @param {PerformanceSectionProps} props The props needed to populate the sections.
  */
-function PerformanceDetailsSections( props: PerformanceSectionProps ) {
+function PerformanceDetailsSections(
+	props: Readonly<PerformanceSectionProps>
+): JSX.Element {
 	return (
 		<div className="performance-details-panel">
-			<DataPeriodSection />
+			<div className="section period">
+				{ getPeriodDescription( props.period ) }
+			</div>
 			<GeneralPerformanceSection { ...props } />
 			<ReferrerTypesSection { ...props } />
 			<TopReferrersSection { ...props } />
@@ -92,36 +115,13 @@ function PerformanceDetailsSections( props: PerformanceSectionProps ) {
 }
 
 /**
- * Outputs the "Period" section, which denotes the period for which data is
- * shown.
- */
-function DataPeriodSection(): JSX.Element {
-	const periodStart = getSmartShortDate(
-		new Date( getApiPeriodStartDate( PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE ) ),
-	);
-
-	return (
-		<div className="section period">
-			{
-				/* translators: Number of days for which data is being shown */
-				sprintf( __( 'Last %d Days', 'wp-parsely' ), PERFORMANCE_DETAILS_DEFAULT_TIME_RANGE )
-			}
-			<span>
-				{
-					/* translators: Period starting date in short format */
-					sprintf( __( ' (%s - Today)', 'wp-parsely' ), periodStart )
-				}
-			</span>
-		</div>
-	);
-}
-
-/**
  * Outputs the "General Performance" (Views, Visitors, Time) section.
  *
  * @param {PerformanceSectionProps} props The props needed to populate the section.
  */
-function GeneralPerformanceSection( props: PerformanceSectionProps ) {
+function GeneralPerformanceSection(
+	props: Readonly<PerformanceSectionProps>
+): JSX.Element {
 	const data = props.data;
 
 	return (
@@ -151,7 +151,9 @@ function GeneralPerformanceSection( props: PerformanceSectionProps ) {
  *
  * @param {PerformanceSectionProps} props The props needed to populate the section.
  */
-function ReferrerTypesSection( props: PerformanceSectionProps ) {
+function ReferrerTypesSection(
+	props: Readonly<PerformanceSectionProps>
+): JSX.Element {
 	const data = props.data;
 
 	// Remove unneeded totals to simplify upcoming map() calls.
@@ -216,7 +218,9 @@ function ReferrerTypesSection( props: PerformanceSectionProps ) {
  *
  * @param {PerformanceSectionProps} props The props needed to populate the section.
  */
-function TopReferrersSection( props: PerformanceSectionProps ) {
+function TopReferrersSection(
+	props: Readonly<PerformanceSectionProps>
+): JSX.Element {
 	const data = props.data;
 	let totalViewsPercentage = 0;
 
@@ -278,7 +282,9 @@ function TopReferrersSection( props: PerformanceSectionProps ) {
  *
  * @param {PerformanceSectionProps} props The props needed to populate the section.
  */
-function ActionsSection( props: PerformanceSectionProps ) {
+function ActionsSection(
+	props: Readonly<PerformanceSectionProps>
+): JSX.Element {
 	const data = props.data;
 	const ariaOpensNewTab = <span className="screen-reader-text"> {
 		__( '(opens in new tab)', 'wp-parsely' ) }

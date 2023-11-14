@@ -22,7 +22,7 @@ class Remote_API_Cache implements Remote_API_Interface {
 	/**
 	 * The Remote API instance which we will cache.
 	 *
-	 * @var Remote_API_Base
+	 * @var Base_Endpoint_Remote
 	 */
 	private $remote_api;
 
@@ -36,10 +36,10 @@ class Remote_API_Cache implements Remote_API_Interface {
 	/**
 	 * Constructor.
 	 *
-	 * @param Remote_API_Base $remote_api The remote api object to cache.
-	 * @param Cache           $cache An object cache instance.
+	 * @param Base_Endpoint_Remote $remote_api The remote api object to cache.
+	 * @param Cache                $cache An object cache instance.
 	 */
-	public function __construct( Remote_API_Base $remote_api, Cache $cache ) {
+	public function __construct( Base_Endpoint_Remote $remote_api, Cache $cache ) {
 		$this->remote_api = $remote_api;
 		$this->cache      = $cache;
 	}
@@ -48,12 +48,12 @@ class Remote_API_Cache implements Remote_API_Interface {
 	 * Implements caching for the Remote API interface.
 	 *
 	 * @param array<string, mixed> $query The query arguments to send to the remote API.
-	 * @param bool                 $associative Always `false`, just present to make definition compatible with interface.
-	 *
-	 * @return array<string, mixed>|WP_Error|false The response from the remote API, or false if the
-	 *                                             response is empty.
+	 * @param bool                 $associative Always `false`, just present to make definition compatible
+	 *                             with interface.
+	 * @return array<string, mixed>|object|WP_Error The response from the remote API, or false if the
+	 *                                              response is empty.
 	 */
-	public function get_items( $query, $associative = false ) {
+	public function get_items( array $query, bool $associative = false ) {
 		$cache_key = 'parsely_api_' .
 			wp_hash( $this->remote_api->get_endpoint() ) . '_' .
 			wp_hash( (string) wp_json_encode( $query ) );

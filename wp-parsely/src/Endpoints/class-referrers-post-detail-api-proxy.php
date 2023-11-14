@@ -44,7 +44,6 @@ final class Referrers_Post_Detail_API_Proxy extends Base_API_Proxy {
 	 * @since 3.6.0
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 *
 	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	public function get_items( WP_REST_Request $request ) {
@@ -65,7 +64,6 @@ final class Referrers_Post_Detail_API_Proxy extends Base_API_Proxy {
 	 * @since 3.6.0
 	 *
 	 * @param array<stdClass> $response The response received by the proxy.
-	 *
 	 * @return array<stdClass> The generated data.
 	 */
 	protected function generate_data( $response ): array {

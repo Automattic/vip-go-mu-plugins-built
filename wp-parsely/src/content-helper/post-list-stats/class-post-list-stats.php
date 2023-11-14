@@ -13,7 +13,7 @@ namespace Parsely\Content_Helper;
 use DateTime;
 use Parsely\Content_Helper\Content_Helper_Feature;
 use Parsely\Parsely;
-use Parsely\RemoteAPI\Remote_API_Base;
+use Parsely\RemoteAPI\Base_Endpoint_Remote;
 use Parsely\RemoteAPI\Analytics_Posts_API;
 use WP_Screen;
 
@@ -32,7 +32,7 @@ use const Parsely\Utils\DATE_UTC_FORMAT;
  *
  * @phpstan-import-type Analytics_Post_API_Params from Analytics_Posts_API
  * @phpstan-import-type Analytics_Post from Analytics_Posts_API
- * @phpstan-import-type Remote_API_Error from Remote_API_Base
+ * @phpstan-import-type Remote_API_Error from Base_Endpoint_Remote
  *
  * @phpstan-type Parsely_Post_Stats array{
  *   page_views: string,
@@ -173,7 +173,6 @@ class Post_List_Stats extends Content_Helper_Feature {
 	 * @since 3.7.0
 	 *
 	 * @param array<string, string> $columns Columns array which contain keys and labels.
-	 *
 	 * @return array<string, string>
 	 */
 	public function add_parsely_stats_column_on_list_view( array $columns ): array {
@@ -273,7 +272,6 @@ class Post_List_Stats extends Content_Helper_Feature {
 	 * @since 3.7.0
 	 *
 	 * @param Analytics_Posts_API $analytics_api Instance of Analytics_Posts_API.
-	 *
 	 * @return Parsely_Posts_Stats_Response|null
 	 */
 	public function get_parsely_stats_response( $analytics_api ) {
@@ -404,7 +402,6 @@ class Post_List_Stats extends Content_Helper_Feature {
 	 * @since 3.7.0
 	 *
 	 * @param Analytics_Post $analytics_post Post analytics obj returned from Parse.ly API.
-	 *
 	 * @return string
 	 */
 	private function get_unique_stats_key_from_analytics( $analytics_post ): string {

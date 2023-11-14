@@ -30,7 +30,6 @@ final class Analytics_Post_Detail_API_Proxy extends Base_API_Proxy {
 	 * Cached "proxy" to the Parse.ly `/analytics/post/detail` API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 *
 	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	public function get_items( WP_REST_Request $request ) {
@@ -41,7 +40,6 @@ final class Analytics_Post_Detail_API_Proxy extends Base_API_Proxy {
 	 * Generates the final data from the passed response.
 	 *
 	 * @param array<stdClass> $response The response received by the proxy.
-	 *
 	 * @return array<stdClass> The generated data.
 	 */
 	protected function generate_data( $response ): array {

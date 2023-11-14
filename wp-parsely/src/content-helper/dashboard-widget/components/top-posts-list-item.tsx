@@ -9,14 +9,12 @@ import { __ } from '@wordpress/i18n';
 import { EditIcon } from '../../common/icons/edit-icon';
 import { OpenLinkIcon } from '../../common/icons/open-link-icon';
 import { getSmartShortDate } from '../../common/utils/date';
-import { formatToImpreciseNumber } from '../../common/utils/number';
-import { getPostEditUrl } from '../../common/utils/post';
-import { TopPostData } from '../model';
-
-interface TopPostListItemProps {
-	metric: string;
-	post: TopPostData;
-}
+import {
+	PostData,
+	PostListItemMetric,
+	PostListItemProps,
+	getPostEditUrl,
+} from '../../common/utils/post';
 
 /**
  * Defines the props structure for components receiving only post data.
@@ -24,15 +22,17 @@ interface TopPostListItemProps {
  * @since 3.10.0
  */
 interface TopPostDataProps {
-	post: TopPostData;
+	post: PostData;
 }
 
 /**
  * Returns a single list item depicting a post.
  *
- * @param {TopPostListItemProps} props The component's props.
+ * @param {PostListItemProps} props The component's props.
  */
-export function TopPostListItem( { metric, post }: TopPostListItemProps ): JSX.Element {
+export function TopPostListItem(
+	{ metric, post }: Readonly<PostListItemProps>
+): JSX.Element {
 	return (
 		<li className="parsely-top-post" key={ post.id }>
 			<div className="parsely-top-post-content">
@@ -87,9 +87,9 @@ export function TopPostListItem( { metric, post }: TopPostListItemProps ): JSX.E
  * Returns the Post thumbnail with its div container. Returns an empty div if
  * the post has no thumbnail.
  *
- * @param {TopPostData} post The Post from which to get the data.
+ * @param {PostData} post The Post from which to get the data.
  */
-function ListItemThumbnail( { post }: TopPostDataProps ): JSX.Element {
+function ListItemThumbnail( { post }: Readonly<TopPostDataProps> ): JSX.Element {
 	if ( post.thumbnailUrl ) {
 		return (
 			<div className="parsely-top-post-thumbnail">
@@ -109,53 +109,12 @@ function ListItemThumbnail( { post }: TopPostDataProps ): JSX.Element {
 }
 
 /**
- * Returns a span element with the desired metric data for the Post.
- *
- * Currently, only the `views` and `avg_engaged` metrics are supported.
- *
- * @since 3.10.0
- *
- * @param {TopPostListItemProps} props The component's props.
- *
- * @return {JSX.Element} The resulting JSX Element.
- */
-function PostListItemMetric( { metric, post }: TopPostListItemProps ): JSX.Element {
-	if ( 'views' === metric ) {
-		return (
-			<span className="parsely-top-post-metric-data">
-				<span className="screen-reader-text">
-					{ __( 'Number of Views', 'wp-parsely' ) }
-				</span>
-				{ formatToImpreciseNumber( post.views.toString() ) }
-			</span>
-		);
-	}
-
-	if ( 'avg_engaged' === metric ) {
-		return (
-			<span className="parsely-top-post-metric-data">
-				<span className="screen-reader-text">
-					{ __( 'Average Time', 'wp-parsely' ) }
-				</span>
-				{ post.avgEngaged }
-			</span>
-		);
-	}
-
-	return (
-		<span className="parsely-top-post-metric-data">
-			{ __( '-', 'wp-parsely' ) }
-		</span>
-	);
-}
-
-/**
  * Returns the Post title as a link (for editing the Post) or a div if the Post
  * has no valid ID.
  *
  * @param {TopPostDataProps} props The component's props.
  */
-function PostListItemTitle( { post }: TopPostDataProps ): JSX.Element {
+function PostListItemTitle( { post }: Readonly<TopPostDataProps> ): JSX.Element {
 	return (
 		<a className="parsely-top-post-title" href={ post.dashUrl } target="_blank" rel="noreferrer">
 			<span className="screen-reader-text">

@@ -1,4 +1,4 @@
-// eslint-disable-next-line
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const baseConfig = require( '@wordpress/scripts/config/jest-e2e.config' );
 
 module.exports = {

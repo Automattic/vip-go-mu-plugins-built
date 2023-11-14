@@ -14,7 +14,6 @@ import { Recommendation } from '../models/Recommendation';
 import { useRecommendationsStore } from '../recommendations-store';
 
 interface ParselyRecommendationsFetcherProps {
-	boost: string;
 	limit: number;
 	sort: string;
 	isEditMode: boolean;
@@ -27,16 +26,15 @@ interface ApiResponse {
 
 const updateDelay = 300; // The Block's update delay in the Block Editor when settings/props change.
 
-export const ParselyRecommendationsFetcher = ( { boost, limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element | null => {
+export const ParselyRecommendationsFetcher = ( { limit, sort, isEditMode } : ParselyRecommendationsFetcherProps ): JSX.Element | null => {
 	const {	dispatch } = useRecommendationsStore();
 
 	const query = useMemo( () => ( {
-		boost,
 		limit,
 		sort,
 		url: window.location.href,
 		itm_source: 'wp-parsely-recommendations-block',
-	} ), [ boost, limit, sort ] );
+	} ), [ limit, sort ] );
 
 	const fetchRecommendations = useCallback( async () => {
 		let response;

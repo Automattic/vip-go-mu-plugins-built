@@ -85,9 +85,9 @@ function showParselyStats( parselyStatsMap: ParselyStatsMap ): void {
 }
 
 /**
- * Shows Parse.ly Stats error as WP Admin Error Notice.
+ * Shows Parse.ly Stats error as a wp-admin error notice.
  *
- * @param {ParselyAPIErrorInfo} parselyStatsError Object which contians info about error.
+ * @param {ParselyAPIErrorInfo} parselyStatsError Object containing info about the error.
  */
 function showParselyStatsError( parselyStatsError: ParselyAPIErrorInfo ): void {
 	const headerEndElement = document.querySelector( '.wp-header-end' ); // WP has this element before admin notices.
@@ -106,7 +106,7 @@ function getAllPostStatsElements(): NodeListOf<Element> {
 }
 
 /**
- * Gets HTML for showing error message as WP Admin Error Notice.
+ * Gets HTML for showing error message as a wp-admin error notice.
  *
  * @param {string} htmlMessage Message to show inside notice.
  */

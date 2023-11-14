@@ -129,7 +129,6 @@ class Amp extends Integration {
 	 * @since 2.6.0
 	 *
 	 * @param array<string, mixed>|null $analytics The analytics registry.
-	 *
 	 * @return Amp_Analytics|array<string, mixed> The analytics registry.
 	 */
 	public function register_parsely_for_amp_native_analytics( ?array $analytics ): array {
@@ -181,8 +180,9 @@ class Amp extends Integration {
 	 * consists of the site's Site ID if that's defined, or an empty array
 	 * otherwise.
 	 *
-	 * @link https://docs.parse.ly/google-amp/
 	 * @since 3.2.0
+	 *
+	 * @link https://docs.parse.ly/google-amp/
 	 *
 	 * @return array<string, array<string, string>>
 	 */

@@ -63,7 +63,6 @@ final class Site_Health {
 	 * @since 3.4.0
 	 *
 	 * @param array<string, mixed> $tests An associative array of direct and asynchronous tests.
-	 *
 	 * @return array<string, mixed>
 	 */
 	public function check_site_id( array $tests ): array {
@@ -111,7 +110,6 @@ final class Site_Health {
 	 * @since 3.4.0
 	 *
 	 * @param Site_Health_Info $args The debug information to be added to the core information page.
-	 *
 	 * @return Site_Health_Info
 	 */
 	public function options_debug_info( $args ) {

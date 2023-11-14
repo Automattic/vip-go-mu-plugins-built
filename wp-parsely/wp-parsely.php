@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.10.0
+ * Version:           3.11.1
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -60,7 +60,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION = '3.10.0';
+const PARSELY_VERSION = '3.11.1';
 const PARSELY_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-parsely.php';
@@ -146,22 +146,30 @@ function parsely_wp_admin_early_register(): void {
 	$network_admin_sites_list->run();
 }
 
+// Endpoint base classes.
+require_once __DIR__ . '/src/Endpoints/class-base-endpoint.php';
+require_once __DIR__ . '/src/Endpoints/class-base-api-proxy.php';
+
+// Endpoint classes.
+require_once __DIR__ . '/src/Endpoints/class-analytics-post-detail-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/class-analytics-posts-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/class-referrers-post-detail-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/class-related-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/class-rest-metadata.php';
+
+// RemoteAPI base classes.
 require_once __DIR__ . '/src/RemoteAPI/interface-cache.php';
 require_once __DIR__ . '/src/RemoteAPI/interface-remote-api.php';
-require_once __DIR__ . '/src/RemoteAPI/class-remote-api-base.php';
 require_once __DIR__ . '/src/RemoteAPI/class-remote-api-cache.php';
-require_once __DIR__ . '/src/RemoteAPI/class-related-api.php';
-require_once __DIR__ . '/src/RemoteAPI/class-analytics-posts-api.php';
-require_once __DIR__ . '/src/RemoteAPI/class-analytics-post-detail-api.php';
-require_once __DIR__ . '/src/RemoteAPI/class-referrers-post-detail-api.php';
 require_once __DIR__ . '/src/RemoteAPI/class-wordpress-cache.php';
+require_once __DIR__ . '/src/RemoteAPI/class-base-endpoint-remote.php';
 
-require_once __DIR__ . '/src/Endpoints/class-base-api-proxy.php';
-require_once __DIR__ . '/src/Endpoints/class-related-api-proxy.php';
-require_once __DIR__ . '/src/Endpoints/class-analytics-posts-api-proxy.php';
-require_once __DIR__ . '/src/Endpoints/class-analytics-post-detail-api-proxy.php';
-require_once __DIR__ . '/src/Endpoints/class-referrers-post-detail-api-proxy.php';
-require_once __DIR__ . '/src/Endpoints/class-rest-metadata.php';
+// RemoteAPI classes.
+require_once __DIR__ . '/src/RemoteAPI/class-analytics-post-detail-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-analytics-posts-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-referrers-post-detail-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-related-api.php';
+require_once __DIR__ . '/src/RemoteAPI/class-validate-api.php';
 
 add_action( 'rest_api_init', __NAMESPACE__ . '\\parsely_rest_api_init' );
 /**
@@ -282,7 +290,7 @@ function parsely_run_rest_api_endpoint(
 	/**
 	 * Internal Variable.
 	 *
-	 * @var RemoteAPI\Remote_API_Base
+	 * @var RemoteAPI\Base_Endpoint_Remote
 	 */
 	$remote_api       = new $api_class_name( $GLOBALS['parsely'] );
 	$remote_api_cache = new Remote_API_Cache( $remote_api, $wp_cache );

@@ -9,10 +9,6 @@
 		"html": false
 	},
 	"attributes": {
-		"boost": {
-			"type":"string",
-			"default": "views"
-		},
 		"imagestyle": {
 			"type": "string",
 			"default": "original"

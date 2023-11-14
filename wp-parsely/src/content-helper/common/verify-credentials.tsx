@@ -31,7 +31,7 @@ export const VerifyCredentials = (
 	errorMessageProps: ContentHelperErrorMessageProps|null = null
 ): JSX.Element => {
 	if ( window.wpParselyEmptyCredentialsMessage ) {
-		return EmptyCredentialsMessage( errorMessageProps );
+		return <EmptyCredentialsMessage { ...errorMessageProps } />;
 	}
 
 	return <>{ children }</>;

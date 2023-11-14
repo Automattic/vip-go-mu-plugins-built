@@ -63,7 +63,6 @@ abstract class Base_API_Proxy {
 	 * Cached "proxy" to the Parse.ly API endpoint.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 *
 	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	abstract public function get_items( WP_REST_Request $request );
@@ -133,7 +132,6 @@ abstract class Base_API_Proxy {
 	 *                                            required.
 	 * @param string          $param_item         The param element to use to
 	 *                                            get the items.
-	 *
 	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	protected function get_data( WP_REST_Request $request, bool $require_api_secret = true, string $param_item = null ) {
@@ -183,7 +181,6 @@ abstract class Base_API_Proxy {
 	 * @since 3.10.0
 	 *
 	 * @param stdClass $item The object to extract the data from.
-	 *
 	 * @return array<string, mixed> The extracted data.
 	 */
 	protected function extract_post_data( stdClass $item ): array {
@@ -246,7 +243,6 @@ abstract class Base_API_Proxy {
 	 * @since 3.10.0
 	 *
 	 * @param array<stdClass> $response The response received by the proxy.
-	 *
 	 * @return array<stdClass> The generated data.
 	 */
 	protected function generate_post_data( array $response ): array {

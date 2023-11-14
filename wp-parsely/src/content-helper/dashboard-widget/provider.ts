@@ -13,8 +13,8 @@ import {
 	ContentHelperErrorCode,
 } from '../common/content-helper-error';
 import { getApiPeriodParams } from '../common/utils/api';
-import { Metric, Period } from './components/top-posts';
-import { TopPostData } from './model';
+import { Metric, Period } from '../common/utils/constants';
+import { PostData } from '../common/utils/post';
 
 /**
  * The form of the response returned by the /stats/posts WordPress REST API
@@ -22,25 +22,26 @@ import { TopPostData } from './model';
  */
 interface TopPostsApiResponse {
 	error?: Error;
-	data?: TopPostData[];
+	data?: PostData[];
 }
 
-const TOP_POSTS_DEFAULT_LIMIT = 3;
+export const TOP_POSTS_DEFAULT_LIMIT = 5;
 
 export class DashboardWidgetProvider {
 	/**
 	 * Returns the site's top posts.
 	 *
-	 * @param {string} period The period to fetch data for.
-	 * @param {string} metric The metric to sort by.
+	 * @param {Period} period The period to fetch data for.
+	 * @param {Metric} metric The metric to sort by.
+	 * @param {number} page   The page to fetch, defaults to the first page.
 	 *
-	 * @return {Promise<Array<TopPostData>>} Object containing message and posts.
+	 * @return {Promise<Array<PostData>>} Object containing message and posts.
 	 */
-	public async getTopPosts( period: Period, metric: Metric ): Promise<TopPostData[]> {
-		let data: TopPostData[] = [];
+	public async getTopPosts( period: Period, metric: Metric, page: number = 1 ): Promise<PostData[]> {
+		let data: PostData[] = [];
 
 		try {
-			data = await this.fetchTopPostsFromWpEndpoint( period, metric );
+			data = await this.fetchTopPostsFromWpEndpoint( period, metric, page );
 		} catch ( contentHelperError ) {
 			return Promise.reject( contentHelperError );
 		}
@@ -59,20 +60,22 @@ export class DashboardWidgetProvider {
 	/**
 	 * Fetches the site's top posts data from the WordPress REST API.
 	 *
-	 * @param {string} period The period to fetch data for.
-	 * @param {string} metric The metric to sort by.
+	 * @param {Period} period The period to fetch data for.
+	 * @param {Metric} metric The metric to sort by.
+	 * @param {number} page   The page to fetch.
 	 *
-	 * @return {Promise<Array<TopPostData>>} Array of fetched posts.
+	 * @return {Promise<Array<PostData>>} Array of fetched posts.
 	 */
-	private async fetchTopPostsFromWpEndpoint( period: Period, metric: Metric ): Promise<TopPostData[]> {
+	private async fetchTopPostsFromWpEndpoint( period: Period, metric: Metric, page: number ): Promise<PostData[]> {
 		let response;
 
 		try {
 			response = await apiFetch( {
 				path: addQueryArgs( '/wp-parsely/v1/stats/posts/', {
 					limit: TOP_POSTS_DEFAULT_LIMIT,
-					...getApiPeriodParams( parseInt( period ) ),
+					...getApiPeriodParams( period ),
 					sort: metric,
+					page,
 					itm_source: 'wp-parsely-content-helper',
 				} ),
 			} ) as TopPostsApiResponse;

@@ -29,7 +29,7 @@ final class Plugins_Actions {
 	}
 
 	/**
-	 * Adds a 'Settings' action link to the Plugins screen in WP admin.
+	 * Adds a 'Settings' action link to the Plugins screen in wp-admin.
 	 *
 	 * @param array<string, mixed> $actions An array of plugin action links. By default, this can include 'activate',
 	 *                                      'deactivate', and 'delete'. With Multisite active this can also include
