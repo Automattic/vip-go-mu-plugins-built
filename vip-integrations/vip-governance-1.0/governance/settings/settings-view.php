@@ -10,9 +10,9 @@ namespace WPCOMVIP\Governance;
 defined( 'ABSPATH' ) || die();
 
 $is_governance_error        = false !== $governance_error;
-$governance_rules_formatted = join("\n", array_map(function ( $line ) {
+$governance_rules_formatted = $governance_rules_json ? join("\n", array_map(function ( $line ) {
 	return sprintf( '<code>%s</code>', esc_html( $line ) );
-}, explode( "\n", trim( $governance_rules_json ) )));
+}, explode( "\n", trim( $governance_rules_json ) ))) : false;
 
 ?>
 
@@ -42,20 +42,22 @@ $governance_rules_formatted = join("\n", array_map(function ( $line ) {
 			<?php } ?>
 		</div>
 
-		<div class="governance-rules-json">
-			<?php if ( $is_governance_error ) { ?>
-			<p><?php esc_html_e( 'From governance rules:' ); ?></p>
-			<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
-			<pre><?php echo $governance_rules_formatted; ?></pre>
-			<?php } else { ?>
-			<details>
-				<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
-
+		<?php if ( $governance_rules_json ) { ?>
+			<div class="governance-rules-json">
+				<?php if ( $is_governance_error ) { ?>
+				<p><?php esc_html_e( 'From governance rules:' ); ?></p>
 				<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
 				<pre><?php echo $governance_rules_formatted; ?></pre>
-			</details>
-			<?php } ?>
-		</div>
+				<?php } else { ?>
+				<details>
+					<summary><?php esc_html_e( 'Click to expand governance rules' ); ?></summary>
+
+					<?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Lines are individually escaped ?>
+					<pre><?php echo $governance_rules_formatted; ?></pre>
+				</details>
+				<?php } ?>
+			</div>
+		<?php } ?>
 	</div>
 
 	<?php if ( ! $is_governance_error ) { ?>

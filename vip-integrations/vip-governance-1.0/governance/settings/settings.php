@@ -111,7 +111,7 @@ class Settings {
 		$governance_error      = false;
 		if ( is_wp_error( $governance_rules_json ) ) {
 			$governance_error      = $governance_rules_json->get_error_message();
-			$governance_rules_json = '';
+			$governance_rules_json = false;
 		} else {
 			$governance_rules = GovernanceUtilities::get_parsed_governance_rules();
 	

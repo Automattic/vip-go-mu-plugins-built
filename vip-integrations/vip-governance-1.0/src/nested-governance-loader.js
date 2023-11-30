@@ -1,5 +1,3 @@
-import { get } from 'lodash';
-
 /**
  * Find the list of nestedPaths that can be found in the block settings, so that
  * it's faster to find out if a deeper nested setting exists or not.
@@ -76,7 +74,7 @@ export function getNestedSetting(
 	const blockSettings = settings[ currentBlockName ];
 
 	if ( remainingBlockNames.length === 0 ) {
-		const settingValue = get( blockSettings, normalizedPath );
+		const settingValue = deepGet( blockSettings, normalizedPath );
 
 		if ( settingValue !== undefined && depth >= result.depth ) {
 			result.depth = depth;
@@ -97,6 +95,39 @@ export function getNestedSetting(
 
 	// Continue down the array of blocks
 	return getNestedSetting( remainingBlockNames, normalizedPath, settings, result, depth );
+}
+
+/**
+ * Port of lodash's get function from https://gist.github.com/andrewchilds/30a7fb18981d413260c7a36428ed13da?permalink_comment_id=4433741#gistcomment-4433741
+ * @param {Object} value The value to query.
+ * @param {String} query The query to run.
+ * @param {Object} defaultVal The default value to return if the query doesn't exist.
+ * @returns
+ */
+function deepGet( value, query, defaultVal = undefined ) {
+	const splitQuery = Array.isArray( query )
+		? query
+		: query
+				.replace( /(\[(\d)\])/g, '.$2' )
+				.replace( /^\./, '' )
+				.split( '.' );
+
+	if ( ! splitQuery.length || splitQuery[ 0 ] === undefined ) return value;
+
+	const key = splitQuery[ 0 ];
+
+	if (
+		typeof value !== 'object' ||
+		value === null ||
+		! ( key in value ) ||
+		// eslint-disable-next-line security/detect-object-injection
+		value[ key ] === undefined
+	) {
+		return defaultVal;
+	}
+
+	// eslint-disable-next-line security/detect-object-injection
+	return deepGet( value[ key ], splitQuery.slice( 1 ), defaultVal );
 }
 
 /**
