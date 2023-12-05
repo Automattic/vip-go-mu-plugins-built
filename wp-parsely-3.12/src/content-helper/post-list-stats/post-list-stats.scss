@@ -1,0 +1,21 @@
+.column-parsely-stats {
+	width: 200px;
+
+	@media only screen and (max-width: 991px) {
+		width: 150px;
+	}
+
+	.parsely-post-stats {
+		color: #959da5;
+		min-height: 54px;
+		line-height: 18px;
+	}
+
+	.parsely-post-stats-placeholder {
+		letter-spacing: 2px;
+	}
+
+	.parsely-post-page-views {
+		color: #000;
+	}
+}

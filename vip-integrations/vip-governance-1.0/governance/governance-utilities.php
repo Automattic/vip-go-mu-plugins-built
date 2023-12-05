@@ -63,16 +63,33 @@ class GovernanceUtilities {
 		 * @param string $governance_file_path Path to the governance file.
 		 * @param array $filter_options Options that can be used as a filter for determining the right file.
 		 */
-		$governance_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
+		$filter_file_path = apply_filters( 'vip_governance__governance_file_path', $governance_file_path, $filter_options );
 		
-		// Make sure the path is normalized. Note that file_exists() is still.
-		$governance_file_path = realpath( $governance_file_path );
+		// Make sure the path is normalized. Note that file_exists() is still needed at times.
+		$filter_file_path = realpath( $filter_file_path );
 
-		// Make sure the file exists and is in the wp-content/ directory.
-		if ( ! file_exists( $governance_file_path ) ) {
+		// if the value is false, throw a file not found error right away.
+		if ( false === $filter_file_path ) {
 			return new WP_Error( 'governance-file-not-found', __( 'Governance rules could not be found.', 'vip-governance' ) );
-		} elseif ( substr( $governance_file_path, 0, strlen( WP_CONTENT_DIR ) ) !== WP_CONTENT_DIR ) {
-			return new WP_Error( 'governance-file-not-in-wp-content', __( 'Governance rules must be stored within the wp-content/ directory or a subdirectory.', 'vip-governance' ) );
+		}
+
+		// Make sure the file is under wp-content or private directory.
+		if ( $filter_file_path && $filter_file_path !== $governance_file_path ) {
+			$is_in_wp_content = substr( $filter_file_path, 0, strlen( WP_CONTENT_DIR ) ) === WP_CONTENT_DIR;
+			$is_in_private    = defined( 'WPCOM_VIP_PRIVATE_DIR' ) ? substr( $filter_file_path, 0, strlen( WPCOM_VIP_PRIVATE_DIR ) ) === WPCOM_VIP_PRIVATE_DIR : false;
+
+			if ( ! $is_in_wp_content && ! $is_in_private ) {
+				/* translators: %s: filter file name */
+				return new WP_Error( 'governance-file-not-in-wp-content-or-private', sprintf( __( 'Governance rules (%s) must be stored under the wp-content or private directory/subdirectory.', 'vip-governance' ), $filter_file_path ) );
+			}
+		}
+
+		$governance_file_path = $filter_file_path;
+
+		// Make sure the file exists.
+		if ( ! file_exists( $governance_file_path ) ) {
+			/* translators: %s: governance file name */
+			return new WP_Error( 'governance-file-not-found', sprintf( __( 'Governance rules (%s) could not be found.', 'vip-governance' ), $governance_file_path ) );
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.12.0](https://github.com/Parsely/wp-parsely/compare/3.11.1...3.12.0) - 2023-12-05
+
+### Added
+
+- Add Content Helper events to wp-admin telemetry ([#2020](https://github.com/Parsely/wp-parsely/pull/2020))
+- Content Helper Sidebar: Add Title Suggestions feature ([#1967](https://github.com/Parsely/wp-parsely/pull/1967))
+- Add wp-admin telemetry (optional and off by default) ([#1758](https://github.com/Parsely/wp-parsely/pull/1758))
+
+### Changed
+
+- Site Health Info: Remove unneeded options ([#2031](https://github.com/Parsely/wp-parsely/pull/2031))
+
+### Fixed
+
+- Initialize Parse.ly options with default values ([#2052](https://github.com/Parsely/wp-parsely/pull/2052))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.12.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.11.1](https://github.com/Parsely/wp-parsely/compare/3.11.0...3.11.1) - 2023-11-13
 
 ### Fixed
