@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
+class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_9
 {
     public static $files = array (
         '3773ef3f09c37da5478d578e32b03a4b' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-assets/actions.php',
@@ -15,6 +15,10 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
     );
 
     public static $prefixLengthsPsr4 = array (
+        'S' => 
+        array (
+            'ScssPhp\\ScssPhp\\' => 16,
+        ),
         'A' => 
         array (
             'Automattic\\Jetpack\\Autoloader\\' => 30,
@@ -22,6 +26,10 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
     );
 
     public static $prefixDirsPsr4 = array (
+        'ScssPhp\\ScssPhp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/scssphp/scssphp/src',
+        ),
         'Automattic\\Jetpack\\Autoloader\\' => 
         array (
             0 => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src',
@@ -169,14 +177,17 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
         'Automattic\\Jetpack\\Licensing' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-licensing/src/class-licensing.php',
         'Automattic\\Jetpack\\Licensing\\Endpoints' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-licensing/src/class-endpoints.php',
         'Automattic\\Jetpack\\Modules' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-status/src/class-modules.php',
+        'Automattic\\Jetpack\\My_Jetpack\\Activitylog' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-activitylog.php',
         'Automattic\\Jetpack\\My_Jetpack\\Hybrid_Product' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-hybrid-product.php',
         'Automattic\\Jetpack\\My_Jetpack\\Initializer' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-initializer.php',
+        'Automattic\\Jetpack\\My_Jetpack\\Jetpack_Manage' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-jetpack-manage.php',
         'Automattic\\Jetpack\\My_Jetpack\\Module_Product' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-module-product.php',
         'Automattic\\Jetpack\\My_Jetpack\\Product' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-product.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-products.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Anti_Spam' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-anti-spam.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Backup' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-backup.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Boost' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-boost.php',
+        'Automattic\\Jetpack\\My_Jetpack\\Products\\Creator' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-creator.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Crm' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-crm.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Extras' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-extras.php',
         'Automattic\\Jetpack\\My_Jetpack\\Products\\Jetpack_Ai' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/products/class-jetpack-ai.php',
@@ -195,8 +206,8 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
         'Automattic\\Jetpack\\My_Jetpack\\REST_Purchases' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-purchases.php',
         'Automattic\\Jetpack\\My_Jetpack\\REST_Zendesk_Chat' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-rest-zendesk-chat.php',
         'Automattic\\Jetpack\\My_Jetpack\\Wpcom_Products' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-my-jetpack/src/class-wpcom-products.php',
-        'Automattic\\Jetpack\\Partner' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-partner/src/class-partner.php',
-        'Automattic\\Jetpack\\Partner_Coupon' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-partner/src/class-partner-coupon.php',
+        'Automattic\\Jetpack\\Partner' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/src/class-partner.php',
+        'Automattic\\Jetpack\\Partner_Coupon' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/src/class-partner-coupon.php',
         'Automattic\\Jetpack\\Password_Checker' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-password-checker/src/class-password-checker.php',
         'Automattic\\Jetpack\\Paths' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-status/src/class-paths.php',
         'Automattic\\Jetpack\\Plans' => __DIR__ . '/..' . '/automattic/jetpack-plans/src/class-plans.php',
@@ -320,6 +331,7 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
         'Automattic\\Jetpack\\Terms_Of_Service' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/src/class-terms-of-service.php',
         'Automattic\\Jetpack\\Tracking' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/src/class-tracking.php',
         'Automattic\\Jetpack\\VideoPress\\AJAX' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-videopress/src/class-ajax.php',
+        'Automattic\\Jetpack\\VideoPress\\Access_Control' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-videopress/src/class-access-control.php',
         'Automattic\\Jetpack\\VideoPress\\Admin_UI' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-videopress/src/class-admin-ui.php',
         'Automattic\\Jetpack\\VideoPress\\Attachment_Handler' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-videopress/src/class-attachment-handler.php',
         'Automattic\\Jetpack\\VideoPress\\Block_Editor_Content' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-videopress/src/class-block-editor-content.php',
@@ -389,6 +401,56 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
         'Jetpack_Tracks_Client' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/legacy/class-jetpack-tracks-client.php',
         'Jetpack_Tracks_Event' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/legacy/class-jetpack-tracks-event.php',
         'Jetpack_XMLRPC_Server' => __DIR__ . '/../..' . '/jetpack_vendor/automattic/jetpack-connection/legacy/class-jetpack-xmlrpc-server.php',
+        'ScssPhp\\ScssPhp\\Base\\Range' => __DIR__ . '/..' . '/scssphp/scssphp/src/Base/Range.php',
+        'ScssPhp\\ScssPhp\\Block' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block.php',
+        'ScssPhp\\ScssPhp\\Block\\AtRootBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/AtRootBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\CallableBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/CallableBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ContentBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ContentBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\DirectiveBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/DirectiveBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\EachBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/EachBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ElseBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ElseBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ElseifBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ElseifBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\ForBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/ForBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\IfBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/IfBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\MediaBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/MediaBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\NestedPropertyBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/NestedPropertyBlock.php',
+        'ScssPhp\\ScssPhp\\Block\\WhileBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Block/WhileBlock.php',
+        'ScssPhp\\ScssPhp\\Cache' => __DIR__ . '/..' . '/scssphp/scssphp/src/Cache.php',
+        'ScssPhp\\ScssPhp\\Colors' => __DIR__ . '/..' . '/scssphp/scssphp/src/Colors.php',
+        'ScssPhp\\ScssPhp\\CompilationResult' => __DIR__ . '/..' . '/scssphp/scssphp/src/CompilationResult.php',
+        'ScssPhp\\ScssPhp\\Compiler' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler.php',
+        'ScssPhp\\ScssPhp\\Compiler\\CachedResult' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler/CachedResult.php',
+        'ScssPhp\\ScssPhp\\Compiler\\Environment' => __DIR__ . '/..' . '/scssphp/scssphp/src/Compiler/Environment.php',
+        'ScssPhp\\ScssPhp\\Exception\\CompilerException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/CompilerException.php',
+        'ScssPhp\\ScssPhp\\Exception\\ParserException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/ParserException.php',
+        'ScssPhp\\ScssPhp\\Exception\\RangeException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/RangeException.php',
+        'ScssPhp\\ScssPhp\\Exception\\SassException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/SassException.php',
+        'ScssPhp\\ScssPhp\\Exception\\SassScriptException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/SassScriptException.php',
+        'ScssPhp\\ScssPhp\\Exception\\ServerException' => __DIR__ . '/..' . '/scssphp/scssphp/src/Exception/ServerException.php',
+        'ScssPhp\\ScssPhp\\Formatter' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Compact' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Compact.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Compressed' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Compressed.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Crunched' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Crunched.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Debug' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Debug.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Expanded' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Expanded.php',
+        'ScssPhp\\ScssPhp\\Formatter\\Nested' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/Nested.php',
+        'ScssPhp\\ScssPhp\\Formatter\\OutputBlock' => __DIR__ . '/..' . '/scssphp/scssphp/src/Formatter/OutputBlock.php',
+        'ScssPhp\\ScssPhp\\Logger\\LoggerInterface' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/LoggerInterface.php',
+        'ScssPhp\\ScssPhp\\Logger\\QuietLogger' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/QuietLogger.php',
+        'ScssPhp\\ScssPhp\\Logger\\StreamLogger' => __DIR__ . '/..' . '/scssphp/scssphp/src/Logger/StreamLogger.php',
+        'ScssPhp\\ScssPhp\\Node' => __DIR__ . '/..' . '/scssphp/scssphp/src/Node.php',
+        'ScssPhp\\ScssPhp\\Node\\Number' => __DIR__ . '/..' . '/scssphp/scssphp/src/Node/Number.php',
+        'ScssPhp\\ScssPhp\\OutputStyle' => __DIR__ . '/..' . '/scssphp/scssphp/src/OutputStyle.php',
+        'ScssPhp\\ScssPhp\\Parser' => __DIR__ . '/..' . '/scssphp/scssphp/src/Parser.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\Base64' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/Base64.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\Base64VLQ' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/Base64VLQ.php',
+        'ScssPhp\\ScssPhp\\SourceMap\\SourceMapGenerator' => __DIR__ . '/..' . '/scssphp/scssphp/src/SourceMap/SourceMapGenerator.php',
+        'ScssPhp\\ScssPhp\\Type' => __DIR__ . '/..' . '/scssphp/scssphp/src/Type.php',
+        'ScssPhp\\ScssPhp\\Util' => __DIR__ . '/..' . '/scssphp/scssphp/src/Util.php',
+        'ScssPhp\\ScssPhp\\Util\\Path' => __DIR__ . '/..' . '/scssphp/scssphp/src/Util/Path.php',
+        'ScssPhp\\ScssPhp\\ValueConverter' => __DIR__ . '/..' . '/scssphp/scssphp/src/ValueConverter.php',
+        'ScssPhp\\ScssPhp\\Version' => __DIR__ . '/..' . '/scssphp/scssphp/src/Version.php',
+        'ScssPhp\\ScssPhp\\Warn' => __DIR__ . '/..' . '/scssphp/scssphp/src/Warn.php',
         'Twitter\\Text\\Autolink' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/Autolink.php',
         'Twitter\\Text\\Configuration' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/Configuration.php',
         'Twitter\\Text\\EmojiRegex' => __DIR__ . '/..' . '/nojimage/twitter-text-php/lib/Twitter/Text/EmojiRegex.php',
@@ -415,10 +477,10 @@ class ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_8::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_9::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_9::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_9::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitf11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_9::$classMap;
 
         }, null, ClassLoader::class);
     }

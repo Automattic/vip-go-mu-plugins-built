@@ -56,18 +56,20 @@
 		"ai-content-lens",
 		"blogroll",
 		"blogroll-item",
-		"nextdoor"
+		"nextdoor",
+		"ai-assistant-usage-panel"
 	],
 	"beta": [
-		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",
+		"like",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"create-with-voice",
 		"ai-assistant-backend-prompts",
-		"ai-assistant-usage-panel"
+		"sharing-button",
+		"sharing-buttons"
 	],
 	"experimental": [ "ai-image", "ai-paragraph" ],
 	"no-post-editor": [

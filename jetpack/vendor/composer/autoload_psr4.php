@@ -6,5 +6,6 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'ScssPhp\\ScssPhp\\' => array($vendorDir . '/scssphp/scssphp/src'),
     'Automattic\\Jetpack\\Autoloader\\' => array($vendorDir . '/automattic/jetpack-autoloader/src'),
 );

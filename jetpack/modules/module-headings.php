@@ -433,7 +433,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Photos and Videos',
 	    'feature' => 'Appearance',
-	    'additional_search_queries' => 'gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image',
+	    'additional_search_queries' => 'gallery, carousel, diaporama, slideshow, images, lightbox, exif, metadata, image, creator',
 	    'plan_classes' => '',
 	  ),
 	  'comment-likes' => 
@@ -487,7 +487,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'Yes',
 	    'module_tags' => 'Other',
 	    'feature' => 'Writing',
-	    'additional_search_queries' => 'contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free',
+	    'additional_search_queries' => 'contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free, creator',
 	    'plan_classes' => '',
 	  ),
 	  'copy-post' => 
@@ -559,7 +559,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'Public',
 	    'module_tags' => 'Writing',
 	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'google, seo, firehose, search, broadcast, broadcasting',
+	    'additional_search_queries' => 'google, seo, firehose, search, broadcast, broadcasting, creator',
 	    'plan_classes' => '',
 	  ),
 	  'google-analytics' => 
@@ -595,7 +595,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Fonts, Recommended',
 	    'feature' => 'Writing',
-	    'additional_search_queries' => 'fonts, webfonts, typography',
+	    'additional_search_queries' => 'fonts, webfonts, typography, creator',
 	    'plan_classes' => '',
 	  ),
 	  'gravatar-hovercards' => 
@@ -883,7 +883,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Recommended',
 	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin',
+	    'additional_search_queries' => 'related, jetpack related posts, related posts for wordpress, related posts, popular posts, popular, related content, related post, contextual, context, contextual related posts, related articles, similar posts, easy related posts, related page, simple related posts, free related posts, related thumbnails, similar, engagement, yet another related posts plugin, creator',
 	    'plan_classes' => '',
 	  ),
 	  'search' => 
@@ -1045,7 +1045,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Social',
 	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter',
+	    'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator',
 	    'plan_classes' => '',
 	  ),
 	  'tiled-gallery' => 
@@ -1207,7 +1207,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Traffic, Appearance',
 	    'feature' => '',
-	    'additional_search_queries' => 'advertising, ad codes, ads',
+	    'additional_search_queries' => 'advertising, ad codes, ads, creator',
 	    'plan_classes' => 'premium, business, security, complete',
 	  ),
 	);
