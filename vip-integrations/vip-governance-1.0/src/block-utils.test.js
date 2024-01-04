@@ -1,4 +1,5 @@
 import { applyFilters } from '@wordpress/hooks';
+
 import {
 	isBlockAllowedInHierarchy,
 	isBlockAllowedByBlockRegexes,

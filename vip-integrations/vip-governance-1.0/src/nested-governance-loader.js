@@ -140,7 +140,8 @@ function flattenSettingPaths( settings, prefix = '' ) {
 	const result = {};
 
 	Object.entries( settings ).forEach( ( [ key, value ] ) => {
-		const isRegularObject = typeof value === 'object' && !! value && ! Array.isArray( value );
+		const isRegularObject =
+			typeof value === 'object' && Boolean( value ) && ! Array.isArray( value );
 
 		if ( isRegularObject ) {
 			result[ `${ prefix }${ key }` ] = true;

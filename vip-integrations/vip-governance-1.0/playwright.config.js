@@ -1,15 +1,15 @@
 /**
  * External dependencies
  */
-import path from 'path';
 import { defineConfig, devices } from '@playwright/test';
+import path from 'path';
 
 const STORAGE_STATE_PATH =
 	process.env.STORAGE_STATE_PATH ||
 	path.join( process.cwd(), 'artifacts/storage-states/admin.json' );
 
 const config = defineConfig( {
-	forbidOnly: !! process.env.CI,
+	forbidOnly: Boolean( process.env.CI ),
 	workers: 1,
 	retries: process.env.CI ? 2 : 0,
 	timeout: parseInt( process.env.TIMEOUT || '', 10 ) || 100_000, // Defaults to 100 seconds.

@@ -1,12 +1,12 @@
-import { addFilter, applyFilters } from '@wordpress/hooks';
-import { select, dispatch } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { store as noticeStore } from '@wordpress/notices';
+import { select, dispatch } from '@wordpress/data';
+import { addFilter, applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { store as noticeStore } from '@wordpress/notices';
 
-import { getNestedSettingPaths, getNestedSetting } from './nested-governance-loader';
 import { setupBlockLocking } from './block-locking';
 import { isBlockAllowedInHierarchy } from './block-utils';
+import { getNestedSettingPaths, getNestedSetting } from './nested-governance-loader';
 
 function setup() {
 	if ( VIP_GOVERNANCE.error ) {

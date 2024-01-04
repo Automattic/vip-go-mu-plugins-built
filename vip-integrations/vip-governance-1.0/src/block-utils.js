@@ -1,4 +1,5 @@
 import { applyFilters } from '@wordpress/hooks';
+
 import { getNestedSetting } from './nested-governance-loader';
 
 // The list of default core blocks that should be allowed to be inserted, in order to make life easier.
