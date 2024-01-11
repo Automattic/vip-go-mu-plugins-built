@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -80,6 +81,10 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_current_usage_tier() {
+		if ( ! self::is_site_connected() ) {
+			return 0;
+		}
+
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data.
@@ -98,6 +103,10 @@ class Jetpack_Ai extends Product {
 	 * @return int
 	 */
 	public static function get_next_usage_tier() {
+		if ( ! self::is_site_connected() ) {
+			return 100;
+		}
+
 		$info = self::get_ai_assistant_feature();
 
 		// Bail early if it's not possible to fetch the feature data.
@@ -154,27 +163,25 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_features_by_usage_tier( $tier ) {
-		$features        = array(
-			1   => array(
+		$features = array(
+			1 => array(
 				__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
 				__( 'Generate text, tables, lists, and forms', 'jetpack-my-jetpack' ),
 				__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
 				__( 'Get feedback about your post', 'jetpack-my-jetpack' ),
 				__( 'Seamless WordPress editor integration', 'jetpack-my-jetpack' ),
 			),
-			100 => array(
-				__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
-				__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
-				__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
-				__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
-				__( 'Title & summary generation', 'jetpack-my-jetpack' ),
-				__( 'Priority support', 'jetpack-my-jetpack' ),
-				__( '100 requests per month', 'jetpack-my-jetpack' ),
-			),
 		);
+
 		$tiered_features = array(
+			__( 'Prompt based content generation', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Adaptive tone adjustment', 'jetpack-my-jetpack' ),
+			__( 'Superior spelling and grammar correction', 'jetpack-my-jetpack' ),
+			__( 'Title & summary generation', 'jetpack-my-jetpack' ),
+			__( 'Priority support', 'jetpack-my-jetpack' ),
 			/* translators: %d is the number of requests. */
-			sprintf( __( '%d requests per month', 'jetpack-my-jetpack' ), $tier ),
+			sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $tier ),
 		);
 
 		return isset( $features[ $tier ] ) ? $features[ $tier ] : $tiered_features;
@@ -198,6 +205,12 @@ class Jetpack_Ai extends Product {
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui_by_usage_tier( $tier ) {
+
+		// Bail early if the site is not connected.
+		if ( ! self::is_site_connected() ) {
+			return array();
+		}
+
 		$product = Wpcom_Products::get_product( static::get_wpcom_product_slug() );
 
 		if ( empty( $product ) ) {
@@ -365,6 +378,11 @@ class Jetpack_Ai extends Product {
 			return array();
 		}
 
+		// Bail early if the site is not connected.
+		if ( ! self::is_site_connected() ) {
+			return array();
+		}
+
 		// Check if class exists. If not, try to require it once.
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			$class_file_path = JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
@@ -378,5 +396,14 @@ class Jetpack_Ai extends Product {
 		}
 
 		return \Jetpack_AI_Helper::get_ai_assistance_feature();
+	}
+
+	/**
+	 * Checks whether the site is connected to WordPress.com.
+	 *
+	 * @return boolean
+	 */
+	private static function is_site_connected() {
+		return ( new Connection_Manager() )->is_connected();
 	}
 }
