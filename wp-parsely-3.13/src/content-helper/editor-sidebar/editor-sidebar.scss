@@ -1,0 +1,445 @@
+@import "../common/css/variables";
+@import "../common/css/functions";
+
+.wp-parsely-content-helper {
+
+	.parsely-spinner-wrapper {
+		display: flex;
+		justify-content: center;
+		margin: to_rem(40px) 0;
+
+		svg {
+			width: 22px;
+			height: 22px;
+		}
+	}
+
+	.content-helper-error-message {
+		margin-top: to_rem(15px) !important;
+	}
+
+	p.content-helper-error-message-hint {
+		color: var(--gray-700);
+	}
+}
+
+.wp-parsely-content-helper .parsely-top-posts-wrapper {
+
+	.parsely-top-posts {
+		list-style-type: none;
+		margin: to_rem(22px) 0 0;
+	}
+
+	p.parsely-top-posts-descr {
+		color: var(--gray-700);
+		margin-top: to_rem(15px);
+	}
+
+	.parsely-top-post {
+		border-top: 1px solid var(--gray-300);
+		margin-bottom: to_rem(5px);
+		padding: to_rem(10px) 0;
+	}
+
+	.parsely-top-post-title a {
+		text-decoration: none;
+		line-height: 16px;
+	}
+
+	.parsely-top-post-stats-link {
+		color: var(--black);
+		font-size: to_rem(14px);
+		margin-right: to_rem(7px);
+
+		&:hover {
+			color: var(--blue-550);
+		}
+	}
+
+	.parsely-top-post-metric-data {
+
+		svg,
+		span.dashicon {
+			position: relative;
+			top: 2px;
+			margin-right: to_rem(3px);
+			fill: var(--gray-600);
+		}
+
+		span.dashicon {
+			color: var(--gray-600);
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+		}
+	}
+
+	.parsely-top-post-view-link,
+	.parsely-top-post-edit-link {
+		display: inline-block;
+		width: 16px;
+		height: 16px;
+		position: relative;
+		margin-right: to_rem(3px);
+
+		svg {
+			position: absolute;
+			top: 2px;
+			fill: #8d98a1;
+		}
+
+		&:hover svg {
+			fill: var(--blue-550);
+		}
+	}
+
+	.parsely-top-post-info {
+		display: flex;
+		margin: to_rem(5px) 0 0;
+		justify-content: space-between;
+		align-items: center;
+
+		>span {
+			color: var(--gray-600);
+			margin-bottom: 0;
+			display: flex;
+
+			&:not(:first-child) {
+				margin-left: to_rem(5px);
+			}
+		}
+	}
+}
+
+.wp-parsely-content-helper .performance-details-panel {
+
+	// Generic styles for all sections.
+	div.section {
+		font-family: var(--base-font);
+		margin-top: 1.8rem;
+
+		table {
+			border-collapse: collapse;
+			width: 100%;
+
+			th {
+				font-weight: 400;
+				text-align: left;
+			}
+		}
+
+		// Generic styles for section titles.
+		div.section-title {
+			color: var(--base-text-2);
+			margin-bottom: 0.5rem;
+		}
+	}
+
+	// Data Period section.
+	div.section.period {
+		margin-top: 0.8rem;
+		color: var(--base-text-2);
+	}
+
+	// General Performance section (Views, Visitors, Time).
+	div.section.general-performance {
+
+		table {
+
+			// Metrics.
+			tbody tr {
+				font-family: var(--numeric-font);
+				font-size: var(--font-size--extra-large);
+				font-weight: 500;
+			}
+
+			// Titles.
+			tfoot tr {
+				color: var(--gray-700);
+				height: 1.4rem;
+				vertical-align: bottom;
+			}
+		}
+	}
+
+	// Referrer	Types section.
+	div.section.referrer-types {
+
+		// Multi-percentage bar.
+		div.multi-percentage-bar {
+			--radius: 2px;
+			display: flex;
+			height: 0.5rem;
+
+			.bar-fill {
+
+				// Border radiuses for first and last bar-fills.
+				&:first-child {
+					border-radius: var(--radius) 0 0 var(--radius);
+				}
+
+				&:last-child {
+					border-radius: 0 var(--radius) var(--radius) 0;
+				}
+
+				// Bar-fill colors by referrer type.
+				&.direct {
+					background-color: hsl(var(--ref-direct));
+				}
+
+				&.internal {
+					background-color: hsl(var(--ref-internal));
+				}
+
+				&.search {
+					background-color: hsl(var(--ref-search));
+				}
+
+				&.social {
+					background-color: hsl(var(--ref-social));
+				}
+
+				&.other {
+					background-color: hsl(var(--ref-other));
+				}
+			}
+		}
+
+		// Table showing referrer types and metrics.
+		table {
+			margin-top: 0.5rem;
+
+			// Metrics.
+			tbody tr {
+				font-family: var(--numeric-font);
+				font-size: var(--font-size--large);
+				height: 1.4rem;
+				vertical-align: bottom;
+			}
+		}
+	}
+
+	// Top Referrers section.
+	div.section.top-referrers {
+
+		table {
+
+			// Titles (Top Referrers, Page Views).
+			thead tr {
+				color: var(--base-text-2);
+				height: 1.6rem;
+				vertical-align: top;
+
+				th:last-child {
+					text-align: right;
+				}
+			}
+
+			// Table rows.
+			tbody {
+
+				tr {
+					border: 1px solid var(--border);
+					border-left: 0;
+					border-right: 0;
+					height: 2rem;
+
+					// Referrer name column.
+					th:first-child {
+						--width: 8rem;
+						// Use min and max width for text truncation to work.
+						max-width: var(--width);
+						min-width: var(--width);
+						overflow: hidden;
+						padding-right: 1rem;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+
+					// Percentage bar column.
+					td:nth-child(2) {
+						width: 100%;
+					}
+
+					// Views column.
+					td:last-child {
+						padding-left: 1rem;
+						text-align: right;
+					}
+				}
+
+				// Percentage bar.
+				div.percentage-bar {
+					// Bar background.
+					--radius: 4px;
+					background-color: var(--base-3);
+					border-radius: var(--radius);
+					display: flex;
+					height: 0.4rem;
+					margin: 0;
+					overflow: hidden;
+
+					// Bar fill.
+					&::after {
+						background-color: var(--data);
+						border-radius: var(--radius);
+						content: "";
+						height: 100%;
+						width: var(--bar-fill);
+					}
+				}
+			}
+		}
+
+		// Percentage text below table.
+		div:last-child {
+			color: var(--base-text-2);
+			margin-top: 0.6rem;
+		}
+	}
+
+	// Actions section (Visit Post, View in Parse.ly buttons).
+	div.section.actions {
+		display: inline-flex;
+		justify-content: space-between;
+		width: 100%;
+
+		a.components-button {
+			border-radius: 4px;
+			text-transform: uppercase;
+
+			// Visit Post.
+			&.is-secondary {
+				box-shadow: inset 0 0 0 1px var(--border);
+				color: var(--sidebar-black);
+			}
+
+			// View in Parse.ly.
+			&.is-primary {
+				background-color: var(--control);
+			}
+		}
+	}
+}
+
+// Title Suggestion Panel CSS.
+.wp-parsely-content-helper .parsely-write-titles-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	.parsely-write-titles-text {
+		margin-bottom: to_rem(10px);
+
+		strong {
+			text-transform: lowercase;
+		}
+	}
+
+	// Generate Titles button.
+	.parsely-write-titles-generate-button {
+		margin: to_rem(10px) 0;
+		justify-content: center;
+		display: flex;
+	}
+
+	.parsely-write-titles-settings {
+
+		.parsely-write-titles-settings-header {
+			margin: to_rem(10px) 0;
+			display: flex;
+			width: 100%;
+
+			.parsely-write-titles-settings-header-label {
+				margin-left: to_rem(5px);
+				flex-grow: 2;
+				text-align: left;
+
+				.components-base-control__field {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+
+					.components-base-control__label {
+						margin-bottom: 0;
+					}
+				}
+			}
+		}
+	}
+
+	// Accepted Title view.
+	.parsely-write-titles-accepted-title-container {
+
+		.parsely-write-titles-accepted-title {
+			font-weight: 600;
+			font-size: to_rem(16px);
+			line-height: to_rem(20px);
+			margin: 0 0 to_rem(15px) 0;
+			text-align: center;
+		}
+
+		// Accepted Title actions.
+		.parsely-write-titles-accepted-title-actions {
+			margin: to_rem(10px) 0;
+			justify-content: center;
+			display: flex;
+			gap: to_rem(10px);
+		}
+	}
+
+	// Container for the title suggestions.
+	.parsely-write-titles-title-suggestions-container {
+		margin: to_rem(10px) 0 0;
+
+		// Single title suggestion.
+		.parsely-write-titles-title-suggestion {
+			border-top: 1px solid var(--gray-300);
+			display: flex;
+			padding: 1rem 0;
+
+			.parsely-write-titles-suggested-title {
+				flex: 1;
+				font-weight: 600;
+				font-size: to_rem(14px);
+				padding: 0 to_rem(8px) 0 to_rem(5px);
+			}
+
+			.parsely-write-titles-suggested-title-actions {
+				display: flex;
+				flex-direction: column;
+				width: to_rem(25px);
+
+				.components-button-group .components-button {
+					margin-left: 0;
+				}
+
+				.is-pinned {
+					background-color: var(--gray-500);
+					color: #fff;
+					box-shadow: inset 0 0 0 1px var(--sidebar-black);
+				}
+			}
+
+			&.original-title {
+				background-color: var(--gray-200);
+				border: 0;
+				color: var(--gray-600);
+				margin-bottom: to_rem(15px);
+				padding: to_rem(5px);
+
+				.parsely-write-titles-suggested-title {
+					padding-bottom: to_rem(5px);
+					padding-top: to_rem(5px);
+				}
+
+				button {
+					margin-top: to_rem(2px);
+				}
+			}
+		}
+
+		.title-in-use {
+			color: var(--green-900);
+		}
+	}
+}

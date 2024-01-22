@@ -1,0 +1,52 @@
+/** SASS variables **/
+$html-font-size: 16px; // Used in functions.scss.
+
+/**
+ * This is a subset of the CSS variables defined in the Parse.ly dashboard. It
+ * is sourced from 1.44/src/styles/base.scss and defines some additional
+ * variables in the end of the file.
+ */
+.settings_page_parsely,
+.wp-parsely-content-helper,
+.wp-parsely-excerpt-generator,
+.wp-parsely-popover,
+#wp-parsely-dashboard-widget {
+
+	/** Layout section - base.scss. **/
+	--base-font: "source-sans-pro", arial, sans-serif;
+	--numeric-font: "ff-din-round-web", sans-serif;
+
+	/** Category colors section - base scss. **/
+	--parsely-green: hsl(107, 42%, 46%);
+	--gray-200: #f7f8f9;
+	--gray-300: #edeeef;
+	--gray-400: #d7dbdf;
+	--gray-500: #959da5;
+	--gray-600: #586069;
+	--gray-700: #444d56;
+	--gray-900: #24292e;
+	--blue-500: #44a8e5;
+	--blue-550: #2596db;
+	--green-500: #7bc01b;
+	--green-900: #3d6307;
+	// ref-* variables to be used as HSL colors.
+	--ref-direct: 205, 13%, 52%;
+	--ref-internal: 161, 91%, 41%;
+	--ref-social: 210, 72%, 41%;
+	--ref-search: 42, 100%, 50%;
+	--ref-other: 3, 76%, 58%;
+
+	/** Theme colors section - base.scss. **/
+	--base-text: var(--gray-900);
+	--base-text-2: var(--gray-600);
+	--base-3: var(--gray-400);
+	--border: var(--gray-400);
+	--data: var(--green-500);
+	--control: var(--blue-500);
+
+	/** Additional variables. **/
+	--font-size--large: 1rem;
+	--font-size--extra-large: 1.2rem;
+	--black: #000;
+	--sidebar-black: #1e1e1e;
+}

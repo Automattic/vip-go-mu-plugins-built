@@ -1,0 +1,18 @@
+@import "../../css/functions";
+@import "../../css/variables";
+
+.wp-parsely-beta-badge {
+	background-color: var(--parsely-green);
+	color: #fff;
+	font-size: 0.75rem;
+	font-weight: 700;
+	padding: 0.15em 0.65em;
+	border-radius: 0.34em;
+	display: inline-block;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 to_rem(1px) to_rem(3px);
+	user-select: none;
+	align-self: end;
+	margin: 0.125em 0.125em 0.125em auto;
+	text-transform: uppercase;
+	opacity: 0.8;
+}
