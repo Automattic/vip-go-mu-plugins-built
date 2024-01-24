@@ -1,23 +1,29 @@
 /**
  * WordPress dependencies
  */
+import {
+	Button,
+	ExternalLink,
+	Notice,
+	Spinner,
+	TextareaControl,
+} from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck, store as editorStore } from '@wordpress/editor';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { Button, ExternalLink, TextareaControl, Spinner, Notice } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
-import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import { LeafIcon } from '../../common/icons/leaf-icon';
-import { ExcerptGeneratorProvider } from '../provider';
-import { ContentHelperError } from '../../common/content-helper-error';
-import { BetaBadge } from '../../common/components/beta-badge';
 import { GutenbergFunction } from '../../../@types/gutenberg/types';
 import { Telemetry } from '../../../js/telemetry/telemetry';
+import { BetaBadge } from '../../common/components/beta-badge';
+import { ContentHelperError } from '../../common/content-helper-error';
+import { LeafIcon } from '../../common/icons/leaf-icon';
+import { ExcerptGeneratorProvider } from '../provider';
 
 /**
  * The PostExcerptGenerator component displays the excerpt textarea and the Parse.ly AI controls.
@@ -77,6 +83,8 @@ const PostExcerptGenerator = () => {
 	 */
 	const generateExcerpt = async () => {
 		setLoading( true );
+		setError( undefined );
+
 		try {
 			Telemetry.trackEvent( 'excerpt_generator_pressed' );
 			const requestedExcerpt = await excerptGeneratorProvider.generateExcerpt( postTitle, postContent );
