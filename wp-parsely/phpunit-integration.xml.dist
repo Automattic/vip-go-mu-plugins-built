@@ -15,6 +15,7 @@
 		<server name="SERVER_PORT" value="80"/>
 		<server name="HTTP_HOST" value="localhost"/>
 		<server name="REMOTE_ADDR" value="127.0.0.1"/>
+		<const name="INTEGRATION_TESTS_RUNNING" value="true"/>
 	</php>
 	<testsuites>
 		<testsuite name="integration">

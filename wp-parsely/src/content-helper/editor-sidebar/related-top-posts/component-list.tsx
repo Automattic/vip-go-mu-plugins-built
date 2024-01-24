@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Telemetry } from '../../../js/telemetry/telemetry';
 import { ContentHelperError } from '../../common/content-helper-error';
 import {
 	Metric,
@@ -23,7 +24,6 @@ import {
 } from './component-filter-selection-controls';
 import { RelatedTopPostListItem } from './component-list-item';
 import { RelatedTopPostsProvider } from './provider';
-import { Telemetry } from '../../../js/telemetry/telemetry';
 
 const FETCH_RETRIES = 1;
 
@@ -33,8 +33,10 @@ const FETCH_RETRIES = 1;
  * @since 3.11.0
  */
 interface RelatedTopPostListProps {
-	period: Period;
+	initialFilter: PostFilter;
 	metric: Metric;
+	onFilterChange: ( type: PostFilterType, value: string ) => void;
+	period: Period;
 	postData: SidebarPostData;
 }
 
@@ -43,16 +45,14 @@ interface RelatedTopPostListProps {
  *
  * @param {RelatedTopPostListProps} props The component's props.
  */
-export function RelatedTopPostList(
-	{ period, metric, postData } : Readonly<RelatedTopPostListProps>
-): JSX.Element {
+export function RelatedTopPostList( {
+	initialFilter, metric, onFilterChange, period, postData,
+} : Readonly<RelatedTopPostListProps> ): JSX.Element {
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
 	const [ message, setMessage ] = useState<string>();
 	const [ posts, setPosts ] = useState<PostData[]>( [] );
-	const [ filter, setFilter ] = useState<PostFilter>( {
-		type: PostFilterType.Unavailable, value: '',
-	} );
+	const [ filter, setFilter ] = useState<PostFilter>( initialFilter );
 
 	/**
 	 * Updates the filter type and sets its default value.
@@ -63,17 +63,24 @@ export function RelatedTopPostList(
 	 */
 	const updateFilterType = ( newFilterType: string ): void => {
 		if ( isInEnum( newFilterType, PostFilterType ) ) {
+			let value = '';
 			const type = newFilterType as PostFilterType;
+
 			if ( PostFilterType.Tag === type ) {
-				setFilter( { type, value: postData.tags[ 0 ] } );
+				value = postData.tags[ 0 ];
 			}
 			if ( PostFilterType.Section === type ) {
-				setFilter( { type, value: postData.categories[ 0 ] } );
+				value = postData.categories[ 0 ];
 			}
 			if ( PostFilterType.Author === type ) {
-				setFilter( { type, value: postData.authors[ 0 ] } );
+				value = postData.authors[ 0 ];
 			}
-			Telemetry.trackEvent( 'related_top_posts_filter_type_changed', { filter_type: type } );
+
+			if ( '' !== value ) {
+				onFilterChange( type, value );
+				setFilter( { type, value } );
+				Telemetry.trackEvent( 'related_top_posts_filter_type_changed', { filter_type: type } );
+			}
 		}
 	};
 
@@ -88,6 +95,7 @@ export function RelatedTopPostList(
 		newFilterValue: string | null | undefined
 	): void => {
 		if ( typeof newFilterValue === 'string' ) {
+			onFilterChange( filter.type, newFilterValue );
 			setFilter( { ...filter, value: newFilterValue } );
 		}
 	};
@@ -139,9 +147,16 @@ export function RelatedTopPostList(
 				} );
 		};
 
+		const filterTypeIsTag = PostFilterType.Tag === filter.type;
+		const filterTypeIsUnavailable = PostFilterType.Unavailable === filter.type;
+		const noTagsExist = 0 === postData.tags.length;
+		const tagIsUnavailable = filterTypeIsTag && ! postData.tags.includes( filter.value );
+
 		setLoading( true );
-		if ( PostFilterType.Unavailable === filter.type ) {
+		if ( filterTypeIsUnavailable || ( filterTypeIsTag && noTagsExist ) ) {
 			setFilter( getInitialFilterSettings() );
+		} else if ( tagIsUnavailable ) {
+			setFilter( { type: PostFilterType.Tag, value: postData.tags[ 0 ] } );
 		} else {
 			fetchPosts( FETCH_RETRIES );
 		}

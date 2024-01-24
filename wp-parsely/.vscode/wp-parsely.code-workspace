@@ -56,7 +56,7 @@
 		],
 		"[javascript][typescript][javascriptreact][typescriptreact]": {
 			"editor.codeActionsOnSave": {
-				"source.organizeImports": true,
+				"source.organizeImports": "explicit"
 			},
 			"editor.defaultFormatter": "dbaeumer.vscode-eslint",
 		},

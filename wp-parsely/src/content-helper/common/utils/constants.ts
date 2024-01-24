@@ -90,20 +90,32 @@ export function getPeriodDescription(
 	/* eslint-disable @wordpress/valid-sprintf */
 	switch ( timeUnit ) {
 		case 'm':
+			if ( 1 === timeValue ) {
+				description = __( 'Last Minute', 'wp-parsely' );
+				break;
+			}
 			description = sprintf( /* translators: 1: Number of minutes */
-				_n( 'Last Minute', 'Last %1$d Minutes', timeValue, 'wp-parsely' ),
+				_n( 'Last %1$d Minute', 'Last %1$d Minutes', timeValue, 'wp-parsely' ),
 				timeValue
 			);
 			break;
 		case 'h':
+			if ( 1 === timeValue ) {
+				description = __( 'Last Hour', 'wp-parsely' );
+				break;
+			}
 			description = sprintf( /* translators: 1: Number of hours */
-				_n( 'Last Hour', 'Last %1$d Hours', timeValue, 'wp-parsely' ),
+				_n( 'Last %1$d Hour', 'Last %1$d Hours', timeValue, 'wp-parsely' ),
 				timeValue
 			);
 			break;
 		case 'd':
+			if ( 1 === timeValue ) {
+				description = __( 'Last Day', 'wp-parsely' );
+				break;
+			}
 			description = sprintf( /* translators: 1: Number of days */
-				_n( 'Last Day', 'Last %1$d Days', timeValue, 'wp-parsely' ),
+				_n( 'Last %1$d Day', 'Last %1$d Days', timeValue, 'wp-parsely' ),
 				timeValue
 			);
 			break;

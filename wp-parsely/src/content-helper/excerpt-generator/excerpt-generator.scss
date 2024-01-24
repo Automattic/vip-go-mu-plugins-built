@@ -1,0 +1,55 @@
+@import "../common/css/variables";
+@import "../common/css/functions";
+
+.editor-post-excerpt__spinner {
+	position: absolute;
+	top: to_rem(20px);
+	left: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: rgba(255, 255, 255, 0.7); // semi-transparent white background.
+	z-index: 10;
+}
+
+.editor-post-excerpt__spinner.has-word-count {
+	bottom: to_rem(20px);
+}
+
+.wp-parsely-excerpt-generator {
+	margin-top: to_rem(15px);
+
+	.wp-parsely-excerpt-generator-header {
+		align-items: center;
+		display: flex;
+		justify-content: flex-start;
+		margin-bottom: to_rem(10px);
+
+		.wp-parsely-excerpt-generator-header-label {
+			font-size: to_rem(11px);
+			font-weight: 500;
+			line-height: 1.4;
+			text-transform: uppercase;
+			display: inline-block;
+			padding: 0;
+			margin-left: to_rem(5px);
+		}
+	}
+
+	.wp-parsely-excerpt-generator-controls {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: to_rem(15px);
+	}
+
+	.wp-parsely-excerpt-generator-error {
+		margin: 0;
+
+		p {
+			margin: 0;
+		}
+	}
+}

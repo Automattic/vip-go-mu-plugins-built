@@ -31,7 +31,7 @@ return static function ( RectorConfig $rector_config ): void {
 	// Define sets of rules.
 	$rector_config->sets(
 		array(
-			LevelSetList::UP_TO_PHP_71,
+			LevelSetList::UP_TO_PHP_72,
 		)
 	);
 	$rector_config->skip(

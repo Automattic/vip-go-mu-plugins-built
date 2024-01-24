@@ -87,7 +87,7 @@ export function PostListItemMetric(
 
 	return (
 		<span className="parsely-top-post-metric-data">
-			{ __( '-', 'wp-parsely' ) }
+			-
 		</span>
 	);
 }

@@ -1,0 +1,1 @@
+export { BetaBadge } from './component';

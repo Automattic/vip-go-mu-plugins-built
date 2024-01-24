@@ -62,6 +62,7 @@ final class Write_Title_API_Proxy extends Base_API_Proxy {
 	 * @return array<stdClass> The generated data.
 	 */
 	protected function generate_data( $response ): array {
+		// Unused function.
 		return $response;
 	}
 
@@ -105,19 +106,22 @@ final class Write_Title_API_Proxy extends Base_API_Proxy {
 			);
 		}
 
-		$limit = intval( $request->get_param( 'limit' ) ); // @phpstan-ignore-line.
+		$limit   = is_numeric( $request->get_param( 'limit' ) ) ? intval( $request->get_param( 'limit' ) ) : 3;
+		$tone    = is_string( $request->get_param( 'tone' ) ) ? $request->get_param( 'tone' ) : 'neutral';
+		$persona = is_string( $request->get_param( 'persona' ) ) ? $request->get_param( 'persona' ) : 'journalist';
+
 		if ( 0 === $limit ) {
 			$limit = 3;
 		}
 
-		$response = $this->write_title_api->get_titles( $post_content, $limit );
+		$response = $this->write_title_api->get_titles( $post_content, $limit, $persona, $tone );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
 		return (object) array(
-			'data' => $this->generate_data( $response ), // @phpstan-ignore-line.
+			'data' => $response,
 		);
 	}
 }

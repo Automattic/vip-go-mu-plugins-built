@@ -175,6 +175,8 @@ class Parsely {
 
 		$this->are_credentials_managed = $this->are_credentials_managed();
 		$this->set_managed_options();
+
+		$this->allow_parsely_remote_requests();
 	}
 
 	/**
@@ -811,5 +813,36 @@ class Parsely {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Allows remote requests to Parse.ly.
+	 *
+	 * This is needed for environments, such as wp-now, that block remote requests.
+	 *
+	 * @since 3.13.0
+	 * @access private
+	 */
+	private function allow_parsely_remote_requests(): void {
+		$allowed_urls = array(
+			self::DASHBOARD_BASE_URL,
+			self::PUBLIC_API_BASE_URL,
+			self::PUBLIC_SUGGESTIONS_API_BASE_URL,
+		);
+
+		add_filter(
+			'http_request_host_is_external',
+			function ( $external, $host, $url ) use ( $allowed_urls ) {
+				// Check if the URL matches any URLs on the allowed list.
+				foreach ( $allowed_urls as $allowed_url ) {
+					if ( \Parsely\Utils\str_starts_with( $url, $allowed_url ) ) {
+						return true;
+					}
+				}
+				return $external;
+			},
+			10,
+			3
+		);
 	}
 }

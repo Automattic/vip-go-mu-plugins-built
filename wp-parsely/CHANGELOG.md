@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.13.1](https://github.com/Parsely/wp-parsely/compare/3.13.0...3.13.1) - 2024-01-23
+
+### Fixed
+
+- PCH Excerpt Generator: Fix persistent notification ([#2147](https://github.com/Parsely/wp-parsely/pull/2147))
+- PCH: Fix blank Dashboard Widget on older WordPress versions ([#2142](https://github.com/Parsely/wp-parsely/pull/2142))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.13.1+label%3A%22Component%3A+Dependencies%22).
+
+## [3.13.0](https://github.com/Parsely/wp-parsely/compare/3.12.0...3.13.0) - 2024-01-22
+
+### Added
+
+- Content Helper Editor Sidebar: Remember settings ([#2106](https://github.com/Parsely/wp-parsely/pull/2106))
+- Content Helper Dashboard Widget: Remember settings ([#2091](https://github.com/Parsely/wp-parsely/pull/2091))
+- PCH Title Suggestions: Add tone and persona options ([#2086](https://github.com/Parsely/wp-parsely/pull/2086))
+- Content Helper: Add Excerpt Generator feature ([#2062](https://github.com/Parsely/wp-parsely/pull/2062))
+
+### Changed
+
+- Settings Page: Improve "Disable JavaScript" help text ([#2094](https://github.com/Parsely/wp-parsely/pull/2094))
+
+### Fixed
+
+- Fix singular translation issues & accessibility improvements  ([#2119](https://github.com/Parsely/wp-parsely/pull/2119))
+- Allow remote requests to Parse.ly in controlled environments ([#2111](https://github.com/Parsely/wp-parsely/pull/2111))
+- Fix untranslatable string ([#2108](https://github.com/Parsely/wp-parsely/pull/2108))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.13.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.12.0](https://github.com/Parsely/wp-parsely/compare/3.11.1...3.12.0) - 2023-12-05
 
 ### Added

@@ -9,9 +9,9 @@ import { check, closeSmall, pin, undo } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { Title, TitleStore, TitleType } from './store';
-import { GutenbergFunction } from './types';
+import { GutenbergFunction } from '../../../@types/gutenberg/types';
 import { Telemetry } from '../../../js/telemetry/telemetry';
+import { Title, TitleStore, TitleType } from './store';
 
 /**
  * Defines the props structure for TitleSuggestion.
@@ -33,7 +33,9 @@ interface TitleSuggestionProps {
  *
  * @return {JSX.Element} The title suggestion JSX Element.
  */
-export const TitleSuggestion = ( props: TitleSuggestionProps ): JSX.Element => {
+export const TitleSuggestion = (
+	props: Readonly<TitleSuggestionProps>
+): JSX.Element => {
 	const {
 		removeTitle,
 		setAcceptedTitle,

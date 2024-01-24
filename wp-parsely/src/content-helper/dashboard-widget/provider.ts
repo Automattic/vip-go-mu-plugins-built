@@ -13,8 +13,8 @@ import {
 	ContentHelperErrorCode,
 } from '../common/content-helper-error';
 import { getApiPeriodParams } from '../common/utils/api';
-import { Metric, Period } from '../common/utils/constants';
 import { PostData } from '../common/utils/post';
+import { TopPostsSettings } from './components/top-posts';
 
 /**
  * The form of the response returned by the /stats/posts WordPress REST API
@@ -31,17 +31,18 @@ export class DashboardWidgetProvider {
 	/**
 	 * Returns the site's top posts.
 	 *
-	 * @param {Period} period The period to fetch data for.
-	 * @param {Metric} metric The metric to sort by.
-	 * @param {number} page   The page to fetch, defaults to the first page.
+	 * @param {TopPostsSettings} settings The settings to use.
+	 * @param {number}           page     The page to fetch, defaults to the first page.
 	 *
 	 * @return {Promise<Array<PostData>>} Object containing message and posts.
 	 */
-	public async getTopPosts( period: Period, metric: Metric, page: number = 1 ): Promise<PostData[]> {
+	public async getTopPosts(
+		settings: TopPostsSettings, page: number = 1
+	): Promise<PostData[]> {
 		let data: PostData[] = [];
 
 		try {
-			data = await this.fetchTopPostsFromWpEndpoint( period, metric, page );
+			data = await this.fetchTopPostsFromWpEndpoint( settings, page );
 		} catch ( contentHelperError ) {
 			return Promise.reject( contentHelperError );
 		}
@@ -60,21 +61,22 @@ export class DashboardWidgetProvider {
 	/**
 	 * Fetches the site's top posts data from the WordPress REST API.
 	 *
-	 * @param {Period} period The period to fetch data for.
-	 * @param {Metric} metric The metric to sort by.
-	 * @param {number} page   The page to fetch.
+	 * @param {TopPostsSettings} settings The settings to use.
+	 * @param {number}           page     The page to fetch.
 	 *
 	 * @return {Promise<Array<PostData>>} Array of fetched posts.
 	 */
-	private async fetchTopPostsFromWpEndpoint( period: Period, metric: Metric, page: number ): Promise<PostData[]> {
+	private async fetchTopPostsFromWpEndpoint(
+		settings: TopPostsSettings, page: number
+	): Promise<PostData[]> {
 		let response;
 
 		try {
 			response = await apiFetch( {
 				path: addQueryArgs( '/wp-parsely/v1/stats/posts/', {
 					limit: TOP_POSTS_DEFAULT_LIMIT,
-					...getApiPeriodParams( period ),
-					sort: metric,
+					...getApiPeriodParams( settings.Period ),
+					sort: settings.Metric,
 					page,
 					itm_source: 'wp-parsely-content-helper',
 				} ),

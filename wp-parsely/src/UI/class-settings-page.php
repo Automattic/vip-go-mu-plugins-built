@@ -366,7 +366,7 @@ final class Settings_Page {
 					'true'  => __( 'Yes, disable JavaScript tracking. I want to use a separate system for tracking instead of the Parse.ly plugin.', 'wp-parsely' ),
 					'false' => __( 'No, do not disable JavaScript tracking. I want the Parse.ly plugin to load the tracker.', 'wp-parsely' ),
 				),
-				'help_text'     => __( '<span style="color:#d63638">WARNING:</span> We highly recommend choosing "No." Disabling the JavaScript tracker will also disable the "Personalize Results" section of the recommendation widget.', 'wp-parsely' ),
+				'help_text'     => __( '<span style="color:#d63638">WARNING:</span> Changing this setting to "Yes" will prevent the plugin from injecting the Parse.ly tracker. Only do so if you are setting the tracker elsewhere (e.g. hardcoded, GTM, another tag manager, etc.).', 'wp-parsely' ),
 				'filter'        => 'wp_parsely_load_js_tracker',
 			)
 		);

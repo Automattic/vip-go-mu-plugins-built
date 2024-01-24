@@ -128,27 +128,15 @@ abstract class Base_API_Proxy {
 	 * Cached "proxy" to the endpoint.
 	 *
 	 * @param WP_REST_Request $request            The request object.
-	 * @param bool            $require_api_secret Specifies if the API Secret is
-	 *                                            required.
-	 * @param string          $param_item         The param element to use to
-	 *                                            get the items.
+	 * @param bool            $require_api_secret Specifies if the API Secret is required.
+	 * @param string|null     $param_item         The param element to use to get the items.
 	 * @return stdClass|WP_Error stdClass containing the data or a WP_Error object on failure.
 	 */
 	protected function get_data( WP_REST_Request $request, bool $require_api_secret = true, string $param_item = null ) {
-		if ( false === $this->parsely->site_id_is_set() ) {
-			return new WP_Error(
-				'parsely_site_id_not_set',
-				__( 'A Parse.ly Site ID must be set in site options to use this endpoint', 'wp-parsely' ),
-				array( 'status' => 403 )
-			);
-		}
-
-		if ( true === $require_api_secret && false === $this->parsely->api_secret_is_set() ) {
-			return new WP_Error(
-				'parsely_api_secret_not_set',
-				__( 'A Parse.ly API Secret must be set in site options to use this endpoint', 'wp-parsely' ),
-				array( 'status' => 403 )
-			);
+		// Validate Site ID and secret.
+		$validation = $this->validate_apikey_and_secret( $require_api_secret );
+		if ( is_wp_error( $validation ) ) {
+			return $validation;
 		}
 
 		if ( null !== $param_item ) {
@@ -171,6 +159,35 @@ abstract class Base_API_Proxy {
 		return (object) array(
 			'data' => $this->generate_data( $response ), // @phpstan-ignore-line.
 		);
+	}
+
+	/**
+	 * Validates that the Site ID and secret are set.
+	 * If the API secret is not required, it will not be validated.
+	 *
+	 * @since 3.13.0
+	 *
+	 * @param bool $require_api_secret Specifies if the API Secret is required.
+	 * @return WP_Error|bool
+	 */
+	protected function validate_apikey_and_secret( bool $require_api_secret = true ) {
+		if ( false === $this->parsely->site_id_is_set() ) {
+			return new WP_Error(
+				'parsely_site_id_not_set',
+				__( 'A Parse.ly Site ID must be set in site options to use this endpoint', 'wp-parsely' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( $require_api_secret && false === $this->parsely->api_secret_is_set() ) {
+			return new WP_Error(
+				'parsely_api_secret_not_set',
+				__( 'A Parse.ly API Secret must be set in site options to use this endpoint', 'wp-parsely' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return true;
 	}
 
 	/**

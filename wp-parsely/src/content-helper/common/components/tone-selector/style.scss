@@ -1,0 +1,45 @@
+@import "../../css/functions";
+
+.parsely-tone-selector-dropdown {
+	width: 100%;
+	margin-bottom: to_rem(10px);
+
+	&.is-disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	.components-dropdown-menu__toggle {
+		display: flex;
+		gap: to_rem(10px);
+		width: 100%;
+
+		svg:first-of-type path {
+			transform: scale(1.4);
+			transform-origin: center;
+		}
+	}
+
+	.parsely-tone-selector-label {
+		flex-grow: 2;
+		text-align: left;
+
+		&::first-letter {
+			text-transform: uppercase;
+		}
+	}
+}
+
+.wp-parsely-popover {
+
+	button.components-button.components-menu-item__button.is-selected {
+		outline: 3px solid transparent;
+		box-shadow: 0 0 0 2px var(--parsely-green);
+
+		&:focus {
+			outline: 3px solid transparent;
+			box-shadow: 0 0 0 2px var(--parsely-green);
+		}
+	}
+}
+

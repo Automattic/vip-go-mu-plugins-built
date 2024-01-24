@@ -8,6 +8,8 @@ $html-font-size: 16px; // Used in functions.scss.
  */
 .settings_page_parsely,
 .wp-parsely-content-helper,
+.wp-parsely-excerpt-generator,
+.wp-parsely-popover,
 #wp-parsely-dashboard-widget {
 
 	/** Layout section - base.scss. **/
@@ -15,6 +17,7 @@ $html-font-size: 16px; // Used in functions.scss.
 	--numeric-font: "ff-din-round-web", sans-serif;
 
 	/** Category colors section - base scss. **/
+	--parsely-green: hsl(107, 42%, 46%);
 	--gray-200: #f7f8f9;
 	--gray-300: #edeeef;
 	--gray-400: #d7dbdf;

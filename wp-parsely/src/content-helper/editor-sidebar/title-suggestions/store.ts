@@ -3,7 +3,7 @@
  */
 import { createReduxStore, register } from '@wordpress/data';
 
-// Unique identifier for each title in the store
+// Unique identifier for each title in the store.
 let titleID = 0;
 
 export interface Title {

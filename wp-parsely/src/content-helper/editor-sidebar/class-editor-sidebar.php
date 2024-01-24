@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Parsely\Content_Helper;
 
+use Parsely\Endpoints\User_Meta\Editor_Sidebar_Settings_Endpoint;
 use Parsely\Parsely;
 use Parsely\Content_Helper\Content_Helper_Feature;
 
@@ -89,7 +90,7 @@ class Editor_Sidebar extends Content_Helper_Feature {
 			true
 		);
 
-		$this->inject_inline_scripts();
+		$this->inject_inline_scripts( Editor_Sidebar_Settings_Endpoint::get_route() );
 
 		wp_enqueue_style(
 			static::get_style_id(),

@@ -133,10 +133,15 @@ abstract class Base_Endpoint {
 	 *
 	 * @since 3.11.0 Moved from Base_Endpoint_Remote into Base_Endpoint.
 	 *
-	 * @param string $endpoint The endpoint's route (e.g. /stats/posts).
-	 * @param string $callback The callback function to call when the endpoint is hit.
+	 * @param string        $endpoint The endpoint's route.
+	 * @param string        $callback The callback function to call when the endpoint is hit.
+	 * @param array<string> $methods The HTTP methods to allow for the endpoint.
 	 */
-	public function register_endpoint( string $endpoint, string $callback ): void {
+	public function register_endpoint(
+		string $endpoint,
+		string $callback,
+		array $methods = array( 'GET' )
+	): void {
 		if ( ! apply_filters( 'wp_parsely_enable_' . convert_endpoint_to_filter_key( $endpoint ) . '_api_proxy', true ) ) {
 			return;
 		}
@@ -157,7 +162,7 @@ abstract class Base_Endpoint {
 
 		$rest_route_args = array(
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => $methods,
 				'callback'            => array( $this, $callback ),
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => $get_items_args,

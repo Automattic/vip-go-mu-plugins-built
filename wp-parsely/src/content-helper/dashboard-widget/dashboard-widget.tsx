@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { createRoot } from '@wordpress/element';
+import { createRoot, render } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -13,13 +13,15 @@ window.addEventListener(
 	'load',
 	function() {
 		const container = document.querySelector( '#wp-parsely-dashboard-widget > .inside' );
+
 		if ( null !== container ) {
-			const root = createRoot( container );
-			root.render(
-				<VerifyCredentials>
-					<TopPosts />
-				</VerifyCredentials>
-			);
+			const component = <VerifyCredentials><TopPosts /></VerifyCredentials>;
+
+			if ( createRoot ) {
+				createRoot( container ).render( component );
+			} else {
+				render( component, container );
+			}
 		}
 	},
 	false

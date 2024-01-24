@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.12.0
+ * Version:           3.13.1
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -28,19 +28,24 @@ namespace Parsely;
 
 use Parsely\Content_Helper\Dashboard_Widget;
 use Parsely\Content_Helper\Editor_Sidebar;
+use Parsely\Content_Helper\Excerpt_Generator;
 use Parsely\Content_Helper\Post_List_Stats;
 use Parsely\Endpoints\Analytics_Post_Detail_API_Proxy;
 use Parsely\Endpoints\Analytics_Posts_API_Proxy;
+use Parsely\Endpoints\ContentSuggestions\Suggest_Meta_Description_API_Proxy;
 use Parsely\Endpoints\ContentSuggestions\Write_Title_API_Proxy;
 use Parsely\Endpoints\GraphQL_Metadata;
 use Parsely\Endpoints\Referrers_Post_Detail_API_Proxy;
 use Parsely\Endpoints\Related_API_Proxy;
 use Parsely\Endpoints\Rest_Metadata;
+use Parsely\Endpoints\User_Meta\Dashboard_Widget_Settings_Endpoint;
+use Parsely\Endpoints\User_Meta\Editor_Sidebar_Settings_Endpoint;
 use Parsely\Integrations\Amp;
 use Parsely\Integrations\Google_Web_Stories;
 use Parsely\Integrations\Integrations;
 use Parsely\RemoteAPI\Analytics_Post_Detail_API;
 use Parsely\RemoteAPI\Analytics_Posts_API;
+use Parsely\RemoteAPI\ContentSuggestions\Suggest_Meta_Description_API;
 use Parsely\RemoteAPI\ContentSuggestions\Write_Title_API;
 use Parsely\RemoteAPI\Referrers_Post_Detail_API;
 use Parsely\RemoteAPI\Related_API;
@@ -62,7 +67,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION = '3.12.0';
+const PARSELY_VERSION = '3.13.1';
 const PARSELY_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-parsely.php';
@@ -152,6 +157,7 @@ function parsely_wp_admin_early_register(): void {
 // Endpoint base classes.
 require_once __DIR__ . '/src/Endpoints/class-base-endpoint.php';
 require_once __DIR__ . '/src/Endpoints/class-base-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/user-meta/class-base-endpoint-user-meta.php';
 
 // Endpoint classes.
 require_once __DIR__ . '/src/Endpoints/class-analytics-post-detail-api-proxy.php';
@@ -159,7 +165,10 @@ require_once __DIR__ . '/src/Endpoints/class-analytics-posts-api-proxy.php';
 require_once __DIR__ . '/src/Endpoints/class-referrers-post-detail-api-proxy.php';
 require_once __DIR__ . '/src/Endpoints/class-related-api-proxy.php';
 require_once __DIR__ . '/src/Endpoints/class-rest-metadata.php';
+require_once __DIR__ . '/src/Endpoints/content-suggestions/class-suggest-meta-description-api-proxy.php';
 require_once __DIR__ . '/src/Endpoints/content-suggestions/class-write-title-api-proxy.php';
+require_once __DIR__ . '/src/Endpoints/user-meta/class-dashboard-widget-settings-endpoint.php';
+require_once __DIR__ . '/src/Endpoints/user-meta/class-editor-sidebar-settings-endpoint.php';
 
 // RemoteAPI base classes.
 require_once __DIR__ . '/src/RemoteAPI/interface-cache.php';
@@ -175,6 +184,7 @@ require_once __DIR__ . '/src/RemoteAPI/class-analytics-posts-api.php';
 require_once __DIR__ . '/src/RemoteAPI/class-referrers-post-detail-api.php';
 require_once __DIR__ . '/src/RemoteAPI/class-related-api.php';
 require_once __DIR__ . '/src/RemoteAPI/class-validate-api.php';
+require_once __DIR__ . '/src/RemoteAPI/content-suggestions/class-suggest-meta-description-api.php';
 require_once __DIR__ . '/src/RemoteAPI/content-suggestions/class-write-title-api.php';
 
 add_action( 'rest_api_init', __NAMESPACE__ . '\\parsely_rest_api_init' );
@@ -188,6 +198,10 @@ function parsely_rest_api_init(): void {
 	$wp_cache = new WordPress_Cache();
 	$rest     = new Rest_Metadata( $GLOBALS['parsely'] );
 	$rest->run();
+
+	// Content Helper settings endpoints.
+	( new Dashboard_Widget_Settings_Endpoint( $GLOBALS['parsely'] ) )->run();
+	( new Editor_Sidebar_Settings_Endpoint( $GLOBALS['parsely'] ) )->run();
 
 	parsely_run_rest_api_endpoint(
 		Related_API::class,
@@ -218,6 +232,12 @@ function parsely_rest_api_init(): void {
 		Write_Title_API_Proxy::class,
 		$wp_cache
 	);
+
+	parsely_run_rest_api_endpoint(
+		Suggest_Meta_Description_API::class,
+		Suggest_Meta_Description_API_Proxy::class,
+		$wp_cache
+	);
 }
 
 require_once __DIR__ . '/src/blocks/recommendations/class-recommendations-block.php';
@@ -242,6 +262,18 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\init_content_helpe
  */
 function init_content_helper_editor_sidebar(): void {
 	( new Editor_Sidebar( $GLOBALS['parsely'] ) )->run();
+}
+
+require_once __DIR__ . '/src/content-helper/excerpt-generator/class-excerpt-generator.php';
+
+add_action( 'init', __NAMESPACE__ . '\\init_content_helper_excerpt_generator' );
+/**
+ * Initializes and inserts the PCH Excerpt Generator.
+ *
+ * @since 3.13.0
+ */
+function init_content_helper_excerpt_generator(): void {
+	( new Excerpt_Generator( $GLOBALS['parsely'] ) )->run();
 }
 
 require_once __DIR__ . '/src/UI/class-recommended-widget.php';

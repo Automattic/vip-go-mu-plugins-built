@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Parsely\Content_Helper;
 
 use Parsely\Parsely;
+use WP_REST_Request;
 
 /**
  * Base class for all Content Helper features.
@@ -117,8 +118,13 @@ abstract class Content_Helper_Feature {
 	 * Injects any required inline scripts.
 	 *
 	 * @since 3.9.0
+	 *
+	 * @param string|null $settings_route Optional. The settings route if the
+	 *                                    feature uses settings. Defaults to null.
 	 */
-	protected function inject_inline_scripts(): void {
+	protected function inject_inline_scripts(
+		?string $settings_route = null
+	): void {
 		$are_credentials_set = $this->parsely->site_id_is_set() &&
 			$this->parsely->api_secret_is_set();
 
@@ -128,6 +134,30 @@ abstract class Content_Helper_Feature {
 			wp_add_inline_script(
 				static::get_script_id(),
 				"window.wpParselyEmptyCredentialsMessage = '{$message}';",
+				'before'
+			);
+		}
+
+		// If the feature has settings, inject them.
+		if ( null !== $settings_route ) {
+			$settings = '';
+
+			if ( ! defined( 'INTEGRATION_TESTS_RUNNING' ) ) {
+				$settings = rest_do_request(
+					new WP_REST_Request(
+						'GET',
+						'/wp-parsely/v1' . $settings_route
+					)
+				)->get_data();
+			}
+
+			if ( ! is_string( $settings ) ) {
+				$settings = '';
+			}
+
+			wp_add_inline_script(
+				static::get_script_id(),
+				"window.wpParselyContentHelperSettings = '$settings';",
 				'before'
 			);
 		}

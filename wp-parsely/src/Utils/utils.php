@@ -325,7 +325,7 @@ function convert_to_positive_integer( string $value ): int {
  * @return string
  */
 function convert_endpoint_to_filter_key( string $endpoint ): string {
-	return trim( str_replace( '/', '_', $endpoint ), '_' );
+	return trim( str_replace( array( '-', '/' ), '_', $endpoint ), '_' );
 }
 
 /**
@@ -339,4 +339,23 @@ function convert_endpoint_to_filter_key( string $endpoint ): string {
  */
 function get_asset_info( string $path ) {
 	return require plugin_dir_path( PARSELY_FILE ) . $path;
+}
+
+/**
+ * Checks if a string starts with a specific substring.
+ *
+ * This function uses the built-in PHP function `str_starts_with` if it's available (PHP 8.0 and later).
+ * If the function is not available (PHP versions prior to 8.0), it uses the `strpos` function as a fallback.
+ *
+ * @since 3.13.0
+ *
+ * @param string $haystack The string to search in.
+ * @param string $needle The substring to search for at the start of $haystack.
+ * @return bool Returns true if $haystack starts with $needle, false otherwise.
+ */
+function str_starts_with( string $haystack, string $needle ): bool {
+	if ( function_exists( '\str_starts_with' ) ) {
+		return \str_starts_with( $haystack, $needle );
+	}
+	return 0 === strpos( $haystack, $needle );
 }
