@@ -71,7 +71,7 @@ class Settings {
 	public static function enqueue_resources() {
 		wp_enqueue_style(
 			'wpcomvip-governance-settings',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/governance/settings/settings.css',
+			plugins_url( '/governance/settings/settings.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);
@@ -87,7 +87,7 @@ class Settings {
 	public static function enqueue_scripts() {
 		wp_enqueue_script(
 			'wpcomvip-governance-settings',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/governance/settings/settings.js',
+			plugins_url( '/governance/settings/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			/* dependencies */ [ 'wp-api' ],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION,
 			/* in footer */ true

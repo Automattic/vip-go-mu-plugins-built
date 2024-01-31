@@ -57,7 +57,7 @@ class InitGovernance {
 
 		wp_enqueue_script(
 			'wpcomvip-governance',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/index.js',
+			plugins_url( '/build/index.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			$asset_file['dependencies'],
 			$asset_file['version'],
 			true /* in_footer */
@@ -91,7 +91,7 @@ class InitGovernance {
 
 		wp_enqueue_style(
 			'wpcomvip-governance',
-			WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/css/vip-governance.css',
+			plugins_url( '/css/vip-governance.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
 			/* dependencies */ [],
 			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
 		);

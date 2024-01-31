@@ -26,7 +26,9 @@ Now commit these build changes in.
 ## 3. Bump plugin version
 
 1. When the version is ready for release, inside the `planned-release/...` branch, bump the version number in `vip-governance.php`. Change plugin header and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION` to match new version.
-2. Create a PR for the planned release branch (e.g. "Planned release 0.2.1") and merge to `trunk`.
+2. In `package.json`, also bump the `version` field to match, and run `npm install` to update `package-lock.json`.
+3. Commit the changed files to the `planned-release/...` branch.
+4. Create a PR for the planned release branch (e.g. "Planned release 0.2.1") and merge to `trunk`.
 
 ## 4. Tag branch for release
 
