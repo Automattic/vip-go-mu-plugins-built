@@ -135,7 +135,7 @@ export const TitleSuggestionsPanel = ( {
 		// Pin the accepted title on the list of generated titles.
 		if ( acceptedTitle ) {
 			await dispatch( TitleStore ).pinTitle( TitleType.PostTitle, acceptedTitle );
-			Telemetry.trackEvent( 'title_suggestions_accepted', {
+			Telemetry.trackEvent( 'title_suggestions_accept_pressed', {
 				old_title: currentPostTitle,
 				new_title: acceptedTitle.title,
 			} );
