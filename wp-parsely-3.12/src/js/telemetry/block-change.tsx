@@ -9,7 +9,6 @@ import { useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { Telemetry } from './telemetry';
 
 /**
  * BlockChangeMonitor component.
@@ -62,13 +61,13 @@ export const BlockChangeMonitor = () => {
 						// block is a BlockInstance when blocks are added.
 						const blockInstance = block as BlockInstance;
 						if ( blockInstance.name.startsWith( parselyBlockPrefix ) && ! lastBlockIds.has( blockInstance.clientId ) ) {
-							Telemetry.trackEvent( 'block_added', { block: blockInstance.name } );
+							// Telemetry.trackEvent( 'block_added', { block: blockInstance.name } );
 						}
 					} else {
 						// block is a string (client ID) when blocks are removed.
 						const clientId = block as string;
 						if ( ! newBlockIds.has( clientId ) ) {
-							Telemetry.trackEvent( 'block_removed', { block: clientId } );
+							// Telemetry.trackEvent( 'block_removed', { block: clientId } );
 						}
 					}
 				}

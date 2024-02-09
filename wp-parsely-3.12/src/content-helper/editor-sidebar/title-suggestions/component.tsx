@@ -9,12 +9,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { Telemetry } from '../../../js/telemetry/telemetry';
 import { ContentHelperError } from '../../common/content-helper-error';
 import { TitleSuggestion } from './component-title-suggestion';
 import { WriteTitleProvider } from './provider';
 import { TitleStore, TitleType } from './store';
 import { GutenbergFunction } from './types';
-import { Telemetry } from '../../../js/telemetry/telemetry';
 
 /**
  * Title Suggestions Panel.
@@ -99,7 +99,7 @@ export const TitleSuggestionsPanel = (): JSX.Element => {
 		// Pin the accepted title on the list of generated titles.
 		if ( acceptedTitle ) {
 			await dispatch( TitleStore ).pinTitle( TitleType.PostTitle, acceptedTitle );
-			Telemetry.trackEvent( 'title_suggestions_accepted', {
+			Telemetry.trackEvent( 'title_suggestions_accept_pressed', {
 				old_title: currentPostTitle,
 				new_title: acceptedTitle.title,
 			} );
