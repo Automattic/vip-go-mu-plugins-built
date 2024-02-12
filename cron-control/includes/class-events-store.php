@@ -47,16 +47,16 @@ class Events_Store extends Singleton {
 
 		// Can't rely on the DB_VERSION_OPTION here due to subsite copy/paste scenarios.
 		// Must truly check that the table is installed.
-		if ( wp_cache_get( 'is_installed', 'cron-control' ) ) {
-			return true;
+		$is_installed = wp_cache_get( 'is_installed', 'cron-control', false, $cache_exists );
+		if ( $cache_exists ) {
+			return $is_installed;
 		}
 
 		$table_name = $wpdb->prefix . self::TABLE_SUFFIX;
-		$is_installed = 1 === count( $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) );
+		$is_installed = 1 === count( $wpdb->get_col( $wpdb->prepare( 'SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_NAME = %s', $table_name ) ) );
 
-		if ( $is_installed ) {
-			wp_cache_set( 'is_installed', true, 'cron-control' );
-		}
+		// Cache the results, will be overridden by _prepare_table() during installation.
+		wp_cache_add( 'is_installed', $is_installed, 'cron-control' );
 
 		return $is_installed;
 	}
@@ -147,10 +147,10 @@ class Events_Store extends Singleton {
 		dbDelta( $schema, true );
 
 		// Confirm that the table was created, and set the option to prevent further updates.
-		$table_count = count( $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) );
+		$is_installed = 1 === count( $wpdb->get_col( $wpdb->prepare( 'SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_NAME = %s', $table_name ) ) );
+		wp_cache_set( 'is_installed', $is_installed, 'cron-control' );
 
-		if ( 1 === $table_count ) {
-			wp_cache_set( 'is_installed', true, 'cron-control' );
+		if ( $is_installed ) {
 			update_option( self::DB_VERSION_OPTION, self::DB_VERSION );
 		}
 
@@ -169,291 +169,9 @@ class Events_Store extends Singleton {
 
 	/*
 	|--------------------------------------------------------------------------
-	| Deprecated (or soon to be) methods.
+	| Methods that are likely to be deprecated in the future.
 	|--------------------------------------------------------------------------
 	*/
-
-	public function create_table_during_install() {
-		_deprecated_function( 'Events_Store\create_table_during_install' );
-	}
-
-	public function create_tables_during_multisite_install( $blog_id ) {
-		_deprecated_function( 'Events_Store\create_tables_during_multisite_install' );
-	}
-
-	public function maybe_create_table_on_shutdown() {
-		_deprecated_function( 'Events_Store\maybe_create_table_on_shutdown' );
-	}
-
-	public function prepare_table() {
-		_deprecated_function( 'Events_Store\prepare_table' );
-	}
-
-	public function cli_create_tables() {
-		_deprecated_function( 'Events_Store\cli_create_tables' );
-	}
-
-	public function remove_multisite_table( $tables_to_drop ) {
-		_deprecated_function( 'Events_Store\remove_multisite_table' );
-	}
-
-	/**
-	 * Deprecated, unused by the plugin.
-	 * Giving time to catch warnings before removing the public method.
-	 * @deprecated
-	 */
-	public function get_option() {
-		_deprecated_function( 'Events_Store\get_option', 'pre_get_cron_option' );
-		return pre_get_cron_option( false );
-	}
-
-	/**
-	 * Deprecated, unused by the plugin.
-	 * Giving time to catch warnings before removing the public method.
-	 * @deprecated
-	 */
-	public function update_option( $new_value, $old_value ) {
-		_deprecated_function( 'Events_Store\update_option', 'pre_update_cron_option' );
-		return pre_update_cron_option( $new_value, $old_value );
-	}
-
-	/**
-	 * Deprecated, unused by the plugin.
-	 * Giving time to catch warnings before removing the public method.
-	 * @deprecated
-	 */
-	public function block_creation_if_job_exists( $job ) {
-		_deprecated_function( 'Events_Store\block_creation_if_job_exists' );
-		return $job;
-	}
-
-	/**
-	 * Retrieve jobs given a set of parameters
-	 *
-	 * @deprecated
-	 * @param array $args Job arguments to search by.
-	 * @return array
-	 */
-	public function get_jobs( $args ) {
-		_deprecated_function( 'Events_Store\get_jobs' );
-
-		// Adjust this method's previous defaults for what our new method expects.
-		$adjusted_args = [
-			'limit'  => isset( $args['quantity'] ) && is_numeric( $args['quantity'] ) ? $args['quantity'] : 100,
-			'page'   => isset( $args['page'] ) && $args['page'] >= 1 ? $args['page'] : 1,
-			'status' => $args['status'],
-		];
-
-		$jobs = $this->_query_events_raw( $adjusted_args );
-		return array_map( array( $this, 'format_job' ), $jobs );
-	}
-
-	/**
-	 * Retrieve a single event by its ID
-	 *
-	 * @deprecated
-	 * @param int $jid Job ID.
-	 * @return object|false
-	 */
-	public function get_job_by_id( $jid ) {
-		_deprecated_function( 'Events_Store\get_job_by_id' );
-
-		// Validate ID.
-		$jid = absint( $jid );
-		if ( ! $jid ) {
-			return false;
-		}
-
-		$job = $this->_get_event_raw( $jid );
-		if ( ! is_object( $job ) ) {
-			return false;
-		}
-
-		// This method previously only queried for pending, so we respect that here.
-		if ( self::STATUS_PENDING !== $job->status ) {
-			return false;
-		}
-
-		return $job;
-	}
-
-	/**
-	 * Retrieve a single event by a combination of a timestamp, instance identifier, and either action or the action's hashed representation
-	 *
-	 * @deprecated
-	 * @param array $attrs Array of event attributes to query by.
-	 * @return object|false
-	 */
-	public function get_job_by_attributes( $attrs ) {
-		global $wpdb;
-
-		_deprecated_function( 'Events_Store\get_job_by_attributes' );
-
-		// Validate basic inputs.
-		if ( ! is_array( $attrs ) || empty( $attrs ) ) {
-			return false;
-		}
-
-		if ( ! isset( $attrs['status'] ) || ! self::validate_status( $attrs['status'] ) ) {
-			$attrs['status'] = self::STATUS_PENDING;
-		}
-
-		// Need a timestamp, an instance, and either an action or its hashed representation.
-		if ( ! isset( $attrs['timestamp'] ) || ! isset( $attrs['instance'] ) ) {
-			return false;
-		} elseif ( ! isset( $attrs['action'] ) && ! isset( $attrs['action_hashed'] ) ) {
-			return false;
-		}
-
-		// Build the query args, supporting the API this method previously had.
-		$adjusted_args = [
-			'instance' => $attrs['instance'],
-			'status'   => $attrs['status'],
-		];
-
-		if ( isset( $attrs['action'] ) ) {
-			$adjusted_args['action'] = $attrs['action'];
-		} else {
-			$adjusted_args['action_hashed'] = $attrs['action_hashed'];
-		}
-
-		$jobs = $this->_query_events_raw( $adjusted_args );
-		return is_object( $jobs[0] ) ? $this->format_job( $jobs[0] ) : false;
-	}
-
-	/**
-	 * Standardize formatting and expand serialized data
-	 *
-	 * @param object $job Job row from DB, in object form.
-	 * @return object
-	 */
-	private function format_job( $job ) {
-		if ( ! is_object( $job ) || is_wp_error( $job ) ) {
-			return $job;
-		}
-
-		$job->ID        = (int) $job->ID;
-		$job->timestamp = (int) $job->timestamp;
-		$job->interval  = (int) $job->interval;
-		$job->args      = maybe_unserialize( $job->args );
-
-		if ( empty( $job->schedule ) ) {
-			$job->schedule = false;
-		}
-
-		return $job;
-	}
-
-	/**
-	 * Create or update entry for a given job.
-	 *
-	 * @deprecated
-	 * @param int    $timestamp    Unix timestamp event executes at.
-	 * @param string $action       Hook event fires.
-	 * @param array  $args         Array of event's schedule, arguments, and interval.
-	 * @param bool   $update_id    ID of existing entry to update, rather than creating a new entry.
-	 * @param bool   $flush_cache  Whether or not to flush internal caches after creating/updating the event.
-	 */
-	public function create_or_update_job( $timestamp, $action, $args, $update_id = null, $flush_cache = true ) {
-		_deprecated_function( 'Events_Store\create_or_update_job' );
-
-		if ( is_int( $update_id ) && $update_id > 0 ) {
-			// Update an existing entry.
-			$event = Event::get( $update_id );
-
-			if ( is_null( $event ) ) {
-				return;
-			}
-		} else {
-			// Create a new event.
-			$event = new Event();
-		}
-
-		$event->set_timestamp( $timestamp );
-		$event->set_action( $action );
-		$event->set_args( $args['args'] );
-
-		if ( ! empty( $args['schedule'] ) && ! empty( $args['interval'] ) ) {
-			$event->set_schedule( $args['schedule'], (int) $args['interval'] );
-		}
-
-		// Saves the existing one, or creates a new one.
-		$event->save();
-	}
-
-	/**
-	 * Mark an event's entry as completed
-	 *
-	 * Completed entries will be cleaned up by an internal job
-	 *
-	 * @deprecated
-	 * @param int    $timestamp    Unix timestamp event executes at.
-	 * @param string $action       Name of action used when the event is registered (unhashed).
-	 * @param string $instance     md5 hash of the event's arguments array, which Core uses to index the `cron` option.
-	 * @param bool   $flush_cache  Whether or not to flush internal caches after creating/updating the event.
-	 * @return bool
-	 */
-	public function mark_job_completed( $timestamp, $action, $instance, $flush_cache = true ) {
-		_deprecated_function( 'Events_Store\mark_job_completed' );
-
-		$event = Event::find( [
-			'timestamp' => $timestamp,
-			'action'    => $action,
-			'instance'  => $instance,
-		] );
-
-		if ( is_null( $event ) ) {
-			return false;
-		}
-
-		$result = $event->complete();
-		return true === $result;
-	}
-
-	/**
-	 * Set a job post to the "completed" status
-	 *
-	 * @deprecated
-	 * @param int  $job_id       ID of job's record.
-	 * @param bool $flush_cache  Whether or not to flush internal caches after creating/updating the event.
-	 * @return bool
-	 */
-	public function mark_job_record_completed( $job_id, $flush_cache = true ) {
-		_deprecated_function( 'Events_Store\mark_job_record_completed' );
-
-		$event = Event::get( $job_id );
-
-		$result = false;
-		if ( ! is_null( $event ) ) {
-			$result = $event->complete();
-		}
-
-		return true === $result;
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function flush_internal_caches() {
-		_deprecated_function( 'Events_Store\flush_internal_caches' );
-		self::flush_event_cache();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function suspend_event_creation() {
-		// No longer needed.
-		_deprecated_function( 'Events_Store\suspend_event_creation' );
-	}
-
-	/**
-	 * @deprecated
-	 */
-	public function resume_event_creation() {
-		// No longer needed.
-		_deprecated_function( 'Events_Store\resume_event_creation' );
-	}
 
 	/**
 	 * Remove entries for non-recurring events that have been run.
@@ -503,8 +221,7 @@ class Events_Store extends Singleton {
 
 	/*
 	|--------------------------------------------------------------------------
-	| New event's store methods. The above may be deprecated in the future.
-	| But notably, the below is also internal-usage only. See comments about alternatives.
+	| Internal-usage only. See comments about alternatives.
 	|--------------------------------------------------------------------------
 	*/
 
@@ -568,7 +285,7 @@ class Events_Store extends Singleton {
 	 *
 	 * Currently no need for caching here really,
 	 * the action/instance/timestamp combination is the query that often happens on the FE.
-	 * So perhaps room for enhacement there later.
+	 * So perhaps room for enhancement there later.
 	 *
 	 * @param int $id The ID of the event being retrieved.
 	 * @return object|null Raw event object if successful, false otherwise.

@@ -66,7 +66,7 @@ export function setupBlockLocking( governanceRules ) {
 
 				return <>
 					<Disabled>
-						<div style={ { opacity: 0.6, 'background-color': '#eee', border: '2px dashed #999' } }>
+						<div style={ { opacity: 0.6, backgroundColor: '#eee', border: '2px dashed #999' } }>
 							<BlockEdit { ...props } />
 						</div>
 					</Disabled>

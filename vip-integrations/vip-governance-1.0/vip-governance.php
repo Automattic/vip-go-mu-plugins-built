@@ -5,7 +5,7 @@
  * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
- * Version: 1.0.6
+ * Version: 1.0.7
  * Requires at least: 5.9.0
  * Tested up to: 6.4.0
  * Requires PHP: 7.4
