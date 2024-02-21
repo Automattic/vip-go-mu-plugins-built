@@ -21,7 +21,9 @@
     },
     "usesContext": [
         "styleType",
-        "postId"
+        "postId",
+        "iconColorValue",
+        "iconBackgroundColorValue"
     ],
     "supports": {
         "reusable": false,

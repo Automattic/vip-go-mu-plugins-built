@@ -74,36 +74,40 @@ return array(
 		'version' => '0.3.1.0',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-plugins-installer/src/class-automatic-install-skin.php'
 	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Helper_Script_Manager' => array(
-		'version' => '0.2.0.0',
-		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup-helper-script-manager/src/class-helper-script-manager.php'
-	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Helper_Script_Manager_Impl' => array(
-		'version' => '0.2.0.0',
-		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup-helper-script-manager/src/class-helper-script-manager-impl.php'
-	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Initial_State' => array(
-		'version' => '3.1.2.0',
-		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-initial-state.php'
-	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Jetpack_Backup' => array(
-		'version' => '3.1.2.0',
-		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-jetpack-backup.php'
-	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Jetpack_Backup_Upgrades' => array(
-		'version' => '3.1.2.0',
-		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-jetpack-backup-upgrades.php'
-	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Package_Version' => array(
-		'version' => '3.1.2.0',
+	'Automattic\\Jetpack\\Backup\\Package_Version' => array(
+		'version' => '3.1.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-package-version.php'
 	),
-	'Automattic\\Jetpack\\Backup\\V0001\\REST_Controller' => array(
-		'version' => '3.1.2.0',
+	'Automattic\\Jetpack\\Backup\\V0001\\Package_Version' => array(
+		'version' => '3.1.4.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-package-version-compat.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\Helper_Script_Manager' => array(
+		'version' => '0.2.1.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup-helper-script-manager/src/class-helper-script-manager.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\Helper_Script_Manager_Impl' => array(
+		'version' => '0.2.1.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup-helper-script-manager/src/class-helper-script-manager-impl.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\Initial_State' => array(
+		'version' => '3.1.4.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-initial-state.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\Jetpack_Backup' => array(
+		'version' => '3.1.4.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-jetpack-backup.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\Jetpack_Backup_Upgrades' => array(
+		'version' => '3.1.4.1',
+		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-jetpack-backup-upgrades.php'
+	),
+	'Automattic\\Jetpack\\Backup\\V0002\\REST_Controller' => array(
+		'version' => '3.1.4.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup/src/class-rest-controller.php'
 	),
-	'Automattic\\Jetpack\\Backup\\V0001\\Throw_On_Errors' => array(
-		'version' => '0.2.0.0',
+	'Automattic\\Jetpack\\Backup\\V0002\\Throw_On_Errors' => array(
+		'version' => '0.2.1.1',
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-backup-helper-script-manager/src/class-throw-on-errors.php'
 	),
 	'Automattic\\Jetpack\\Blaze' => array(
@@ -287,7 +291,7 @@ return array(
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-status/src/class-cookiestate.php'
 	),
 	'Automattic\\Jetpack\\Current_Plan' => array(
-		'version' => '0.4.1.0',
+		'version' => '0.4.2.0',
 		'path'    => $vendorDir . '/automattic/jetpack-plans/src/class-current-plan.php'
 	),
 	'Automattic\\Jetpack\\Device_Detection' => array(
@@ -679,7 +683,7 @@ return array(
 		'path'    => $baseDir . '/jetpack_vendor/automattic/jetpack-status/src/class-paths.php'
 	),
 	'Automattic\\Jetpack\\Plans' => array(
-		'version' => '0.4.1.0',
+		'version' => '0.4.2.0',
 		'path'    => $vendorDir . '/automattic/jetpack-plans/src/class-plans.php'
 	),
 	'Automattic\\Jetpack\\Plugin\\Tracking' => array(

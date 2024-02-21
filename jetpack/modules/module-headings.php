@@ -16,11 +16,6 @@ function jetpack_get_module_i18n( $key ) {
 	static $modules;
 	if ( ! isset( $modules ) ) {
 		$modules = array(
-			'action-bar' => array(
-				'name' => _x( 'Action Bar (Experimental)', 'Module Name', 'jetpack' ),
-				'description' => _x( 'An easy to use way for visitors to follow, like, and comment on your site.', 'Module Description', 'jetpack' ),
-			),
-
 			'blaze' => array(
 				'name' => _x( 'Blaze', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'Module Description', 'jetpack' ),
@@ -267,8 +262,13 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/woocommerce-analytics.php
 			'Other' => _x( 'Other', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Traffic` tag:
+			// - modules/blaze.php
+			// - modules/sitemaps.php
+			// - modules/wordads.php
+			'Traffic' => _x( 'Traffic', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Social` tag:
-			// - modules/action-bar.php
 			// - modules/blaze.php
 			// - modules/comment-likes.php
 			// - modules/comments.php
@@ -282,12 +282,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/subscriptions.php
 			// - modules/widgets.php
 			'Social' => _x( 'Social', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Traffic` tag:
-			// - modules/blaze.php
-			// - modules/sitemaps.php
-			// - modules/wordads.php
-			'Traffic' => _x( 'Traffic', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Photos and Videos` tag:
 			// - modules/carousel.php
@@ -382,24 +376,6 @@ function jetpack_get_module_i18n_tag( $key ) {
  */
 function jetpack_get_module_info( $key ) {
 	static $module_info = array (
-	  'action-bar' => 
-	  array (
-	    'name' => 'Action Bar (Experimental)',
-	    'description' => 'An easy to use way for visitors to follow, like, and comment on your site.',
-	    'sort' => '40',
-	    'recommendation_order' => '18',
-	    'introduced' => '11.4',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'Yes',
-	    'requires_user_connection' => '',
-	    'auto_activate' => 'No',
-	    'module_tags' => 'Social',
-	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'adminbar, actionbar, comments, likes, follow, sharing',
-	    'plan_classes' => '',
-	  ),
 	  'blaze' => 
 	  array (
 	    'name' => 'Blaze',
