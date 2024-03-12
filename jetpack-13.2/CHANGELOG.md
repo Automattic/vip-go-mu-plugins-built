@@ -2,9 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 13.3-a.0 - unreleased
-
-This is an alpha version! The changes listed here are not final.
+## 13.2.1 - 2024-03-12
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Subscriptions: improve security by better checks when displaying a Subscription form via a shortcode. [#36347]
+- This fixes a minor bug in a recently shipped feature that makes it work more like expected [#36262]
 
 ## 13.2 - 2024-03-05
 ### Enhancements

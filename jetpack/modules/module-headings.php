@@ -1225,11 +1225,10 @@ function jetpack_get_all_module_header_names() {
 function jetpack_has_no_module_info( $slug ) {
 	$no_info_slugs = array (
 	  0 => 'geo-location',
-	  1 => 'lazy-images',
-	  2 => 'module-extras',
-	  3 => 'module-info',
-	  4 => 'plugin-search',
-	  5 => 'theme-tools',
+	  1 => 'module-extras',
+	  2 => 'module-info',
+	  3 => 'plugin-search',
+	  4 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );
