@@ -1,0 +1,223 @@
+@import "../../common/css/variables";
+@import "../../common/css/functions";
+
+.wp-parsely-related-posts {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	.related-posts-description {
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20, to_rem(16px)) 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: to_rem(10px);
+		align-self: stretch;
+
+		/* Helper Text */
+		font-size: to_rem(13px);
+		font-style: normal;
+		font-weight: 400;
+		line-height: to_rem(20px); /* 153.846% */
+	}
+
+	.related-posts-body {
+		display: flex;
+		flex-direction: column;
+		padding: to_rem(6px) 0 var(--grid-unit-20, to_rem(16px)) 0;
+		align-items: flex-start;
+		gap: to_rem(16px);
+		align-self: stretch;
+
+		> div {
+			width: 100%;
+		}
+
+		.related-posts-settings {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+			gap: to_rem(16px);
+			align-self: stretch;
+
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+
+
+		}
+
+		.related-posts-filter-settings {
+			display: flex;
+			flex-direction: column;
+			gap: var(--grid-unit-20, to_rem(16px));
+			width: 100%;
+
+			.related-posts-filter-types {
+				width: 100%;
+
+				.components-toggle-group-control {
+					height: to_rem(40px);
+
+					/**
+					 * Workaround for the ToggleGroupControl animation:
+					 * Prevents the animation from exiting the container.
+					 */
+					overflow: hidden;
+
+					/**
+					 * Workaround animation bug with ToggleGroupControl.
+					 * This works by setting the button background to transparent and
+					 * then setting the active item background to the sidebar black color.
+					 * The background should only pop-up as visible after 0.5s, therefore
+					 * hiding any janky animation.
+					 */
+					button {
+						background: transparent;
+						outline: transparent solid 2px;
+						outline-offset: -3px;
+
+						&[data-active-item] {
+							background: var(--sidebar-black, #1e1e1e);
+							transition:
+								background 0s 0.5s,
+								border-radius 0s 0.5s,
+								box-shadow 0s 0.5s;
+							box-shadow: 0 -3px 0 0 #fff, 0 3px 0 0 #fff;
+							border-radius: 3px;
+						}
+					}
+				}
+			}
+
+			.related-posts-filter-values {
+				width: 100%;
+
+				.components-combobox-control__suggestions-container .components-flex {
+					height: to_rem(36px);
+
+					input {
+						margin: 0 var(--grid-unit-15, to_rem(12px));
+					}
+				}
+			}
+		}
+
+		.related-posts-wrapper {
+
+			.related-posts-descr {
+				font-size: to_rem(13px);
+				font-style: normal;
+				font-weight: 400;
+				line-height: to_rem(20px); /* 153.846% */
+			}
+
+			.related-posts-loading-message,
+			.related-posts-empty {
+				overflow: hidden;
+				color: var(--gray-900, #1e1e1e);
+				text-overflow: ellipsis;
+				font-size: to_rem(12px);
+				font-style: normal;
+				font-weight: 700;
+				line-height: var(--grid-unit-20, to_rem(16px)); /* 133.333% */
+			}
+		}
+
+
+		.related-posts-list {
+			display: flex;
+			padding: to_rem(6px) 0 var(--grid-unit-20, to_rem(16px)) 0;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--grid-unit-20, to_rem(16px));
+			align-self: stretch;
+
+			.related-post-single {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				align-self: stretch;
+				border-radius: 2px;
+				border: 1px solid var(--Gutenberg-Gray-400, #ccc);
+
+				.related-post-title {
+					display: flex;
+					padding: var(--grid-unit-20, to_rem(16px));
+					flex-direction: column;
+					justify-content: center;
+					align-items: center;
+					gap: to_rem(8px);
+					align-self: stretch;
+					overflow: hidden;
+					text-overflow: ellipsis;
+					font-size: to_rem(14px);
+					font-style: normal;
+					font-weight: 600;
+					line-height: to_rem(20px); /* 142.857% */
+					text-decoration-line: underline;
+				}
+
+				.related-post-actions {
+					display: flex;
+					padding: 0 var(--grid-unit-10, to_rem(8px));
+					align-items: center;
+					gap: var(--grid-unit-20, to_rem(16px));
+					align-self: stretch;
+					flex-wrap: wrap;
+					border-top: 1px solid var(--gray-400, #ccc);
+
+					.related-post-info {
+						display: flex;
+						flex-grow: 1;
+						gap: var(--grid-unit-10, to_rem(8px));
+						align-items: center;
+
+						> div:first-child {
+							flex: 1;
+							display: flex;
+							gap: var(--grid-unit-10, to_rem(8px));
+						}
+
+						> div:last-child {
+							display: flex;
+							gap: var(--grid-unit-10, to_rem(8px));
+						}
+
+						.related-post-metric {
+							display: flex;
+							align-items: center;
+
+							.parsely-post-metric-data {
+								display: flex;
+								align-items: center;
+								gap: var(--grid-unit-5, to_rem(4px));
+							}
+						}
+
+						.related-post-linked {
+							display: flex;
+							align-items: center;
+							margin-left: auto;
+							fill: #008a20;
+						}
+
+						.wp-parsely-icon {
+
+							path {
+								fill: #1e1e1e;
+							}
+
+							&:hover {
+
+								path {
+									fill: #0073aa;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

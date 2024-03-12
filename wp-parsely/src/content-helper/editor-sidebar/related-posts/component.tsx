@@ -1,0 +1,422 @@
+/**
+ * WordPress dependencies
+ */
+import {
+	__experimentalInputControlPrefixWrapper as InputControlPrefixWrapper,
+	SelectControl,
+} from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
+// eslint-disable-next-line import/named
+import { store as coreStore, Taxonomy, User } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { store as editorStore } from '@wordpress/editor';
+import { useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import { GutenbergFunction } from '../../../@types/gutenberg/types';
+import { Telemetry } from '../../../js/telemetry/telemetry';
+import { ContentHelperError } from '../../common/content-helper-error';
+import { SidebarSettings, useSettings } from '../../common/settings';
+import {
+	getMetricDescription,
+	getPeriodDescription,
+	isInEnum,
+	Metric,
+	Period,
+	PostFilter,
+	PostFilterType,
+} from '../../common/utils/constants';
+import { PostData } from '../../common/utils/post';
+import { SidebarPostData } from '../editor-sidebar';
+import { RelatedPostsFilterSettings } from './component-filter-settings';
+import { RelatedPostItem } from './component-item';
+import { RelatedPostsProvider } from './provider';
+import './related-posts.scss';
+
+const FETCH_RETRIES = 1;
+
+/**
+ * The Related Posts panel in the Editor Sidebar.
+ *
+ * @since 3.14.0
+ */
+export const RelatedPostsPanel = (): JSX.Element => {
+	const { settings, setSettings } = useSettings<SidebarSettings>();
+
+	const period = settings.RelatedPostsPeriod;
+	const metric = settings.RelatedPostsMetric;
+
+	const [ postData, setPostData ] = useState<SidebarPostData>( {
+		authors: [], categories: [], tags: [],
+	} );
+
+	/**
+	 * Returns the current Post's ID, tags and categories.
+	 *
+	 * @since 3.11.0
+	 * @since 3.14.0 Moved from `editor-sidebar.tsx`.
+	 */
+	const { authors, categories, tags } = useSelect( ( select ) => {
+		const { getEditedPostAttribute } = select( editorStore ) as GutenbergFunction;
+		const { getEntityRecords } = select( coreStore );
+
+		const authorRecords: User[] | null = getEntityRecords(
+			'root', 'user', { include: getEditedPostAttribute( 'author' ) }
+		);
+
+		const categoryRecords: Taxonomy[] | null = getEntityRecords(
+			'taxonomy', 'category', { include: getEditedPostAttribute( 'categories' ) }
+		);
+
+		const tagRecords: Taxonomy[]|null = getEntityRecords(
+			'taxonomy', 'post_tag', { include: getEditedPostAttribute( 'tags' ) }
+		);
+
+		return {
+			authors: authorRecords,
+			categories: categoryRecords,
+			tags: tagRecords,
+		};
+	}, [] );
+
+	useEffect( () => {
+		// Set the post data only when all required properties have become
+		// available.
+		if ( authors && categories && tags ) {
+			setPostData( {
+				authors: authors.map( ( a ) => a.name ),
+				categories: categories.map( ( c ) => c.name ),
+				tags: tags.map( ( t ) => t.name ),
+			} );
+		}
+	}, [ authors, categories, tags ] );
+
+	const [ loading, setLoading ] = useState<boolean>( true );
+	const [ error, setError ] = useState<ContentHelperError>();
+	const [ message, setMessage ] = useState<string>();
+	const [ posts, setPosts ] = useState<PostData[]>( [] );
+	const [ filter, setFilter ] = useState<PostFilter>(
+		{
+			type: settings.RelatedPostsFilterBy as PostFilterType,
+			value: settings.RelatedPostsFilterValue,
+		}
+	);
+
+	const [ postContent, setPostContent ] = useState<string|undefined>( undefined );
+	const debouncedSetPostContent = useDebounce( setPostContent, 1000 );
+	useSelect( ( select ) => {
+		const { getEditedPostContent } = select( 'core/editor' ) as GutenbergFunction;
+		debouncedSetPostContent( getEditedPostContent() );
+	}, [ debouncedSetPostContent ] );
+
+	/**
+	 * Updates all filter settings.
+	 *
+	 * @since 3.13.0
+	 * @since 3.14.0 Renamed from `handleRelatedPostsFilterChange` and
+	 * moved from the editor sidebar to the related posts component.
+	 *
+	 * @param {PostFilterType} filterBy The new filter type.
+	 * @param {string}         value    The new filter value.
+	 */
+	const onFilterChange = ( filterBy: PostFilterType, value: string ): void => {
+		setSettings( {
+			RelatedPostsFilterBy: filterBy,
+			RelatedPostsFilterValue: value,
+		} );
+	};
+
+	/**
+	 * Updates the metric setting.
+	 *
+	 * @since 3.14.0
+	 *
+	 * @param {string} selection The new metric.
+	 */
+	const onMetricChange = ( selection: string ) => {
+		if ( isInEnum( selection, Metric ) ) {
+			setSettings( {
+				RelatedPostsMetric: selection as Metric,
+			} );
+			Telemetry.trackEvent( 'related_posts_metric_changed', { metric: selection } );
+		}
+	};
+
+	/**
+	 * Updates the period setting.
+	 *
+	 * @since 3.14.0
+	 *
+	 * @param {string} selection The new period.
+	 */
+	const onPeriodChange = ( selection: string ) => {
+		if ( isInEnum( selection, Period ) ) {
+			setSettings( {
+				RelatedPostsPeriod: selection as Period,
+			} );
+			Telemetry.trackEvent( 'related_posts_period_changed', { period: selection } );
+		}
+	};
+
+	/**
+	 * Updates the filter type and sets its default value.
+	 *
+	 * @since 3.11.0
+	 *
+	 * @param {string} newFilterType The new filter type.
+	 */
+	const updateFilterType = ( newFilterType: string ): void => {
+		if ( isInEnum( newFilterType, PostFilterType ) ) {
+			let value = '';
+			const type = newFilterType as PostFilterType;
+
+			if ( PostFilterType.Tag === type ) {
+				value = postData.tags[ 0 ];
+			}
+			if ( PostFilterType.Section === type ) {
+				value = postData.categories[ 0 ];
+			}
+			if ( PostFilterType.Author === type ) {
+				value = postData.authors[ 0 ];
+			}
+
+			if ( '' !== value ) {
+				onFilterChange( type, value );
+				setFilter( { type, value } );
+				Telemetry.trackEvent( 'related_posts_filter_type_changed', { filter_type: type } );
+			}
+		}
+	};
+
+	useEffect( () => {
+		/**
+		 * Returns whether the post data passed into this component is empty.
+		 *
+		 * @since 3.14.0
+		 *
+		 * @return {boolean} Whether the post data is empty.
+		 */
+		const isPostDataEmpty = (): boolean => {
+			return Object.values( postData ).every(
+				( value ) => 0 === value.length
+			);
+		};
+
+		/**
+		 * Returns the initial filter settings.
+		 *
+		 * The selection is based on whether the Post has tags or categories
+		 * assigned to it. Otherwise, the filter is set to the first author.
+		 *
+		 * @since 3.11.0
+		 *
+		 * @return {PostFilter} The initial filter settings.
+		 */
+		const getInitialFilterSettings = (): PostFilter => {
+			let value = '';
+			let type = PostFilterType.Unavailable;
+
+			if ( postData.tags.length >= 1 ) {
+				type = PostFilterType.Tag;
+				value = postData.tags[ 0 ];
+			} else if ( postData.categories.length >= 1 ) {
+				type = PostFilterType.Section;
+				value = postData.categories[ 0 ];
+			} else {
+				type = PostFilterType.Author;
+				value = postData.authors[ 0 ];
+			}
+
+			return { type, value };
+		};
+
+		const fetchPosts = async ( retries: number ) => {
+			RelatedPostsProvider.getRelatedPosts( period, metric, filter )
+				.then( ( result ): void => {
+					setPosts( result.posts );
+					setMessage( result.message );
+					setLoading( false );
+				} )
+				.catch( async ( err ) => {
+					if ( retries > 0 && err.retryFetch ) {
+						await new Promise( ( r ) => setTimeout( r, 500 ) );
+						await fetchPosts( retries - 1 );
+					} else {
+						setLoading( false );
+						setError( err );
+					}
+				} );
+		};
+
+		const filterTypeIsTag = PostFilterType.Tag === filter.type;
+		const filterTypeIsSection = PostFilterType.Section === filter.type;
+		const filterTypeIsUnavailable = PostFilterType.Unavailable === filter.type;
+		const noTagsExist = 0 === postData.tags.length;
+		const noCategoriesExist = 0 === postData.categories.length;
+		const tagIsUnavailable = filterTypeIsTag && ! postData.tags.includes( filter.value );
+		const sectionIsUnavailable = filterTypeIsSection && ! postData.categories.includes( filter.value );
+
+		setLoading( true );
+
+		if ( filterTypeIsUnavailable || ( filterTypeIsTag && noTagsExist ) || ( filterTypeIsSection && noCategoriesExist ) ) {
+			if ( ! isPostDataEmpty() ) {
+				setFilter( getInitialFilterSettings() );
+			}
+		} else if ( tagIsUnavailable ) {
+			setFilter( { type: PostFilterType.Tag, value: postData.tags[ 0 ] } );
+		} else if ( sectionIsUnavailable ) {
+			setFilter( { type: PostFilterType.Section, value: postData.categories[ 0 ] } );
+		}	else {
+			fetchPosts( FETCH_RETRIES );
+		}
+
+		return (): void => {
+			setLoading( false );
+			setPosts( [] );
+			setMessage( '' );
+			setError( undefined );
+		};
+	}, [ period, metric, filter, postData ] );
+
+	/**
+	 * Updates the filter value.
+	 *
+	 * @param {string} newFilterValue The new filter value.
+	 *
+	 * @since 3.11.0
+	 */
+	const updateFilterValue = (
+		newFilterValue: string | null | undefined
+	): void => {
+		if ( typeof newFilterValue === 'string' ) {
+			onFilterChange( filter.type, newFilterValue );
+			setFilter( { ...filter, value: newFilterValue } );
+		}
+	};
+
+	/**
+	 * Returns the top related posts message.
+	 *
+	 * If the filter is by Author: "Top related posts by [post_author] in the [period]."
+	 * If the filter is by Section: "Top related posts in the “[section_name]” section in the [period]."
+	 * If the filter is by Tag: "Top related posts with the “[wp_term name]” tag in the [period]."
+	 *
+	 * @since 3.14.0
+	 */
+	const getTopRelatedPostsMessage = (): string => {
+		if ( PostFilterType.Tag === filter.type ) {
+			return sprintf(
+				/* translators: 1: tag name, 2: period */
+				__( 'Top related posts with the “%1$s” tag in the %2$s.', 'wp-parsely' ),
+				filter.value, getPeriodDescription( period, true )
+			);
+		}
+
+		if ( PostFilterType.Section === filter.type ) {
+			return sprintf(
+				/* translators: 1: section name, 2: period */
+				__( 'Top related posts in the “%1$s” section in the %2$s.', 'wp-parsely' ),
+				filter.value, getPeriodDescription( period, true )
+			);
+		}
+
+		if ( PostFilterType.Author === filter.type ) {
+			return sprintf(
+				/* translators: 1: author name, 2: period */
+				__( 'Top related posts by %1$s in the %2$s.', 'wp-parsely' ),
+				filter.value, getPeriodDescription( period, true )
+			);
+		}
+
+		// Fallback to the default message.
+		return message ?? '';
+	};
+
+	return (
+		<div className="wp-parsely-related-posts">
+			<div className="related-posts-description">
+				{ __( 'Find top-performing related posts based on a key metric.', 'wp-parsely' ) }
+			</div>
+			<div className="related-posts-body">
+				<div className="related-posts-settings">
+					<SelectControl
+						size="__unstable-large"
+						onChange={ ( value ) => onMetricChange( value ) }
+						prefix={
+							<InputControlPrefixWrapper>{ __( 'Metric: ', 'wp-parsely' ) }</InputControlPrefixWrapper>
+						}
+						value={ metric }
+					>
+						{ Object.values( Metric ).map( ( value ) => (
+							<option key={ value } value={ value }>
+								{ getMetricDescription( value ) }
+							</option>
+						) ) }
+					</SelectControl>
+					<SelectControl
+						size="__unstable-large"
+						value={ period }
+						prefix={
+							<InputControlPrefixWrapper>{ __( 'Period: ', 'wp-parsely' ) } </InputControlPrefixWrapper>
+						}
+						onChange={ ( selection ) => onPeriodChange( selection ) }
+					>
+						{ Object.values( Period ).map( ( value ) => (
+							<option key={ value } value={ value }>
+								{ getPeriodDescription( value ) }
+							</option>
+						) ) }
+					</SelectControl>
+				</div>
+				<div className="related-posts-filter-settings">
+					<RelatedPostsFilterSettings
+						label={ __( 'Filter by', 'wp-parsely' ) }
+						filter={ filter }
+						onFilterTypeChange={ updateFilterType }
+						onFilterValueChange={ updateFilterValue }
+						postData={ postData }
+					/>
+				</div>
+
+				<div className="related-posts-wrapper">
+					<div>
+						<p className="related-posts-descr" data-testid="parsely-related-posts-descr">
+							{ getTopRelatedPostsMessage() }
+						</p>
+					</div>
+					{ error && (
+						error.Message()
+					) }
+					{ loading && (
+						<div
+							className="related-posts-loading-message"
+							data-testid="parsely-related-posts-loading-message"
+						>
+							{ __( 'Loading…', 'wp-parsely' ) }
+						</div>
+					) }
+					{ ! loading && ! error && posts.length === 0 && (
+						<div className="related-posts-empty">
+							{ __( 'No related posts found.', 'wp-parsely' ) }
+						</div>
+					) }
+					{ ! loading && posts.length > 0 && (
+						<div className="related-posts-list">
+							{ posts.map( ( post: PostData ) => (
+								<RelatedPostItem
+									key={ post.id }
+									metric={ metric }
+									post={ post }
+									postContent={ postContent }
+								/>
+							) ) }
+						</div>
+					) }
+				</div>
+			</div>
+		</div>
+	);
+};

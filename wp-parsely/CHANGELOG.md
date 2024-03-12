@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.14.0](https://github.com/Parsely/wp-parsely/compare/3.13.3...3.14.0) - 2024-03-12
+
+### Added
+
+- Add option for full metadata in non-posts ([#2250](https://github.com/Parsely/wp-parsely/pull/2250))
+- PCH: Add Smart Linking feature ([#2116](https://github.com/Parsely/wp-parsely/pull/2116))
+
+### Changed
+
+- PCH: Redesign the PCH Editor Sidebar ([#2238](https://github.com/Parsely/wp-parsely/pull/2238))
+- PCH: Update Content Suggestions API URL to the new version ([#2223](https://github.com/Parsely/wp-parsely/pull/2223))
+- Refactor endpoints availability code ([#2198](https://github.com/Parsely/wp-parsely/pull/2198))
+- PCH Settings: Refactor the client-side Settings API ([#2193](https://github.com/Parsely/wp-parsely/pull/2193))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.14.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.13.3](https://github.com/Parsely/wp-parsely/compare/3.13.2...3.13.3) - 2024-02-01
 
 ### Fixed
