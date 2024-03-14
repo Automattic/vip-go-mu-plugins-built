@@ -123,6 +123,7 @@ const FilterValues = ( {
 	return (
 		<div className="related-posts-filter-values">
 			<ComboboxControl
+				__next40pxDefaultSize
 				allowReset={ true }
 				onChange={ ( selection ) => props.onFilterValueChange( selection ) }
 				options={ getOptions() }

@@ -174,7 +174,6 @@
 						align-items: center;
 
 						> div:first-child {
-							flex: 1;
 							display: flex;
 							gap: var(--grid-unit-10, to_rem(8px));
 						}

@@ -27,6 +27,25 @@ abstract class Content_Suggestions_Base_API extends Base_Endpoint_Remote {
 	protected const API_BASE_URL = Parsely::PUBLIC_SUGGESTIONS_API_BASE_URL;
 
 	/**
+	 * Flag to truncate the content of the request body.
+	 * If set to true, the content of the request body will be truncated to a maximum length.
+	 *
+	 * @since 3.14.1
+	 *
+	 * @var bool
+	 */
+	protected const TRUNCATE_CONTENT = true;
+
+	/**
+	 * The maximum length of the content of the request body.
+	 *
+	 * @since 3.14.1
+	 *
+	 * @var int
+	 */
+	protected const TRUNCATE_CONTENT_LENGTH = 25000;
+
+	/**
 	 * Returns whether the endpoint is available for access by the current
 	 * user.
 	 *
@@ -117,12 +136,13 @@ abstract class Content_Suggestions_Base_API extends Base_Endpoint_Remote {
 		 */
 		$options = $this->get_request_options();
 		if ( count( $body ) > 0 ) {
+			$body = $this->truncate_array_content( $body );
+
 			$options['body'] = wp_json_encode( $body );
 			if ( false === $options['body'] ) {
 				return new WP_Error( 400, __( 'Unable to encode request body', 'wp-parsely' ) );
 			}
 		}
-
 		$response = wp_safe_remote_post( $full_api_url, $options );
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -141,5 +161,34 @@ abstract class Content_Suggestions_Base_API extends Base_Endpoint_Remote {
 		}
 
 		return $decoded;
+	}
+
+	/**
+	 * Truncates the content of an array to a maximum length.
+	 *
+	 * @since 3.14.1
+	 *
+	 * @param string|array|mixed $content The content to truncate.
+	 * @return string|array|mixed The truncated content.
+	 */
+	public function truncate_array_content( $content ) {
+		if ( is_array( $content ) ) {
+			// If the content is an array, iterate over its elements.
+			foreach ( $content as $key => $value ) {
+				// Recursively process/truncate each element of the array.
+				$content[ $key ] = $this->truncate_array_content( $value );
+			}
+			return $content;
+		} elseif ( is_string( $content ) ) {
+			// If the content is a string, truncate it.
+			if ( static::TRUNCATE_CONTENT ) {
+				// Check if the string length exceeds the maximum and truncate if necessary.
+				if ( mb_strlen( $content ) > self::TRUNCATE_CONTENT_LENGTH ) {
+					return mb_substr( $content, 0, self::TRUNCATE_CONTENT_LENGTH );
+				}
+			}
+			return $content;
+		}
+		return $content;
 	}
 }

@@ -20,6 +20,7 @@ use WP_REST_Server;
 use function Parsely\Utils\convert_endpoint_to_filter_key;
 use function Parsely\Utils\get_date_format;
 use function Parsely\Utils\get_formatted_duration;
+use function Parsely\Utils\parsely_is_https_supported;
 
 /**
  * Configures a REST API endpoint for use.
@@ -237,13 +238,18 @@ abstract class Base_API_Proxy {
 		if ( isset( $item->url ) ) {
 			$site_id = $this->parsely->get_site_id();
 			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
-			$post_id        = url_to_postid( $item->url ); // 0 if the post cannot be found.
-			$data['rawUrl'] = Parsely::get_url_with_itm_source( $item->url, null );
+			$post_id = url_to_postid( $item->url ); // 0 if the post cannot be found.
 
-			$data['dashUrl'] = Parsely::get_dash_url( $site_id, $item->url );
-			$data['id']      = Parsely::get_url_with_itm_source( $item->url, null ); // Unique.
+			$post_url = Parsely::get_url_with_itm_source( $item->url, null );
+			if ( parsely_is_https_supported() ) {
+				$post_url = str_replace( 'http://', 'https://', $post_url );
+			}
+
+			$data['rawUrl']  = $post_url;
+			$data['dashUrl'] = Parsely::get_dash_url( $site_id, $post_url );
+			$data['id']      = Parsely::get_url_with_itm_source( $post_url, null ); // Unique.
 			$data['postId']  = $post_id; // Might not be unique.
-			$data['url']     = Parsely::get_url_with_itm_source( $item->url, $this->itm_source );
+			$data['url']     = Parsely::get_url_with_itm_source( $post_url, $this->itm_source );
 
 			// Set thumbnail URL, falling back to the Parse.ly thumbnail if needed.
 			$thumbnail_url = get_the_post_thumbnail_url( $post_id, 'thumbnail' );

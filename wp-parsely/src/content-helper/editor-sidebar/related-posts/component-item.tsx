@@ -10,6 +10,7 @@ import { Icon, copySmall, link, seen } from '@wordpress/icons';
  * Internal dependencies
  */
 import { LeafIcon } from '../../common/icons/leaf-icon';
+import { escapeRegExp } from '../../common/utils/functions';
 import { PostListItemMetric, PostListItemProps } from '../../common/utils/post';
 
 /**
@@ -37,10 +38,27 @@ export const RelatedPostItem = (
 ): JSX.Element => {
 	const { createNotice } = useDispatch( 'core/notices' );
 
-	let isLinked = false;
-	if ( postContent ) {
-		isLinked = postContent.includes( post.rawUrl );
-	}
+	/**
+	 * Checks if a hyperlink is present in the content by using a regular expression.
+	 *
+	 * @since 3.14.1
+	 *
+	 * @param { string } content
+	 * @param { string } rawUrl
+	 *
+	 * @return { boolean } Whether the link is present in the content.
+	 */
+	const isLinkPresentInContent = ( content: string, rawUrl: string ): boolean => {
+		const escapedUrl = escapeRegExp( rawUrl );
+		const regexPattern = new RegExp(
+			`<a [^>]*href=["'](http:\/\/|https:\/\/)?.*${ escapedUrl }.*["'][^>]*>`,
+			'i'
+		);
+
+		return regexPattern.test( content );
+	};
+
+	const isLinked = postContent && isLinkPresentInContent( postContent, post.rawUrl );
 
 	return (
 		<div className="related-post-single" data-testid="related-post-single">

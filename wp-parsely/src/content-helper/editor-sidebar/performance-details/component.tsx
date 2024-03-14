@@ -2,8 +2,8 @@
  * WordPress dependencies
  */
 import {
-	__experimentalInputControlPrefixWrapper as InputControlPrefixWrapper,
 	Button,
+	__experimentalInputControlPrefixWrapper as InputControlPrefixWrapper,
 	MenuGroup,
 	MenuItem,
 	SelectControl,
@@ -32,8 +32,8 @@ import { PerformanceCategoriesPanel } from './component-panel-categories';
 import { PerformanceOverviewPanel } from './component-panel-overview';
 import { PerformanceReferrersPanel } from './component-panel-referrers';
 import { PerformanceData } from './model';
-import { PerformanceDetailsProvider } from './provider';
 import './performance-details.scss';
+import { PerformanceDetailsProvider } from './provider';
 
 // Number of attempts to fetch the data before displaying an error.
 const FETCH_RETRIES = 1;

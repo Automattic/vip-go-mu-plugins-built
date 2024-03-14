@@ -9,8 +9,8 @@ import { addFilter } from '@wordpress/hooks';
 /**
  * Internal dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { Telemetry } from '../../../js/telemetry/telemetry';
-import { BetaBadge } from '../../common/components/beta-badge';
 import { LeafIcon } from '../../common/icons/leaf-icon';
 import { SettingsProvider, SidebarSettings, useSettings } from '../../common/settings';
 import { VerifyCredentials } from '../../common/verify-credentials';
@@ -64,10 +64,10 @@ const SmartLinkingInspectorControlPanel = createHigherOrderComponent( ( BlockEdi
 				{ /* @ts-ignore */ }
 				<InspectorControls group="list">
 					<PanelBody
-						title="Smart Linking"
+						title={ __( 'Smart Linking (Beta)', 'wp-parsely' ) }
 						initialOpen={ settings.SmartLinkingOpen }
 						className="wp-parsely-panel wp-parsely-smart-linking-panel"
-						icon={ <><LeafIcon /> <BetaBadge /></> }
+						icon={ <LeafIcon /> }
 						onToggle={ ( next ) => {
 							setSettings( { SmartLinkingOpen: next } );
 							Telemetry.trackEvent( 'smart_linking_block_inspector_panel_toggled', { open: next } );

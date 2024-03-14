@@ -359,3 +359,29 @@ function str_starts_with( string $haystack, string $needle ): bool {
 	}
 	return 0 === strpos( $haystack, $needle );
 }
+
+/**
+ * Checks if HTTPS is supported for the site.
+ *
+ * This function checks if the WordPress function 'wp_is_using_https' exists and uses it to determine if
+ * HTTPS is supported.
+ * If the function does not exist, it checks if the home URL scheme is HTTPS.
+ * If neither of the above conditions are met, it checks if the site URL option scheme is HTTPS.
+ *
+ * @since 3.14.1
+ *
+ * @return bool Returns true if HTTPS is supported, false otherwise.
+ */
+function parsely_is_https_supported(): bool {
+	if ( function_exists( 'wp_is_using_https' ) ) {
+		return wp_is_using_https();
+	}
+
+	if ( 'https' === wp_parse_url( home_url(), PHP_URL_SCHEME ) ) {
+		return true;
+	}
+
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+	$site_url = apply_filters( 'site_url', get_option( 'siteurl' ), '', null, null );
+	return 'https' === wp_parse_url( $site_url, PHP_URL_SCHEME );
+}

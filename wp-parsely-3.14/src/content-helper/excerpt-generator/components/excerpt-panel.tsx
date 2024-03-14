@@ -85,12 +85,12 @@ const PostExcerptGenerator = () => {
 	const generateExcerpt = async () => {
 		setLoading( true );
 		setError( undefined );
-		setGeneratedExcerptCount( generatedExcerptCount + 1 );
 
 		try {
 			Telemetry.trackEvent( 'excerpt_generator_pressed' );
 			const requestedExcerpt = await excerptGeneratorProvider.generateExcerpt( postTitle, postContent );
 			setGeneratedExcerpt( requestedExcerpt );
+			setGeneratedExcerptCount( generatedExcerptCount + 1 );
 		} catch ( err: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			setError( err );
 		} finally {

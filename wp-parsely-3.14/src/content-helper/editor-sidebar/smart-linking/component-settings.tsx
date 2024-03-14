@@ -61,7 +61,6 @@ export const SmartLinkingSettings = ( {
 
 	const toggleGroupRef = useRef<HTMLDivElement>();
 	const [ applyTo, setApplyTo ] = useState( getToggleGroupValue() );
-	const [ wasProgrammaticallyClicked, setWasProgrammaticallyClicked ] = useState( false );
 
 	/**
 	 * Gets the settings from the Smart Linking store.
@@ -100,22 +99,12 @@ export const SmartLinkingSettings = ( {
 	 * @param {string|number|undefined} value The selected value.
 	 */
 	const onToggleGroupChange = ( value: string|number|undefined ) => {
-		// Ignore the onToggleGroupChange event if it was triggered programmatically.
-		if ( wasProgrammaticallyClicked ) {
-			setWasProgrammaticallyClicked( false );
-			return;
-		}
-
 		if ( disabled ) {
 			return;
 		}
 
 		// Update the settings based on the selected value.
-		if ( value === 'all' ) {
-			setFullContent( true );
-		} else {
-			setFullContent( false );
-		}
+		setFullContent( value === 'all' );
 		setApplyTo( value as string );
 	};
 
@@ -134,8 +123,6 @@ export const SmartLinkingSettings = ( {
 			if ( targetButton && targetButton.getAttribute( 'aria-checked' ) !== 'true' ) {
 				// Simulate a click on the button to set the correct value.
 				targetButton.click();
-				// Flag that the button was clicked programmatically.
-				setWasProgrammaticallyClicked( true );
 				// Flag that the button was already clicked as it's only needed on the first time.
 				setAlreadyClicked( true );
 			}

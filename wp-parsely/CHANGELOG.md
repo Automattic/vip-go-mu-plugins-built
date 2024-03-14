@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.14.1](https://github.com/Parsely/wp-parsely/compare/3.14.0...3.14.1) - 2024-03-14
+
+### Changed
+
+- PCH Related Posts: Move action icons to the left ([#2291](https://github.com/Parsely/wp-parsely/pull/2291))
+- PCH Related Posts: Check for links in the content by looking for hyperlinks instead ([#2290](https://github.com/Parsely/wp-parsely/pull/2290))
+- PCH Smart Linking: Remove Beta Badge ([#2289](https://github.com/Parsely/wp-parsely/pull/2289))
+- Content Suggestions API: Truncate very large strings on the body params ([#2286](https://github.com/Parsely/wp-parsely/pull/2286))
+
+### Fixed
+
+- PCH Editor Sidebar: Fix some UI glitches ([#2288](https://github.com/Parsely/wp-parsely/pull/2288))
+- PCH Related Posts: Use HTTPS URLs when the site is using HTTPS ([#2287](https://github.com/Parsely/wp-parsely/pull/2287))
+- PCH Smart Linking: Fix issues applying Smart Links ([#2285](https://github.com/Parsely/wp-parsely/pull/2285))
+
 ## [3.14.0](https://github.com/Parsely/wp-parsely/compare/3.13.3...3.14.0) - 2024-03-12
 
 ### Added

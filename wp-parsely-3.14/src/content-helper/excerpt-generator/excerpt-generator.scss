@@ -31,11 +31,6 @@
 			display: inline-block;
 			padding: 0;
 			margin-left: to_rem(5px);
-
-			span.beta-label {
-				padding-left: to_rem(6px);
-				color: var(--Gutenberg-Gray-700, #757575);
-			}
 		}
 	}
 
@@ -50,6 +45,22 @@
 			margin-bottom: var(--grid-unit-10, to_rem(8px));
 			margin-top: var(--grid-unit-10, to_rem(8px));
 			padding: var(--grid-unit-10, to_rem(8px)) var(--grid-unit-15, to_rem(12px));
+		}
+	}
+
+	.components-notice {
+		margin: var(--grid-unit-20, to_rem(16px)) 0 var(--grid-unit-15, to_rem(12px)) 0;
+
+		.components-notice__content {
+			margin: 0;
+
+			.content-helper-error-message {
+				margin-top: 0 !important;
+
+				p:last-child {
+					margin-bottom: 0 !important;
+				}
+			}
 		}
 	}
 }
