@@ -5,7 +5,7 @@ import { Button, Notice, PanelRow } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { external, Icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -248,7 +248,7 @@ export const TitleSuggestionsPanel = (): JSX.Element => {
 				</div>
 				{ error && (
 					<Notice status="info" isDismissible={ false } className="wp-parsely-content-helper-error">
-						{ error.message }
+						{ error.Message() }
 					</Notice>
 				) }
 				{ ( originalTitle !== undefined ) && (

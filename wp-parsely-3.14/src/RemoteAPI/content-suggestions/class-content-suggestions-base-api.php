@@ -143,14 +143,24 @@ abstract class Content_Suggestions_Base_API extends Base_Endpoint_Remote {
 				return new WP_Error( 400, __( 'Unable to encode request body', 'wp-parsely' ) );
 			}
 		}
+
 		$response = wp_safe_remote_post( $full_api_url, $options );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
+		// Handle any errors returned by the API.
 		if ( 200 !== $response['response']['code'] ) {
-			$error = $response['response'];
-			return new WP_Error( $error['code'], $error['message'] );
+			$error = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			if ( ! is_array( $error ) ) {
+				return new WP_Error(
+					400,
+					__( 'Unable to decode upstream API error', 'wp-parsely' )
+				);
+			}
+
+			return new WP_Error( $error['error'], $error['detail'] );
 		}
 
 		$body    = wp_remote_retrieve_body( $response );

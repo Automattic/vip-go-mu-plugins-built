@@ -1,5 +1,6 @@
 @import "../common/css/variables";
 @import "../common/css/functions";
+@import "../common/css/common";
 
 // Set the colors of the sidebar icon.
 .components-button[aria-controls="wp-parsely-block-editor-sidebar:wp-parsely-content-helper"] {
@@ -33,6 +34,22 @@
 
 p.content-helper-error-message-hint {
 	color: var(--gray-700);
+}
+
+// Notice components with errors that appear within Sidebar panels.
+.wp-parsely-content-helper-error.components-notice {
+
+	.components-notice__content {
+		margin: 0;
+
+		.content-helper-error-message {
+			margin-top: 0 !important;
+
+			p:last-child {
+				margin-bottom: 0 !important;
+			}
+		}
+	}
 }
 
 .wp-parsely-content-helper {

@@ -1,7 +1,5 @@
 @import "../../common/css/variables";
 @import "../../common/css/functions";
-@import "../../common/components/tone-selector/style";
-@import "../../common/components/persona-selector/style";
 
 // Title Suggestion Panel CSS.
 .wp-parsely-content-helper .wp-parsely-title-suggestions-wrapper {
@@ -188,6 +186,9 @@
 		align-self: stretch;
 	}
 
+	.wp-parsely-content-helper-error.components-notice {
+		margin-bottom: var(--grid-unit-10, to_rem(8px));
+	}
 }
 
 .wp-parsely-popover .components-popover__content {

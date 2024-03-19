@@ -158,7 +158,7 @@ const PerformanceStatsMenu = (
 				VisiblePanels: availablePanels.map( ( panel ) => panel.name ),
 			},
 		} );
-		Telemetry.trackEvent( 'editor_sidebar_performance_panel_reset' );
+		Telemetry.trackEvent( 'editor_sidebar_performance_panels_reset' );
 		onClose();
 	};
 

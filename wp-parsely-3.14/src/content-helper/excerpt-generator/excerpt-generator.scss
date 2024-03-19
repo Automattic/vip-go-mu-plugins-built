@@ -31,6 +31,11 @@
 			display: inline-block;
 			padding: 0;
 			margin-left: to_rem(5px);
+
+			span.beta-label {
+				padding-left: to_rem(6px);
+				color: var(--Gutenberg-Gray-700, #757575);
+			}
 		}
 	}
 

@@ -31,7 +31,7 @@ export const DEFAULT_MAX_LINK_WORDS = 4;
  */
 const withSettingsProvider = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
-		if ( ! props.isSelected || props.name !== 'core/paragraph' ) {
+		if ( props.name !== 'core/paragraph' ) {
 			return <BlockEdit { ...props } />;
 		}
 

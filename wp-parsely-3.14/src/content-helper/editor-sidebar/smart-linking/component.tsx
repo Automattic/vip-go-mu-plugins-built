@@ -8,7 +8,7 @@ import { useDebounce } from '@wordpress/compose';
 import { dispatch, select, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { external, Icon } from '@wordpress/icons';
+import { Icon, external } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -512,7 +512,7 @@ export const SmartLinkingPanel = ( {
 				</div>
 				{ error && (
 					<Notice status="info" isDismissible={ false } className="wp-parsely-content-helper-error">
-						{ error.message }
+						{ error.Message() }
 					</Notice>
 				) }
 				{ suggestedLinks !== null && (

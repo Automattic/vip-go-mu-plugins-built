@@ -179,7 +179,9 @@ const OverviewMenu = (
 					),
 				},
 			} );
-			Telemetry.trackEvent( 'editor_sidebar_performance_datapoint_hidden', { dataPoint } );
+			Telemetry.trackEvent( 'editor_sidebar_performance_datapoint_hidden',
+				{ datapoint: dataPoint }
+			);
 		} else {
 			setSettings( {
 				PerformanceStatsSettings: {
@@ -187,7 +189,9 @@ const OverviewMenu = (
 					VisibleDataPoints: [ ...settings.PerformanceStatsSettings.VisibleDataPoints, dataPoint ],
 				},
 			} );
-			Telemetry.trackEvent( 'editor_sidebar_performance_datapoint_shown', { dataPoint } );
+			Telemetry.trackEvent( 'editor_sidebar_performance_datapoint_shown',
+				{ datapoint: dataPoint }
+			);
 		}
 	};
 

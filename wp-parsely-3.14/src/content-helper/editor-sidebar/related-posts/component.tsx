@@ -371,15 +371,18 @@ export const RelatedPostsPanel = (): JSX.Element => {
 						) ) }
 					</SelectControl>
 				</div>
-				<div className="related-posts-filter-settings">
-					<RelatedPostsFilterSettings
-						label={ __( 'Filter by', 'wp-parsely' ) }
-						filter={ filter }
-						onFilterTypeChange={ updateFilterType }
-						onFilterValueChange={ updateFilterValue }
-						postData={ postData }
-					/>
-				</div>
+				{
+					( postData.tags.length > 0 || postData.categories.length > 0 ) &&
+					<div className="related-posts-filter-settings">
+						<RelatedPostsFilterSettings
+							label={ __( 'Filter by', 'wp-parsely' ) }
+							filter={ filter }
+							onFilterTypeChange={ updateFilterType }
+							onFilterValueChange={ updateFilterValue }
+							postData={ postData }
+						/>
+					</div>
+				}
 
 				<div className="related-posts-wrapper">
 					<div>
