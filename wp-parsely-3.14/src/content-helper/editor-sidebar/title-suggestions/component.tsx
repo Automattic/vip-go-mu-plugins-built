@@ -35,8 +35,8 @@ export const TitleSuggestionsPanel = (): JSX.Element => {
 	const { settings, setSettings } = useSettings<SidebarSettings>();
 
 	const [ error, setError ] = useState<ContentHelperError>();
-	const [ tone, setTone ] = useState<ToneProp>( settings.TitleSuggestionsSettings.Tone );
-	const [ persona, setPersona ] = useState<PersonaProp>( settings.TitleSuggestionsSettings.Persona );
+	const [ tone, setTone ] = useState<ToneProp>( settings.TitleSuggestions.Tone );
+	const [ persona, setPersona ] = useState<PersonaProp>( settings.TitleSuggestions.Persona );
 
 	const {
 		loading,
@@ -74,10 +74,10 @@ export const TitleSuggestionsPanel = (): JSX.Element => {
 
 	const { createNotice } = useDispatch( 'core/notices' );
 
-	const onSettingChange = ( key: keyof SidebarSettings[ 'TitleSuggestionsSettings' ], value: string | boolean ) => {
+	const onSettingChange = ( key: keyof SidebarSettings[ 'TitleSuggestions' ], value: string | boolean ) => {
 		setSettings( {
-			TitleSuggestionsSettings: {
-				...settings.TitleSuggestionsSettings,
+			TitleSuggestions: {
+				...settings.TitleSuggestions,
 				[ key ]: value,
 			},
 		} );
@@ -285,8 +285,8 @@ export const TitleSuggestionsPanel = (): JSX.Element => {
 						onSettingChange( 'Tone', selectedTone );
 						setTone( selectedTone );
 					} }
-					persona={ settings.TitleSuggestionsSettings.Persona }
-					tone={ settings.TitleSuggestionsSettings.Tone }
+					persona={ settings.TitleSuggestions.Persona }
+					tone={ settings.TitleSuggestions.Tone }
 				/>
 				<div className="title-suggestions-generate">
 					<Button

@@ -65,11 +65,18 @@ const SmartLinkingInspectorControlPanel = createHigherOrderComponent( ( BlockEdi
 				<InspectorControls group="list">
 					<PanelBody
 						title={ __( 'Smart Linking (Beta)', 'wp-parsely' ) }
-						initialOpen={ settings.SmartLinkingOpen }
+						initialOpen={ settings.SmartLinking.Open }
 						className="wp-parsely-panel wp-parsely-smart-linking-panel"
 						icon={ <LeafIcon /> }
 						onToggle={ ( next ) => {
-							setSettings( { SmartLinkingOpen: next } );
+							setSettings(
+								{
+									SmartLinking: {
+										...settings.SmartLinking,
+										Open: next,
+									},
+								}
+							);
 							Telemetry.trackEvent( 'smart_linking_block_inspector_panel_toggled', { open: next } );
 						} }
 					>

@@ -70,20 +70,24 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 	// Default settings object.
 	const defaultSettings: SidebarSettings = {
 		InitialTabName: 'tools',
-		PerformanceStatsSettings: {
+		PerformanceStats: {
 			Period: Period.Days7,
 			VisiblePanels: [ 'overview', 'categories', 'referrers' ],
 			VisibleDataPoints: [ 'views', 'visitors', 'avgEngaged', 'recirculation' ],
 		},
-		RelatedPostsFilterBy: PostFilterType.Unavailable,
-		RelatedPostsFilterValue: '',
-		RelatedPostsMetric: Metric.Views,
-		RelatedPostsOpen: false,
-		RelatedPostsPeriod: Period.Days7,
-		SmartLinkingMaxLinks: DEFAULT_MAX_LINKS,
-		SmartLinkingMaxLinkWords: DEFAULT_MAX_LINK_WORDS,
-		SmartLinkingOpen: false,
-		TitleSuggestionsSettings: {
+		RelatedPosts: {
+			FilterBy: PostFilterType.Unavailable,
+			FilterValue: '',
+			Metric: Metric.Views,
+			Open: false,
+			Period: Period.Days7,
+		},
+		SmartLinking: {
+			MaxLinks: DEFAULT_MAX_LINKS,
+			MaxLinkWords: DEFAULT_MAX_LINK_WORDS,
+			Open: false,
+		},
+		TitleSuggestions: {
 			Open: false,
 			Tone: 'neutral',
 			Persona: 'journalist',
@@ -110,53 +114,59 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 	if ( typeof mergedSettings.InitialTabName !== 'string' ) {
 		mergedSettings.InitialTabName = defaultSettings.InitialTabName;
 	}
-	if ( typeof mergedSettings.PerformanceStatsSettings !== 'object' ) {
-		mergedSettings.PerformanceStatsSettings = defaultSettings.PerformanceStatsSettings;
+	if ( typeof mergedSettings.PerformanceStats !== 'object' ) {
+		mergedSettings.PerformanceStats = defaultSettings.PerformanceStats;
 	}
-	if ( ! isInEnum( mergedSettings.PerformanceStatsSettings.Period, Period ) ) {
-		mergedSettings.PerformanceStatsSettings.Period = defaultSettings.PerformanceStatsSettings.Period;
+	if ( ! isInEnum( mergedSettings.PerformanceStats.Period, Period ) ) {
+		mergedSettings.PerformanceStats.Period = defaultSettings.PerformanceStats.Period;
 	}
-	if ( ! Array.isArray( mergedSettings.PerformanceStatsSettings.VisiblePanels ) ) {
-		mergedSettings.PerformanceStatsSettings.VisiblePanels = defaultSettings.PerformanceStatsSettings.VisiblePanels;
+	if ( ! Array.isArray( mergedSettings.PerformanceStats.VisiblePanels ) ) {
+		mergedSettings.PerformanceStats.VisiblePanels = defaultSettings.PerformanceStats.VisiblePanels;
 	}
-	if ( ! Array.isArray( mergedSettings.PerformanceStatsSettings.VisibleDataPoints ) ) {
-		mergedSettings.PerformanceStatsSettings.VisibleDataPoints = defaultSettings.PerformanceStatsSettings.VisibleDataPoints;
+	if ( ! Array.isArray( mergedSettings.PerformanceStats.VisibleDataPoints ) ) {
+		mergedSettings.PerformanceStats.VisibleDataPoints = defaultSettings.PerformanceStats.VisibleDataPoints;
 	}
-	if ( ! isInEnum( mergedSettings.RelatedPostsFilterBy, PostFilterType ) ) {
-		mergedSettings.RelatedPostsFilterBy = defaultSettings.RelatedPostsFilterBy;
+	if ( typeof mergedSettings.RelatedPosts !== 'object' ) {
+		mergedSettings.RelatedPosts = defaultSettings.RelatedPosts;
 	}
-	if ( typeof mergedSettings.RelatedPostsFilterValue !== 'string' ) {
-		mergedSettings.RelatedPostsFilterValue = defaultSettings.RelatedPostsFilterValue;
+	if ( ! isInEnum( mergedSettings.RelatedPosts.FilterBy, PostFilterType ) ) {
+		mergedSettings.RelatedPosts.FilterBy = defaultSettings.RelatedPosts.FilterBy;
 	}
-	if ( ! isInEnum( mergedSettings.RelatedPostsMetric, Metric ) ) {
-		mergedSettings.RelatedPostsMetric = defaultSettings.RelatedPostsMetric;
+	if ( typeof mergedSettings.RelatedPosts.FilterValue !== 'string' ) {
+		mergedSettings.RelatedPosts.FilterValue = defaultSettings.RelatedPosts.FilterValue;
 	}
-	if ( typeof mergedSettings.RelatedPostsOpen !== 'boolean' ) {
-		mergedSettings.RelatedPostsOpen = defaultSettings.RelatedPostsOpen;
+	if ( ! isInEnum( mergedSettings.RelatedPosts.Metric, Metric ) ) {
+		mergedSettings.RelatedPosts.Metric = defaultSettings.RelatedPosts.Metric;
 	}
-	if ( ! isInEnum( mergedSettings.RelatedPostsPeriod, Period ) ) {
-		mergedSettings.RelatedPostsPeriod = defaultSettings.RelatedPostsPeriod;
+	if ( typeof mergedSettings.RelatedPosts.Open !== 'boolean' ) {
+		mergedSettings.RelatedPosts.Open = defaultSettings.RelatedPosts.Open;
 	}
-	if ( typeof mergedSettings.SmartLinkingMaxLinks !== 'number' ) {
-		mergedSettings.SmartLinkingMaxLinks = defaultSettings.SmartLinkingMaxLinks;
+	if ( ! isInEnum( mergedSettings.RelatedPosts.Period, Period ) ) {
+		mergedSettings.RelatedPosts.Period = defaultSettings.RelatedPosts.Period;
 	}
-	if ( typeof mergedSettings.SmartLinkingMaxLinkWords !== 'number' ) {
-		mergedSettings.SmartLinkingMaxLinkWords = defaultSettings.SmartLinkingMaxLinkWords;
+	if ( typeof mergedSettings.SmartLinking !== 'object' ) {
+		mergedSettings.SmartLinking = defaultSettings.SmartLinking;
 	}
-	if ( typeof mergedSettings.SmartLinkingOpen !== 'boolean' ) {
-		mergedSettings.SmartLinkingOpen = defaultSettings.SmartLinkingOpen;
+	if ( typeof mergedSettings.SmartLinking.MaxLinks !== 'number' ) {
+		mergedSettings.SmartLinking.MaxLinks = defaultSettings.SmartLinking.MaxLinks;
 	}
-	if ( typeof mergedSettings.TitleSuggestionsSettings !== 'object' ) {
-		mergedSettings.TitleSuggestionsSettings = defaultSettings.TitleSuggestionsSettings;
+	if ( typeof mergedSettings.SmartLinking.MaxLinkWords !== 'number' ) {
+		mergedSettings.SmartLinking.MaxLinkWords = defaultSettings.SmartLinking.MaxLinkWords;
 	}
-	if ( typeof mergedSettings.TitleSuggestionsSettings.Open !== 'boolean' ) {
-		mergedSettings.TitleSuggestionsSettings.Open = defaultSettings.TitleSuggestionsSettings.Open;
+	if ( typeof mergedSettings.SmartLinking.Open !== 'boolean' ) {
+		mergedSettings.SmartLinking.Open = defaultSettings.SmartLinking.Open;
 	}
-	if ( typeof mergedSettings.TitleSuggestionsSettings.Tone !== 'string' ) {
-		mergedSettings.TitleSuggestionsSettings.Tone = defaultSettings.TitleSuggestionsSettings.Tone;
+	if ( typeof mergedSettings.TitleSuggestions !== 'object' ) {
+		mergedSettings.TitleSuggestions = defaultSettings.TitleSuggestions;
 	}
-	if ( typeof mergedSettings.TitleSuggestionsSettings.Persona !== 'string' ) {
-		mergedSettings.TitleSuggestionsSettings.Persona = defaultSettings.TitleSuggestionsSettings.Persona;
+	if ( typeof mergedSettings.TitleSuggestions.Open !== 'boolean' ) {
+		mergedSettings.TitleSuggestions.Open = defaultSettings.TitleSuggestions.Open;
+	}
+	if ( typeof mergedSettings.TitleSuggestions.Tone !== 'string' ) {
+		mergedSettings.TitleSuggestions.Tone = defaultSettings.TitleSuggestions.Tone;
+	}
+	if ( typeof mergedSettings.TitleSuggestions.Persona !== 'string' ) {
+		mergedSettings.TitleSuggestions.Persona = defaultSettings.TitleSuggestions.Persona;
 	}
 
 	return mergedSettings;
@@ -242,7 +252,7 @@ const ContentHelperEditorSidebar = (): JSX.Element => {
 								) }
 								{ tab.name === 'performance' && (
 									<SidebarPerformanceTab
-										period={ settings.PerformanceStatsSettings.Period }
+										period={ settings.PerformanceStats.Period }
 									/>
 								) }
 							</>

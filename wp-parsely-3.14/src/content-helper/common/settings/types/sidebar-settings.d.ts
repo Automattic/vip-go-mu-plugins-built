@@ -8,16 +8,10 @@ import { Metric, Period } from '../../utils/constants';
  */
 export interface SidebarSettings {
 	InitialTabName: string;
-	PerformanceStatsSettings: PerformanceStatsSettings;
-	RelatedPostsFilterBy: string;
-	RelatedPostsFilterValue: string;
-	RelatedPostsMetric: Metric;
-	RelatedPostsOpen: boolean;
-	RelatedPostsPeriod: Period;
-	SmartLinkingMaxLinks: number;
-	SmartLinkingMaxLinkWords: number;
-	SmartLinkingOpen: boolean;
-	TitleSuggestionsSettings: TitleSuggestionsSettings;
+	PerformanceStats: PerformanceStatsSettings;
+	RelatedPosts: RelatedPostsSettings;
+	SmartLinking: SmartLinkingSettings;
+	TitleSuggestions: TitleSuggestionsSettings;
 }
 
 /**
@@ -40,4 +34,28 @@ export interface TitleSuggestionsSettings {
 	Open: boolean;
 	Persona: string;
 	Tone: string;
+}
+
+/**
+ * Defines the settings structure for the RelatedPosts component.
+ *
+ * @since 3.14.3
+ */
+export interface RelatedPostsSettings {
+	FilterBy: string;
+	FilterValue: string;
+	Metric: Metric;
+	Open: boolean;
+	Period: Period;
+}
+
+/**
+ * Defines the settings structure for the SmartLinking component.
+ *
+ * @since 3.14.3
+ */
+export interface SmartLinkingSettings {
+	MaxLinks: number;
+	MaxLinkWords: number;
+	Open: boolean;
 }

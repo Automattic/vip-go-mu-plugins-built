@@ -16,7 +16,7 @@ type TitleSuggestionsSettingsProps = {
 	isLoading?: boolean,
 	onPersonaChange: ( persona: PersonaProp | string ) => void,
 	onSettingChange: (
-		key: keyof SidebarSettings[ 'TitleSuggestionsSettings'],
+		key: keyof SidebarSettings[ 'TitleSuggestions'],
 		value: string|boolean
 	) => void,
 	onToneChange: ( tone: ToneProp | string ) => void,

@@ -7,9 +7,7 @@ import {
 } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 // eslint-disable-next-line import/named
-import { store as coreStore, Taxonomy, User } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -33,6 +31,7 @@ import { PostData } from '../../common/utils/post';
 import { SidebarPostData } from '../editor-sidebar';
 import { RelatedPostsFilterSettings } from './component-filter-settings';
 import { RelatedPostItem } from './component-item';
+import { usePostData } from './hooks';
 import { RelatedPostsProvider } from './provider';
 import './related-posts.scss';
 
@@ -46,8 +45,8 @@ const FETCH_RETRIES = 1;
 export const RelatedPostsPanel = (): JSX.Element => {
 	const { settings, setSettings } = useSettings<SidebarSettings>();
 
-	const period = settings.RelatedPostsPeriod;
-	const metric = settings.RelatedPostsMetric;
+	const period = settings.RelatedPosts.Period;
+	const metric = settings.RelatedPosts.Metric;
 
 	const [ postData, setPostData ] = useState<SidebarPostData>( {
 		authors: [], categories: [], tags: [],
@@ -58,29 +57,14 @@ export const RelatedPostsPanel = (): JSX.Element => {
 	 *
 	 * @since 3.11.0
 	 * @since 3.14.0 Moved from `editor-sidebar.tsx`.
+	 * @since 3.14.3 Moved to a custom usePostData hook in `hooks.ts`.
 	 */
-	const { authors, categories, tags } = useSelect( ( select ) => {
-		const { getEditedPostAttribute } = select( editorStore ) as GutenbergFunction;
-		const { getEntityRecords } = select( coreStore );
-
-		const authorRecords: User[] | null = getEntityRecords(
-			'root', 'user', { include: getEditedPostAttribute( 'author' ) }
-		);
-
-		const categoryRecords: Taxonomy[] | null = getEntityRecords(
-			'taxonomy', 'category', { include: getEditedPostAttribute( 'categories' ) }
-		);
-
-		const tagRecords: Taxonomy[]|null = getEntityRecords(
-			'taxonomy', 'post_tag', { include: getEditedPostAttribute( 'tags' ) }
-		);
-
-		return {
-			authors: authorRecords,
-			categories: categoryRecords,
-			tags: tagRecords,
-		};
-	}, [] );
+	const {
+		authors,
+		categories,
+		tags,
+		isReady: isPostDataReady,
+	} = usePostData();
 
 	useEffect( () => {
 		// Set the post data only when all required properties have become
@@ -92,7 +76,7 @@ export const RelatedPostsPanel = (): JSX.Element => {
 				tags: tags.map( ( t ) => t.name ),
 			} );
 		}
-	}, [ authors, categories, tags ] );
+	}, [ authors, categories, tags, isPostDataReady ] );
 
 	const [ loading, setLoading ] = useState<boolean>( true );
 	const [ error, setError ] = useState<ContentHelperError>();
@@ -100,8 +84,8 @@ export const RelatedPostsPanel = (): JSX.Element => {
 	const [ posts, setPosts ] = useState<PostData[]>( [] );
 	const [ filter, setFilter ] = useState<PostFilter>(
 		{
-			type: settings.RelatedPostsFilterBy as PostFilterType,
-			value: settings.RelatedPostsFilterValue,
+			type: settings.RelatedPosts.FilterBy as PostFilterType,
+			value: settings.RelatedPosts.FilterValue,
 		}
 	);
 
@@ -124,8 +108,11 @@ export const RelatedPostsPanel = (): JSX.Element => {
 	 */
 	const onFilterChange = ( filterBy: PostFilterType, value: string ): void => {
 		setSettings( {
-			RelatedPostsFilterBy: filterBy,
-			RelatedPostsFilterValue: value,
+			RelatedPosts: {
+				...settings.RelatedPosts,
+				FilterBy: filterBy,
+				FilterValue: value,
+			},
 		} );
 	};
 
@@ -139,7 +126,10 @@ export const RelatedPostsPanel = (): JSX.Element => {
 	const onMetricChange = ( selection: string ) => {
 		if ( isInEnum( selection, Metric ) ) {
 			setSettings( {
-				RelatedPostsMetric: selection as Metric,
+				RelatedPosts: {
+					...settings.RelatedPosts,
+					Metric: selection as Metric,
+				},
 			} );
 			Telemetry.trackEvent( 'related_posts_metric_changed', { metric: selection } );
 		}
@@ -155,7 +145,10 @@ export const RelatedPostsPanel = (): JSX.Element => {
 	const onPeriodChange = ( selection: string ) => {
 		if ( isInEnum( selection, Period ) ) {
 			setSettings( {
-				RelatedPostsPeriod: selection as Period,
+				RelatedPosts: {
+					...settings.RelatedPosts,
+					Period: selection as Period,
+				},
 			} );
 			Telemetry.trackEvent( 'related_posts_period_changed', { period: selection } );
 		}
@@ -260,7 +253,6 @@ export const RelatedPostsPanel = (): JSX.Element => {
 		const sectionIsUnavailable = filterTypeIsSection && ! postData.categories.includes( filter.value );
 
 		setLoading( true );
-
 		if ( filterTypeIsUnavailable || ( filterTypeIsTag && noTagsExist ) || ( filterTypeIsSection && noCategoriesExist ) ) {
 			if ( ! isPostDataEmpty() ) {
 				setFilter( getInitialFilterSettings() );
@@ -402,7 +394,7 @@ export const RelatedPostsPanel = (): JSX.Element => {
 						</div>
 					) }
 					{ ! loading && ! error && posts.length === 0 && (
-						<div className="related-posts-empty">
+						<div className="related-posts-empty" data-testid="parsely-related-posts-empty">
 							{ __( 'No related posts found.', 'wp-parsely' ) }
 						</div>
 					) }

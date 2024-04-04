@@ -12,6 +12,7 @@ import { BlockInstance } from '@wordpress/blocks';
 export interface GutenbergFunction {
 	getEditedPostAttribute( attribute: string ): string;
 	getEditedPostContent(): string;
+	getCurrentPostAttribute( attribute: string ): string;
 	getSelectedBlock(): BlockInstance | null;
 	getBlock( clientId: string ): BlockInstance | null;
 	getBlocks(): BlockInstance[];
