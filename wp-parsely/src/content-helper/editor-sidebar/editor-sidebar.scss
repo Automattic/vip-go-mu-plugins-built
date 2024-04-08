@@ -71,6 +71,14 @@ p.content-helper-error-message-hint {
 
 	.wp-parsely-sidebar-main-panel {
 
+		// Settings button for panels.
+		.components-panel button.panel-settings-button,
+		.components-panel .panel-settings-button > button {
+			height: unset;
+			min-width: unset;
+			padding: 0;
+		}
+
 		.wp-parsely-sidebar-tabs {
 			// Error messages that are not contained within a panel.
 			.components-panel > .content-helper-error-message {

@@ -19,7 +19,7 @@ export function findTextNodesNotInAnchor( element: HTMLElement, searchText: stri
 			}
 			let parent = node.parentNode;
 			while ( parent && parent !== element ) {
-				if ( parent.nodeName === 'A' ) {
+				if ( parent.nodeName === 'A' && ! parent.textContent?.includes( searchText ) ) {
 					return NodeFilter.FILTER_REJECT;
 				}
 				parent = parent.parentNode;

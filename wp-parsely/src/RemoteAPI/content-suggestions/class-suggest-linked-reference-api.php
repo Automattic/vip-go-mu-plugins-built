@@ -31,9 +31,10 @@ class Suggest_Linked_Reference_API extends Content_Suggestions_Base_API {
 	 *
 	 * @since 3.14.0
 	 *
-	 * @param string $content        The content to generate links for.
-	 * @param int    $max_link_words The maximum number of words in links.
-	 * @param int    $max_links      The maximum number of links to return.
+	 * @param string   $content             The content to generate links for.
+	 * @param int      $max_link_words      The maximum number of words in links.
+	 * @param int      $max_links           The maximum number of links to return.
+	 * @param string[] $url_exclusion_list  A list of URLs to exclude from the suggestions.
 	 *
 	 * @return Link_Suggestion[]|WP_Error The response from the remote API, or a WP_Error
 	 *                                    object if the response is an error.
@@ -41,7 +42,8 @@ class Suggest_Linked_Reference_API extends Content_Suggestions_Base_API {
 	public function get_links(
 		string $content,
 		int $max_link_words = 4,
-		int $max_links = 10
+		int $max_links = 10,
+		array $url_exclusion_list = array()
 	) {
 		$body = array(
 			'output_config' => array(
@@ -50,6 +52,10 @@ class Suggest_Linked_Reference_API extends Content_Suggestions_Base_API {
 			),
 			'text'          => $content,
 		);
+
+		if ( count( $url_exclusion_list ) > 0 ) {
+			$body['url_exclusion_list'] = $url_exclusion_list;
+		}
 
 		$decoded = $this->post_request( array(), $body );
 
@@ -69,9 +75,9 @@ class Suggest_Linked_Reference_API extends Content_Suggestions_Base_API {
 		$links = array();
 		foreach ( $decoded->result as $link ) {
 			$link_obj         = new Link_Suggestion();
-			$link_obj->href   = $link->canonical_url;
-			$link_obj->title  = $link->title;
-			$link_obj->text   = $link->text;
+			$link_obj->href   = esc_url( $link->canonical_url );
+			$link_obj->title  = esc_attr( $link->title );
+			$link_obj->text   = wp_kses_post( $link->text );
 			$link_obj->offset = $link->offset;
 			$links[]          = $link_obj;
 		}

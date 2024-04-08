@@ -8,6 +8,7 @@ import {
 	__experimentalHeading as Heading,
 	Spinner,
 } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import type { ReactNode } from 'react';
 
 /**
@@ -63,27 +64,23 @@ export const PerformanceStatPanel = (
 				{ ( controls && ! dropdownChildren ) && (
 					<DropdownMenu
 						icon={ icon }
-						label="Select a direction"
-						toggleProps={ {
-							isSmall: true,
-						} }
+						label={ __( 'Settings', 'wp-parsely' ) }
+						className="panel-settings-button"
 						controls={ controls }
 					/>
 				) }
 				{ dropdownChildren && (
 					<DropdownMenu
 						icon={ icon }
-						label="Select a direction"
-						toggleProps={ {
-							isSmall: true,
-						} }
+						label={ __( 'Settings', 'wp-parsely' ) }
+						className="panel-settings-button"
 						children={ dropdownChildren }
 					/>
 				) }
 				{ icon && ! dropdownChildren && ! controls && (
 					<Button
 						icon={ icon }
-						isSmall
+						className="panel-settings-button"
 						isPressed={ isOpen }
 						onClick={ onClick }
 					/>

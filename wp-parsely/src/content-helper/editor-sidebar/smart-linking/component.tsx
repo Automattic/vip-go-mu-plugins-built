@@ -2,24 +2,50 @@
  * WordPress dependencies
  */
 // eslint-disable-next-line import/named
-import { BlockInstance, getSaveContent } from '@wordpress/blocks';
+import { BlockInstance } from '@wordpress/blocks';
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { dispatch, select, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, external } from '@wordpress/icons';
+import { external, Icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { GutenbergFunction } from '../../../@types/gutenberg/types';
 import { Telemetry } from '../../../js/telemetry/telemetry';
-import { SidebarSettings, useSettings } from '../../common/settings';
-import { SmartLinkingSettings } from './component-settings';
+import { SmartLinkingSettings, SidebarSettings, useSettings } from '../../common/settings';
+import { generateProtocolVariants } from '../../common/utils/functions';
+import { SmartLinkingSettings as SmartLinkingSettingsComponent } from './component-settings';
 import { LinkSuggestion, SmartLinkingProvider } from './provider';
-import { SmartLinkingSettingsProps, SmartLinkingStore } from './store';
+import { ApplyToOptions, SmartLinkingSettingsProps, SmartLinkingStore } from './store';
 import { escapeRegExp, findTextNodesNotInAnchor } from './utils';
+
+/**
+ * Represents the counts of occurrences and applications of links within text content.
+ *
+ * - `encountered`: The number of times a specific link text is encountered in the content.
+ * - `linked`: The number of times a link has been successfully applied for a specific link text.
+ *
+ * @since 3.14.1
+ */
+type LinkOccurrenceCounts = {
+	[key: string]: {
+		encountered: number;
+		linked: number;
+	};
+};
+
+/**
+ * Represents an update to a block's content.
+ *
+ * @since 3.14.3
+ */
+type BlockUpdate = {
+	clientId: string;
+	newContent: string;
+};
 
 /**
  * Defines the props structure for SmartLinkingPanel.
@@ -60,7 +86,7 @@ export const SmartLinkingPanel = ( {
 	const { settings, setSettings } = useSettings<SidebarSettings>();
 	const setSettingsDebounced = useDebounce( setSettings, 500 );
 
-	const [ hint, setHint ] = useState<string | null>( null );
+	const [ numAddedLinks, setNumAddedLinks ] = useState<number>( 0 );
 
 	const { createNotice } = useDispatch( 'core/notices' );
 
@@ -78,6 +104,7 @@ export const SmartLinkingPanel = ( {
 		maxLinks,
 		maxLinkWords,
 		smartLinkingSettings,
+		applyTo,
 	} = useSelect( ( selectFn ) => {
 		const {
 			isLoading,
@@ -89,6 +116,7 @@ export const SmartLinkingPanel = ( {
 			getMaxLinks,
 			getMaxLinkWords,
 			getSmartLinkingSettings,
+			getApplyTo,
 		} = selectFn( SmartLinkingStore );
 		return {
 			loading: isLoading(),
@@ -99,6 +127,7 @@ export const SmartLinkingPanel = ( {
 			overlayBlocks: getOverlayBlocks(),
 			suggestedLinks: getSuggestedLinks(),
 			smartLinkingSettings: getSmartLinkingSettings(),
+			applyTo: getApplyTo(),
 		};
 	}, [] );
 
@@ -114,6 +143,9 @@ export const SmartLinkingPanel = ( {
 		addOverlayBlock,
 		removeOverlayBlock,
 		setSmartLinkingSettings,
+		setApplyTo,
+		setMaxLinkWords,
+		setMaxLinks,
 	} = useDispatch( SmartLinkingStore );
 
 	/**
@@ -123,15 +155,26 @@ export const SmartLinkingPanel = ( {
 	 *
 	 * @since 3.14.0
 	 *
-	 * @param { keyof SidebarSettings }     setting The setting to change.
-	 * @param { string | boolean | number } value   The new value of the setting.
+	 * @param { keyof SmartLinkingSettingsComponent } setting The setting to change.
+	 * @param { string | boolean | number }           value   The new value of the setting.
 	 */
 	const onSettingChange = (
-		setting: keyof SidebarSettings,
+		setting: keyof SmartLinkingSettings,
 		value: string | boolean | number,
 	): void => {
-		setSettingsDebounced( { [ setting ]: value } );
-		setSmartLinkingSettings( { [ setting ]: value } );
+		setSettingsDebounced(
+			{
+				SmartLinking: {
+					...settings.SmartLinking,
+					[ setting ]: value,
+				},
+			}
+		);
+		if ( setting === 'MaxLinks' ) {
+			setMaxLinks( value as number );
+		} else if ( setting === 'MaxLinkWords' ) {
+			setMaxLinkWords( value as number );
+		}
 	};
 
 	/**
@@ -148,8 +191,8 @@ export const SmartLinkingPanel = ( {
 
 		// Load the settings from the WordPress database and store them in the Smart Linking store.
 		const newSmartLinkingSettings: SmartLinkingSettingsProps = {
-			maxLinksPerPost: settings.SmartLinkingMaxLinks,
-			maxLinkWords: settings.SmartLinkingMaxLinkWords,
+			maxLinksPerPost: settings.SmartLinking.MaxLinks,
+			maxLinkWords: settings.SmartLinking.MaxLinkWords,
 		};
 		setSmartLinkingSettings( newSmartLinkingSettings );
 	}, [ setSmartLinkingSettings, settings ] ); // eslint-disable-line react-hooks/exhaustive-deps
@@ -159,28 +202,27 @@ export const SmartLinkingPanel = ( {
 	 *
 	 * @since 3.14.0
 	 */
-	const { selectedBlock, postContent, allBlocks } = useSelect(
+	const {
+		allBlocks,
+		selectedBlock,
+		postContent,
+		postPermalink,
+	} = useSelect(
 		( selectFn ) => {
 			const { getSelectedBlock, getBlock, getBlocks } = selectFn(
 				'core/block-editor',
 			) as GutenbergFunction;
-			const { getEditedPostContent } = selectFn( 'core/editor' ) as GutenbergFunction;
+			const { getEditedPostContent, getCurrentPostAttribute } = selectFn( 'core/editor' ) as GutenbergFunction;
 
 			return {
 				allBlocks: getBlocks(),
 				selectedBlock: selectedBlockClientId ? getBlock( selectedBlockClientId ) : getSelectedBlock(),
 				postContent: getEditedPostContent(),
+				postPermalink: getCurrentPostAttribute( 'link' ),
 			};
 		},
 		[ selectedBlockClientId ],
 	);
-
-	/**
-	 * Resets the hint when the selected block changes.
-	 */
-	useEffect( () => {
-		setHint( null );
-	}, [ selectedBlock ] );
 
 	/**
 	 * Generates smart links for the selected block or the entire post content.
@@ -213,50 +255,45 @@ export const SmartLinkingPanel = ( {
 			removeOverlay( isFullContent ? 'all' : selectedBlock?.clientId );
 		}, 60000 );
 
+		const previousApplyTo = applyTo;
 		try {
 			const generatingFullContent = isFullContent || ! selectedBlock;
+			await setApplyTo( generatingFullContent ? ApplyToOptions.All : ApplyToOptions.Selected );
+
 			let generatedLinks = [];
+			const urlExclusionList = generateProtocolVariants( postPermalink );
+
 			if ( selectedBlock?.originalContent && ! generatingFullContent ) {
 				generatedLinks = await SmartLinkingProvider.generateSmartLinks(
 					selectedBlock?.originalContent,
 					maxLinkWords,
 					maxLinks,
+					urlExclusionList
 				);
 			} else {
 				generatedLinks = await SmartLinkingProvider.generateSmartLinks(
 					postContent,
 					maxLinkWords,
 					maxLinks,
+					urlExclusionList
 				);
 			}
 			await setSuggestedLinks( generatedLinks );
 			applySmartLinks( generatedLinks );
 		} catch ( e: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			setError( e );
+			// eslint-disable-next-line no-console
+			console.error( e );
 			createNotice( 'error', __( 'There was a problem applying smart links.', 'wp-parsely' ), {
 				type: 'snackbar',
 				isDismissible: true,
 			} );
 		} finally {
 			await setLoading( false );
+			await setApplyTo( previousApplyTo );
 			await removeOverlay( isFullContent ? 'all' : selectedBlock?.clientId );
 			clearTimeout( timeout );
 		}
-	};
-
-	/**
-	 * Represents the counts of occurrences and applications of links within text content.
-	 *
-	 * - `encountered`: The number of times a specific link text is encountered in the content.
-	 * - `linked`: The number of times a link has been successfully applied for a specific link text.
-	 *
-	 * @since 3.14.1
-	 */
-	type LinkOccurrenceCounts = {
-		[key: string]: {
-			encountered: number;
-			linked: number;
-		};
 	};
 
 	/**
@@ -284,19 +321,29 @@ export const SmartLinkingPanel = ( {
 
 		// An object to keep track of the number of times each link text has been found across all blocks.
 		const occurrenceCounts: LinkOccurrenceCounts = {};
+		const updatedBlocks: BlockUpdate[] = [];
 
 		// Apply the smart links to the content.
-		applyLinksToBlocks( blocks, links, occurrenceCounts );
+		applyLinksToBlocks( blocks, links, occurrenceCounts, updatedBlocks );
 
 		// Update the content of each block.
-		blocks.forEach( ( block ) => {
-			updateBlockContent( block );
-		} );
+		updateBlocksContent( updatedBlocks );
 
-		createNotice( 'success', `${ links.length } smart links successfully applied.`, {
-			type: 'snackbar',
-			isDismissible: true,
-		} );
+		const numberOfUpdatedLinks = Object.values( occurrenceCounts ).reduce( ( acc, occurrenceCount ) => {
+			return acc + occurrenceCount.linked;
+		}, 0 );
+
+		setNumAddedLinks( numberOfUpdatedLinks );
+
+		createNotice(
+			'success',
+			/* translators: %d: number of smart links applied */
+			sprintf( __( '%s smart links successfully applied.', 'wp-parsely' ), numberOfUpdatedLinks ),
+			{
+				type: 'snackbar',
+				isDismissible: true,
+			}
+		);
 	};
 
 	/**
@@ -309,19 +356,41 @@ export const SmartLinkingPanel = ( {
 	 *
 	 * @since 3.14.1
 	 *
-	 * @param {BlockInstance[]}  blocks           The blocks of content where links should be applied.
-	 *                                            This array is modified in place and will contain the updated
-	 *                                            content after the function is called.
-	 * @param {LinkSuggestion[]} links            An array of link suggestions to apply to the content.
-	 * @param {Object}           occurrenceCounts An object to keep track of the number of times each link text has
-	 *                                            been applied across all blocks.
+	 * @param {BlockInstance[]}      blocks           The blocks of content where links should be applied.
+	 * @param {LinkSuggestion[]}     links            An array of link suggestions to apply to the content.
+	 * @param {LinkOccurrenceCounts} occurrenceCounts An object to keep track of the number of times each link text has
+	 *                                                been applied across all blocks.
+	 * @param {BlockUpdate[]}        updatedBlocks    An array of updated blocks with the new content.
+	 *                                                This array is modified in place and will contain the updated blocks
+	 *                                                after the function has been called.
 	 */
 	const applyLinksToBlocks = (
-		blocks: BlockInstance[],
+		blocks: Readonly<BlockInstance>[],
 		links: LinkSuggestion[],
-		occurrenceCounts: LinkOccurrenceCounts
+		occurrenceCounts: LinkOccurrenceCounts,
+		updatedBlocks: BlockUpdate[],
 	): void => {
+		// Check if any of the links being applied is a self-reference, and remove it if it is.
+		const strippedPermalink = postPermalink
+			.replace( /^https?:\/\//, '' ) // Remove HTTP(S).
+			.replace( /\/+$/, '' ); // Remove trailing slash.
+		links = links.filter( ( link ) => {
+			if ( link.href.includes( strippedPermalink ) ) {
+				// eslint-disable-next-line no-console
+				console.warn( `PCH Smart Linking: Skipping self-reference link: ${ link.href }` );
+				return false;
+			}
+			return true;
+		} );
+
 		blocks.forEach( ( block ) => {
+			let blockUpdated = false;
+			// Recursively apply links to any inner blocks.
+			if ( block.innerBlocks && block.innerBlocks.length ) {
+				applyLinksToBlocks( block.innerBlocks, links, occurrenceCounts, updatedBlocks );
+				return;
+			}
+
 			if ( block.originalContent ) {
 				const blockContent: string = block.originalContent;
 				const doc = new DOMParser().parseFromString( blockContent, 'text/html' );
@@ -330,22 +399,28 @@ export const SmartLinkingPanel = ( {
 				if ( contentElement && contentElement instanceof HTMLElement ) {
 					links.forEach( ( link ) => {
 						const textNodes = findTextNodesNotInAnchor( contentElement, link.text );
+						const occurrenceKey = `${ link.text }#${ link.offset }`;
+
+						if ( ! occurrenceCounts[ occurrenceKey ] ) {
+							occurrenceCounts[ occurrenceKey ] = { encountered: 0, linked: 0 };
+						}
 
 						textNodes.forEach( ( node ) => {
 							if ( node.textContent ) {
+								const occurrenceCount = occurrenceCounts[ occurrenceKey ];
+								if ( occurrenceCount.linked >= 1 ) {
+									// The link has already been applied, skip this occurrence.
+									return;
+								}
+
 								const regex = new RegExp( escapeRegExp( link.text ), 'g' );
 								let match;
-
 								while ( ( match = regex.exec( node.textContent ) ) !== null ) {
-									if ( ! occurrenceCounts[ link.text ] ) {
-										occurrenceCounts[ link.text ] = { encountered: 0, linked: 0 };
-									}
-
 									// Increment the encountered count every time the text is found.
-									occurrenceCounts[ link.text ].encountered++;
+									occurrenceCount.encountered++;
 
-									// Check if the encountered count minus linked count matches the link's offset.
-									if ( occurrenceCounts[ link.text ].encountered - occurrenceCounts[ link.text ].linked - 1 === link.offset ) {
+									// Check if the link is in the correct position (offset) to be applied.
+									if ( occurrenceCount.encountered === link.offset + 1 ) {
 										// Create a new anchor element for the link.
 										const anchor = document.createElement( 'a' );
 										anchor.href = link.href;
@@ -368,23 +443,24 @@ export const SmartLinkingPanel = ( {
 										}
 
 										// Increment the linked count only when a link is applied.
-										occurrenceCounts[ link.text ].linked++;
+										occurrenceCount.linked++;
+
+										// Flag the block as updated.
+										blockUpdated = true;
 									}
 								}
 							}
 						} );
 					} );
 
-					// Update the block content with the modified HTML.
-					if ( contentElement && block.attributes.content ) {
-						block.attributes.content = contentElement.innerHTML;
+					// Save the updated content if the block was updated.
+					if ( blockUpdated ) {
+						updatedBlocks.push( {
+							clientId: block.clientId,
+							newContent: contentElement.innerHTML,
+						} );
 					}
 				}
-			}
-
-			// Recursively apply links to any inner blocks.
-			if ( block.innerBlocks && block.innerBlocks.length ) {
-				applyLinksToBlocks( block.innerBlocks, links, occurrenceCounts );
 			}
 		} );
 	};
@@ -396,28 +472,34 @@ export const SmartLinkingPanel = ( {
 	 * It also recursively updates the content of any inner blocks.
 	 *
 	 * @since 3.14.1
+	 * @since 3.14.3 Rename the function from updateBlockContent to updateBlocksContent.
 	 *
-	 * @param {BlockInstance} block The block to update.
+	 * @param {BlockUpdate[]} blockUpdates An array of block updates.
 	 */
-	const updateBlockContent = ( block: BlockInstance ) => {
-		const { updateBlock } = dispatch( 'core/block-editor' );
+	const updateBlocksContent = ( blockUpdates: BlockUpdate[] ) => {
+		const { getBlock } = select( 'core/block-editor' );
+		const updatedBlocks: { [clientId: string]: object } = {};
 
-		// Update the top-level block.
-		if ( block.attributes.content ) {
-			updateBlock( block.clientId, {
-				attributes: {
-					content: block.attributes.content,
-				},
-				originalContent: getSaveContent( block.name, block.attributes, block.innerBlocks ),
-			} );
-		}
+		// Prepare the updated blocks object.
+		blockUpdates.forEach( ( blockUpdate ) => {
+			const block = getBlock( blockUpdate.clientId );
 
-		// Recursively update nested blocks if any.
-		if ( block.innerBlocks ) {
-			block.innerBlocks.forEach( ( innerBlock ) => {
-				updateBlockContent( innerBlock );
-			} );
-		}
+			if ( ! block ) {
+				return;
+			}
+
+			updatedBlocks[ block.clientId ] = {
+				content: blockUpdate.newContent,
+			};
+		} );
+
+		// Update the blocks attributes.
+		dispatch( 'core/block-editor' ).updateBlockAttributes(
+			Object.keys( updatedBlocks ),
+			updatedBlocks,
+			// @ts-ignore - The uniqueByBlock parameter is not available in the type definition.
+			true,
+		);
 	};
 
 	/**
@@ -511,23 +593,29 @@ export const SmartLinkingPanel = ( {
 					</Button>
 				</div>
 				{ error && (
-					<Notice status="info" isDismissible={ false } className="wp-parsely-content-helper-error">
+					<Notice
+						status="info"
+						isDismissible={ true }
+						onRemove={ () => setError( null ) }
+						className="wp-parsely-content-helper-error">
 						{ error.Message() }
 					</Notice>
 				) }
 				{ suggestedLinks !== null && (
 					<Notice
 						status="success"
-						isDismissible={ false }
+						isDismissible={ true }
+						onRemove={ () => setSuggestedLinks( null ) }
 						className="wp-parsely-smart-linking-suggested-links"
 					>
 						{
 							/* translators: 1 - number of smart links generated */
-							sprintf( __( 'Successfully added %s smart links.', 'wp-parsely' ), suggestedLinks.length )
+							sprintf( __( 'Successfully added %s smart links.', 'wp-parsely' ),
+								numAddedLinks > 0 ? numAddedLinks : suggestedLinks.length )
 						}
 					</Notice>
 				) }
-				<SmartLinkingSettings
+				<SmartLinkingSettingsComponent
 					disabled={ loading }
 					selectedBlock={ selectedBlock?.clientId }
 					onSettingChange={ onSettingChange }
@@ -543,16 +631,6 @@ export const SmartLinkingPanel = ( {
 							? __( 'Adding Smart Links…', 'wp-parsely' )
 							: __( 'Add Smart Links', 'wp-parsely' ) }
 					</Button>
-					{ hint && (
-						<Notice
-							status="warning"
-							isDismissible={ true }
-							onRemove={ () => setHint( null ) }
-							className="wp-parsely-smart-linking-hint"
-						>
-							<strong>{ __( 'Hint:', 'wp-parsely' ) }</strong> { hint }
-						</Notice>
-					) }
 				</div>
 			</PanelRow>
 		</div>

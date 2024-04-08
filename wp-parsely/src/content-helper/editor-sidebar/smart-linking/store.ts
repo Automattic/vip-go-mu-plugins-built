@@ -21,12 +21,22 @@ export type SmartLinkingSettingsProps = {
 };
 
 /**
+ * Enum for the applyTo setting.
+ *
+ * @since 3.14.3
+ */
+export enum ApplyToOptions {
+	All = 'all',
+	Selected = 'selected',
+}
+/**
  * The shape of the SmartLinking store state.
  *
  * @since 3.14.0
  */
 type SmartLinkingState = {
 	isLoading: boolean;
+	applyTo: ApplyToOptions|null;
 	fullContent: boolean;
 	error: ContentHelperError | null;
 	settings: SmartLinkingSettingsProps;
@@ -36,57 +46,114 @@ type SmartLinkingState = {
 };
 
 /** Actions */
+
+/**
+ * Interface for the SetLoadingAction.
+ *
+ * @since 3.14.0
+ */
 interface SetLoadingAction {
 	type: 'SET_LOADING';
 	isLoading: boolean;
 }
 
+/**
+ * Interface for the SetErrorAction.
+ *
+ * @since 3.14.0
+ */
 interface SetErrorAction {
 	type: 'SET_ERROR';
 	error: ContentHelperError | null;
 }
 
+/**
+ * Interface for the SetOverlayBlocksAction.
+ *
+ * @since 3.14.0
+ */
 interface SetOverlayBlocksAction {
 	type: 'SET_OVERLAY_BLOCKS';
 	overlayBlocks: string[];
 }
 
+/**
+ * Interface for the AddOverlayBlockAction.
+ *
+ * @since 3.14.0
+ */
 interface AddOverlayBlockAction {
 	type: 'ADD_OVERLAY_BLOCK';
 	block: string;
 }
 
+/**
+ * Interface for the RemoveOverlayBlockAction.
+ *
+ * @since 3.14.0
+ */
 interface RemoveOverlayBlockAction {
 	type: 'REMOVE_OVERLAY_BLOCK';
 	block: string;
 }
 
+/**
+ * Interface for the SetFullContentAction.
+ *
+ * @since 3.14.0
+ */
 interface SetFullContentAction {
 	type: 'SET_FULL_CONTENT';
 	fullContent: boolean;
 }
 
+/**
+ * Interface for the SetSettingsAction.
+ *
+ * @since 3.14.0
+ */
 interface SetSettingsAction {
 	type: 'SET_SETTINGS';
 	settings: SmartLinkingSettingsProps;
 }
 
+/**
+ * Interface for the SetSuggestedLinksAction.
+ *
+ * @since 3.14.0
+ */
 interface SetSuggestedLinksAction {
 	type: 'SET_SUGGESTED_LINKS';
 	suggestedLinks: LinkSuggestion[] | null;
 }
 
+/**
+ * Interface for the SetWasAlreadyClickedAction.
+ *
+ * @since 3.14.0
+ */
 interface SetWasAlreadyClickedAction {
 	type: 'SET_WAS_ALREADY_CLICKED';
 	wasAlreadyClicked: boolean;
 }
 
+/**
+ * Interface for the SetApplyToAction.
+ *
+ * @since 3.14.3
+ */
+interface SetApplyToAction {
+	type: 'SET_APPLY_TO';
+	applyTo: ApplyToOptions|null;
+}
+
 type ActionTypes = SetLoadingAction | SetOverlayBlocksAction | SetSettingsAction |
 	AddOverlayBlockAction | RemoveOverlayBlockAction |SetFullContentAction |
-	SetSuggestedLinksAction | SetErrorAction| SetWasAlreadyClickedAction;
+	SetSuggestedLinksAction | SetErrorAction| SetWasAlreadyClickedAction | SetApplyToAction;
 
 const defaultState: SmartLinkingState = {
 	isLoading: false,
+	applyTo: null,
 	fullContent: false,
 	suggestedLinks: null,
 	error: null,
@@ -158,6 +225,11 @@ export const SmartLinkingStore = createReduxStore( 'wp-parsely/smart-linking', {
 				return {
 					...state,
 					wasAlreadyClicked: action.wasAlreadyClicked,
+				};
+			case 'SET_APPLY_TO':
+				return {
+					...state,
+					applyTo: action.applyTo,
 				};
 			default:
 				return state;
@@ -234,6 +306,12 @@ export const SmartLinkingStore = createReduxStore( 'wp-parsely/smart-linking', {
 				wasAlreadyClicked,
 			};
 		},
+		setApplyTo( applyTo: ApplyToOptions|null ): SetApplyToAction {
+			return {
+				type: 'SET_APPLY_TO',
+				applyTo,
+			};
+		},
 	},
 	selectors: {
 		isLoading( state: SmartLinkingState ): boolean {
@@ -241,6 +319,9 @@ export const SmartLinkingStore = createReduxStore( 'wp-parsely/smart-linking', {
 		},
 		isFullContent( state: SmartLinkingState ): boolean {
 			return state.fullContent;
+		},
+		getApplyTo( state: SmartLinkingState ): ApplyToOptions|null {
+			return state.applyTo;
 		},
 		getError( state: SmartLinkingState ): ContentHelperError | null {
 			return state.error;

@@ -41,7 +41,7 @@ interface ReferrersApiResponse {
 /**
  * Provides current post details data for use in other components.
  */
-export class PerformanceDetailsProvider {
+export class PerformanceStatsProvider {
 	private itmSource = 'wp-parsely-content-helper';
 
 	/**
@@ -52,7 +52,7 @@ export class PerformanceDetailsProvider {
 	 *
 	 * @return {Promise<PerformanceData>} The current post's details.
 	 */
-	public async getPerformanceDetails( period: Period ): Promise<PerformanceData> {
+	public async getPerformanceStats( period: Period ): Promise<PerformanceData> {
 		const editor = select( 'core/editor' );
 
 		// We cannot show data for non-published posts.

@@ -39,11 +39,11 @@ export const SidebarToolsTab = (
 		<Panel>
 			<PanelBody
 				title={ __( 'Title Suggestions (Beta)', 'wp-parsely' ) }
-				initialOpen={ settings.TitleSuggestionsSettings.Open }
+				initialOpen={ settings.TitleSuggestions.Open }
 				onToggle={ ( next ) => {
 					setSettings( {
-						TitleSuggestionsSettings: {
-							...settings.TitleSuggestionsSettings,
+						TitleSuggestions: {
+							...settings.TitleSuggestions,
 							Open: next,
 						},
 					} );
@@ -57,10 +57,13 @@ export const SidebarToolsTab = (
 
 			<PanelBody
 				title={ __( 'Smart Linking (Beta)', 'wp-parsely' ) }
-				initialOpen={ settings.SmartLinkingOpen }
+				initialOpen={ settings.SmartLinking.Open }
 				onToggle={ ( next ) => {
 					setSettings( {
-						SmartLinkingOpen: next,
+						SmartLinking: {
+							...settings.SmartLinking,
+							Open: next,
+						},
 					} );
 					trackToggle( 'smart_linking', next );
 				} }
@@ -74,10 +77,13 @@ export const SidebarToolsTab = (
 
 			<PanelBody
 				title={ __( 'Related Posts', 'wp-parsely' ) }
-				initialOpen={ settings.RelatedPostsOpen }
+				initialOpen={ settings.RelatedPosts.Open }
 				onToggle={ ( next ) => {
 					setSettings( {
-						RelatedPostsOpen: next,
+						RelatedPosts: {
+							...settings.RelatedPosts,
+							Open: next,
+						},
 					} );
 					trackToggle( 'related_top_posts', next );
 				} }

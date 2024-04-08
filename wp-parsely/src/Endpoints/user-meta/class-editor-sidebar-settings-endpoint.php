@@ -41,55 +41,51 @@ final class Editor_Sidebar_Settings_Endpoint extends Base_Endpoint_User_Meta {
 	 */
 	protected function get_subvalues_specs(): array {
 		return array(
-			'InitialTabName'           => array(
+			'InitialTabName'   => array(
 				'values'  => array( 'tools', 'performance' ),
 				'default' => 'tools',
 			),
-			'PerformanceStatsSettings' => array(
+			'PerformanceStats' => array(
 				'values'  => array(
 					'Period'            => array( '10m', '1h', '2h', '4h', '24h', '7d', '30d' ),
-					'VisiblePanels'     => array( 'overview', 'categories', 'referrers' ),
 					'VisibleDataPoints' => array( 'views', 'visitors', 'avgEngaged', 'recirculation' ),
+					'VisiblePanels'     => array( 'overview', 'categories', 'referrers' ),
 				),
 				'default' => array(
 					'Period'            => '7d',
-					'VisiblePanels'     => array( 'overview', 'categories', 'referrers' ),
 					'VisibleDataPoints' => array( 'views', 'visitors', 'avgEngaged', 'recirculation' ),
+					'VisiblePanels'     => array( 'overview', 'categories', 'referrers' ),
 				),
 			),
-			'RelatedPostsFilterBy'     => array(
-				'values'  => array( 'unavailable', 'tag', 'section', 'author' ),
-				'default' => 'unavailable',
+			'RelatedPosts'     => array(
+				'values'  => array(
+					'FilterBy'    => array( 'unavailable', 'tag', 'section', 'author' ),
+					'FilterValue' => array(),
+					'Metric'      => array( 'views', 'avg_engaged' ),
+					'Open'        => array( true, false ),
+					'Period'      => array( '10m', '1h', '2h', '4h', '24h', '7d', '30d' ),
+				),
+				'default' => array(
+					'FilterBy'    => 'unavailable',
+					'FilterValue' => '',
+					'Metric'      => 'views',
+					'Open'        => false,
+					'Period'      => '7d',
+				),
 			),
-			'RelatedPostsFilterValue'  => array(
-				'values'  => array(),
-				'default' => '',
+			'SmartLinking'     => array(
+				'values'  => array(
+					'MaxLinks'     => array(),
+					'MaxLinkWords' => array(),
+					'Open'         => array( true, false ),
+				),
+				'default' => array(
+					'MaxLinks'     => 10,
+					'MaxLinkWords' => 4,
+					'Open'         => false,
+				),
 			),
-			'RelatedPostsMetric'       => array(
-				'values'  => array( 'views', 'avg_engaged' ),
-				'default' => 'views',
-			),
-			'RelatedPostsOpen'         => array(
-				'values'  => array( true, false ),
-				'default' => false,
-			),
-			'RelatedPostsPeriod'       => array(
-				'values'  => array( '10m', '1h', '2h', '4h', '24h', '7d', '30d' ),
-				'default' => '7d',
-			),
-			'SmartLinkingMaxLinks'     => array(
-				'values'  => array(),
-				'default' => 10,
-			),
-			'SmartLinkingMaxLinkWords' => array(
-				'values'  => array(),
-				'default' => 4,
-			),
-			'SmartLinkingOpen'         => array(
-				'values'  => array( true, false ),
-				'default' => false,
-			),
-			'TitleSuggestionsSettings' => array(
+			'TitleSuggestions' => array(
 				'values'  => array(
 					'Open'    => array( true, false ),
 					'Persona' => array(),

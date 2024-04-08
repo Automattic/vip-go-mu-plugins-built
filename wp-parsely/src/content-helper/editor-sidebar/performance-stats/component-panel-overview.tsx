@@ -63,7 +63,7 @@ const availableDataPoints = [
  * @return { boolean } Whether the data point is visible.
  */
 const isDataPointVisible = ( settings: SidebarSettings, name: string ): boolean => {
-	return settings.PerformanceStatsSettings.VisibleDataPoints.includes( name );
+	return settings.PerformanceStats.VisibleDataPoints.includes( name );
 };
 
 /**
@@ -168,13 +168,13 @@ const OverviewMenu = (
 	 * @param { string } dataPoint The name of the data point.
 	 */
 	const toggleDataPoint = ( dataPoint: string ): void => {
-		// Check if the dataPoint is in the settings.PerformanceStatsSettings.VisibleDataPoints array
+		// Check if the dataPoint is in the settings.PerformanceStats.VisibleDataPoints array
 		// If it is, remove it with setSettings, if not, add it.
 		if ( isDataPointVisible( settings, dataPoint ) ) {
 			setSettings( {
-				PerformanceStatsSettings: {
-					...settings.PerformanceStatsSettings,
-					VisibleDataPoints: settings.PerformanceStatsSettings.VisibleDataPoints.filter(
+				PerformanceStats: {
+					...settings.PerformanceStats,
+					VisibleDataPoints: settings.PerformanceStats.VisibleDataPoints.filter(
 						( p ) => p !== dataPoint
 					),
 				},
@@ -184,9 +184,9 @@ const OverviewMenu = (
 			);
 		} else {
 			setSettings( {
-				PerformanceStatsSettings: {
-					...settings.PerformanceStatsSettings,
-					VisibleDataPoints: [ ...settings.PerformanceStatsSettings.VisibleDataPoints, dataPoint ],
+				PerformanceStats: {
+					...settings.PerformanceStats,
+					VisibleDataPoints: [ ...settings.PerformanceStats.VisibleDataPoints, dataPoint ],
 				},
 			} );
 			Telemetry.trackEvent( 'editor_sidebar_performance_datapoint_shown',
@@ -214,8 +214,8 @@ const OverviewMenu = (
 	 */
 	const resetAll = (): void => {
 		setSettings( {
-			PerformanceStatsSettings: {
-				...settings.PerformanceStatsSettings,
+			PerformanceStats: {
+				...settings.PerformanceStats,
 				VisibleDataPoints: [ 'views', 'visitors', 'avgEngaged', 'recirculation' ],
 			},
 		} );

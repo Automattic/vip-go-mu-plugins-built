@@ -44,9 +44,10 @@ export class SmartLinkingProvider {
 	/**
 	 * Returns a list of suggested links for the given content.
 	 *
-	 * @param {string} content         The content to generate links for.
-	 * @param {number} maxLinkWords    The maximum number of words in links.
-	 * @param {number} maxLinksPerPost The maximum number of links to return.
+	 * @param {string}   content          The content to generate links for.
+	 * @param {number}   maxLinkWords     The maximum number of words in links.
+	 * @param {number}   maxLinksPerPost  The maximum number of links to return.
+	 * @param {string[]} urlExclusionList A list of URLs to exclude from the suggestions.
 	 *
 	 * @return {Promise<LinkSuggestion[]>} The resulting list of links.
 	 */
@@ -54,9 +55,9 @@ export class SmartLinkingProvider {
 		content: string,
 		maxLinkWords: number = DEFAULT_MAX_LINK_WORDS,
 		maxLinksPerPost: number = DEFAULT_MAX_LINKS,
+		urlExclusionList: string[] = [],
 	): Promise<LinkSuggestion[]> {
 		let response;
-
 		try {
 			response = await apiFetch<SmartLinkingApiResponse>( {
 				method: 'POST',
@@ -65,7 +66,8 @@ export class SmartLinkingProvider {
 					max_links: maxLinksPerPost,
 				} ),
 				data: {
-					content,
+					url_exclusion_list: urlExclusionList,
+					text: content,
 				},
 			} );
 		} catch ( wpError: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any

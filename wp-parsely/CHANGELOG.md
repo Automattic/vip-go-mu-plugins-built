@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.14.3](https://github.com/Parsely/wp-parsely/compare/3.14.2...3.14.3) - 2024-04-03
+
+### Added
+
+- PCH Smart Linking: Show "No Block Selected" hint when needed ([#2324](https://github.com/Parsely/wp-parsely/pull/2324))
+
+### Changed
+
+- PCH: Update Settings API structure ([#2351](https://github.com/Parsely/wp-parsely/pull/2351))
+- PCH Smart Linking: Update link setting labels for accuracy ([#2349](https://github.com/Parsely/wp-parsely/pull/2349))
+
+### Fixed
+
+- PCH Smart Linking: Escape API response fields ([#2348](https://github.com/Parsely/wp-parsely/pull/2348))
+- Fix isSmall deprecation ([#2326](https://github.com/Parsely/wp-parsely/pull/2326))
+- PCH Smart Linking: Prevent self-linking ([#2325](https://github.com/Parsely/wp-parsely/pull/2325))
+- PCH: Fix some untranslatable strings ([#2323](https://github.com/Parsely/wp-parsely/pull/2323))
+- PCH Smart Linking: Fix issues with undo functionality and link offsets ([#2315](https://github.com/Parsely/wp-parsely/pull/2315))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.14.3+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.14.2](https://github.com/Parsely/wp-parsely/compare/3.14.1...3.14.2) - 2024-03-19
 
 ### Changed

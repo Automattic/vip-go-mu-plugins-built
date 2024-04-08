@@ -85,7 +85,7 @@ final class Suggest_Linked_Reference_API_Proxy extends Base_API_Proxy {
 		 *
 		 * @var string|null $post_content
 		 */
-		$post_content = $request->get_param( 'content' );
+		$post_content = $request->get_param( 'text' );
 
 		/**
 		 * The maximum amount of words of the link text.
@@ -100,6 +100,13 @@ final class Suggest_Linked_Reference_API_Proxy extends Base_API_Proxy {
 		 * @var string|null $max_links
 		 */
 		$max_links = $request->get_param( 'max_links' );
+
+		/**
+		 * The URL exclusion list.
+		 *
+		 * @var mixed $url_exclusion_list
+		 */
+		$url_exclusion_list = $request->get_param( 'url_exclusion_list' ) ?? array();
 
 		if ( null === $post_content ) {
 			return new WP_Error(
@@ -121,10 +128,15 @@ final class Suggest_Linked_Reference_API_Proxy extends Base_API_Proxy {
 			$max_links = 10;
 		}
 
+		if ( ! is_array( $url_exclusion_list ) ) {
+			$url_exclusion_list = array();
+		}
+
 		$response = $this->suggest_linked_reference_api->get_links(
 			$post_content,
 			$max_link_words,
-			$max_links
+			$max_links,
+			$url_exclusion_list
 		);
 
 		if ( is_wp_error( $response ) ) {
