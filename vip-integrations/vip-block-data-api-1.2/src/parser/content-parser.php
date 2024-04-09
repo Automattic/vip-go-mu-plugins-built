@@ -128,6 +128,14 @@ class ContentParser {
 		$parsing_error = false;
 
 		try {
+			/**
+			 * Filters content before parsing blocks in a post.
+			 *
+			 * @param string $post_content The content of the post being parsed.
+			 * @param int $post_id Post ID associated with the content.
+			 */
+			$post_content = apply_filters( 'vip_block_data_api__before_parse_post_content', $post_content, $post_id );
+
 			$blocks = parse_blocks( $post_content );
 			$blocks = array_values( array_filter( $blocks, function ( $block ) {
 				$is_whitespace_block = ( null === $block['blockName'] && empty( trim( $block['innerHTML'] ) ) );
@@ -168,6 +176,15 @@ class ContentParser {
 				'details' => $parsing_error->__toString(),
 			] );
 		} else {
+			/**
+			 * Filters the API result before returning parsed blocks in a post.
+			 *
+			 * @param string $result The successful API result, contains 'blocks'
+			 * key with an array of block data, and optionally 'warnings' and 'debug' keys.
+			 * @param int $post_id Post ID associated with the content.
+			 */
+			$result = apply_filters( 'vip_block_data_api__after_parse_blocks', $result, $post_id );
+
 			return $result;
 		}
 	}
