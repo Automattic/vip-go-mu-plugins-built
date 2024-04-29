@@ -43,7 +43,7 @@ class Term extends Indexable {
 		];
 
 		$this->sync_manager      = new SyncManager( $this->slug );
-		$this->query_integration = new QueryIntegration();
+		$this->query_integration = new QueryIntegration( $this->slug );
 	}
 
 	/**
@@ -478,7 +478,7 @@ class Term extends Indexable {
 				'key' => $query_vars['meta_key'],
 			];
 
-			if ( isset( $query_vars['meta_value'] ) ) {
+			if ( isset( $query_vars['meta_value'] ) && '' !== $query_vars['meta_value'] ) {
 				$meta_query_array['value'] = $query_vars['meta_value'];
 			}
 
@@ -579,24 +579,12 @@ class Term extends Indexable {
 	}
 
 	/**
-	 * Put mapping for terms
+	 * Generate the mapping array
 	 *
-	 * @since  3.1
-	 * @return boolean
-	 */
-	public function put_mapping() {
-		$mapping = $this->build_mapping();
-
-		return Elasticsearch::factory()->put_mapping( $this->get_index_name(), $mapping );
-	}
-
-	/**
-	 * Build mapping for terms
-	 *
-	 * @since  3.6
+	 * @since  3.6.0
 	 * @return array
 	 */
-	public function build_mapping() {
+	public function generate_mapping() {
 		$es_version = Elasticsearch::factory()->get_elasticsearch_version();
 
 		if ( empty( $es_version ) ) {
@@ -632,18 +620,6 @@ class Term extends Indexable {
 		$mapping = apply_filters( 'ep_term_mapping', $mapping );
 
 		return $mapping;
-	}
-
-	/**
-	 * Build settings for an index
-	 *
-	 * @since  3.6
-	 * @return array
-	 */
-	public function build_settings() {
-		$mapping_and_settings = $this->build_mapping();
-
-		return $mapping_and_settings['settings'];
 	}
 
 	/**
@@ -700,12 +676,15 @@ class Term extends Indexable {
 	public function query_db( $args ) {
 
 		$defaults = [
-			'number'     => $this->get_bulk_items_per_page(),
-			'offset'     => 0,
-			'orderby'    => 'id',
-			'order'      => 'desc',
-			'taxonomy'   => $this->get_indexable_taxonomies(),
-			'hide_empty' => false,
+			'number'                 => $this->get_bulk_items_per_page(),
+			'offset'                 => 0,
+			'orderby'                => 'id',
+			'order'                  => 'desc',
+			'taxonomy'               => $this->get_indexable_taxonomies(),
+			'hide_empty'             => false,
+			'hierarchical'           => false,
+			'update_term_meta_cache' => false,
+			'cache_results'          => false,
 		];
 
 		if ( isset( $args['per_page'] ) ) {
@@ -729,22 +708,15 @@ class Term extends Indexable {
 		unset( $all_query_args['fields'] );
 
 		/**
-		 * This just seems so inefficient.
-		 *
-		 * @todo Better way to do this?
-		 */
-
-		/**
 		 * Filter database arguments for term count query
 		 *
 		 * @hook ep_term_all_query_db_args
-		 * @param  {array} $args Query arguments based to WP_Term_Query
+		 * @param  {array} $args Query arguments based to `wp_count_terms()`
 		 * @since  3.4
 		 * @return {array} New arguments
 		 */
-		$all_query = new WP_Term_Query( apply_filters( 'ep_term_all_query_db_args', $all_query_args, $args ) );
-
-		$total_objects = count( $all_query->terms );
+		$total_objects = wp_count_terms( apply_filters( 'ep_term_all_query_db_args', $all_query_args, $args ) );
+		$total_objects = ! is_wp_error( $total_objects ) ? (int) $total_objects : 0;
 
 		if ( ! empty( $args['offset'] ) ) {
 			if ( (int) $args['offset'] >= $total_objects ) {
@@ -1032,10 +1004,6 @@ class Term extends Indexable {
 					$es_field_name = 'meta.' . $args['meta_key'] . '.long';
 				}
 
-				break;
-
-			case 'description':
-				$es_field_name = 'description.sortable';
 				break;
 
 			case 'parent':

@@ -24,11 +24,27 @@ class QueryIntegration {
 	/**
 	 * Checks to see if we should be integrating and if so, sets up the appropriate actions and filters.
 	 *
+	 * @param string $indexable_slug Indexable slug. Optional.
+	 *
 	 * @since 0.9
+	 * @since 3.6.0 Added $indexable_slug
 	 */
-	public function __construct() {
+	public function __construct( $indexable_slug = 'user' ) {
+		/**
+		 * Filter whether to enable query integration during indexing
+		 *
+		 * @since 4.5.2
+		 * @hook ep_enable_query_integration_during_indexing
+		 *
+		 * @param {bool} $enable To allow query integration during indexing
+		 * @param {string} $indexable_slug Indexable slug
+		 * @return {bool} New value
+		 */
+		$allow_query_integration_during_indexing = apply_filters( 'ep_enable_query_integration_during_indexing', false, $indexable_slug );
+
 		// Ensure that we are currently allowing ElasticPress to override the normal WP_Query
-		if ( Utils\is_indexing() && ! apply_filters( 'ep_enable_query_integration_during_indexing', false, $this ) ) {
+		// Indexable->is_full_reindexing() is not available at this point yet, so using the IndexHelper version of it.
+		if ( \ElasticPress\IndexHelper::factory()->is_full_reindexing( $indexable_slug ) && ! $allow_query_integration_during_indexing ) {
 			return;
 		}
 
@@ -104,6 +120,9 @@ class QueryIntegration {
 					$user->elasticsearch = true; // Super useful for debugging.
 
 					foreach ( $fields as $field ) {
+						if ( 'id' === $field ) {
+							$field = 'ID';
+						}
 						$user->$field = $document[ $field ];
 					}
 

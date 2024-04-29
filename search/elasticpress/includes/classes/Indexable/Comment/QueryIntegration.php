@@ -38,11 +38,25 @@ class QueryIntegration {
 	/**
 	 * Sets up the appropriate actions and filters.
 	 *
+	 * @param string $indexable_slug Indexable slug. Optional.
+	 *
 	 * @since 3.6.0
 	 */
-	public function __construct() {
+	public function __construct( $indexable_slug = 'comment' ) {
+		/**
+		 * Filter whether to enable query integration during indexing
+		 *
+		 * @since 4.5.2
+		 * @hook ep_enable_query_integration_during_indexing
+		 *
+		 * @param {bool} $enable To allow query integration during indexing
+		 * @param {string} $indexable_slug Indexable slug
+		 * @return {bool} New value
+		 */
+		$allow_query_integration_during_indexing = apply_filters( 'ep_enable_query_integration_during_indexing', false, $indexable_slug );
+
 		// Check if we are currently indexing
-		if ( Utils\is_indexing() ) {
+		if ( Utils\is_indexing() && ! $allow_query_integration_during_indexing ) {
 			return;
 		}
 
@@ -312,7 +326,7 @@ class QueryIntegration {
 					// Otherwise, set it as a child of its parent.
 				} else {
 					$ref[ $c->comment_parent ]->add_child( $c );
-					$ref[ $c->comment_ID ]                                 = $c;
+					$ref[ $c->comment_ID ] = $c;
 				}
 			}
 

@@ -22,13 +22,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 class QueryIntegration {
 
 	/**
-	 * Sets up the appropriate actions and filters.
+	 * Checks to see if we should be integrating and if so, sets up the appropriate actions and filters.
+	 *
+	 * @param string $indexable_slug Indexable slug. Optional.
 	 *
 	 * @since 3.1
+	 * @since 3.6.0 Added $indexable_slug
 	 */
-	public function __construct() {
-		// Check if we are currently indexing
-		if ( Utils\is_indexing() && ! apply_filters( 'ep_enable_query_integration_during_indexing', false, $this ) ) {
+	public function __construct( $indexable_slug = 'term' ) {
+		/**
+		 * Filter whether to enable query integration during indexing
+		 *
+		 * @since 4.5.2
+		 * @hook ep_enable_query_integration_during_indexing
+		 *
+		 * @param {bool} $enable To allow query integration during indexing
+		 * @param {string} $indexable_slug Indexable slug
+		 * @return {bool} New value
+		 */
+		$allow_query_integration_during_indexing = apply_filters( 'ep_enable_query_integration_during_indexing', false, $indexable_slug );
+
+		// Ensure that we are currently allowing ElasticPress to override the normal WP_Query
+		// Indexable->is_full_reindexing() is not available at this point yet, so using the IndexHelper version of it.
+		if ( \ElasticPress\IndexHelper::factory()->is_full_reindexing( $indexable_slug, get_current_blog_id() ) && ! $allow_query_integration_during_indexing ) {
 			return;
 		}
 

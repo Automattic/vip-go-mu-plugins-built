@@ -8,6 +8,7 @@
 
 use ElasticPress\Stats as Stats;
 use ElasticPress\Elasticsearch as Elasticsearch;
+use ElasticPress\Utils as Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -15,10 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/header.php';
 
+$index_meta = Utils\get_option( 'ep_index_meta', [] );
+
 if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK ) {
-	$index_meta = get_site_option( 'ep_index_meta', false );
+	$sync_url = network_admin_url( 'admin.php?page=elasticpress-sync' );
 } else {
-	$index_meta = get_option( 'ep_index_meta', false );
+	$sync_url = admin_url( 'admin.php?page=elasticpress-sync' );
 }
 
 Stats::factory()->build_stats();
@@ -86,6 +89,18 @@ $totals       = Stats::factory()->get_totals();
 			</div>
 		</div>
 	<?php else : ?>
-		<p><?php echo wp_kses( __( 'We could not find any data for your Elasticsearch indices. Maybe you need to <a href="admin.php?page=elasticpress">sync your content</a>?', 'elasticpress' ), 'ep-html' ); ?></p>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: Sync page link. */
+				esc_html__( 'We could not find any data for your Elasticsearch indices. Maybe you need to %s?', 'elasticpress' ),
+				sprintf(
+					'<a href="%1$s">%2$s</a>',
+					esc_url( $sync_url ),
+					esc_html__( 'sync your content', 'elasticpress' )
+				)
+			);
+			?>
+		</p>
 	<?php endif; ?>
 </div>
