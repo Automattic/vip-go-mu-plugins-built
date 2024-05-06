@@ -43,8 +43,6 @@
 			.components-base-control__field {
 				margin-bottom: 0;
 			}
-
-
 		}
 
 		.related-posts-filter-settings {
@@ -52,6 +50,10 @@
 			flex-direction: column;
 			gap: var(--grid-unit-20, to_rem(16px));
 			width: 100%;
+
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
 
 			.related-posts-filter-types {
 				width: 100%;
