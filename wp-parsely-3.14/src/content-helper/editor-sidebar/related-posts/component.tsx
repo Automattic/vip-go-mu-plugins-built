@@ -294,6 +294,7 @@ export const RelatedPostsPanel = (): JSX.Element => {
 		const noAuthorsExist = 0 === postData.authors.length;
 		const noTagsExist = 0 === postData.tags.length;
 		const noCategoriesExist = 0 === postData.categories.length;
+		const authorIsUnavailable = filterTypeIsAuthor && ! postData.authors.includes( filter.value );
 		const tagIsUnavailable = filterTypeIsTag && ! postData.tags.includes( filter.value );
 		const sectionIsUnavailable = filterTypeIsSection && ! postData.categories.includes( filter.value );
 
@@ -308,6 +309,8 @@ export const RelatedPostsPanel = (): JSX.Element => {
 			setFilter( { type: PostFilterType.Tag, value: postData.tags[ 0 ] } );
 		} else if ( sectionIsUnavailable ) {
 			setFilter( { type: PostFilterType.Section, value: postData.categories[ 0 ] } );
+		} else if ( authorIsUnavailable ) {
+			setFilter( { type: PostFilterType.Author, value: postData.authors[ 0 ] } );
 		}	else {
 			fetchPosts( FETCH_RETRIES );
 		}
@@ -376,7 +379,7 @@ export const RelatedPostsPanel = (): JSX.Element => {
 
 	// No filter data could be retrieved. Prevent the component from rendering.
 	if ( postData.authors.length === 0 && postData.categories.length === 0 &&
-			postData.tags.length === 0
+			postData.tags.length === 0 && isPostDataReady
 	) {
 		return (
 			<div className="wp-parsely-related-posts">

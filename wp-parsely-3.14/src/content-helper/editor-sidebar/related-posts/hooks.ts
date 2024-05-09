@@ -56,7 +56,7 @@ export function usePostData(): PostData {
 
 		if ( Number.isInteger( authorId ) ) {
 			authorRecords = getEntityRecords(
-				'root', 'user', { include: [ authorId ] }
+				'root', 'user', { include: [ authorId ], context: 'view' }
 			) ?? undefined; // Coalescing null to undefined
 		} else {
 			authorRecords = null;
@@ -66,7 +66,7 @@ export function usePostData(): PostData {
 			categoryIds.every( Number.isInteger )
 		) {
 			categoryRecords = getEntityRecords(
-				'taxonomy', 'category', { include: categoryIds }
+				'taxonomy', 'category', { include: categoryIds, context: 'view' }
 			) ?? undefined; // Coalescing null to undefined
 		} else {
 			categoryRecords = null;
@@ -76,7 +76,7 @@ export function usePostData(): PostData {
 			tagIds.every( Number.isInteger )
 		) {
 			tagRecords = getEntityRecords(
-				'taxonomy', 'post_tag', { include: tagIds }
+				'taxonomy', 'post_tag', { include: tagIds, context: 'view' }
 			) ?? undefined; // Coalescing null to undefined
 		} else {
 			tagRecords = null;

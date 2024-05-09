@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 // eslint-disable-next-line import/named
-import { BlockInstance } from '@wordpress/blocks';
+import { BlockInstance, getBlockContent } from '@wordpress/blocks';
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { dispatch, select, useDispatch, useSelect } from '@wordpress/data';
@@ -263,9 +263,9 @@ export const SmartLinkingPanel = ( {
 			let generatedLinks = [];
 			const urlExclusionList = generateProtocolVariants( postPermalink );
 
-			if ( selectedBlock?.originalContent && ! generatingFullContent ) {
+			if ( selectedBlock && ! generatingFullContent ) {
 				generatedLinks = await SmartLinkingProvider.generateSmartLinks(
-					selectedBlock?.originalContent,
+					getBlockContent( selectedBlock ),
 					maxLinkWords,
 					maxLinks,
 					urlExclusionList
@@ -391,75 +391,76 @@ export const SmartLinkingPanel = ( {
 				return;
 			}
 
-			if ( block.originalContent ) {
-				const blockContent: string = block.originalContent;
-				const doc = new DOMParser().parseFromString( blockContent, 'text/html' );
+			if ( ! block.originalContent ) {
+				return;
+			}
+			const blockContent: string = getBlockContent( block );
+			const doc = new DOMParser().parseFromString( blockContent, 'text/html' );
 
-				const contentElement = doc.body.firstChild;
-				if ( contentElement && contentElement instanceof HTMLElement ) {
-					links.forEach( ( link ) => {
-						const textNodes = findTextNodesNotInAnchor( contentElement, link.text );
-						const occurrenceKey = `${ link.text }#${ link.offset }`;
+			const contentElement = doc.body.firstChild;
+			if ( contentElement && contentElement instanceof HTMLElement ) {
+				links.forEach( ( link ) => {
+					const textNodes = findTextNodesNotInAnchor( contentElement, link.text );
+					const occurrenceKey = `${ link.text }#${ link.offset }`;
 
-						if ( ! occurrenceCounts[ occurrenceKey ] ) {
-							occurrenceCounts[ occurrenceKey ] = { encountered: 0, linked: 0 };
-						}
+					if ( ! occurrenceCounts[ occurrenceKey ] ) {
+						occurrenceCounts[ occurrenceKey ] = { encountered: 0, linked: 0 };
+					}
 
-						textNodes.forEach( ( node ) => {
-							if ( node.textContent ) {
-								const occurrenceCount = occurrenceCounts[ occurrenceKey ];
-								if ( occurrenceCount.linked >= 1 ) {
-									// The link has already been applied, skip this occurrence.
-									return;
-								}
+					textNodes.forEach( ( node ) => {
+						if ( node.textContent ) {
+							const occurrenceCount = occurrenceCounts[ occurrenceKey ];
+							if ( occurrenceCount.linked >= 1 ) {
+								// The link has already been applied, skip this occurrence.
+								return;
+							}
 
-								const regex = new RegExp( escapeRegExp( link.text ), 'g' );
-								let match;
-								while ( ( match = regex.exec( node.textContent ) ) !== null ) {
-									// Increment the encountered count every time the text is found.
-									occurrenceCount.encountered++;
+							const regex = new RegExp( escapeRegExp( link.text ), 'g' );
+							let match;
+							while ( ( match = regex.exec( node.textContent ) ) !== null ) {
+								// Increment the encountered count every time the text is found.
+								occurrenceCount.encountered++;
 
-									// Check if the link is in the correct position (offset) to be applied.
-									if ( occurrenceCount.encountered === link.offset + 1 ) {
-										// Create a new anchor element for the link.
-										const anchor = document.createElement( 'a' );
-										anchor.href = link.href;
-										anchor.title = link.title;
-										anchor.textContent = match[ 0 ];
+								// Check if the link is in the correct position (offset) to be applied.
+								if ( occurrenceCount.encountered === link.offset + 1 ) {
+									// Create a new anchor element for the link.
+									const anchor = document.createElement( 'a' );
+									anchor.href = link.href;
+									anchor.title = link.title;
+									anchor.textContent = match[ 0 ];
 
-										// Replace the matched text with the new anchor element.
-										const range = document.createRange();
-										range.setStart( node, match.index );
-										range.setEnd( node, match.index + match[ 0 ].length );
-										range.deleteContents();
-										range.insertNode( anchor );
+									// Replace the matched text with the new anchor element.
+									const range = document.createRange();
+									range.setStart( node, match.index );
+									range.setEnd( node, match.index + match[ 0 ].length );
+									range.deleteContents();
+									range.insertNode( anchor );
 
-										// Adjust the text node if there's text remaining after the link.
-										if ( node.textContent && match.index + match[ 0 ].length < node.textContent.length ) {
-											const remainingText = document.createTextNode(
-												node.textContent.slice( match.index + match[ 0 ].length )
-											);
-											node.parentNode?.insertBefore( remainingText, anchor.nextSibling );
-										}
-
-										// Increment the linked count only when a link is applied.
-										occurrenceCount.linked++;
-
-										// Flag the block as updated.
-										blockUpdated = true;
+									// Adjust the text node if there's text remaining after the link.
+									if ( node.textContent && match.index + match[ 0 ].length < node.textContent.length ) {
+										const remainingText = document.createTextNode(
+											node.textContent.slice( match.index + match[ 0 ].length )
+										);
+										node.parentNode?.insertBefore( remainingText, anchor.nextSibling );
 									}
+
+									// Increment the linked count only when a link is applied.
+									occurrenceCount.linked++;
+
+									// Flag the block as updated.
+									blockUpdated = true;
 								}
 							}
-						} );
+						}
 					} );
+				} );
 
-					// Save the updated content if the block was updated.
-					if ( blockUpdated ) {
-						updatedBlocks.push( {
-							clientId: block.clientId,
-							newContent: contentElement.innerHTML,
-						} );
-					}
+				// Save the updated content if the block was updated.
+				if ( blockUpdated ) {
+					updatedBlocks.push( {
+						clientId: block.clientId,
+						newContent: contentElement.innerHTML,
+					} );
 				}
 			}
 		} );

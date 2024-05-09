@@ -50,7 +50,8 @@ const FilterTypes = (
 				{ postData.tags.length >= 1 && (
 					<ToggleGroupControlOption
 						value={ PostFilterType.Tag }
-						label={ __( 'Tag', 'wp-parsely' ) } />
+						label={ __( 'Tag', 'wp-parsely' ) }
+					/>
 				) }
 				{ postData.categories.length >= 1 && (
 					<ToggleGroupControlOption
@@ -58,10 +59,12 @@ const FilterTypes = (
 						label={ __( 'Section', 'wp-parsely' ) }
 					/>
 				) }
-				<ToggleGroupControlOption
-					value={ PostFilterType.Author }
-					label={ __( 'Author', 'wp-parsely' ) }
-				/>
+				{ postData.authors.length >= 1 && (
+					<ToggleGroupControlOption
+						value={ PostFilterType.Author }
+						label={ __( 'Author', 'wp-parsely' ) }
+					/>
+				) }
 			</ToggleGroupControl>
 		</div>
 	);
@@ -88,6 +91,7 @@ type FilterValuesProps = {
  */
 const FilterValues = ( {
 	filter,
+	label,
 	postData,
 	...props
 }: Readonly<FilterValuesProps> ): JSX.Element => {
@@ -125,6 +129,7 @@ const FilterValues = ( {
 			<ComboboxControl
 				__next40pxDefaultSize
 				allowReset={ true }
+				label={ label }
 				onChange={ ( selection ) => props.onFilterValueChange( selection ) }
 				options={ getOptions() }
 				value={ filter.value }
@@ -158,7 +163,22 @@ export const RelatedPostsFilterSettings = ( {
 	postData,
 	label,
 	...props
-}: Readonly<FilterControlsProps> ): JSX.Element => {
+}: Readonly<FilterControlsProps> ): JSX.Element | null => {
+	/**
+	 * Returns whether the filter settings should be displayed.
+	 *
+	 * @since 3.14.4
+	 *
+	 * @return {boolean} Whether the filter settings should be displayed.
+	 */
+	const shouldDisplayFilterTypes = (): boolean => {
+		// Display only when there is data for at least two filters.
+		return ( postData.authors.length > 0 && postData.categories.length > 0 ) ||
+			( postData.authors.length > 0 && postData.tags.length > 0 ) ||
+			( postData.tags.length > 0 && postData.categories.length > 0 )
+		;
+	};
+
 	/**
 	 * Returns whether the filter values ComboboxControl should be displayed.
 	 *
@@ -178,21 +198,28 @@ export const RelatedPostsFilterSettings = ( {
 		return false;
 	};
 
+	if ( ! shouldDisplayFilterTypes() && ! shouldDisplayFilterValues() ) {
+		return null;
+	}
+
 	return (
-		<>
-			<FilterTypes
-				filter={ filter }
-				label={ label }
-				onFilterTypeChange={ props.onFilterTypeChange }
-				postData={ postData }
-			/>
+		<div className="related-posts-filter-settings">
+			{ shouldDisplayFilterTypes() &&
+				<FilterTypes
+					filter={ filter }
+					label={ label }
+					onFilterTypeChange={ props.onFilterTypeChange }
+					postData={ postData }
+				/>
+			}
 			{ shouldDisplayFilterValues() &&
 				<FilterValues
 					filter={ filter }
+					label={ ! shouldDisplayFilterTypes() ? label : undefined }
 					onFilterValueChange={ props.onFilterValueChange }
 					postData={ postData }
 				/>
 			}
-		</>
+		</div>
 	);
 };

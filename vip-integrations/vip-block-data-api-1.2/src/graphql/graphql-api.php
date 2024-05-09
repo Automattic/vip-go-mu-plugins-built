@@ -25,7 +25,7 @@ class GraphQLApi {
 	}
 
 	/**
-	 * Extract the blocks data for a post, and return back in the format expected by the graphQL API.
+	 * Extract the blocks data for a post, and return back in the format expected by the GraphQL API.
 	 *
 	 * @param  \WPGraphQL\Model\Post $post_model Post model for post.
 	 *
@@ -91,12 +91,7 @@ class GraphQLApi {
 			unset( $block['attributes'] );
 		} elseif ( isset( $block['attributes'] ) && ! empty( $block['attributes'] ) ) {
 			$block['attributes'] = array_map(
-				function ( $name, $value ) {
-					return [
-						'name'  => $name,
-						'value' => strval( $value ),
-					];
-				},
+				[ __CLASS__, 'get_block_attribute_pair' ],
 				array_keys( $block['attributes'] ),
 				array_values( $block['attributes'] )
 			);
@@ -159,13 +154,17 @@ class GraphQLApi {
 			[
 				'description' => 'Block attribute',
 				'fields'      => [
-					'name'  => [
+					'name'               => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => 'Block data attribute name',
 					],
-					'value' => [
+					'value'              => [
 						'type'        => [ 'non_null' => 'String' ],
 						'description' => 'Block data attribute value',
+					],
+					'isValueJsonEncoded' => [
+						'type'        => [ 'non_null' => 'Boolean' ],
+						'description' => 'True if value is a complex JSON-encoded field. This is used to encode attribute types like arrays and objects.',
 					],
 				],
 			],
@@ -251,6 +250,30 @@ class GraphQLApi {
 				'resolve'     => [ __CLASS__, 'get_blocks_data' ],
 			]
 		);
+	}
+
+	/**
+	 * Given a block attribute name and value, return a BlockAttribute array.
+	 *
+	 * @param string $name The name of the block attribute.
+	 * @param mixed  $value The value of the block attribute.
+	 *
+	 * @return array
+	 */
+	public static function get_block_attribute_pair( $name, $value ) {
+		// Unknown array types (table cells, for example) are encoded as JSON strings.
+		$is_value_json_encoded = false;
+
+		if ( ! is_scalar( $value ) ) {
+			$value                 = wp_json_encode( $value );
+			$is_value_json_encoded = true;
+		}
+
+		return [
+			'name'               => $name,
+			'value'              => strval( $value ),
+			'isValueJsonEncoded' => $is_value_json_encoded,
+		];
 	}
 }
 

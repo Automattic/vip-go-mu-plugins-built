@@ -19,13 +19,13 @@ import { Telemetry } from '../../../js/telemetry/telemetry';
 import { ContentHelperError } from '../../common/content-helper-error';
 import { SidebarSettings, useSettings } from '../../common/settings';
 import {
-	getMetricDescription,
-	getPeriodDescription,
-	isInEnum,
 	Metric,
 	Period,
 	PostFilter,
 	PostFilterType,
+	getMetricDescription,
+	getPeriodDescription,
+	isInEnum,
 } from '../../common/utils/constants';
 import { PostData } from '../../common/utils/post';
 import { SidebarPostData } from '../editor-sidebar';
@@ -66,16 +66,59 @@ export const RelatedPostsPanel = (): JSX.Element => {
 		isReady: isPostDataReady,
 	} = usePostData();
 
-	useEffect( () => {
-		// Set the post data only when all required properties have become
-		// available.
-		if ( authors && categories && tags ) {
-			setPostData( {
-				authors: authors.map( ( a ) => a.name ),
-				categories: categories.map( ( c ) => c.name ),
-				tags: tags.map( ( t ) => t.name ),
-			} );
+	/**
+	 * Validates that the passed value is an array of Users or Taxonomies, with
+	 * at least one item.
+	 *
+	 * @since 3.14.4
+	 *
+	 * @param {unknown} value The value to be validated.
+	 *
+	 * @return {boolean} Whether validation succeeded.
+	 */
+	const isArrayOfUsersOrTaxonomies = ( value: unknown ): boolean => {
+		if ( ! Array.isArray( value ) || value.length === 0 ) {
+			return false;
 		}
+
+		// Every array item should have the following required properties.
+		return value.every( ( item ) => {
+			return 'name' in item && 'id' in item && 'slug' in item &&
+				'description' in item && 'link' in item;
+		} );
+	};
+
+	useEffect( () => {
+		if ( ! isPostDataReady ) {
+			return;
+		}
+
+		/**
+		 * Returns the name properties present in the passed value, or an empty
+		 * array if any errors occur.
+		 *
+		 * @since 3.14.4
+		 *
+		 * @param {unknown} value The value to be processed.
+		 *
+		 * @return {string[]} The names extracted from the value.
+		 */
+		const extractNamesAsArray = ( value: unknown ): string[] => {
+			if ( ! isArrayOfUsersOrTaxonomies( value ) ) {
+				return [];
+			}
+
+			const array = value as Array<{ name: string }>;
+			return array.map( ( item ) => item.name );
+		};
+
+		setPostData( {
+			// Pass the data through validation, as `usePostData()` could return
+			// unexpected results.
+			authors: extractNamesAsArray( authors ),
+			categories: extractNamesAsArray( categories ),
+			tags: extractNamesAsArray( tags ),
+		} );
 	}, [ authors, categories, tags, isPostDataReady ] );
 
 	const [ loading, setLoading ] = useState<boolean>( true );
@@ -218,7 +261,7 @@ export const RelatedPostsPanel = (): JSX.Element => {
 			} else if ( postData.categories.length >= 1 ) {
 				type = PostFilterType.Section;
 				value = postData.categories[ 0 ];
-			} else {
+			} else if ( postData.authors.length >= 1 ) {
 				type = PostFilterType.Author;
 				value = postData.authors[ 0 ];
 			}
@@ -244,16 +287,21 @@ export const RelatedPostsPanel = (): JSX.Element => {
 				} );
 		};
 
+		const filterTypeIsAuthor = PostFilterType.Author === filter.type;
 		const filterTypeIsTag = PostFilterType.Tag === filter.type;
 		const filterTypeIsSection = PostFilterType.Section === filter.type;
 		const filterTypeIsUnavailable = PostFilterType.Unavailable === filter.type;
+		const noAuthorsExist = 0 === postData.authors.length;
 		const noTagsExist = 0 === postData.tags.length;
 		const noCategoriesExist = 0 === postData.categories.length;
+		const authorIsUnavailable = filterTypeIsAuthor && ! postData.authors.includes( filter.value );
 		const tagIsUnavailable = filterTypeIsTag && ! postData.tags.includes( filter.value );
 		const sectionIsUnavailable = filterTypeIsSection && ! postData.categories.includes( filter.value );
 
 		setLoading( true );
-		if ( filterTypeIsUnavailable || ( filterTypeIsTag && noTagsExist ) || ( filterTypeIsSection && noCategoriesExist ) ) {
+		if ( filterTypeIsUnavailable || ( filterTypeIsTag && noTagsExist ) ||
+			( filterTypeIsSection && noCategoriesExist ) || ( filterTypeIsAuthor && noAuthorsExist )
+		) {
 			if ( ! isPostDataEmpty() ) {
 				setFilter( getInitialFilterSettings() );
 			}
@@ -261,6 +309,8 @@ export const RelatedPostsPanel = (): JSX.Element => {
 			setFilter( { type: PostFilterType.Tag, value: postData.tags[ 0 ] } );
 		} else if ( sectionIsUnavailable ) {
 			setFilter( { type: PostFilterType.Section, value: postData.categories[ 0 ] } );
+		} else if ( authorIsUnavailable ) {
+			setFilter( { type: PostFilterType.Author, value: postData.authors[ 0 ] } );
 		}	else {
 			fetchPosts( FETCH_RETRIES );
 		}
@@ -327,6 +377,22 @@ export const RelatedPostsPanel = (): JSX.Element => {
 		return message ?? '';
 	};
 
+	// No filter data could be retrieved. Prevent the component from rendering.
+	if ( postData.authors.length === 0 && postData.categories.length === 0 &&
+			postData.tags.length === 0 && isPostDataReady
+	) {
+		return (
+			<div className="wp-parsely-related-posts">
+				<div className="related-posts-body">
+					{ __(
+						'Error: No author, section, or tags could be found for this post.',
+						'wp-parsely'
+					) }
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="wp-parsely-related-posts">
 			<div className="related-posts-description">
@@ -364,16 +430,13 @@ export const RelatedPostsPanel = (): JSX.Element => {
 					</SelectControl>
 				</div>
 				{
-					( postData.tags.length > 0 || postData.categories.length > 0 ) &&
-					<div className="related-posts-filter-settings">
-						<RelatedPostsFilterSettings
-							label={ __( 'Filter by', 'wp-parsely' ) }
-							filter={ filter }
-							onFilterTypeChange={ updateFilterType }
-							onFilterValueChange={ updateFilterValue }
-							postData={ postData }
-						/>
-					</div>
+					<RelatedPostsFilterSettings
+						label={ __( 'Filter by', 'wp-parsely' ) }
+						filter={ filter }
+						onFilterTypeChange={ updateFilterType }
+						onFilterValueChange={ updateFilterValue }
+						postData={ postData }
+					/>
 				}
 
 				<div className="related-posts-wrapper">
