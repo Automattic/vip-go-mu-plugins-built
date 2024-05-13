@@ -20,6 +20,13 @@
  */
 
 /*!
+ * cookie
+ * Copyright(c) 2012-2014 Roman Shtylman
+ * Copyright(c) 2015 Douglas Christopher Wilson
+ * MIT Licensed
+ */
+
+/*!
 * focus-trap 6.3.0
 * @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
 */

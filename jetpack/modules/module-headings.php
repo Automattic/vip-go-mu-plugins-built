@@ -56,11 +56,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Adds options for CSS preprocessor use, disabling the theme\'s CSS, or custom image width.', 'Module Description', 'jetpack' ),
 			),
 
-			'enhanced-distribution' => array(
-				'name' => _x( 'Enhanced Distribution', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Increase reach and traffic.', 'Module Description', 'jetpack' ),
-			),
-
 			'google-analytics' => array(
 				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Set up Google Analytics without touching a line of code.', 'Module Description', 'jetpack' ),
@@ -295,7 +290,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Writing` tag:
 			// - modules/copy-post.php
 			// - modules/custom-content-types.php
-			// - modules/enhanced-distribution.php
 			// - modules/json-api.php
 			// - modules/latex.php
 			// - modules/markdown.php
@@ -518,24 +512,6 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Appearance',
 	    'feature' => 'Appearance',
 	    'additional_search_queries' => 'css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet',
-	    'plan_classes' => '',
-	  ),
-	  'enhanced-distribution' => 
-	  array (
-	    'name' => 'Enhanced Distribution',
-	    'description' => 'Increase reach and traffic.',
-	    'sort' => '5',
-	    'recommendation_order' => '',
-	    'introduced' => '1.2',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'Yes',
-	    'requires_user_connection' => '',
-	    'auto_activate' => 'Public',
-	    'module_tags' => 'Writing',
-	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'google, seo, firehose, search, broadcast, broadcasting, creator',
 	    'plan_classes' => '',
 	  ),
 	  'google-analytics' => 
@@ -890,7 +866,7 @@ function jetpack_get_module_info( $key ) {
 	    'changed' => '',
 	    'deactivate' => '',
 	    'free' => '',
-	    'requires_connection' => 'Yes',
+	    'requires_connection' => 'No',
 	    'requires_user_connection' => 'No',
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Social, Appearance',

@@ -171,6 +171,10 @@ li.service.share-telegram span:before {
   content: "\f606";
 }
 
+li.service.share-threads span:before {
+  content: "\f10d";
+}
+
 li.service.share-jetpack-whatsapp span:before {
   content: "\f608";
 }
@@ -185,6 +189,10 @@ li.service.share-nextdoor span:before {
 
 li.service.share-x span:before {
   content: "\f10e";
+}
+
+li.service.share-bluesky span:before {
+  content: "\f10f";
 }
 
 /**
@@ -451,6 +459,10 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .sharing-block-message__buttons-wrapper .button {
   margin-left: 1rem;
+}
+
+.sharing-block-message__buttons-wrapper .button-primary:visited {
+  color: #fff;
 }
 
 .admin-sharing-settings__block-theme-description {

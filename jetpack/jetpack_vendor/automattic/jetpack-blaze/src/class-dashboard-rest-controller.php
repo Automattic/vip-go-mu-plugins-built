@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status\Host;
 use WC_Product;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -817,7 +818,7 @@ class Dashboard_REST_Controller {
 		$response_body         = json_decode( $response_body_content, true );
 
 		if ( 200 !== $response_code ) {
-			return $this->get_wp_error( $response_body, $response_code );
+			return $this->get_blaze_error( $response_body, $response_code );
 		}
 
 		// Cache the successful JSON response for 5 minutes.
@@ -844,7 +845,13 @@ class Dashboard_REST_Controller {
 	 * @param int   $response_code Http response code.
 	 * @return WP_Error
 	 */
-	protected function get_wp_error( $response_body, $response_code = 500 ) {
+	protected function get_blaze_error( $response_body, $response_code = 500 ) {
+		if ( ! is_array( $response_body ) ) {
+			$response_body = array(
+				'errorMessage' => $response_body,
+			);
+		}
+
 		$error_code = 'remote-error';
 		foreach ( array( 'code', 'error' ) as $error_code_key ) {
 			if ( isset( $response_body[ $error_code_key ] ) ) {
@@ -853,13 +860,11 @@ class Dashboard_REST_Controller {
 			}
 		}
 
-		$error_message = isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error';
+		$response_body['code']         = $error_code;
+		$response_body['status']       = $response_code;
+		$response_body['errorMessage'] = $response_body['errorMessage'] ?? 'Unknown remote error';
 
-		return new WP_Error(
-			$error_code,
-			$error_message,
-			array( 'status' => $response_code )
-		);
+		return new \WP_REST_Response( $response_body, $response_code );
 	}
 
 	/**
