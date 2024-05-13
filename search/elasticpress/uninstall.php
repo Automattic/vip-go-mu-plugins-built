@@ -70,7 +70,6 @@ class EP_Uninstaller {
 	 * Perform some checks to make sure plugin can/should be uninstalled
 	 *
 	 * @since 1.7
-	 * @return EP_Uninstaller
 	 */
 	public function __construct() {
 
@@ -120,6 +119,7 @@ class EP_Uninstaller {
 	protected function delete_related_posts_transients() {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$related_posts_transients = $wpdb->get_col( "SELECT option_name FROM {$wpdb->prefix}options WHERE option_name LIKE '_transient_ep_related_posts_%'" );
 
 		foreach ( $related_posts_transients as $related_posts_transient ) {

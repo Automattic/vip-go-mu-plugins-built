@@ -452,7 +452,7 @@ class SearchOrdering extends Feature {
 		/** Post Indexable @var Post $post_indexable */
 		$post_indexable = Indexables::factory()->get( 'post' );
 
-		if ( ! isset( $_POST['search-ordering-nonce'] ) || ! wp_verify_nonce( $_POST['search-ordering-nonce'], 'save-search-ordering' ) ) {
+		if ( ! isset( $_POST['search-ordering-nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['search-ordering-nonce'] ), 'save-search-ordering' ) ) {
 			return;
 		}
 
@@ -466,7 +466,8 @@ class SearchOrdering extends Feature {
 		$previous_order_data = get_post_meta( $post_id, 'pointers', true );
 		$previous_post_ids   = ! empty( $previous_order_data ) ? array_flip( wp_list_pluck( $previous_order_data, 'ID' ) ) : [];
 
-		$ordered_posts = json_decode( wp_unslash( $_POST['ordered_posts'] ), true );
+		$ordered_posts = isset( $_POST['ordered_posts'] ) ? wp_unslash( $_POST['ordered_posts'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$ordered_posts = json_decode( $ordered_posts, true );
 
 		$posts_per_page = (int) get_option( 'posts_per_page', 10 );
 
@@ -847,7 +848,7 @@ class SearchOrdering extends Feature {
 	protected function assign_term_to_post( $post_id, $term_taxonomy_id, $order ) {
 		global $wpdb;
 
-		$result = $wpdb->query(
+		$result = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$wpdb->prepare(
 				"INSERT INTO $wpdb->term_relationships (object_id, term_taxonomy_id, term_order) VALUES ( %d, %d, %d ) ON DUPLICATE KEY UPDATE term_order = VALUES(term_order)",
 				$post_id,

@@ -1255,6 +1255,7 @@ class Command extends WP_CLI_Command {
 		} else {
 			$options = $wpdb->options;
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$should_interrupt_sync = $wpdb->get_var(
 				// phpcs:disable
 				$wpdb->prepare(

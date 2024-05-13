@@ -8,7 +8,6 @@
 namespace ElasticPress\Feature\Search;
 
 use ElasticPress\Features;
-use ElasticPress\Indexable\Post\Post;
 use ElasticPress\Utils as Utils;
 
 /**
@@ -220,8 +219,8 @@ class Weighting {
 				<input type="hidden" name="action" value="ep-weighting">
 				<?php wp_nonce_field( 'save-weighting', 'ep-weighting-nonce' ); ?>
 				<?php
-				if ( isset( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification
-					if ( $_GET['settings-updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification
+				if ( isset( $_GET['settings-updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+					if ( $_GET['settings-updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 						?>
 						<div class="notice notice-success is-dismissible">
 							<p><?php esc_html_e( 'Changes Saved!', 'elasticpress' ); ?></p>
@@ -335,6 +334,7 @@ class Weighting {
 	 * Handles processing the new weighting values and saving them to the elasticpress.io service
 	 */
 	public function handle_save() {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		if ( ! isset( $_POST['ep-weighting-nonce'] ) || ! wp_verify_nonce( $_POST['ep-weighting-nonce'], 'save-weighting' ) ) {
 			return;
 		}
@@ -343,6 +343,7 @@ class Weighting {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$this->save_weighting_configuration( $_POST );
 
 		$redirect_url = admin_url( 'admin.php?page=elasticpress-weighting' );

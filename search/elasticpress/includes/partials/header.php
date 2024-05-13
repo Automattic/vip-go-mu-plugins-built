@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-$base_url = admin_url( 'admin.php?page=' ); // VIP: The network menu is disabled, go to the site menu.
+$base_url     = admin_url( 'admin.php?page=' ); // VIP: The network menu is disabled, go to the site menu.
 $is_sync_page = 'sync' === Screen::factory()->get_current_screen();
 ?>
 

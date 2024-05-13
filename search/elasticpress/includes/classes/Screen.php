@@ -56,7 +56,7 @@ class Screen {
 		// VIP: We removed the block about returning false depending on network admin or in network mode && not network admin
 
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! empty( $_GET['page'] ) && false !== strpos( $_GET['page'], 'elasticpress' ) ) {
+		if ( ! empty( $_GET['page'] ) && false !== strpos( sanitize_key( $_GET['page'] ), 'elasticpress' ) ) {
 			$install_status = Installer::factory()->get_install_status();
 
 			$this->screen = 'install';

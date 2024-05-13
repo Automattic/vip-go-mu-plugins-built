@@ -189,7 +189,7 @@ function maybe_skip_install() {
 		return;
 	}
 
-	if ( empty( $_GET['ep-skip-install'] ) || empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'ep-skip-install' ) || ! in_array( Screen::factory()->get_current_screen(), [ 'install' ], true ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+	if ( empty( $_GET['ep-skip-install'] ) || empty( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_GET['nonce'] ), 'ep-skip-install' ) || ! in_array( Screen::factory()->get_current_screen(), [ 'install' ], true ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		return;
 	}
 
@@ -235,6 +235,7 @@ function maybe_clear_es_info_cache() {
 
 	if ( ! empty( $_GET['ep-retry'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
 		wp_safe_redirect( remove_query_arg( 'ep-retry' ) );
+		exit();
 	}
 }
 
@@ -382,7 +383,7 @@ function action_wp_ajax_ep_notice_dismiss() {
 		exit;
 	}
 
-	AdminNotices::factory()->dismiss_notice( $_POST['notice'] );
+	AdminNotices::factory()->dismiss_notice( sanitize_key( $_POST['notice'] ) );
 
 	wp_send_json_success();
 }
@@ -420,9 +421,9 @@ function action_wp_ajax_ep_cancel_index() {
  * @since  2.2
  */
 function action_wp_ajax_ep_save_feature() {
-	$_POST = wp_unslash( $_POST );
+	$post = wp_unslash( $_POST );
 
-	if ( empty( $_POST['feature'] ) || empty( $_POST['settings'] ) || ! check_ajax_referer( 'ep_dashboard_nonce', 'nonce', false ) ) {
+	if ( empty( $post['feature'] ) || empty( $post['settings'] ) || ! check_ajax_referer( 'ep_dashboard_nonce', 'nonce', false ) ) {
 		wp_send_json_error();
 		exit;
 	}
@@ -434,10 +435,10 @@ function action_wp_ajax_ep_save_feature() {
 		exit;
 	}
 
-	$data = Features::factory()->update_feature( $_POST['feature'], $_POST['settings'] );
+	$data = Features::factory()->update_feature( $post['feature'], $post['settings'] );
 
 	// Since we deactivated, delete auto activate notice.
-	if ( empty( $_POST['settings']['active'] ) ) {
+	if ( empty( $post['settings']['active'] ) ) {
 		Utils\delete_option( 'ep_feature_auto_activated_sync' );
 	}
 
@@ -577,6 +578,7 @@ function action_admin_init() {
 	if ( defined( 'EP_IS_NETWORK' ) && EP_IS_NETWORK && isset( $_POST['ep_language'] ) ) {
 		check_admin_referer( 'elasticpress-options' );
 
+		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		$language = sanitize_text_field( $_POST['ep_language'] );
 		Utils\update_option( 'ep_language', $language );
 
@@ -584,6 +586,7 @@ function action_admin_init() {
 			$host = esc_url_raw( trim( $_POST['ep_host'] ) );
 			Utils\update_option( 'ep_host', $host );
 		}
+		// phpcs:enable WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( isset( $_POST['ep_prefix'] ) ) {
 			$prefix = ( isset( $_POST['ep_prefix'] ) ) ? sanitize_text_field( wp_unslash( $_POST['ep_prefix'] ) ) : '';
@@ -591,6 +594,7 @@ function action_admin_init() {
 		}
 
 		if ( isset( $_POST['ep_credentials'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			$credentials = ( isset( $_POST['ep_credentials'] ) ) ? Utils\sanitize_credentials( $_POST['ep_credentials'] ) : [
 				'username' => '',
 				'token'    => '',
