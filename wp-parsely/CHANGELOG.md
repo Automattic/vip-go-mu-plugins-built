@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.15.0](https://github.com/Parsely/wp-parsely/compare/3.14.5...3.15.0) - 2024-05-14
+
+### Changed
+
+- Update minimum node and npm versions ([#2475](https://github.com/Parsely/wp-parsely/pull/2475))
+- PCH: Strip all tags from the content sent to the API ([#2431](https://github.com/Parsely/wp-parsely/pull/2431))
+- PCH Editor Sidebar: Update isDismissible in Notices ([#2428](https://github.com/Parsely/wp-parsely/pull/2428))
+- PCH: Enhance Request Handling in Provider Classes ([#2401](https://github.com/Parsely/wp-parsely/pull/2401))
+- PCH Smart Linking: Allow API retry when there are upstream errors ([#2386](https://github.com/Parsely/wp-parsely/pull/2386))
+
+### Fixed
+
+- Fix removeEditorPanel() deprecation message in WordPress 6.5 ([#2398](https://github.com/Parsely/wp-parsely/pull/2398))
+- EmptyCredentialsMessage: Fix empty error ([#2397](https://github.com/Parsely/wp-parsely/pull/2397))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.15.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.14.5](https://github.com/Parsely/wp-parsely/compare/3.14.4...3.14.5) - 2024-05-09
 
 ### Fixed
