@@ -334,6 +334,7 @@ class Rewrite_Rules_Inspector {
 			wp_die( esc_html__( 'You do not have permissions to perform this action.', 'rewrite-rules-inspector' ) );
 		}
 
+		wp_cache_delete( 'rewrite_rules', 'options' );
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.flush_rewrite_rules_flush_rewrite_rules
 		flush_rewrite_rules( false );
 		do_action( 'rri_flush_rules' );

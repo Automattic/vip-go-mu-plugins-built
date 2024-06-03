@@ -121,7 +121,7 @@ class Rewrite_Rules_Inspector_List_Table extends WP_List_Table {
 				</select>
 				<?php submit_button( __( 'Filter', 'rewrite-rules-inspector' ), 'primary', null, false ); ?>
 				<?php if ( $search || ! empty( $_GET['source'] ) ) : ?>
-					<a href="<?php esc_url( menu_page_url( $plugin_page ) ); ?>" class="button-secondary"><?php esc_html_e( 'Reset', 'rewrite-rules-inspector' ); ?></a>
+					<a href="<?php echo esc_url( menu_page_url( $plugin_page, false ) ); ?>" class="button-secondary"><?php esc_html_e( 'Reset', 'rewrite-rules-inspector' ); ?></a>
 				<?php endif; ?>
 			</form>
 		</div>
