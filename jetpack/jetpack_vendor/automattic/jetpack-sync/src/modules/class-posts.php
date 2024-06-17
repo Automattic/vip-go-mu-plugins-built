@@ -233,7 +233,7 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_send_deleted_post_meta', array( $this, 'trim_post_meta' ) );
 		// Full sync.
 		$sync_module = Modules::get_module( 'full-sync' );
-		if ( $sync_module && str_contains( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		if ( $sync_module instanceof Full_Sync_Immediately ) {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'add_term_relationships' ) );
 		} else {
 			add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_posts_with_metadata_and_terms' ) );
@@ -270,8 +270,8 @@ class Posts extends Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->posts WHERE " . $this->get_where_sql( $config );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$count = $wpdb->get_var( $query );
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$count = (int) $wpdb->get_var( $query );
 
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
@@ -618,12 +618,10 @@ class Posts extends Module {
 	 * The 2nd request is to update post meta, which is not supported on WP REST API.
 	 * When syncing post data, we will include if this was a meta box update.
 	 *
-	 * @todo Implement nonce verification.
-	 *
 	 * @return boolean Whether this is a Gutenberg meta box update.
 	 */
-	public function is_gutenberg_meta_box_update() {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended
+	private function is_gutenberg_meta_box_update() {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.NonceVerification.Recommended -- We only check the request to determine if this is a Gutenberg meta box update, and we only use the result to set a boolean logged in the sync event. If anyone anywhere else gets the flag and does something CSRF-able with it, they should ensure that a nonce has been checked.
 		return (
 			isset( $_POST['action'], $_GET['classic-editor'], $_GET['meta_box'] ) &&
 			'editpost' === $_POST['action'] &&

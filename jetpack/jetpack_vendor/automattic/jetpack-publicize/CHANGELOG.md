@@ -5,9 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.43.1] - 2024-05-16
+## [0.45.1] - 2024-06-03
+### Changed
+- Social: Update upgrade nudges to use the new plan. [#37638]
+
+## [0.45.0] - 2024-05-27
+### Changed
+- Added external_id to connections field. [#37405]
+- Changed how social connections are cached by moving to using transients. [#37500]
+- Moved "can_manage_connection" method to Publicize_Base class. [#37532]
+- Fixed no connections UI for editor. [#37571]
+- Updated the connection test results endpoint for front-end. [#37531]
+- Standardized the rest endpoint structure for Jetpack social connections. [#37510]
+
 ### Fixed
-- Add back the OpenGraph filter function to prevent uncached multiple uncached requests for images during frontend requests. [#37368] [#37411]
+- Disconnect button was not showing for connections in the editor. [#37501]
+
+## [0.44.1] - 2024-05-20
+### Changed
+- Changed the connections management feature flag check to include the WP.com plan feature. [#37425]
+- Social: Updated connection modal UI. [#37420]
+- Updated package dependencies. [#37379]
+
+### Fixed
+- Added back the previous Open Graph filter function. [#37368]
+- Fixed the typo in the Open Graph hook. [#37411]
+
+## [0.44.0] - 2024-05-13
+### Added
+- Add connect form/button for connection management. [#37196]
+- Social Connections: Added disconnection confirmation dialog. [#37310]
+- Wired up disconnect button and added reconnect button. [#37237]
 
 ## [0.43.0] - 2024-05-06
 ### Added
@@ -546,7 +574,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
-[0.43.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.43.0...v0.43.1
+[0.45.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.45.0...v0.45.1
+[0.45.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.1...v0.45.0
+[0.44.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.44.0...v0.44.1
+[0.44.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.13...v0.43.0
 [0.42.13]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.12...v0.42.13
 [0.42.12]: https://github.com/Automattic/jetpack-publicize/compare/v0.42.11...v0.42.12

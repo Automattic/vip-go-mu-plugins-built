@@ -476,8 +476,7 @@ body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a {
   line-height: 22px;
   border-radius: 2px;
   padding: 8px 14px;
-  -webkit-appearance: none;
-          appearance: none;
+  appearance: none;
 }
 
 body:not(.folded) #adminmenu .menu-top[class*="/start?ref=calypso-sidebar"] a:hover {

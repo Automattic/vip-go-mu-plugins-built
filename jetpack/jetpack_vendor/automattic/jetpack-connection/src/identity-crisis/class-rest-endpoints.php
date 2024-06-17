@@ -1,8 +1,8 @@
 <?php
 /**
- * Identity_Crisis package.
+ * Identity_Crisis REST endpoints of the Connection package.
  *
- * @package  automattic/jetpack-identity-crisis
+ * @package  automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\IdentityCrisis;
@@ -17,7 +17,8 @@ use WP_REST_Server;
 /**
  * This class will handle Identity Crisis Endpoints
  *
- * @since 0.2.0
+ * @since automattic/jetpack-identity-crisis:0.2.0
+ * @since 2.9.0
  */
 class REST_Endpoints {
 

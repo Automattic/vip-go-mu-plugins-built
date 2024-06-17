@@ -1,8 +1,8 @@
 <?php
 /**
- * Identity_Crisis package.
+ * Identity_Crisis UI class of the Connection package.
  *
- * @package  automattic/jetpack-identity-crisis
+ * @package automattic/jetpack-connection
  */
 
 namespace Automattic\Jetpack\IdentityCrisis;
@@ -59,7 +59,7 @@ class UI {
 		if ( is_admin() ) {
 			Assets::register_script(
 				'jp_identity_crisis_banner',
-				'../build/index.js',
+				'../../dist/identity-crisis.js',
 				__FILE__,
 				array(
 					'in_footer'  => true,
