@@ -1,0 +1,219 @@
+@import "../../common/css/variables";
+@import "../../common/css/functions";
+
+// Title Suggestion Panel CSS.
+.wp-parsely-content-helper .wp-parsely-title-suggestions-wrapper {
+	display: flex;
+	flex-direction: column;
+
+	.title-suggestions-settings {
+
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--grid-unit-20);
+		align-self: stretch;
+
+		> div {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--grid-unit-10);
+			align-self: stretch;
+		}
+	}
+
+	.title-suggestions-header {
+		display: flex;
+		padding-bottom: var(--grid-unit-20);
+		flex-direction: column;
+		align-items: flex-start;
+		gap: to_rem(10px);
+		align-self: stretch;
+
+		.parsely-write-titles-text strong {
+			text-transform: lowercase;
+		}
+	}
+
+	// Generate Titles button.
+	.title-suggestions-generate {
+		display: flex;
+		padding-top: to_rem(6px);
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+
+		.components-button {
+			height: to_rem(40px);
+			display: flex;
+			padding: var(--grid-unit-10) var(--grid-unit-15);
+			justify-content: center;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 2px;
+		}
+	}
+
+	.wp-parsely-dropdown-label {
+		align-self: stretch;
+		color: var(--sidebar-black);
+		font-size: var(--font-size--smaller);
+		font-style: normal;
+		font-weight: 600;
+		line-height: var(--grid-unit-20);
+		text-transform: uppercase;
+	}
+
+	// Accepted Title view.
+	// TODO: Remove, unused?
+	.parsely-write-titles-accepted-title-container {
+
+		.parsely-write-titles-accepted-title {
+			font-weight: 600;
+			font-size: to_rem(16px);
+			line-height: to_rem(20px);
+			margin: 0 0 to_rem(15px) 0;
+			text-align: center;
+		}
+
+		// Accepted Title actions.
+		.parsely-write-titles-accepted-title-actions {
+			margin: to_rem(10px) 0;
+			justify-content: center;
+			display: flex;
+			gap: to_rem(10px);
+		}
+	}
+
+	.wp-parsely-title-suggestion {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--grid-unit-10);
+		align-self: stretch;
+		border-radius: 2px;
+		border: 1px solid var(--Gutenberg-Gray-400, #ccc);
+
+		&.pinned-title {
+			background: var(--Gutenberg-Gray-100, #f0f0f0);
+		}
+
+		.suggested-title {
+			color: #1e1e1e;
+			display: flex;
+			padding:
+				var(--grid-unit-15)
+				var(--grid-unit-15)
+				0
+				var(--grid-unit-15);
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: var(--grid-unit-10);
+			align-self: stretch;
+			font-size: to_rem(12px);
+			font-style: normal;
+			font-weight: 600;
+			line-height: to_rem(20px); /* 142.857% */
+
+			.suggested-title-original {
+				align-self: flex-start;
+				margin: 0;
+			}
+		}
+
+		.suggested-title-actions {
+			display: flex;
+			padding: 0 var(--grid-unit-10);
+			align-items: center;
+			align-self: stretch;
+			flex-wrap: wrap;
+			border-top: 1px solid var(--Gutenberg-Gray-400, #ccc);
+			height: to_rem(40px);
+
+			.suggested-title-actions-container {
+				display: flex;
+				flex-grow: 1;
+				gap: var(--grid-unit-10);
+				align-items: center;
+
+				.suggested-title-actions-left,
+				.suggested-title-actions-right {
+					display: flex;
+					gap: var(--grid-unit-10);
+				}
+			}
+		}
+	}
+
+	// Container for the title suggestions.
+	.title-suggestions-container {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--grid-unit-20);
+		align-self: stretch;
+		margin-bottom: var(--grid-unit-20);
+		position: relative;
+
+		.wp-parsely-loading-overlay {
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			gap: var(--grid-unit-10);
+			background-color: rgba(255, 255, 255, 0.9);
+			z-index: 1;
+
+			.components-spinner {
+				transform: scale(1.125);
+			}
+		}
+	}
+
+	.wp-parsely-pinned-suggestions {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+	}
+
+	.wp-parsely-content-helper-error.components-notice {
+		margin-bottom: var(--grid-unit-10);
+	}
+}
+
+.wp-parsely-popover .components-popover__content {
+	width: to_rem(248px);
+}
+
+.wp-parsely-suggested-title-modal {
+	display: flex;
+	width: to_rem(320px);
+	flex-direction: column;
+	align-items: flex-start;
+
+	h2 {
+		color: var(--sidebar-black);
+		font-size: to_rem(16px);
+		font-style: normal;
+		font-weight: 600;
+		line-height: to_rem(24px); /* 150% */
+	}
+
+	.suggested-title-modal-actions {
+		display: flex;
+		margin-top: to_rem(24px);
+		justify-content: flex-end;
+		align-items: center;
+		gap: var(--grid-unit-15);
+		align-self: stretch;
+	}
+}

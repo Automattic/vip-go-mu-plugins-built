@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.0](https://github.com/Parsely/wp-parsely/compare/3.15.0...3.16.0) - 2024-07-08
+
+### Added
+
+- Content Helper: Implement AI feature permissions ([#2604](https://github.com/Parsely/wp-parsely/pull/2604))
+- Settings page: Add "Content Helper" tab ([#2554](https://github.com/Parsely/wp-parsely/pull/2554))
+- PCH Smart Linking: Add Inbound Smart Links support  ([#2553](https://github.com/Parsely/wp-parsely/pull/2553))
+- PCH Smart Linking: Add Smart Linking back-end ([#2544](https://github.com/Parsely/wp-parsely/pull/2544))
+- PCH Smart Linking: Implement Smart Links Reviewing step ([#2507](https://github.com/Parsely/wp-parsely/pull/2507))
+
+### Changed
+
+- PCH: Initialize Content Helper features on 'rest_api_init' ([#2606](https://github.com/Parsely/wp-parsely/pull/2606))
+- PCH Sidebar: Move initialization to admin_init ([#2578](https://github.com/Parsely/wp-parsely/pull/2578))
+- PCH Excerpt Suggestions: Allow editing when reviewing ([#2506](https://github.com/Parsely/wp-parsely/pull/2506))
+
+### Removed
+
+- PCH Smart Linking: Remove Link Length option from the UI ([#2508](https://github.com/Parsely/wp-parsely/pull/2508))
+
+### Fixed
+
+- Fix some untranslatable strings ([#2612](https://github.com/Parsely/wp-parsely/pull/2612))
+- PCH: Fix potential fatal with 'enqueue_settings_assets' strict parameter ([#2610](https://github.com/Parsely/wp-parsely/pull/2610))
+- PCH Excerpt Suggestions: Improve error handling ([#2609](https://github.com/Parsely/wp-parsely/pull/2609))
+- Content Helper: Fix non-dismissible Notices ([#2600](https://github.com/Parsely/wp-parsely/pull/2600))
+- ContentHelperError: Avoid double prefix in error messages ([#2580](https://github.com/Parsely/wp-parsely/pull/2580))
+- PCH Sidebar: Show detailed error messages in Snackbar Notices ([#2579](https://github.com/Parsely/wp-parsely/pull/2579))
+- PCH Smart Linking: Prevent duplicate Smart Links ([#2571](https://github.com/Parsely/wp-parsely/pull/2571))
+- PCH Smart Linking: Prevent Smart Linking from running on Freeform (Classic) blocks ([#2570](https://github.com/Parsely/wp-parsely/pull/2570))
+- PCH Smart Linking: Fix issue when processing a single block ([#2547](https://github.com/Parsely/wp-parsely/pull/2547))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.16.0+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.15.0](https://github.com/Parsely/wp-parsely/compare/3.14.5...3.15.0) - 2024-05-14
 
 ### Changed

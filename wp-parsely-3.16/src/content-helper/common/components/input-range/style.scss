@@ -1,0 +1,58 @@
+@import "../../css/functions";
+@import "../../css/variables";
+
+.parsely-inputrange-control {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--grid-unit-10);
+	align-self: stretch;
+
+	.parsely-inputrange-control__label {
+		margin: 0;
+	}
+
+	.parsely-inputrange-control__controls {
+		display: flex;
+		height: to_rem(40px);
+		align-items: center;
+		gap: var(--grid-unit-20);
+		align-self: stretch;
+
+		.components-input-control {
+			display: flex;
+			flex: 1 0 0;
+
+			/* For Chrome, Safari, Edge */
+			input[type="number"]::-webkit-inner-spin-button,
+			input[type="number"]::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				margin: 0;
+			}
+
+			/* For Firefox */
+			input[type="number"] {
+				-moz-appearance: textfield;
+			}
+
+			.components-base-control__field {
+				flex-grow: 1;
+			}
+
+			.components-input-control__suffix {
+				color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+			}
+		}
+
+		.components-range-control {
+			height: 36px;
+			flex: 1 0 0;
+
+			.components-range-control__root {
+				height: to_rem(40px);
+			}
+		}
+	}
+
+
+}
