@@ -29,6 +29,13 @@ class Publicize extends Publicize_Base {
 	private $test_connection_results = array();
 
 	/**
+	 * Property to store the results of fetching the connections.
+	 *
+	 * @var null|array
+	 */
+	private $current_connections = null;
+
+	/**
 	 * Add hooks.
 	 */
 	public function __construct() {
@@ -52,21 +59,6 @@ class Publicize extends Publicize_Base {
 	 */
 	public function add_disconnect_notice() {
 		add_action( 'admin_notices', array( $this, 'display_disconnected' ) );
-	}
-
-	/**
-	 * Whether to use the v1 admin UI.
-	 */
-	public function use_admin_ui_v1(): bool {
-
-		// If the option is set, use it.
-		if ( get_option( 'jetpack_social_use_admin_ui_v1', false ) ) {
-			return true;
-		}
-
-		// Otherwise, check the constant and the plan feature.
-		return ( defined( 'JETPACK_SOCIAL_USE_ADMIN_UI_V1' ) && JETPACK_SOCIAL_USE_ADMIN_UI_V1 )
-			|| $this->has_connections_management_feature();
 	}
 
 	/**
@@ -153,7 +145,15 @@ class Publicize extends Publicize_Base {
 	 * @return true
 	 */
 	public function receive_updated_publicize_connections( $publicize_connections ) {
-		set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, 3600 * 4 );
+		$expiry = 3600 * 4;
+		if ( ! set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry ) ) {
+			// If the transient has beeen set in another request, the call to set_transient can fail. If so,
+			// we can delete the transient and try again.
+			$this->clear_connections_transient();
+			set_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT, $publicize_connections, $expiry );
+		}
+		// Regardless of whether the transient is set ok, let's set and use the local property for this request.
+		$this->current_connections = $publicize_connections;
 		return true;
 	}
 
@@ -182,9 +182,9 @@ class Publicize extends Publicize_Base {
 	public function get_all_connections() {
 		$this->refresh_connections();
 
-		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
+		$connections = $this->current_connections;
 
-		if ( $connections === false ) {
+		if ( empty( $connections ) ) {
 			$connections = array();
 		}
 
@@ -486,6 +486,10 @@ class Publicize extends Publicize_Base {
 	 * Grabs a fresh copy of the publicize connections data, if the cache is busted.
 	 */
 	public function refresh_connections() {
+		if ( null !== $this->current_connections ) {
+			return;
+		}
+
 		$connections = get_transient( self::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT );
 		if ( $connections === false ) {
 			$xml = new Jetpack_IXR_Client();
@@ -493,10 +497,10 @@ class Publicize extends Publicize_Base {
 			if ( ! $xml->isError() ) {
 				$response = $xml->getResponse();
 				$this->receive_updated_publicize_connections( $response );
-			} else {
-				$this->clear_connections_transient();
 			}
+			return;
 		}
+		$this->current_connections = $connections;
 	}
 
 	/**
@@ -561,6 +565,7 @@ class Publicize extends Publicize_Base {
 			'mastodon'           => array(),
 			'instagram-business' => array(),
 			'nextdoor'           => array(),
+			'threads'            => array(),
 		);
 
 		if ( 'all' === $filter ) {
