@@ -482,7 +482,17 @@ export const SmartLinkingPanel = ( {
 		try {
 			const generatedLinks = await generateSmartLinksWithRetry( MAX_NUMBER_OF_RETRIES );
 			await processSmartLinks( generatedLinks );
-			setIsReviewModalOpen( true );
+			if ( smartLinks.length === 0 ) {
+				const contentHelperError = new ContentHelperError(
+					__( 'No smart links were generated.', 'wp-parsely' ),
+					ContentHelperErrorCode.ParselyApiReturnedNoData,
+					''
+				);
+				await setError( contentHelperError );
+				contentHelperError.createErrorSnackbar();
+			} else {
+				setIsReviewModalOpen( true );
+			}
 		} catch ( e: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			const contentHelperError = new ContentHelperError(
 				e.message ?? 'An unknown error has occurred.',

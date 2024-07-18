@@ -489,9 +489,10 @@
 
 .wp-parsely-preview-editor {
 
-	&.editor-styles-wrapper {
+	.editor-styles-wrapper {
 		padding-bottom: 0;
 		font-size: var(--font-size--medium);
+		background: var(--Gutenberg-White, #fff);
 	}
 
 	p[role="document"] {
@@ -503,6 +504,6 @@
 		background: hsla(var(--parsely-green-components), 0.5);
 		mix-blend-mode: multiply;
 		text-decoration-line: underline;
-		color: var(--sidebar-black);
+		color: var(--sidebar-black) !important;
 	}
 }

@@ -95,11 +95,13 @@ class Editor_Sidebar extends Content_Helper_Feature {
 	 * Returns the Parse.ly post dashboard URL for the current post.
 	 *
 	 * @since 3.14.0
+	 * @since 3.16.1 Added the $show_utm_params parameter.
 	 *
 	 * @param int|null|WP_Post $post_id The post ID or post object. Default is the current post.
+	 * @param bool             $add_utm_params Whether to add UTM parameters in the URL.
 	 * @return string|null The Parse.ly post dashboard URL, or false if the post ID is invalid.
 	 */
-	private function get_parsely_post_url( $post_id = null ): ?string {
+	private function get_parsely_post_url( $post_id = null, bool $add_utm_params = true ): ?string {
 		// Get permalink for the post.
 		$post_id = $post_id ?? get_the_ID();
 		if ( false === $post_id ) {
@@ -115,6 +117,10 @@ class Editor_Sidebar extends Content_Helper_Feature {
 
 		if ( ! Dashboard_Link::can_show_link( $post, $this->parsely ) ) {
 			return null;
+		}
+
+		if ( ! $add_utm_params ) {
+			return Dashboard_Link::generate_url( $post, $this->parsely->get_site_id() );
 		}
 
 		return Dashboard_Link::generate_url( $post, $this->parsely->get_site_id(), 'wp-page-single', 'editor-sidebar' );
@@ -159,8 +165,8 @@ class Editor_Sidebar extends Content_Helper_Feature {
 
 		$this->inject_inline_scripts( Editor_Sidebar_Settings_Endpoint::get_route() );
 
-		// Inject inline variables for the editor sidebar.
-		$parsely_post_url = $this->get_parsely_post_url();
+		// Inject inline variables for the editor sidebar, without UTM parameters.
+		$parsely_post_url = $this->get_parsely_post_url( null, false );
 		if ( null !== $parsely_post_url ) {
 			wp_add_inline_script(
 				static::get_script_id(),

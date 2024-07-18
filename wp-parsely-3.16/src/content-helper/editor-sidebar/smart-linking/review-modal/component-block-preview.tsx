@@ -6,7 +6,7 @@ import { BlockEditorProvider, BlockList } from '@wordpress/block-editor';
 import { BlockInstance, cloneBlock, getBlockContent } from '@wordpress/blocks';
 import { Disabled } from '@wordpress/components';
 import { select } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -15,16 +15,24 @@ import { SmartLink } from '../provider';
 import { applyNodeToBlock } from '../utils';
 
 /**
+ * The style object, a derivative from Gutenberg's `Style` type.
+ *
+ * @since 3.16.1
+ */
+type Style = {
+	css?: string,
+	assets?: string,
+	__unstableType?: string,
+};
+
+/**
  * The props for the Styles component.
  *
  * @since 3.16.0
+ * @since 3.16.1 Extracted the styles prop to a new `Style` type.
  */
 type StylesProps = {
-	styles: {
-		css?: string,
-		assets?: string,
-		__unstableType?: string,
-	}[],
+	styles: Style[],
 };
 
 /**
@@ -37,20 +45,85 @@ type StylesProps = {
  * @param {StylesProps} props The component props.
  */
 const Styles = ( { styles }: StylesProps ): React.JSX.Element => {
-	// Get only the theme and user styles.
-	const filteredStyles = styles
-		.filter( ( style ) => {
-			return (
-				style.__unstableType === 'theme' ||
-				style.__unstableType === 'user'
-			) && style.css;
+	/**
+	 * Prefixes the selectors in the CSS with the given prefix.
+	 *
+	 * It also replaces the `body` selector with the prefix itself.
+	 *
+	 * @since 3.16.1
+	 *
+	 * @param {string} css    The CSS to prefix.
+	 * @param {string} prefix The prefix to use.
+	 */
+	const prefixSelectors = ( css: string, prefix: string ): string => {
+		// Split the CSS into individual rules.
+		const cssRules = css.split( '}' );
+
+		const prefixedRules = cssRules.map( ( rule ) => {
+			// If the rule is empty, skip it.
+			if ( ! rule.trim() ) {
+				return '';
+			}
+
+			// eslint-disable-next-line @wordpress/no-unused-vars-before-return
+			const [ selectors, properties ] = rule.split( '{' );
+
+			// If there are no properties, return the rule as is.
+			if ( ! properties ) {
+				return rule;
+			}
+
+			// Add the prefix to each selector.
+			const prefixedSelectors = selectors
+				.split( ',' )
+				.map( ( selector ) => {
+					const trimmedSelector = selector.trim();
+					if ( ! trimmedSelector ) {
+						return '';
+					}
+					// Replace the `body` selector with the prefix.
+					if ( trimmedSelector === 'body' ) {
+						return prefix;
+					}
+					return `${ prefix } ${ trimmedSelector }`;
+				} ).join( ', ' );
+
+			return `${ prefixedSelectors } {${ properties }}`;
 		} );
 
-	// Returns the styles, but replaces the body selector with the block editor selector.
+		return prefixedRules.join( ' ' );
+	};
+
+	const [ processedStyles, setProcessedStyles ] = useState<Style[]>( [] );
+
+	/**
+	 * Processes the styles to prefix all the Editor styles selectors with the Preview Editor wrapper class.
+	 *
+	 * @since 3.16.1
+	 */
+	useEffect( () => {
+		const processStyles = () => {
+			const filteredStyles = styles.filter( ( style ) => {
+				return (
+					( style.__unstableType === 'theme' || style.__unstableType === 'user' ) && style.css
+				);
+			} );
+
+			const processed = filteredStyles.map( ( style ) => {
+				const prefixedCss = prefixSelectors( style.css ?? '', '.wp-parsely-preview-editor' );
+				return { ...style, css: prefixedCss };
+			} );
+
+			setProcessedStyles( processed );
+		};
+
+		processStyles();
+	}, [ styles ] );
+
 	return (
 		<>
-			{ filteredStyles.map( ( style, index ) => (
-				<style key={ index }>{ style.css?.replace( /body/g, '.wp-parsely-preview-editor' ) }</style>
+			{ processedStyles.map( ( style, index ) => (
+				<style key={ index }>{ style.css }</style>
 			) ) }
 		</>
 	);
@@ -185,19 +258,21 @@ export const BlockPreview = ( { block, link, useOriginalBlock }: BlockPreviewPro
 	const settings = select( 'core/block-editor' ).getSettings();
 
 	return (
-		<Disabled className="wp-block-post-content editor-styles-wrapper wp-parsely-preview-editor" >
-			<BlockEditorProvider
-				value={ [ clonedBlock ] }
-				settings={ {
-					...settings,
-					// @ts-ignore __unstableIsPreviewMode is not in the types.
-					__unstableIsPreviewMode: true,
-					templateLock: 'all',
-				} }
-			>
-				<Styles styles={ settings.styles } />
-				<BlockList />
-			</BlockEditorProvider>
-		</Disabled>
+		<div className="wp-parsely-preview-editor">
+			<Disabled className="wp-block-post-content editor-styles-wrapper" >
+				<BlockEditorProvider
+					value={ [ clonedBlock ] }
+					settings={ {
+						...settings,
+						// @ts-ignore __unstableIsPreviewMode is not in the types.
+						__unstableIsPreviewMode: true,
+						templateLock: 'all',
+					} }
+				>
+					<Styles styles={ settings.styles } />
+					<BlockList />
+				</BlockEditorProvider>
+			</Disabled>
+		</div>
 	);
 };

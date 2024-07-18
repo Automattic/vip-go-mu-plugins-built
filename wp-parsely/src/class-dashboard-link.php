@@ -25,6 +25,7 @@ class Dashboard_Link {
 	 *
 	 * @since 2.6.0
 	 * @since 3.1.0 Moved to class-dashboard-link.php. Added source parameter.
+	 * @since 3.16.1 Made the $campaign and $source parameters optional.
 	 *
 	 * @param WP_Post $post   Which post object or ID to check.
 	 * @param string  $site_id Site ID or empty string.
@@ -32,7 +33,7 @@ class Dashboard_Link {
 	 * @param string  $source Source name for the `utm_source` URL parameter.
 	 * @return string
 	 */
-	public static function generate_url( WP_Post $post, string $site_id, string $campaign, string $source ): string {
+	public static function generate_url( WP_Post $post, string $site_id, string $campaign = '', string $source = '' ): string {
 		/**
 		 * Internal variable.
 		 *
@@ -49,6 +50,18 @@ class Dashboard_Link {
 			'utm_source'   => $source,
 			'utm_medium'   => 'wp-parsely',
 		);
+
+		if ( '' === $campaign ) {
+			unset( $query_args['utm_campaign'] );
+		}
+
+		if ( '' === $source ) {
+			unset( $query_args['utm_source'] );
+		}
+
+		if ( ! isset( $query_args['utm_campaign'] ) && ! isset( $query_args['utm_source'] ) ) {
+			unset( $query_args['utm_medium'] );
+		}
 
 		return add_query_arg( $query_args, Parsely::get_dash_url( $site_id ) );
 	}

@@ -80,30 +80,34 @@ class Permissions {
 			return false;
 		}
 
-		// Current user's role is not yet set.
 		$current_user = wp_get_current_user();
-		if ( 0 === count( $current_user->roles ) ) {
+		$user_roles   = $current_user->roles;
+
+		// Current user's role is not yet set.
+		if ( 0 === count( $user_roles ) ) {
 			return false;
 		}
 
-		// Check that the user's role has the capability to edit posts.
-		$current_user_role = $current_user->roles[0];
-		$valid_roles       = array_keys( self::get_user_roles_with_edit_posts_cap() );
-		if ( ! in_array( $current_user_role, $valid_roles, true ) ) {
+		// Get the roles with the capability to edit posts.
+		$valid_roles = array_keys( self::get_user_roles_with_edit_posts_cap() );
+
+		// Check that at least one of the user's roles has the capability to edit posts.
+		if ( 0 === count( array_intersect( $user_roles, $valid_roles ) ) ) {
 			return false;
 		}
 
-		// Check that the user's role has access to the specific feature/post.
+		// Check that at least one of the user's roles has access to the specific feature/post.
 		$allowed_roles = $feature_options['allowed_user_roles'];
-		if ( in_array( $current_user_role, $allowed_roles, true ) ) {
-			if ( (int) $post_id > 0 ) {
-				return current_user_can( 'edit_post', $post_id );
-			}
-
-			return true;
+		if ( 0 === count( array_intersect( $user_roles, $allowed_roles ) ) ) {
+			return false;
 		}
 
-		return false;
+		// Check if the user can edit the post.
+		if ( (int) $post_id > 0 ) {
+			return current_user_can( 'edit_post', $post_id );
+		}
+
+		return true;
 	}
 
 	/**

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.1](https://github.com/Parsely/wp-parsely/compare/3.16.0...3.16.1) - 2024-07-18
+
+### Fixed
+
+- PCH Performance Stats: Remove UTM parameters from the 'View in Parse.ly' button ([#2655](https://github.com/Parsely/wp-parsely/pull/2655))
+- PCH Smart Linking: Show error when API returns empty list of Smart Link suggestions ([#2654](https://github.com/Parsely/wp-parsely/pull/2654))
+- PCH Smart Linking: Fix CSS leaking from the Block Preview ([#2652](https://github.com/Parsely/wp-parsely/pull/2652))
+- PCH Smart Linking: Use the post title as the Smart Link title. ([#2650](https://github.com/Parsely/wp-parsely/pull/2650))
+- Permissions: Fix PHP Warning when the user role is invalid ([#2649](https://github.com/Parsely/wp-parsely/pull/2649))
+
 ## [3.16.0](https://github.com/Parsely/wp-parsely/compare/3.15.0...3.16.0) - 2024-07-08
 
 ### Added
