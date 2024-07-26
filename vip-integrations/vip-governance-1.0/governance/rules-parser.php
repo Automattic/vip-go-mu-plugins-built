@@ -1,20 +1,19 @@
 <?php
 /**
  * The rules parser engine
- * 
+ *
  * @package vip-governance
  */
 
 namespace WPCOMVIP\Governance;
 
-use NumberFormatter;
 use WP_Error;
 
 use Seld\JsonLint\JsonParser;
 use Seld\JsonLint\ParsingException;
 
 /**
- * Class for parsing and validating governance rules. 
+ * Class for parsing and validating governance rules.
  */
 class RulesParser {
 	// Update this when the rules schema changes.
@@ -32,7 +31,7 @@ class RulesParser {
 	 * @param string $rules_content Contents of rules file.
 	 *
 	 * @return array|WP_Error
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function parse( $rules_content ) {
@@ -119,12 +118,11 @@ class RulesParser {
 		}
 
 		$rules              = $rules_parsed['rules'];
-		$ordinal_formatter  = new NumberFormatter( get_locale(), NumberFormatter::ORDINAL );
 		$default_rule_index = null;
 
 		foreach ( $rules as $rule_index => $rule ) {
 			$rule_type    = $rule['type'] ?? null;
-			$rule_ordinal = $ordinal_formatter->format( $rule_index + 1 );
+			$rule_ordinal = self::format_number_with_ordinal( $rule_index + 1 );
 
 			if ( null === $rule_type || ! in_array( $rule_type, self::RULE_TYPES ) ) {
 				$rule_types = self::format_array_to_keys( self::RULE_TYPES );
@@ -141,7 +139,7 @@ class RulesParser {
 					// There's already a default rule defined, bubble an error.
 
 					/* translators: 1: Ordinal number of rule, e.g. 1st */
-					$error_message      = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), $ordinal_formatter->format( $default_rule_index + 1 ) );
+					$error_message      = sprintf( __( 'Only one default rule is allowed, but the %s rule already contains a default rule.', 'vip-governance' ), self::format_number_with_ordinal( $default_rule_index + 1 ) );
 					$verify_rule_result = new WP_Error( 'logic-rule-default-multiple', $error_message );
 				}
 			} else {
@@ -157,6 +155,23 @@ class RulesParser {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Format the number with ordinal suffix, without the PHP number formatter. That doesn't work on all systems.
+	 *
+	 * Taken from https://stackoverflow.com/a/3110033.
+	 *
+	 * @param int $number Number to format.
+	 * @return string Formatted number with ordinal suffix.
+	 */
+	private static function format_number_with_ordinal( $number ) {
+		$ends = array( 'th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th' );
+		if ( ( $number % 100 ) >= 11 && ( $number % 100 ) <= 13 ) {
+			return $number . 'th';
+		} else {
+			return $number . $ends[ $number % 10 ];
+		}
 	}
 
 	/**
@@ -218,9 +233,9 @@ class RulesParser {
 	/**
 	 * Format an array into a quoted, comma-separated list of keys for display.
 	 * e.g. [ 'default', 'role' ] => '"default", "role"'.
-	 * 
+	 *
 	 * @param array $input_array Parsed rule.
-	 * 
+	 *
 	 * @return string Comma-separated list of quoted keys.
 	 */
 	private static function format_array_to_keys( $input_array ) {

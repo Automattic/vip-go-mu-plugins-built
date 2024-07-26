@@ -1,7 +1,7 @@
 <?php
 /**
  * Intialize Block Governance
- * 
+ *
  * @package vip-governance
  */
 
@@ -20,7 +20,7 @@ class InitGovernance {
 	 * Governance configuration.
 	 *
 	 * @var array
-	 * 
+	 *
 	 * @access private
 	 */
 	public static $governance_configuration = [];
@@ -42,12 +42,17 @@ class InitGovernance {
 	 * Load the settings necessary for the block editor UI.
 	 *
 	 * @return void
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function load_settings() {
-		// Only load the settings if the plugin is enabled, from the wp-admin settings page.
-		if ( ! Settings::is_enabled() ) {
+		// ToDo: Turn this into a configurable rule in the future.
+		// Only load the settings for the post/page editor.
+		$allowed_pages                         = [ 'page-new.php', 'post-new.php', 'post.php' ];
+		$should_load_settings_for_current_page = in_array( $GLOBALS['pagenow'], $allowed_pages, true );
+
+		// Only load the settings if the plugin is enabled, from the wp-admin settings page or a post/page is being edited.
+		if ( ! Settings::is_enabled() || ! $should_load_settings_for_current_page ) {
 			return;
 		} elseif ( empty( self::$governance_configuration ) ) {
 			self::$governance_configuration = self::load_governance_configuration();
@@ -65,7 +70,7 @@ class InitGovernance {
 
 		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
 
-		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [ 
+		wp_localize_script('wpcomvip-governance', 'VIP_GOVERNANCE', [
 			'error'           => self::$governance_configuration['error'],
 			'governanceRules' => self::$governance_configuration['governanceRules'],
 			'nestedSettings'  => isset( $nested_settings_and_css['settings'] ) ? $nested_settings_and_css['settings'] : [],
@@ -77,7 +82,7 @@ class InitGovernance {
 	 * Load the CSS necessary for the block editor UI.
 	 *
 	 * @return void
-	 * 
+	 *
 	 * @access private
 	 */
 	public static function load_css() {

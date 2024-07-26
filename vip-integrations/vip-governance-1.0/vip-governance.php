@@ -5,7 +5,7 @@
  * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
- * Version: 1.0.8
+ * Version: 1.0.9
  * Requires at least: 6.0
  * Tested up to: 6.6
  * Requires PHP: 8.0
@@ -20,7 +20,7 @@ namespace WPCOMVIP\Governance;
 if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 	define( 'VIP_GOVERNANCE_LOADED', true );
 
-	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.8' );
+	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.9' );
 	define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '1.0.0' );
 
 	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
