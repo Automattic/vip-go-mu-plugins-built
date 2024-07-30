@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.2](https://github.com/Parsely/wp-parsely/compare/3.16.1...3.16.2) - 2024-07-30
+
+### Fixed
+
+- PCH Smart Linking: Prevent suggesting links in unexpected blocks ([#2673](https://github.com/Parsely/wp-parsely/pull/2673))
+- PCH Related Posts: Prevent Related Posts indefinite loading ([#2666](https://github.com/Parsely/wp-parsely/pull/2666))
+- Permissions: Allow overriding of PCH feature permissions ([#2663](https://github.com/Parsely/wp-parsely/pull/2663))
+- PCH Smart Linking: Fix bug causing ‘No smart links’ error despite valid API response ([#2662](https://github.com/Parsely/wp-parsely/pull/2662))
+
 ## [3.16.1](https://github.com/Parsely/wp-parsely/compare/3.16.0...3.16.1) - 2024-07-18
 
 ### Fixed

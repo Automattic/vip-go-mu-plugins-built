@@ -23,7 +23,20 @@ import { initBlockOverlay } from './component-block-overlay';
 import './smart-linking.scss';
 import { selectSmartLink } from './utils';
 
+/**
+ * Default maximum number of links to show in the smart linking panel.
+ *
+ * @since 3.14.0
+ */
 export const DEFAULT_MAX_LINKS = 10;
+
+/**
+ * The allowed blocks for Smart Linking.
+ *
+ * @since 3.16.2
+ */
+export const ALLOWED_BLOCKS = window.wpParselySmartLinkingAllowedBlocks;
+
 const permissions = getContentHelperPermissions();
 
 /**
@@ -34,7 +47,7 @@ const permissions = getContentHelperPermissions();
  */
 const withSettingsProvider = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
-		if ( props.name !== 'core/paragraph' ) {
+		if ( ! ALLOWED_BLOCKS.includes( props.name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
@@ -56,7 +69,7 @@ const withSettingsProvider = createHigherOrderComponent( ( BlockEdit ) => {
  */
 const SmartLinkingInspectorControlPanel = createHigherOrderComponent( ( BlockEdit ) => {
 	return ( props ) => {
-		if ( ! props.isSelected || props.name !== 'core/paragraph' ) {
+		if ( ! props.isSelected || ! ALLOWED_BLOCKS.includes( props.name ) ) {
 			return <BlockEdit { ...props } />;
 		}
 

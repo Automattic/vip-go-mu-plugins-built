@@ -11,6 +11,7 @@ import { dispatch, select } from '@wordpress/data';
 import { dispatchCoreBlockEditor } from '../../../@types/gutenberg/types';
 import { escapeRegExp } from '../../common/utils/functions';
 import { InboundSmartLink, SmartLink } from './provider';
+import { ALLOWED_BLOCKS } from './smart-linking';
 import { SmartLinkingStore } from './store';
 export { escapeRegExp } from '../../common/utils/functions';
 
@@ -98,6 +99,29 @@ function isInsideSimilarNode( node: Node, referenceNode: HTMLElement ): boolean 
 	while ( currentNode ) {
 		// Check by nodeName or any specific attribute.
 		if ( currentNode.nodeName === referenceNode.nodeName ) {
+			return true;
+		}
+		currentNode = currentNode.parentNode;
+	}
+	return false;
+}
+
+/**
+ * Checks if a node is inside a heading (h1, h2, h3, etc.) or a caption element.
+ *
+ * @since 3.16.2
+ *
+ * @param {Node} node The DOM node to check.
+ *
+ * @return {boolean} True if the node is inside a heading or a caption, false otherwise.
+ */
+function isInsideHeadingOrCaption( node: Node ): boolean {
+	let currentNode: Node | null = node;
+	while ( currentNode ) {
+		if (
+			currentNode.nodeName.match( /^H[1-6]$/i ) !== null ||
+			currentNode.nodeName.toLowerCase() === 'figcaption'
+		) {
 			return true;
 		}
 		currentNode = currentNode.parentNode;
@@ -353,6 +377,21 @@ export function calculateSmartLinkingMatches(
 
 					if ( occurrenceCount.encountered - 1 === link.offset && occurrenceCount.linked < 1 ) {
 						occurrenceCount.linked++;
+
+						// Skip if the link is inside a non-allowed block.
+						if ( ! ALLOWED_BLOCKS.includes( block.name ) ) {
+							// eslint-disable-next-line no-console
+							console.warn( `PCH Smart Linking: Skipping non-allowed block (${ block.name }):`, link.text );
+							return;
+						}
+
+						// Skip if the node is inside a heading or a caption.
+						if ( isInsideHeadingOrCaption( node ) ) {
+							// eslint-disable-next-line no-console
+							console.warn( `PCH Smart Linking: Skipping heading or caption:`, link.text );
+							return;
+						}
+
 						link.match = {
 							blockId: block.clientId,
 							blockOffset: blockOffsetCounter - 1,

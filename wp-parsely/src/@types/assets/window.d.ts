@@ -31,6 +31,7 @@ declare global {
 		wpParselyPostsStatsResponse: string;
 		wpParselyPostUrl: string;
 		wpParselySiteId: string,
+		wpParselySmartLinkingAllowedBlocks: string[];
 
 		/**
 		 * Jetpack Editor Initial State.

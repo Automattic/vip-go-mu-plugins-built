@@ -83,6 +83,31 @@ class Permissions {
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
+		/**
+		 * Filters whether the current user can use the specified Content Helper
+		 * feature.
+		 *
+		 * This filter can be used to override the default permissions check.
+		 *
+		 * @since 3.16.2
+		 *
+		 * @param bool   $current_user_can_use_pch_feature Whether the current user can use the feature.
+		 * @param string $feature_name The feature's name.
+		 * @param \WP_User $current_user The current user object.
+		 * @param int|false $post_id The post ID, if the check is for a specific post.
+		 */
+		$filtered_current_user_can_use_pch_feature = apply_filters(
+			'wp_parsely_current_user_can_use_pch_feature',
+			false,
+			$feature_name,
+			$current_user,
+			$post_id
+		);
+
+		if ( true === $filtered_current_user_can_use_pch_feature ) {
+			return true;
+		}
+
 		// Current user's role is not yet set.
 		if ( 0 === count( $user_roles ) ) {
 			return false;

@@ -1,6 +1,8 @@
 /**
  * WordPress dependencies
  */
+// eslint-disable-next-line import/named
+import { BlockInstance, getBlockType } from '@wordpress/blocks';
 import {
 	Disabled,
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -8,14 +10,14 @@ import {
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import { InputRange } from '../../common/components/input-range';
 import { SmartLinkingSettings as Settings } from '../../common/settings';
-import { DEFAULT_MAX_LINKS } from './smart-linking';
+import { ALLOWED_BLOCKS, DEFAULT_MAX_LINKS } from './smart-linking';
 import { ApplyToOptions, SmartLinkingStore } from './store';
 
 /**
@@ -25,7 +27,7 @@ import { ApplyToOptions, SmartLinkingStore } from './store';
  */
 type SmartLinkingSettingsProps = {
 	disabled?: boolean;
-	selectedBlock?: string;
+	selectedBlock: BlockInstance|null;
 	onSettingChange: ( setting: keyof Settings, value: number ) => void;
 };
 
@@ -47,6 +49,8 @@ export const SmartLinkingSettings = ( {
 	const [ hint, setHint ] = useState<string|null>( '' );
 	const [ animationIsRunning, setAnimationIsRunning ] = useState<boolean>( false );
 	const [ , setForceUpdate ] = useState<boolean>( false );
+
+	const selectedBlockId = selectedBlock?.clientId;
 
 	/**
 	 * Gets the settings from the Smart Linking store.
@@ -83,8 +87,24 @@ export const SmartLinkingSettings = ( {
 	 * Used in the ToggleGroupControl value prop.
 	 *
 	 * @since 3.14.3
+	 * @since 3.16.2 Moved to a state to handle the selected block change.
 	 */
-	const applyToValue = applyTo as string ?? ( selectedBlock ? 'selected' : 'all' );
+	const [ applyToValue, setApplyToValue ] = useState<string>( applyTo as string ?? ( selectedBlockId ? 'selected' : 'all' ) );
+
+	/**
+	 * Sets the value of the ToggleGroupControl based on the selected block.
+	 *
+	 * If the selected block is not allowed, it sets the value to 'all'.
+	 *
+	 * @since 3.16.2
+	 */
+	useEffect( () => {
+		if ( applyToValue === 'selected' && selectedBlock?.name && ! ALLOWED_BLOCKS.includes( selectedBlock.name ) ) {
+			setApplyToValue( 'all' );
+		} else {
+			setApplyToValue( applyTo as string ?? ( selectedBlockId ? 'selected' : 'all' ) );
+		}
+	}, [ applyTo, selectedBlock?.name, selectedBlockId ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	/**
 	 * Handles the change event of the ToggleGroupControl.
@@ -121,18 +141,32 @@ export const SmartLinkingSettings = ( {
 			return;
 		}
 
-		const moveButtonAndShowHint = () => {
+		/**
+		 * Moves the button to the 'all' position and shows a hint to the user.
+		 *
+		 * @since 3.14.3
+		 * @since 3.16.2 Added the 'hintText' parameter and made it async.
+		 *
+		 * @param {string} hintText The hint text to show to the user.
+		 */
+		const moveButtonAndShowHint = async ( hintText: string ) => {
 			// Do not move the button if the interaction is disabled.
 			if ( disabled ) {
 				return;
 			}
 
+			// If the button changing animation is running, wait for it to finish.
+			if ( animationIsRunning ) {
+				await new Promise( ( resolve ) => setTimeout( resolve, 500 ) );
+			}
+
 			if ( applyTo === ApplyToOptions.Selected ) {
 				setTimeout( () => {
-					setHint( __( 'No block selected. Select a block to apply smart links.', 'wp-parsely' ) );
+					setHint( hintText );
 				}, 100 );
 			}
 			setApplyTo( null );
+			setApplyToValue( 'all' );
 
 			// Force update to re-render the ToggleGroupControl.
 			setForceUpdate( ( force ) => ! force );
@@ -141,16 +175,19 @@ export const SmartLinkingSettings = ( {
 		// If there isn't a selected block, move the focus to the
 		// "All Blocks" button and set the hint to the user.
 		if ( ! selectedBlock && applyTo !== ApplyToOptions.All ) {
-			// If the button changing animation is running, wait for it to finish.
-			if ( animationIsRunning ) {
-				setTimeout( moveButtonAndShowHint, 500 );
-			} else {
-				moveButtonAndShowHint();
-			}
+			moveButtonAndShowHint( __( 'Select a block to apply Smart Links.', 'wp-parsely' ) );
+		}
+
+		// If the selected block is not allowed, move the focus to the
+		// "All Blocks" button and set the hint to the user.
+		if ( selectedBlock && applyTo !== ApplyToOptions.All && ! ALLOWED_BLOCKS.includes( selectedBlock.name ) ) {
+			const blockName = getBlockType( selectedBlock.name )?.title ?? selectedBlock.name;
+			/* translators: %s: block name */
+			moveButtonAndShowHint( sprintf( __( '%s blocks are not supported for Smart Links.', 'wp-parsely' ), blockName ) );
 		}
 
 		setFullContent( ApplyToOptions.All === applyToValue );
-	}, [ animationIsRunning, applyTo, applyToValue, disabled, selectedBlock, setApplyTo, setFullContent, setHint ] );
+	}, [ animationIsRunning, applyTo, applyToValue, disabled, selectedBlock, selectedBlockId, setApplyTo, setFullContent, setHint ] );
 
 	/**
 	 * Applies workaround to set the value of the ToggleGroupControl programmatically.
@@ -167,7 +204,7 @@ export const SmartLinkingSettings = ( {
 
 		// The first time selectedBlock changes, for some reason the ToggleGroupControl
 		// doesn't update the value. This workaround sets the value programmatically.
-		if ( toggleGroupRef.current && applyToValue && ! alreadyClicked && selectedBlock ) {
+		if ( toggleGroupRef.current && applyToValue && ! alreadyClicked && selectedBlockId ) {
 			const targetButton = toggleGroupRef.current.querySelector( `button[data-value="${ applyToValue }"]` ) as HTMLButtonElement;
 			if ( targetButton && targetButton.getAttribute( 'aria-checked' ) !== 'true' ) {
 				setApplyTo( applyToValue as ApplyToOptions );
@@ -175,7 +212,7 @@ export const SmartLinkingSettings = ( {
 				setAlreadyClicked( true );
 			}
 		}
-	}, [ selectedBlock, fullContent, disabled, applyTo ] ); // eslint-disable-line
+	}, [ selectedBlockId, fullContent, disabled, applyTo ] ); // eslint-disable-line
 
 	/**
 	 * Resets the hint when the selected block changes.
@@ -185,7 +222,7 @@ export const SmartLinkingSettings = ( {
 	 */
 	useEffect( () => {
 		setHint( null );
-	}, [ selectedBlock ] );
+	}, [ selectedBlockId ] );
 
 	return (
 		<div className="parsely-panel-settings">

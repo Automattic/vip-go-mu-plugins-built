@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.16.1
+ * Version:           3.16.2
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -70,7 +70,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION = '3.16.1';
+const PARSELY_VERSION = '3.16.2';
 const PARSELY_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/Models/class-base-model.php';
@@ -295,14 +295,16 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\parsely_content_helper_editor_si
  * @since 3.16.0
  */
 function parsely_content_helper_editor_sidebar_features(): void {
-	/**
-	 * The Editor Sidebar instance.
-	 *
-	 * @since 3.16.0
-	 * @var Editor_Sidebar $GLOBALS['parsely_editor_sidebar']
-	 */
-	$GLOBALS['parsely_editor_sidebar'] = new Editor_Sidebar( $GLOBALS['parsely'] );
-	$GLOBALS['parsely_editor_sidebar']->init_features();
+	if ( ! isset( $GLOBALS['parsely_editor_sidebar'] ) ) {
+		/**
+		 * The Editor Sidebar instance.
+		 *
+		 * @since 3.16.0
+		 * @var Editor_Sidebar $GLOBALS['parsely_editor_sidebar']
+		 */
+		$GLOBALS['parsely_editor_sidebar'] = new Editor_Sidebar( $GLOBALS['parsely'] );
+		$GLOBALS['parsely_editor_sidebar']->init_features();
+	}
 }
 
 // The priority of 9 is used to ensure that the Excerpt Generator is loaded before the PCH Editor Sidebar (10).

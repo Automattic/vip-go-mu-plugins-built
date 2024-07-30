@@ -113,6 +113,10 @@
 			gap: to_rem(24px);
 			align-self: stretch;
 
+			.components-toggle-group-control-option-base {
+				padding: to_rem(10px) 0;
+			}
+
 			.components-toggle-group-control {
 				height: 40px;
 

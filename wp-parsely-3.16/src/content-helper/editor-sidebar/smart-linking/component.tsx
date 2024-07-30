@@ -351,8 +351,10 @@ export const SmartLinkingPanel = ( {
 	 * @since 3.16.0
 	 *
 	 * @param {SmartLink[]} links The smart links to process.
+	 *
+	 * @return {Promise<SmartLink[]>} The processed smart links.
 	 */
-	const processSmartLinks = async ( links: SmartLink[] ) => {
+	const processSmartLinks = async ( links: SmartLink[] ): Promise<SmartLink[]> => {
 		// Exclude the links that have been applied already.
 		links = links.filter(
 			( link ) => ! smartLinks.some( ( sl ) => sl.uid === link.uid && sl.applied )
@@ -427,6 +429,8 @@ export const SmartLinkingPanel = ( {
 
 		// Update the link suggestions with the new matches.
 		await addSmartLinks( links );
+
+		return links;
 	};
 
 	/**
@@ -445,22 +449,6 @@ export const SmartLinkingPanel = ( {
 			selected_block: selectedBlock?.name ?? 'none',
 			context,
 		} );
-
-		// When the Freeform block is present, applying Smart Links does not work reliably.
-		// If the selected block is a Freeform block or if the Freeform block is present in
-		// the content, and the user wants to apply Smart Links to the entire content,
-		// show an error message and return early.
-		const hasFreeformBlocks = allBlocks.some( ( block ) => block.name === 'core/freeform' );
-		if (
-			( selectedBlock?.name === 'core/freeform' && ! isFullContent ) ||
-			( hasFreeformBlocks && isFullContent )
-		) {
-			createNotice( 'error', __( 'Smart Linking is not supported for the Freeform block.', 'wp-parsely' ), {
-				type: 'snackbar',
-			} );
-			setLoading( false );
-			return;
-		}
 
 		// If selected block is not set, the overlay will be applied to the entire content.
 		await applyOverlay( isFullContent ? 'all' : selectedBlock?.clientId );
@@ -481,18 +469,18 @@ export const SmartLinkingPanel = ( {
 		const previousApplyTo = applyTo;
 		try {
 			const generatedLinks = await generateSmartLinksWithRetry( MAX_NUMBER_OF_RETRIES );
-			await processSmartLinks( generatedLinks );
-			if ( smartLinks.length === 0 ) {
-				const contentHelperError = new ContentHelperError(
+			const processedSmartLinks = await processSmartLinks( generatedLinks );
+
+			// If after processing the smart links there are no links to suggest, show an error message.
+			if ( processedSmartLinks.length === 0 ) {
+				throw new ContentHelperError(
 					__( 'No smart links were generated.', 'wp-parsely' ),
-					ContentHelperErrorCode.ParselyApiReturnedNoData,
+					ContentHelperErrorCode.ParselySuggestionsApiNoData,
 					''
 				);
-				await setError( contentHelperError );
-				contentHelperError.createErrorSnackbar();
-			} else {
-				setIsReviewModalOpen( true );
 			}
+
+			setIsReviewModalOpen( true );
 		} catch ( e: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			const contentHelperError = new ContentHelperError(
 				e.message ?? 'An unknown error has occurred.',
@@ -708,7 +696,7 @@ export const SmartLinkingPanel = ( {
 				) }
 				<SmartLinkingSettingsComponent
 					disabled={ loading }
-					selectedBlock={ selectedBlock?.clientId }
+					selectedBlock={ selectedBlock }
 					onSettingChange={ onSettingChange }
 				/>
 				<div className="smart-linking-generate">
