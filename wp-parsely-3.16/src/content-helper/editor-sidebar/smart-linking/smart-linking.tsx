@@ -35,7 +35,7 @@ export const DEFAULT_MAX_LINKS = 10;
  *
  * @since 3.16.2
  */
-export const ALLOWED_BLOCKS = window.wpParselySmartLinkingAllowedBlocks;
+export const ALLOWED_BLOCKS = window.wpParselySmartLinkingAllowedBlocks ?? [ 'core/paragraph' ];
 
 const permissions = getContentHelperPermissions();
 

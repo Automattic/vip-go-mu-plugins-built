@@ -155,7 +155,7 @@ abstract class Base_API_Proxy {
 		}
 
 		// A proxy with caching behavior is used here.
-		$response = $this->api->get_items( $params ); // @phpstan-ignore-line.
+		$response = $this->api->get_items( $params );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
