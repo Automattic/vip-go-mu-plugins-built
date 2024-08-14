@@ -53,7 +53,6 @@ function maybe_load_restrictions() {
  *
  * @return boolean|null The option value as a boolean, or null if the option does not exist.
  */
-
 function get_option_as_bool_if_exists( $option_name ) {
 	$value = get_option( $option_name, null );
 
