@@ -104,6 +104,7 @@ class Search extends Feature {
 		add_filter( 'ep_formatted_args', [ $this, 'add_search_highlight_tags' ], 10, 2 );
 		add_filter( 'ep_highlighting_tag', [ $this, 'get_highlighting_tag' ] );
 		add_action( 'ep_highlighting_pre_add_highlight', [ $this, 'allow_excerpt_html' ] );
+		add_filter( 'ep_skip_query_integration', [ $this, 'skip_query_integration' ], 10, 2 );
 	}
 
 
@@ -660,5 +661,40 @@ class Search extends Feature {
 		<?php endif; ?>
 
 		<?php
+	}
+
+	/**
+	 * If WP_Query has unsupported orderby, skip ES query integration and use the WP query instead.
+	 *
+	 * @param bool      $skip Whether to skip ES query integration
+	 * @param \WP_Query $query WP_Query object
+	 *
+	 * @since 4.5
+	 * @return bool
+	 */
+	public function skip_query_integration( $skip, $query ) {
+		if ( ! $query instanceof \WP_Query ) {
+			return $skip;
+		}
+
+		$unsupported_orderby = [
+			'post__in',
+			'post_name__in',
+			'post_parent__in',
+			'parent',
+		];
+
+		$orderby = is_string( $query->get( 'orderby' ) ) ? explode( ' ', $query->get( 'orderby' ) ) : $query->get( 'orderby', 'date' );
+
+		$parse_orderby = array();
+		foreach ( $orderby as $key => $value ) {
+			$parse_orderby[] = is_string( $key ) ? $key : $value;
+		}
+
+		if ( array_intersect( $parse_orderby, $unsupported_orderby ) ) {
+			return true;
+		}
+
+		return $skip;
 	}
 }
