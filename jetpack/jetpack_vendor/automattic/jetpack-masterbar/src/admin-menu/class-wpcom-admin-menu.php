@@ -33,6 +33,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'wpcom_upsell_nudge_jitm_fix' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -49,7 +50,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
-			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
 			$this->add_new_site_link();
 		}
@@ -99,20 +99,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$blogs = get_blogs_of_user( get_current_user_id() );
 		return is_countable( $blogs ) ? count( $blogs ) : 0;
-	}
-
-	/**
-	 * Adds the site switcher link if user has more than one site.
-	 */
-	public function add_browse_sites_link() {
-		if ( $this->get_current_user_blog_count() < 2 ) {
-			return;
-		}
-
-		// Add the menu item.
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'site-switcher', 'jetpack-masterbar' ), __( 'Browse sites', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
-		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
 	/**

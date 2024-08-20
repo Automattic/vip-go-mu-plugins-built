@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;
@@ -32,6 +33,8 @@ class REST_Controller {
 	 * @var string
 	 */
 	const JETPACK_SOCIAL_V1_YEARLY = 'jetpack_social_v1_yearly';
+
+	const SOCIAL_SHARES_POST_META_KEY = '_publicize_shares';
 
 	/**
 	 * Constructor
@@ -82,7 +85,7 @@ class REST_Controller {
 
 		// Dismiss a notice.
 		// Flagged to be removed after deprecation.
-		// @deprecated $$next_version$$
+		// @deprecated $$next_version$$.
 		register_rest_route(
 			'jetpack/v4',
 			'/social/dismiss-notice',
@@ -146,7 +149,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'update_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'update_connection_permission_check' ),
 				'schema'              => array( $this, 'get_jetpack_social_connections_update_schema' ),
 			)
 		);
@@ -158,9 +161,83 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
 				'callback'            => array( $this, 'delete_publicize_connection' ),
-				'permission_callback' => array( $this, 'require_author_privilege_callback' ),
+				'permission_callback' => array( $this, 'manage_connection_permission_check' ),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/social/sync-shares/post/(?P<id>\d+)',
+			array(
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_post_shares' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_blog_token' ),
+					'args'                => array(
+						'meta' => array(
+							'type'       => 'object',
+							'required'   => true,
+							'properties' => array(
+								'_publicize_shares' => array(
+									'type'     => 'array',
+									'required' => true,
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Manage connection permission check
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can manage the connection, false otherwise.
+	 */
+	public function manage_connection_permission_check( WP_REST_Request $request ) {
+
+		if ( current_user_can( 'edit_others_posts' ) ) {
+			return true;
+		}
+
+		/**
+		 * Publicize instance.
+		 *
+		 * @var Publicize $publicize Publicize instance.
+		 */
+		global $publicize;
+
+		$connection = $publicize->get_connection_for_user( $request->get_param( 'connection_id' ) );
+
+		$owns_connection = isset( $connection['user_id'] ) && get_current_user_id() === (int) $connection['user_id'];
+
+		return $owns_connection;
+	}
+
+	/**
+	 * Update connection permission check.
+	 *
+	 * @param WP_REST_Request $request The request object, which includes the parameters.
+	 *
+	 * @return bool True if the user can update the connection, false otherwise.
+	 */
+	public function update_connection_permission_check( WP_REST_Request $request ) {
+
+		// If the user cannot manage the connection, they can't update it either.
+		if ( ! $this->manage_connection_permission_check( $request ) ) {
+			return false;
+		}
+
+		// If the connection is being marked/unmarked as shared.
+		if ( $request->has_param( 'shared' ) ) {
+			// Only editors and above can mark a connection as shared.
+			return current_user_can( 'edit_others_posts' );
+		}
+
+		return $this->require_author_privilege_callback();
 	}
 
 	/**
@@ -547,6 +624,30 @@ class REST_Controller {
 		return new WP_Error(
 			'could_not_create_connection',
 			__( 'Something went wrong while creating a connection.', 'jetpack-publicize-pkg' )
+		);
+	}
+
+	/**
+	 * Update the post with information about shares.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function update_post_shares( $request ) {
+		$request_body = $request->get_json_params();
+
+		$post_id   = $request->get_param( 'id' );
+		$post_meta = $request_body['meta'];
+		$post      = get_post( $post_id );
+
+		if ( $post && 'publish' === $post->post_status && isset( $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] ) ) {
+			update_post_meta( $post_id, self::SOCIAL_SHARES_POST_META_KEY, $post_meta[ self::SOCIAL_SHARES_POST_META_KEY ] );
+			return rest_ensure_response( new WP_REST_Response() );
+		}
+
+		return new WP_Error(
+			'rest_cannot_edit',
+			__( 'Failed to update the post meta', 'jetpack-publicize-pkg' ),
+			array( 'status' => 500 )
 		);
 	}
 }

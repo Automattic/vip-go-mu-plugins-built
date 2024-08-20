@@ -56,11 +56,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Adds options for CSS preprocessor use, disabling the theme\'s CSS, or custom image width.', 'Module Description', 'jetpack' ),
 			),
 
-			'google-analytics' => array(
-				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Set up Google Analytics without touching a line of code.', 'Module Description', 'jetpack' ),
-			),
-
 			'google-fonts' => array(
 				'name' => _x( 'Google Fonts (Beta)', 'Module Name', 'jetpack' ),
 				'description' => _x( 'A selection of Google fonts for block enabled themes. This feature is still being developed.', 'Module Description', 'jetpack' ),
@@ -133,7 +128,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'protect' => array(
 				'name' => _x( 'Brute force protection', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
@@ -514,24 +509,6 @@ function jetpack_get_module_info( $key ) {
 	    'additional_search_queries' => 'css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet',
 	    'plan_classes' => '',
 	  ),
-	  'google-analytics' => 
-	  array (
-	    'name' => 'Google Analytics',
-	    'description' => 'Set up Google Analytics without touching a line of code.',
-	    'sort' => '37',
-	    'recommendation_order' => '',
-	    'introduced' => '4.5',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'Yes',
-	    'requires_user_connection' => '',
-	    'auto_activate' => 'No',
-	    'module_tags' => '',
-	    'feature' => 'Engagement',
-	    'additional_search_queries' => 'webmaster, google, analytics, console',
-	    'plan_classes' => 'business, premium, security, complete',
-	  ),
 	  'google-fonts' => 
 	  array (
 	    'name' => 'Google Fonts (Beta)',
@@ -787,7 +764,7 @@ function jetpack_get_module_info( $key ) {
 	  'protect' => 
 	  array (
 	    'name' => 'Brute force protection',
-	    'description' => 'Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
+	    'description' => 'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
 	    'sort' => '1',
 	    'recommendation_order' => '4',
 	    'introduced' => '3.4',

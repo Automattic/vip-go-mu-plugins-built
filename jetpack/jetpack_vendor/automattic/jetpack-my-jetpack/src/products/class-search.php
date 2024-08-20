@@ -103,7 +103,7 @@ class Search extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Custom instant site search', 'jetpack-my-jetpack' );
+		return __( 'Help your visitors find what they are looking for with instant search results', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -204,7 +204,7 @@ class Search extends Hybrid_Product {
 	}
 
 	/**
-	 * Override status to `needs_purchase_or_free` when status is `needs_purchase`.
+	 * Override status to `needs_activation` when status is `needs_plan`.
 	 */
 	public static function get_status() {
 		$status = parent::get_status();

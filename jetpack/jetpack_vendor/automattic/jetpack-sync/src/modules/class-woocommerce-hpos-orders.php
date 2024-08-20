@@ -60,13 +60,11 @@ class WooCommerce_HPOS_Orders extends Module {
 	/**
 	 * Get order types that we want to sync. Adding a new type here is not enough, we would also need to add its prop in filter_order_data method.
 	 *
-	 * @access private
-	 *
 	 * @param bool $prefixed Whether to return prefixed types with shop_ or not.
 	 *
 	 * @return array Order types to sync.
 	 */
-	private function get_order_types_to_sync( $prefixed = false ) {
+	public static function get_order_types_to_sync( $prefixed = false ) {
 		$types = array( 'order', 'order_refund' );
 		if ( $prefixed ) {
 			$types = array_map(
@@ -87,7 +85,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @param callable $callable Action handler callable.
 	 */
 	public function init_listeners( $callable ) {
-		foreach ( $this->get_order_types_to_sync() as $type ) {
+		foreach ( self::get_order_types_to_sync() as $type ) {
 			add_action( "woocommerce_after_{$type}_object_save", $callable );
 			add_filter( "jetpack_sync_before_enqueue_woocommerce_after_{$type}_object_save", array( $this, 'expand_order_object' ) );
 		}
@@ -160,19 +158,24 @@ class WooCommerce_HPOS_Orders extends Module {
 	 * @return array
 	 */
 	public function get_objects_by_id( $object_type, $ids ) {
-		if ( 'order' !== $object_type ) {
-			return $ids;
+		if ( 'order' !== $object_type || empty( $ids ) || ! is_array( $ids ) ) {
+			return array();
 		}
-		$orders      = wc_get_orders(
+
+		$orders = wc_get_orders(
 			array(
-				'include' => $ids,
-				'type'    => $this->get_order_types_to_sync( true ),
+				'post__in'    => $ids,
+				'type'        => self::get_order_types_to_sync( true ),
+				'post_status' => $this->get_all_possible_order_status_keys(),
+				'limit'       => -1,
 			)
 		);
+
 		$orders_data = array();
 		foreach ( $orders as $order ) {
 			$orders_data[ $order->get_id() ] = $this->filter_order_data( $order );
 		}
+
 		return $orders_data;
 	}
 
@@ -298,8 +301,62 @@ class WooCommerce_HPOS_Orders extends Module {
 		if ( '' === $filtered_order_data['status'] ) {
 			$filtered_order_data['status'] = 'pending';
 		}
+		$filtered_order_data['status'] = $this->get_wc_order_status_with_prefix( $filtered_order_data['status'] );
 
 		return $filtered_order_data;
+	}
+
+	/**
+	 * Returns all possible order status keys, including 'auto-draft' and 'trash'.
+	 *
+	 * @access protected
+	 *
+	 * @return array An array of all possible status keys, including 'auto-draft' and 'trash'.
+	 */
+	protected function get_all_possible_order_status_keys() {
+		$order_statuses    = array( 'auto-draft', 'trash' );
+		$wc_order_statuses = $this->wc_get_order_status_keys();
+
+		return array_unique( array_merge( $wc_order_statuses, $order_statuses ) );
+	}
+
+	/**
+	 * Add the 'wc-' order status to WC related order statuses.
+	 *
+	 * @param string $status The WC order status without the 'wc-' prefix.
+	 *
+	 * @return string The WC order status with the 'wc-' prefix if it's a valid order status, initial $status otherwise.
+	 */
+	protected function get_wc_order_status_with_prefix( string $status ) {
+		return in_array( 'wc-' . $status, $this->wc_get_order_status_keys(), true ) ? 'wc-' . $status : $status;
+	}
+
+	/**
+	 * Returns order status keys using 'wc_get_order_statuses', if possible.
+	 *
+	 * @see wc_get_order_statuses
+	 *
+	 * @return array Filtered order metadata.
+	 */
+	private function wc_get_order_status_keys() {
+		$wc_order_statuses = array();
+		if ( function_exists( 'wc_get_order_statuses' ) ) {
+			$wc_order_statuses   = array_keys( wc_get_order_statuses() );
+			$wc_order_statuses[] = 'wc-checkout-draft'; // Temp till Woo fixes a bug where this order status is missing.
+		} else {
+			$wc_order_statuses = array(
+				'wc-pending',
+				'wc-processing',
+				'wc-on-hold',
+				'wc-completed',
+				'wc-cancelled',
+				'wc-refunded',
+				'wc-failed',
+				'wc-checkout-draft',
+			);
+		}
+
+		return array_unique( $wc_order_statuses );
 	}
 
 	/**
@@ -361,7 +418,7 @@ class WooCommerce_HPOS_Orders extends Module {
 	public function get_where_sql( $config ) {
 		global $wpdb;
 		$parent_where           = parent::get_where_sql( $config );
-		$order_types            = $this->get_order_types_to_sync( true );
+		$order_types            = self::get_order_types_to_sync( true );
 		$order_type_placeholder = implode( ', ', array_fill( 0, count( $order_types ), '%s' ) );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Query is prepared.
 		$where_sql = $wpdb->prepare( "type IN ( $order_type_placeholder )", $order_types );
