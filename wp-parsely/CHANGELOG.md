@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.16.4](https://github.com/Parsely/wp-parsely/compare/3.16.3...3.16.4) - 2024-08-21
+
+### Fixed
+
+- Fix current_user_can_use_pch_feature() issues ([#2723](https://github.com/Parsely/wp-parsely/pull/2723))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.16.4+label%3A%22Component%3A+Dependencies%22).
+
 ## [3.16.3](https://github.com/Parsely/wp-parsely/compare/3.16.2...3.16.3) - 2024-08-08
 
 ### Fixed

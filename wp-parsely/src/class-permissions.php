@@ -70,16 +70,6 @@ class Permissions {
 			return false;
 		}
 
-		// All AI features are disabled.
-		if ( true !== $pch_options['ai_features_enabled'] ) {
-			return false;
-		}
-
-		// The specific AI feature is disabled.
-		if ( true !== $feature_options['enabled'] ) {
-			return false;
-		}
-
 		$current_user = wp_get_current_user();
 		$user_roles   = $current_user->roles;
 
@@ -91,21 +81,38 @@ class Permissions {
 		 *
 		 * @since 3.16.2
 		 *
-		 * @param bool   $current_user_can_use_pch_feature Whether the current user can use the feature.
+		 * @param ?bool   $current_user_can_use_pch_feature Whether the current user can use the feature.
+		 *                                                  Is null when the filter isn't being used.
 		 * @param string $feature_name The feature's name.
 		 * @param \WP_User $current_user The current user object.
 		 * @param int|false $post_id The post ID, if the check is for a specific post.
 		 */
 		$filtered_current_user_can_use_pch_feature = apply_filters(
 			'wp_parsely_current_user_can_use_pch_feature',
-			false,
+			null,
 			$feature_name,
 			$current_user,
 			$post_id
 		);
 
-		if ( true === $filtered_current_user_can_use_pch_feature ) {
-			return true;
+		// When $wp_parsely_current_user_can_use_pch_feature's value is set,
+		// return it without further processing.
+		if ( null !== $filtered_current_user_can_use_pch_feature ) {
+			if ( true === $filtered_current_user_can_use_pch_feature ) {
+				return true;
+			}
+
+			return false;
+		}
+
+		// All AI features are disabled.
+		if ( true !== $pch_options['ai_features_enabled'] ) {
+			return false;
+		}
+
+		// The specific AI feature is disabled.
+		if ( true !== $feature_options['enabled'] ) {
+			return false;
 		}
 
 		// Current user's role is not yet set.
