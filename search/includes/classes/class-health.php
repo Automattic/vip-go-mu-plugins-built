@@ -294,6 +294,7 @@ class Health {
 				// Force fetching just one post, otherwise the query may get killed on large datasets.
 				// This works for at least ten million records in posts table.
 				'posts_per_page' => 1,
+				'has_password' => null
 			];
 
 			$result = $health->validate_index_entity_count( $query_args, $posts );
