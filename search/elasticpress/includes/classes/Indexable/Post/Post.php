@@ -499,9 +499,9 @@ class Post extends Indexable {
 			'terms'                   => $this->prepare_terms( $post ),
 			'meta'                    => $this->prepare_meta_types( $this->prepare_meta( $post ) ), // post_meta removed in 2.4.
 			'date_terms'              => $this->prepare_date_terms( $post_date ),
-			'date_gmt_terms'          => $this->prepare_date_terms( $post_date_gmt ),
-			'modified_date_terms'     => $this->prepare_date_terms( $post_modified ),
-			'modified_date_gmt_terms' => $this->prepare_date_terms( $post_modified_gmt ),
+			'date_gmt_terms'          => $this->prepare_date_terms( $post_date_gmt ?? '' ), // VIP: Index additional fields
+			'modified_date_terms'     => $this->prepare_date_terms( $post_modified ?? '' ), // VIP: Index additional fields
+			'modified_date_gmt_terms' => $this->prepare_date_terms( $post_modified_gmt ?? '' ), // VIP: Index additional fields
 			'comment_count'           => $comment_count,
 			'comment_status'          => $comment_status,
 			'ping_status'             => $ping_status,
