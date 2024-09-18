@@ -1,9 +1,9 @@
 import { applyFilters } from '@wordpress/hooks';
 
 import {
+	doesBlockNameMatchBlockWildcard,
+	isBlockAllowedByBlockWildcards,
 	isBlockAllowedInHierarchy,
-	isBlockAllowedByBlockRegexes,
-	doesBlockNameMatchBlockRegex,
 } from './block-utils';
 
 jest.mock( '@wordpress/hooks', () => ( {
@@ -242,12 +242,12 @@ describe( 'blockUtils', () => {
 		} );
 	} );
 
-	describe( 'isBlockAllowedByBlockRegexes', () => {
+	describe( 'isBlockAllowedByBlockWildcards', () => {
 		it( 'should return true if the block name matches any of the rules', () => {
 			const blockName = 'core/heading';
 			const rules = [ 'core/heading', 'core/paragraph' ];
 
-			const result = isBlockAllowedByBlockRegexes( blockName, rules );
+			const result = isBlockAllowedByBlockWildcards( blockName, rules );
 
 			expect( result ).toBe( true );
 		} );
@@ -256,27 +256,27 @@ describe( 'blockUtils', () => {
 			const blockName = 'core/heading';
 			const rules = [ 'core/paragraph' ];
 
-			const result = isBlockAllowedByBlockRegexes( blockName, rules );
+			const result = isBlockAllowedByBlockWildcards( blockName, rules );
 
 			expect( result ).toBe( false );
 		} );
 	} );
 
-	describe( 'doesBlockNameMatchBlockRegex', () => {
-		it( 'should not be null if the block name matches any of the regex rules', () => {
+	describe( 'doesBlockNameMatchBlockWildcard', () => {
+		it( 'should not be null if the block name matches any of the wildcard rules', () => {
 			const blockName = 'core/heading';
 			const rules = 'core/*';
 
-			const result = doesBlockNameMatchBlockRegex( blockName, rules );
+			const result = doesBlockNameMatchBlockWildcard( blockName, rules );
 
 			expect( result ).toBeTruthy();
 		} );
 
-		it( 'should be null if the block name does not match any of the regex rules', () => {
+		it( 'should be null if the block name does not match any of the wildcard rules', () => {
 			const blockName = 'custom/heading';
 			const rules = 'core/*';
 
-			const result = doesBlockNameMatchBlockRegex( blockName, rules );
+			const result = doesBlockNameMatchBlockWildcard( blockName, rules );
 
 			expect( result ).toBeFalsy();
 		} );
@@ -285,7 +285,7 @@ describe( 'blockUtils', () => {
 			const blockName = 'core/heading';
 			const rules = 'core/heading';
 
-			const result = doesBlockNameMatchBlockRegex( blockName, rules );
+			const result = doesBlockNameMatchBlockWildcard( blockName, rules );
 
 			expect( result ).toBeTruthy();
 		} );
@@ -294,7 +294,7 @@ describe( 'blockUtils', () => {
 			const blockName = 'core/heading';
 			const rules = 'core/paragraph';
 
-			const result = doesBlockNameMatchBlockRegex( blockName, rules );
+			const result = doesBlockNameMatchBlockWildcard( blockName, rules );
 
 			expect( result ).toBeFalsy();
 		} );

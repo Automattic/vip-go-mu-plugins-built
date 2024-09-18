@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticeStore } from '@wordpress/notices';
 
 import { setupBlockLocking } from './block-locking';
-import { isBlockAllowedInHierarchy } from './block-utils';
+import { doesBlockNameMatchBlockWildcard, isBlockAllowedInHierarchy } from './block-utils';
 import { getNestedSetting, getNestedSettingPaths } from './nested-governance-loader';
 
 function setup() {
@@ -76,31 +76,74 @@ function setup() {
 	const nestedSettings = VIP_GOVERNANCE.nestedSettings;
 	const nestedSettingPaths = getNestedSettingPaths( nestedSettings );
 
+	const nestedWildcardPaths = {};
+	const nestedNonWildcardPaths = {};
+
+	for ( const blockName in nestedSettingPaths ) {
+		if ( blockName.indexOf( '*' ) === -1 ) {
+			// eslint-disable-next-line security/detect-object-injection
+			nestedNonWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
+		} else {
+			// eslint-disable-next-line security/detect-object-injection
+			nestedWildcardPaths[ blockName ] = nestedSettingPaths[ blockName ];
+		}
+	}
+
 	addFilter(
 		'blockEditor.useSetting.before',
 		`wpcomvip-governance/nested-block-settings`,
 		( result, path, clientId, blockName ) => {
-			const hasCustomSetting =
-				// eslint-disable-next-line security/detect-object-injection
-				nestedSettingPaths[ blockName ] !== undefined &&
-				// eslint-disable-next-line security/detect-object-injection
-				nestedSettingPaths[ blockName ][ path ] === true;
-
-			if ( ! hasCustomSetting ) {
+			if ( ! blockName ) {
 				return result;
 			}
 
-			const blockNamePath = [
-				clientId,
-				...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
-			]
-				.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
-				.reverse();
+			// Test if the blockName is in the nestedNonWildcardPaths.
+			if (
+				// eslint-disable-next-line security/detect-object-injection
+				nestedNonWildcardPaths[ blockName ] !== undefined &&
+				// eslint-disable-next-line security/detect-object-injection
+				nestedNonWildcardPaths[ blockName ][ path ] === true
+			) {
+				const blockNamePath = [
+					clientId,
+					...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+				]
+					.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+					.reverse();
+				( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
 
-			( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
+				// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+				return result && result.theme ? result.theme : result;
+				// Test if the blockName is in the nestedWildcardPaths.
+			} else if ( nestedWildcardPaths.length !== 0 ) {
+				for ( const nestedBlockName in nestedWildcardPaths ) {
+					if (
+						doesBlockNameMatchBlockWildcard( blockName, nestedBlockName ) &&
+						// eslint-disable-next-line security/detect-object-injection
+						nestedWildcardPaths[ nestedBlockName ][ path ] === true
+					) {
+						const blockNamePath = [
+							clientId,
+							...select( blockEditorStore ).getBlockParents( clientId, /* ascending */ true ),
+						]
+							.map( candidateId => select( blockEditorStore ).getBlockName( candidateId ) )
+							.reverse();
 
-			// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
-			return result && result.theme ? result.theme : result;
+						// Replace the original block name with the matched wildcard block name, for easier lookup.
+						// This will be at the end of the blockNamePath array.
+						if ( nestedBlockName.indexOf( '*' ) !== -1 ) {
+							blockNamePath[ blockNamePath.length - 1 ] = nestedBlockName;
+						}
+
+						( { value: result } = getNestedSetting( blockNamePath, path, nestedSettings ) );
+
+						// This is necessary because the nestedSettingPaths are flattened, so a child's path could match the parent's path.
+						return result && result.theme ? result.theme : result;
+					}
+				}
+			}
+
+			return result;
 		}
 	);
 

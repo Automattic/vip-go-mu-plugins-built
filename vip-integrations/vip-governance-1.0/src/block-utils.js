@@ -78,19 +78,19 @@ export function isBlockAllowedInHierarchy( blockName, parentBlockNames, governan
 	}
 
 	// Check if the block is allowed using the array of blocks that can be inserted.
-	return isBlockAllowedByBlockRegexes( blockName, blocksAllowedToBeInserted );
+	return isBlockAllowedByBlockWildcards( blockName, blocksAllowedToBeInserted );
 }
 
 /**
- * Matches a block name to a list of block regex rules.
- * For regex rules, see doesBlockNameMatchBlockRegex().
+ * Matches a block name to a list of block wildcard rules.
+ * For wildcard rules, see doesBlockNameMatchBlockWildcard().
  *
  * @param {string} blockName
  * @param {string[]} rules
  * @returns True if the block name matches any of the rules, false otherwise.
  */
-export function isBlockAllowedByBlockRegexes( blockName, rules ) {
-	return rules.some( rule => doesBlockNameMatchBlockRegex( blockName, rule ) );
+export function isBlockAllowedByBlockWildcards( blockName, rules ) {
+	return rules.some( rule => doesBlockNameMatchBlockWildcard( blockName, rule ) );
 }
 
 /**
@@ -104,7 +104,7 @@ export function isBlockAllowedByBlockRegexes( blockName, rules ) {
  * @param {string} rule
  * @returns True if the block name matches the rule, or false otherwise
  */
-export function doesBlockNameMatchBlockRegex( blockName, rule ) {
+export function doesBlockNameMatchBlockWildcard( blockName, rule ) {
 	if ( rule.includes( '*' ) ) {
 		// eslint-disable-next-line security/detect-non-literal-regexp
 		return blockName.match( new RegExp( rule.replace( '*', '.*' ) ) );

@@ -1,11 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { Disabled } from '@wordpress/components';
-import { addFilter, applyFilters } from '@wordpress/hooks';
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { Disabled } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { select } from '@wordpress/data';
+import { addFilter, applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies

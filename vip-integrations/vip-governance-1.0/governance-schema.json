@@ -33,6 +33,9 @@
 			"patternProperties": {
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
+				},
+				"^[a-z][a-z0-9-]*/[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
 				}
 			}
 		},
@@ -42,12 +45,26 @@
 			"patternProperties": {
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
+				},
+				"^[a-z][a-z0-9-]*/[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
 				}
 			},
 			"additionalProperties": false,
 			"examples": [
 				{
 					"core/paragraph": {
+						"color": {
+							"gradients": [
+								{
+									"slug": "vertical-red-to-green",
+									"gradient": "linear-gradient(to bottom,#ff0000 0%,#00FF00 100%)",
+									"name": "Vertical red to green"
+								}
+							]
+						}
+					},
+					"core/*": {
 						"color": {
 							"text": false
 						}

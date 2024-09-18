@@ -297,7 +297,11 @@ class ContentParser {
 		];
 
 		// WP_Block#inner_blocks can be an array or WP_Block_List (iterable).
-		$inner_blocks = iterator_to_array( $block->inner_blocks );
+		if ( is_array( $block->inner_blocks ) ) {
+			$inner_blocks = $block->inner_blocks;
+		} else {
+			$inner_blocks = iterator_to_array( $block->inner_blocks );
+		}
 
 		/**
 		 * Filters a block's inner blocks before recursive iteration.

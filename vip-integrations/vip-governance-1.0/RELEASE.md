@@ -32,14 +32,14 @@ Now commit these build changes in.
 
 ## 4. Tag branch for release
 
-1. In `trunk`, add a tag for the release:
+1. In `trunk`, add a signed tag for the release:
 
    ```bash
    git checkout trunk
    git pull
-   git tag -a <version> -m "Release <version>"
+   git tag -s -a <version> -m "Release <version>"
 
-   # e.g. git tag -a 1.0.2 -m "Release 1.0.2"
+   # e.g. git tag -s -a 1.0.2 -m "Release 1.0.2"
    ```
 
 2. Run `git push --tags`.

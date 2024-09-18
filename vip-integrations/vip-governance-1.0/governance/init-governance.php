@@ -94,13 +94,9 @@ class InitGovernance {
 
 		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
 
-		wp_enqueue_style(
-			'wpcomvip-governance',
-			plugins_url( '/css/vip-governance.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
-			/* dependencies */ [],
-			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION
-		);
-
+		// Hack to load the CSS dynamically for the block editor without needing a blank CSS file.
+		wp_register_style( 'wpcomvip-governance', false, [], WPCOMVIP__GOVERNANCE__PLUGIN_VERSION );
+		wp_enqueue_style( 'wpcomvip-governance' );
 		wp_add_inline_style( 'wpcomvip-governance', $nested_settings_and_css['css'] ?? '' );
 	}
 
@@ -129,6 +125,7 @@ class InitGovernance {
 		} catch ( Exception | Error $e ) {
 			// This is an unexpected exception. Record error for follow-up with WPVIP customers.
 			Analytics::record_error();
+			// ToDo: Log the error to QueryMonitor instead of doing this.
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( $e->getMessage() );
 
