@@ -334,13 +334,22 @@ class Waf_Request {
 	 * @return array{string, scalar}[]
 	 */
 	public function get_post_vars() {
-		// Attempt to decode JSON requests.
-		if ( strpos( $this->get_header( 'content-type' ), 'application/json' ) !== false ) {
+		$content_type = $this->get_header( 'content-type' );
+		if ( ! empty( $_POST ) ) {
+			// If $_POST is populated, use it.
+			return flatten_array( $_POST );
+		} elseif ( strpos( $content_type, 'application/json' ) !== false ) {
+			// Attempt to decode JSON requests.
 			$decoded_json = json_decode( $this->get_body(), true ) ?? array();
 			return flatten_array( $decoded_json, 'json', true );
+		} elseif ( strpos( $content_type, 'application/x-www-form-urlencoded' ) !== false ) {
+			// Attempt to decode url-encoded data
+			parse_str( $this->get_body(), $params );
+			return flatten_array( $params );
+		} else {
+			// Don't try to parse any other content types
+			return array();
 		}
-
-		return flatten_array( $_POST );
 	}
 
 	/**

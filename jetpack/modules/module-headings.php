@@ -51,11 +51,6 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
 			),
 
-			'custom-css' => array(
-				'name' => _x( 'Custom CSS', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Adds options for CSS preprocessor use, disabling the theme\'s CSS, or custom image width.', 'Module Description', 'jetpack' ),
-			),
-
 			'google-fonts' => array(
 				'name' => _x( 'Google Fonts (Beta)', 'Module Name', 'jetpack' ),
 				'description' => _x( 'A selection of Google fonts for block enabled themes. This feature is still being developed.', 'Module Description', 'jetpack' ),
@@ -292,19 +287,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/shortcodes.php
 			'Writing' => _x( 'Writing', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Appearance` tag:
-			// - modules/custom-css.php
-			// - modules/gravatar-hovercards.php
-			// - modules/infinite-scroll.php
-			// - modules/photon-cdn.php
-			// - modules/photon.php
-			// - modules/seo-tools.php
-			// - modules/shortcodes.php
-			// - modules/widget-visibility.php
-			// - modules/widgets.php
-			// - modules/wordads.php
-			'Appearance' => _x( 'Appearance', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Fonts` tag:
 			// - modules/google-fonts.php
 			'Fonts' => _x( 'Fonts', 'Module Tag', 'jetpack' ),
@@ -322,6 +304,18 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/stats.php
 			// - modules/woocommerce-analytics.php
 			'Recommended' => _x( 'Recommended', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Appearance` tag:
+			// - modules/gravatar-hovercards.php
+			// - modules/infinite-scroll.php
+			// - modules/photon-cdn.php
+			// - modules/photon.php
+			// - modules/seo-tools.php
+			// - modules/shortcodes.php
+			// - modules/widget-visibility.php
+			// - modules/widgets.php
+			// - modules/wordads.php
+			'Appearance' => _x( 'Appearance', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Developers` tag:
 			// - modules/json-api.php
@@ -489,24 +483,6 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Writing',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'cpt, custom post types, portfolio, portfolios, testimonial, testimonials',
-	    'plan_classes' => '',
-	  ),
-	  'custom-css' => 
-	  array (
-	    'name' => 'Custom CSS',
-	    'description' => 'Adds options for CSS preprocessor use, disabling the theme\'s CSS, or custom image width.',
-	    'sort' => '2',
-	    'recommendation_order' => '',
-	    'introduced' => '1.7',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'No',
-	    'requires_user_connection' => '',
-	    'auto_activate' => 'No',
-	    'module_tags' => 'Appearance',
-	    'feature' => 'Appearance',
-	    'additional_search_queries' => 'css, customize, custom, style, editor, less, sass, preprocessor, font, mobile, appearance, theme, stylesheet',
 	    'plan_classes' => '',
 	  ),
 	  'google-fonts' => 

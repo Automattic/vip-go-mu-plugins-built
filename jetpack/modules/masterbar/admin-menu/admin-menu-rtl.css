@@ -114,8 +114,7 @@
   border-radius: 2px;
   font-size: 12px;
   line-height: 1.4;
-  -webkit-hyphens: none;
-          hyphens: none;
+  hyphens: none;
 }
 
 #adminmenu .toplevel_page_site-notices .upsell_banner .banner__info {

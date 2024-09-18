@@ -6,8 +6,10 @@
     "description": "Give your readers the ability to show appreciation for your posts.",
     "keywords": [
         "like",
+        "likes",
         "thumbs up",
-        "button"
+        "button",
+        "heart"
     ],
     "version": "1.0.0",
     "textdomain": "jetpack",

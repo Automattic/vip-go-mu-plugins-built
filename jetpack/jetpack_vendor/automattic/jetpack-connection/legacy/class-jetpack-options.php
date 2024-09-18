@@ -231,8 +231,6 @@ class Jetpack_Options {
 			}
 		}
 
-		trigger_error( sprintf( 'Invalid Jetpack option name: %s', esc_html( $name ) ), E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error -- Don't wish to change legacy behavior.
-
 		return $default;
 	}
 
@@ -287,9 +285,9 @@ class Jetpack_Options {
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
-	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
-	 * @param mixed  $value Option value.
-	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
+	 * @param string    $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
+	 * @param mixed     $value Option value.
+	 * @param bool|null $autoload If not compact option, allows specifying whether to autoload or not.
 	 *
 	 * @return bool Was the option successfully updated?
 	 */
