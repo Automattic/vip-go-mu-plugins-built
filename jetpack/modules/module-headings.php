@@ -21,6 +21,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'Module Description', 'jetpack' ),
 			),
 
+			'blocks' => array(
+				'name' => _x( 'Blocks', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Add additional blocks to your site and post editors.', 'Module Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -84,11 +89,6 @@ function jetpack_get_module_i18n( $key ) {
 			'markdown' => array(
 				'name' => _x( 'Markdown', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Write posts or pages in plain-text Markdown syntax', 'Module Description', 'jetpack' ),
-			),
-
-			'masterbar' => array(
-				'name' => _x( 'WordPress.com Toolbar and Dashboard customizations', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Replaces the admin bar with a useful toolbar to quickly manage your site via WordPress.com. Also adds additional customizations to the WPAdmin dashboard experience for better compatibility with WP.com.', 'Module Description', 'jetpack' ),
 			),
 
 			'monitor' => array(
@@ -268,6 +268,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/widgets.php
 			'Social' => _x( 'Social', 'Module Tag', 'jetpack' ),
 
+			// Modules with `blocks` tag:
+			// - modules/blocks.php
+			'blocks' => _x( 'blocks', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Photos and Videos` tag:
 			// - modules/carousel.php
 			// - modules/photon-cdn.php
@@ -322,10 +326,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/sso.php
 			'Developers' => _x( 'Developers', 'Module Tag', 'jetpack' ),
 
-			// Modules with `General` tag:
-			// - modules/masterbar.php
-			'General' => _x( 'General', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Admin` tag:
 			// - modules/post-list.php
 			'Admin' => _x( 'Admin', 'Module Tag', 'jetpack' ),
@@ -375,6 +375,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Traffic, Social',
 	    'feature' => '',
 	    'additional_search_queries' => 'advertising, ads',
+	    'plan_classes' => '',
+	  ),
+	  'blocks' => 
+	  array (
+	    'name' => 'Blocks',
+	    'description' => 'Add additional blocks to your site and post editors.',
+	    'sort' => '5',
+	    'recommendation_order' => '',
+	    'introduced' => '13.9-a.8',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'No',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'blocks',
+	    'feature' => 'Writing',
+	    'additional_search_queries' => '',
 	    'plan_classes' => '',
 	  ),
 	  'carousel' => 
@@ -609,24 +627,6 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Writing',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'md, markdown',
-	    'plan_classes' => '',
-	  ),
-	  'masterbar' => 
-	  array (
-	    'name' => 'WordPress.com Toolbar and Dashboard customizations',
-	    'description' => 'Replaces the admin bar with a useful toolbar to quickly manage your site via WordPress.com. Also adds additional customizations to the WPAdmin dashboard experience for better compatibility with WP.com.',
-	    'sort' => '38',
-	    'recommendation_order' => '16',
-	    'introduced' => '4.8',
-	    'changed' => '',
-	    'deactivate' => '',
-	    'free' => '',
-	    'requires_connection' => 'Yes',
-	    'requires_user_connection' => 'Yes',
-	    'auto_activate' => 'No',
-	    'module_tags' => 'General',
-	    'feature' => '',
-	    'additional_search_queries' => 'adminbar, masterbar, colorschemes, profile-edit',
 	    'plan_classes' => '',
 	  ),
 	  'monitor' => 
@@ -1154,10 +1154,11 @@ function jetpack_get_all_module_header_names() {
 function jetpack_has_no_module_info( $slug ) {
 	$no_info_slugs = array (
 	  0 => 'geo-location',
-	  1 => 'module-extras',
-	  2 => 'module-info',
-	  3 => 'plugin-search',
-	  4 => 'theme-tools',
+	  1 => 'masterbar',
+	  2 => 'module-extras',
+	  3 => 'module-info',
+	  4 => 'plugin-search',
+	  5 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );
