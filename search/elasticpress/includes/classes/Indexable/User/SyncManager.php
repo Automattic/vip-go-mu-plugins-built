@@ -45,8 +45,7 @@ class SyncManager extends SyncManagerAbstract {
 	/**
 	 * Dummy implementation of site unsetup method (for now)
 	 */
-	public function tear_down() {
-	}
+	public function tear_down() {}
 
 	/**
 	 * When whitelisted meta is updated/added/deleted, queue the object for reindex
@@ -83,6 +82,8 @@ class SyncManager extends SyncManagerAbstract {
 		}
 
 		Indexables::factory()->get( 'user' )->delete( $user_id, false );
+
+		$this->remove_from_queue( $user_id ); // VIP: Remove from queue, same as other SyncManager indexable classes
 	}
 
 	/**
