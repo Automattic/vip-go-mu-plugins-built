@@ -120,7 +120,13 @@ class InitGovernance {
 				$block_settings_for_user   = $governance_rules_for_user['blockSettings'];
 				$nested_settings_and_css   = NestedGovernanceProcessing::get_nested_settings_and_css( $block_settings_for_user );
 				BlockLocking::init( $governance_rules_for_user['allowedFeatures'] );
-				Analytics::record_usage();
+
+				$epoch_time = floor( microtime( true ) );
+
+				if ( ( $epoch_time % 10 ) === 0 ) {
+					// Sample results. Only send analytics on 10% of configuration loads.
+					Analytics::record_usage();
+				}
 			}
 		} catch ( Exception | Error $e ) {
 			// This is an unexpected exception. Record error for follow-up with WPVIP customers.
