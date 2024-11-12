@@ -1,0 +1,87 @@
+/** SASS variables **/
+$html-font-size: 16px; // Used in functions.scss.
+
+/**
+ * Base units for internal use in this file.
+ */
+$base-unit-5: 0.25rem; // 4px.
+$base-unit-10: 0.5rem; // 8px.
+$base-unit-15: 0.75rem; // 12px.
+$base-unit-20: 1rem; // 16px.
+$base-unit-25: 1.25rem; // 20px.
+$base-unit-30: 1.5rem; // 24px.
+$base-unit-40: 2rem; // 32px.
+
+/**
+ * This is a subset of the CSS variables defined in the Parse.ly dashboard. It
+ * is sourced from 1.44/src/styles/base.scss and defines some additional
+ * variables in the end of the file.
+ */
+.settings_page_parsely,
+.wp-parsely-panel,
+.wp-parsely-content-helper,
+.wp-parsely-excerpt-generator,
+.editor-post-excerpt,
+.wp-parsely-popover,
+.wp-parsely-suggested-title-modal,
+.wp-parsely-smart-linking-review-modal,
+.wp-parsely-smart-linking-close-dialog,
+.wp-parsely-block-overlay,
+.wp-parsely-preview-editor,
+.components-button[aria-controls="wp-parsely-block-editor-sidebar:wp-parsely-content-helper"], // Sidebar icon.
+#wp-parsely-dashboard-widget {
+
+	/** Layout section - base.scss. **/
+	--base-font: "source-sans-pro", arial, sans-serif;
+	--numeric-font: "ff-din-round-web", sans-serif;
+
+	/** Category colors section - base scss. **/
+	--parsely-green-components: 107, 42%, 46%;
+	--parsely-green: hsl(var(--parsely-green-components));
+	--parsely-green-10: hsla(98, 61%, 81%, 1);
+	--parsely-green-65: hsla(109, 59%, 26%, 1);
+	--gray-200: #f7f8f9;
+	--gray-300: #edeeef;
+	--gray-400: #d7dbdf;
+	--gray-500: #959da5;
+	--gray-600: #586069;
+	--gray-700: #444d56;
+	--gray-900: #24292e;
+	--blue-500: #44a8e5;
+	--blue-550: #2596db;
+	--green-500: #7bc01b;
+	--green-900: #3d6307;
+	// ref-* variables to be used as HSL colors.
+	--ref-direct: 205, 13%, 52%;
+	--ref-internal: 161, 91%, 41%;
+	--ref-social: 210, 72%, 41%;
+	--ref-search: 42, 100%, 50%;
+	--ref-other: 3, 76%, 58%;
+
+	/** Theme colors section - base.scss. **/
+	--base-text: var(--gray-900);
+	--base-text-2: var(--gray-600);
+	--base-3: var(--gray-400);
+	--border: var(--gray-400);
+	--data: var(--green-500);
+	--control: var(--blue-500);
+
+	/** Grid section **/
+	--grid-unit-5: #{$base-unit-5}; // 4px.
+	--grid-unit-10: #{$base-unit-10}; // 8px.
+	--grid-unit-15: #{$base-unit-15}; // 12px.
+	--grid-unit-20: #{$base-unit-20}; // 16px.
+	--grid-unit-25: #{$base-unit-25}; // 20px.
+	--grid-unit-30: #{$base-unit-30}; // 24px.
+	--grid-unit-40: #{$base-unit-40}; // 32px.
+
+	/** Additional variables. **/
+	--font-size--smaller: 0.688rem; // 11px.
+	--font-size--small: #{$base-unit-15}; // 12px.
+	--font-size--medium: 0.875rem; // 14px.
+	--font-size--large: #{$base-unit-20}; // 16px.
+	--font-size--extra-large: 1.2rem;
+	--black: #000;
+	--sidebar-black: #1e1e1e;
+	--sidebar-white: #f0f0f0;
+}

@@ -1,20 +1,45 @@
 #!/usr/bin/env bash
 
-# Script which updates the wp-parsely version number. It will create a new
-# branch and commit the changes.
+# Cross-platform script which updates the wp-parsely version number.
+# It will create a new branch and commit the changes.
 #
-# Usage: Specify the version to update to. For example, to update to 3.12.0:
+# Usage: Specify the version to update to. For example:
 #   `bin/update-version.sh 3.12.0`
-# Note: This has only been tested with macOS sed.
 
-git checkout -b update/wp-parsely-version-to-$1
+set -e
 
-sed -i '' "s/Stable tag: .*  $/Stable tag: $1  /" README.md
-sed -i '' "s/\"version\": \".*\"/\"version\": \"$1\"/" package.json
-sed -i '' "s/export const PLUGIN_VERSION = '.*'/export const PLUGIN_VERSION = '$1'/" tests/e2e/utils.ts
-sed -i '' "s/ \* Version:           .*$/ \* Version:           $1/" wp-parsely.php
-sed -i '' "s/const PARSELY_VERSION = '.*'/const PARSELY_VERSION = '$1'/" wp-parsely.php
+export LC_ALL=C
 
-npm install # Update version number in package.lock.json.
+if [ -z "$1" ]; then
+  echo "Error: You must specify a version number."
+  exit 1
+fi
 
-git add README.md package.json package-lock.json tests/e2e/utils.ts wp-parsely.php && git commit -m "Update wp-parsely version number to $1"
+VERSION=$1
+
+git checkout -b update/wp-parsely-version-to-$VERSION
+
+# Function to perform in-place sed substitution.
+sed_inplace() {
+    local expression="$1"
+    local file="$2"
+
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # MacOS/BSD sed.
+        sed -i '' -e "$expression" "$file"
+    else
+        # GNU sed (Linux).
+        sed -i -e "$expression" "$file"
+    fi
+}
+
+# Update version in files.
+sed_inplace "s/Stable tag: .*  $/Stable tag: $VERSION  /" README.md
+sed_inplace "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
+sed_inplace "s/export const PLUGIN_VERSION = '.*'/export const PLUGIN_VERSION = '$VERSION'/" tests/e2e/utils.ts
+sed_inplace "s/ \* Version:           .*$/ \* Version:           $VERSION/" wp-parsely.php
+sed_inplace "s/const PARSELY_VERSION = '.*'/const PARSELY_VERSION = '$VERSION'/" wp-parsely.php
+
+npm install --ignore-scripts # Update package-lock.json with the new version.
+
+git add README.md package.json package-lock.json tests/e2e/utils.ts wp-parsely.php && git commit -m "Update wp-parsely version number to $VERSION"

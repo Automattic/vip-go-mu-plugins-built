@@ -1,0 +1,117 @@
+@import "../../common/css/variables";
+@import "../../common/css/functions";
+
+.editor-post-excerpt__loading_animation {
+	position: absolute;
+	top: to_rem(29px);
+	left: to_rem(9px);
+}
+
+.editor-post-excerpt__textarea {
+	margin-bottom: var(--grid-unit-10);
+}
+
+.editor-post-excerpt .excerpt-suggestions-text {
+	display: flex;
+	padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: to_rem(10px);
+	align-self: stretch;
+}
+
+.wp-parsely-excerpt-generator {
+	&.is-doc-set-panel {
+		margin-top: to_rem(20px);
+	}
+
+	// Suggestion settings.
+	.excerpt-suggestions-settings {
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--grid-unit-20);
+		align-self: stretch;
+
+		> div {
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
+			gap: var(--grid-unit-10);
+			align-self: stretch;
+		}
+	}
+
+	// "Generate with Parse.ly" header.
+	.wp-parsely-excerpt-generator-header {
+		align-items: center;
+		display: flex;
+		justify-content: flex-start;
+
+		.wp-parsely-excerpt-generator-header-label {
+			font-size: to_rem(11px);
+			font-weight: 600;
+			line-height: 1.4;
+			text-transform: uppercase;
+			display: inline-block;
+			padding: 0;
+			margin-left: to_rem(5px);
+
+			span.beta-label {
+				padding-left: to_rem(6px);
+				color: var(--Gutenberg-Gray-700, #757575);
+			}
+		}
+	}
+
+	// "Generate Excerpt" button.
+	.excerpt-suggestions-generate {
+		display: flex;
+		margin: var(--grid-unit-10) 0;
+		flex-direction: column;
+		align-items: flex-start;
+		align-self: stretch;
+
+		.components-button {
+			height: to_rem(40px);
+			display: flex;
+			padding: var(--grid-unit-10) var(--grid-unit-15);
+			justify-content: center;
+			align-items: center;
+			align-self: stretch;
+			border-radius: 2px;
+		}
+	}
+
+	// Suggestion review controls.
+	.wp-parsely-excerpt-suggestions-review-controls {
+		display: flex;
+		gap: var(--grid-unit-10);
+
+		button {
+			flex-grow: 1;
+			height: to_rem(40px);
+			justify-content: center;
+			margin-bottom: var(--grid-unit-10);
+			margin-top: var(--grid-unit-10);
+			padding: var(--grid-unit-10) var(--grid-unit-15);
+		}
+	}
+
+	.components-notice {
+		margin: var(--grid-unit-20) 0 var(--grid-unit-15) 0;
+
+		.components-notice__content {
+			margin: 0;
+
+			.content-helper-error-message {
+				margin-top: 0 !important;
+
+				p:last-child {
+					margin-bottom: 0 !important;
+				}
+			}
+		}
+	}
+}

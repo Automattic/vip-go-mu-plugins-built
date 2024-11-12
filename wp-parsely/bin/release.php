@@ -53,6 +53,20 @@ echo 'Do you want to create a release PR on GitHub? [y/n]';
 $confirmation = trim( (string) fgets( STDIN ) );
 if ( $confirmation === 'y' ) {
 	create_pull_request( $milestone_to, $release_log );
+} else {
+	// Save the changelog to a environment variable for GitHub Actions.
+	$github_env = getenv( 'GITHUB_ENV' );
+	if ( false !== $github_env ) {
+		$env_file = fopen($github_env, 'a');
+		if ( false === $env_file ) {
+			echo 'Error: Failed opening the environment file';
+			exit( 1 );
+		}
+		fwrite( $env_file, "PARSELY_RELEASE_LOG<<EOF\n" );
+		fwrite( $env_file, $release_log . "\n" );
+		fwrite( $env_file, "EOF\n" );
+		fclose( $env_file);
+	}
 }
 
 /**
