@@ -48,10 +48,6 @@
             "type": "string",
             "default": "red"
         },
-        "preview": {
-            "type": "boolean",
-            "default": false
-        },
         "scrollToZoom": {
             "type": "boolean",
             "default": false
@@ -64,10 +60,6 @@
             "default": true
         }
     },
-    "example": {
-        "attributes": {
-            "preview": true
-        }
-    },
+    "example": {},
     "editorScript": "jetpack-blocks-editor"
 }

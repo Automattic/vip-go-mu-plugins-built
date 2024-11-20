@@ -160,7 +160,6 @@ return array(
     'Automattic\\Jetpack\\Masterbar\\Inline_Help' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/inline-help/class-inline-help.php',
     'Automattic\\Jetpack\\Masterbar\\Jetpack_Admin_Menu' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/class-jetpack-admin-menu.php',
     'Automattic\\Jetpack\\Masterbar\\Main' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/class-main.php',
-    'Automattic\\Jetpack\\Masterbar\\Masterbar' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/masterbar/class-masterbar.php',
     'Automattic\\Jetpack\\Masterbar\\P2_Admin_Menu' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/class-p2-admin-menu.php',
     'Automattic\\Jetpack\\Masterbar\\Posts_List_Page_Notification' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/wp-posts-list/class-posts-list-page-notification.php',
     'Automattic\\Jetpack\\Masterbar\\WPCOM_Additional_CSS_Manager' => $baseDir . '/jetpack_vendor/automattic/jetpack-masterbar/src/nudges/additional-css/class-wpcom-additional-css-manager.php',
