@@ -285,9 +285,7 @@ class SyncManager extends SyncManagerAbstract {
 		 * Make sure to remove this post from the sync queue in case an shutdown happens
 		 * before a redirect when a redirect has already been triggered.
 		 */
-		if ( isset( $this->sync_queue[ $post_id ] ) ) {
-			unset( $this->sync_queue[ $post_id ] );
-		}
+		$this->remove_from_queue( $post_id );
 	}
 
 	/**
