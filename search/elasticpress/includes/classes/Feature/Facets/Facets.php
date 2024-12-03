@@ -220,7 +220,7 @@ class Facets extends Feature {
 			return true;
 		}
 
-		if ( is_admin() ) {
+		if ( is_admin() || is_feed() ) {
 			return false;
 		}
 
