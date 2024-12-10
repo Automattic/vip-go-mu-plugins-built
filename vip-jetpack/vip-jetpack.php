@@ -447,3 +447,40 @@ add_action( 'plugins_loaded', function () {
 		require_once __DIR__ . '/jetpack-sso-dummy.php';
 	}
 } );
+
+/** 
+ * https://lobby.vip.wordpress.com/2024/12/10/notice-editor-issues-when-using-jetpack-version-13-7-and-wordpress-version-6-5/
+ * Remove this filter to disable the hotfix: 
+ * remove_action( 'plugins_loaded', 'vip_jetpack_disable_wpcom_block_editor' );
+ */
+add_action( 'plugins_loaded', 'vip_jetpack_disable_wpcom_block_editor' );
+function vip_jetpack_disable_wpcom_block_editor() {
+	global $wp_version;
+	$matching_jetpack_constraints = defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '13.7', '<' );
+	$matching_core_constraints    = version_compare( $wp_version, '6.6', '<' );
+
+	if ( $matching_jetpack_constraints && $matching_core_constraints ) {
+		add_filter( 'jetpack_tools_to_include', function ( $tools ) {
+			$key = array_search( 'wpcom-block-editor/class-jetpack-wpcom-block-editor.php', $tools );
+
+			if ( $key ) {
+				unset( $tools[ $key ] );
+			}
+			return $tools;
+		} );
+	}
+}
+// Force cache flush
+add_action( 'plugins_loaded', function () {
+	add_filter( 'script_loader_src',
+		function ( $src, $handle ) {
+			if ( 'wpcom-block-editor-default-editor-script' === $handle ) {
+				return $src . '.vip';
+			}
+
+			return $src;
+		},
+		PHP_INT_MIN,
+		2
+	);
+} );
