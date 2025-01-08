@@ -22,6 +22,10 @@
         "showReblogButton": {
             "type": "boolean",
             "default": false
+        },
+        "showAvatars": {
+            "type": "boolean",
+            "default": true
         }
     },
     "editorScript": "jetpack-blocks-editor"

@@ -14,13 +14,6 @@
  */
 
 /*!
- * cookie
- * Copyright(c) 2012-2014 Roman Shtylman
- * Copyright(c) 2015 Douglas Christopher Wilson
- * MIT Licensed
- */
-
-/*!
 * focus-trap 6.3.0
 * @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
 */
@@ -35,10 +28,10 @@
  * It may not accurately detect a touch screen, but may be close enough depending on the use case.
  *
  * @copyright Modernizr © 2009-2015.
- * @license See CREDITS.md.
- * @see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/touchevents.js
+ * @license MIT
+ * @see https://github.com/Modernizr/Modernizr/blob/d5f881a4de0d5fc1af85921ce9c7dc3919c6d335/feature-detects/touchevents.js
  *
- * @return {Boolean} whether touch screen is available
+ * @return {boolean} whether touch screen is available
  */
 
 /** @license React v16.13.1
