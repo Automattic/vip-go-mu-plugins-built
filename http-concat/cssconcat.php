@@ -55,7 +55,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 				$css_url = wp_style_loader_src( $css_url, $obj->handle );
 			}
 
-			$css_url_parsed = parse_url( $obj->src );
+			$css_url_parsed = parse_url( is_string( $obj->src ) ? $obj->src : '' );
 			$extra = $obj->extra;
 
 			// Don't concat by default
@@ -98,6 +98,10 @@ class WPcom_CSS_Concat extends WP_Styles {
 					$stylesheets[ $stylesheet_group_index ] = array();
 
 				$stylesheets[ $stylesheet_group_index ][ $media ][ $handle ] = $css_url_parsed['path'];
+
+				if ( count( $stylesheets[ $stylesheet_group_index ][ $media ] ) >= WPCOM_Concat_Utils::get_concat_max() ) {
+					$stylesheet_group_index++;
+				}
 				$this->done[] = $handle;
 			} else {
 				$stylesheet_group_index++;

@@ -16,7 +16,7 @@ require_once( __DIR__ . '/cssmin/cssmin.php' );
 require_once( __DIR__ . '/concat-utils.php' );
 
 /* Config */
-$concat_max_files = 150;
+// Maximum group size is set in WPCOM_Concat_Utils::$concat_max, anything over than that will be spit into multiple groups
 $concat_unique = true;
 $concat_types = array(
 	'css' => 'text/css',
@@ -85,9 +85,18 @@ if ( !in_array( $_SERVER['REQUEST_METHOD'], array( 'GET', 'HEAD' ) ) )
 // /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 // or
 // /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-$args = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY );
-if ( ! $args || false === strpos( $args, '?' ) )
+// or url-encoded
+// /_static/?%3F%2Ffoo%2Fbar.css%2Cfoo1%2Fbar%2Fbaz.css%3Fm%3D293847g
+$args = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY );
+if ( ! $args ) {
 	concat_http_status_exit( 400 );
+}
+
+$args = rawurldecode( $args );
+
+if ( false === strpos( $args, '?' ) ) {
+	concat_http_status_exit( 400 );
+}
 
 $args = substr( $args, strpos( $args, '?' ) + 1 );
 
@@ -114,7 +123,7 @@ if ( ! $args )
 	concat_http_status_exit( 400 );
 
 // array( '/foo/bar.css', '/foo1/bar/baz.css' )
-if ( 0 == count( $args ) || count( $args ) > $concat_max_files )
+if ( 0 == count( $args ) || count( $args ) > WPCOM_Concat_Utils::get_concat_max() )
 	concat_http_status_exit( 400 );
 
 // If we're in a subdirectory context, use that as the root.
@@ -167,13 +176,6 @@ foreach ( $args as $uri ) {
 
 		// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 		$buf = WPCOM_Concat_Utils::relative_path_replace( $buf, $dirpath );
-
-		// AlphaImageLoader(...src='relative/path/to/file'...) -> AlphaImageLoader(...src='/absolute/path/to/file'...)
-		$buf = preg_replace(
-			'/(Microsoft.AlphaImageLoader\s*\([^\)]*src=(?:\'|")?)([^\/\'"\s\)](?:(?<!http:|https:).)*)\)/isU',
-			'$1' . ( $dirpath == '/' ? '/' : $dirpath . '/' ) . '$2)',
-			$buf
-		);
 
 		// The @charset rules must be on top of the output
 		if ( 0 === strpos( $buf, '@charset' ) ) {
