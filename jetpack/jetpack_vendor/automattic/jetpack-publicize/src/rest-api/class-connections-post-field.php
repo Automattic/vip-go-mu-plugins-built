@@ -5,8 +5,9 @@
  * @package automattic/jetpack-publicize
  */
 
-namespace Automattic\Jetpack\Publicize;
+namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Publicize\Connections;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -80,70 +81,46 @@ class Connections_Post_Field {
 	 * Schema for the endpoint.
 	 */
 	private function post_connection_schema() {
+		$connection_fields = Connections_Controller::get_the_item_schema();
+		$deprecated_fields = array(
+			'id'             => array(
+				'type'        => 'string',
+				'description' => __( 'Unique identifier for the Jetpack Social connection.', 'jetpack-publicize-pkg' ) . ' ' . sprintf(
+					/* translators: %s is the new field name */
+					__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
+					'connection_id'
+				),
+			),
+			'username'       => array(
+				'type'        => 'string',
+				'description' => __( 'Username of the connected account.', 'jetpack-publicize-pkg' ) . ' ' . sprintf(
+					/* translators: %s is the new field name */
+					__( 'Deprecated in favor of %s.', 'jetpack-publicize-pkg' ),
+					'external_handle'
+				),
+			),
+			'can_disconnect' => array(
+				'description' => __( 'Whether the current user can disconnect this connection.', 'jetpack-publicize-pkg' ) . ' ' . __( 'Deprecated.', 'jetpack-publicize-pkg' ),
+				'type'        => 'boolean',
+				'context'     => array( 'view', 'edit' ),
+				'readonly'    => true,
+			),
+		);
+
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'jetpack-publicize-post-connection',
 			'type'       => 'object',
-			'properties' => array(
-				'id'              => array(
-					'description' => __( 'Unique identifier for the Jetpack Social connection', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'service_name'    => array(
-					'description' => __( 'Alphanumeric identifier for the Jetpack Social service', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'display_name'    => array(
-					'description' => __( 'Display name of the connected account', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'username'        => array(
-					'description' => __( 'Username of the connected account', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'profile_picture' => array(
-					'description' => __( 'Profile picture of the connected account', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'enabled'         => array(
-					'description' => __( 'Whether to share to this connection', 'jetpack-publicize-pkg' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-				),
-				'done'            => array(
-					'description' => __( 'Whether Jetpack Social has already finished sharing for this post', 'jetpack-publicize-pkg' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'toggleable'      => array(
-					'description' => __( 'Whether `enable` can be changed for this post/connection', 'jetpack-publicize-pkg' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
-				'external_id'     => array(
-					'description' => __( 'The external ID of the connected account', 'jetpack-publicize-pkg' ),
-					'type'        => 'string',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
-				'can_disconnect'  => array(
-					'description' => __( 'Whether the current user can disconnect this connection', 'jetpack-publicize-pkg' ),
-					'type'        => 'boolean',
-					'context'     => array( 'view', 'edit' ),
-					'readonly'    => true,
-				),
+			'properties' => array_merge(
+				$deprecated_fields,
+				$connection_fields,
+				array(
+					'enabled' => array(
+						'description' => __( 'Whether to share to this connection.', 'jetpack-publicize-pkg' ),
+						'type'        => 'boolean',
+						'context'     => array( 'edit' ),
+					),
+				)
 			),
 		);
 	}
@@ -203,6 +180,16 @@ class Connections_Post_Field {
 		$properties  = array_keys( $schema['properties'] );
 		$connections = $publicize->get_filtered_connection_data( $post_id );
 
+		$connections_id_map = array_reduce(
+			Connections::get_all(),
+			function ( $map, $connection ) {
+				$map[ $connection['connection_id'] ] = $connection;
+
+				return $map;
+			},
+			array()
+		);
+
 		$output_connections = array();
 		foreach ( $connections as $connection ) {
 			$output_connection = array();
@@ -212,11 +199,9 @@ class Connections_Post_Field {
 				}
 			}
 
-			$output_connection['id']            = (string) $connection['unique_id'];
-			$output_connection['connection_id'] = (string) $connection['id'];
-
+			$output_connection['id']             = (string) $connection['unique_id'];
 			$output_connection['can_disconnect'] = current_user_can( 'edit_others_posts' ) || get_current_user_id() === (int) $connection['user_id'];
-			$output_connection['shared']         = $connection['global'];
+			$output_connection['wpcom_user_id']  = $connections_id_map[ $connection['connection_id'] ]['wpcom_user_id'] ?? 0;
 
 			$output_connections[] = $output_connection;
 		}

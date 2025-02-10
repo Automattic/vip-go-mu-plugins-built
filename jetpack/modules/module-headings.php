@@ -42,8 +42,8 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'contact-form' => array(
-				'name' => _x( 'Contact Form', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add a customizable contact form to any post or page using the Jetpack Form Block.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'Forms', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Add a customizable form to any post or page using the Jetpack Form block.', 'Module Description', 'jetpack' ),
 			),
 
 			'copy-post' => array(
@@ -54,6 +54,11 @@ function jetpack_get_module_i18n( $key ) {
 			'custom-content-types' => array(
 				'name' => _x( 'Custom content types', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
+			),
+
+			'geo-location' => array(
+				'name' => _x( 'Geo Location', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Add location data to your posts.', 'Module Description', 'jetpack' ),
 			),
 
 			'google-fonts' => array(
@@ -451,8 +456,8 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'contact-form' => 
 	  array (
-	    'name' => 'Contact Form',
-	    'description' => 'Add a customizable contact form to any post or page using the Jetpack Form Block.',
+	    'name' => 'Forms',
+	    'description' => 'Add a customizable form to any post or page using the Jetpack Form block.',
 	    'sort' => '15',
 	    'recommendation_order' => '14',
 	    'introduced' => '1.3',
@@ -501,6 +506,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Writing',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'cpt, custom post types, portfolio, portfolios, testimonial, testimonials',
+	    'plan_classes' => '',
+	  ),
+	  'geo-location' => 
+	  array (
+	    'name' => 'Geo Location',
+	    'description' => 'Add location data to your posts.',
+	    'sort' => '',
+	    'recommendation_order' => '',
+	    'introduced' => '',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => '',
+	    'requires_user_connection' => '',
+	    'auto_activate' => '',
+	    'module_tags' => '',
+	    'feature' => '',
+	    'additional_search_queries' => '',
 	    'plan_classes' => '',
 	  ),
 	  'google-fonts' => 
@@ -1153,12 +1176,11 @@ function jetpack_get_all_module_header_names() {
  */
 function jetpack_has_no_module_info( $slug ) {
 	$no_info_slugs = array (
-	  0 => 'geo-location',
-	  1 => 'masterbar',
-	  2 => 'module-extras',
-	  3 => 'module-info',
-	  4 => 'plugin-search',
-	  5 => 'theme-tools',
+	  0 => 'masterbar',
+	  1 => 'module-extras',
+	  2 => 'module-info',
+	  3 => 'plugin-search',
+	  4 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );

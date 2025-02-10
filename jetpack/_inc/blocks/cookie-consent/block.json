@@ -26,7 +26,8 @@
         "anchor": false,
         "color": {
             "gradients": true,
-            "link": true
+            "link": true,
+            "background": true
         },
         "spacing": {
             "padding": true
@@ -75,5 +76,6 @@
             "default": false
         }
     },
+    "viewScript": "file:./view.js",
     "editorScript": "jetpack-blocks-editor"
 }

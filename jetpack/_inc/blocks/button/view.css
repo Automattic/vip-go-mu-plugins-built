@@ -1,1 +1,1 @@
-.amp-wp-article .wp-block-jetpack-button{color:#fff}.wp-block-jetpack-button:not(.is-style-outline) button{border:none}
+.amp-wp-article .wp-block-jetpack-button{color:#fff}.wp-block-jetpack-button.is-style-outline>.wp-block-button__link{background-color:#0000;border:1px solid;color:currentColor}.wp-block-jetpack-button:not(.is-style-outline) button{border:none}
