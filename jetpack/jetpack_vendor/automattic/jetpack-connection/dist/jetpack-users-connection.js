@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",(function(){document.querySelectorAll(".jetpack-connection-tooltip").forEach((function(o){o.textContent=window.jetpackConnectionTooltips.columnTooltip}))}));
