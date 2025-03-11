@@ -1132,8 +1132,7 @@ class Jetpack_Widget_Conditions {
 	 * @since 4.7.1
 	 */
 	public static function migrate_post_type_rules() {
-		global $wp_widget_factory, $wp_registered_widgets;
-		'@phan-var \WP_Widget_Factory $wp_widget_factory';
+		global $wp_registered_widgets;
 
 		$sidebars_widgets = get_option( 'sidebars_widgets' );
 
@@ -1149,14 +1148,8 @@ class Jetpack_Widget_Conditions {
 					continue;
 				}
 
-				$id_base       = wp_parse_widget_id( $widget )['id_base'];
-				$widget_object = $wp_widget_factory->get_widget_object( $id_base );
-
-				if ( ! $widget_object ) {
-					continue;
-				}
-
-				$instances = get_option( $widget_object->option_name );
+				$opts      = $wp_registered_widgets[ $widget ];
+				$instances = get_option( $opts['callback'][0]->option_name );
 
 				if ( ! is_array( $instances ) || empty( $instances ) ) {
 					continue;
@@ -1199,7 +1192,7 @@ class Jetpack_Widget_Conditions {
 					}
 				}
 
-				update_option( $widget_object->option_name, $instances );
+				update_option( $opts['callback'][0]->option_name, $instances );
 			}
 		}
 	}

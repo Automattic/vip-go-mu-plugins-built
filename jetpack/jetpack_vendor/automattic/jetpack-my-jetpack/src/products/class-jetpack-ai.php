@@ -29,13 +29,6 @@ class Jetpack_Ai extends Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
-	 * The category of the product
-	 *
-	 * @var string
-	 */
-	public static $category = 'create';
-
-	/**
 	 * Whether this product has a free offering
 	 *
 	 * @var bool

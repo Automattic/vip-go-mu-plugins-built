@@ -769,12 +769,20 @@ class Publicize extends Publicize_Base {
 
 		if ( $done ) {
 			// The site could have multiple admins, editors and authors connected. Load shares information that only the current user has access to.
-			$connection_ids = wp_list_pluck( Connections::get_all_for_user(), 'connection_id', 'connection_id' );
+			$connection_ids = array_map(
+				function ( $connection ) {
+					if ( isset( $connection['connection_id'] ) ) {
+						return (int) $connection['connection_id'];
+					}
+					return 0;
+				},
+				$this->get_all_connections_for_user()
+			);
 
 			$shares = array_filter(
 				$shares,
 				function ( $share ) use ( $connection_ids ) {
-					return isset( $connection_ids[ $share['connection_id'] ] );
+					return in_array( (int) $share['connection_id'], $connection_ids, true );
 				}
 			);
 

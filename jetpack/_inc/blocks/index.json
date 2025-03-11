@@ -81,9 +81,7 @@
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform",
-		"ai-seo-assistant",
-		"ai-use-chrome-ai-sometimes",
-		"ai-assistant-image-extension"
+		"ai-seo-assistant"
 	],
 	"experimental": [],
 	"no-post-editor": [

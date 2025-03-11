@@ -23,13 +23,6 @@ class Newsletter extends Module_Product {
 	public static $slug = 'newsletter';
 
 	/**
-	 * The category of the product
-	 *
-	 * @var string
-	 */
-	public static $category = 'growth';
-
-	/**
 	 * The slug of the plugin associated with this product.
 	 * Newsletter is a feature available as part of the Jetpack plugin.
 	 *

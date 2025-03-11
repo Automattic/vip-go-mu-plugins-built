@@ -56,20 +56,6 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	private $videopress_divi_module;
 
 	/**
-	 * Plugin directory.
-	 *
-	 * @var string
-	 */
-	public $plugin_dir;
-
-	/**
-	 * Plugin directory URL.
-	 *
-	 * @var string
-	 */
-	public $plugin_dir_url;
-
-	/**
 	 * The constructor.
 	 *
 	 * @param string $name The name.

@@ -267,8 +267,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		<?php
 		foreach ( $accounts as $account ) :
-			$is_hidden = $account['is_hidden'] ?? false;
-			if ( true !== $account['verified'] || $is_hidden ) {
+			if ( 'true' !== $account['verified'] ) {
 				continue;
 			}
 
@@ -283,10 +282,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 			<li>
 				<a href="<?php echo esc_url( $account['url'] ); ?>" title="<?php echo esc_html( $link_title ); ?>">
-					<span
-						class="grofile-accounts-logo grofile-accounts-<?php echo esc_attr( $account['shortname'] ); ?> accounts_<?php echo esc_attr( $account['shortname'] ); ?>"
-						style="background-image: url('<?php echo esc_attr( $account['iconUrl'] ); ?>')"
-					></span>
+					<span class="grofile-accounts-logo grofile-accounts-<?php echo esc_attr( $account['shortname'] ); ?> accounts_<?php echo esc_attr( $account['shortname'] ); ?>"></span>
 				</a>
 			</li>
 

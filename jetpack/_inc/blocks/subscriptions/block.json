@@ -122,14 +122,6 @@
         },
         "className": {
             "type": "string"
-        },
-        "preselectNewsletterCategories": {
-            "type": "boolean",
-            "default": false
-        },
-        "selectedNewsletterCategoryIds": {
-            "type": "array",
-            "default": []
         }
     },
     "example": {},

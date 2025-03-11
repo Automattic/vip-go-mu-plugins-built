@@ -84,23 +84,12 @@ class Connections {
 
 		foreach ( $connections as $connection ) {
 
-			if ( self::is_shared( $connection ) || self::user_owns_connection( $connection ) ) {
+			if ( $connection['shared'] || self::user_owns_connection( $connection ) ) {
 				$connections_for_user[] = $connection;
 			}
 		}
 
 		return $connections_for_user;
-	}
-
-	/**
-	 * Check whether a connection is shared.
-	 *
-	 * @param array $connection The connection.
-	 *
-	 * @return boolean
-	 */
-	public static function is_shared( $connection ) {
-		return ! empty( $connection['shared'] );
 	}
 
 	/**
@@ -189,7 +178,7 @@ class Connections {
 	public static function fetch_site_connections() {
 		$proxy = new Proxy_Requests( 'publicize/connections' );
 
-		$request = new WP_REST_Request( 'GET' );
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/publicize/connections' );
 
 		return $proxy->proxy_request_to_wpcom_as_blog( $request );
 	}

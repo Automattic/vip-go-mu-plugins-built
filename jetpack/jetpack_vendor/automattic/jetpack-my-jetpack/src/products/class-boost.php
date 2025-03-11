@@ -45,13 +45,6 @@ class Boost extends Product {
 	public static $plugin_slug = 'jetpack-boost';
 
 	/**
-	 * The category of the product
-	 *
-	 * @var string
-	 */
-	public static $category = 'performance';
-
-	/**
 	 * Boost has a standalone plugin
 	 *
 	 * @var bool

@@ -14,7 +14,7 @@ use WP_Error;
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.11.1';
+	const PACKAGE_VERSION = '0.9.3';
 
 	/**
 	 * Modules to include.
@@ -43,8 +43,10 @@ class Main {
 		if ( ! self::$instance ) {
 			self::$instance = new Main();
 			self::$instance->load_modules();
+			// TODO Commenting below since we still load them from theme-tools module
 			add_action( 'init', array( __CLASS__, 'jetpack_load_theme_tools' ), 30 );
-			add_action( 'after_setup_theme', array( __CLASS__, 'classic_theme_helper_load_theme_compat' ), -1 );
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// add_action( 'after_setup_theme', array( __CLASS__, 'jetpack_load_theme_compat' ), -1 );
 		}
 
 		return self::$instance;
@@ -76,15 +78,15 @@ class Main {
 	/**
 	 * Load theme compat file if it exists.
 	 */
-	public static function classic_theme_helper_load_theme_compat() {
+	public static function jetpack_load_theme_compat() {
 
 		/**
 		 * Filter theme compat files.
 		 *
 		 * Themes can add their own compat files here if they like. For example:
 		 *
-		 * add_filter( 'classic_theme_helper_theme_compat_files', 'mytheme_classic_theme_helper_theme_compat_file' );
-		 * function mytheme_classic_theme_helper_theme_compat_file( $files ) {
+		 * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );
+		 * function mytheme_jetpack_compat_file( $files ) {
 		 *     $files['mytheme'] = locate_template( 'jetpack-compat.php' );
 		 *     return $files;
 		 * }
@@ -94,7 +96,7 @@ class Main {
 		 * @param array Associative array of theme compat files to load.
 		 */
 		$compat_files = apply_filters(
-			'classic_theme_helper_theme_compat_files',
+			'jetpack_theme_compat_files',
 			array(
 				'twentyfourteen'  => __DIR__ . '/compat/twentyfourteen.php',
 				'twentyfifteen'   => __DIR__ . '/compat/twentyfifteen.php',
@@ -105,10 +107,10 @@ class Main {
 			)
 		);
 
-		self::classic_theme_helper_require_compat_file( get_stylesheet(), $compat_files );
+		self::jetpack_require_compat_file( get_stylesheet(), $compat_files );
 
 		if ( is_child_theme() ) {
-			self::classic_theme_helper_require_compat_file( get_template(), $compat_files );
+			self::jetpack_require_compat_file( get_template(), $compat_files );
 		}
 	}
 
@@ -119,7 +121,7 @@ class Main {
 	 * @param array  $files Array of files to check in.
 	 * @return void|WP_Error
 	 */
-	private static function classic_theme_helper_require_compat_file( $key, $files ) {
+	private static function jetpack_require_compat_file( $key, $files ) {
 		if ( ! is_string( $key ) ) {
 			return new WP_Error( 'key_not_string', 'The specified key is not actually a string.', compact( 'key' ) );
 		}

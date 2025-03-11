@@ -10,6 +10,8 @@
 
 use Automattic\Jetpack\Connection\Client;
 
+require_once __DIR__ . '/publicize-connections.php';
+
 /**
  * Publicize: Share post class.
  */

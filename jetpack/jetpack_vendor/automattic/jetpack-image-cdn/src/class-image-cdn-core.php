@@ -16,6 +16,7 @@ use Automattic\Jetpack\Status\Host;
  * A static class that provides core Image CDN functionality.
  */
 class Image_CDN_Core {
+
 	/**
 	 * Register hooks.
 	 */
@@ -120,17 +121,6 @@ class Image_CDN_Core {
 
 		// Unable to parse.
 		if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) ) {
-			return $image_url;
-		}
-
-		// Ensure image extension is acceptable.
-		if (
-			! in_array(
-				strtolower( pathinfo( $image_url_parts['path'], PATHINFO_EXTENSION ) ),
-				Image_CDN::get_supported_extensions(),
-				true
-			)
-		) {
 			return $image_url;
 		}
 

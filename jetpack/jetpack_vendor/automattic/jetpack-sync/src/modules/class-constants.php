@@ -28,13 +28,6 @@ class Constants extends Module {
 	const CONSTANTS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_constants_await';
 
 	/**
-	 * Constants whitelist array.
-	 *
-	 * @var array
-	 */
-	public $constants_whitelist;
-
-	/**
 	 * Sync module name.
 	 *
 	 * @access public

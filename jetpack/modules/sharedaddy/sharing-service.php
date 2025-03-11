@@ -960,8 +960,7 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
-	// We require the post to not be empty and be an actual WordPress post object. If it's not - we just return.
-	if ( empty( $post ) || ! $post instanceof \WP_Post ) {
+	if ( empty( $post ) ) {
 		return $text;
 	}
 

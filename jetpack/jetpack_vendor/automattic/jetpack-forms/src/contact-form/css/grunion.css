@@ -33,7 +33,6 @@
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
 	.contact-form input[type='url'],
-	.contact-form input[type='number'],
 	.contact-form textarea
 ) {
 	box-sizing: border-box;
@@ -45,7 +44,6 @@
 }
 
 :where(.contact-form textarea) {
-	display: block;
 	height: 200px;
 }
 
@@ -205,13 +203,11 @@
 .textwidget .contact-form input[type='email'],
 .textwidget .contact-form input[type='tel'],
 .textwidget .contact-form input[type='url'],
-.textwidget .contact-form input[type='number'],
 .textwidget .contact-form textarea,
 .wp-block-column .contact-form input[type='text'],
 .wp-block-column .contact-form input[type='email'],
 .wp-block-column .contact-form input[type='tel'],
 .wp-block-column .contact-form input[type='url'],
-.wp-block-column .contact-form input[type='number'],
 .wp-block-column .contact-form textarea {
 	width: 100%;
 }
@@ -234,19 +230,9 @@
 	gap: var(--wp--style--block-gap, 1.5rem);
 }
 
-.wp-block-jetpack-contact-form > *:not(.wp-block-jetpack-button) {
+.wp-block-jetpack-contact-form > * {
 	flex: 0 0 100%;
 	box-sizing: border-box;
-}
-
-:where( .wp-block-jetpack-contact-form .wp-block-separator ) {
-	max-width: var( --wp--preset--spacing--80, 100px );
-	margin-top: 0;
-	margin-bottom: 0;
-}
-:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-wide ),
-:where( .wp-block-jetpack-contact-form .wp-block-separator.is-style-dots ) {
-	max-width: inherit;
 }
 
 /* Added circa Nov 2022: container class assigned to topmost block div */
@@ -255,28 +241,8 @@
 	padding-left: 0;
 }
 
-.wp-block-jetpack-contact-form .wp-block-jetpack-button {
-	width: fit-content;
-	align-self: flex-end;
-}
-
-.wp-block-jetpack-contact-form .wp-block-jetpack-button.aligncenter {
-	display: block;
-
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignleft {
-	display: block;
-
-	margin-right: auto;
-}
-
-.wp-block-jetpack-contact-form .wp-block-jetpack-button.alignright {
-	display: block;
-
-	margin-left: auto;
+.wp-block-jetpack-button.alignright button {
+	float: right;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
@@ -314,8 +280,7 @@
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
 	.contact-form input[type='tel'],
-	.contact-form input[type='url'],
-	.contact-form input[type='number'] {
+	.contact-form input[type='url'] {
 		width: 50%;
 	}
 
@@ -327,8 +292,7 @@
 	.wp-block-jetpack-contact-form input[type='text'],
 	.wp-block-jetpack-contact-form input[type='email'],
 	.wp-block-jetpack-contact-form input[type='tel'],
-	.wp-block-jetpack-contact-form input[type='url'],
-	.wp-block-jetpack-contact-form input[type='number'] {
+	.wp-block-jetpack-contact-form input[type='url'] {
 		width: 100%;
 	}
 }

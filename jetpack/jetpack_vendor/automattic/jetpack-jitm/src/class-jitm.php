@@ -20,19 +20,7 @@ use Automattic\Jetpack\Status;
  */
 class JITM {
 
-	const PACKAGE_VERSION = '4.2.0';
-
-	/**
-	 * List of screen IDs where JITMs are allowed to display.
-	 *
-	 * @var string[]
-	 */
-	const APPROVED_SCREEN_IDS = array(
-		'jetpack',
-		'woo',
-		'shop',
-		'product',
-	);
+	const PACKAGE_VERSION = '4.0.5';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -168,10 +156,7 @@ class JITM {
 		return (
 			$current_screen
 			&& $current_screen->id
-			&& (bool) preg_match(
-				'/' . implode( '|', self::APPROVED_SCREEN_IDS ) . '/',
-				$current_screen->id
-			)
+			&& (bool) preg_match( '/jetpack|woo|shop|product/', $current_screen->id )
 		);
 	}
 
@@ -241,7 +226,7 @@ class JITM {
 			return;
 		}
 
-		// Only add this to specifically allowed pages.
+		// Only add this to Jetpack or Woo admin pages.
 		if ( ! $this->is_a8c_admin_page() ) {
 			return;
 		}

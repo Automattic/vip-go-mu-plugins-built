@@ -23,13 +23,6 @@ class Jetpack_JSON_API_Modules_Modify_Endpoint extends Jetpack_JSON_API_Modules_
 	protected $action = 'default_action';
 
 	/**
-	 * Keeps track of module logs.
-	 *
-	 * @var array
-	 */
-	public $log;
-
-	/**
 	 * The default action.
 	 */
 	public function default_action() {

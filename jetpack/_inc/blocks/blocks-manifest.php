@@ -3443,18 +3443,6 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
       array (
         'type' => 'string',
       ),
-      'preselectNewsletterCategories' => 
-      array (
-        'type' => 'boolean',
-        'default' => false,
-      ),
-      'selectedNewsletterCategoryIds' => 
-      array (
-        'type' => 'array',
-        'default' => 
-        array (
-        ),
-      ),
     ),
     'example' => 
     array (
@@ -3599,12 +3587,6 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
           'link' => 
           array (
             'attribute' => 'data-link',
-            'selector' => 'img',
-            'source' => 'attribute',
-          ),
-          'customLink' => 
-          array (
-            'attribute' => 'data-custom-link',
             'selector' => 'img',
             'source' => 'attribute',
           ),

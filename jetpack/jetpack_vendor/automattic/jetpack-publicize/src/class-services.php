@@ -7,92 +7,41 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\REST_API\Proxy_Requests;
-use WP_REST_Request;
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Publicize Services class.
  */
 class Services {
 
-	const SERVICES_TRANSIENT = 'jetpack_social_services_list_v2';
-
-	/**
-	 * Get the available publicize services. Meant to be called directly only on WPCOM.
-	 *
-	 * @return array
-	 */
-	public static function wpcom_get_all() {
-		// Ensure that we are on WPCOM.
-		Publicize_Utils::assert_is_wpcom( __METHOD__ );
-
-		require_lib( 'external-connections' );
-
-		$external_connections = \WPCOM_External_Connections::init();
-
-		$services = $external_connections->get_external_services_list( 'publicize', get_current_blog_id() );
-
-		$items = array();
-
-		foreach ( $services as $service ) {
-			// Set the fields as per the schema in Services_Controller.
-			$items[] = array(
-				'id'          => $service['ID'],
-				'description' => $service['description'],
-				'label'       => $service['label'],
-				'status'      => $service['status'] ?? 'ok',
-				'supports'    => array(
-					'additional_users'      => $service['multiple_external_user_ID_support'],
-					'additional_users_only' => $service['external_users_only'],
-				),
-				'url'         => $service['connect_URL'],
-			);
-		}
-
-		return $items;
-	}
+	const SERVICES_TRANSIENT = 'jetpack_social_services_list';
 
 	/**
 	 * Get all services.
 	 *
-	 * @param array $args Arguments
-	 *                - 'ignore_cache': bool Whether to ignore the cache and fetch the connections from the API.
+	 * @param bool $force_refresh Whether to force a refresh of the services.
 	 * @return array
 	 */
-	public static function get_all( $args = array() ) {
-
-		if ( Publicize_Utils::is_wpcom() ) {
-			$services = self::wpcom_get_all();
-		} else {
-
-			$ignore_cache = $args['ignore_cache'] ?? false;
-
-			$services = get_transient( self::SERVICES_TRANSIENT );
-
-			if ( $ignore_cache || false === $services ) {
-				$services = self::fetch_and_cache_services();
+	public static function get_all( $force_refresh = false ) {
+		if ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) {
+			if ( function_exists( 'require_lib' ) ) {
+				require_lib( 'external-connections' );
 			}
-			// This is here for backwards compatibility
-			// TODO Remove this array_map() call after April 2025 release of Jetpack.
-			return array_map(
-				function ( $service ) {
-					global $publicize;
 
-					return array_merge(
-						$service,
-						array(
-							'ID'                  => $service['id'],
-							'connect_URL'         => $publicize->connect_url( $service['id'], 'connect' ),
-							'external_users_only' => $service['supports']['additional_users_only'],
-							'multiple_external_user_ID_support' => $service['supports']['additional_users'],
-						)
-					);
-				},
-				$services
-			);
+			$external_connections = \WPCOM_External_Connections::init();
+			$services             = array_values( $external_connections->get_external_services_list( 'publicize', get_current_blog_id() ) );
+
+			return $services;
 		}
 
-		return $services;
+		// Checking the cache.
+		$services = get_transient( self::SERVICES_TRANSIENT );
+		if ( false !== $services && ! $force_refresh ) {
+			return $services;
+		}
+
+		return self::fetch_and_cache_services();
 	}
 
 	/**
@@ -101,54 +50,33 @@ class Services {
 	 * @return array
 	 */
 	public static function fetch_and_cache_services() {
-		$proxy = new Proxy_Requests( 'publicize/services' );
-
-		$request = new WP_REST_Request( 'GET' );
-
-		$response = $proxy->proxy_request_to_wpcom_as_user( $request );
-
-		if ( is_wp_error( $response ) ) {
-			// @todo log error.
+		// Fetch the services.
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
 			return array();
 		}
+		$path     = sprintf( '/sites/%d/external-services', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return array();
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( is_array( $response ) ) {
-			/**
-			 * Let us set the connect URL to null.
-			 *
-			 * Reason:
-			 * We do not want to cache the connect URL, as it's user-specific,
-			 * but the services are for all users.
-			 * The intention is to get the connect URL on demand via an API call when needed.
-			 */
-			$services = array_map(
+		$services = $body->services ?? array();
+
+		$formatted_services = array_values(
+			array_filter(
+				(array) $services,
 				function ( $service ) {
-					return array_merge(
-						$service,
-						array(
-							'url' => null,
-						)
-					);
-				},
-				$response
-			);
+					return isset( $service->type ) && 'publicize' === $service->type;
+				}
+			)
+		);
 
-			if ( ! set_transient( self::SERVICES_TRANSIENT, $services, DAY_IN_SECONDS ) ) {
-				// If the transient has beeen set in another request, the call to set_transient can fail.
-				// If so, we can delete the transient and try again.
-				self::clear_cache();
-
-				set_transient( self::SERVICES_TRANSIENT, $services, DAY_IN_SECONDS );
-			}
+		if ( ! empty( $formatted_services ) ) {
+			set_transient( self::SERVICES_TRANSIENT, $formatted_services, DAY_IN_SECONDS );
 		}
 
-		return $response;
-	}
-
-	/**
-	 * Clear the services cache.
-	 */
-	public static function clear_cache() {
-		delete_transient( self::SERVICES_TRANSIENT );
+		return $formatted_services;
 	}
 }
