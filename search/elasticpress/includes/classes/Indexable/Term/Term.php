@@ -707,6 +707,9 @@ class Term extends Indexable {
 		unset( $all_query_args['offset'] );
 		unset( $all_query_args['fields'] );
 
+		// Explicitly set the orderby to ID to prevent accidental modifications by other code.
+		add_filter( 'terms_clauses', [ $this, 'set_orderby' ], 9999, 3 );
+
 		/**
 		 * Filter database arguments for term count query
 		 *
@@ -725,6 +728,8 @@ class Term extends Indexable {
 		}
 
 		$query = new WP_Term_Query( $args );
+
+		remove_filter( 'terms_clauses', [ $this, 'set_orderby' ], 9999, 3 );
 
 		if ( is_array( $query->terms ) ) {
 			array_walk( $query->terms, array( $this, 'remap_terms' ) );
@@ -1023,6 +1028,19 @@ class Term extends Indexable {
 		}
 
 		return $sort;
+	}
+
+	/**
+	 * Sets the ORDER BY clause for term queries to order terms by their term_id.
+	 *
+	 * @param array $clauses The SQL clauses array to modify.
+	 * @return array The modified SQL clauses array with the ORDER BY clause set to term_id.
+	 *
+	 * @since 5.2.0
+	 */
+	public function set_orderby( $clauses ): array {
+		$clauses['orderby'] = 'ORDER BY t.term_id';
+		return $clauses;
 	}
 
 }
