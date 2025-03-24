@@ -10,10 +10,12 @@ namespace WPCOMVIP\BlockDataApi\ContentParser\BlockAdditions;
 defined( 'ABSPATH' ) || die();
 
 use WP_Block;
-use WP_Block_Supports;
-use function add_action;
+use WP_Post;
+use WPCOMVIP\BlockDataApi\ContentParser;
+
 use function add_filter;
-use function remove_filter;
+use function get_post;
+use function parse_blocks;
 
 /**
  * Enhance core/block block by capturing its inner blocks.
@@ -27,58 +29,21 @@ class CoreBlock {
 	private static $block_name = 'core/block';
 
 	/**
-	 * A store of captured inner blocks. See `capture_inner_blocks`.
-	 *
-	 * @var array
-	 *
-	 * @access private
-	 */
-	protected static $captured_inner_blocks = [];
-
-	/**
 	 * Initialize the CoreBlock class.
 	 *
 	 * @access private
 	 */
 	public static function init(): void {
-		add_action( 'vip_block_data_api__before_block_render', [ __CLASS__, 'setup_before_render' ], 10, 0 );
-		add_action( 'vip_block_data_api__after_block_render', [ __CLASS__, 'cleanup_after_render' ], 10, 0 );
-		add_filter( 'vip_block_data_api__sourced_block_inner_blocks', [ __CLASS__, 'get_inner_blocks' ], 5, 4 );
+		add_filter( 'vip_block_data_api__sourced_block_inner_blocks', [ __CLASS__, 'get_inner_blocks' ], 5, 5 );
 		add_filter( 'vip_block_data_api__sourced_block_result', [ __CLASS__, 'remove_content_array' ], 5, 2 );
 	}
 
 	/**
-	 * Setup before render.
-	 */
-	public static function setup_before_render(): void {
-		/**
-		 * Hook into the `render_block` filter, which is near the end of WP_Block#render().
-		 * This allows us to capture the inner blocks of synced patterns ("core/block").
-		 * See `capture_inner_blocks`.
-		 */
-		add_filter( 'render_block', [ __CLASS__, 'capture_inner_blocks' ], 10, 3 );
-	}
-
-	/**
-	 * Cleanup after render.
-	 */
-	public static function cleanup_after_render() {
-		self::$captured_inner_blocks = [];
-		remove_filter( 'render_block', [ __CLASS__, 'capture_inner_blocks' ], 10 );
-	}
-
-	/**
-	 * Capture the inner blocks of synced patterns during block rendering. Intended
-	 * for use with the `render_block` filter.
+	 * Get the inner blocks of a synced pattern / reusable block. Intended for use
+	 * with the `vip_block_data_api__sourced_block_inner_blocks` filter.
 	 *
-	 * We have no intention of filtering the rendered block content, but this hook
-	 * is conveniently located near the end of WP_Block#render() after block
-	 * processing is finished. We get access to the parent block via the global
-	 * static class `WP_Block_Supports`.
-	 *
-	 * This approach is necessary because synced patterns (core/block) are dynamic
-	 * blocks, and core's method of rendering dynamic blocks severs the connection
-	 * between the parent block and its inner blocks:
+	 * Synced patterns are dynamic blocks, and core's method of rendering dynamic
+	 * blocks severs the connection between the parent block and its inner blocks:
 	 *
 	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/class-wp-block.php#L519
 	 *
@@ -88,105 +53,47 @@ class CoreBlock {
 	 * missing from the Block Data API. Capturing synced pattern content as inner
 	 * blocks is extremely useful and avoids the need for additional API calls.
 	 *
-	 * @param string   $block_content Rendered block content.
-	 * @param array    $parsed_block  Parsed block data.
-	 * @param WP_Block $block         Block instance.
-	 * @return string
-	 */
-	public static function capture_inner_blocks( string $block_content, array $parsed_block, WP_Block $block ): string {
-		// If this block is a synced pattern, that means it is finished rendering.
-		// Lock its inner blocks to prevent further captures in case it is rendered
-		// elsewhere in the tree.
-		if ( self::$block_name === $block->name ) {
-			$store_key = self::get_store_key( $parsed_block );
-			if ( isset( self::$captured_inner_blocks[ $store_key ] ) ) {
-				self::$captured_inner_blocks[ $store_key ]['locked'] = true;
-			}
-		}
-
-		// Get the parent block that is currently being rendered. This is fragile,
-		// but is currently the only way we can get access to the parent block from
-		// inside a dynamic block's render callback function.
-		//
-		// https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/class-wp-block.php#L517
-		$parent_block = isset( WP_Block_Supports::$block_to_render ) ? WP_Block_Supports::$block_to_render : [];
-
-		// If the parent block is not a synced pattern, do nothing.
-		if ( ! isset( $parent_block['attrs']['ref'] ) || self::$block_name !== $parent_block['blockName'] ) {
-			return $block_content;
-		}
-
-		// Capture the inner block for this synced pattern.
-		self::capture_inner_block( $parent_block, $block );
-
-		return $block_content;
-	}
-
-	/**
-	 * Get captured inner blocks for synced patterns. Intended for use with
-	 * the `vip_block_data_api__sourced_block_inner_blocks` filter.
+	 * This requires us to reimplement some logic from `render_block_core_block()`:
+	 *
+	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/blocks/block.php#L19
 	 *
 	 * @param array    $inner_blocks Inner blocks.
 	 * @param string   $block_name   Block name.
-	 * @param int|null $_post_id     Post ID (unused).
+	 * @param int|null $post_id      Post ID.
 	 * @param array    $parsed_block Parsed block data.
 	 * @return array
 	 */
-	public static function get_inner_blocks( array $inner_blocks, string $block_name, int|null $_post_id, array $parsed_block ): array {
+	public static function get_inner_blocks( array $inner_blocks, string $block_name, int|null $post_id, array $parsed_block ): array {
+		// Not a synced pattern? Return the inner blocks unchanged.
 		if ( self::$block_name !== $block_name || ! isset( $parsed_block['attrs']['ref'] ) ) {
 			return $inner_blocks;
 		}
 
-		$store_key = self::get_store_key( $parsed_block );
+		$context = [];
 
-		if ( ! isset( self::$captured_inner_blocks[ $store_key ] ) ) {
-			return $inner_blocks;
+		// Support synced pattern overrides. Copied and adapted from core:
+		// https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/blocks/block.php#L81
+		//
+		// In our case, we don't need to filter the context since we can pass it in.
+		if ( isset( $parsed_block['attrs']['content'] ) ) {
+			$context['pattern/overrides'] = $parsed_block['attrs']['content'];
 		}
 
-		return self::$captured_inner_blocks[ $store_key ]['inner_blocks'];
-	}
+		// Load, parse, and render the inner blocks of the synced pattern, passing
+		// along its block context. We intentionally do not recursively call
+		// ContentParser->parse() to avoid calling telemetry and filters again.
+		$parser = new ContentParser();
+		$post   = get_post( $parsed_block['attrs']['ref'] );
 
-	/**
-	 * Create a unique key that can be used to identify a synced pattern. This
-	 * allows us to store and retrieve inner blocks for synced patterns and avoid
-	 * duplication when they are used multiple times within the same tree.
-	 *
-	 * Using a hash of attributes is important because they may contain synced
-	 * pattern overrides, which can change the inner block content. The attributes
-	 * contain the synced pattern post ID, so uniqueness is built-in.
-	 *
-	 * @param array $parsed_block Parsed block data.
-	 * @return string
-	 */
-	protected static function get_store_key( array $parsed_block ): string {
-		// Include the synced pattern ID in the key just for legibility.
-		$synced_pattern_id = $parsed_block['attrs']['ref'] ?? null;
-		$attribute_json    = wp_json_encode( $parsed_block['attrs'] );
-
-		return sprintf( '%s_%s', strval( $synced_pattern_id ), sha1( $attribute_json ) );
-	}
-
-	/**
-	 * Capture inner block for a synced pattern.
-	 *
-	 * @param array    $synced_pattern Synced pattern block (parsed block).
-	 * @param WP_Block $block          Inner block.
-	 */
-	protected static function capture_inner_block( array $synced_pattern, WP_Block $block ): void {
-		$store_key = self::get_store_key( $synced_pattern );
-		if ( ! isset( self::$captured_inner_blocks[ $store_key ] ) ) {
-			self::$captured_inner_blocks[ $store_key ] = [
-				'inner_blocks' => [],
-				'locked'       => false,
-			];
+		if ( ! $post instanceof WP_Post ) {
+			return [];
 		}
 
-		// This pattern has already been rendered somewhere in the tree and is now locked.
-		if ( self::$captured_inner_blocks[ $store_key ]['locked'] ) {
-			return;
-		}
+		$blocks = parse_blocks( $post->post_content );
 
-		self::$captured_inner_blocks[ $store_key ]['inner_blocks'][] = $block;
+		return array_map( function ( array $block ) use ( $parser, $context, $post_id ): WP_Block {
+			return $parser->render_parsed_block( $block, $post_id, $context );
+		}, $blocks );
 	}
 
 	/**

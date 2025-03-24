@@ -180,10 +180,10 @@ class ContentParser {
 			 */
 			do_action( 'vip_block_data_api__before_block_render', $blocks, $post_id );
 
-			$sourced_blocks = array_map( function ( $block ) use ( $filter_options ) {
+			$sourced_blocks = array_map( function ( $block ) use ( $filter_options, $post_id ) {
 				// Render the block, then walk the tree using source_block to apply our
 				// sourced attribute logic.
-				$rendered_block = $this->render_parsed_block( $block );
+				$rendered_block = $this->render_parsed_block( $block, $post_id );
 
 				return $this->source_block( $rendered_block, $filter_options );
 			}, $blocks );
@@ -252,14 +252,15 @@ class ContentParser {
 	 *
 	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/blocks.php#L1959
 	 *
-	 * @param array $parsed_block Parsed block (result of `parse_blocks`).
+	 * @param array    $parsed_block Parsed block (result of `parse_blocks`).
+	 * @param int|null $post_id Post ID.
+	 * @param array    $context Context to be passed to the block.
 	 * @return WP_Block
 	 */
-	protected function render_parsed_block( array $parsed_block ): WP_Block {
-		$context = [];
-		if ( is_int( $this->post_id ) ) {
-			$context['postId']   = $this->post_id;
-			$context['postType'] = get_post_type( $this->post_id );
+	public function render_parsed_block( array $parsed_block, int|null $post_id, array $context = [] ): WP_Block {
+		if ( is_int( $post_id ) ) {
+			$context['postId']   = $post_id;
+			$context['postType'] = get_post_type( $post_id );
 		}
 
 		$context = apply_filters( 'render_block_context', $context, $parsed_block, null );
@@ -280,7 +281,7 @@ class ContentParser {
 	 *
 	 * @access private
 	 */
-	protected function source_block( WP_Block $block, array $filter_options ) {
+	protected function source_block( WP_Block $block, array $filter_options ): array|null {
 		$block_name = $block->name;
 
 		if ( ! $this->should_block_be_included( $block, $filter_options ) ) {
@@ -309,7 +310,7 @@ class ContentParser {
 		 * @param array  $inner_blocks An array of inner block (WP_Block) instances.
 		 * @param string $block_name   Name of the parsed block, e.g. 'core/paragraph'.
 		 * @param int    $post_id      Post ID associated with the parsed block.
-		 * @param array  $block        Result of parse_blocks() for this block.
+		 * @param array  $parsed_block Result of parse_blocks() for this block.
 		 */
 		$inner_blocks = apply_filters( 'vip_block_data_api__sourced_block_inner_blocks', $inner_blocks, $block_name, $this->post_id, $block->parsed_block );
 
