@@ -1,0 +1,16 @@
+/**
+ * This file may also contain CSS overrides that are difficult or impossible to
+ * implement using `theme.json` alone. For example, each bound inner block of a
+ * Remote Data Block has a class name corresponding to the field it is bound to.
+ *
+ * Therefore, a Remote Data Block named "Shopify Product" containing a paragraph
+ * block bound to a field named `description` can be targeted with a selector:
+ *
+ * .wp-block-remote-data-blocks-shopify-product p.rdb-block-data-description {
+ *   /* styles here * /
+ * }
+ */
+
+.wp-block-remote-data-blocks-shopify-product p.rdb-block-data-price {
+	font-weight: 700;
+}

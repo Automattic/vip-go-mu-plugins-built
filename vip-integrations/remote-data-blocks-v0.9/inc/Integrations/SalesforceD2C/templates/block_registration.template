@@ -1,0 +1,31 @@
+<?php declare(strict_types = 1);
+
+/**
+ * @template-name Salesforce D2C Block Registration
+ * @template-version 1.0.0
+ * @template-description Registers a Salesforce D2C block for a given data source.
+ *
+ * Template variables:
+ * - DATA_SOURCE_UUID: The UUID of the data source to register the block for.
+ * - BLOCK_REG_FN_SLUG: The slug of the data source to register the block for.
+ */
+
+namespace RemoteDataBlocks\Snippets\SalesforceD2C;
+
+use RemoteDataBlocks\Integrations\SalesforceD2C\SalesforceD2CDataSource;
+use RemoteDataBlocks\Integrations\SalesforceD2C\SalesforceD2CIntegration;
+use RemoteDataBlocks\WpdbStorage\DataSourceCrud;
+
+function register_salesforce_d2c__{{BLOCK_REG_FN_SLUG}}__block(): void {
+	$data_source_config = DataSourceCrud::get_config_by_uuid( '{{DATA_SOURCE_UUID}}' );
+
+	if ( is_wp_error( $data_source_config ) ) {
+		return;
+	}
+
+	$salesforce_data_source = SalesforceD2CDataSource::from_array( $data_source_config );
+
+	SalesforceD2CIntegration::register_blocks_for_salesforce_data_source( $salesforce_data_source );
+}
+
+add_action( 'init', __NAMESPACE__ . '\\register_salesforce_d2c__{{BLOCK_REG_FN_SLUG}}__block' );

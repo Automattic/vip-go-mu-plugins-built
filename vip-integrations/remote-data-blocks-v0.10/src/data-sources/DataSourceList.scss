@@ -1,0 +1,107 @@
+// include dataview styles in settings
+@import "@wordpress/dataviews/build-style/style";
+
+.data-source-list-wrapper {
+	overflow: auto;
+}
+
+table.data-source-list {
+	width: 100%;
+	min-width: 700px;
+	border-collapse: collapse;
+
+	tr {
+		border-bottom: 1px solid #f0f0f0;
+		transition: 0.1s;
+	}
+
+	th {
+		text-transform: uppercase;
+		font-size: 12px;
+		font-weight: 500;
+		padding: 10px 0;
+		text-align: left;
+	}
+
+	tbody tr {
+
+		&:hover {
+			background-color: rgba(56, 88, 233, 0.04);
+		}
+	}
+
+	td {
+		padding: 10px 0;
+
+		&.data-source-actions {
+			height: 36px;
+		}
+	}
+
+	th,
+	td {
+
+		&:first-child {
+			padding-left: 44px;
+		}
+
+		&.data-source-actions {
+			width: 150px;
+		}
+	}
+}
+
+.data-source-actions {
+
+	button.components-button {
+		padding: 6px;
+		height: initial;
+		box-shadow: none;
+		color: #101517;
+
+		&:hover,
+		&:focus {
+			box-shadow: inset 0 0 0 1px #101517 !important;
+		}
+	}
+}
+
+.data-source-badge {
+	background-color: rgba(56, 88, 233, 0.04);
+	border-radius: 4px;
+	display: inline-block;
+	font-weight: 500;
+	margin: 0 8px 0 -8px;
+	padding: 4px 8px;
+	vertical-align: baseline;
+}
+
+.settings_page_remote-data-blocks-settings .components-modal__frame.has-size-medium:not(.components-confirm-dialog) {
+	max-width: calc(100% - 32px);
+	max-height: calc(100% - 120px);
+
+	.components-modal__header {
+		padding: 24px 32px 8px 56px;
+	}
+}
+
+.rdb-settings-page_data-source-code-snippet {
+
+	.components-tab-panel__tabs {
+		border-bottom: 1px solid var(--Alias-border-border-input, #aeaeae);
+		// to match tab panel in editor sidebar
+		height: 48px;
+	}
+
+	.components-tab-panel__tab-content {
+		border: 1px solid var(--Alias-border-border-input, #aeaeae);
+		border-top: none;
+
+	}
+}
+
+.rdb-settings-page_data-source-code-snippet-modal svg {
+	width: 25px;
+	margin-right: 8px;
+}
+

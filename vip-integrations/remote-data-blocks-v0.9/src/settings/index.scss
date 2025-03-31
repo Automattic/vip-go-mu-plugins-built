@@ -1,0 +1,178 @@
+/* Admin settings */
+
+body {
+	background: rgb(255, 255, 255);
+}
+
+.settings_page_remote-data-blocks-settings {
+
+	/* WP default style overrides */
+	#wpcontent {
+		padding: 0;
+	}
+
+	#wpbody-content {
+		padding-bottom: 0;
+	}
+
+	#wpwrap {
+		background: rgb(255, 255, 255);
+	}
+
+	#wpfooter {
+		display: none;
+	}
+
+	/* External Links */
+	.components-external-link__contents,
+	.components-base-control__help a,
+	.components-button.is-link {
+		text-decoration: none;
+	}
+
+	.components-base-control__help {
+		margin-bottom: 0;
+	}
+
+	/* Snackbar notice */
+	.components-snackbar-list {
+		top: 4px;
+		z-index: 1000002;
+	}
+
+	&.folded .components-snackbar-list {
+		left: 36px;
+		width: calc(100% - 36px);
+	}
+
+	.components-snackbar {
+		position: relative;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	.components-snackbar__icon {
+		font-size: 15px;
+		top: -3px;
+		left: 0;
+	}
+
+	.rdb-settings-page {
+
+		/* No sources found placeholder */
+		.components-placeholder {
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			box-shadow: none;
+			min-height: 250px;
+			border-radius: 8px;
+		}
+
+		.components-placeholder__label {
+			flex-direction: column;
+
+			svg {
+				width: 40px;
+				height: 40px;
+				margin-bottom: 12px;
+			}
+		}
+
+		.components-placeholder__instructions {
+			color: #757575;
+		}
+
+		/* Header */
+		.rdb-settings-page_header {
+			display: grid;
+			padding: 24px 48px;
+			border-bottom: 1px solid var(--Alias-border-border-secondary, #ebebeb);
+
+			p {
+				margin-bottom: 0;
+			}
+
+			.rdb-settings-page_add-data-source-dropdown {
+				grid-area: 1 / 2 / span 1 / span 1;
+				justify-self: end;
+				align-self: center;
+
+				.rdb-settings-page_add-data-source-btn.is-opened {
+					background: #1d35b4;
+				}
+			}
+		}
+	}
+
+	/* Add new source menu */
+	.components-menu-group {
+
+		> div {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			width: 368px;
+			align-items: start;
+			align-content: start;
+			gap: 8px;
+			padding: 8px 8px 16px 8px;
+
+			.rdb-settings-page_add-data-source-btn-wrapper {
+				height: 100%;
+			}
+
+			.components-button.has-icon.has-text {
+				display: flex;
+				width: 112px;
+				height: 101px;
+				padding: var(--Spacing-Spacing-Base, 16px);
+				flex-direction: column;
+				align-items: center;
+				gap: 12px;
+
+				&:hover {
+					color: unset;
+					background-color: #dff4ff;
+
+				}
+
+				svg {
+					width: 40px;
+					height: 40px;
+					padding: 4px;
+				}
+
+				.components-menu-item__item {
+					min-width: unset;
+					margin-right: unset;
+					text-align: center;
+				}
+			}
+
+			.components-button.has-icon.has-text.rdb-settings-page_add-data-source-btn-generic-http svg {
+				padding: 8px;
+			}
+
+			.components-button.has-icon.has-text.rdb-settings-page_add-data-source-btn-salesforce-d2c {
+
+				svg {
+					padding: 0;
+				}
+			}
+		}
+	}
+
+	// Standard Help Text
+	.input-help-text {
+		margin-top: 8px;
+		margin-bottom: 0;
+		color: #757575;
+		font-size: 12px;
+		line-height: 18px;
+	}
+}
+
+.rdb-data-source-name-and-icon {
+	display: flex;
+	align-items: center;
+}

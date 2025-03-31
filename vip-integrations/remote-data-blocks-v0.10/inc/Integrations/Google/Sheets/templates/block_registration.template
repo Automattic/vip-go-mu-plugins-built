@@ -1,0 +1,83 @@
+<?php declare(strict_types = 1);
+
+/**
+ * @template-name Google Sheets Block Registration
+ * @template-version 1.0.0
+ * @template-description Registers Google Sheets blocks for a given spreadsheet and sheet.
+ * 
+ * Template variables:
+ * - DATA_SOURCE_UUID: The UUID of the data source to register the block for.
+ * - BLOCK_REG_FN_SLUG: The slug of the data source to register the block for.
+ * - SHEET_NAME: The name of the sheet.
+ * - SHEETS_OUTPUT_SCHEMA_MAPPINGS: The field mappings for the sheet data.
+ */
+
+namespace RemoteDataBlocks\Snippets\Google;
+
+use RemoteDataBlocks\Config\Query\HttpQuery;
+use RemoteDataBlocks\Integrations\Google\Sheets\GoogleSheetsDataSource;
+use RemoteDataBlocks\WpdbStorage\DataSourceCrud;
+
+function register_google_sheets__{{BLOCK_REG_FN_SLUG}}__blocks(): void {
+	$data_source_config = DataSourceCrud::get_config_by_uuid( '{{DATA_SOURCE_UUID}}' );
+	
+	if ( is_wp_error( $data_source_config ) ) {
+		return;
+	}
+
+	$data_source = GoogleSheetsDataSource::from_array( $data_source_config );
+	$block_title = $data_source->get_display_name() . '/{{SHEET_NAME}}';
+
+	$list_query = HttpQuery::from_array( [
+		'data_source' => $data_source,
+		'endpoint' => sprintf( '%s/values/%s', $data_source->get_endpoint(), rawurlencode( '{{SHEET_NAME}}' ) ),
+		'output_schema' => [
+			'is_collection' => true,
+			'path' => '$.values[*]',
+			'type' => {{SHEETS_OUTPUT_SCHEMA_MAPPINGS}},
+		],
+		'preprocess_response' => function ( mixed $response_data ): array {
+			return GoogleSheetsDataSource::preprocess_list_response( $response_data );
+		},
+	] );
+
+	$get_query = HttpQuery::from_array( [
+		'data_source' => $data_source,
+		'endpoint' => sprintf( '%s/values/%s', $data_source->get_endpoint(), rawurlencode( '{{SHEET_NAME}}' ) ),
+		'input_schema' => [
+			'row_id' => [
+				'name' => 'Row ID',
+				'type' => 'id',
+			],
+		],
+		'output_schema' => [
+			'type' => {{SHEETS_OUTPUT_SCHEMA_MAPPINGS}},
+		],
+		'preprocess_response' => function ( mixed $response_data, array $input_variables ): array {
+			return GoogleSheetsDataSource::preprocess_get_response( $response_data, $input_variables );
+		},
+	] );
+
+	register_remote_data_block( [
+		'title' => $block_title,
+		'render_query' => [
+			'query' => $get_query,
+		],
+		'selection_queries' => [
+			[
+				'query' => $list_query,
+				'type' => 'list',
+			],
+		],
+	] );
+
+	register_remote_data_block( [
+		'title' => sprintf( '%s List', $block_title ),
+		'render_query' => [
+			'loop' => true,
+			'query' => $list_query,
+		],
+	] );
+}
+
+add_action( 'init', __NAMESPACE__ . '\\register_google_sheets__{{BLOCK_REG_FN_SLUG}}__blocks' );

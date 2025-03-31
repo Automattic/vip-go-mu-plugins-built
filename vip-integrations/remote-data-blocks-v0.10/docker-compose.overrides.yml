@@ -1,0 +1,7 @@
+---
+services:
+  valkey:
+    image: valkey/valkey:7-alpine
+    container_name: remote-data-blocks-valkey
+    ports:
+      - '6379:6379'

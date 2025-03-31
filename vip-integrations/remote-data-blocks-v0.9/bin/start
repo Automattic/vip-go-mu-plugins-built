@@ -1,0 +1,148 @@
+#!/bin/sh
+
+set -e # Exit immediately if any command exits with a non-zero status.
+
+APP_MODE="$1" # "decoupled" or empty
+SCRIPT_MODE=${2:-start} # "build" or "start". Default is "start".
+
+# Set WordPress port and home URL.
+PORT="${WP_ENV_PORT-8888}"
+WP_HOME="${WP_ENV_HOME_URL-http://localhost:$PORT}"
+
+if [ "$APP_MODE" = "decoupled" ]; then
+    # When running in decoupled mode, listen on a different port to avoid
+    # sticky cached redirects.
+    PORT="${WP_ENV_PORT-8899}"
+
+    WP_HOME="${WP_ENV_HOME_URL-http://localhost:3000}"
+fi
+
+cleanup() {
+    echo ""
+    echo "✊ Caught SIG signal. Stopping..."
+
+    printf "Stop WordPress? (y/n) "
+    read -r answer
+    if [ "$answer" != "${answer#[Yy]}" ]; then
+        npm run -s dev:stop
+    fi
+
+    exit 0
+}
+
+activate_plugin() {
+    slug="$1"
+
+    if (npm run -s wp-cli plugin is-active "$slug" 2>/dev/null); then
+        echo "✏️ $slug is already active."
+    else
+        echo "✏️ Activating $slug..."
+        npm run -s wp-cli plugin activate "$slug"
+    fi
+}
+
+deactivate_plugin() {
+    slug="$1"
+
+    if (npm run -s wp-cli plugin is-active "$slug" 2>/dev/null); then
+        echo "✏️ Deactivating $slug..."
+        npm run -s wp-cli plugin deactivate "$slug"
+    fi
+}
+
+install_and_activate_plugin() {
+    plugin="$1"
+    slug="$2"
+
+    if (npm run -s wp-cli plugin is-installed "$slug" 2>/dev/null); then
+        echo "✏️ $slug is already installed."
+    else
+        echo "✏️ Installing $slug..."
+        npm run -s wp-cli plugin install "$plugin"
+    fi
+
+    activate_plugin "$slug"
+}
+
+configure_wordpress() {
+    echo "✏️ Enabling Redis..."
+    npm run -s wp-cli redis enable
+
+    echo "✏️ Updating home option..."
+    npm run -s wp-cli config set WP_HOME "$WP_HOME"
+
+    if [ "$APP_MODE" = "decoupled" ]; then
+        configure_decoupled_wordpress
+    else
+        deactivate_plugin "vip-decoupled-bundle"
+    fi
+}
+
+configure_decoupled_wordpress() {
+    # We don't do this by default so we don't accidentally write code that
+    # depends on a particular permalink structure.
+    echo "✏️ Updating permalink structure..."
+    npm run -s wp-cli rewrite structure '/%postname%/'
+
+    install_and_activate_plugin "$DECOUPLED_PLUGIN_URL" "vip-decoupled-bundle"
+
+    echo "✅ Decoupled configuration complete."
+}
+
+start_redis() {
+    echo "🔼 Starting Redis..."
+    docker compose -f docker-compose.overrides.yml up -d
+}
+
+start_wordpress() {
+    # Enable Xdebug when starting the server in "start" mode.
+    FLAGS=""
+    if [ "$SCRIPT_MODE" = "start" ]; then
+        FLAGS="${WP_ENV_FLAGS---xdebug}"
+    fi
+
+    echo "🔼 Starting WordPress..."
+    WP_ENV_PORT="$PORT" npx wp-env start "$FLAGS"
+}
+
+open_browser() {
+    WP_ADMIN="http://localhost:$PORT/wp-admin/"
+
+    echo ""
+    echo "> 🌐 $WP_ADMIN"
+    echo "> 🔑 Username: admin"
+    echo "> 🔑 Password: password"
+    echo ""
+
+    # Opening the browser is disruptive, make users opt-in.
+    if [ -z "$WP_ENV_OPEN_BROWSER" ]; then
+        return
+    fi
+
+    UNAME="$(uname -s)"
+
+    if [ "Darwin" = "$UNAME" ]; then
+        open "$WP_ADMIN"
+    elif [ "Linux" = "$UNAME" ]; then
+        xdg-open "$WP_ADMIN"
+    fi
+}
+
+# Cleanup after error or trapping SIGINT (Ctrl+C) and SIGTERM signals
+trap 'cleanup' INT TERM
+
+start_redis
+start_wordpress
+configure_wordpress
+
+if [ "$SCRIPT_MODE" = "build" ]; then
+    echo "🔼 Starting build process..."
+    npm run build
+    echo "🔼 Build completed."
+elif [ "$SCRIPT_MODE" = "start" ]; then
+    open_browser
+
+    # Start hot-reloading wp-scripts start
+    echo "🔼 Starting build process for development..."
+    npm start
+fi

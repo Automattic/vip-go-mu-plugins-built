@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "example/leaflet-map",
+  "version": "1.0.0",
+  "title": "Leaflet Map",
+  "category": "widgets",
+  "icon": "location-alt",
+  "example": {},
+  "supports": {
+    "html": false
+  },
+  "textdomain": "remote-data-blocks-examples",
+  "editorScript": [
+    "file:./index.js",
+    "leaflet-script"
+  ],
+  "editorStyle": [
+    "leaflet-style"
+  ],
+  "render": "file:./render.php",
+  "viewScript": [
+    "file:./view.js",
+    "leaflet-script"
+  ],
+  "viewStyle": [
+    "leaflet-style"
+  ]
+}

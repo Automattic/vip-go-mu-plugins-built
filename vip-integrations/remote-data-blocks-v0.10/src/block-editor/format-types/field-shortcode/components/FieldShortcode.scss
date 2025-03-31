@@ -1,0 +1,49 @@
+
+.rdb-field-shortcode_dropdown,
+.remote-data-blocks-field-shortcode-dropdown {
+
+	.components-popover__content {
+		width: unset;
+		min-width: 160px;
+		max-width: 320px;
+	}
+}
+
+.rdb-field-shortcode_dropdown {
+
+	.components-toolbar-group {
+		display: flex;
+		flex-direction: column;
+		border-right: none;
+
+		.components-dropdown-menu {
+
+			.components-dropdown-menu__toggle {
+				display: flex;
+				flex-direction: row-reverse;
+				justify-content: space-between;
+				width: 100%;
+			}
+		}
+	}
+}
+
+.remote-data-blocks-inline-field {
+
+	span.components-menu-item__item {
+		width: 100%;
+
+		.remote-data-blocks-inline-field-choice {
+
+			width: 100%;
+
+			.components-base-control__field {
+				display: flex;
+				flex-direction: row;
+				justify-content: space-between;
+			}
+		}
+
+	}
+}
+

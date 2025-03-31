@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<psalm
+    errorLevel="7"
+    resolveFromConfigFile="true"
+    phpVersion="8.1"
+    allConstantsGlobal="true"
+    allFunctionsGlobal="true"
+    findUnusedCode="true"
+    findUnusedBaselineEntry="true"
+    findUnusedPsalmSuppress="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns="https://getpsalm.org/schema/config"
+    xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+    <projectFiles>
+        <file name="*.php"/>
+        <directory name="*"/>
+        <ignoreFiles allowMissingFiles="true">
+            <directory name="build/"/>
+            <directory name="node_modules/"/>
+            <directory name="vendor/"/>
+        </ignoreFiles>
+    </projectFiles>
+    <issueHandlers>
+        <PossiblyUnusedReturnValue errorLevel="suppress"/>
+        <PossiblyUnusedMethod errorLevel="suppress"/>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <directory name="tests/" />
+            </errorLevel>
+        </UnusedClass>
+    </issueHandlers>
+    <stubs>
+        <file name="vendor/php-stubs/wordpress-globals/wordpress-globals.php"/>
+        <file name="vendor/php-stubs/wordpress-stubs/wordpress-stubs.php"/>
+        <file name="vendor/php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php" preloadClasses="true"/>
+        <file name="tests/inc/test-utils.php"/>
+        <file name="remote-data-blocks.php"/>
+    </stubs>
+</psalm>

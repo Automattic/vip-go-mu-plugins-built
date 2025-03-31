@@ -1,0 +1,45 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Remote Data Blocks latest",
+    "description": "Installs the latest release of remote-data-blocks plugin to WordPress Playground",
+    "author": "WordPress VIP",
+    "categories": [ "Content" ]
+  },
+  "features": {
+    "networking": true
+  },
+  "landingPage": "/wp-admin/admin.php?page=remote-data-blocks-settings",
+  "login": true,
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "latest"
+  },
+  "steps": [
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "blogname": "Remote Data Blocks",
+        "blogdescription": "Explore the Remote Data Blocks plugin in a WordPress Playground"
+      }
+    },
+    {
+      "step": "defineWpConfigConsts",
+      "consts": {
+        "USE_PLAYGROUND_CORS_PROXY": true
+      }
+    },
+    {
+      "step": "installPlugin",
+      "options": {
+        "activate": true,
+        "targetFolderName": "remote-data-blocks"
+      },
+      "pluginData": {
+        "caption": "Installing Remote Data Blocks",
+        "resource": "url",
+        "url": "https://github-proxy.com/proxy/?repo=Automattic/remote-data-blocks&release=latest&asset=remote-data-blocks.zip"
+      }
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# Function to increment version
+increment_version() {
+    version=$1
+    release=$2
+
+    major=$(echo "$version" | cut -d. -f1)
+    minor=$(echo "$version" | cut -d. -f2)
+    patch=$(echo "$version" | cut -d. -f3)
+
+    case $release in
+        major)
+            major=$((major + 1))
+            minor=0
+            patch=0
+            ;;
+        minor)
+            minor=$((minor + 1))
+            patch=0
+            ;;
+        patch)
+            patch=$((patch + 1))
+            ;;
+        *)
+            echo "Invalid release type. Use 'major', 'minor', or 'patch'."
+            exit 1
+            ;;
+    esac
+
+    echo "${major}.${minor}.${patch}"
+}
+
+# Check if an argument is provided
+if [ $# -eq 0 ]; then
+    echo "Please provide a release type: major, minor, or patch"
+    exit 1
+fi
+
+release_type=$1
+
+# Get current version from remote-data-blocks.php
+php_file="remote-data-blocks.php"
+current_version=$(sed -n "s/.*Version: \([0-9.]*\).*/\1/p" "$php_file")
+new_version=$(increment_version "$current_version" "$release_type")
+
+# Update remote-data-blocks.php
+sed -i.bak "s/Version: $current_version/Version: $new_version/" "$php_file"
+sed -i.bak "s/define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '$current_version' );/define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '$new_version' );/" "$php_file"
+rm "${php_file}.bak"
+
+echo "Updated $php_file from $current_version to $new_version"
+
+echo "Version bump complete: $new_version"
+
+# Create a new branch for the release
+git checkout -b release/v"$new_version"
+
+# Commit the changes
+git add "$php_file"
+git commit -m "v$new_version"
+
+echo "Changes committed to release/v$new_version branch. Push the branch to the remote repository and create a pull request."

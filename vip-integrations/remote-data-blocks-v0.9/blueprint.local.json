@@ -1,0 +1,47 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Remote Data Blocks local playground",
+    "description": "Runs Remote Data Blocks plugin in a local WordPress Playground",
+    "author": "WordPress VIP",
+    "categories": [ "Content" ]
+  },
+  "features": {
+    "networking": true
+  },
+  "landingPage": "/wp-admin/admin.php?page=remote-data-blocks-settings",
+  "login": true,
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "latest"
+  },
+  "steps": [
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "blogname": "Remote Data Blocks",
+        "blogdescription": "Explore the Remote Data Blocks plugin in a WordPress Playground"
+      }
+    },
+    {
+      "step": "defineWpConfigConsts",
+      "consts": {
+        "USE_PLAYGROUND_CORS_PROXY": false
+      }
+    },
+    {
+      "step": "installPlugin",
+      "options": {
+        "activate": true
+      },
+      "pluginZipFile": {
+        "resource": "wordpress.org/plugins",
+        "slug": "query-monitor"
+      }
+    },
+    {
+      "step": "activatePlugin",
+      "pluginPath": "remote-data-blocks/remote-data-blocks.php"
+    }
+  ]
+}
