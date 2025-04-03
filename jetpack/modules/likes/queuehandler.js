@@ -157,11 +157,6 @@ function JetpackLikesMessageListener( event ) {
 			break;
 
 		case 'showLikeWidget': {
-			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
-			if ( placeholder ) {
-				placeholder.style.display = 'none';
-			}
-
 			// Add a `liked` class to the wrapper if the post already has likes.
 			if ( data.total > 0 ) {
 				document.querySelector( `#${ data.id }` ).classList.add( 'liked' );
@@ -170,11 +165,9 @@ function JetpackLikesMessageListener( event ) {
 			break;
 		}
 
+		// We're keeping this for planned future follow ups.
+		// @see: https://github.com/Automattic/jetpack/pull/42361#discussion_r1995338815
 		case 'showCommentLikeWidget': {
-			const placeholder = document.querySelector( `#${ data.id } .likes-widget-placeholder` );
-			if ( placeholder ) {
-				placeholder.style.display = 'none';
-			}
 			break;
 		}
 
@@ -476,11 +469,6 @@ function jetpackUnloadScrolledOutWidgets() {
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loaded' );
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loading' );
 			widgetWrapper.classList.add( 'jetpack-likes-widget-unloaded' );
-
-			// Bring back the loading placeholder into view.
-			widgetWrapper
-				.querySelectorAll( '.comment-likes-widget-placeholder' )
-				.forEach( item => ( item.style.display = 'block' ) );
 
 			// Remove it from the list of loaded widgets.
 			jetpackCommentLikesLoadedWidgets.splice( i, 1 );

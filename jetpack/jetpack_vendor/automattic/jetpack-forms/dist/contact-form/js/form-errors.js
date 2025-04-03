@@ -1,0 +1,1 @@
+(()=>{"use strict";const{__:__}=wp.i18n;__("Warning.","jetpack-forms")})();

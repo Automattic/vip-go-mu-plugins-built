@@ -189,6 +189,10 @@
   align-items: center;
 }
 
+.widget-vis__rule-minor {
+  margin-top: 8px;
+}
+
 .widget-vis__if,
 .widget-vis__is {
   margin-left: 8px;
@@ -224,4 +228,8 @@
 .widget-vis__select-multi-level select option:disabled {
   font-size: 18px;
   font-weight: 600;
+}
+
+.widget-vis__delete-rule .components-button.is-secondary {
+  margin-top: 8px;
 }

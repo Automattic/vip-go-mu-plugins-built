@@ -16,6 +16,11 @@ function jetpack_get_module_i18n( $key ) {
 	static $modules;
 	if ( ! isset( $modules ) ) {
 		$modules = array(
+			'account-protection' => array(
+				'name' => _x( 'Account protection', 'Module Name', 'jetpack' ),
+				'description' => _x( 'When enabled, users can only set passwords that meet strong security standards, helping protect their accounts and your site.', 'Module Description', 'jetpack' ),
+			),
+
 			'blaze' => array(
 				'name' => _x( 'Blaze', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'Module Description', 'jetpack' ),
@@ -208,7 +213,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'waf' => array(
 				'name' => _x( 'Firewall', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Protect your site with Jetpack\'s Web Application Firewall', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Protect your site with Jetpack\'s Web Application Firewall.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
@@ -251,6 +256,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/notes.php
 			// - modules/woocommerce-analytics.php
 			'Other' => _x( 'Other', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Account Protection` tag:
+			// - modules/account-protection.php
+			'Account Protection' => _x( 'Account Protection', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Traffic` tag:
 			// - modules/blaze.php
@@ -364,6 +373,24 @@ function jetpack_get_module_i18n_tag( $key ) {
  */
 function jetpack_get_module_info( $key ) {
 	static $module_info = array (
+	  'account-protection' => 
+	  array (
+	    'name' => 'Account protection',
+	    'description' => 'When enabled, users can only set passwords that meet strong security standards, helping protect their accounts and your site.',
+	    'sort' => '4',
+	    'recommendation_order' => '',
+	    'introduced' => '14.5',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => 'No',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'Account Protection',
+	    'feature' => 'Security',
+	    'additional_search_queries' => '',
+	    'plan_classes' => '',
+	  ),
 	  'blaze' => 
 	  array (
 	    'name' => 'Blaze',
@@ -1051,7 +1078,7 @@ function jetpack_get_module_info( $key ) {
 	  'waf' => 
 	  array (
 	    'name' => 'Firewall',
-	    'description' => 'Protect your site with Jetpack\'s Web Application Firewall',
+	    'description' => 'Protect your site with Jetpack\'s Web Application Firewall.',
 	    'sort' => '5',
 	    'recommendation_order' => '',
 	    'introduced' => '10.9',
