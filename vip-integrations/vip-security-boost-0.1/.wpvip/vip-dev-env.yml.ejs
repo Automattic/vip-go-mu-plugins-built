@@ -1,0 +1,40 @@
+configuration-version: 1
+slug: vip-security-boost
+title: VIP Security Boost
+php: 8.2
+wordpress: 6.7
+app-code: image
+mu-plugins: image
+multisite: true
+phpmyadmin: false
+elasticsearch: false
+xdebug: true
+mailpit: false
+photon: false
+cron: false
+overrides: |
+  services:
+    php:
+      services:
+        environment:
+          WP_TESTS_DIR: /wp/wp-content/wordpress-tests-lib
+        volumes:
+          - <%= configDir %>/..:/wp/wp-content/plugins/vip-security-boost
+          - <%= configDir %>/plugin-loader.php:/wp/wp-content/client-mu-plugins/plugin-loader.php
+          - <%= configDir %>/empty:/wp/wp-content/empty
+  tooling:
+    dev-shell:
+      service: php
+      cmd:
+        - /bin/bash -i
+      dir: /wp/wp-content/plugins/vip-security-boost
+      user: www-data
+      description: Run a development shell
+
+    unit-tests:
+      service: php
+      cmd:
+        - composer test
+      dir: /wp/wp-content/plugins/vip-security-boost
+      user: www-data
+      description: Run unit tests
