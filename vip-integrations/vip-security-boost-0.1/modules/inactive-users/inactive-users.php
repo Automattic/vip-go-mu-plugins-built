@@ -1,6 +1,7 @@
 <?php
 namespace Automattic\VIP\Security\InactiveUsers;
 
+use function Automattic\VIP\Security\Utils\get_module_configs;
 use Automattic\VIP\Utils\Context;
 
 class Inactive_Users {
@@ -22,14 +23,7 @@ class Inactive_Users {
 	private $application_password_authentication_error;
 	
 	public static function init() {
-		if ( ! defined( 'VIP_SECURITY_BOOST_CONFIGS' ) ) {
-			error_log( 'VIP_SECURITY_BOOST_CONFIGS not defined' );
-			return;
-		}
-	
-		$configs               = constant( 'VIP_SECURITY_BOOST_CONFIGS' );
-		$module_configs        = $configs[ 'module_configs' ] ?? [];
-		$inactive_user_configs = $module_configs[ 'inactive-users' ] ?? [];
+		$inactive_user_configs = get_module_configs( 'inactive-users' );
 
 		self::$mode                           = $inactive_user_configs[ 'mode' ] ?? 'REPORT';
 		self::$considered_inactive_after_days = $inactive_user_configs[ 'considered_inactive_after_days' ] ?? 90;
@@ -48,7 +42,7 @@ class Inactive_Users {
 			self::ignore_inactivity_check_for_user( $user_id, $ignore_inactivity_check_until );
 		} );
 
-		if ( in_array( self::$mode, array( 'REPORT', 'BLOCK' ) ) ) {
+		if ( in_array( self::$mode, array( 'REPORT', 'BLOCK' ), true ) ) {
 			add_filter( 'wpmu_users_columns', [ __CLASS__, 'add_last_seen_column_head' ] );
 			add_filter( 'manage_users_columns', [ __CLASS__, 'add_last_seen_column_head' ] );
 			add_filter( 'manage_users_custom_column', [ __CLASS__, 'add_last_seen_column_date' ], 10, 3 );
@@ -378,7 +372,7 @@ class Inactive_Users {
 		 * @param array $skip_users The list of user IDs to skip.
 		 */
 		$skip_users = apply_filters( 'vip_security_last_seen_skip_users', array() );
-		if ( in_array( $user_id, $skip_users ) ) {
+		if ( in_array( $user_id, $skip_users, true ) ) {
 			return false;
 		}
 
