@@ -30,11 +30,11 @@ class Highlight_MFA_Users {
 		}
 
 		// Query for administrator user IDs, excluding skipped ones
-		$args = [
+		$args       = [
 			'role'    => 'administrator',
 			'fields'  => 'ID',
 			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excluding a potentially small, known set of users (skipped + ID 1)
-			'exclude' => array_merge( $skipped_user_ids, [1] ),
+			'exclude' => array_merge( $skipped_user_ids, [ 1 ] ),
 			'number'  => -1, // Get all relevant users
 		];
 		$user_query = new \WP_User_Query( $args );
@@ -43,7 +43,7 @@ class Highlight_MFA_Users {
 		$mfa_disabled_count = 0;
 		foreach ( $user_ids as $user_id ) {
 			if ( ! \Two_Factor_Core::is_user_using_two_factor( $user_id ) ) {
-				$mfa_disabled_count++;
+				++$mfa_disabled_count;
 			}
 		}
 
@@ -58,6 +58,7 @@ class Highlight_MFA_Users {
 				printf(
 					'<div class="notice notice-info"><p>%s <a href="%s">%s</a></p></div>',
 					esc_html( sprintf(
+						/* Translators: %d is the number of users without MFA enabled being shown in the filtered list. */
 						_n(
 							'Showing %d user without MFA enabled.',
 							'Showing %d users without MFA enabled.',
@@ -75,6 +76,7 @@ class Highlight_MFA_Users {
 				printf(
 					'<div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div>',
 					esc_html( sprintf(
+						/* Translators: %d is the number of users without MFA enabled. */
 						_n(
 							'There is %d user with MFA disabled.',
 							'There are %d users with MFA disabled.',
@@ -121,7 +123,7 @@ class Highlight_MFA_Users {
 					'compare' => '=',
 				],
 			];
-			$query->set( 'role__in', ['administrator'] );
+			$query->set( 'role__in', [ 'administrator' ] );
 			$query->set( 'meta_query', $meta_query );
 
 			// Exclude skipped users AND always exclude User ID 1
@@ -137,7 +139,7 @@ class Highlight_MFA_Users {
 			}
 
 			// Merge existing exclusions, skipped IDs from option, and User ID 1
-			$final_exclude_ids = array_unique( array_merge( $exclude_ids, $skipped_user_ids, [1] ) );
+			$final_exclude_ids = array_unique( array_merge( $exclude_ids, $skipped_user_ids, [ 1 ] ) );
 
 			// Set the final list of excluded IDs
 			$query->set( 'exclude', $final_exclude_ids );
