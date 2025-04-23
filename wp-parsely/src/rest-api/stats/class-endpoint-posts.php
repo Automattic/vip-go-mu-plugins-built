@@ -174,12 +174,6 @@ class Endpoint_Posts extends Base_Endpoint {
 						'type'        => 'string',
 						'required'    => false,
 					),
-					'urls'           => array(
-						'description'       => 'The URLs to fetch data for.',
-						'type'              => 'array',
-						'sanitize_callback' => array( $this, 'sanitize_urls' ),
-						'required'          => false,
-					),
 				),
 				$this->get_itm_source_param_args()
 			)
@@ -200,18 +194,6 @@ class Endpoint_Posts extends Base_Endpoint {
 		}
 
 		return explode( ',', $str );
-	}
-
-	/**
-	 * Sanitizes all the items of an array as URLs.
-	 *
-	 * @since 3.18.0
-	 *
-	 * @param array<string> $urls The array to sanitize.
-	 * @return array<string> The sanitized array.
-	 */
-	public function sanitize_urls( array $urls ): array {
-		return array_map( 'sanitize_url', $urls );
 	}
 
 	/**
@@ -269,7 +251,6 @@ class Endpoint_Posts extends Base_Endpoint {
 				'tag'            => $params['tag'] ?? null,
 				'segment'        => $params['segment'] ?? null,
 				'itm_source'     => $params['itm_source'] ?? null,
-				'urls'           => $params['urls'] ?? null,
 			)
 		);
 

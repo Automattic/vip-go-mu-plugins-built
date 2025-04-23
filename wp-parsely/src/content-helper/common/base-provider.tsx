@@ -45,7 +45,7 @@ export abstract class BaseProvider {
 	 *
 	 * @since 3.15.0
 	 */
-	protected abortControllers: Map<string, AbortController> = new Map();
+	private abortControllers: Map<string, AbortController> = new Map();
 
 	/**
 	 * Protected empty constructor to prevent instantiation.
@@ -108,7 +108,7 @@ export abstract class BaseProvider {
 	 *
 	 * @return {GetAbortControllerResult} The AbortController and its ID.
 	 */
-	protected getOrCreateController( id?: string ): GetAbortControllerResult {
+	private getOrCreateController( id?: string ): GetAbortControllerResult {
 		if ( id && this.abortControllers.has( id ) ) {
 			return {
 				abortController: this.abortControllers.get( id )!,

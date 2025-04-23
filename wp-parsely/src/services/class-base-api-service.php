@@ -39,6 +39,7 @@ abstract class Base_API_Service {
 	 */
 	private $parsely;
 
+
 	/**
 	 * Initializes the class.
 	 *

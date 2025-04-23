@@ -543,6 +543,7 @@ final class Settings_Page {
 				'title'      => __( 'Track Post Types as', 'wp-parsely' ),
 				'option_key' => $field_id,
 				'help_text'  => $field_help,
+				'filter'     => 'wp_parsely_trackable_statuses',
 			)
 		);
 

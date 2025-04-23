@@ -6,7 +6,7 @@ import { getBlockContent } from '@wordpress/blocks';
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { select, useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 
@@ -191,7 +191,6 @@ export const SmartLinkingPanel = ( {
 		};
 	}, [] );
 
-	const initializationRef = useRef( false );
 	/**
 	 * Handles the initialization of the Smart Linking existing links by getting the
 	 * existing smart links from the post content and the database.
@@ -207,12 +206,6 @@ export const SmartLinkingPanel = ( {
 			// Return early if the Smart Linking store is already initialized.
 			return;
 		}
-
-		if ( initializationRef.current ) {
-			// Return early if the component has already started initialization.
-			return;
-		}
-		initializationRef.current = true;
 
 		// Get the existing smart links from the post content.
 		const existingSmartLinks = getAllSmartLinksInPost();
@@ -243,13 +236,12 @@ export const SmartLinkingPanel = ( {
 			} );
 		}
 	}, [
-		permissions.SmartLinking,
-		ready,
-		postId,
 		addInboundSmartLinks,
 		addSmartLinks,
+		postId,
+		ready,
 		setIsReady,
-		initializationRef,
+		permissions.SmartLinking,
 	] );
 
 	/**

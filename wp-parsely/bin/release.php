@@ -79,7 +79,6 @@ function generate_release_log( string $milestone ): string {
 	$result = '';
 	$delay  = 500; // Delay between API calls in milliseconds.
 	$labels = array( // GitHub labels for which to get data.
-		'Breaking Changes',
 		'Added',
 		'Changed',
 		'Deprecated',
@@ -100,9 +99,9 @@ function generate_release_log( string $milestone ): string {
 
 	// Include a dependency updates link if there are any dependency updates.
 	echo "Adding \"Dependency Updates\" entry\n";
-	$data = get_pull_request_data( $milestone, 'Deps', 1 );
+	$data = get_pull_request_data( $milestone, 'Component: Dependencies', 1 );
 	if ( '' !== (string) $data ) {
-		$link    = "- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A{$milestone}+label%3ADeps).";
+		$link    = "- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A{$milestone}+label%3A%22Component%3A+Dependencies%22).";
 		$result .= "### Dependency Updates\n\n{$link}\n";
 	}
 

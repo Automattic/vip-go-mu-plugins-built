@@ -12,7 +12,7 @@ export interface AnalyticsApiOptionalQueryParams extends ApiPeriodRange {
 	limit?: number;
 	page?: number;
 	author?: string;
-	tag?: string[];
+	tag?: string;
 	section?: string;
 	segment?: string;
 }

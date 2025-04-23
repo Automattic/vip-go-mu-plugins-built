@@ -33,7 +33,6 @@ declare global {
 		wpParselySiteId: string,
 		wpParselySmartLinkingAllowedBlocks: string[];
 		wpParselyTrackableStatuses: string[];
-		wpParselyUseCategorySlugsInSearches: boolean;
 
 		/**
 		 * Jetpack Editor Initial State.
@@ -54,4 +53,5 @@ declare global {
 			};
 		};
 	}
+
 }

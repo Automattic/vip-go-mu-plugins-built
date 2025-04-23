@@ -73,6 +73,7 @@ abstract class Content_Helper_Feature {
 	 */
 	abstract public function run(): void;
 
+
 	/**
 	 * Examines filters and conditions to determine whether the feature can be
 	 * enabled.

@@ -282,8 +282,7 @@ class Parsely {
 			update_option( self::OPTIONS_KEY, $options );
 		}
 
-		// @phpstan-ignore return.void
-		add_action( 'save_post', array( $this, 'call_update_metadata_endpoint' ) );
+		add_action( 'save_post', array( $this, 'update_metadata_endpoint' ) );
 	}
 
 	/**
@@ -398,6 +397,12 @@ class Parsely {
 	 *              By default,only 'publish' is allowed.
 	 */
 	public static function post_has_trackable_status( $post ): bool {
+		static $cache = array();
+		$post_id      = is_int( $post ) ? $post : $post->ID;
+		if ( isset( $cache[ $post_id ] ) ) {
+			return $cache[ $post_id ];
+		}
+
 		/**
 		 * Filters whether the post password check should be skipped when getting
 		 * the post trackable status.
@@ -411,11 +416,13 @@ class Parsely {
 		 */
 		$skip_password_check = apply_filters( 'wp_parsely_skip_post_password_check', false, $post );
 		if ( ! $skip_password_check && post_password_required( $post ) ) {
+			$cache[ $post_id ] = false;
 			return false;
 		}
 
-		$statuses = self::get_trackable_statuses( $post );
-		return in_array( get_post_status( $post ), $statuses, true );
+		$statuses          = self::get_trackable_statuses( $post );
+		$cache[ $post_id ] = in_array( get_post_status( $post ), $statuses, true );
+		return $cache[ $post_id ];
 	}
 
 	/**
@@ -437,48 +444,19 @@ class Parsely {
 	}
 
 	/**
-	 * Calls Parse.ly's update metadata endpoint, sending the post's updated
-	 * metadata.
+	 * Updates the Parsely metadata endpoint with the new metadata of the post.
 	 *
-	 * @param int $post_id The ID of the post to update.
-	 * @return bool True if the metadata endpoint was called, false otherwise.
+	 * @param int $post_id id of the post to update.
 	 */
-	public function call_update_metadata_endpoint( int $post_id ): bool {
-		$options = $this->get_options();
-
-		if ( $this->site_id_is_missing() || '' === $options['metadata_secret'] ) {
-			return false;
-		}
-
-		$current_post_type = get_post_type( $post_id );
-		if ( false === $current_post_type ) {
-			return false;
-		}
-
-		$tracked_post_types = array_merge(
-			$options['track_post_types'],
-			$options['track_page_types']
-		);
-
-		// Check that the post's type is trackable.
-		if ( ! in_array( $current_post_type, $tracked_post_types, true ) ) {
-			return false;
-		}
-
-		// Check that the post's status is trackable.
-		if ( ! self::post_has_trackable_status( $post_id ) ) {
-			return false;
+	public function update_metadata_endpoint( int $post_id ): void {
+		$parsely_options = $this->get_options();
+		if ( $this->site_id_is_missing() || '' === $parsely_options['metadata_secret'] ) {
+			return;
 		}
 
 		$post = get_post( $post_id );
 		if ( null === $post ) {
-			return false;
-		}
-
-		// Don't call the endpoint when integration tests are running, but
-		// signal that the above checks have passed.
-		if ( defined( 'INTEGRATION_TESTS_RUNNING' ) ) {
-			return true;
+			return;
 		}
 
 		$metadata = ( new Metadata( $this ) )->construct_metadata( $post );
@@ -496,7 +474,7 @@ class Parsely {
 
 		$parsely_api_base_url    = Content_API_Service::get_base_url();
 		$parsely_api_endpoint    = $parsely_api_base_url . '/metadata/posts';
-		$parsely_metadata_secret = $options['metadata_secret'];
+		$parsely_metadata_secret = $parsely_options['metadata_secret'];
 
 		$headers = array( 'Content-Type' => 'application/json' );
 		$body    = wp_json_encode(
@@ -510,9 +488,9 @@ class Parsely {
 		/**
 		 * POST request options.
 		 *
-		 * @var WP_HTTP_Request_Args $request_options
+		 * @var WP_HTTP_Request_Args $options
 		 */
-		$request_options = array(
+		$options = array(
 			'method'      => 'POST',
 			'headers'     => $headers,
 			'blocking'    => false,
@@ -520,15 +498,12 @@ class Parsely {
 			'data_format' => 'body',
 		);
 
-		$response = wp_remote_post( $parsely_api_endpoint, $request_options );
+		$response = wp_remote_post( $parsely_api_endpoint, $options );
 
-		if ( is_wp_error( $response ) ) {
-			return false;
+		if ( ! is_wp_error( $response ) ) {
+			$current_timestamp = time();
+			update_post_meta( $post_id, 'parsely_metadata_last_updated', $current_timestamp );
 		}
-
-		update_post_meta( $post_id, 'parsely_metadata_last_updated', time() );
-
-		return true;
 	}
 
 	/**

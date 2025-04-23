@@ -80,7 +80,7 @@ const SmartLinkingInspectorControlPanel = createHigherOrderComponent( ( BlockEdi
 				{ /* @ts-ignore */ }
 				<InspectorControls group="list">
 					<PanelBody
-						title={ __( 'Smart Linking', 'wp-parsely' ) }
+						title={ __( 'Smart Linking (Beta)', 'wp-parsely' ) }
 						initialOpen={ settings.SmartLinking.Open }
 						className="wp-parsely-panel wp-parsely-smart-linking-panel"
 						icon={ <LeafIcon /> }

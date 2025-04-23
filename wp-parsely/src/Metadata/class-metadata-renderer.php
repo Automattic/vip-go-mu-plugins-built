@@ -109,7 +109,7 @@ final class Metadata_Renderer {
 
 		// Insert JSON-LD or repeated metas.
 		if ( 'json_ld' === $meta_type ) {
-			echo '<script type="application/ld+json" class="wp-parsely-metadata">' . wp_json_encode( $metadata ) . '</script>';
+			echo '<script type="application/ld+json">' . wp_json_encode( $metadata ) . '</script>';
 		} else {
 			// Assume `meta_type` is `repeated_metas`.
 			$parsely_post_type = $this->parsely->convert_jsonld_to_parsely_type( $metadata['@type'] ?? '' );

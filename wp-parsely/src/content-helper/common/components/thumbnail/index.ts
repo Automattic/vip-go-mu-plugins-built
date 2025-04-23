@@ -1,1 +1,0 @@
-export { Thumbnail } from './component';

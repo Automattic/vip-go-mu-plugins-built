@@ -388,6 +388,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 		return $current; // Return default value for valid key path.
 	}
 
+
 	/**
 	 * Gets the specifications for nested settings based on a composite key.
 	 *

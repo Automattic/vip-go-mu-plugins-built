@@ -42,17 +42,17 @@ export enum PostFilterType {
 	Author = 'author',
 	Section = 'section',
 	Tag = 'tag',
+	Unavailable = 'unavailable'
 }
 
 /**
  * Defines the structure of Post filters.
  *
- * @since 3.18.0
+ * @since 3.11.0
  */
-export interface PostFilters {
-	author: string;
-	section: string;
-	tags: string[];
+export interface PostFilter {
+	type: PostFilterType;
+	value: string;
 }
 
 /**

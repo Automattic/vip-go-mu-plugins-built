@@ -18,11 +18,11 @@ interface ParselyRecommendationsListProps {
 
 export const ParselyRecommendationsList = ( { imagestyle, recommendations, showimages, openlinksinnewtab }: ParselyRecommendationsListProps ) => (
 	<ul className="parsely-recommendations-list">
-		{ recommendations.map( ( recommendation, index ) => (
+		{ recommendations.map( ( recommendation ) => (
 			<ParselyRecommendationsListItem
 				imageAlt={ __( 'Image for link', 'wp-parsely' ) }
 				imagestyle={ imagestyle }
-				key={ `${ recommendation.url }-${ recommendation.title }-${ index }` }
+				key={ recommendation.url + ' ' + recommendation.title }
 				openlinksinnewtab={ openlinksinnewtab }
 				recommendation={ recommendation }
 				showimages={ showimages }

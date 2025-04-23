@@ -13,6 +13,7 @@ namespace Parsely\Telemetry;
 use Parsely\Utils\Utils;
 use WP_Error;
 
+
 /**
  * Handles all operations related to the Tracks pixel.
  *

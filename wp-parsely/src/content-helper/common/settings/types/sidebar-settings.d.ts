@@ -43,6 +43,8 @@ export interface TitleSuggestionsSettings {
  * @since 3.14.3
  */
 export interface RelatedPostsSettings {
+	FilterBy: string;
+	FilterValue: string;
 	Metric: Metric;
 	Open: boolean;
 	Period: Period;
