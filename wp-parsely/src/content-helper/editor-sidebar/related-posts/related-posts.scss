@@ -91,28 +91,9 @@
 					}
 				}
 			}
-
-			.related-posts-filter-values {
-				width: 100%;
-
-				.components-combobox-control__suggestions-container .components-flex {
-					height: to_rem(36px);
-
-					input {
-						margin: 0 var(--grid-unit-15);
-					}
-				}
-			}
 		}
 
 		.related-posts-wrapper {
-			.related-posts-descr {
-				font-size: to_rem(13px);
-				font-style: normal;
-				font-weight: 400;
-				line-height: to_rem(20px); /* 153.846% */
-			}
-
 			.related-posts-loading-message,
 			.related-posts-empty {
 				overflow: hidden;
@@ -124,7 +105,6 @@
 				line-height: var(--grid-unit-20); /* 133.333% */
 			}
 		}
-
 
 		.related-posts-list {
 			display: flex;

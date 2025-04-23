@@ -59,13 +59,13 @@ const SettingsContext = createContext<SettingsContextType<Settings>>( {
  * // Using the useSettings hook with a specific type
  * const { settings, setSettings } = useSettings<SidebarSettings>();
  */
-export const useSettings = <T = Settings>(): SettingsContextType<T> => {
+export function useSettings<T = Settings>(): SettingsContextType<T> {
 	const context = useContext( SettingsContext );
 	if ( context === undefined ) {
 		throw new Error( 'useSettings must be used within a SettingsProvider' );
 	}
 	return context as unknown as SettingsContextType<T>;
-};
+}
 
 /**
  * Custom types for brevity and for avoiding a "type React is undefined" error.
@@ -88,13 +88,22 @@ const useSaveSettings = (
 	endpoint: string, data: Settings, deps: ReactDeps
 ): void => {
 	const isFirstRender = useRef( true );
+	const previousData = useRef<Settings>( data );
 
 	useEffect( () => {
 		// Don't save settings on the first render.
 		if ( isFirstRender.current ) {
 			isFirstRender.current = false;
+			previousData.current = data;
 			return;
 		}
+
+		// Only save if the data has actually changed.
+		if ( JSON.stringify( previousData.current ) === JSON.stringify( data ) ) {
+			return;
+		}
+
+		previousData.current = data;
 
 		apiFetch( {
 			path: '/wp-parsely/v2/settings/' + endpoint,

@@ -5,22 +5,36 @@
 import { BlockInstance, getBlockType } from '@wordpress/blocks';
 import {
 	Button,
+	Dashicon,
 	__experimentalDivider as Divider,
-	MenuItem,
-	Tooltip, KeyboardShortcuts,
+	KeyboardShortcuts,
+	Tooltip,
 } from '@wordpress/components';
-import { select as selectFn, useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { select as selectFn, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, arrowLeft, arrowRight, check, closeSmall, page } from '@wordpress/icons';
+import {
+	arrowLeft,
+	arrowRight,
+	calendar,
+	check,
+	closeSmall,
+	external,
+	Icon,
+	page,
+	people,
+	post,
+	postAuthor,
+	seen,
+} from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
 import { GutenbergFunction } from '../../../../@types/gutenberg/types';
-import { InboundSmartLink, SmartLink, SmartLinkingProvider } from '../provider';
-import { SmartLinkingStore } from '../store';
-import { trimURLForDisplay } from '../utils';
+import { Thumbnail } from '../../../common/components/thumbnail';
+import { getSmartShortDate } from '../../../common/utils/date';
+import { formatToImpreciseNumber } from '../../../common/utils/number';
+import { InboundSmartLink, SmartLink } from '../provider';
 import { BlockPreview } from './component-block-preview';
 import { InboundLinkDetails } from './component-inbound-link';
 
@@ -92,75 +106,78 @@ const SuggestionBreadcrumb = ( { link }: SuggestionBreadcrumbProps ): React.JSX.
  * The LinkDetails component, which renders the details of the link suggestion.
  *
  * @since 3.16.0
+ * @since 3.18.0 Added the post type to the link details.
  *
  * @param {{link: SmartLink}} props The component props.
  */
 const LinkDetails = ( { link }: { link: SmartLink } ): React.JSX.Element => {
-	// Get the post type by the permalink.
-	const [ displayUrl, setDisplayUrl ] = useState<string>( link.href );
-	const [ postType, setPostType ] = useState<string|undefined>( link.destination?.post_type );
-	const linkRef = useRef<HTMLButtonElement>( null );
-
-	const {
-		updateSmartLink,
-	} = useDispatch( SmartLinkingStore );
-
-	/**
-	 * Fetches the post type by the permalink using the SmartLinkingProvider.
-	 *
-	 * If the post type is not found, it will default to 'External'.
-	 *
-	 * @since 3.16.0
-	 */
-	useEffect( () => {
-		if ( ! link.destination ) {
-			setPostType( __( 'External', 'wp-parsely' ) );
-			SmartLinkingProvider.getInstance().getPostTypeByURL( link.href ).then( ( type ) => {
-				if ( type ) {
-					setPostType( type.post_type );
-				}
-				link.destination = type;
-				updateSmartLink( link );
-			} );
-		} else {
-			setPostType( link.destination.post_type );
-		}
-	}, [ link, updateSmartLink ] );
-
-	/**
-	 * Trims the URL for display based on the container width.
-	 *
-	 * @since 3.16.0
-	 */
-	useEffect( () => {
-		const calculateTrimSize = () => {
-			if ( linkRef.current ) {
-				const containerWidth = linkRef.current.offsetWidth;
-				const averageCharWidth = 8; // Estimate or adjust based on actual character width.
-				const maxLength = Math.floor( containerWidth / averageCharWidth );
-				setDisplayUrl( trimURLForDisplay( link.href, maxLength ) );
-			}
-		};
-
-		calculateTrimSize();
-
-		window.addEventListener( 'resize', calculateTrimSize );
-		return () => {
-			window.removeEventListener( 'resize', calculateTrimSize );
-		};
-	}, [ link ] );
+	const author = link.wp_post_meta?.author ?? __( 'N/A', 'wp-parsely' );
+	const avgEngaged = link.post_stats?.avg_engaged ?? __( 'N/A', 'wp-parsely' );
+	const date = link.wp_post_meta?.date ? getSmartShortDate( new Date( link.wp_post_meta.date ) ) : __( 'N/A', 'wp-parsely' );
+	const thumbnail = link.wp_post_meta?.thumbnail ?? false;
+	const title = link.wp_post_meta?.title ?? __( 'N/A', 'wp-parsely' );
+	const type = link.wp_post_meta?.type ?? __( 'External', 'wp-parsely' );
+	const url = link.wp_post_meta?.url; // Used for the link button.
+	const views = link.post_stats?.views ? formatToImpreciseNumber( link.post_stats.views ) : __( 'N/A', 'wp-parsely' );
+	const visitors = link.post_stats?.visitors ? formatToImpreciseNumber( link.post_stats.visitors ) : __( 'N/A', 'wp-parsely' );
 
 	return (
-		<MenuItem
-			ref={ linkRef }
-			info={ displayUrl }
-			iconPosition="left"
-			icon={ page }
-			shortcut={ postType }
-			className="block-editor-link-control__search-item wp-parsely-link-suggestion-link-details"
-		>
-			{ link.title }
-		</MenuItem>
+		<div className="wp-parsely-link-suggestion-link-details">
+			<div className="thumbnail-column">
+				{ thumbnail ? (
+					<Thumbnail imageUrl={ thumbnail } size={ 52 } />
+				) : (
+					<Thumbnail icon={ page } size={ 52 } />
+				) }
+			</div>
+			<div className="data-column">
+				<div className="title-row">
+					<Tooltip text={ title }><span>{ title }</span></Tooltip>
+					{ url && (
+						<Button
+							href={ url }
+							target="_blank"
+							variant="link"
+							rel="noopener"
+						>
+							<Icon icon={ external } size={ 18 } />
+						</Button>
+					) }
+				</div>
+				<div className="data-row">
+					<div className="data-point">
+						<Icon icon={ calendar } size={ 16 } /><span>{ date }</span>
+					</div>
+					<div className="data-point shrinkable">
+						<Icon icon={ postAuthor } size={ 16 } />
+						<Tooltip text={ author }><span>{ author }</span></Tooltip>
+					</div>
+					<div className="data-point shrinkable">
+						<Icon icon={ post } size={ 16 } />
+						<Tooltip text={ type }><span>{ type }</span></Tooltip>
+					</div>
+				</div>
+				{ link.post_stats && (
+					<div className="data-row">
+						{ views && (
+							<div className="data-point">
+								<Icon icon={ seen } size={ 16 } /><span>{ views }</span>
+							</div>
+						) }
+						{ visitors && (
+							<div className="data-point">
+								<Icon icon={ people } size={ 16 } /><span>{ visitors }</span>
+							</div>
+						) }
+						{ avgEngaged && (
+							<div className="data-point">
+								<Dashicon icon="clock" size={ 16 } /><span>{ avgEngaged }</span>
+							</div>
+						) }
+					</div>
+				) }
+			</div>
+		</div>
 	);
 };
 

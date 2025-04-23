@@ -20,7 +20,6 @@ import { ToneProp } from '../../common/components/tone-selector';
 /**
  * Internal dependencies
  */
-import { GutenbergFunction } from '../../../@types/gutenberg/types';
 import { Telemetry } from '../../../js/telemetry/telemetry';
 import {
 	ContentHelperError,
@@ -97,7 +96,7 @@ export const PostExcerptSuggestions = ( {
 
 	// Get the current excerpt, post content, and post title.
 	const { excerpt, postContent, postTitle } = useSelect( ( select ) => {
-		const { getEditedPostAttribute, getEditedPostContent } = select( editorStore ) as GutenbergFunction;
+		const { getEditedPostAttribute, getEditedPostContent } = select( editorStore );
 
 		let content = getEditedPostContent();
 		if ( ! content ) {
@@ -228,7 +227,6 @@ export const PostExcerptSuggestions = ( {
 			<LeafIcon size={ 16 } />
 			<div className="wp-parsely-excerpt-generator-header-label">
 				{ __( 'Generate With Parse.ly', 'wp-parsely' ) }
-				<span className="beta-label">{ __( 'Beta', 'wp-parsely' ) }</span>
 			</div>
 		</div>;
 

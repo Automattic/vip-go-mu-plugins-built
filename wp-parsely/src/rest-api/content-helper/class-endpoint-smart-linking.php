@@ -15,6 +15,7 @@ use Parsely\Models\Smart_Link;
 use Parsely\REST_API\Base_Endpoint;
 use Parsely\REST_API\Use_Post_ID_Parameter_Trait;
 use Parsely\Services\Suggestions_API\Suggestions_API_Service;
+use Parsely\Utils\Utils;
 use WP_Error;
 use WP_Post;
 use WP_REST_Request;
@@ -183,13 +184,20 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 		);
 
 		/**
-		 * POST /smart-linking/url-to-post-type
-		 * Converts a URL to a post type.
+		 * POST /smart-linking/get-post-meta-for-urls
+		 * Gets the post meta information for the passed URLs.
 		 */
 		$this->register_rest_route(
-			'url-to-post-type',
+			'get-post-meta-for-urls',
 			array( 'POST' ),
-			array( $this, 'url_to_post_type' )
+			array( $this, 'get_post_meta_for_urls' ),
+			array(
+				'urls' => array(
+					'required'    => true,
+					'type'        => 'array',
+					'description' => __( 'The URLs to get meta information for.', 'wp-parsely' ),
+				),
+			)
 		);
 	}
 
@@ -275,7 +283,6 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 
 		return new WP_REST_Response( array( 'data' => $response ), 200 );
 	}
-
 
 	/**
 	 * API Endpoint: POST /smart-linking/{post_id}/add.
@@ -475,58 +482,44 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 		return new WP_REST_Response( array( 'data' => $response ), 200 );
 	}
 
-
 	/**
-	 * API Endpoint: POST /smart-linking/url-to-post-type.
+	 * API Endpoint: POST /smart-linking/get-post-meta-for-urls.
 	 *
-	 * Converts a URL to a post type.
+	 * Returns post meta for the passed URLs.
 	 *
-	 * @since 3.16.0
+	 * @since 3.18.0
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response The response object.
 	 */
-	public function url_to_post_type( WP_REST_Request $request ): WP_REST_Response {
-		$url = $request->get_param( 'url' );
+	public function get_post_meta_for_urls( WP_REST_Request $request ): WP_REST_Response {
+		$urls       = $request->get_param( 'urls' );
+		$posts_meta = array();
 
-		if ( ! is_string( $url ) ) {
-			return new WP_REST_Response(
-				array(
-					'error' => array(
-						'name'    => 'invalid_request',
-						'message' => __( 'Invalid request body.', 'wp-parsely' ),
-					),
-				),
-				400
-			);
+		foreach ( $urls as $url ) {
+			$post_id = Utils::get_post_id_by_url( $url );
+
+			if ( $post_id > 0 ) {
+				$post = get_post( $post_id );
+
+				if ( null !== $post ) {
+					$post_type_obj  = get_post_type_object( $post->post_type );
+					$post_type_name = $post_type_obj instanceof \WP_Post_Type ? $post_type_obj->labels->singular_name : '';
+
+					$posts_meta[] = array(
+						'author'    => get_the_author_meta( 'display_name', intval( $post->post_author ) ),
+						'date'      => get_the_date( '', $post ),
+						'id'        => $post_id,
+						'title'     => $post->post_title,
+						'thumbnail' => get_the_post_thumbnail_url( $post, 'thumbnail' ),
+						'type'      => $post_type_name,
+						'url'       => $url,
+					);
+				}
+			}
 		}
 
-		$post_id = 0;
-		$cache   = wp_cache_get( $url, 'wp_parsely_smart_link_url_to_postid' );
-
-		if ( is_integer( $cache ) ) {
-			$post_id = $cache;
-		} elseif ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
-			$post_id = wpcom_vip_url_to_postid( $url );
-		} else {
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
-			$post_id = url_to_postid( $url );
-			wp_cache_set( $url, $post_id, 'wp_parsely_smart_link_url_to_postid' );
-		}
-
-		$response = array(
-			'data' => array(
-				'post_id'   => false,
-				'post_type' => false,
-			),
-		);
-
-		if ( 0 !== $post_id ) {
-			$response['data']['post_id']   = $post_id;
-			$response['data']['post_type'] = get_post_type( $post_id );
-		}
-
-		return new WP_REST_Response( $response, 200 );
+		return new WP_REST_Response( array( 'data' => $posts_meta ), 200 );
 	}
 
 	/**

@@ -7,8 +7,8 @@ import { createReduxStore, register } from '@wordpress/data';
  * Internal dependencies
  */
 import { ContentHelperError } from '../../common/content-helper-error';
-import { DEFAULT_MAX_LINKS } from './smart-linking';
 import { InboundSmartLink, SmartLink } from './provider';
+import { DEFAULT_MAX_LINKS } from './smart-linking';
 import { sortSmartLinks } from './utils';
 
 /**

@@ -43,7 +43,7 @@ export const SidebarToolsTab = (
 		<Panel>
 			{ permissions.TitleSuggestions &&
 				<PanelBody
-					title={ __( 'Title Suggestions (Beta)', 'wp-parsely' ) }
+					title={ __( 'Title Suggestions', 'wp-parsely' ) }
 					initialOpen={ settings.TitleSuggestions.Open }
 					onToggle={ ( next ) => {
 						setSettings( {
@@ -65,7 +65,7 @@ export const SidebarToolsTab = (
 				permissions.ExcerptSuggestions &&
 				<PostTypeSupportCheck supportKeys="excerpt">
 					<PanelBody
-						title={ __( 'Excerpt Suggestions (Beta)', 'wp-parsely' ) }
+						title={ __( 'Excerpt Suggestions', 'wp-parsely' ) }
 						initialOpen={ settings.ExcerptSuggestions.Open }
 						onToggle={ ( next ) => {
 							setSettings( {
@@ -86,7 +86,7 @@ export const SidebarToolsTab = (
 
 			{ permissions.SmartLinking &&
 				<PanelBody
-					title={ __( 'Smart Linking (Beta)', 'wp-parsely' ) }
+					title={ __( 'Smart Linking', 'wp-parsely' ) }
 					initialOpen={ settings.SmartLinking.Open }
 					onToggle={ ( next ) => {
 						setSettings( {

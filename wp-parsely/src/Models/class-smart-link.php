@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Parsely\Models;
 
 use InvalidArgumentException;
+use Parsely\Utils\Utils;
 
 /**
  * Smart Link class.
@@ -242,7 +243,7 @@ class Smart_Link extends Base_Model {
 
 		// If the destination post ID is not set, try to get it from the URL.
 		if ( 0 === $this->destination_post_id ) {
-			$this->destination_post_id = $this->get_post_id_by_url( $this->href );
+			$this->destination_post_id = Utils::get_post_id_by_url( $this->href );
 		}
 
 		// Get the post type of the destination post.
@@ -404,31 +405,6 @@ class Smart_Link extends Base_Model {
 	}
 
 	/**
-	 * Gets the post ID by URL.
-	 *
-	 * @since 3.16.0
-	 *
-	 * @param string $url The URL to get the post ID for.
-	 * @return int The post ID of the URL, 0 if not found.
-	 */
-	private function get_post_id_by_url( string $url ): int {
-		$cache = wp_cache_get( $url, 'wp_parsely_smart_link_url_to_postid' );
-		if ( is_integer( $cache ) ) {
-			return $cache;
-		}
-
-		if ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
-			$post_id = wpcom_vip_url_to_postid( $url );
-		} else {
-			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.url_to_postid_url_to_postid
-			$post_id = url_to_postid( $url );
-			wp_cache_set( $url, $post_id, 'wp_parsely_smart_link_url_to_postid' );
-		}
-
-		return $post_id;
-	}
-
-	/**
 	 * Sets the source post ID.
 	 *
 	 * @since 3.16.0
@@ -459,7 +435,7 @@ class Smart_Link extends Base_Model {
 	 */
 	public function set_href( string $href ): void {
 		$this->href                = $href;
-		$this->destination_post_id = $this->get_post_id_by_url( $href );
+		$this->destination_post_id = Utils::get_post_id_by_url( $href );
 
 		if ( 0 !== $this->destination_post_id ) {
 			$post_type                   = get_post_type( $this->destination_post_id );

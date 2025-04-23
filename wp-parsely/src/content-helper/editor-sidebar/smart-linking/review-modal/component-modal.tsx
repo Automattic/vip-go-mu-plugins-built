@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { dispatchCoreBlockEditor, dispatchCoreEditor } from '../../../../@types/gutenberg/types';
 import { Telemetry } from '../../../../js/telemetry/telemetry';
-import { InboundSmartLink, SmartLink } from '../provider';
+import { SmartLink } from '../provider';
 import { SmartLinkingStore } from '../store';
 import { applyNodeToBlock, isInboundSmartLink, selectSmartLink } from '../utils';
 import { InboundLinkDetails } from './component-inbound-link';
@@ -83,7 +83,7 @@ const SmartLinkingReviewModalComponent = ( {
 		[],
 	);
 
-	const [ selectedLink, setSelectedLink ] = useState<SmartLink | InboundSmartLink>( smartLinks[ 0 ] );
+	const [ selectedLink, setSelectedLink ] = useState<SmartLink>( smartLinks[ 0 ] );
 
 	/**
 	 * Loads the Smart Linking store actions.

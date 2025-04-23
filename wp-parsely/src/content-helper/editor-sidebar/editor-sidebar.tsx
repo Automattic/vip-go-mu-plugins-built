@@ -7,11 +7,11 @@ import {
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
-import { PluginSidebar } from '../../@types/gutenberg/wrapper';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chartBar as ChartIcon } from '@wordpress/icons';
 import { registerPlugin } from '@wordpress/plugins';
+import { PluginSidebar } from '../../@types/gutenberg/wrapper';
 
 /**
  * Internal dependencies
@@ -27,7 +27,6 @@ import {
 import {
 	Metric,
 	Period,
-	PostFilterType,
 	isInEnum,
 } from '../common/utils/constants';
 import { getContentHelperPermissions } from '../common/utils/permissions';
@@ -52,8 +51,18 @@ export type OnSettingChangeFunction = ( key: keyof SidebarSettings, value: strin
  */
 export interface SidebarPostData {
 	authors: string[];
-	categories: string[];
+	categories: SidebarPostDataCategory[];
 	tags: string[];
+}
+
+/**
+ * Defines the structure of a SidebarPostData category.
+ *
+ * @since 3.18.0
+ */
+export interface SidebarPostDataCategory {
+	name: string;
+	slug: string;
 }
 
 /**
@@ -79,8 +88,6 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 			VisibleDataPoints: [ 'views', 'visitors', 'avgEngaged', 'recirculation' ],
 		},
 		RelatedPosts: {
-			FilterBy: PostFilterType.Unavailable,
-			FilterValue: '',
 			Metric: Metric.Views,
 			Open: false,
 			Period: Period.Days7,
@@ -135,12 +142,6 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 	}
 	if ( typeof mergedSettings.RelatedPosts !== 'object' ) {
 		mergedSettings.RelatedPosts = defaultSettings.RelatedPosts;
-	}
-	if ( ! isInEnum( mergedSettings.RelatedPosts.FilterBy, PostFilterType ) ) {
-		mergedSettings.RelatedPosts.FilterBy = defaultSettings.RelatedPosts.FilterBy;
-	}
-	if ( typeof mergedSettings.RelatedPosts.FilterValue !== 'string' ) {
-		mergedSettings.RelatedPosts.FilterValue = defaultSettings.RelatedPosts.FilterValue;
 	}
 	if ( ! isInEnum( mergedSettings.RelatedPosts.Metric, Metric ) ) {
 		mergedSettings.RelatedPosts.Metric = defaultSettings.RelatedPosts.Metric;

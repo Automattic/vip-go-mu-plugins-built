@@ -60,20 +60,23 @@ final class Admin_Bar {
 	}
 
 	/**
-	 * Adds the `Parse.ly Stats` button on the admin bar when the current object
+	 * Adds the "Parse.ly Stats" button on the admin bar when the current object
 	 * is a post or a page.
 	 *
 	 * @param WP_Admin_Bar $admin_bar WP_Admin_Bar instance, passed by reference.
 	 */
 	public function admin_bar_parsely_stats_button( WP_Admin_Bar $admin_bar ): void {
 		/**
-		 * Variable.
+		 * The result of calling get_queried_object().
 		 *
-		 * @var \WP_Term|\WP_Post_Type|WP_Post|\WP_User|null
+		 * Although it shouldn't return false per the documentation, it can
+		 * happen in practice.
+		 *
+		 * @var \WP_Term|\WP_Post_Type|WP_Post|\WP_User|null|false
 		 */
 		$queried_object = $GLOBALS['wp_the_query']->get_queried_object();
 
-		if ( null === $queried_object || WP_Post::class !== get_class( $queried_object ) ) {
+		if ( ! $queried_object instanceof WP_Post ) {
 			return;
 		}
 

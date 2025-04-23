@@ -81,18 +81,14 @@ class Endpoint_Editor_Sidebar_Settings extends Base_Settings_Endpoint {
 			),
 			'RelatedPosts'       => array(
 				'values'  => array(
-					'FilterBy'    => array( 'unavailable', 'tag', 'section', 'author' ),
-					'FilterValue' => array(),
-					'Metric'      => array( 'views', 'avg_engaged' ),
-					'Open'        => array( true, false ),
-					'Period'      => array( '10m', '1h', '2h', '4h', '24h', '7d', '30d' ),
+					'Metric' => array( 'views', 'avg_engaged' ),
+					'Open'   => array( true, false ),
+					'Period' => array( '10m', '1h', '2h', '4h', '24h', '7d', '30d' ),
 				),
 				'default' => array(
-					'FilterBy'    => 'unavailable',
-					'FilterValue' => '',
-					'Metric'      => 'views',
-					'Open'        => false,
-					'Period'      => '7d',
+					'Metric' => 'views',
+					'Open'   => false,
+					'Period' => '7d',
 				),
 			),
 			'SmartLinking'       => array(
