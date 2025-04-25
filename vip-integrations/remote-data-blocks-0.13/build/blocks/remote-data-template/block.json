@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "remote-data-blocks/template",
+  "version": "0.1.0",
+  "usesContext": [
+    "remote-data-blocks/remoteData"
+  ],
+  "title": "Remote Data Template",
+  "category": "widgets",
+  "description": "Template block for displaying remote data collections",
+  "example": {},
+  "supports": {
+    "customClassName": false,
+    "className": false,
+    "html": false
+  },
+  "textdomain": "remote-data-blocks",
+  "editorScript": "file:./index.js",
+  "render": "file:./render.php",
+  "editorStyle": "file:./index.css"
+}

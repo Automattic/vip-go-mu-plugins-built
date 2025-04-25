@@ -1,11 +1,33 @@
 <?php
 namespace Automattic\VIP\Security\MFAUsers;
 
+use function Automattic\VIP\Security\Utils\get_module_configs;
+
 class Highlight_MFA_Users {
 	const MFA_SKIP_USER_IDS_OPTION_KEY = 'vip_security_mfa_skip_user_ids';
 
+	/**
+	 * The capabilities used to highlight users without MFA.
+	 *
+	 * @var array An array of capability slugs.
+	 */
+	private static $capabilities;
+
 	public static function init() {
 		// Feature is always active unless specific users are skipped via option.
+		$highlight_mfa_configs = get_module_configs( 'highlight-mfa-users' );
+		self::$capabilities    = $highlight_mfa_configs['capabilities'] ?? [ 'edit_posts' ]; // Default to edit_posts if not configured
+
+		if ( ! is_array( self::$capabilities ) ) {
+			self::$capabilities = [ self::$capabilities ];
+		}
+		self::$capabilities = array_filter( self::$capabilities );
+
+		// If after filtering, the array is empty, default back to edit_posts
+		if ( empty( self::$capabilities ) ) {
+			self::$capabilities = [ 'edit_posts' ];
+		}
+
 		add_action( 'admin_notices', [ __CLASS__, 'display_mfa_disabled_notice' ] );
 		add_action( 'pre_get_users', [ __CLASS__, 'filter_users_by_mfa_status' ] );
 	}
@@ -29,13 +51,13 @@ class Highlight_MFA_Users {
 			$skipped_user_ids = [];
 		}
 
-		// Query for administrator user IDs, excluding skipped ones
+		// Query for user IDs with the configured capabilities, excluding skipped ones
 		$args       = [
-			'role'    => 'administrator',
-			'fields'  => 'ID',
+			'capability__in' => self::$capabilities,
+			'fields'         => 'ID',
 			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excluding a potentially small, known set of users (skipped + ID 1)
-			'exclude' => array_merge( $skipped_user_ids, [ 1 ] ),
-			'number'  => -1, // Get all relevant users
+			'exclude'        => array_merge( $skipped_user_ids, [ 1 ] ),
+			'number'         => -1, // Get all relevant users
 		];
 		$user_query = new \WP_User_Query( $args );
 		$user_ids   = $user_query->get_results();
@@ -123,7 +145,7 @@ class Highlight_MFA_Users {
 					'compare' => '=',
 				],
 			];
-			$query->set( 'role__in', [ 'administrator' ] );
+			$query->set( 'capability__in', self::$capabilities ); // Set the configured capabilities
 			$query->set( 'meta_query', $meta_query );
 
 			// Exclude skipped users AND always exclude User ID 1
