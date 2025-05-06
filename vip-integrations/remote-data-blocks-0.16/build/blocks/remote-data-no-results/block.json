@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "remote-data-blocks/no-results",
+  "version": "0.1.0",
+  "usesContext": [
+    "remote-data-blocks/remoteData"
+  ],
+  "title": "No Results",
+  "description": "Contains the blocks to display when no remote data is found.",
+  "category": "widgets",
+  "example": {},
+  "icon": "media-default",
+  "attributes": {
+    "mode": {
+      "enum": [
+        "empty",
+        "error"
+      ],
+      "default": "empty"
+    }
+  },
+  "supports": {
+    "customClassName": false,
+    "className": false,
+    "html": false
+  },
+  "variations": [
+    {
+      "name": "remote-data-blocks/error",
+      "title": "Error",
+      "icon": "warning",
+      "description": "Display an error message when the remote data fails to load.",
+      "attributes": {
+        "mode": "error"
+      },
+      "isActive": [
+        "mode"
+      ]
+    }
+  ],
+  "textdomain": "remote-data-blocks",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "render": "file:./render.php",
+  "style": "file:./style-index.css"
+}
