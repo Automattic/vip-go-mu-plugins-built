@@ -1,12 +1,36 @@
+/**
+ * em()
+ *
+ * Convert px to em in a readable fashion.
+ * ==========================================================================
+
+ * Examples:
+ * 1. font-size: em(14px);
+ * 2. font-size: em(30px/14px);
+ */
+/**
+ * Breakpoint Mixin
+ *
+ * Uses Sass Maps which requires Sass v3.3.0 or newer
+ *
+ *
+ * EXAMPLE
+ *
+ * body {
+ * 	@include breakpoint(tablet){
+ * 		font-size: 14px;
+ * 	};
+ * }
+ */
 .j-row {
   width: 100%;
   margin: 0 auto;
 }
-.j-row:before, .j-row:after {
+.j-row::before, .j-row::after {
   content: " ";
   display: table;
 }
-.j-row:after {
+.j-row::after {
   clear: both;
 }
 
@@ -102,7 +126,7 @@
   position: relative;
   padding: 0.7692307692em 1.4615384615em;
   color: #efefef;
-  font-weight: bold;
+  font-weight: 700;
   font-size: 0.9285714286em;
   line-height: 1;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
@@ -112,7 +136,7 @@
 .jp-button:visited, .jp-button--settings:visited {
   color: #efefef;
 }
-.jp-button:hover, .jp-button--settings:hover, .jp-button:focus, .jp-button--settings:focus {
+.jp-button:hover, .jp-button:focus, .jp-button--settings:hover, .jp-button--settings:focus {
   color: #fff;
   background: #57972d;
 }
@@ -161,12 +185,12 @@
 }
 .download-jetpack:active {
   top: 6px;
-  box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
-.download-jetpack:active:after {
+.download-jetpack:active::after {
   top: -6px;
 }
-.download-jetpack:before {
+.download-jetpack::before {
   content: "";
   display: inline-block;
   position: relative;
@@ -178,7 +202,7 @@
   background: url(../images/connect-plug.svg) center center no-repeat;
   background-size: 100%;
 }
-.download-jetpack:after {
+.download-jetpack::after {
   content: "";
   position: absolute;
   top: 0;
@@ -190,7 +214,7 @@
   .download-jetpack {
     font-size: 1.2857142857em;
   }
-  .download-jetpack:before {
+  .download-jetpack::before {
     top: -1px;
     width: 23px;
     height: 23px;
@@ -206,7 +230,7 @@
     font-size: 1.2142857143em;
     font-weight: 600;
   }
-  .download-jetpack:before {
+  .download-jetpack::before {
     width: 19px;
     height: 19px;
     margin-right: 9px;
@@ -242,14 +266,19 @@
   opacity: 0.4;
 }
 
+/**
+ * Automatticons
+ *
+ * A quick reference
+ */
 @font-face {
-  font-family: "automatticons";
+  font-family: automatticons;
   src: url(../_inc/fonts/automatticons/automatticons.eot);
   src: url(../_inc/fonts/automatticons/automatticons.eot?#iefix) format("embedded-opentype"), url(../_inc/fonts/automatticons/automatticons.woff) format("woff"), url(../_inc/fonts/automatticons/automatticons.ttf) format("truetype"), url(../_inc/fonts/automatticons/automatticons.svg#automatticonsregular) format("svg");
-  font-weight: normal;
+  font-weight: 400;
   font-style: normal;
 }
-.nav-horizontal:after {
+.nav-horizontal::after {
   content: ".";
   display: block;
   height: 0;
@@ -347,13 +376,13 @@
   background-size: 183px auto;
   color: #fff;
   line-height: 60px;
-  font-weight: normal;
+  font-weight: 400;
 }
 .header-nav .jetpack-logo a span {
   text-indent: -9999px;
   visibility: hidden;
 }
-.header-nav .jetpack-logo a:before {
+.header-nav .jetpack-logo a::before {
   content: "";
   position: absolute;
   top: 0;
@@ -417,7 +446,7 @@
   position: absolute;
   top: 0;
   right: 0;
-  font: 300 1.7142857143em "genericons" !important;
+  font: 300 1.7142857143em Genericons !important;
   color: #777;
   content: "\f405";
   display: inline-block;
@@ -553,19 +582,19 @@
   padding: 10em 0 4.2857142857em;
   text-align: center;
 }
-.footer:before, .footer:after {
+.footer::before, .footer::after {
   content: "";
   position: absolute;
   left: 0;
   pointer-events: none;
 }
-.footer:before {
+.footer::before {
   top: 0;
   margin-top: -1px;
   width: 100%;
   height: 195px;
 }
-.footer:after {
+.footer::after {
   display: none;
 }
 .footer .download-jetpack {
@@ -581,7 +610,7 @@
     padding-top: 165px;
     padding-bottom: 0;
   }
-  .footer:before {
+  .footer::before {
     background-size: 160% auto;
   }
   .footer ul {
@@ -701,7 +730,7 @@
   right: 9999px;
   outline: 0;
 }
-.footer .a8c-attribution a:after {
+.footer .a8c-attribution a::after {
   content: "A";
   position: absolute;
   top: 2px;
@@ -712,7 +741,7 @@
   font-family: "automatticons";
   text-align: center;
 }
-.footer .a8c-attribution a:hover:after {
+.footer .a8c-attribution a:hover::after {
   animation: jetpack-candy 0.4s ease-in-out;
 }
 
@@ -753,18 +782,15 @@
   background: transparent;
   box-shadow: none;
 }
-.subhead .jetpack-message.is-opt-in .jp-button, .subhead .jetpack-message.is-opt-in .jp-button--settings {
+.subhead .jetpack-message.is-opt-in .jp-button {
   display: inline-block;
 }
 .jetpack-message.is-opt-in p {
   color: #3c4549;
 }
-.jetpack-message.is-opt-in .jp-button, .jetpack-message.is-opt-in .jp-button--settings {
+.jetpack-message.is-opt-in .jp-button {
   margin-top: 15px;
   display: none;
-}
-.jetpack-message .squeezer h2 {
-  font-size: 1em;
 }
 .jetpack-message h2 {
   color: #fff;
@@ -780,10 +806,10 @@
   position: relative;
   text-align: left;
 }
-.jetpack-message .squeezer:before {
+.jetpack-message .squeezer::before {
   color: #fff;
   content: "\f418";
-  font-family: "Genericons";
+  font-family: Genericons;
   font-size: 33px;
   height: 33px;
   left: 25px;
@@ -792,11 +818,14 @@
   top: 23px;
   top: calc(50% - 22px);
 }
+.jetpack-message .squeezer h2 {
+  font-size: 1em;
+}
 @media (max-width: 530px) {
   .jetpack-message .squeezer {
     padding: 23px;
   }
-  .jetpack-message .squeezer:before {
+  .jetpack-message .squeezer::before {
     display: none;
   }
 }
@@ -807,7 +836,7 @@
 .jetpack-message .squeezer a:hover {
   border-bottom: 1px solid #F1F6E9;
 }
-.jetpack-message.error .squeezer:before, .jetpack-message.jetpack-err .squeezer:before {
+.jetpack-message.error .squeezer::before, .jetpack-message.jetpack-err .squeezer::before {
   content: "\f414";
 }
 
@@ -861,6 +890,25 @@
   margin-left: 10px;
 }
 
+/**
+ * $gray color functions:
+ *
+ *   color.adjust( $gray, $lightness: 10% )
+ *   color.adjust( $gray, $lightness: 20% )
+ *   color.adjust( $gray, $lightness: 30% )
+ *   color.adjust( $gray, $lightness: -10% )
+ *   color.adjust( $gray, $lightness: -20% )
+ *   color.adjust( $gray, $lightness: -30% )
+ *
+ * See wordpress.com/design-handbook/colors/ for more info.
+ */
+/**
+ * Rem function
+ *
+ * Convert px to rem in a readable fashion.
+ *
+ * Example: font-size: rem( 21px );
+ */
 .page-content.configure {
   margin-top: 0;
 }
@@ -966,7 +1014,6 @@
   justify-content: center;
   align-items: center;
   padding: 6px 24px;
-  width: 93px;
   height: 40px;
   background: rgb(255, 255, 255);
   border: 1.5px solid rgb(0, 0, 0);
@@ -1341,7 +1388,7 @@ tr.jetpack-module .row-actions span.configure {
   opacity: 0.5;
 }
 .configure-module input.button-primary {
-  font-weight: bold;
+  font-weight: 700;
 }
 
 /* whitelist table */
@@ -1387,7 +1434,7 @@ tr.jetpack-module .row-actions span.configure {
   padding: 0 20px;
   height: 40px;
   line-height: 40px;
-  font-weight: normal;
+  font-weight: 400;
 }
 .manage__link .genericon {
   font-size: 28px;
@@ -1419,10 +1466,10 @@ tr.jetpack-module .row-actions span.configure {
   margin-top: 0;
   background-image: none;
 }
-.jp-content .footer:before {
+.jp-content .footer::before {
   height: inherit;
 }
-.jp-content .more-info:before {
+.jp-content .more-info::before {
   content: none;
 }
 

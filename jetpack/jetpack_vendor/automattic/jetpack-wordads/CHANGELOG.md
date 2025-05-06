@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.22] - 2025-05-05
+### Changed
+- Update package dependencies. [#43320] [#43326] [#43350]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [0.4.21] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+
+## [0.4.20] - 2025-04-14
+### Fixed
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Update stylesheets to use WordPress rules for fonts and colors. [#42920] [#42928]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
+## [0.4.19] - 2025-04-07
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Update dependencies. [#42820]
+- Update package dependencies. [#42809]
+
 ## [0.4.18] - 2025-03-31
 ### Changed
 - Update dependencies. [#42678]
@@ -513,6 +538,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.4.22]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.21...v0.4.22
+[0.4.21]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.20...v0.4.21
+[0.4.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.19...v0.4.20
+[0.4.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.18...v0.4.19
 [0.4.18]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.17...v0.4.18
 [0.4.17]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.16...v0.4.17
 [0.4.16]: https://github.com/Automattic/jetpack-wordads/compare/v0.4.15...v0.4.16

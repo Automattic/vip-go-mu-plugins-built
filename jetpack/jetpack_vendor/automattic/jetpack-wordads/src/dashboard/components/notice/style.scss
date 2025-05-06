@@ -17,6 +17,7 @@
 
 	// Success!
 	&.is-success {
+
 		.dops-notice__icon-wrapper {
 			background: $alert-green;
 		}
@@ -24,6 +25,7 @@
 
 	// Warning
 	&.is-warning {
+
 		.dops-notice__icon-wrapper {
 			background: $alert-yellow;
 		}
@@ -31,6 +33,7 @@
 
 	// Error! OHNO!
 	&.is-error {
+
 		.dops-notice__icon-wrapper {
 			background: $alert-red;
 		}
@@ -38,19 +41,17 @@
 
 	// General notice
 	&.is-info {
+
 		.dops-notice__icon-wrapper {
 			background: $blue-medium;
 		}
-	}
-
-	.dops-notice__dismiss {
-		overflow: hidden;
 	}
 
 	&.is-success,
 	&.is-error,
 	&.is-warning,
 	&.is-info {
+
 		.dops-notice__dismiss {
 			overflow: hidden;
 		}
@@ -85,16 +86,19 @@
 	@include breakpoint( ">480px" ) {
 		font-size: 14px;
 	}
+
 	a {
 		text-decoration: underline;
 		color: $white;
 	}
+
 	a:hover {
 		text-decoration: none;
 	}
 }
 
 .dops-notice__text {
+
 	a.dops-notice__text-no-underline {
 		text-decoration: none;
 	}
@@ -158,6 +162,7 @@
 	}
 
 	.dops-notice & {
+		overflow: hidden;
 		color: $gray-lighten-10;
 
 		&:hover,

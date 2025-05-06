@@ -1188,7 +1188,7 @@ class Share_Twitter_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_name() {
-		return __( 'Twitter', 'jetpack' );
+		return __( 'X', 'jetpack' );
 	}
 
 	/**
@@ -1325,7 +1325,7 @@ class Share_Twitter_Block extends Sharing_Source_Block {
 		$url         = $post_link;
 		$twitter_url = add_query_arg(
 			rawurlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			'https://twitter.com/intent/tweet'
+			'https://x.com/intent/tweet'
 		);
 
 		parent::redirect_request( $twitter_url );
@@ -1415,27 +1415,6 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 		parent::process_request( $post, $post_data );
 
 		parent::redirect_request( $linkedin_url );
-	}
-}
-
-/**
- * Skype sharing service.
- */
-class Share_Skype_Block extends Sharing_Source_Block {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'skype';
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Skype', 'jetpack' );
 	}
 }
 

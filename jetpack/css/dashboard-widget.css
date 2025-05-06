@@ -1,4 +1,11 @@
 @charset "UTF-8";
+/**
+ * Rem function
+ *
+ * Convert px to rem in a readable fashion.
+ *
+ * Example: font-size: rem( 21px );
+ */
 /*
 The MIT License (MIT)
 
@@ -19,14 +26,32 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 https://github.com/thoughtbot/bourbon
 */
+/**
+ * $gray color functions:
+ *
+ *   color.adjust( $gray, $lightness: 10% )
+ *   color.adjust( $gray, $lightness: 20% )
+ *   color.adjust( $gray, $lightness: 30% )
+ *   color.adjust( $gray, $lightness: -10% )
+ *   color.adjust( $gray, $lightness: -20% )
+ *   color.adjust( $gray, $lightness: -30% )
+ *
+ * See wordpress.com/design-handbook/colors/ for more info.
+ */
+/**
+ * Long content fade mixin
+ *
+ * Creates a fading overlay to signify that the content is longer
+ * than the space allows.
+ */
 :root {
   --font-title-large: 36px;
   --font-title-small: 24px;
   --font-body: 16px;
   --font-label: 12px;
-  --jp-black: #000000;
+  --jp-black: #000;
   --jp-black-80: #2c3338;
-  --jp-white: #ffffff;
+  --jp-white: #fff;
   --jp-white-off: #f9f9f6;
   --jp-gray: #dcdcde;
   --jp-gray-0: #F6F7F7;
@@ -66,6 +91,7 @@ https://github.com/thoughtbot/bourbon
   --jp-green-90: #003010;
   --jp-green-100: #001c09;
   --jp-green: #069e08;
+  --jp-green-mint: #D3F6D5;
   --jp-green-primary: var(--jp-green-40);
   --jp-green-secondary: var(--jp-green-30);
   --jp-border-radius: 4px;
@@ -102,10 +128,10 @@ https://github.com/thoughtbot/bourbon
 #jetpack_summary_widget pre.stats-widget-error {
   overflow: scroll;
 }
-#jetpack_summary_widget .js-toggle-stats_dashboard_widget_control .toggle-indicator:before {
+#jetpack_summary_widget .js-toggle-stats_dashboard_widget_control .toggle-indicator::before {
   content: "\f111";
   display: inline-block;
-  font: normal 20px/1 dashicons;
+  font: 400 20px/1 dashicons;
 }
 #jetpack_summary_widget .inside {
   margin: 0;
@@ -297,7 +323,7 @@ https://github.com/thoughtbot/bourbon
 }
 #jetpack_summary_widget footer h3 {
   font-size: 1em;
-  font-weight: normal;
+  font-weight: 400;
   margin: 0 0 0.25em 0;
   padding: 0;
 }

@@ -1,3 +1,4 @@
+@use 'sass:math';
 @import '@wordpress/base-styles/colors';
 @import '@wordpress/base-styles/variables';
 
@@ -7,6 +8,7 @@ $spacing-md: $grid-unit-15;      // 12px
 $spacing-lg: $grid-unit-20;      // 16px
 
 .newsletter-widget {
+
     &__header{
         padding: $spacing-md;
         margin-bottom: $spacing-md;
@@ -72,7 +74,7 @@ $spacing-lg: $grid-unit-20;      // 16px
         padding: 0 $spacing-md $spacing-md;
     }
 
-    & a {
+    a {
         text-decoration: none;
     }
 }
@@ -99,7 +101,7 @@ $spacing-lg: $grid-unit-20;      // 16px
     &__tooltip-stats {
         display: flex;
         flex-direction: column;
-        gap: $spacing-xs / 2;
+        gap: math.div( $spacing-xs, 2 );
     }
 
     &__tooltip-stat {
@@ -122,6 +124,7 @@ $spacing-lg: $grid-unit-20;      // 16px
 
 // wp-admin overrides
 #jetpack_newsletter_dashboard_widget {
+
     .inside {
         padding: 0;
         margin: 0;

@@ -82,7 +82,6 @@
   /* Including all prefixes according to http://caniuse.com/ */
   /* CSS Animations don't cascade, so don't require resetting */
   background-origin: padding-box !important;
-  -webkit-background-clip: border-box !important;
   background-clip: border-box !important;
   background-size: auto !important;
   border-image: none !important;
@@ -492,7 +491,7 @@
   box-sizing: border-box !important;
   margin: 0 !important;
   text-align: center !important;
-  color: #ffffff !important;
+  color: #fff !important;
 }
 @media (min-width: 600px) {
   .cleanslate .components-modal__frame {
@@ -510,10 +509,10 @@
 }
 @keyframes components-modal__appear-animation {
   from {
-    margin-top: 32px !important;
+    margin-top: 32px;
   }
   to {
-    margin-top: 0 !important;
+    margin-top: 0;
   }
 }
 .cleanslate .components-modal__header {
@@ -567,18 +566,6 @@
   flex-direction: row-reverse !important;
   justify-content: space-between !important;
   align-items: center !important;
-}
-.cleanslate .components-button {
-  display: inline-flex !important;
-  text-decoration: none !important;
-  font-size: 13px !important;
-  margin: 0 !important;
-  border: 0 !important;
-  cursor: pointer !important;
-  -webkit-appearance: none !important;
-  background: none !important;
-  /* Buttons that look like links, for a cross of good semantics with the visual */
-  /* Link buttons that are red to indicate destructive behavior. */
 }
 .cleanslate .components-icon-button {
   display: flex !important;
@@ -652,6 +639,10 @@
 .cleanslate .components-form-toggle .components-form-toggle__on {
   right: 8px !important;
   display: none !important;
+  outline: 1px solid transparent !important;
+  outline-offset: -1px !important;
+  border: 1px solid #000 !important;
+  filter: invert(100%) contrast(500%) !important;
 }
 .cleanslate .components-form-toggle .components-form-toggle__track {
   content: "" !important;
@@ -741,12 +732,6 @@
 .cleanslate .components-form-toggle input.components-form-toggle__input[type=checkbox]::before {
   content: "" !important;
 }
-.cleanslate .components-form-toggle .components-form-toggle__on {
-  outline: 1px solid transparent !important;
-  outline-offset: -1px !important;
-  border: 1px solid #000 !important;
-  filter: invert(100%) contrast(500%) !important;
-}
 .cleanslate .components-button {
   display: inline-flex !important;
   text-decoration: none !important;
@@ -819,7 +804,7 @@
   border-bottom: 1px solid #e2e4e7 !important;
 }
 .cleanslate .ccpa-setting__header {
-  font-weight: bold !important;
+  font-weight: 700 !important;
 }
 .cleanslate .ccpa-setting__text {
   padding-left: 50px !important;

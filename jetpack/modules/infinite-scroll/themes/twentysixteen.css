@@ -2,13 +2,13 @@
 	display: none;
 }
 
-.infinite-wrap > article:before,
-.infinite-wrap > article:after {
+.infinite-wrap > article::before,
+.infinite-wrap > article::after {
 	content: "";
 	display: table;
 }
 
-.infinite-wrap > article:after {
+.infinite-wrap > article::after {
 	clear: both;
 }
 
@@ -76,6 +76,7 @@ body #infinite-footer .container {
 body #infinite-footer .blog-info {
 	font-family: Montserrat, "Helvetica Neue", sans-serif;
 	height: 2.1875em;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 2.1875em;
 }
 
@@ -88,6 +89,7 @@ body #infinite-footer .blog-credits {
 	font-size: 13px;
 	font-size: 0.8125rem;
 	height: 2.692307692em;
+	/* stylelint-disable-next-line declaration-property-unit-allowed-list -- this should be changed to a unitless value: https://developer.wordpress.org/coding-standards/wordpress-coding-standards/css/#values */
 	line-height: 2.692307692em;
 }
 
@@ -105,6 +107,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 44.375em) {
+
 	.infinite-wrap > article,
 	.site-main .infinite-loader {
 		margin-bottom: 5.25em;
@@ -135,6 +138,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 56.875em) {
+
 	.infinite-loader .spinner {
 		left: 0 !important;
 	}
@@ -154,6 +158,7 @@ body #infinite-footer .blog-credits a:focus {
 }
 
 @media screen and (min-width: 61.5625em) {
+
 	.infinite-wrap > article,
 	.site-main .infinite-loader {
 		margin-bottom: 7.0em;

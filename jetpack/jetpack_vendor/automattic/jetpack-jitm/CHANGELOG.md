@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.15] - 2025-05-05
+### Changed
+- Update package dependencies. [#43326]
+
+### Fixed
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+
+## [4.2.14] - 2025-04-28
+### Fixed
+- Linting: Fix more Stylelint violations. [#43213]
+
+## [4.2.13] - 2025-04-14
+### Fixed
+- Linting: Update stylesheets to use WordPress rules for colors. [#42920]
+
+## [4.2.12] - 2025-04-07
+### Changed
+- Linting: First pass of style coding standards. [#42734]
+
+## [4.2.11] - 2025-04-02
+### Changed
+- Update package dependencies. [#42809]
+
+## [4.2.10] - 2025-04-01
+### Changed
+- Update dependencies. [#42554]
+
 ## [4.2.9] - 2025-03-31
 ### Changed
 - Internal updates.
@@ -877,6 +905,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.2.15]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.14...v4.2.15
+[4.2.14]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.13...v4.2.14
+[4.2.13]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.12...v4.2.13
+[4.2.12]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.11...v4.2.12
+[4.2.11]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.10...v4.2.11
+[4.2.10]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.9...v4.2.10
 [4.2.9]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.8...v4.2.9
 [4.2.8]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.7...v4.2.8
 [4.2.7]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.6...v4.2.7
