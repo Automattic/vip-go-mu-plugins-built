@@ -1,0 +1,24 @@
+@import "../common/css/variables";
+@import "../common/css/functions";
+@import "../common/css/common";
+
+/**
+ * Import styles for the components in the dashboard page.
+ */
+@import "./components/posts-table/style";
+
+body {
+	background: #fff;
+}
+
+.parsely-dashboard-container {
+	margin-left: to_rem(-20px);
+	overflow: hidden;
+}
+
+.parsely-dashboard-page-body,
+.parsely-dashboard-page-header {
+	max-width: var(--dashboard-width);
+	margin: 0 auto;
+	padding: var(--grid-unit-30);
+}

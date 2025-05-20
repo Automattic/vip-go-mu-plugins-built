@@ -1,0 +1,1 @@
+export { SnackbarNotices } from './component';
