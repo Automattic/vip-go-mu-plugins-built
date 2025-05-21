@@ -196,8 +196,9 @@ class Smart_Link extends Base_Model {
 	private function get_smart_link_object_by_uid( string $uid ): int {
 		$cache_key = self::get_uid_to_smart_link_cache_key( $uid );
 		$cached    = wp_cache_get( $cache_key, PARSELY_CACHE_GROUP );
-		if ( is_int( $cached ) && 0 !== $cached ) {
-			return $cached;
+
+		if ( false !== $cached && is_numeric( $cached ) ) {
+			return (int) $cached;
 		}
 
 		$smart_links = new \WP_Query(
@@ -1097,8 +1098,7 @@ class Smart_Link extends Base_Model {
 		$cache_group = self::get_smart_links_post_cache_group( $post_id );
 		$link_counts = wp_cache_get( $cache_key, $cache_group );
 
-		if ( false !== $link_counts ) {
-			/** @var array<string,int> */
+		if ( false !== $link_counts && is_array( $link_counts ) ) {
 			return $link_counts;
 		}
 

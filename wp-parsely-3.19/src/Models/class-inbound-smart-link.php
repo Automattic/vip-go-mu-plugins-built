@@ -1069,9 +1069,8 @@ class Inbound_Smart_Link extends Smart_Link {
 		$cache_key = self::get_suggestions_count_cache_key( $post_id );
 		$count     = wp_cache_get( $cache_key, PARSELY_CACHE_GROUP );
 
-		if ( false !== $count ) {
-			/** @var int $count */
-			return $count;
+		if ( false !== $count && is_numeric( $count ) ) {
+			return (int) $count;
 		}
 
 		$args = array(
