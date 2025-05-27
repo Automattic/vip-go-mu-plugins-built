@@ -117,7 +117,6 @@ class Stats {
 		}
 
 		$this->populate_indices_stats();
-		$this->populate_indices_averages();
 
 		if ( Utils\is_epio() ) {
 			$node_stats = $this->remote_request_helper( '_nodes/stats/discovery?format=json' );
@@ -198,23 +197,6 @@ class Stats {
 		}
 
 		return $indices;
-	}
-
-	/**
-	 * Populate cluster performance data. These use the total key so averages include both primary and replica shards
-	 *
-	 * @since 3.x
-	 */
-	private function populate_indices_averages() {
-
-		if ( empty( $this->stats['_all']['total'] ) ) {
-			return;
-		}
-
-		// General cluster performance stats
-		$this->localized['index_time_in_millis']   = $this->stats['_all']['total']['indexing']['index_time_in_millis'];
-		$this->localized['query_time_in_millis']   = $this->stats['_all']['total']['search']['query_time_in_millis'];
-		$this->localized['suggest_time_in_millis'] = $this->stats['_all']['total']['search']['suggest_time_in_millis'];
 	}
 
 	/**
