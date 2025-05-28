@@ -1,0 +1,16 @@
+<mjml>
+	<mj-body>
+			<mj-section>
+				<mj-column>
+					<mj-image
+						width="223px"
+						src="https://dashboard.wpvip.com/email/vip-enterprise-wordpress.png" padding-top="0px"
+						padding-bottom="22px"
+					/>
+					<mj-text font-size="44px" color="#000" font-weight="700" letter-spacing="-1.1px">
+						{{%=email_title%}}
+					</mj-text>
+				</mj-column>
+			</mj-section>
+	</mj-body>
+</mjml>

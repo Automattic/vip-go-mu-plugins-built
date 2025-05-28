@@ -11,21 +11,20 @@ class Highlight_MFA_Users {
 	 *
 	 * @var array An array of capability slugs.
 	 */
-	private static $capabilities;
+	private static $roles;
 
 	public static function init() {
 		// Feature is always active unless specific users are skipped via option.
 		$highlight_mfa_configs = get_module_configs( 'highlight-mfa-users' );
-		self::$capabilities    = $highlight_mfa_configs['capabilities'] ?? [ 'edit_posts' ]; // Default to edit_posts if not configured
+		self::$roles           = $highlight_mfa_configs['roles'] ?? [ 'administrator', 'editor' ]; // Default to administrator and editor if not configured
 
-		if ( ! is_array( self::$capabilities ) ) {
-			self::$capabilities = [ self::$capabilities ];
+		if ( ! is_array( self::$roles ) ) {
+			self::$roles = [ self::$roles ];
 		}
-		self::$capabilities = array_filter( self::$capabilities );
-
-		// If after filtering, the array is empty, default back to edit_posts
-		if ( empty( self::$capabilities ) ) {
-			self::$capabilities = [ 'edit_posts' ];
+		self::$roles = array_filter( self::$roles );
+		// If after filtering, the array is empty, default back to administrator and editor
+		if ( empty( self::$roles ) ) {
+			self::$roles = [ 'administrator', 'editor' ];
 		}
 
 		add_action( 'admin_notices', [ __CLASS__, 'display_mfa_disabled_notice' ] );
@@ -51,13 +50,13 @@ class Highlight_MFA_Users {
 			$skipped_user_ids = [];
 		}
 
-		// Query for user IDs with the configured capabilities, excluding skipped ones
+		// Query for user IDs with the configured roles, excluding skipped ones
 		$args       = [
-			'capability__in' => self::$capabilities,
-			'fields'         => 'ID',
+			'role__in' => self::$roles,
+			'fields'   => 'ID',
 			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excluding a potentially small, known set of users (skipped + ID 1)
-			'exclude'        => array_merge( $skipped_user_ids, [ 1 ] ),
-			'number'         => -1, // Get all relevant users
+			'exclude'  => array_merge( $skipped_user_ids, [ 1 ] ),
+			'number'   => -1, // Get all relevant users
 		];
 		$user_query = new \WP_User_Query( $args );
 		$user_ids   = $user_query->get_results();
@@ -145,7 +144,8 @@ class Highlight_MFA_Users {
 					'compare' => '=',
 				],
 			];
-			$query->set( 'capability__in', self::$capabilities ); // Set the configured capabilities
+
+			$query->set( 'role__in', self::$roles ); // Set the configured roles
 			$query->set( 'meta_query', $meta_query );
 
 			// Exclude skipped users AND always exclude User ID 1
@@ -153,7 +153,6 @@ class Highlight_MFA_Users {
 			if ( ! is_array( $skipped_user_ids ) ) {
 				$skipped_user_ids = [];
 			}
-
 			// Get any existing exclusions from the query
 			$exclude_ids = $query->get( 'exclude' );
 			if ( ! is_array( $exclude_ids ) ) {

@@ -1,0 +1,23 @@
+<mjml>
+	<mj-head>
+		<mj-attributes>
+			<mj-text font-family="'Aktiv Grotesk VF', 'Helvetica Neue', sans-serif" align="center" padding="10px 0px" color="#514E4D" />
+			<mj-button font-family="'Aktiv Grotesk VF', 'Helvetica Neue', sans-serif" background-color="#13191E" font-size="16px" inner-padding="12px 20px" border-radius="4px" />
+			<mj-section padding="0px" />
+		</mj-attributes>
+		<mj-style>
+			@font-face {
+				font-family: 'Aktiv Grotesk VF';
+				src: url('https://wpvip.com/wp-content/themes/vip-valet/assets/fonts/aktiv-grotesk/AktivGroteskVF_W_WghtWdthItal.woff2') format('woff2');
+				font-weight: 200 800;
+				font-style: normal italic;
+			}
+			a:link {
+				color: #9A6014;
+			}
+			* {
+				font-family: 'Aktiv Grotesk VF', 'Helvetica Neue', sans-serif;
+			}
+		</mj-style>
+	</mj-head>
+</mjml>

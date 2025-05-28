@@ -5,8 +5,9 @@ use Automattic\VIP\Utils\Context;
 use function Automattic\VIP\Security\Utils\get_module_configs;
 
 class Inactive_Users {
-	private static $mode;
 	private static $considered_inactive_after_days;
+	private static $elevated_capabilities;
+	private static $mode;
 	public static $release_date;
 
 	const LAST_SEEN_META_KEY                               = 'wpvip_last_seen';
@@ -20,14 +21,29 @@ class Inactive_Users {
 	 *
 	 * @var \WP_Error|null
 	 */
-	private $application_password_authentication_error;
+	private static $application_password_authentication_error;
 	
 	public static function init() {
 		$inactive_user_configs = get_module_configs( 'inactive-users' );
 
+		self::$release_date                   = get_option( self::LAST_SEEN_RELEASE_DATE_TIMESTAMP_OPTION_KEY );
 		self::$mode                           = $inactive_user_configs['mode'] ?? 'REPORT';
 		self::$considered_inactive_after_days = $inactive_user_configs['considered_inactive_after_days'] ?? 90;
-		self::$release_date                   = get_option( self::LAST_SEEN_RELEASE_DATE_TIMESTAMP_OPTION_KEY );
+		self::$elevated_capabilities          = $inactive_user_configs['capabilities'] ?? [
+			'edit_posts',
+			'delete_posts',
+			'publish_posts',
+			'edit_pages',
+			'delete_pages',
+			'publish_pages',
+			'edit_others_posts',
+			'edit_others_pages',
+			'manage_options',
+			'edit_users',
+			'promote_users',
+			'activate_plugins',
+			'manage_network',
+		];
 
 		// Use a global cache group since users are shared among network sites.
 		wp_cache_add_global_groups( array( self::LAST_SEEN_CACHE_GROUP ) );
@@ -371,7 +387,7 @@ class Inactive_Users {
 		 *
 		 * @param array $skip_users The list of user IDs to skip.
 		 */
-		$skip_users = apply_filters( 'vip_security_last_seen_skip_users', array() );
+		$skip_users = apply_filters( 'vip_security_boost_skip_inactive_users', array() );
 		if ( in_array( $user_id, $skip_users, true ) ) {
 			return false;
 		}
@@ -394,21 +410,7 @@ class Inactive_Users {
 		 *
 		 * @param array $elevated_capabilities The elevated capabilities.
 		 */
-		$elevated_capabilities = apply_filters( 'vip_security_last_seen_elevated_capabilities', [
-			'edit_posts',
-			'delete_posts',
-			'publish_posts',
-			'edit_pages',
-			'delete_pages',
-			'publish_pages',
-			'edit_others_posts',
-			'edit_others_pages',
-			'manage_options',
-			'edit_users',
-			'promote_users',
-			'activate_plugins',
-			'manage_network',
-		] );
+		$elevated_capabilities = apply_filters( 'vip_security_boost_inactive_users_elevated_capabilities', self::$elevated_capabilities );
 
 		// Prevent infinite loops inside user_can() due to other security logic.
 		if ( is_automattician( $user->ID ) ) {

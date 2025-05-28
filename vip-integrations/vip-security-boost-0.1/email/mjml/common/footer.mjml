@@ -1,0 +1,17 @@
+<mjml>
+	<mj-body>
+		<mj-section>
+			<mj-column>
+				<mj-divider
+					border-color="#E3E0DF"
+					border-width="1px"
+					padding="0px 0px 6px"
+				/>
+				<mj-text font-size="12px" line-height="18px">
+					​​You are receiving this email from the VIP Security Boost to ensure
+					you are aware of any security-related change in your account.
+				</mj-text>
+			</mj-column>
+		</mj-section>
+	</mj-body>
+</mjml>

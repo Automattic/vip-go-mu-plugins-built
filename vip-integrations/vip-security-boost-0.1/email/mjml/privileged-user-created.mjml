@@ -1,0 +1,33 @@
+<mjml>
+	<mj-include path="./common/head.mjml" />
+	<mj-body width="552px">
+		<mj-wrapper padding="48px 24px" background-color="#FFF">
+			<mj-include path="./common/header.mjml" />
+			<mj-section padding-bottom="30px">
+				<mj-column>
+					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
+						A new administrator account has been created on your site. Please
+						review the details below:
+					</mj-text>
+					<mj-text align="center" font-size="20px" line-height="5px">
+						Username: <strong>{{%=user_login%}}</strong>
+					</mj-text>
+					<mj-text align="center" font-size="20px" line-height="5px">
+						Email: <strong>{{%=user_email%}}</strong>
+					</mj-text>
+					<mj-text align="center" font-size="20px" line-height="5px">
+						Role: <strong>{{%=user_role%}}</strong>
+					</mj-text>
+					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
+						If you authorized this change, no action is needed.
+						<strong
+							>If this was unexpected, please remove this user immediately
+							through <a href="{{%=admin_url%}}users.php">wp-admin</a>.</strong
+						>
+					</mj-text>
+				</mj-column>
+			</mj-section>
+			<mj-include path="./common/footer.mjml" />
+		</mj-wrapper>
+	</mj-body>
+</mjml>

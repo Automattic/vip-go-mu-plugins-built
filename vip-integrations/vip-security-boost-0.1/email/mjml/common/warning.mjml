@@ -1,0 +1,10 @@
+<mjml>
+	<mj-body>
+		<mj-section padding-bottom="38px">
+            <mj-column>
+                <mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
+                    In case you don't recall making these changes, please <a href="{{%=contactSupportUrl%}}" target="_blank" rel="noopener">contact our support team</a>.
+                </mj-text>
+        </mj-section>
+	</mj-body>
+</mjml>
