@@ -7,59 +7,59 @@ class Forced_MFA_Users {
 	const MFA_SKIP_USER_IDS_OPTION_KEY = 'vip_security_mfa_skip_user_ids';
 
 	/**
-	 * The capability or capabilities required to force MFA.
+	 * The roles that should have MFA enforced.
 	 *
-	 * @var string|array The capability slug or an array of slugs.
+	 * @var string|array The role slug or an array of role slugs.
 	 */
-	private static $capabilities;
+	private static $roles;
 
 	public static function init() {
 		$forced_mfa_configs = get_module_configs( 'forced-mfa-users' );
 
-		self::$capabilities = $forced_mfa_configs['capabilities'] ?? [];
+		self::$roles = $forced_mfa_configs['roles'] ?? [];
 		add_action( 'set_current_user', [ __CLASS__, 'maybe_enforce_two_factor' ] );
 	}
 
 	/**
-	* Require 2FA based on capabilities set in config
-	*/
+	 * Require 2FA based on roles set in config
+	 */
 	public static function maybe_enforce_two_factor() {
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
-
-		// Exclude User ID 1
-		if ( 1 === get_current_user_id() ) {
+		// don't enforce 2FA if the user is already excluded by VIP mu-plugins logic
+		if ( function_exists( 'wpcom_vip_should_force_two_factor' ) && ! wpcom_vip_should_force_two_factor() ) {
 			return;
 		}
 
-		$required_capabilities = self::$capabilities;
+		$required_roles = self::$roles;
 
-		if ( empty( $required_capabilities ) ) {
+		if ( empty( $required_roles ) ) {
 			return;
 		}
 
-		if ( is_string( $required_capabilities ) ) {
-			$required_capabilities = [ $required_capabilities ];
+		if ( is_string( $required_roles ) ) {
+			$required_roles = [ $required_roles ];
 		}
 
 		$user_has_two_factor_enforced = false;
 
-		if ( is_array( $required_capabilities ) ) {
-			foreach ( $required_capabilities as $cap ) {
-				// phpcs:ignore WordPress.WP.Capabilities.Undetermined
-				if ( is_string( $cap ) && ! empty( $cap ) && current_user_can( $cap ) ) {
+		$user = wp_get_current_user();
+		if ( is_array( $required_roles ) && $user ) {
+			foreach ( $required_roles as $role ) {
+				if ( is_string( $role ) && ! empty( $role ) && in_array( $role, (array) $user->roles, true ) ) {
 					$user_has_two_factor_enforced = true;
 					break;
 				}
 			}
-		}
 
-		if ( $user_has_two_factor_enforced ) {
-			add_filter( 'wpcom_vip_is_two_factor_forced', function () {
-				return true;
-			}, PHP_INT_MAX );
+			if ( $user_has_two_factor_enforced ) {
+				add_filter( 'wpcom_vip_is_two_factor_forced', function () {
+					return true;
+				}, PHP_INT_MAX );
+			}
 		}
 	}
 }
+
 Forced_MFA_Users::init();
