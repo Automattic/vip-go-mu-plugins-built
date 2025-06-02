@@ -6,7 +6,7 @@ use function Automattic\VIP\Security\Utils\get_module_configs;
 
 class Inactive_Users {
 	private static $considered_inactive_after_days;
-	private static $elevated_capabilities;
+	private static $elevated_roles;
 	private static $mode;
 	public static $release_date;
 
@@ -22,28 +22,14 @@ class Inactive_Users {
 	 * @var \WP_Error|null
 	 */
 	private static $application_password_authentication_error;
-	
+
 	public static function init() {
 		$inactive_user_configs = get_module_configs( 'inactive-users' );
 
 		self::$release_date                   = get_option( self::LAST_SEEN_RELEASE_DATE_TIMESTAMP_OPTION_KEY );
 		self::$mode                           = $inactive_user_configs['mode'] ?? 'REPORT';
 		self::$considered_inactive_after_days = $inactive_user_configs['considered_inactive_after_days'] ?? 90;
-		self::$elevated_capabilities          = $inactive_user_configs['capabilities'] ?? [
-			'edit_posts',
-			'delete_posts',
-			'publish_posts',
-			'edit_pages',
-			'delete_pages',
-			'publish_pages',
-			'edit_others_posts',
-			'edit_others_pages',
-			'manage_options',
-			'edit_users',
-			'promote_users',
-			'activate_plugins',
-			'manage_network',
-		];
+		self::$elevated_roles                 = $inactive_user_configs['roles'] ?? [ 'administrator' ];
 
 		// Use a global cache group since users are shared among network sites.
 		wp_cache_add_global_groups( array( self::LAST_SEEN_CACHE_GROUP ) );
@@ -332,7 +318,7 @@ class Inactive_Users {
 			throw new \Exception( 'User not found' );
 		}
 
-		if ( ! self::user_with_elevated_capabilities( $user ) ) {
+		if ( ! self::user_with_elevated_roles( $user ) ) {
 			return;
 		}
 
@@ -401,28 +387,25 @@ class Inactive_Users {
 			return false;
 		}
 
-		return self::user_with_elevated_capabilities( $user );
+		return self::user_with_elevated_roles( $user );
 	}
 
-	private static function user_with_elevated_capabilities( $user ) {
+	private static function user_with_elevated_roles( $user ) {
 		/**
-		 * Filters the last seen elevated capabilities that are used to determine if the last seen should be checked.
+		 * Filters the last seen elevated roles that are used to determine if the last seen should be checked.
 		 *
-		 * @param array $elevated_capabilities The elevated capabilities.
+		 * @param array $elevated_roles The elevated roles.
 		 */
-		$elevated_capabilities = apply_filters( 'vip_security_boost_inactive_users_elevated_capabilities', self::$elevated_capabilities );
+		$elevated_roles = apply_filters( 'vip_security_boost_inactive_users_elevated_roles', self::$elevated_roles );
 
 		// Prevent infinite loops inside user_can() due to other security logic.
 		if ( is_automattician( $user->ID ) ) {
 			return true;
 		}
 
-		// TODO: Add a list of capabilities to check.
-		foreach ( $elevated_capabilities as $elevated_capability ) {
-			// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- $elevated_capability is defined earlier and contains a valid capability
-			if ( user_can( $user->ID, $elevated_capability ) ) {
-				return true;
-			}
+		// Ensure $user->roles is defined and is an array before using it.
+		if ( isset( $user->roles ) && is_array( $user->roles ) && array_intersect( $elevated_roles, $user->roles ) ) {
+			return true;
 		}
 
 		return false;
