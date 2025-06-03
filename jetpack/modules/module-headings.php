@@ -1180,11 +1180,10 @@ function jetpack_get_all_module_header_names() {
  */
 function jetpack_has_no_module_info( $slug ) {
 	$no_info_slugs = array (
-	  0 => 'masterbar',
-	  1 => 'module-extras',
-	  2 => 'module-info',
-	  3 => 'plugin-search',
-	  4 => 'theme-tools',
+	  0 => 'module-extras',
+	  1 => 'module-info',
+	  2 => 'plugin-search',
+	  3 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );

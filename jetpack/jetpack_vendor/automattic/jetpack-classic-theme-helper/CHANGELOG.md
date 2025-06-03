@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.3] - 2025-06-02
+### Changed
+- Update dependencies. [#42876]
+
+## [0.13.2] - 2025-05-26
+### Changed
+- Update package dependencies. [#43516] [#43578]
+
+### Fixed
+- Featured Content: Prevent error if invalid taxonomy data is provided. [#43553]
+
+## [0.13.1] - 2025-05-19
+### Changed
+- Update package dependencies. [#43398]
+
+## [0.13.0] - 2025-05-12
+### Changed
+- Update package dependencies. [#43400]
+
+### Removed
+- Remove Skype since the service no longer exists. [#43375]
+
 ## [0.12.1] - 2025-05-05
 ### Changed
 - Update package dependencies. [#43326]
@@ -285,6 +307,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.13.3]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.2...v0.13.3
+[0.13.2]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.1...v0.13.2
+[0.13.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.0...v0.13.1
+[0.13.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.8...v0.12.0
 [0.11.8]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.11.7...v0.11.8

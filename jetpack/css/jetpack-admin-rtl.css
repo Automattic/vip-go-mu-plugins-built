@@ -759,8 +759,8 @@
 }
 
 .jetpack-message {
-  background: #00a113;
-  border: 1px solid #006e0d;
+  background: rgb(0, 160.5, 19.0222222222);
+  border: 1px solid rgb(0, 109.5, 12.9777777778);
   margin: 33px auto 0;
   max-width: 90%;
   position: relative;
@@ -903,11 +903,11 @@
  * See wordpress.com/design-handbook/colors/ for more info.
  */
 /**
- * Rem function
+ * Rem module
  *
  * Convert px to rem in a readable fashion.
  *
- * Example: font-size: rem( 21px );
+ * Example: font-size: rem.convert( 21px );
  */
 .page-content.configure {
   margin-top: 0;

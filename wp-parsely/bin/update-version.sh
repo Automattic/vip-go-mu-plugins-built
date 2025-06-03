@@ -11,8 +11,8 @@ set -e
 export LC_ALL=C
 
 if [ -z "$1" ]; then
-	echo "Error: You must specify a version number."
-	exit 1
+  echo "Error: You must specify a version number."
+  exit 1
 fi
 
 VERSION=$1
@@ -21,16 +21,16 @@ git checkout -b update/wp-parsely-version-to-$VERSION
 
 # Function to perform in-place sed substitution.
 sed_inplace() {
-	local expression="$1"
-	local file="$2"
+    local expression="$1"
+    local file="$2"
 
-	if [[ "$(uname)" == "Darwin" ]]; then
-		# MacOS/BSD sed.
-		sed -i '' -e "$expression" "$file"
-	else
-		# GNU sed (Linux).
-		sed -i -e "$expression" "$file"
-	fi
+    if [[ "$(uname)" == "Darwin" ]]; then
+        # MacOS/BSD sed.
+        sed -i '' -e "$expression" "$file"
+    else
+        # GNU sed (Linux).
+        sed -i -e "$expression" "$file"
+    fi
 }
 
 # Update version in files.
@@ -38,7 +38,7 @@ sed_inplace "s/Stable tag: .*  $/Stable tag: $VERSION  /" README.md
 sed_inplace "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" package.json
 sed_inplace "s/export const PLUGIN_VERSION = '.*'/export const PLUGIN_VERSION = '$VERSION'/" tests/e2e/utils.ts
 sed_inplace "s/ \* Version:           .*$/ \* Version:           $VERSION/" wp-parsely.php
-sed_inplace "s/const PARSELY_VERSION             = '.*'/const PARSELY_VERSION             = '$VERSION'/" wp-parsely.php
+sed_inplace "s/const PARSELY_VERSION = '.*'/const PARSELY_VERSION = '$VERSION'/" wp-parsely.php
 
 npm install --ignore-scripts # Update package-lock.json with the new version.
 

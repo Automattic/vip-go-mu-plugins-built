@@ -83,7 +83,7 @@ class Endpoint_Posts extends Base_Endpoint {
 	}
 
 	/**
-	 * Returns the endpoint's name.
+	 * Returns the endpoint name.
 	 *
 	 * @since 3.17.0
 	 *

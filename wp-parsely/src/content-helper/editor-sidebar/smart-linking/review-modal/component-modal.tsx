@@ -36,7 +36,7 @@ export type SmartLinkingReviewModalProps = {
  *
  * @since 3.16.0
  *
- * @param {SmartLinkingReviewModalProps} props The component's props.
+ * @param {SmartLinkingReviewModalProps} props The component props.
  */
 const SmartLinkingReviewModalComponent = ( {
 	onClose,

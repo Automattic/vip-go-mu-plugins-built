@@ -58,7 +58,7 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @return string The endpoint's name.
+	 * @return string The endpoint name.
 	 */
 	public static function get_endpoint_name(): string {
 		return 'traffic-boost';
@@ -69,7 +69,7 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @return string The feature's name.
+	 * @return string The feature name.
 	 */
 	public function get_pch_feature_name(): string {
 		return 'traffic_boost';

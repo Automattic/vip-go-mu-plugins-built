@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.0] - 2025-06-02
+### Added
+- Add tracking pixel to form submission emails to know if emails are being opened (no user info is sent). [#43629]
+- Add events to Forms dashboard pages. [#43686]
+- Add page to announce that forms moved to Jetpack > Forms menu. [#43620]
+- Reinstate sending submission email when user moves response from spam to inbox. [#43559]
+- Use translated screenshot on dashboard migration page. [#43693] [#43707]
+
+### Changed
+- Add mobile-friendly styles and screenshot on Forms migration page. [#43664]
+- Add context to About tab translation. [#43708]
+- Add translation hint for Trash terminology. [#43704]
+- Change action button placement on mobile. [#43605]
+- Create a new page instead of post when creating a new form from dashboard. [#43668]
+- Create form patterns from About page. [#43608]
+- Enable feature filters by default to migrate forms dashboard page and menu. [#43705]
+- Indicate in sidebar if no integrations enabled. [#43547]
+- Update inbox header to use latest component features. [#43680]
+- Update styles, labels and copy edits for integrations modal and tab. [#43666]
+- Update package dependencies. [#43712]
+
+### Removed
+- Disable default listing UI for Feedback post types if the menu item is removed. [#43657]
+
+### Fixed
+- Contact Form: Use `wp_kses_post` instead of `esc_html` when rendering legend to allow safe HTML in fieldset legends. [#43639]
+- File Upload field: Show upload progress when reduced motion is enabled. [#43628]
+- Remove dependency from `jetpack-mu-wpcom-plugin`. [#43627]
+
+## [0.55.0] - 2025-05-26
+### Added
+- Forms: Add Create Form button to dashboard header. [#43529]
+- Forms: Add feature filter flags and code for moving submenu item from Feedback > Forms responses to Jetpack > Forms. [#43295]
+- Forms: Add Integration screen content. [#43530]
+- Forms: Add integration tab with feature flag. [#43502]
+
+### Changed
+- Forms: Address styles design on integrations tabs and modal. [#43576]
+- Update package dependencies. [#43516] [#43578]
+
+### Fixed
+- Fixed admin notice showing on all screens instead of only forms classic view. [#43582]
+- Forms: Apply max-width on Salesforce ID input. [#43543]
+- Forms: Fix Akismet spam URL. [#43542]
+- Forms: Remove the ability to upload multiple files at using the same file upload field. This field is not yet released. [#43555]
+
+## [0.54.0] - 2025-05-19
+### Added
+- Add Google Drive to integrations modal. [#43479]
+
+### Changed
+- Get Google status with new `useIntegrationStatus` hook. [#43463]
+- Update Google Sheets icon. [#43501]
+- Update Salesforce icons. [#43487]
+- Dashboard: Fix container height to consistently fit on view. [#43485]
+- Update package dependencies. [#43398]
+
+## [0.53.0] - 2025-05-15
+### Added
+- Add 33% width option to fields and button. [#43417]
+
+### Changed
+- Add Google to form integrations endpoint. [#43453]
+- Change copy of upsell banner for File Upload block. [#43395]
+- Simplify dropzone area and settings for File Upload field. [#43471]
+
+### Fixed
+- Fix a bug preventing responses dashboard from loading (blank screen). [#43460]
+- Fix double scrollbars for responses. [#43462]
+- Fix Google Connect button styling. [#43440]
+
+## [0.52.0] - 2025-05-12
+### Added
+- Add Typescript support. [#43394]
+- Unify icons and add Creative Mail to About page. [#43414]
+- Update the email template for feedback responses. [#43323]
+
+### Changed
+- Move Salesforce to block modal. [#43297]
+- Replace Landing page with About page. [#43361]
+- Update form responses tabs. [#43358]
+- Update list of files distributed in stable version of the package. [#43310]
+- Update package dependencies. [#43400]
+
+### Removed
+- Remove Salesforce Form variation. [#43419]
+
+### Fixed
+- Adjust export button mobile styles. [#43381]
+- Fix block modal mobile styling. [#43422]
+- Fix responses toggle background. [#43377]
+- Preserve responses query parameters. [#43372]
+- Prevent submenu from interfering with Crowdsignal/Polldaddy submenu items. [#43385]
+- Show export button only on responses tab. [#43374]
+- Improve Success and Email messages. [#43380]
+- Remove unused `block.json` for the File field to prevent it from showing in the WP.org blocks list. [#43387]
+
 ## [0.51.0] - 2025-05-05
 ### Added
 - File Upload field: Add registration with plan check. [#43177]
@@ -1045,6 +1142,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.56.0]: https://github.com/automattic/jetpack-forms/compare/v0.55.0...v0.56.0
+[0.55.0]: https://github.com/automattic/jetpack-forms/compare/v0.54.0...v0.55.0
+[0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/automattic/jetpack-forms/compare/v0.52.0...v0.53.0
+[0.52.0]: https://github.com/automattic/jetpack-forms/compare/v0.51.0...v0.52.0
 [0.51.0]: https://github.com/automattic/jetpack-forms/compare/v0.50.0...v0.51.0
 [0.50.0]: https://github.com/automattic/jetpack-forms/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/automattic/jetpack-forms/compare/v0.48.0...v0.49.0

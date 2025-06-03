@@ -30,7 +30,7 @@ type TitleSuggestionsSettingsProps = {
  * @since 3.13.0
  * @since 3.14.0 Removed isOpen prop as the component is no longer collapsible.
  *
- * @param {TitleSuggestionsSettingsProps} props The component's props.
+ * @param {TitleSuggestionsSettingsProps} props The component props.
  */
 export const TitleSuggestionsSettings = ( {
 	isLoading,

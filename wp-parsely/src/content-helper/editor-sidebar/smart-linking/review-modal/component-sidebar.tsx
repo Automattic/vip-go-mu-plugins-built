@@ -24,7 +24,7 @@ type ReviewModalSidebarProps = {
  *
  * @since 3.16.0
  *
- * @param {ReviewModalSidebarProps} props The component's props.
+ * @param {ReviewModalSidebarProps} props The component props.
  */
 export const ReviewModalSidebar = ( {
 	activeLink,

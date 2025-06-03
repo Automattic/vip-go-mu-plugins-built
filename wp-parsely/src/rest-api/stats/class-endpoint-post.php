@@ -83,11 +83,11 @@ class Endpoint_Post extends Base_Endpoint {
 	}
 
 	/**
-	 * Returns the endpoint's name.
+	 * Returns the endpoint name.
 	 *
 	 * @since 3.17.0
 	 *
-	 * @return string The endpoint's name.
+	 * @return string The endpoint name.
 	 */
 	public static function get_endpoint_name(): string {
 		return 'post';

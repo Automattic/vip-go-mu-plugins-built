@@ -49,7 +49,7 @@ class Endpoint_Related extends Base_Endpoint {
 	}
 
 	/**
-	 * Returns the endpoint's name.
+	 * Returns the endpoint name.
 	 *
 	 * @since 3.17.0
 	 *

@@ -54,7 +54,7 @@ type SuggestionBreadcrumbProps = {
  *
  * @since 3.16.0
  *
- * @param {SuggestionBreadcrumbProps} props The component's props.
+ * @param {SuggestionBreadcrumbProps} props The component props.
  */
 const SuggestionBreadcrumb = ( { link }: SuggestionBreadcrumbProps ): React.JSX.Element => {
 	const blockId = link.match?.blockId;
@@ -108,7 +108,7 @@ const SuggestionBreadcrumb = ( { link }: SuggestionBreadcrumbProps ): React.JSX.
  * @since 3.16.0
  * @since 3.18.0 Added the post type to the link details.
  *
- * @param {{link: SmartLink}} props The component's props.
+ * @param {{link: SmartLink}} props The component props.
  */
 const LinkDetails = ( { link }: { link: SmartLink } ): React.JSX.Element => {
 	const author = link.wp_post_meta?.author ?? __( 'N/A', 'wp-parsely' );
@@ -203,7 +203,7 @@ type ReviewSuggestionProps = {
  *
  * @since 3.16.0
  *
- * @param {ReviewSuggestionProps} props The component's props.
+ * @param {ReviewSuggestionProps} props The component props.
  */
 export const ReviewSuggestion = ( {
 	link,
