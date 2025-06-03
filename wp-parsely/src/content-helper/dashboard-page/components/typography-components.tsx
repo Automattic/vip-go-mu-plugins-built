@@ -22,7 +22,7 @@ export type DashboardHeadingProps = {
  *
  * @since 3.19.0
  *
- * @param {DashboardHeadingProps} props The component props.
+ * @param {DashboardHeadingProps} props The component's props.
  */
 export const DashboardHeading = ( { children, ...props }: DashboardHeadingProps ) => {
 	return (

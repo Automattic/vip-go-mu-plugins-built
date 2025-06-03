@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.19.3](https://github.com/Parsely/wp-parsely/compare/3.19.2...3.19.3) - 2025-06-03
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.19.3+label%3ADeps).
+
 ## [3.19.2](https://github.com/Parsely/wp-parsely/compare/3.19.1...3.19.2) - 2025-05-29
 
 ### Fixed

@@ -3,7 +3,7 @@
  */
 // eslint-disable-next-line import/named
 import { BlockInstance, parse } from '@wordpress/blocks';
-import { __experimentalDivider as Divider, Button, KeyboardShortcuts, Tooltip } from '@wordpress/components';
+import { Button, __experimentalDivider as Divider, KeyboardShortcuts, Tooltip } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, Icon, page } from '@wordpress/icons';
@@ -29,7 +29,7 @@ type ThreeDotsProps = {
  *
  * @since 3.16.0
  *
- * @param {ThreeDotsProps} props The component props.
+ * @param {ThreeDotsProps} props The component's props.
  */
 const ThreeDots: React.FC<ThreeDotsProps> = ( {
 	topOrBottom,
@@ -55,7 +55,7 @@ type LinkingPostDetailsProps = {
  *
  * @since 3.16.0
  *
- * @param {LinkingPostDetailsProps} props The component props.
+ * @param {LinkingPostDetailsProps} props The component's props.
  */
 const LinkingPostDetails = ( { link }: LinkingPostDetailsProps ): React.JSX.Element => {
 	return (
@@ -108,7 +108,7 @@ type InboundLinkDetailsProps = {
  *
  * @since 3.16.0
  *
- * @param {InboundLinkDetailsProps} props The component props.
+ * @param {InboundLinkDetailsProps} props The component's props.
  */
 export const InboundLinkDetails = ( {
 	link,

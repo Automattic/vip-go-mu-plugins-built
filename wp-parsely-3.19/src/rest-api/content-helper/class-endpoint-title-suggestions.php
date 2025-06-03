@@ -53,7 +53,7 @@ class Endpoint_Title_Suggestions extends Base_Endpoint {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @return string The endpoint name.
+	 * @return string The endpoint's name.
 	 */
 	public static function get_endpoint_name(): string {
 		return 'title-suggestions';

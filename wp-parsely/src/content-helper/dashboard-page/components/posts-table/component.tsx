@@ -31,7 +31,7 @@ import { SinglePostRow } from './components/single-post-row';
  *
  * @since 3.19.0
  *
- * @param {Object}   props                The component props.
+ * @param {Object}   props                The component's props.
  * @param {boolean}  props.isLoading      Whether the posts are loading.
  * @param {number}   props.currentPage    The current page.
  * @param {Function} props.setCurrentPage The function to set the current page.
@@ -113,7 +113,7 @@ type PostsTableType = {
  *
  * @since 3.19.0
  *
- * @param {PostsTableType} props The component props.
+ * @param {PostsTableType} props The component's props.
  */
 export const PostsTable = ( {
 	query = {},

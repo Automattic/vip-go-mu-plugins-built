@@ -59,7 +59,7 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @return string The endpoint name.
+	 * @return string The endpoint's name.
 	 */
 	public static function get_endpoint_name(): string {
 		return 'smart-linking';
@@ -70,7 +70,7 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @return string The feature name.
+	 * @return string The feature's name.
 	 */
 	public function get_pch_feature_name(): string {
 		return 'smart_linking';

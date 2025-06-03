@@ -42,7 +42,7 @@ type StylesProps = {
  *
  * @since 3.16.0
  *
- * @param {StylesProps} props The component props.
+ * @param {StylesProps} props The component's props.
  */
 const Styles = ( { styles }: StylesProps ): React.JSX.Element => {
 	/**
@@ -146,7 +146,7 @@ type BlockPreviewProps = {
  *
  * @since 3.16.0
  *
- * @param {BlockPreviewProps} props The component props.
+ * @param {BlockPreviewProps} props The component's props.
  */
 export const BlockPreview = ( { block, link, useOriginalBlock }: BlockPreviewProps ) => {
 	/**

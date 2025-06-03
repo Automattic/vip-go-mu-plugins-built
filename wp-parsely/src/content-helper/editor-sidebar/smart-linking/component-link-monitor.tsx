@@ -3,9 +3,9 @@
  */
 // eslint-disable-next-line import/named
 import { BlockInstance } from '@wordpress/blocks';
-import { useEffect, useRef } from '@wordpress/element';
-import { useSelect } from '@wordpress/data';
 import { debounce } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
+import { useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -123,7 +123,7 @@ type LinkMonitorProps = {
  *
  * @since 3.16.0
  *
- * @param {LinkMonitorProps} props The component props.
+ * @param {LinkMonitorProps} props The component's props.
  */
 export const LinkMonitor = ( {
 	isDetectingEnabled,

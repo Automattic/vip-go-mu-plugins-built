@@ -26,7 +26,7 @@ type PostDetailsProps = {
  *
  * @since 3.19.0
  *
- * @param {PostDetailsProps} props The component props.
+ * @param {PostDetailsProps} props The component's props.
  */
 export const PostDetails = ( { post }: PostDetailsProps ): React.JSX.Element => {
 	const prettyDate = post.date ? getSmartShortDate( new Date( post.date ) ) : '';
