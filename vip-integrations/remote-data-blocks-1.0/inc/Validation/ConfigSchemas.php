@@ -3,8 +3,8 @@
 namespace RemoteDataBlocks\Validation;
 
 use RemoteDataBlocks\Validation\Types;
-use RemoteDataBlocks\Config\DataSource\HttpDataSourceInterface;
-use RemoteDataBlocks\Config\Query\HttpQueryInterface;
+use RemoteDataBlocks\Config\DataSource\HttpDataSource;
+use RemoteDataBlocks\Config\Query\HttpQuery;
 use RemoteDataBlocks\Config\Query\QueryInterface;
 use RemoteDataBlocks\Config\QueryRunner\QueryRunnerInterface;
 use RemoteDataBlocks\Editor\BlockManagement\ConfigRegistry;
@@ -89,7 +89,7 @@ final class ConfigSchemas {
 			'render_query' => Types::object( [
 				'query' => Types::one_of(
 					Types::instance_of( QueryInterface::class ),
-					Types::serialized_config_for( HttpQueryInterface::class ),
+					Types::serialized_config_for( HttpQuery::class ),
 				),
 			] ),
 			'selection_queries' => Types::nullable(
@@ -98,7 +98,7 @@ final class ConfigSchemas {
 						'display_name' => Types::nullable( Types::string() ),
 						'query' => Types::one_of(
 							Types::instance_of( QueryInterface::class ),
-							Types::serialized_config_for( HttpQueryInterface::class ),
+							Types::serialized_config_for( HttpQuery::class ),
 						),
 						'type' => Types::enum(
 							ConfigRegistry::LIST_QUERY_KEY,
@@ -158,8 +158,8 @@ final class ConfigSchemas {
 		return Types::object( [
 			'cache_ttl' => Types::nullable( Types::one_of( Types::callable(), Types::integer(), Types::null() ) ),
 			'data_source' => Types::one_of(
-				Types::instance_of( HttpDataSourceInterface::class ),
-				Types::serialized_config_for( HttpDataSourceInterface::class ),
+				Types::instance_of( HttpDataSource::class ),
+				Types::serialized_config_for( HttpDataSource::class ),
 			),
 			'endpoint' => Types::nullable( Types::one_of( Types::callable(), Types::url() ) ),
 			'image_url' => Types::nullable( Types::image_url() ),
@@ -368,6 +368,7 @@ final class ConfigSchemas {
 	private static function generate_remote_data_block_attribute_config_schema(): array {
 		return Types::object( [
 			'blockName' => Types::string(),
+			'configId' => Types::string(),
 			'enabledOverrides' => Types::list_of( Types::string() ),
 			'metadata' => Types::record(
 				Types::string(),

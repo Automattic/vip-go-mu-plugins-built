@@ -5,7 +5,11 @@ use Automattic\VIP\Security\Email\Email;
 
 class Notify_Privileged_Activity {
 	public static function init() {
-		add_action( 'user_register', [ __CLASS__, 'notify_admin_user_creation' ] );
+		if ( is_multisite() ) {
+			add_action( 'add_user_to_blog', [ __CLASS__, 'notify_admin_user_creation' ] );
+		} else {
+			add_action( 'user_register', [ __CLASS__, 'notify_admin_user_creation' ] );
+		}
 	}
 
 	/**
@@ -29,13 +33,6 @@ class Notify_Privileged_Activity {
 			/* Translators: %s: Site name. */
 			$subject = sprintf( __( '[%s] New Administrator User Created', 'wpvip' ),
 				get_bloginfo( 'name' )
-			);
-
-			$message = sprintf(
-				/* Translators: %1$s is the username, %2$s is the user email. */
-				__( 'A new user with administrator privileges has been created:\nUsername: %1$s\nEmail: %2$s', 'wpvip' ),
-				$user->user_login,
-				$user->user_email
 			);
 
 			Email::send( $user_id, $admin_email, $subject, 'privileged-user-created', [

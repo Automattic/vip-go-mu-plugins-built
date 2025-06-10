@@ -227,6 +227,10 @@ final class Types {
 	// This type indicates that the value is a serialized array that can be used
 	// to inflate a class instance, e.g., HttpQuery::from_array( $value ).
 	public static function serialized_config_for( string $class_ref ): array {
+		if ( ! class_exists( $class_ref ) ) {
+			throw new \InvalidArgumentException( sprintf( "Class '%s' does not exist.", esc_html( $class_ref ) ) );
+		}
+
 		return self::generate_non_primitive_type( 'serialized_config_for', $class_ref );
 	}
 

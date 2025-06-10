@@ -152,6 +152,7 @@ class QueryRunner implements QueryRunnerInterface {
 		$raw_response_string = $response->getBody()->getContents();
 
 		return [
+			'input_variables' => $input_variables,
 			'metadata' => [
 				'age' => $response->getHeaderLine( RdbCacheStrategy::CACHE_AGE_RESPONSE_HEADER ),
 				'status_code' => $response_code,
@@ -164,16 +165,17 @@ class QueryRunner implements QueryRunnerInterface {
 	 * Get the response metadata for the query, which are available as targets for
 	 * inline bindings.
 	 *
-	 * @param array $response_metadata The response metadata returned by the query runner.
-	 * @param array $query_results     The results of the query.
+	 * @param HttpQueryInterface $query The query.
+	 * @param array $raw_response_data  The raw response data from `get_raw_response_data`.
+	 * @param array $query_results      The results of the query.
 	 * @return array array<string, array{
 	 *   name:  string,
 	 *   type:  string,
 	 *   value: string|int|null,
 	 * }>,
 	 */
-	protected function get_response_metadata( HttpQueryInterface $query, array $response_metadata, array $query_results ): array {
-		$age = intval( $response_metadata['age'] ?? 0 );
+	protected function get_response_metadata( HttpQueryInterface $query, array $raw_response_data, array $query_results ): array {
+		$age = intval( $raw_response_data['metadata']['age'] ?? 0 );
 		$time = time() - $age;
 
 		$query_response_metadata = [
@@ -194,12 +196,12 @@ class QueryRunner implements QueryRunnerInterface {
 		 * inline bindings.
 		 *
 		 * @param array $query_response_metadata The query response metadata.
-		 * @param HttpQueryInterface $query The query context.
-		 * @param array $response_metadata The response metadata returned by the query runner.
+		 * @param HttpQueryInterface $query The query.
+		 * @param array $raw_response_data The raw response data from `get_raw_response_data`.
 		 * @param array $query_results The results of the query.
 		 * @return array The filtered query response metadata.
 		 */
-		return apply_filters( 'remote_data_blocks_query_response_metadata', $query_response_metadata, $query, $response_metadata, $query_results );
+		return apply_filters( 'remote_data_blocks_query_response_metadata', $query_response_metadata, $query, $raw_response_data, $query_results );
 	}
 
 	/**
@@ -261,9 +263,9 @@ class QueryRunner implements QueryRunnerInterface {
 		// ensures a consistent response shape. The requestor is expected to inspect
 		// is_collection and unwrap if necessary.
 		$parser = new QueryResponseParser();
-		$results = $parser->parse( $response_data, $output_schema );
+		$results = $parser->parse( $response_data, $output_schema, $raw_response_data );
 		$results = $is_collection ? $results : [ $results ];
-		$metadata = $this->get_response_metadata( $query, $raw_response_data['metadata'], $results );
+		$metadata = $this->get_response_metadata( $query, $raw_response_data, $results );
 
 		// Pagination schema defines how to extract pagination data from the response.
 		$pagination = null;
@@ -284,7 +286,6 @@ class QueryRunner implements QueryRunnerInterface {
 			'metadata' => $metadata,
 			'pagination' => Pagination::format_pagination_data_for_query_response( $pagination, $input_schema, $input_variables ),
 			'results' => $results,
-			'query_id' => $query->get_id(),
 			'query_inputs' => [ $input_variables ],
 		];
 
@@ -342,7 +343,6 @@ class QueryRunner implements QueryRunnerInterface {
 			'metadata' => $this->get_response_metadata( $query, [ 'batch' => true ], $merged_results ),
 			'pagination' => null, // Pagination is always disabled for batch executions.
 			'results' => $merged_results,
-			'query_id' => $query->get_id(),
 			'query_inputs' => $merged_query_inputs,
 		];
 	}

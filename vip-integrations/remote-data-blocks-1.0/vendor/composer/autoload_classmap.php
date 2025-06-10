@@ -185,6 +185,7 @@ return array(
     'RemoteDataBlocks\\Integrations\\Airtable\\AirtableDataSource' => $baseDir . '/inc/Integrations/Airtable/AirtableDataSource.php',
     'RemoteDataBlocks\\Integrations\\Airtable\\AirtableIntegration' => $baseDir . '/inc/Integrations/Airtable/AirtableIntegration.php',
     'RemoteDataBlocks\\Integrations\\GenericHttp\\GenericHttpDataSource' => $baseDir . '/inc/Integrations/GenericHttp/GenericHttpDataSource.php',
+    'RemoteDataBlocks\\Integrations\\GenericHttp\\GenericHttpIntegration' => $baseDir . '/inc/Integrations/GenericHttp/GenericHttpIntegration.php',
     'RemoteDataBlocks\\Integrations\\GitHub\\GitHubDataSource' => $baseDir . '/inc/Integrations/GitHub/GitHubDataSource.php',
     'RemoteDataBlocks\\Integrations\\Google\\Auth\\GoogleAuth' => $baseDir . '/inc/Integrations/Google/Auth/GoogleAuth.php',
     'RemoteDataBlocks\\Integrations\\Google\\Auth\\GoogleServiceAccountKey' => $baseDir . '/inc/Integrations/Google/Auth/GoogleServiceAccountKey.php',

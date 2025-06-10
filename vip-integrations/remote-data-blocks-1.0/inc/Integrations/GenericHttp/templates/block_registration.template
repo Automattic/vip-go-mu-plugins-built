@@ -1,0 +1,38 @@
+<?php declare(strict_types = 1);
+
+/**
+ * @template-name Generic HTTP Data Source
+ * @template-version 1.0.0
+ * @template-description Gets a Generic HTTP data source to be used for queries and block registation.
+ *
+ * Template variables:
+ * - DATA_SOURCE_UUID: The UUID of the data source.
+ */
+
+namespace RemoteDataBlocks\Snippets\GenericHttp;
+
+use RemoteDataBlocks\WpdbStorage\DataSourceCrud;
+use RemoteDataBlocks\Config\Query\HttpQuery;
+
+function register_http_remote_data_block(): void {
+	$data_source = DataSourceCrud::get_config_by_uuid( '{{DATA_SOURCE_UUID}}' );
+
+	$query = HttpQuery::from_array( [
+		'data_source' => $data_source,
+		'input_schema' => [
+			/* Input schema */
+		],
+		'output_schema' => [
+			/* Output schema */
+		],
+	] );
+
+	register_remote_data_block( [
+		'title' => $block_title,
+		'render_query' => [
+			'query' => $query,
+		],
+	] );
+}
+
+add_action( 'init', __NAMESPACE__ . '\\register_http_remote_data_block' );

@@ -282,6 +282,7 @@ class ComposerStaticInit092951f91b727b778a59b755313eebca
         'RemoteDataBlocks\\Integrations\\Airtable\\AirtableDataSource' => __DIR__ . '/../..' . '/inc/Integrations/Airtable/AirtableDataSource.php',
         'RemoteDataBlocks\\Integrations\\Airtable\\AirtableIntegration' => __DIR__ . '/../..' . '/inc/Integrations/Airtable/AirtableIntegration.php',
         'RemoteDataBlocks\\Integrations\\GenericHttp\\GenericHttpDataSource' => __DIR__ . '/../..' . '/inc/Integrations/GenericHttp/GenericHttpDataSource.php',
+        'RemoteDataBlocks\\Integrations\\GenericHttp\\GenericHttpIntegration' => __DIR__ . '/../..' . '/inc/Integrations/GenericHttp/GenericHttpIntegration.php',
         'RemoteDataBlocks\\Integrations\\GitHub\\GitHubDataSource' => __DIR__ . '/../..' . '/inc/Integrations/GitHub/GitHubDataSource.php',
         'RemoteDataBlocks\\Integrations\\Google\\Auth\\GoogleAuth' => __DIR__ . '/../..' . '/inc/Integrations/Google/Auth/GoogleAuth.php',
         'RemoteDataBlocks\\Integrations\\Google\\Auth\\GoogleServiceAccountKey' => __DIR__ . '/../..' . '/inc/Integrations/Google/Auth/GoogleServiceAccountKey.php',

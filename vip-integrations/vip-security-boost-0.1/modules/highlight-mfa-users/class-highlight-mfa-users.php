@@ -4,8 +4,9 @@ namespace Automattic\VIP\Security\MFAUsers;
 use function Automattic\VIP\Security\Utils\get_module_configs;
 
 class Highlight_MFA_Users {
-	const MFA_SKIP_USER_IDS_OPTION_KEY = 'vip_security_mfa_skip_user_ids';
-	const ROLE_COLUMN_KEY              = 'role';
+	const MFA_SKIP_USER_IDS_OPTION_KEY    = 'vip_security_mfa_skip_user_ids';
+	const ROLE_COLUMN_KEY                 = 'role';
+	const DEFAULT_ADMIN_EDITOR_ROLE_SLUGS = [ 'administrator', 'editor' ];
 
 	/**
 	 * The roles used to highlight users without MFA.
@@ -17,7 +18,7 @@ class Highlight_MFA_Users {
 	public static function init() {
 		// Feature is always active unless specific users are skipped via option.
 		$highlight_mfa_configs = get_module_configs( 'highlight-mfa-users' );
-		self::$roles           = $highlight_mfa_configs['roles'] ?? [ 'administrator', 'editor' ]; // Default to administrator and editor if not configured
+		self::$roles           = $highlight_mfa_configs['roles'] ?? self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS; // Default to administrator and editor if not configured
 
 		if ( ! is_array( self::$roles ) ) {
 			self::$roles = [ self::$roles ];
@@ -25,7 +26,7 @@ class Highlight_MFA_Users {
 		self::$roles = array_filter( self::$roles );
 		// If after filtering, the array is empty, default back to administrator and editor
 		if ( empty( self::$roles ) ) {
-			self::$roles = [ 'administrator', 'editor' ];
+			self::$roles = self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS;
 		}
 
 		add_action( 'admin_notices', [ __CLASS__, 'display_mfa_disabled_notice' ] );
@@ -55,11 +56,24 @@ class Highlight_MFA_Users {
 			return;
 		}
 
+		// Only show the notice to admins
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		// Only show on the main users list table
 		$screen = get_current_screen();
 		if ( ! $screen || 'users' !== $screen->id ) {
 			return;
 		}
+
+		// Determine notice text based on role configuration
+		// self::$roles is already an array and populated from init().
+		$configured_roles_for_comparison = self::$roles;
+		\sort( $configured_roles_for_comparison ); // Use global sort
+
+		// unordered array check with ==
+		$is_default_config = ( self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS === $configured_roles_for_comparison || empty( $configured_roles_for_comparison ) );
 
 		$skipped_user_ids = get_option( self::MFA_SKIP_USER_IDS_OPTION_KEY, [] );
 		if ( ! is_array( $skipped_user_ids ) ) {
@@ -95,43 +109,102 @@ class Highlight_MFA_Users {
 			$is_filtered = isset( $_GET['filter_mfa_disabled'] ) && '1' === $_GET['filter_mfa_disabled'];
 
 			if ( $is_filtered ) {
-				// Display notice for when the list IS filtered
-				$show_all_url = remove_query_arg( 'filter_mfa_disabled', admin_url( 'users.php' ) );
+				// Display info notice for when the list IS filtered
+				$show_all_url        = remove_query_arg( 'filter_mfa_disabled', admin_url( 'users.php' ) );
+				$notice_message_text = self::get_missing_mfa_notice_message_text( $mfa_disabled_count, $is_default_config );
+
 				printf(
 					'<div class="notice notice-info"><p>%s <a href="%s">%s</a></p></div>',
-					esc_html( sprintf(
-						/* Translators: %d is the number of users without 2FA enabled being shown in the filtered list. */
-						_n(
-							'Showing %d user without Two-Factor Authentication enabled.',
-							'Showing %d users without Two-Factor Authentication enabled.',
-							$mfa_disabled_count,
-							'wpvip'
-						),
-						number_format_i18n( $mfa_disabled_count )
-					) ),
+					esc_html( $notice_message_text ),
 					esc_url( $show_all_url ),
 					esc_html__( 'Show all users.', 'wpvip' )
 				);
 			} else {
 				// Display the original notice when the list is NOT filtered
-				$filter_url = add_query_arg( 'filter_mfa_disabled', '1', admin_url( 'users.php' ) );
+				$filter_url          = add_query_arg( 'filter_mfa_disabled', '1', admin_url( 'users.php' ) );
+				$notice_message_text = self::get_filtering_mfa_info_message_text( $mfa_disabled_count, $is_default_config );
+
 				printf(
 					'<div class="notice notice-error"><p>%s <a href="%s">%s</a></p></div>',
-					esc_html( sprintf(
-						/* Translators: %d is the number of users without 2FA enabled. */
-						_n(
-							'There is %d user with Two-Factor Authentication disabled.',
-							'There are %d users with Two-Factor Authentication disabled.',
-							$mfa_disabled_count,
-							'wpvip'
-						),
-						number_format_i18n( $mfa_disabled_count )
-					) ),
+					esc_html( $notice_message_text ),
 					esc_url( $filter_url ),
 					esc_html__( 'Filter list to show these users.', 'wpvip' )
 				);
 			}
 		}
+	}
+
+	/**
+	 * Get the notice message text for when users with missing MFA are shown.
+	 *
+	 * @param int $mfa_disabled_count The number of users with missing MFA.
+	 * @param bool $is_default_config Whether the default roles are being used.
+	 * @return string The notice message text.
+	 */
+	protected static function get_missing_mfa_notice_message_text( $mfa_disabled_count, $is_default_config ) {
+		$notice_message_text = '';
+		if ( $is_default_config ) {
+			// Default roles: Administrator, Editor
+			$notice_message_text = sprintf(
+				/* Translators: %d is the number of users with Administrator or Editor roles without 2FA enabled being shown. */
+				_n(
+					'Showing %d user with Administrator or Editor roles without Two-Factor Authentication enabled.',
+					'Showing %d users with Administrator or Editor roles without Two-Factor Authentication enabled.',
+					$mfa_disabled_count,
+					'wpvip'
+				),
+				number_format_i18n( $mfa_disabled_count )
+			);
+		} else {
+			// Custom roles
+			$notice_message_text = sprintf(
+				/* Translators: %d is the number of users with high-privileges without 2FA enabled being shown. */
+				_n(
+					'Showing %d user with high-privileges without Two-Factor Authentication enabled.',
+					'Showing %d users with high-privileges without Two-Factor Authentication enabled.',
+					$mfa_disabled_count,
+					'wpvip'
+				),
+				number_format_i18n( $mfa_disabled_count )
+			);
+		}
+
+		return $notice_message_text;
+	}
+
+	/**
+	 * Get the notice message text for when users with missing MFA are filtered.
+	 *
+	 * @param int $mfa_disabled_count The number of users with missing MFA.
+	 * @param bool $is_default_config Whether the default roles are being used.
+	 * @return string The notice message text.
+	 */
+	protected static function get_filtering_mfa_info_message_text( $mfa_disabled_count, $is_default_config ) {
+		$notice_message_text = '';
+		if ( $is_default_config ) {
+			$notice_message_text = sprintf(
+				/* Translators: %d is the number of users with Administrator or Editor roles and 2FA disabled. */
+				_n(
+					'There is %d user with Administrator or Editor roles with Two-Factor Authentication disabled.',
+					'There are %d users with Administrator or Editor roles with Two-Factor Authentication disabled.',
+					$mfa_disabled_count,
+					'wpvip'
+				),
+				number_format_i18n( $mfa_disabled_count )
+			);
+		} else {
+			$notice_message_text = sprintf(
+				/* Translators: %d is the number of high-privilege users with 2FA disabled. */
+				_n(
+					'There is %d user with high-privileges with Two-Factor Authentication disabled.',
+					'There are %d users with high-privileges with Two-Factor Authentication disabled.',
+					$mfa_disabled_count,
+					'wpvip'
+				),
+				number_format_i18n( $mfa_disabled_count )
+			);
+		}
+		return $notice_message_text;
 	}
 
 	/**

@@ -27,9 +27,9 @@ class Pagination {
 		);
 	}
 
-	public static function create_query_var( string $query_id, array $pagination_input_variables ): string {
+	public static function create_query_var( string $config_id, array $pagination_input_variables ): string {
 		$value = [
-			$query_id => $pagination_input_variables,
+			$config_id => $pagination_input_variables,
 		];
 
 		return add_query_arg( self::$variable_name, self::encode_query_var( $value ) );
@@ -43,22 +43,18 @@ class Pagination {
 		return base64_encode( wp_json_encode( $query_var_value ) );
 	}
 
-	public static function get_pagination_input_variables_for_current_request( QueryInterface $query ): array {
+	public static function get_pagination_input_variables_for_current_request( QueryInterface $query, ?string $config_id ): array {
 		$untrusted_variables = self::decode_query_var( get_query_var( self::$variable_name, '' ) );
 
 		if ( empty( $untrusted_variables ) || ! is_array( $untrusted_variables ) ) {
 			return [];
 		}
 
-		$query_id = $query->get_id();
-
-		// The query var value is an associative array with IDs as keys and
-		// values that are an associative array of input variables.
+		// The query var value is an associative array.
 		//
-		// We only expect a single key => value pair, but in the future we may
-		// decide to support more than one. This would allow us to control the
-		// pagination of multiple remote data blocks independently.
-		$untrusted_variables = $untrusted_variables[ $query_id ] ?? [];
+		// The keys are configuration IDs as persisted by the remote data block
+		// attribute. The values that are an associative array of input variables.
+		$untrusted_variables = $untrusted_variables[ $config_id ] ?? [];
 
 		if ( empty( $untrusted_variables ) || ! is_array( $untrusted_variables ) ) {
 			return [];

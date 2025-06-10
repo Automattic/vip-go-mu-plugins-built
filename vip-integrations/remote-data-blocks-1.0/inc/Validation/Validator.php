@@ -226,18 +226,13 @@ final class Validator implements ValidatorInterface {
 					return $this->create_error( sprintf( 'targets class "%s" that does not implement ArraySerializableInterface', $class_ref ), $path );
 				}
 
-				// The config must provide a `__class` property so that we know which
-				// class to inflate. This allows values to target subclasses of the
-				// specified class and also provides disambiguation when the type is
-				// used in a union type (one_of).
+				// The config can provide a `__class` property to target a subclass of
+				// the specified class.
 				$class_property = ArraySerializableInterface::CLASS_REF_ATTRIBUTE;
-				$subclass = $value[ $class_property ] ?? null;
-				if ( null === $subclass ) {
-					return $this->create_error( sprintf( 'does not provide a %s property', $class_property ), $path );
-				}
+				$subclass = $value[ $class_property ] ?? $class_ref;
 
 				if ( ! class_exists( $subclass ) ) {
-					return $this->create_error( sprintf( 'targets non-existent subclass "%s"', $subclass ), $path );
+					return $this->create_error( sprintf( 'targets non-existent class "%s"', $subclass ), $path );
 				}
 
 				if ( $subclass !== $class_ref && ! is_subclass_of( $subclass, $class_ref, true ) ) {

@@ -145,6 +145,9 @@ class HttpQuery extends ArraySerializable implements HttpQueryInterface {
 
 	/**
 	 * Preprocess the response data before it is passed to the response parser.
+	 * This is normally not necessary since the output schema allows for flexible
+	 * data parsing and value extraction, but it can be useful when the response
+	 * shape needs significant transformation.
 	 *
 	 * @param mixed $response_data The raw deserialized response data.
 	 * @param array $input_variables The input variables for this query.

@@ -5,6 +5,7 @@ namespace RemoteDataBlocks\Snippet;
 use JsonSerializable;
 use RemoteDataBlocks\WpdbStorage\DataSourceCrud;
 use RemoteDataBlocks\Integrations\Airtable\AirtableIntegration;
+use RemoteDataBlocks\Integrations\GenericHttp\GenericHttpIntegration;
 use RemoteDataBlocks\Integrations\Google\Sheets\GoogleSheetsIntegration;
 use RemoteDataBlocks\Integrations\Shopify\ShopifyIntegration;
 use WP_Error;
@@ -39,6 +40,9 @@ class Snippet implements JsonSerializable {
 		$service = $data_source_config['service'];
 
 		switch ( $service ) {
+			case REMOTE_DATA_BLOCKS_GENERIC_HTTP_SERVICE:
+				$snippets = GenericHttpIntegration::get_code_snippets( $data_source_config );
+				break;
 			case REMOTE_DATA_BLOCKS_SHOPIFY_SERVICE:
 				$snippets = ShopifyIntegration::get_block_registration_snippets( $data_source_config );
 				break;

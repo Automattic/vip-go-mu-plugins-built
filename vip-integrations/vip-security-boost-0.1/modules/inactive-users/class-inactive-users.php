@@ -52,6 +52,12 @@ class Inactive_Users {
 			add_filter( 'manage_users_sortable_columns', [ __CLASS__, 'add_last_seen_sortable_column' ] );
 			add_filter( 'manage_users-network_sortable_columns', [ __CLASS__, 'add_last_seen_sortable_column' ] );
 			add_filter( 'users_list_table_query_args', [ __CLASS__, 'last_seen_order_by_query_args' ] );
+
+			// Add badges to username display by modifying the list table items
+			add_action( 'admin_head-users.php', [ __CLASS__, 'modify_users_list_table_items' ] );
+			add_action( 'admin_head-users.php', [ __CLASS__, 'add_username_badge_styles' ] );
+			add_action( 'admin_head-users-network.php', [ __CLASS__, 'modify_users_list_table_items' ] );
+			add_action( 'admin_head-users-network.php', [ __CLASS__, 'add_username_badge_styles' ] );
 		}
 
 		if ( self::is_block_action_enabled() ) {
@@ -138,6 +144,76 @@ class Inactive_Users {
 		}
 
 		return $available;
+	}
+
+	public static function modify_users_list_table_items() {
+		global $wp_list_table;
+
+		// Make sure we have a list table and it's the users list table
+		if ( ! $wp_list_table ) {
+			return;
+		}
+
+		if ( ! ( $wp_list_table instanceof \WP_Users_List_Table ) && ! ( $wp_list_table instanceof \WP_MS_Users_List_Table ) ) {
+			return;
+		}
+
+		// Get the items from the list table
+		$items = $wp_list_table->items;
+		if ( empty( $items ) ) {
+			return;
+		}
+
+		// Modify each user item to add badge to username
+		foreach ( $items as $user ) {
+			if ( ! self::is_considered_inactive( $user->ID ) ) {
+				continue;
+			}
+
+			// Create the badge
+			$badge_text = self::is_block_action_enabled() ?
+				esc_html__( 'Blocked: Inactivity', 'wpvip' ) :
+				esc_html__( 'Inactive User', 'wpvip' );
+
+			$badge_class = self::is_block_action_enabled() ? 'blocked' : 'inactive';
+
+			$badge = sprintf(
+				'<span class="inactive-user-badge inactive-user-badge--%s">%s</span>',
+				$badge_class,
+				$badge_text
+			);
+
+			// Add the badge to the user_login field (which is what gets displayed in the username column)
+			$user->user_login = esc_html( $user->user_login ) . '&nbsp;&nbsp;' . $badge;
+		}
+
+		// Update the list table items
+		$wp_list_table->items = $items;
+	}
+
+	public static function add_username_badge_styles() {
+		?>
+		<style type="text/css">
+		.inactive-user-badge {
+			border-radius: 4px;
+			display: inline-block;
+			font-size: 11px;
+			font-weight: 500;
+			margin-bottom: 4px;
+			margin-top: 4px;
+			padding: 2px 8px;
+			vertical-align: middle;
+		}
+		.inactive-user-badge--blocked {
+			background: #d63638;
+			color: white;
+		}
+		.inactive-user-badge--inactive {
+			background: #f0b849;
+			color: #1d2327;
+		}
+		</style>
+		<?php
 	}
 
 	public static function add_last_seen_column_head( $columns ) {

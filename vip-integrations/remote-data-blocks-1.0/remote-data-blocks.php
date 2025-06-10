@@ -7,7 +7,7 @@
  * Author: WPVIP
  * Author URI: https://wpvip.com
  * Text Domain: remote-data-blocks
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.7
  * Requires PHP: 8.1
  */
@@ -24,7 +24,7 @@ if ( defined( 'REMOTE_DATA_BLOCKS__LOADED' ) ) {
 define( 'REMOTE_DATA_BLOCKS__LOADED', true );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_ROOT', __FILE__ );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.0.0' );
+define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.0.1' );
 
 define( 'REMOTE_DATA_BLOCKS__REST_NAMESPACE', 'remote-data-blocks/v1' );
 
@@ -66,4 +66,7 @@ do_action( 'remote_data_blocks_loaded' );
 
 // Plugin developers: If you need to register additional code for testing, you
 // can do so here, e.g.:
-// require_once __DIR__ . '/example/shopify/register.php';
+// require_once __DIR__ . '/example/blocks/art-block/art-block.php';
+// require_once __DIR__ . '/example/blocks/github-markdown-block/github-markdown-block.php';
+// require_once __DIR__ . '/example/blocks/shopify-mock-store-block/shopify-mock-store-block.php';
+// require_once __DIR__ . '/example/blocks/zip-code-block/zip-code-block.php';

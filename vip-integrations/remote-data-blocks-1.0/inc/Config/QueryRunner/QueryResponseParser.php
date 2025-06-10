@@ -48,6 +48,7 @@ final class QueryResponseParser {
 	 *
 	 * @param mixed $data Response data.
 	 * @param array $schema The schema to parse the response data.
+	 * @param array $raw_response_data The raw response data from QueryRunner#get_raw_response_data.
 	 * @return null|array<int, array{
 	 *   result: array{
 	 *     name: string,
@@ -56,14 +57,14 @@ final class QueryResponseParser {
 	 *   },
 	 * }>
 	 */
-	public function parse( mixed $data, array $schema ): mixed {
+	public function parse( mixed $data, array $schema, array $raw_response_data = [] ): mixed {
 		$json_obj = $data instanceof JsonObject ? $data : new JsonObject( $data );
 		$is_collection = $schema['is_collection'] ?? false;
 		$default_path = $is_collection ? '$[*]' : '$';
 		$value = $json_obj->get( $schema['path'] ?? $default_path );
 
 		if ( is_array( $schema['type'] ?? null ) ) {
-			$value = $this->parse_response_objects( $value, $schema['type'] ) ?? [];
+			$value = $this->parse_response_objects( $value, $schema['type'], $raw_response_data ) ?? [];
 		} elseif ( is_string( $schema['type'] ?? null ) ) {
 			if ( $is_collection ) {
 				$value = array_map( function ( $item ) use ( $schema ) {
@@ -79,13 +80,13 @@ final class QueryResponseParser {
 		return $is_collection ? $value : $value[0] ?? null;
 	}
 
-	private function parse_response_objects( mixed $objects, array $type ): array {
+	private function parse_response_objects( mixed $objects, array $type, array $raw_response_data ): array {
 		if ( ! is_array( $objects ) ) {
 			return [];
 		}
 
 		// Loop over the provided objects and parse it according to the provided schema type.
-		return array_map( function ( $object ) use ( $type ) {
+		return array_map( function ( $object ) use ( $type, $raw_response_data ) {
 			$json_obj = new JsonObject( $object );
 			$result = [];
 
@@ -98,7 +99,7 @@ final class QueryResponseParser {
 
 				// A generate function accepts the current object and returns the field value.
 				if ( isset( $mapping['generate'] ) && is_callable( $mapping['generate'] ) ) {
-					$field_value = call_user_func( $mapping['generate'], json_decode( $json_obj->getJson(), true ) );
+					$field_value = call_user_func( $mapping['generate'], json_decode( $json_obj->getJson(), true ), $raw_response_data );
 				} else {
 					$field_schema = array_merge( $mapping, [ 'path' => $mapping['path'] ?? "$.{$field_name}" ] );
 					$field_value = $this->parse( $json_obj, $field_schema );

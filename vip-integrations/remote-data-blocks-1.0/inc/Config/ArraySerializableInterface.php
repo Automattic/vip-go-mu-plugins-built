@@ -22,12 +22,6 @@ interface ArraySerializableInterface {
 	public static function from_array( array $config, ?ValidatorInterface $validator ): static|WP_Error;
 
 	/**
-	 * Get a deterministic identifier for the instance. Instances with the same
-	 * base class and config should have the same ID.
-	 */
-	public function get_id(): string;
-
-	/**
 	 * This method will be called by ::from_array() to prior to validating the
 	 * config. This allows you to modify the config before it's validated, perhaps
 	 * because you want to inflate it with additional or computed values.
