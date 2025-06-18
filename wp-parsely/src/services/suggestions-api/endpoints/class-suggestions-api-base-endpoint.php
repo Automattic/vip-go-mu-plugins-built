@@ -18,8 +18,6 @@ use WP_Error;
  *
  * @since 3.17.0
  *
- * @link https://content-suggestions-api.parsely.net/prod/docs
- *
  * @phpstan-import-type WP_HTTP_Response from Base_Service_Endpoint
  * @phpstan-import-type WP_HTTP_Request_Args from Base_Service_Endpoint
  */
@@ -46,7 +44,10 @@ abstract class Suggestions_API_Base_Endpoint extends Base_Service_Endpoint {
 	protected function get_request_options( string $method ): array {
 		$options = array(
 			'method'      => $method,
-			'headers'     => array( 'Content-Type' => 'application/json; charset=utf-8' ),
+			'headers'     => array(
+				'Content-Type'       => 'application/json; charset=utf-8',
+				'X-INTERNAL-SERVICE' => 'content-helper',
+			),
 			'data_format' => 'body',
 			'timeout'     => 90, //phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout
 			'body'        => '{}',

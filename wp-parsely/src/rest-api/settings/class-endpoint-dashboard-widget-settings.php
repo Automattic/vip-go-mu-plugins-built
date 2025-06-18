@@ -19,7 +19,7 @@ namespace Parsely\REST_API\Settings;
  */
 class Endpoint_Dashboard_Widget_Settings extends Base_Settings_Endpoint {
 	/**
-	 * Returns the endpoint name.
+	 * Returns the endpoint's name.
 	 *
 	 * @since 3.17.0
 	 *

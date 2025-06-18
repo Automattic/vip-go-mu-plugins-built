@@ -185,7 +185,7 @@ abstract class Base_API_Controller {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @param string $endpoint The endpoint name/path.
+	 * @param string $endpoint The endpoint's name/path.
 	 * @return Base_Endpoint|null The endpoint object, or null if not found.
 	 */
 	protected function get_endpoint( string $endpoint ): ?Base_Endpoint {

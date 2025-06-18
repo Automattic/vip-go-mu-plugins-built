@@ -27,7 +27,7 @@ trait Content_Helper_Feature {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @return string The feature name.
+	 * @return string The feature's name.
 	 */
 	abstract public function get_pch_feature_name(): string;
 

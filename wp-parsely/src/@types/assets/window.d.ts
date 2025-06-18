@@ -23,8 +23,9 @@ declare global {
 			onReady?: () => unknown,
 		},
 
-		wpParselyContentHelperSettings: string;
 		wpParselyContentHelperPermissions: string;
+		wpParselyContentHelperSettings: string;
+		wpParselyDependencies: { [key: string]: string };
 		wpParselyDisableAutotrack?: boolean;
 		wpParselyEmptyCredentialsMessage: string;
 		wpParselyHooks?: _Hooks;

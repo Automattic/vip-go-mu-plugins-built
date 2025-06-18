@@ -19,8 +19,6 @@ use WP_Error;
  *
  * @since 3.19.0
  *
- * @link https://content-suggestions-api.parsely.net/prod/docs#/prototype/suggest_inbound_link_positions_suggest_inbound_link_positions_post
- *
  * @phpstan-type LinkPositionResponse = array{
  *     anchor_texts: array<array{text: string, offset: int}>,
  *     title: string,

@@ -1,5 +1,5 @@
 /**
- * WordPress imports
+ * WordPress dependencies
  */
 import {
 	CheckboxControl,
@@ -11,7 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Internal imports
+ * Internal dependencies
  */
 import { HydratedPost } from '../../../../../common/providers/base-wordpress-provider';
 import { TrafficBoostLink } from '../../provider';

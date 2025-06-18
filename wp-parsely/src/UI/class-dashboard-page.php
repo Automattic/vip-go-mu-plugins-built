@@ -118,10 +118,17 @@ final class Dashboard_Page {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @param string $content The post content.
-	 * @return string The modified content with wrapper div if needed.
+	 * @param mixed $content The post content.
+	 * @return mixed The modified content with wrapper div if needed, or the
+	 *               unmodified content value in case of a non-string.
 	 */
-	public function add_parsely_preview_wrapper( string $content ): string {
+	public function add_parsely_preview_wrapper( $content ) {
+		if ( ! is_string( $content ) ) {
+			// $content should always be a string, but is filterable by `the_content`.
+			// If we get a non-string value, return it as is to avoid fatal errors.
+			return $content;
+		}
+
 		if ( ! isset( $_GET['parsely_preview'] ) || 'true' !== $_GET['parsely_preview'] ) {
 			return $content;
 		}
@@ -291,9 +298,21 @@ final class Dashboard_Page {
 			$asset_info['version']
 		);
 
+		$inline_script_lines = array(
+			'window.wpParselyDependencies = {};',
+			sprintf(
+				'window.wpParselyDependencies.urlWpComponents = %s;',
+				wp_json_encode( includes_url( 'css/dist/components/style.css' ) )
+			),
+			sprintf(
+				'window._parsely_traffic_boost_preview_nonce = %s;',
+				wp_json_encode( wp_create_nonce( 'parsely_preview' ) )
+			),
+		);
+
 		wp_add_inline_script(
 			'parsely-dashboard-page',
-			'window._parsely_traffic_boost_preview_nonce = ' . wp_json_encode( wp_create_nonce( 'parsely_preview' ) ) . ';',
+			join( "\n", $inline_script_lines ),
 			'before'
 		);
 

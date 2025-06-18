@@ -19,8 +19,6 @@ use WP_Error;
  *
  * @since 3.17.0
  *
- * @link https://content-suggestions-api.parsely.net/prod/docs
- *
  * @phpstan-import-type Endpoint_Suggest_Brief_Options from Endpoints\Endpoint_Suggest_Brief
  * @phpstan-import-type Endpoint_Suggest_Headline_Options from Endpoints\Endpoint_Suggest_Headline
  * @phpstan-import-type Endpoint_Suggest_Linked_Reference_Options from Endpoints\Endpoint_Suggest_Linked_Reference
@@ -36,7 +34,7 @@ class Suggestions_API_Service extends Base_API_Service {
 	 * @return string
 	 */
 	public static function get_base_url(): string {
-		return 'https://content-suggestions-api.parsely.net/prod';
+		return 'https://suggestions-api.parsely.com';
 	}
 
 	/**

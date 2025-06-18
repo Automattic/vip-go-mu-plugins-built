@@ -17,8 +17,6 @@ use WP_Error;
  *
  * @since 3.17.0
  *
- * @link https://content-suggestions-api.parsely.net/prod/docs#/default/suggest_brief_suggest_brief_post
- *
  * @phpstan-type Endpoint_Suggest_Brief_Options = array{
  *     persona?: string,
  *     style?: string,

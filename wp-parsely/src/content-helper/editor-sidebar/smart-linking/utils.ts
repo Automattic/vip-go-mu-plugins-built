@@ -769,4 +769,3 @@ export function addSmartLinkITMParamsToURL( url: string, smartLinkUid: string ):
 		term: smartLinkUid,
 	} );
 }
-

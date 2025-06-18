@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.20.0](https://github.com/Parsely/wp-parsely/compare/3.19.3...3.20.0) - 2025-06-18
+
+### Changed
+
+- Add floating Traffic Boost actions ([#3445](https://github.com/Parsely/wp-parsely/pull/3445))
+- Upgrade minimum PHP version to 7.4 ([#3419](https://github.com/Parsely/wp-parsely/pull/3419))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.20.0+label%3ADeps).
+
+## [3.19.3](https://github.com/Parsely/wp-parsely/compare/3.19.2...3.19.3) - 2025-06-03
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.19.3+label%3ADeps).
+
+## [3.19.2](https://github.com/Parsely/wp-parsely/compare/3.19.1...3.19.2) - 2025-05-29
+
+### Fixed
+
+- add_parsely_preview_wrapper(): Allow mixed type values ([#3389](https://github.com/Parsely/wp-parsely/pull/3389))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.19.2+label%3ADeps).
+
 ## [3.19.1](https://github.com/Parsely/wp-parsely/compare/3.19.0...3.19.1) - 2025-05-21
 
 ### Fixed

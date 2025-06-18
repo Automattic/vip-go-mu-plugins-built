@@ -1,5 +1,5 @@
 /**
- * WordPress imports
+ * WordPress dependencies
  */
 import { Button, DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { desktop, edit, external, moreVertical } from '@wordpress/icons';
 
 /**
- * Internal imports
+ * Internal dependencies
  */
 import { LeafIcon } from '../../../../../common/icons/leaf-icon';
 import { HydratedPost } from '../../../../../common/providers/base-wordpress-provider';
@@ -154,7 +154,7 @@ export const PreviewHeader = ( {
 					selectedLinkType={ null }
 				/>
 			</div>
-			<div className="traffic-boost-preview-actions">
+			<div className="traffic-boost-preview-header-actions">
 				{ ! isExternalURL( activeLink ) && false && (
 					<Button
 						icon={ desktop }

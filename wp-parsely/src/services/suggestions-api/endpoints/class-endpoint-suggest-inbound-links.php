@@ -18,8 +18,6 @@ use WP_Error;
  *
  * @since 3.19.0
  *
- * @link https://content-suggestions-api.parsely.net/prod/docs#/default/suggest_inbound_links_suggest_inbound_links_post
- *
  * @phpstan-type Endpoint_Suggest_Inbound_Links_Options = array{
  *     max_items?: int,
  *     url_exclusion_list?: array<string>,

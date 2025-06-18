@@ -1,11 +1,12 @@
 /**
- * WordPress imports
+ * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
 import { debounce } from '@wordpress/compose';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { link, warning } from '@wordpress/icons';
+import { useWordpressComponentStyles } from '../hooks/use-wordpress-component-styles';
 import { getContentArea } from '../utils';
 
 /**
@@ -16,16 +17,14 @@ import { getContentArea } from '../utils';
  * @param {Document} iframeDocument The iframe's document object.
  */
 const useIframeStyles = ( iframeDocument: Document ) => {
+	const { injectWordpressComponentStyles } = useWordpressComponentStyles();
+
 	useEffect( () => {
+		injectWordpressComponentStyles( iframeDocument );
+
 		// Get computed styles from parent window.
 		const adminColor = window.getComputedStyle( document.documentElement )
 			.getPropertyValue( '--wp-admin-theme-color' ).trim();
-
-		// Inject WordPress components styles.
-		const wpComponentsLink = iframeDocument.createElement( 'link' );
-		wpComponentsLink.rel = 'stylesheet';
-		wpComponentsLink.href = '/wp-includes/css/dist/components/style.css';
-		iframeDocument.head.appendChild( wpComponentsLink );
 
 		// Create and inject custom styles into the iframe.
 		const style = iframeDocument.createElement( 'style' );
@@ -34,7 +33,7 @@ const useIframeStyles = ( iframeDocument: Document ) => {
 			.parsely-traffic-boost-highlight {
 				position: absolute;
 				pointer-events: none;
-				z-index: 1000;
+				z-index: 1010;
 				transition: all 0.15s ease-out;
 			}
 
@@ -59,6 +58,8 @@ const useIframeStyles = ( iframeDocument: Document ) => {
 			}
 
 			.parsely-traffic-boost-iframe-popover {
+				/* Reset font family to editor defaults to avoid inheriting frontend font in tooltip. */
+				font-family: -apple-system, BlinkMacSystemFont,"Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell,"Helvetica Neue", sans-serif;
 				padding: 0;
 				pointer-events: auto;
 				white-space: nowrap;
@@ -106,10 +107,9 @@ const useIframeStyles = ( iframeDocument: Document ) => {
 
 		// Cleanup function to remove styles when component unmounts.
 		return () => {
-			wpComponentsLink.remove();
 			style.remove();
 		};
-	}, [ iframeDocument ] );
+	}, [ iframeDocument, injectWordpressComponentStyles ] );
 };
 
 /**
@@ -148,6 +148,12 @@ const TextSelectionPopover = ( { onSelect, iframeDocument, selection, onErrorCli
 	const containsAnchor = useCallback( ( range: Range ): boolean => {
 		let currentNode: Node | null = range.startContainer;
 		const endNode = range.endContainer;
+
+		if ( currentNode === endNode && currentNode.firstChild ) {
+			// On triple-click, startContainer and endContainer will be the same node.
+			// Start iterating from the first child of the selected section to find inner anchors.
+			currentNode = currentNode.firstChild;
+		}
 
 		while ( currentNode !== null ) {
 			if ( currentNode.nodeType === Node.ELEMENT_NODE ) {
@@ -263,82 +269,6 @@ export const TextSelectionTooltip = ( {
 	onTextSelected,
 }: TextSelectionTooltipProps ): null => {
 	/**
-	 * Expands the current selection to word boundaries.
-	 *
-	 * @since 3.19.0
-	 *
-	 * @param {Selection} docSelection The document's current selection.
-	 * @param {Range}     range        The current selection range.
-	 */
-	const expandToWordBoundary = ( docSelection: Selection, range: Range ) => {
-		const startNode = range.startContainer as Text;
-		const endNode = range.endContainer as Text;
-		const startText = startNode.textContent ?? '';
-		const endText = endNode.textContent ?? '';
-
-		// Get initial selection boundaries before expanding.
-		const initialStart = range.startOffset;
-		const initialEnd = range.endOffset;
-
-		// Find word boundary at start.
-		let startOffset = range.startOffset;
-		while ( startOffset > 0 && /[^\s.,!?;:'")\]}]/g.test( startText[ startOffset - 1 ] ) ) {
-			startOffset--;
-		}
-
-		// Find word boundary at end.
-		let endOffset = range.endOffset;
-		while ( endOffset < endText.length && /[^\s.,!?;:'"([{]/g.test( endText[ endOffset ] ) ) {
-			endOffset++;
-		}
-
-		// Only update if boundaries have changed.
-		if ( startOffset !== initialStart || endOffset !== initialEnd ) {
-			range.setStart( startNode, startOffset );
-			range.setEnd( endNode, endOffset );
-			docSelection.removeAllRanges();
-			docSelection.addRange( range );
-		}
-	};
-
-	/**
-	 * Expands the current selection to encompass the entire link node if
-	 * selection is within a link.
-	 *
-	 * @since 3.19.0
-	 *
-	 * @param {Selection} docSelection The document's current selection.
-	 * @param {Range}     range        The current selection range.
-	 *
-	 * @return {boolean} True if selection was expanded to a link, false otherwise.
-	 */
-	const expandToLinkNode = ( docSelection: Selection, range: Range ): boolean => {
-		// Find if selection is within an anchor tag.
-		const container = range.commonAncestorContainer as Element;
-		const linkNode = container.nodeType === Node.ELEMENT_NODE
-			? container.closest( 'a' )
-			: container.parentElement?.closest( 'a' );
-
-		// If the selection is already the full link, return true.
-		if ( docSelection.toString() === linkNode?.textContent ) {
-			return true;
-		}
-
-		if ( linkNode ) {
-			// Create a new range that encompasses the entire link.
-			const newRange = range.cloneRange();
-			newRange.selectNodeContents( linkNode );
-
-			// Update the selection.
-			docSelection.removeAllRanges();
-			docSelection.addRange( newRange );
-			return true;
-		}
-
-		return false;
-	};
-
-	/**
 	 * Calculates the offset of the selected text by counting previous occurrences.
 	 *
 	 * @since 3.19.0
@@ -416,6 +346,21 @@ export const TextSelectionTooltip = ( {
 			return;
 		}
 
+		if ( docSelection.rangeCount > 1 ) {
+			// If docSelection has multiple ranges, it can be because they've selected over
+			// embedded markup, or they've selected a range over multiple paragraphs (invalid).
+			// Verify that the first and last ranges have the same start and end containers.
+			const firstRange = docSelection.getRangeAt( 0 );
+			const lastRange = docSelection.getRangeAt( docSelection.rangeCount - 1 );
+
+			const startParagraph = getClosestSelectableItem( firstRange.startContainer );
+			const endParagraph = getClosestSelectableItem( lastRange.endContainer );
+
+			if ( ! startParagraph || ! endParagraph || startParagraph !== endParagraph ) {
+				return;
+			}
+		}
+
 		const range = docSelection.getRangeAt( 0 );
 
 		// Check if selection is within content area.
@@ -424,17 +369,17 @@ export const TextSelectionTooltip = ( {
 		}
 
 		// Check if selection spans multiple paragraphs.
-		const startParagraph = range.startContainer.parentElement?.closest( 'p, li' );
-		const endParagraph = range.endContainer.parentElement?.closest( 'p, li' );
+		const normalizedRange = normalizeRange( range, iframeDocument );
+		if ( isRangeChanged( range, normalizedRange ) ) {
+			docSelection.removeAllRanges();
+			docSelection.addRange( normalizedRange );
+		}
+
+		const startParagraph = getClosestSelectableItem( normalizedRange.startContainer );
+		const endParagraph = getClosestSelectableItem( normalizedRange.endContainer );
 
 		if ( ! startParagraph || ! endParagraph || startParagraph !== endParagraph ) {
 			return;
-		}
-
-		// If selection is inside a link, expand to encompass the entire link.
-		if ( ! expandToLinkNode( docSelection, range ) ) {
-			// Only expand to word boundary if we didn't expand to a link.
-			expandToWordBoundary( docSelection, range );
 		}
 
 		// Create highlight overlay.
@@ -465,7 +410,22 @@ export const TextSelectionTooltip = ( {
 					popoverContainer.classList.add( 'closing' );
 
 					const offset = calculateOffset( iframeDocument, docSelection, contentArea );
-					onTextSelected( docSelection.toString().trim(), offset );
+
+					// Using docSelection.toString() directly will replace some characters like &nbsp; with a space.
+					// Later when we're highlighting the text, this will cause the text to not match the content on the page.
+					// Get text content using cloneContents() and .textContent to exactly match page content.
+					const selectionContainer = iframeDocument.createElement( 'div' );
+					for ( let rangeIndex = 0; rangeIndex < docSelection.rangeCount; rangeIndex++ ) {
+						const currentRange = docSelection.getRangeAt( rangeIndex );
+						const rangeContents = currentRange.cloneContents();
+						selectionContainer.appendChild( rangeContents );
+					}
+
+					const docSelectionText = selectionContainer.textContent?.trim() ?? '';
+
+					// Remove newlines that can be present from prior toolbar HTML injection.
+					onTextSelected( docSelectionText, offset );
+
 					docSelection.removeAllRanges();
 
 					// Wait for animation to complete before cleanup.
@@ -482,7 +442,7 @@ export const TextSelectionTooltip = ( {
 		 * @since 3.19.0
 		 */
 		const updatePosition = () => {
-			const rect = range.getBoundingClientRect();
+			const rect = normalizedRange.getBoundingClientRect();
 			const scrollY = iframeDocument.defaultView?.scrollY ?? 0;
 
 			highlight.style.top = `${ rect.top + scrollY }px`;
@@ -526,18 +486,39 @@ export const TextSelectionTooltip = ( {
 			return;
 		}
 
-		// Add selection event listener.
-		const handleSelectionChange = debounce( () => {
-			handleSelection();
-		}, 300, {
+		// Add selection event listener to update the highlight.
+		const handleSelectionChange = debounce( handleSelection, 300, {
 			leading: true,
 			trailing: true,
 		} );
-
 		iframeDocument.addEventListener( 'selectionchange', handleSelectionChange );
+
+		// Add mouseup listener to expand selection to word boundaries.
+		const handleSelectionEnd = () => {
+			const selection = iframeDocument.getSelection();
+
+			if ( selection === null || selection.rangeCount === 0 ) {
+				return;
+			}
+
+			const range = selection.getRangeAt( 0 );
+			const rangeHasContent = range?.collapsed === false;
+
+			if ( selection && range && rangeHasContent ) {
+				const normalizedRange = normalizeRange( range, iframeDocument );
+				if ( isRangeChanged( range, normalizedRange ) ) {
+					selection.removeAllRanges();
+					selection.addRange( normalizedRange );
+				}
+
+				expandToWordBoundary( selection, normalizedRange );
+			}
+		};
+		iframeDocument.addEventListener( 'mouseup', handleSelectionEnd );
 
 		return () => {
 			iframeDocument.removeEventListener( 'selectionchange', handleSelectionChange );
+			iframeDocument.removeEventListener( 'mouseup', handleSelectionEnd );
 		};
 	}, [ handleSelection, iframeRef ] );
 
@@ -570,4 +551,166 @@ const getNextNode = function( node: Node, skipChildren: boolean, endNode: Node )
 	}
 
 	return node.nextSibling ? node.nextSibling : getNextNode( node.parentNode, true, endNode );
+};
+
+/**
+ * Normalize selection range browser differences.
+ *
+ * @since 3.20.0
+ *
+ * @param {Range}    range           The range to normalize.
+ * @param {Document} currentDocument The current document.
+ *
+ * @return {Range} The normalized range.
+ */
+const normalizeRange = ( range: Range, currentDocument: Document ): Range => {
+	// Only care about instances the range is over multiple nodes, and the endOffset is on a node boundary.
+	if ( range.startContainer !== range.endContainer && range.endOffset === 0 ) {
+		// In Chrome, triple-clicking a text section will select:
+		// - The entire section contents (e.g. a paragraph)
+		// - Any whitespace text nodes after the section (e.g. some "\n" characters)
+		// - The next element in the document at endOffset 0 (e.g. the beginning of a <ul><li> list after the paragraph)
+		//
+		// This makes selecting the initial triple-click location difficult, because the range
+		// can include unrelated nodes at a different depth in the DOM.
+		//
+		// Fortunately, we only see range.endOffset === 0 when the user triple-clicks in Chrome,
+		// or drag a selection just past the end of a selectable section.
+		// When we detect this, we can use the startContainer to find the paragraph,
+		// and then set the endContainer to the same paragraph. This ignores the extra nodes
+		// appended to the selection, and gives a strong approximation of the original triple-click location.
+
+		const startParagraph = getClosestSelectableItem( range.startContainer );
+
+		if ( startParagraph === null ) {
+			return range;
+		}
+
+		const newRange = currentDocument.createRange();
+		newRange.selectNodeContents( startParagraph as Node );
+
+		return newRange;
+	}
+
+	return range;
+};
+
+/**
+ * Returns true if the two range parameters are different.
+ *
+ * @param {Range} range    The original range.
+ * @param {Range} newRange The new range.
+ *
+ * @return {boolean} True if the ranges are different, false otherwise.
+ * @since 3.20.0
+ */
+const isRangeChanged = ( range: Range, newRange: Range ): boolean => {
+	return range.startContainer !== newRange.startContainer ||
+		range.startOffset !== newRange.startOffset ||
+		range.endContainer !== newRange.endContainer ||
+		range.endOffset !== newRange.endOffset;
+};
+
+/**
+ * Gets the closest selectable item (p, li) element from a node.
+ *
+ * @since 3.20.0
+ *
+ * @param {Node} node The node to start searching from.
+ *
+ * @return {Element|null} The closest selectable item element, or null if not found.
+ */
+const getClosestSelectableItem = ( node: Node ): Element | null => {
+	const selectableItems = [ 'p', 'li' ].join( ', ' );
+
+	// If the node itself is a matching item, return it.
+	if ( node.nodeType === Node.ELEMENT_NODE && ( node as Element ).matches( selectableItems ) ) {
+		return node as Element;
+	}
+
+	return node.parentElement?.closest( selectableItems ) ?? null;
+};
+
+/**
+ * Expands the current selection to encompass the entire link node if
+ * selection is within a link.
+ *
+ * @since 3.19.0
+ *
+ * @param {Selection} docSelection The document's current selection.
+ * @param {Range}     range        The current selection range.
+ *
+ * @return {boolean} True if selection was expanded to a link, false otherwise.
+ */
+const expandToLinkNode = ( docSelection: Selection, range: Range ): boolean => {
+	// Find if selection is within an anchor tag.
+	const container = range.commonAncestorContainer as Element;
+	const linkNode = container.nodeType === Node.ELEMENT_NODE
+		? container.closest( 'a' )
+		: container.parentElement?.closest( 'a' );
+
+	// If the selection is already the full link, return true.
+	if ( docSelection.toString() === linkNode?.textContent ) {
+		return true;
+	}
+
+	if ( linkNode ) {
+		// Create a new range that encompasses the entire link.
+		const newRange = range.cloneRange();
+		newRange.selectNodeContents( linkNode );
+
+		// Update the selection.
+		docSelection.removeAllRanges();
+		docSelection.addRange( newRange );
+		return true;
+	}
+
+	return false;
+};
+
+/**
+ * Expands the current selection to word boundaries.
+ *
+ * @since 3.19.0
+ *
+ * @param {Selection} docSelection The document's current selection.
+ * @param {Range}     range        The current selection range.
+ */
+const expandToWordBoundary = ( docSelection: Selection, range: Range ) => {
+	// If selection is inside a link, expand to encompass the entire link.
+	if ( ! expandToLinkNode( docSelection, range ) ) {
+		// Only expand to word boundary if we didn't expand to a link.
+		// Find word boundary at start.
+		const startNode = range.startContainer as Text;
+		const initialStart = range.startOffset;
+		let startOffset = range.startOffset;
+
+		if ( startNode.nodeType === Node.TEXT_NODE ) {
+			const startText = startNode.textContent ?? '';
+
+			while ( startOffset > 0 && /[^\s.,!?;:'"’)\]}]/g.test( startText[ startOffset - 1 ] ) ) {
+				startOffset--;
+			}
+		}
+
+		// Find word boundary at end.
+		const endNode = range.endContainer as Text;
+		const initialEnd = range.endOffset;
+		let endOffset = range.endOffset;
+
+		if ( endNode.nodeType === Node.TEXT_NODE ) {
+			const endText = endNode.textContent ?? '';
+			while ( endOffset < endText.length && /[^\s.,!?;:'"’([{]/g.test( endText[ endOffset ] ) ) {
+				endOffset++;
+			}
+		}
+
+		// Only update if boundaries have changed.
+		if ( startOffset !== initialStart || endOffset !== initialEnd ) {
+			range.setStart( startNode, startOffset );
+			range.setEnd( endNode, endOffset );
+			docSelection.removeAllRanges();
+			docSelection.addRange( range );
+		}
+	}
 };

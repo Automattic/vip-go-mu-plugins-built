@@ -89,7 +89,7 @@ abstract class Base_Endpoint {
 	}
 
 	/**
-	 * Returns the endpoint name.
+	 * Returns the endpoint's name.
 	 *
 	 * This method should be overridden by child classes and used to return the
 	 * endpoint name.
@@ -186,7 +186,7 @@ abstract class Base_Endpoint {
 	/**
 	 * Returns the endpoint slug.
 	 *
-	 * The slug is the endpoint name prefixed with the route prefix, from
+	 * The slug is the endpoint's name prefixed with the route prefix, from
 	 * the API controller.
 	 *
 	 * Used as an identifier for the endpoint, when registering routes.
