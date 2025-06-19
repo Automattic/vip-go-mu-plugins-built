@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
 import { throttle } from '@wordpress/compose';
 import { escapeRegExp } from '../../../../../common/utils/functions';
 import { TrafficBoostLink } from '../../provider';
-import { LinkType } from '../components/link-counter';
 import { TextSelection } from '../preview';
 import { DRAG_MARGIN_PX } from './use-draggable';
 import { useWordpressComponentStyles } from './use-wordpress-component-styles';
@@ -100,72 +99,6 @@ export const useIframeHighlight = ( {
 
 			.smart-link-highlight.previous-suggestion * {
 				color: inherit;
-			}
-
-			/** Link type highlight styles. */
-			.link-type-highlight {
-				border-radius: 2px;
-				background-color: transparent;
-				outline: 0 solid transparent;
-				animation: highlight-fade-in 0.2s ease-in-out forwards;
-				outline-width: 0;
-			}
-
-			.link-type-highlight * {
-				color: white !important;
-				mix-blend-mode: difference;
-			}
-
-			.link-type-highlight.removing {
-				animation: highlight-fade-out 0.2s ease-in-out forwards;
-			}
-
-			.link-type-highlight a {
-				text-decoration: underline;
-				text-decoration-color: currentColor;
-				transition: all 0.2s ease-in-out;
-			}
-
-			.link-type-highlight:not(.removing) a {
-				text-decoration-color: transparent;
-			}
-
-			@keyframes highlight-fade-in {
-				0% {
-					outline-width: 0;
-					outline-color: transparent;
-					background-color: transparent;
-				}
-				1% {
-					outline-width: 2px;
-					outline-color: transparent;
-					background-color: transparent;
-				}
-				100% {
-					outline-width: 2px;
-					outline-color: currentColor;
-					background-color: currentColor;
-				}
-			}
-
-			@keyframes highlight-fade-out {
-				0% {
-					outline-width: 2px;
-					outline-color: currentColor;
-					background-color: currentColor;
-				}
-				99% {
-					outline-width: 2px;
-					outline-color: transparent;
-					background-color: transparent;
-					color: inherit;
-				}
-				100% {
-					outline-width: 0;
-					outline-color: transparent;
-					background-color: transparent;
-					color: inherit;
-				}
 			}
 
 			/* Actions bar styles. */
@@ -775,65 +708,9 @@ export const useIframeHighlight = ( {
 		}
 	}, [ activeLink, highlightInboundLink, highlightLinkSuggestion, isInboundLink ] );
 
-	/**
-	 * Highlights the links of the selected link type in the iframe.
-	 *
-	 * @since 3.19.0
-	 *
-	 * @param {HTMLIFrameElement} iframe           The iframe element to highlight the links in.
-	 * @param {string}            selectedLinkType The selected link type to highlight.
-	 */
-	const highlightLinkType = useCallback( ( iframe: HTMLIFrameElement, selectedLinkType: LinkType | null ) => {
-		const contentArea = contentAreaRef.current;
-		const iframeDocument = iframe.contentDocument ?? iframe.contentWindow?.document;
-		if ( ! contentArea || ! iframeDocument ) {
-			return;
-		}
-
-		// Remove any existing highlights.
-		removeHighlights( iframe, '.link-type-highlight', true );
-
-		if ( ! activeLink || ! selectedLinkType ) {
-			return;
-		}
-
-		const siteUrl = new URL( activeLink.targetPost.link ).hostname;
-		let links: HTMLAnchorElement[] = Array.from( contentArea.querySelectorAll<HTMLAnchorElement>( 'a' ) );
-
-		// Filter out links that don't have text.
-		links = links.filter( ( link ) => link.textContent?.trim() !== '' );
-		let linkLabel = __( 'Highlighted link', 'wp-parsely' );
-
-		switch ( selectedLinkType ) {
-			case 'external':
-				links = links.filter( ( link ) => ! link.href.includes( siteUrl ) );
-				linkLabel = __( 'External link', 'wp-parsely' );
-				break;
-			case 'internal':
-				links = links.filter( ( link ) => link.href.includes( siteUrl ) );
-				linkLabel = __( 'Internal link', 'wp-parsely' );
-				break;
-			case 'smart':
-				links = links.filter( ( link ) => link.hasAttribute( 'data-smartlink' ) );
-				linkLabel = __( 'Smart Link', 'wp-parsely' );
-				break;
-		}
-
-		if ( ! links?.length ) {
-			return;
-		}
-
-		links.forEach( ( link ) => {
-			const selectionRange = iframeDocument.createRange();
-			selectionRange.selectNode( link );
-			highlightRange( selectionRange, 'link-type-highlight', linkLabel );
-		} );
-	}, [ activeLink, contentAreaRef, highlightRange, removeHighlights ] );
-
 	return {
 		injectHighlightStyles,
 		highlightSmartLink,
-		highlightLinkType,
 		removeSmartLinkHighlights,
 		removeHighlights,
 	};

@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { Button } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -67,6 +67,7 @@ export const LinkCounter = ( {
 		smart: 0,
 	} );
 
+	const storePreviewLinkType = useSelect( ( select ) => select( TrafficBoostStore ).getPreviewLinkType(), [] );
 	const { setPreviewLinkType } = useDispatch( TrafficBoostStore );
 
 	useEffect( () => {
@@ -107,6 +108,17 @@ export const LinkCounter = ( {
 		setSelectedLinkType( initialSelectedLinkType );
 		setPreviewLinkType( initialSelectedLinkType );
 	}, [ initialSelectedLinkType, setPreviewLinkType ] );
+
+	/**
+	 * Updates the selected link type when changed externally via the store.
+	 *
+	 * @since 3.20.1
+	 */
+	useEffect( () => {
+		if ( storePreviewLinkType !== selectedLinkType ) {
+			setSelectedLinkType( storePreviewLinkType );
+		}
+	}, [ selectedLinkType, storePreviewLinkType ] );
 
 	/**
 	 * Handles click events on link type buttons.

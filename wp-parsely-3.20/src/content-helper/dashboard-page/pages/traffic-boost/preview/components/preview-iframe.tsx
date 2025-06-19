@@ -19,6 +19,7 @@ import { TextSelection } from '../preview';
 import { getContentArea, isExternalURL } from '../utils';
 import { PreviewActions } from './preview-actions';
 import { TextSelectionTooltip } from './text-selection-tooltip';
+import { useExistingLinkHighlight } from '../hooks/use-existing-link-highlight';
 
 /**
  * Props structure for PreviewIframe.
@@ -92,16 +93,18 @@ export const PreviewIframe = ( {
 	}, [ previewUrl ] );
 
 	// Create an actions bar to be mounted in the iframe with useIframeHighlight().
-	const actionsBar = <PreviewActions
-		activeLink={ activeLink }
-		onAccept={ onAccept }
-		onDiscard={ onDiscard }
-		onUpdateLink={ onUpdateLink }
-		onRemove={ onRemove }
-		onRestoreOriginal={ onRestoreOriginal }
-		selectedText={ selectedText ?? null }
-		iframeRef={ iframeRef }
-	/>;
+	const actionsBar = useMemo( () => (
+		<PreviewActions
+			activeLink={ activeLink }
+			onAccept={ onAccept }
+			onDiscard={ onDiscard }
+			onUpdateLink={ onUpdateLink }
+			onRemove={ onRemove }
+			onRestoreOriginal={ onRestoreOriginal }
+			selectedText={ selectedText ?? null }
+			iframeRef={ iframeRef }
+		/>
+	), [ activeLink, onAccept, onDiscard, onUpdateLink, onRemove, onRestoreOriginal, selectedText, iframeRef ] );
 
 	/**
 	 * Highlights the smart link in the iframe.
@@ -111,7 +114,6 @@ export const PreviewIframe = ( {
 	const {
 		injectHighlightStyles,
 		highlightSmartLink,
-		highlightLinkType,
 		removeSmartLinkHighlights,
 	} = useIframeHighlight( {
 		iframeRef,
@@ -121,6 +123,15 @@ export const PreviewIframe = ( {
 		isInboundLink,
 		onRestoreOriginal,
 		actionsBar,
+	} );
+
+	const {
+		injectExistingLinkHighlightStyles,
+		highlightExistingLinkType,
+	} = useExistingLinkHighlight( {
+		iframeRef,
+		contentAreaRef,
+		activeLink,
 	} );
 
 	/**
@@ -298,6 +309,7 @@ export const PreviewIframe = ( {
 		}
 
 		injectHighlightStyles( iframe );
+		injectExistingLinkHighlightStyles( iframe );
 
 		// Updates the content area ref to the iframe's content area.
 		const contentArea = getContentArea( iframe.contentDocument );
@@ -311,7 +323,6 @@ export const PreviewIframe = ( {
 		}
 
 		hideAdminBar( iframe );
-		highlightLinkType( iframe, selectedLinkType );
 		disableNavigation( iframe );
 
 		onLoadingChange( false );
@@ -319,11 +330,10 @@ export const PreviewIframe = ( {
 	}, [ contentAreaRef,
 		disableNavigation,
 		hideAdminBar,
-		highlightLinkType,
 		injectHighlightStyles,
+		injectExistingLinkHighlightStyles,
 		jumpToSmartLink,
 		onLoadingChange,
-		selectedLinkType,
 	] );
 
 	/**
@@ -399,8 +409,8 @@ export const PreviewIframe = ( {
 			return;
 		}
 
-		highlightLinkType( iframe, selectedLinkType );
-	}, [ contentAreaRef, highlightLinkType, isLoading, selectedLinkType ] );
+		highlightExistingLinkType( iframe, selectedLinkType );
+	}, [ contentAreaRef, highlightExistingLinkType, isLoading, selectedLinkType ] );
 
 	return (
 		<div className="wp-parsely-preview">

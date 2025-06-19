@@ -94,6 +94,7 @@ export const TrafficBoostPreview = ( {
 		setSelectedTab,
 		setIsAccepting,
 		setIsRemoving,
+		setPreviewLinkType,
 	} = useDispatch( TrafficBoostStore );
 
 	/**
@@ -115,7 +116,8 @@ export const TrafficBoostPreview = ( {
 		setActivePost( activeLink.targetPost );
 		setIsInboundLink( ! activeLink.isSuggestion );
 		setSelectedText( null );
-	}, [ activeLink ] );
+		setPreviewLinkType( null );
+	}, [ activeLink, setPreviewLinkType ] );
 
 	/**
 	 * Sets the total items and item index based on the active link.

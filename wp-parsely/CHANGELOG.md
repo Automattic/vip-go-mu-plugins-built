@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.20.1](https://github.com/Parsely/wp-parsely/compare/3.20.0...3.20.1) - 2025-06-19
+
+### Fixed
+
+- Fix outbound link highlights in Traffic Boost ([#3469](https://github.com/Parsely/wp-parsely/pull/3469))
+
 ## [3.20.0](https://github.com/Parsely/wp-parsely/compare/3.19.3...3.20.0) - 2025-06-18
 
 ### Changed
