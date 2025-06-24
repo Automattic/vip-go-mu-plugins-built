@@ -6,9 +6,10 @@
 			<mj-section padding-bottom="30px">
 				<mj-column>
 					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
-						A new user with an Administrator user role has been added to your
-						site "<strong>{{%=site_name%}}</strong>". Please review the details
-						below:
+						A user has been granted the
+						<strong>Super Administrator</strong> role on your network
+						"<strong>{{%=site_name%}}</strong>".<br />
+						Please review the details below:
 					</mj-text>
 					<mj-text align="center" font-size="20px" line-height="5px">
 						<strong>Username</strong>: {{%=user_login%}}
@@ -22,8 +23,9 @@
 					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
 						If you authorized this change, no action is needed.<br />
 						<strong>
-							If this was unexpected, you can remove this user immediately in
-							the <a href="{{%=admin_url%}}users.php">WordPress Admin</a>.
+							If this was unexpected, you can review Super Admins in the
+							<a href="{{%=network_admin_url%}}users.php">Network Admin</a>
+							section.
 						</strong>
 					</mj-text>
 				</mj-column>

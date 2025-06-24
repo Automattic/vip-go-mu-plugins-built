@@ -254,7 +254,7 @@ final class ConfigSchemas {
 			//
 			// This allows most "output schemas" to be represented as a PHP associative
 			// array or another serializable data structure like JSON (unless it uses
-			// unseriazable types like closures).
+			// unserializable types like closures).
 			'output_schema' => Types::create_ref(
 				'FIELD_SCHEMA',
 				Types::object( [

@@ -85,7 +85,7 @@ class QueryRunner implements QueryRunnerInterface {
 		$user = $parsed_url['user'] ?? '';
 		$path = $parsed_url['path'] ?? '';
 
-		$query = ! empty( $parsed_url['query'] ?? '' ) ? '?' . $parsed_url['query'] : '';
+		$query_params = ! empty( $parsed_url['query'] ?? '' ) ? '?' . $parsed_url['query'] : '';
 		$port = ! empty( $parsed_url['port'] ?? '' ) ? ':' . $parsed_url['port'] : '';
 		$pass = ! empty( $parsed_url['pass'] ?? '' ) ? ':' . $parsed_url['pass'] : '';
 		$pass = ( $user || $pass ) ? $pass . '@' : '';
@@ -106,7 +106,7 @@ class QueryRunner implements QueryRunnerInterface {
 				RequestOptions::JSON => $body,
 			],
 			'origin' => $origin,
-			'uri' => sprintf( '%s%s%s', $origin, $path, $query ),
+			'uri' => sprintf( '%s%s%s', $origin, $path, $query_params ),
 		];
 
 		/**
@@ -253,7 +253,7 @@ class QueryRunner implements QueryRunnerInterface {
 		}
 
 		// Preprocess the response data.
-		$response_data = $this->preprocess_response( $query, $raw_response_data['response_data'], $input_variables );
+		$response_data = $this->preprocess_response( $query, $raw_response_data['response_data'], $request_details );
 
 		// Determine if the response data is expected to be a collection.
 		$output_schema = $query->get_output_schema();
@@ -362,11 +362,13 @@ class QueryRunner implements QueryRunnerInterface {
 	/**
 	 * Preprocess the response data before it is passed to the response parser.
 	 *
+	 * @param HttpQueryInterface $query The query.
 	 * @param array $response_data The raw response data.
+	 * @param array $request_details The request details.
 	 * @return array Preprocessed response. The deserialized response data or (re-)serialized JSON.
 	 */
-	protected function preprocess_response( HttpQueryInterface $query, mixed $response_data, array $input_variables ): mixed {
-		return $query->preprocess_response( $response_data, $input_variables );
+	protected function preprocess_response( HttpQueryInterface $query, mixed $response_data, array $request_details ): mixed {
+		return $query->preprocess_response( $response_data, $request_details );
 	}
 
 	/**

@@ -17,5 +17,5 @@ interface HttpQueryInterface extends QueryInterface {
 	public function get_request_method(): string;
 	public function get_request_headers( array $input_variables ): array|WP_Error;
 	public function get_request_body( array $input_variables ): array|null;
-	public function preprocess_response( mixed $response_data, array $input_variables ): mixed;
+	public function preprocess_response( mixed $response_data, array $request_details ): mixed;
 }

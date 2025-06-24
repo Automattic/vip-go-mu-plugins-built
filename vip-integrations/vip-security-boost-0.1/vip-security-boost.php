@@ -1,6 +1,6 @@
-<?php 
+<?php
 /**
- * Plugin Name: WordPress VIP Security Boost
+ * Plugin Name: WordPress Security Controls
  * Plugin URI: https://github.com/Automattic/vip-security-boost-integration
  * Description: A comprehensive security suite that protects WordPress VIP sites against common vulnerabilities and implements industry-standard security hardening measures.
  * Author: WordPress VIP
@@ -16,7 +16,12 @@
 declare(strict_types = 1);
 
 require_once __DIR__ . '/utils/configs.php';
-require_once __DIR__ . '/email/email.php';
+require_once __DIR__ . '/utils/class-configs.php';
+require_once __DIR__ . '/email/class-email.php';
+require_once __DIR__ . '/utils/class-constants.php';
+require_once __DIR__ . '/utils/class-logger.php';
+require_once __DIR__ . '/utils/class-collector.php';
+require_once __DIR__ . '/utils/class-tracking.php';
 
 use function Automattic\VIP\Security\Utils\load_integration_configs_from_headers;
 use function Automattic\VIP\Security\Utils\load_integration_configs_from_url;
@@ -32,7 +37,7 @@ if ( $is_local_env ) {
 	if ( ! defined( 'VIP_GO_APP_ID' ) || ! constant( 'VIP_GO_APP_ID' ) ) {
 		define( 'VIP_GO_APP_ID', 101 );
 	}
-	
+
 	// Check headers for integration test configs
 	if ( isset( $_SERVER['HTTP_X_INTEGRATION_TEST'] ) ) {
 		// Load the integration configurations from the headers
@@ -45,3 +50,6 @@ if ( $is_local_env ) {
 
 // Load the modules
 require_once __DIR__ . '/class-loader.php';
+
+// Initialize tracking hooks
+\Automattic\VIP\Security\Utils\Tracking::setup_action_hooks();

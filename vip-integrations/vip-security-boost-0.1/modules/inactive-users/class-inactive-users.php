@@ -2,13 +2,17 @@
 namespace Automattic\VIP\Security\InactiveUsers;
 
 use Automattic\VIP\Utils\Context;
-use function Automattic\VIP\Security\Utils\get_module_configs;
+use Automattic\VIP\Security\Constants;
+use Automattic\VIP\Security\Utils\Logger;
+use Automattic\VIP\Security\Utils\Configs;
 
 class Inactive_Users {
 	private static $considered_inactive_after_days;
 	private static $elevated_roles;
 	private static $mode;
 	public static $release_date;
+
+	const LOG_FEATURE_NAME = 'sb_inactive_users';
 
 	const LAST_SEEN_META_KEY                               = 'wpvip_last_seen';
 	const LAST_SEEN_IGNORE_INACTIVITY_CHECK_UNTIL_META_KEY = 'wpvip_last_seen_ignore_inactivity_check_until';
@@ -24,7 +28,7 @@ class Inactive_Users {
 	private static $application_password_authentication_error;
 
 	public static function init() {
-		$inactive_user_configs = get_module_configs( 'inactive-users' );
+		$inactive_user_configs = Configs::get_module_configs( 'inactive-users' );
 
 		self::$release_date                   = get_option( self::LAST_SEEN_RELEASE_DATE_TIMESTAMP_OPTION_KEY );
 		self::$mode                           = $inactive_user_configs['mode'] ?? 'REPORT';
@@ -107,6 +111,10 @@ class Inactive_Users {
 		}
 
 		if ( $user->ID && self::is_considered_inactive( $user->ID ) ) {
+			Logger::info(
+				self::LOG_FEATURE_NAME,
+				'User ' . $user->user_login . ' is flagged as inactive, login was blocked.'
+			);
 			if ( Context::is_xmlrpc_api() ) {
 				add_filter('xmlrpc_login_error', function () {
 					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ) );
@@ -138,6 +146,10 @@ class Inactive_Users {
 		}
 
 		if ( self::is_considered_inactive( $user->ID ) ) {
+			Logger::info(
+				self::LOG_FEATURE_NAME,
+				'User ' . $user->user_login . ' is flagged as inactive, application password authentication was blocked.'
+			);
 			self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ), array( 'status' => 403 ) );
 
 			return false;
@@ -236,17 +248,35 @@ class Inactive_Users {
 		return $vars;
 	}
 
+
 	public static function last_seen_blocked_users_filter_query_args( $vars ) {
-		if ( isset( $_GET['last_seen_filter'] ) && 'blocked' === $_GET['last_seen_filter'] && isset( $_GET['last_seen_filter_nonce'] ) && wp_verify_nonce( sanitize_text_field( $_GET['last_seen_filter_nonce'] ), 'last_seen_filter' ) ) {
-			$vars['meta_key'] = self::LAST_SEEN_META_KEY;
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			$vars['meta_value']   = self::get_inactivity_timestamp();
-			$vars['meta_type']    = 'NUMERIC';
-			$vars['meta_compare'] = '<';
+		// Only filter when the “blocked” last_seen_filter is set and valid
+		if (
+			isset( $_GET['last_seen_filter'] ) &&
+			'blocked' === $_GET['last_seen_filter'] &&
+			isset( $_GET['last_seen_filter_nonce'] ) &&
+			wp_verify_nonce( sanitize_text_field( $_GET['last_seen_filter_nonce'] ), 'last_seen_filter' )
+		) {
+			// Track blocked users view
+			do_action( 'vip_security_blocked_users_view' );
+
+			$vars['role__in'] = ! empty( self::$elevated_roles ) ? self::$elevated_roles : array();
+
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$vars['meta_query'] = [
+				'relation' => 'AND',
+				[
+					'key'     => self::LAST_SEEN_META_KEY,
+					'value'   => self::get_inactivity_timestamp(),
+					'type'    => 'NUMERIC',
+					'compare' => '<',
+				],
+			];
 		}
 
 		return $vars;
 	}
+
 
 	public static function add_last_seen_column_date( $default_value, $column_name, $user_id ) {
 		if ( 'last_seen' !== $column_name ) {
@@ -255,15 +285,7 @@ class Inactive_Users {
 
 		$last_seen_timestamp = get_user_meta( $user_id, self::LAST_SEEN_META_KEY, true );
 
-		$date = __( 'Indeterminate', 'wpvip' );
-		if ( $last_seen_timestamp ) {
-			$date = sprintf(
-				/* translators: 1: Comment date, 2: Comment time. */
-				__( '%1$s at %2$s' ),
-				date_i18n( get_option( 'date_format' ), $last_seen_timestamp ),
-				date_i18n( get_option( 'time_format' ), $last_seen_timestamp )
-			);
-		}
+		$date = self::get_last_seen_date_string( $last_seen_timestamp );
 
 		if ( ! self::is_block_action_enabled() || ! self::is_considered_inactive( $user_id ) ) {
 			return sprintf( '<span>%s</span>', esc_html( $date ) );
@@ -282,6 +304,46 @@ class Inactive_Users {
 		return sprintf( '<span class="wp-ui-text-notification">%s</span>' . $unblock_link, esc_html( $date ) );
 	}
 
+	/**
+	 * Return a readable “last-seen” string.
+	 *
+	 * – If the event happened < 1 month ago  → “5 hours ago”.
+	 * – Otherwise                            → “12 Mar 2025 at 14:07”.
+	 *
+	 * @param int      $last_seen_timestamp Unix timestamp (already adjusted for site TZ).
+	 * @param int|null $now                 Optional. Timestamp to compare against. Defaults to now.
+	 * @return string
+	 */
+	public static function get_last_seen_date_string( $last_seen_timestamp, $now = null ): string {
+		if ( ! $last_seen_timestamp ) {
+			return __( 'Unknown', 'wpvip' );
+		}
+
+		$now  = $now ?? current_datetime()->getTimestamp();
+		$diff = $now - $last_seen_timestamp;
+
+		// If the last-seen date is in the future, return "Unknown".
+		if ( $diff < 0 ) {
+			return __( 'Unknown', 'wpvip' );
+		}
+
+		// If the last-seen date is within the last month, show a human-readable diff.
+		if ( $diff < MONTH_IN_SECONDS ) {
+			return sprintf(
+			/* translators: %s: Human-readable time difference, e.g. "5 hours". */
+				__( '%s ago', 'wpvip' ),
+				human_time_diff( $last_seen_timestamp, $now )
+			);
+		}
+
+		return sprintf(
+		/* translators: 1: Last-seen date, 2: Last-seen time. */
+			__( '%1$s at %2$s', 'wpvip' ),
+			date_i18n( get_option( 'date_format' ), $last_seen_timestamp ),
+			date_i18n( get_option( 'time_format' ), $last_seen_timestamp )
+		);
+	}
+
 	public static function add_blocked_users_filter( $views ) {
 		$blog_id = is_network_admin() ? null : get_current_blog_id();
 
@@ -296,6 +358,7 @@ class Inactive_Users {
 				'meta_compare' => '<',
 				'count_total'  => false,
 				'number'       => 1, // To minimize the query time, we only need to know if there are any blocked users to show the link
+				'role__in'     => ! empty( self::$elevated_roles ) ? self::$elevated_roles : array(),
 			),
 		);
 
@@ -354,6 +417,11 @@ class Inactive_Users {
 		$ignore_inactivity_check_until = strtotime( '+2 days' );
 		if ( ! $error && ! self::ignore_inactivity_check_for_user( $user_id, $ignore_inactivity_check_until ) ) {
 			$error = __( 'Unable to unblock user.', 'wpvip' );
+		} else {
+			// Track successful user unblock
+			$user      = get_userdata( $user_id );
+			$user_role = $user && ! empty( $user->roles ) ? $user->roles[0] : '';
+			do_action( 'vip_security_user_unblock', $user_id, $user_role );
 		}
 
 		if ( $error ) {

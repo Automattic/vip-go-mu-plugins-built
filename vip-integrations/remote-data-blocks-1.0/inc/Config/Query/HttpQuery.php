@@ -150,10 +150,10 @@ class HttpQuery extends ArraySerializable implements HttpQueryInterface {
 	 * shape needs significant transformation.
 	 *
 	 * @param mixed $response_data The raw deserialized response data.
-	 * @param array $input_variables The input variables for this query.
+	 * @param array $request_details The request details.
 	 * @return mixed Preprocessed response data.
 	 */
-	public function preprocess_response( mixed $response_data, array $input_variables ): mixed {
-		return $this->get_or_call_from_config( 'preprocess_response', $response_data, $input_variables ) ?? $response_data;
+	public function preprocess_response( mixed $response_data, array $request_details ): mixed {
+		return $this->get_or_call_from_config( 'preprocess_response', $response_data, $request_details ) ?? $response_data;
 	}
 }

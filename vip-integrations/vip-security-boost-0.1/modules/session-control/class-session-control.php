@@ -2,7 +2,10 @@
 
 namespace Automattic\VIP\Security\SessionControl;
 
-use function Automattic\VIP\Security\Utils\get_module_configs;
+use Automattic\VIP\Security\Constants;
+use Automattic\VIP\Security\Utils\Logger;
+use Automattic\VIP\Security\Utils\Configs;
+
 /**
  * Session Control module for VIP Security Boost
  *
@@ -12,7 +15,7 @@ use function Automattic\VIP\Security\Utils\get_module_configs;
  * - 1-13: Number of days the session should last. WordPress default is 14 days, so we're allowing users to choose a number below it.
  */
 class Session_Control {
-
+	const LOG_FEATURE_NAME     = 'sb_session_control';
 	public const DEFAULT_VALUE = 'default';
 	/**
 	 * Session expiration time in days
@@ -30,7 +33,7 @@ class Session_Control {
 			return;
 		}
 
-		$session_configs       = get_module_configs( 'session-control' );
+		$session_configs       = Configs::get_module_configs( 'session-control' );
 		$expiration_days_value = $session_configs['expiration_days'] ?? self::DEFAULT_VALUE;
 
 		// Only apply if a valid expiration time is set
@@ -38,6 +41,10 @@ class Session_Control {
 			// Validate the expiration days value (must be between 1 and 13)
 			// check if it's valid int
 			if ( ! is_numeric( $expiration_days_value ) ) {
+				Logger::warning(
+					self::LOG_FEATURE_NAME,
+					'Invalid session expiration days. Must be an integer. Reverting to default.'
+				);
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				trigger_error( 'Invalid session expiration days. Must be an integer. Reverting to default.', E_USER_WARNING );
 				return;
@@ -45,6 +52,11 @@ class Session_Control {
 			$expiration_days = intval( $expiration_days_value );
 
 			if ( $expiration_days < 1 || $expiration_days > 13 ) {
+
+				Logger::warning(
+					self::LOG_FEATURE_NAME,
+					'Invalid session expiration days. Must be between 1 and 13. Reverting to default.'
+				);
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				trigger_error( 'Invalid session expiration days. Must be between 1 and 13. Reverting to default.', E_USER_WARNING );
 				return;

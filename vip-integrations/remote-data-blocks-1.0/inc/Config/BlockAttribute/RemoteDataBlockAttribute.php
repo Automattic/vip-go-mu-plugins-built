@@ -65,7 +65,7 @@ class RemoteDataBlockAttribute extends ArraySerializable {
 		}, $config['results'] ?? [] );
 
 		// Provide some flexibility for external callers to pass config via source
-		// args. This also helps with cases where the binding has become disconencted
+		// args. This also helps with cases where the binding has become disconnected
 		// from the ancestor remote data block.
 		//
 		// Source args will not be present during normal instantiation, but can be

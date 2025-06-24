@@ -244,7 +244,7 @@ final class Validator implements ValidatorInterface {
 				$class_ref = $subclass;
 
 				// Validate the schema for the class we want to instantiate. Call the
-				// config prepocessor since some classes inflate their own config.
+				// config preprocessor since some classes inflate their own config.
 				$config_validator = new Validator( $class_ref::get_config_schema(), $class_ref, $path );
 				$config = $class_ref::preprocess_config( $value );
 

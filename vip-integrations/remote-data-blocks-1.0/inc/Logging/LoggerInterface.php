@@ -3,7 +3,7 @@
 namespace RemoteDataBlocks\Logging;
 
 /**
- * Describes a simplied (non-PSR-compliant) logger instance.
+ * Describes a simplified (non-PSR-compliant) logger instance.
  *
  * The message MUST be a string.
  *

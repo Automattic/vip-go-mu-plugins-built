@@ -2,7 +2,18 @@
 
 namespace Automattic\VIP\Security\Email;
 
+use Automattic\VIP\Security\Constants;
+use Automattic\VIP\Security\Utils\Logger;
+
 class Email {
+	/**
+	 * Stores the arguments of the last call to the send() method for testing.
+	 *
+	 * @var array|null
+	 */
+	public static $last_call_args_for_test;
+
+	const LOG_FEATURE_NAME    = 'sb_email';
 	const SUBJECT_SUFFIX      = ' - WordPress VIP';
 	const EMAIL_FROM          = 'donotreply@wpvip.com';
 	const EMAIL_REPLY_TO      = 'support@wpvip.com';
@@ -18,6 +29,8 @@ class Email {
 	 * @param array $template_data The data to replace in the email template
 	 */
 	public static function send( $user_id, $email_address, $subject, $template_id = 'generic', $template_data = [] ) {
+		self::$last_call_args_for_test = compact( 'user_id', 'email_address', 'subject', 'template_id', 'template_data' );
+
 		$user = get_user_by( 'id', $user_id );
 
 		if ( ! is_email( $email_address ) ) {
@@ -50,9 +63,13 @@ class Email {
 		}
 
 		// Fetch email template and replace variables.
-		$template_data['subject']           = $subject;
-		$template_data['email_title']       = $subject;
+		$template_data['subject'] = $subject;
+		// If email_title is empty, use subject as default.
+		if ( empty( $template_data['email_title'] ) ) {
+			$template_data['email_title'] = $subject;
+		}
 		$template_data['site_url']          = home_url();
+		$template_data['site_name']         = get_bloginfo( 'name' );
 		$template_data['display_name']      = $user_name ?: $user->display_name;
 		$template_data['date']              = gmdate( 'F j, Y' );
 		$template_data['utc_time']          = gmdate( 'H:i \U\T\C' );
@@ -65,9 +82,15 @@ class Email {
 		$sent = wp_mail( $email_address, $subject, $email_content, $headers );
 
 		if ( $sent ) {
-			error_log( 'Email sent to ' . $email_address );
+			Logger::info(
+				self::LOG_FEATURE_NAME,
+				'Email sent to ' . $email_address
+			);
 		} else {
-			error_log( 'Email not sent to ' . $email_address );
+			Logger::error(
+				self::LOG_FEATURE_NAME,
+				'Email not sent to ' . $email_address
+			);
 		}
 	}
 
@@ -81,14 +104,13 @@ class Email {
 
 		// Check if the template exists.
 		if ( ! file_exists( $template_path ) ) {
-			Logger::log( [
-				'severity' => 'error',
-				'feature'  => 'vip-auth:email',
-				'message'  => 'Email template not found',
-				'extra'    => [
+			Logger::error(
+				self::LOG_FEATURE_NAME,
+				'Email template not found',
+				[
 					'template_id' => $template_id,
-				],
-			] );
+				]
+			);
 
 			throw new \Exception( 'Email template not found' );
 		}
@@ -131,5 +153,14 @@ class Email {
 	 */
 	public static function replace_email_var( string $var, string $value, string $email ) {
 		return str_replace( '{{%=' . $var . '%}}', $value, $email );
+	}
+
+	/**
+	 * Resets the last call arguments for testing purposes.
+	 *
+	 * @since NEXT_RELEASE
+	 */
+	public static function reset_last_call_args_for_test() {
+		self::$last_call_args_for_test = null;
 	}
 }

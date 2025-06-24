@@ -17,23 +17,12 @@ function get_module_configs( $module_name, $configs = false ) {
 		$configs = get_all_module_configs();
 	}
 
-	if ( ! is_array( $configs ) || ! isset( $configs['module_configs'] ) ) {
-		return [];
-	}
+	$module_configs = parse_module_configs( $configs );
 
-	$module_configs        = $configs['module_configs'];
 	$current_module_config = [];
 
-	if ( is_string( $module_configs ) ) {
-		$module_configs = json_decode( $module_configs, true );
-
-		if ( is_null( $module_configs ) && json_last_error() !== JSON_ERROR_NONE ) {
-			return [];
-		}
-	}
-
 	if ( is_array( $module_configs ) && isset( $module_configs[ $module_name ] ) ) {
-		$current_module_config = $module_configs[ $module_name ];        
+		$current_module_config = $module_configs[ $module_name ];
 	}
 
 	if ( ! is_array( $current_module_config ) ) {
@@ -43,11 +32,36 @@ function get_module_configs( $module_name, $configs = false ) {
 	return $current_module_config;
 }
 
+function parse_module_configs( $configs ): array {
+	if ( ! isset( $configs['module_configs'] ) ) {
+		return [];
+	}
+
+	$module_configs = $configs['module_configs'];
+
+	if ( is_string( $module_configs ) ) {
+		$module_configs = json_decode( $module_configs, true );
+
+		if ( is_null( $module_configs ) && json_last_error() !== JSON_ERROR_NONE ) {
+			return [];
+		}
+	}
+
+	return $module_configs;
+}
+
 function get_all_module_configs() {
 	if ( ! defined( 'VIP_SECURITY_BOOST_CONFIGS' ) ) {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-		trigger_error( '[Security Boost] VIP_SECURITY_BOOST_CONFIGS is not defined.', E_USER_WARNING );
+		trigger_error( '[WordPress Security Controls] VIP_SECURITY_BOOST_CONFIGS is not defined.', E_USER_WARNING );
 		return [];
 	}
-	return constant( 'VIP_SECURITY_BOOST_CONFIGS' );
+
+	$configs = constant( 'VIP_SECURITY_BOOST_CONFIGS' );
+
+	if ( ! is_array( $configs ) ) {
+		return [];
+	}
+
+	return $configs;
 }

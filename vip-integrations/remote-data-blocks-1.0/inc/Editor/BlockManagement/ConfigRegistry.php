@@ -118,7 +118,7 @@ class ConfigRegistry {
 				$config['selectors'],
 				[
 					'image_url' => $from_query->get_image_url(),
-					'inputs' => self::map_input_variables( $input_schema ),
+					'inputs' => self::map_input_variables( $from_input_schema ),
 					'name' => $selection_query['display_name'] ?? ucfirst( $from_query_type ),
 					'query_key' => $from_query::class,
 					'type' => $from_query_type,

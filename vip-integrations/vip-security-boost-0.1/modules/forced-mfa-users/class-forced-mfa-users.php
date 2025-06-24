@@ -1,7 +1,7 @@
 <?php
 namespace Automattic\VIP\Security\MFAUsers;
 
-use function Automattic\VIP\Security\Utils\get_module_configs;
+use Automattic\VIP\Security\Utils\Configs;
 
 class Forced_MFA_Users {
 	const MFA_SKIP_USER_IDS_OPTION_KEY = 'vip_security_mfa_skip_user_ids';
@@ -14,7 +14,7 @@ class Forced_MFA_Users {
 	private static $roles;
 
 	public static function init() {
-		$forced_mfa_configs = get_module_configs( 'forced-mfa-users' );
+		$forced_mfa_configs = Configs::get_module_configs( 'forced-mfa-users' );
 
 		self::$roles = $forced_mfa_configs['roles'] ?? [];
 		add_action( 'set_current_user', [ __CLASS__, 'maybe_enforce_two_factor' ] );

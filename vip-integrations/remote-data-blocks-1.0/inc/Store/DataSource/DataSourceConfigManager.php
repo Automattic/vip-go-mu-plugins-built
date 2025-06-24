@@ -48,8 +48,10 @@ class DataSourceConfigManager {
 		return array_values( array_reduce(
 			$configs,
 			function ( array $acc, array $item ) {
+				// Some sources run within a service_config array i.e. airtables, so check and assign.
+				$display_name = $item['service_config']['display_name'] ?? $item['display_name'];
 				$identifier = $item['uuid'] ?? md5(
-					sprintf( '%s_%s', $item['display_name'], $item['service'] ?? 'code-configured' )
+					sprintf( '%s_%s', $display_name, $item['service'] ?? 'code-configured' )
 				);
 				$acc[ $identifier ] = $item;
 				return $acc;
@@ -60,13 +62,13 @@ class DataSourceConfigManager {
 
 	/**
 	 * Get all data sources from all origins with optional filters.
-	 * 
+	 *
 	 * Supported filters:
 	 * - service: Filter by service name (e.g. 'airtable', 'google-sheets', 'shopify')
 	 * - enable_blocks: Filter by blocks enabled status (false matches with null/false and true matches with true)
-	 * 
+	 *
 	 * Passing an unsupported filter key will return an error.
-	 * 
+	 *
 	 * @param array{
 	 *   service?: string,
 	 *   enable_blocks?: bool
@@ -89,7 +91,7 @@ class DataSourceConfigManager {
 
 		/**
 		 * De-duplicate configs.
-		 * 
+		 *
 		 * Precedence (lowest to highest):
 		 * - Code-configured data sources
 		 * - Constant-configured data sources
@@ -154,7 +156,7 @@ class DataSourceConfigManager {
 
 	/**
 	 * Get a data source by its UUID.
-	 * 
+	 *
 	 * @param string $uuid The UUID of the data source to get.
 	 * @return array{
 	 *   uuid: string,
@@ -170,9 +172,9 @@ class DataSourceConfigManager {
 	public static function get( string $uuid ): array|WP_Error {
 		$from_constant = ConstantConfigStore::get_config_by_uuid( $uuid );
 		if ( ! is_wp_error( $from_constant ) ) {
-			return array_merge( 
-				$from_constant, 
-				[ 'config_source' => self::CONFIG_SOURCE_CONSTANT ] 
+			return array_merge(
+				$from_constant,
+				[ 'config_source' => self::CONFIG_SOURCE_CONSTANT ]
 			);
 		}
 
@@ -193,7 +195,7 @@ class DataSourceConfigManager {
 
 	/**
 	 * Create a new data source.
-	 * 
+	 *
 	 * @param array $config The configuration for the new data source.
 	 * @return array{
 	 *   uuid: string,
@@ -217,7 +219,7 @@ class DataSourceConfigManager {
 
 	/**
 	 * Update a data source.
-	 * 
+	 *
 	 * @param string $uuid The UUID of the data source to update.
 	 * @param array $config The new configuration for the data source.
 	 * @return array{
@@ -233,8 +235,8 @@ class DataSourceConfigManager {
 	 */
 	public static function update( string $uuid, array $config ): array|WP_Error {
 		if (
-			isset( $config['config_source'] ) && 
-			! in_array( $config['config_source'], self::MUTABLE_CONFIG_SOURCES, true ) 
+			isset( $config['config_source'] ) &&
+			! in_array( $config['config_source'], self::MUTABLE_CONFIG_SOURCES, true )
 		) {
 			/**
 			 * Only storage-configured data sources are mutable.
@@ -256,7 +258,7 @@ class DataSourceConfigManager {
 
 	/**
 	 * Delete a data source.
-	 * 
+	 *
 	 * @param string $uuid The UUID of the data source to delete.
 	 * @return true|WP_Error True on success, WP_Error on failure.
 	 */

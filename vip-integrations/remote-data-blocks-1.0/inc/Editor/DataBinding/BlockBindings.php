@@ -403,7 +403,7 @@ class BlockBindings {
 
 		// If this is the parent block that *provides* the context, we won't have
 		// context available on the block's context property. However, context for
-		// children blocks comes from this block's `remoteData` attribtue (see
+		// children blocks comes from this block's `remoteData` attribute (see
 		// block.json#providesContext), so we can access it directly.
 		$block_context = $block->context[ self::$context_name ] ?? $attributes['remoteData'] ?? null;
 

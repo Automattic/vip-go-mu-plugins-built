@@ -1,13 +1,13 @@
 <?php
 namespace Automattic\VIP\Security\XmlRpc;
 
-use function Automattic\VIP\Security\Utils\get_module_configs;
+use Automattic\VIP\Security\Utils\Configs;
 
 class Xml_Rpc {
 	private static $mode = 'RESTRICT';
 
 	public static function init() {
-		$xmlrpc_configs = get_module_configs( 'xml-rpc' );
+		$xmlrpc_configs = Configs::get_module_configs( 'xml-rpc' );
 		self::$mode     = strtoupper( $xmlrpc_configs['mode'] ?? 'RESTRICT' );
 
 		if ( vip_is_jetpack_request() ) {
@@ -20,11 +20,12 @@ class Xml_Rpc {
 				// Completely disable XML-RPC.
 				self::disable_xml_rpc();
 				break;
-
 			case 'RESTRICT':
-			default:
 				// Restrict XML-RPC to only allow Application Passwords.
 				self::restrict_xmlrpc();
+				break;
+			default:
+				// Do nothing.
 				break;
 		}
 	}

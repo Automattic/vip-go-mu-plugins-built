@@ -102,8 +102,14 @@ class GoogleSheetsIntegration {
 			'endpoint' => $data_source->get_endpoint() . '/values/' . rawurlencode( $sheet['name'] ),
 			'input_schema' => $input_schema,
 			'output_schema' => $output_schema,
-			'preprocess_response' => function ( mixed $response_data, array $input_variables ): array {
-				return GoogleSheetsDataSource::preprocess_get_response( $response_data, $input_variables );
+			'request_headers' => function ( array $input_variables ) use ( $data_source ): array {
+				return array_merge(
+					$data_source->get_request_headers(),
+					[ 'X-Row-ID' => $input_variables['row_id'] ?? null ]
+				);
+			},
+			'preprocess_response' => function ( mixed $response_data, array $request_details ): array {
+				return GoogleSheetsDataSource::preprocess_get_response( $response_data, $request_details['options']['headers']['X-Row-ID'] ?? null );
 			},
 		] );
 	}
@@ -123,8 +129,8 @@ class GoogleSheetsIntegration {
 			'endpoint' => $data_source->get_endpoint() . '/values/' . rawurlencode( $sheet['name'] ),
 			'input_schema' => [],
 			'output_schema' => $output_schema,
-			'preprocess_response' => function ( mixed $response_data ): array {
-				return GoogleSheetsDataSource::preprocess_list_response( $response_data );
+			'preprocess_response' => function ( mixed $response_data, array $request_details ): array {
+				return GoogleSheetsDataSource::preprocess_list_response( $response_data, $request_details );
 			},
 		] );
 	}
