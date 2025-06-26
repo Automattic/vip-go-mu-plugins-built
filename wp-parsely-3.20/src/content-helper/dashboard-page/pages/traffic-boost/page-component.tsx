@@ -29,7 +29,7 @@ export const TrafficBoostPage = (): React.JSX.Element => {
 	return (
 		<PageContainer name="traffic-boost">
 			<PageHeader>
-				<h1>{ __( 'Manage Traffic Boost (beta)', 'wp-parsely' ) }</h1>
+				<h1>{ __( 'Manage Engagement Boost (beta)', 'wp-parsely' ) }</h1>
 			</PageHeader>
 			<PageBody>
 				<div className="traffic-boost-search-container">

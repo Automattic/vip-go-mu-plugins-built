@@ -76,7 +76,7 @@ export const SingleLinkComponent = (
 			tabIndex={ 0 }
 			aria-label={ sprintf(
 				/* translators: %s: Post title */
-				__( 'Traffic boost link for %s', 'wp-parsely' ),
+				__( 'Engagement boost link for %s', 'wp-parsely' ),
 				suggestedPost.title.rendered
 			) }
 			aria-pressed={ isActive }

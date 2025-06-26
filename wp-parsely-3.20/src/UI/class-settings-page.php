@@ -438,7 +438,7 @@ final class Settings_Page {
 
 		add_settings_section(
 			$section_key,
-			__( 'Content Helper', 'wp-parsely' ),
+			__( 'Content Intelligence', 'wp-parsely' ),
 			'__return_null',
 			Parsely::MENU_SLUG
 		);
@@ -515,11 +515,11 @@ final class Settings_Page {
 		$field_args = array(
 			'option_key' => $field_id,
 			'label_for'  => $field_id,
-			'legend'     => __( 'Traffic Boost (beta)', 'wp-parsely' ),
+			'legend'     => __( 'Engagement Boost (beta)', 'wp-parsely' ),
 		);
 		add_settings_field(
 			$field_id,
-			__( 'Traffic Boost (beta)', 'wp-parsely' ),
+			__( 'Engagement Boost (beta)', 'wp-parsely' ),
 			array( $this, 'print_content_helper_ai_feature_section' ),
 			Parsely::MENU_SLUG,
 			$section_key,

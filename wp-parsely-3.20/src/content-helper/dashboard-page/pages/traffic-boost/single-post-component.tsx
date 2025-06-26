@@ -206,7 +206,7 @@ export const TrafficBoostPostPage = (): React.JSX.Element => {
 	 */
 	useEffect( () => {
 		if ( hasFetchedPost && ! isLoadingPost && ! post ) {
-			navigate( '/traffic-boost' );
+			navigate( '/engagement-boost' );
 		}
 	}, [ hasFetchedPost, isLoadingPost, post, navigate ] );
 

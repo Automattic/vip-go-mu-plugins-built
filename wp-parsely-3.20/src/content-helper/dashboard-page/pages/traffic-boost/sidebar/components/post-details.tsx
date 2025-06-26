@@ -46,7 +46,7 @@ export const PostDetailsSidebar = ( { post, isLoading }: PostDetailsSidebarProps
 			</div>
 			<div className="traffic-boost-post-details-divider"></div>
 			<div className="traffic-boost-post-details-description">
-				{ __( 'Use Parse.ly data to increase your post\'s traffic. ' +
+				{ __( 'Use Parse.ly data to increase your post\'s engagement. ' +
 					'Plant links to this post in high-performing related source posts.', 'wp-parsely' ) }
 			</div>
 		</div>

@@ -183,8 +183,8 @@ final class Dashboard_Page {
 
 		add_submenu_page(
 			'parsely-dashboard-page',
-			'Parse.ly Traffic Boost',
-			'Traffic Boost (beta)',
+			'Parse.ly Engagement Boost',
+			'Engagement Boost (beta)',
 			$capability, // phpcs:ignore WordPress.WP.Capabilities.Undetermined
 			'parsely-dashboard-page',
 			'__return_null'

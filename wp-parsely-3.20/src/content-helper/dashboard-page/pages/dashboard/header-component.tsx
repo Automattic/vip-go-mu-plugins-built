@@ -90,7 +90,7 @@ export const DashboardHeader = (): React.JSX.Element => {
 				<div className="dashboard-header-stats">
 					<div className="stats-top">
 						<StatCard className="stat-intro" title="Parse.ly Working For You" />
-						<StatCard title="Traffic Boost" value="14%" icon={ link } />
+						<StatCard title="Engagement Boost" value="14%" icon={ link } />
 						<StatCard title="Smart Link Clicks" value="784" icon={ link } />
 					</div>
 					{ [

@@ -81,7 +81,7 @@ export const TabsContent = ( {
 			const lobbyLink = sprintf(
 				'<a href="%1$s" target="_blank" rel="noopener">%2$s</a>',
 				'https://lobby.vip.wordpress.com/2025/05/19/introducing-traffic-boost-a-smarter-way-to-recirculate-your-content/',
-				__( 'Traffic Boost', 'wp-parsely' )
+				__( 'Engagement Boost', 'wp-parsely' )
 			);
 
 			const docsLink = sprintf(
@@ -94,7 +94,7 @@ export const TabsContent = ( {
 				escapeHTML(
 					/* translators: %1$s: Lobby Post link, %2$s: VIP Documentation link */
 					__(
-						'%1$s is currently not enabled for your Site ID. Information about requesting access to Traffic Boost can be found %2$s.',
+						'%1$s is currently not enabled for your Site ID. Information about requesting access to Engagement Boost can be found %2$s.',
 						'wp-parsely'
 					)
 				),
