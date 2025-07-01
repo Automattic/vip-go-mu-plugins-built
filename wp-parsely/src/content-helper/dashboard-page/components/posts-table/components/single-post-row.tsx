@@ -164,13 +164,13 @@ export const SinglePostRow = ( {
 							<div className="boost-link-container">
 								<Link
 									to={ {
-										pathname: `/traffic-boost/${ post.id }`,
+										pathname: `/engagement-boost/${ post.id }`,
 									} }
 									state={ {
 										post,
 									} }
 								>
-									{ __( 'Boost Traffic', 'wp-parsely' ) }
+									{ __( 'Boost Engagement', 'wp-parsely' ) }
 								</Link>
 								{ /* Inbound/outbound link counts: Temporarily disabled for design */ }
 								{ /* ( inboundLinks > 0 || outboundLinks > 0 ) && (

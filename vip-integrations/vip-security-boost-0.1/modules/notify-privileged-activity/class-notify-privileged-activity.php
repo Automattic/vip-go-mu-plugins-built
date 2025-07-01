@@ -4,6 +4,7 @@ namespace Automattic\VIP\Security\PrivilegedActivityNotifier;
 use Automattic\VIP\Security\Email\Email;
 use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Logger;
+use Automattic\VIP\Support_User\User as Support_User;
 
 class Notify_Privileged_Activity {
 	const LOG_FEATURE_NAME = 'sb_notify_privileged_activity';
@@ -107,6 +108,15 @@ class Notify_Privileged_Activity {
 	 * @param string   $subject The email subject.
 	 */
 	private static function send_notification( $user, $subject, $email_title, $template ) {
+		// Skip notification for VIP Support users
+		if ( class_exists( Support_User::class ) && Support_User::user_has_vip_support_role( $user->ID ) ) {
+			Logger::info(
+				self::LOG_FEATURE_NAME,
+				'Skipping notification for VIP Support user: ' . $user->ID
+			);
+			return;
+		}
+
 		try {
 			$admin_email = get_option( 'admin_email' );
 

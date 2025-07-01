@@ -37,7 +37,7 @@ export const SuggestionBubble = ( { postId, numberOfSuggestions }: SuggestionBub
 	 * @since 3.19.0
 	 */
 	const handleClick = () => {
-		navigate( `/traffic-boost/${ postId }` );
+		navigate( `/engagement-boost/${ postId }` );
 	};
 
 	const pendingSuggestionsText = sprintf( /* translators: 1: Number of suggestions generated on this post */

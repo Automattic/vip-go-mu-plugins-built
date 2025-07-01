@@ -283,7 +283,7 @@ async function displayContentHelperSectionMessages(): Promise<void> {
 			} else if ( 200 === authResponse.api.code && 200 !== authResponse.traffic_boost.code ) {
 				const contactSupportLink = sprintf( '<a href="%1$s">%2$s</a>', 'mailto:support@parsely.com', 'support@parsely.com' );
 				/* translators: %s: Link to request access to Content Helper AI functionality. */
-				const messageWithAccessLink = sprintf( escapeHTML( __( 'Traffic Boost functionality is disabled for this website. To enable it, contact %s.', 'wp-parsely' ) ), contactSupportLink );
+				const messageWithAccessLink = sprintf( escapeHTML( __( 'Engagement Boost functionality is disabled for this website. To enable it, contact %s.', 'wp-parsely' ) ), contactSupportLink );
 				message = sprintf( '<p><strong>%s</strong></p>', messageWithAccessLink );
 			}
 		}

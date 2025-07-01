@@ -113,7 +113,7 @@ export const TrafficBoostSidebar = ( {
 		<div className="traffic-boost-sidebar">
 			<SidebarHeader
 				isLoading={ isLoadingPost }
-				onBackClick={ () => navigate( '/traffic-boost' ) }
+				onBackClick={ () => navigate( '/engagement-boost' ) }
 				post={ post ?? undefined }
 			/>
 

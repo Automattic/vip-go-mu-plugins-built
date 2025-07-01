@@ -53,3 +53,10 @@ require_once __DIR__ . '/class-loader.php';
 
 // Initialize tracking hooks
 \Automattic\VIP\Security\Utils\Tracking::setup_action_hooks();
+
+// Initialize collector hooks
+add_filter( 'vip_prometheus_collectors', function ( $collectors ) {
+	$collectors['vip_security_boost'] = new \Automattic\VIP\Security\Utils\Collector();
+
+	return $collectors;
+} );
