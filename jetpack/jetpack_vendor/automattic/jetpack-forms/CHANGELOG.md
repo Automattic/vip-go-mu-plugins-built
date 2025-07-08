@@ -5,6 +5,124 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-06-30
+### Security
+- Prevent form element attribute names from being set as field names. [#44113]
+
+### Added
+- Add items count to export button labels. [#44064]
+- Add JSON response to form submission and AJAX request under feature flag. [#44118]
+- Add MailPoet integrations nudge. [#44115]
+
+### Changed
+- Contact Form: Simplify multistep form detection and improve error wrapper placement for multistep navigation blocks. [#44076]
+
+### Fixed
+- Set correct unread count when there's another badge number on Jetpack menu item. [#44108]
+- Load the initial steps as if the form has more than one step in it. [#44098]
+- Remove broken group block tranformation. [#44083]
+
+## [2.0.1] - 2025-06-24
+### Added
+- Add dashboard link to response email. [#43834]
+- Add "mark as spam" link to response email. [#43866]
+
+### Changed
+- Improve the error validation animation. [#43968]
+
+## [2.0.0] - 2025-06-23
+### Added
+- File Uploads block: Add Tracks event to upsell nudge. [#43860]
+- Introduce multi-step forms. [#43918]
+
+### Changed
+- Allow super admins see form submissions. [#43998]
+- Convert various cards and components to TypeScript. [#43986] [#43992] [#43993]
+- Hide legacy Feedback menu on new sites. [#44060]
+- Scripts: Change imports for hosting checks. [#43972]
+- Update type handling for integrations. [#43969]
+- Update package dependencies. [#44020] [#44040]
+
+### Fixed
+- Fix HTML support to labels in animated style. [#43966]
+- Fix the overlay z-index for date picker. [#43967]
+- Make outline style notched labels more selectable. [#43956]
+
+## [1.3.0] - 2025-06-16
+### Added
+- Add a preview link to the response view for files. [#43730]
+- Add TypeScript type checking to the package. [#43867]
+- Add Akismet refresh status button. [#43937]
+- Add button to create Salesforce form. [#43911]
+- Add variables to be translated. [#43957]
+- Show central integrations dashboard. [#43936]
+
+### Changed
+- Add inline docs for Salesforce. [#43909]
+- Change form creation method. [#43944]
+- Consolidate TypeScript types. [#43733]
+- Move components that are shared across blocks from the contact-form block folder to the shared folder. [#43895]
+- Stop translating Forms product name in the sidebar. [#43925]
+- Switch to `Request::is_frontend()` method from Jetpack Status package. [#43873]
+- Update package dependencies. [#43892] [#43914] [#43951]
+- Use interactivity API for form validation. [#43893]
+
+### Removed
+- Remove old duplicated components. [#43895]
+
+### Fixed
+- Adjust "About" page layout to fit any text on feature cards. [#43943]
+- Catch PHP warning when parsed block data is malformed. [#43865]
+- Ensure that the select control uses the correct padding. [#43919]
+- Fix a PHP warning. [#43960]
+- Fix interactivity bug where the field is not registed yet. [#43959]
+- Fix plugin connection badges. [#43856]
+- Fix Saleforce badge. [#43862]
+- Fix Salesforce form fields. [#43915]
+- Fix styling of the select input in animated styles. [#43938]
+- Prevent PHP warning when rendering blocks. [#43890]
+
+## [1.2.0] - 2025-06-09
+### Added
+- Add "Remove" button for dropdown options and prevent dropdowns with no options. [#43616]
+- New file uploads field released. [#43846]
+- Show unread count on Jetpack > Forms submenu. [#43758]
+
+### Changed
+- Add section about developer documentation to FAQ. [#43654]
+- Move `get_export_filename` method from Admin to Util. [#43823]
+- Use sentence case where appropriate in UI. [#43818] [#43847]
+- Update feedback pattern screenshot. [#43849]
+- Update inbox fallback and redirect URLs. [#43757]
+
+### Removed
+- Remove unused code. [#43816] [#43838]
+
+### Fixed
+- Add line-height to migration page heading when it wraps. [#43827]
+- Fix dropdown field background color on Windows. [#43848]
+- Fix an error with poorly-formatted POST data. [#43835]
+- Fix routing on new integrations tab. [#43822]
+- Remove all admin notices from the Jetpack Forms admin. [#43776]
+
+## [1.1.0] - 2025-06-05
+### Added
+- Add "undo" to all action snackbars in Inbox. [#43787]
+
+### Changed
+- Remove `is_admin` fencing for menu registration and move Forms down on submenu order. [#43755]
+- Make emails clickable in Inbox. [#43771]
+- Indicate when no files were uploaded to field with a dash. [#43770]
+- Migrate form field blocks to use new inner label, input, option, and options blocks. [#43765]
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Added
+- Forms: Add events for integrations toggling and card expansion. [#43716]
+
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
 ## [0.56.0] - 2025-06-02
 ### Added
 - Add tracking pixel to form submission emails to know if emails are being opened (no user info is sent). [#43629]
@@ -36,20 +154,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.55.0] - 2025-05-26
 ### Added
-- Forms: Add Create Form button to dashboard header. [#43529]
-- Forms: Add feature filter flags and code for moving submenu item from Feedback > Forms responses to Jetpack > Forms. [#43295]
-- Forms: Add Integration screen content. [#43530]
-- Forms: Add integration tab with feature flag. [#43502]
+- Add "Create Form" button to dashboard header. [#43529]
+- Add feature filter flags and code for moving submenu item from Feedback > Forms responses to Jetpack > Forms. [#43295]
+- Add Integration screen content. [#43530]
+- Add integration tab with feature flag. [#43502]
 
 ### Changed
-- Forms: Address styles design on integrations tabs and modal. [#43576]
+- Address styles design on integrations tabs and modal. [#43576]
 - Update package dependencies. [#43516] [#43578]
 
 ### Fixed
-- Fixed admin notice showing on all screens instead of only forms classic view. [#43582]
-- Forms: Apply max-width on Salesforce ID input. [#43543]
-- Forms: Fix Akismet spam URL. [#43542]
-- Forms: Remove the ability to upload multiple files at using the same file upload field. This field is not yet released. [#43555]
+- Apply maximum width on Salesforce ID input. [#43543]
+- Ensure admin notice on classic view does not show on all screens. [#43582]
+- Fix Akismet spam URL. [#43542]
+- Remove the ability to upload multiple files at using the same file upload field. This field is not yet released. [#43555]
 
 ## [0.54.0] - 2025-05-19
 ### Added
@@ -1142,6 +1260,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[2.1.0]: https://github.com/automattic/jetpack-forms/compare/v2.0.1...v2.1.0
+[2.0.1]: https://github.com/automattic/jetpack-forms/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/automattic/jetpack-forms/compare/v1.3.0...v2.0.0
+[1.3.0]: https://github.com/automattic/jetpack-forms/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/automattic/jetpack-forms/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/automattic/jetpack-forms/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/automattic/jetpack-forms/compare/v0.56.0...v1.0.0
 [0.56.0]: https://github.com/automattic/jetpack-forms/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/automattic/jetpack-forms/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/automattic/jetpack-forms/compare/v0.53.0...v0.54.0

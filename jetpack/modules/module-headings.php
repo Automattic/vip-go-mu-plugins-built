@@ -18,42 +18,42 @@ function jetpack_get_module_i18n( $key ) {
 		$modules = array(
 			'account-protection' => array(
 				'name' => _x( 'Account protection', 'Module Name', 'jetpack' ),
-				'description' => _x( 'When enabled, users can only set passwords that meet strong security standards, helping protect their accounts and your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Shield your login page with rate‑limiting and secure authentication safeguards.', 'Module Description', 'jetpack' ),
 			),
 
 			'blaze' => array(
 				'name' => _x( 'Blaze', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Grow your audience by promoting your content across Tumblr and WordPress.com.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Promote your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.', 'Module Description', 'jetpack' ),
 			),
 
 			'blocks' => array(
 				'name' => _x( 'Blocks', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add additional blocks to your site and post editors.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Expand your editor with custom Jetpack blocks for rich content and layout options.', 'Module Description', 'jetpack' ),
 			),
 
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Turn your image galleries into immersive, full‑screen slideshows.', 'Module Description', 'jetpack' ),
 			),
 
 			'comment-likes' => array(
 				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Increase visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable visitors to like individual comments and boost engagement.', 'Module Description', 'jetpack' ),
 			),
 
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Let visitors use a WordPress.com or Facebook account to comment', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Replace the default comment form with a modern, feature‑rich alternative.', 'Module Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
 				'name' => _x( 'Forms', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add a customizable form to any post or page using the Jetpack Form block.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add contact, registration, and feedback forms directly from the block editor.', 'Module Description', 'jetpack' ),
 			),
 
 			'copy-post' => array(
 				'name' => _x( 'Copy Post', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable the option to copy entire posts and pages, including tags and settings', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Duplicate any post or page in one click to speed up content creation.', 'Module Description', 'jetpack' ),
 			),
 
 			'custom-content-types' => array(
@@ -63,172 +63,172 @@ function jetpack_get_module_i18n( $key ) {
 
 			'google-fonts' => array(
 				'name' => _x( 'Google Fonts (Beta)', 'Module Name', 'jetpack' ),
-				'description' => _x( 'A selection of Google fonts for block enabled themes. This feature is still being developed.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Customize your site\'s typography with a selection of Google Fonts.', 'Module Description', 'jetpack' ),
 			),
 
 			'gravatar-hovercards' => array(
 				'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Show a user’s Gravatar profile when visitors hover over their name or image.', 'Module Description', 'jetpack' ),
 			),
 
 			'infinite-scroll' => array(
 				'name' => _x( 'Infinite Scroll', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Automatically load new content when a visitor scrolls', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Automatically load new posts as visitors scroll down your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'json-api' => array(
 				'name' => _x( 'JSON API', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow applications to securely access your content.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Access your site’s data remotely through the WordPress.com REST API.', 'Module Description', 'jetpack' ),
 			),
 
 			'latex' => array(
 				'name' => _x( 'Beautiful Math', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Use the LaTeX markup language to write mathematical equations and formulas', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add beautifully formatted math equations to your posts and pages using LaTeX.', 'Module Description', 'jetpack' ),
 			),
 
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let readers like your posts to show appreciation and encourage interaction.', 'Module Description', 'jetpack' ),
 			),
 
 			'markdown' => array(
 				'name' => _x( 'Markdown', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Write posts or pages in plain-text Markdown syntax', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Write and format posts using clean, readable Markdown syntax.', 'Module Description', 'jetpack' ),
 			),
 
 			'monitor' => array(
-				'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'Downtime Monitor', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Get instant alerts if your site goes down and know when it’s back online.', 'Module Description', 'jetpack' ),
 			),
 
 			'notes' => array(
 				'name' => _x( 'Notifications', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Receive real‑time notifications about site activity across your devices.', 'Module Description', 'jetpack' ),
 			),
 
 			'photon-cdn' => array(
 				'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Serve static files like CSS and JS from Jetpack’s global CDN for faster load times.', 'Module Description', 'jetpack' ),
 			),
 
 			'photon' => array(
 				'name' => _x( 'Image CDN', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Deliver images quickly with automatic resizing from Jetpack’s global image CDN.', 'Module Description', 'jetpack' ),
 			),
 
 			'post-by-email' => array(
 				'name' => _x( 'Post by email', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Publish blog posts simply by sending an email to a custom address.', 'Module Description', 'jetpack' ),
 			),
 
 			'post-list' => array(
 				'name' => _x( 'Post List', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display extra information alongside each post in your dashboard’s Posts screen.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Display a customizable list of your latest posts anywhere on your site.', 'Module Description', 'jetpack' ),
 			),
 
 			'protect' => array(
 				'name' => _x( 'Brute force protection', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Block malicious login attempts automatically and keep hackers out.', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
 				'name' => _x( 'Jetpack Social', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Auto‑share your posts to social networks and track engagement in one place.', 'Module Description', 'jetpack' ),
 			),
 
 			'related-posts' => array(
 				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Automatically display related articles to keep visitors reading longer.', 'Module Description', 'jetpack' ),
 			),
 
 			'search' => array(
 				'name' => _x( 'Search', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Instantly deliver the most relevant results to your visitors.', 'Module Description', 'jetpack' ),
 			),
 
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Optimize titles, meta descriptions, and social previews for better search results.', 'Module Description', 'jetpack' ),
 			),
 
 			'sharedaddy' => array(
 				'name' => _x( 'Sharing', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Add sharing buttons at the bottom of each post, making it easy for visitors to share your content.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add customizable share buttons so visitors can spread your content.', 'Module Description', 'jetpack' ),
 			),
 
 			'shortcodes' => array(
 				'name' => _x( 'Shortcode Embeds', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Shortcodes are WordPress-specific markup that let you add media from popular sites. This feature is no longer necessary as the editor now handles media embeds rather gracefully.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Easily embed rich media like YouTube videos and tweets using simple shortcodes.', 'Module Description', 'jetpack' ),
 			),
 
 			'shortlinks' => array(
 				'name' => _x( 'WP.me Shortlinks', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Generates shorter links using the wp.me domain.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Share short, easy-to-remember links to your posts and pages.', 'Module Description', 'jetpack' ),
 			),
 
 			'sitemaps' => array(
 				'name' => _x( 'Sitemaps', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Make it easy for search engines to find your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Generate XML sitemaps so search engines can index your site efficiently.', 'Module Description', 'jetpack' ),
 			),
 
 			'sso' => array(
 				'name' => _x( 'Secure Sign On', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow users to log in to this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let users log in with their WordPress.com account for quick, secure access.', 'Module Description', 'jetpack' ),
 			),
 
 			'stats' => array(
 				'name' => _x( 'Jetpack Stats', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Collect valuable traffic stats and insights.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Clear, concise traffic insights right in your WordPress dashboard.', 'Module Description', 'jetpack' ),
 			),
 
 			'subscriptions' => array(
 				'name' => _x( 'Newsletter', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Let visitors subscribe to new posts and comments via email', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Grow your subscriber list and deliver your content directly to their email inbox.', 'Module Description', 'jetpack' ),
 			),
 
 			'tiled-gallery' => array(
 				'name' => _x( 'Tiled Galleries', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Create visually engaging tiled image galleries with multiple layout options.', 'Module Description', 'jetpack' ),
 			),
 
 			'vaultpress' => array(
-				'name' => _x( 'Backups and Scanning', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Protect your site with daily or real-time backups and automated virus scanning and threat detection.', 'Module Description', 'jetpack' ),
+				'name' => _x( 'VaultPress Backup', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Real-time backups save every change, and one-click restores get you back online quickly.', 'Module Description', 'jetpack' ),
 			),
 
 			'verification-tools' => array(
 				'name' => _x( 'Site verification', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Establish your site\'s authenticity with external services.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Verify your site with search engines and social platforms in a couple of clicks.', 'Module Description', 'jetpack' ),
 			),
 
 			'videopress' => array(
 				'name' => _x( 'VideoPress', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Powerful and flexible video hosting.', 'Module Description', 'jetpack' ),
 			),
 
 			'waf' => array(
 				'name' => _x( 'Firewall', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Protect your site with Jetpack\'s Web Application Firewall.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Filter malicious traffic in real time with Jetpack’s site firewall.', 'Module Description', 'jetpack' ),
 			),
 
 			'widget-visibility' => array(
 				'name' => _x( 'Widget Visibility', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Control where widgets appear on your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Choose which widgets appear on specific pages or posts with advanced controls.', 'Module Description', 'jetpack' ),
 			),
 
 			'widgets' => array(
 				'name' => _x( 'Extra Sidebar Widgets', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Provides additional widgets for use on your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Add more widget options to your site, like social feeds, subscriptions, and more.', 'Module Description', 'jetpack' ),
 			),
 
 			'woocommerce-analytics' => array(
 				'name' => _x( 'WooCommerce Analytics', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enhanced analytics for WooCommerce and Jetpack users.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Get actionable insights on your store’s orders, revenue, and customers.', 'Module Description', 'jetpack' ),
 			),
 
 			'wordads' => array(
 				'name' => _x( 'Ads', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Earn income by allowing Jetpack to display high quality ads.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Earn revenue by displaying high‑quality ads on your site.', 'Module Description', 'jetpack' ),
 			),
 		);
 	}
@@ -371,7 +371,7 @@ function jetpack_get_module_info( $key ) {
 	  'account-protection' => 
 	  array (
 	    'name' => 'Account protection',
-	    'description' => 'When enabled, users can only set passwords that meet strong security standards, helping protect their accounts and your site.',
+	    'description' => 'Shield your login page with rate‑limiting and secure authentication safeguards.',
 	    'sort' => '4',
 	    'recommendation_order' => '',
 	    'introduced' => '14.5',
@@ -389,7 +389,7 @@ function jetpack_get_module_info( $key ) {
 	  'blaze' => 
 	  array (
 	    'name' => 'Blaze',
-	    'description' => 'Grow your audience by promoting your content across Tumblr and WordPress.com.',
+	    'description' => 'Promote your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.',
 	    'sort' => '22',
 	    'recommendation_order' => '12',
 	    'introduced' => '12.3',
@@ -407,7 +407,7 @@ function jetpack_get_module_info( $key ) {
 	  'blocks' => 
 	  array (
 	    'name' => 'Blocks',
-	    'description' => 'Add additional blocks to your site and post editors.',
+	    'description' => 'Expand your editor with custom Jetpack blocks for rich content and layout options.',
 	    'sort' => '5',
 	    'recommendation_order' => '',
 	    'introduced' => '13.9-a.8',
@@ -425,7 +425,7 @@ function jetpack_get_module_info( $key ) {
 	  'carousel' => 
 	  array (
 	    'name' => 'Carousel',
-	    'description' => 'Display images and galleries in a gorgeous, full-screen browsing experience',
+	    'description' => 'Turn your image galleries into immersive, full‑screen slideshows.',
 	    'sort' => '22',
 	    'recommendation_order' => '12',
 	    'introduced' => '1.5',
@@ -443,7 +443,7 @@ function jetpack_get_module_info( $key ) {
 	  'comment-likes' => 
 	  array (
 	    'name' => 'Comment Likes',
-	    'description' => 'Increase visitor engagement by adding a Like button to comments.',
+	    'description' => 'Enable visitors to like individual comments and boost engagement.',
 	    'sort' => '39',
 	    'recommendation_order' => '17',
 	    'introduced' => '5.1',
@@ -461,7 +461,7 @@ function jetpack_get_module_info( $key ) {
 	  'comments' => 
 	  array (
 	    'name' => 'Comments',
-	    'description' => 'Let visitors use a WordPress.com or Facebook account to comment',
+	    'description' => 'Replace the default comment form with a modern, feature‑rich alternative.',
 	    'sort' => '20',
 	    'recommendation_order' => '',
 	    'introduced' => '1.4',
@@ -479,7 +479,7 @@ function jetpack_get_module_info( $key ) {
 	  'contact-form' => 
 	  array (
 	    'name' => 'Forms',
-	    'description' => 'Add a customizable form to any post or page using the Jetpack Form block.',
+	    'description' => 'Add contact, registration, and feedback forms directly from the block editor.',
 	    'sort' => '15',
 	    'recommendation_order' => '14',
 	    'introduced' => '1.3',
@@ -497,7 +497,7 @@ function jetpack_get_module_info( $key ) {
 	  'copy-post' => 
 	  array (
 	    'name' => 'Copy Post',
-	    'description' => 'Enable the option to copy entire posts and pages, including tags and settings',
+	    'description' => 'Duplicate any post or page in one click to speed up content creation.',
 	    'sort' => '15',
 	    'recommendation_order' => '',
 	    'introduced' => '7.0',
@@ -533,7 +533,7 @@ function jetpack_get_module_info( $key ) {
 	  'google-fonts' => 
 	  array (
 	    'name' => 'Google Fonts (Beta)',
-	    'description' => 'A selection of Google fonts for block enabled themes. This feature is still being developed.',
+	    'description' => 'Customize your site\'s typography with a selection of Google Fonts.',
 	    'sort' => '1',
 	    'recommendation_order' => '2',
 	    'introduced' => '10.8.0',
@@ -551,7 +551,7 @@ function jetpack_get_module_info( $key ) {
 	  'gravatar-hovercards' => 
 	  array (
 	    'name' => 'Gravatar Hovercards',
-	    'description' => 'Enable pop-up business cards over commenters’ Gravatars.',
+	    'description' => 'Show a user’s Gravatar profile when visitors hover over their name or image.',
 	    'sort' => '11',
 	    'recommendation_order' => '13',
 	    'introduced' => '1.1',
@@ -569,7 +569,7 @@ function jetpack_get_module_info( $key ) {
 	  'infinite-scroll' => 
 	  array (
 	    'name' => 'Infinite Scroll',
-	    'description' => 'Automatically load new content when a visitor scrolls',
+	    'description' => 'Automatically load new posts as visitors scroll down your site.',
 	    'sort' => '26',
 	    'recommendation_order' => '',
 	    'introduced' => '2.0',
@@ -587,7 +587,7 @@ function jetpack_get_module_info( $key ) {
 	  'json-api' => 
 	  array (
 	    'name' => 'JSON API',
-	    'description' => 'Allow applications to securely access your content.',
+	    'description' => 'Access your site’s data remotely through the WordPress.com REST API.',
 	    'sort' => '19',
 	    'recommendation_order' => '',
 	    'introduced' => '1.9',
@@ -605,7 +605,7 @@ function jetpack_get_module_info( $key ) {
 	  'latex' => 
 	  array (
 	    'name' => 'Beautiful Math',
-	    'description' => 'Use the LaTeX markup language to write mathematical equations and formulas',
+	    'description' => 'Add beautifully formatted math equations to your posts and pages using LaTeX.',
 	    'sort' => '12',
 	    'recommendation_order' => '',
 	    'introduced' => '1.1',
@@ -623,7 +623,7 @@ function jetpack_get_module_info( $key ) {
 	  'likes' => 
 	  array (
 	    'name' => 'Likes',
-	    'description' => 'Give visitors an easy way to show they appreciate your content.',
+	    'description' => 'Let readers like your posts to show appreciation and encourage interaction.',
 	    'sort' => '23',
 	    'recommendation_order' => '',
 	    'introduced' => '2.2',
@@ -641,7 +641,7 @@ function jetpack_get_module_info( $key ) {
 	  'markdown' => 
 	  array (
 	    'name' => 'Markdown',
-	    'description' => 'Write posts or pages in plain-text Markdown syntax',
+	    'description' => 'Write and format posts using clean, readable Markdown syntax.',
 	    'sort' => '31',
 	    'recommendation_order' => '',
 	    'introduced' => '2.8',
@@ -658,8 +658,8 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'monitor' => 
 	  array (
-	    'name' => 'Monitor',
-	    'description' => 'Jetpack’s downtime monitoring will continuously watch your site and alert you the moment that downtime is detected.',
+	    'name' => 'Downtime Monitor',
+	    'description' => 'Get instant alerts if your site goes down and know when it’s back online.',
 	    'sort' => '28',
 	    'recommendation_order' => '10',
 	    'introduced' => '2.6',
@@ -677,7 +677,7 @@ function jetpack_get_module_info( $key ) {
 	  'notes' => 
 	  array (
 	    'name' => 'Notifications',
-	    'description' => 'Receive instant notifications of site comments and likes.',
+	    'description' => 'Receive real‑time notifications about site activity across your devices.',
 	    'sort' => '13',
 	    'recommendation_order' => '',
 	    'introduced' => '1.9',
@@ -695,7 +695,7 @@ function jetpack_get_module_info( $key ) {
 	  'photon-cdn' => 
 	  array (
 	    'name' => 'Asset CDN',
-	    'description' => 'Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.',
+	    'description' => 'Serve static files like CSS and JS from Jetpack’s global CDN for faster load times.',
 	    'sort' => '26',
 	    'recommendation_order' => '1',
 	    'introduced' => '6.6',
@@ -713,7 +713,7 @@ function jetpack_get_module_info( $key ) {
 	  'photon' => 
 	  array (
 	    'name' => 'Image CDN',
-	    'description' => 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.',
+	    'description' => 'Deliver images quickly with automatic resizing from Jetpack’s global image CDN.',
 	    'sort' => '25',
 	    'recommendation_order' => '1',
 	    'introduced' => '2.0',
@@ -731,7 +731,7 @@ function jetpack_get_module_info( $key ) {
 	  'post-by-email' => 
 	  array (
 	    'name' => 'Post by email',
-	    'description' => 'Publish posts by sending an email',
+	    'description' => 'Publish blog posts simply by sending an email to a custom address.',
 	    'sort' => '14',
 	    'recommendation_order' => '',
 	    'introduced' => '2.0',
@@ -749,7 +749,7 @@ function jetpack_get_module_info( $key ) {
 	  'post-list' => 
 	  array (
 	    'name' => 'Post List',
-	    'description' => 'Display extra information alongside each post in your dashboard’s Posts screen.',
+	    'description' => 'Display a customizable list of your latest posts anywhere on your site.',
 	    'sort' => '31',
 	    'recommendation_order' => '12',
 	    'introduced' => '11.3',
@@ -767,7 +767,7 @@ function jetpack_get_module_info( $key ) {
 	  'protect' => 
 	  array (
 	    'name' => 'Brute force protection',
-	    'description' => 'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
+	    'description' => 'Block malicious login attempts automatically and keep hackers out.',
 	    'sort' => '1',
 	    'recommendation_order' => '4',
 	    'introduced' => '3.4',
@@ -785,7 +785,7 @@ function jetpack_get_module_info( $key ) {
 	  'publicize' => 
 	  array (
 	    'name' => 'Jetpack Social',
-	    'description' => 'Jetpack Social makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.',
+	    'description' => 'Auto‑share your posts to social networks and track engagement in one place.',
 	    'sort' => '10',
 	    'recommendation_order' => '7',
 	    'introduced' => '2.0',
@@ -803,7 +803,7 @@ function jetpack_get_module_info( $key ) {
 	  'related-posts' => 
 	  array (
 	    'name' => 'Related posts',
-	    'description' => 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.',
+	    'description' => 'Automatically display related articles to keep visitors reading longer.',
 	    'sort' => '29',
 	    'recommendation_order' => '9',
 	    'introduced' => '2.9',
@@ -821,7 +821,7 @@ function jetpack_get_module_info( $key ) {
 	  'search' => 
 	  array (
 	    'name' => 'Search',
-	    'description' => 'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+	    'description' => 'Instantly deliver the most relevant results to your visitors.',
 	    'sort' => '34',
 	    'recommendation_order' => '',
 	    'introduced' => '5.0',
@@ -839,7 +839,7 @@ function jetpack_get_module_info( $key ) {
 	  'seo-tools' => 
 	  array (
 	    'name' => 'SEO Tools',
-	    'description' => 'Better results on search engines and social media.',
+	    'description' => 'Optimize titles, meta descriptions, and social previews for better search results.',
 	    'sort' => '35',
 	    'recommendation_order' => '15',
 	    'introduced' => '4.4',
@@ -857,7 +857,7 @@ function jetpack_get_module_info( $key ) {
 	  'sharedaddy' => 
 	  array (
 	    'name' => 'Sharing',
-	    'description' => 'Add sharing buttons at the bottom of each post, making it easy for visitors to share your content.',
+	    'description' => 'Add customizable share buttons so visitors can spread your content.',
 	    'sort' => '7',
 	    'recommendation_order' => '6',
 	    'introduced' => '1.1',
@@ -875,7 +875,7 @@ function jetpack_get_module_info( $key ) {
 	  'shortcodes' => 
 	  array (
 	    'name' => 'Shortcode Embeds',
-	    'description' => 'Shortcodes are WordPress-specific markup that let you add media from popular sites. This feature is no longer necessary as the editor now handles media embeds rather gracefully.',
+	    'description' => 'Easily embed rich media like YouTube videos and tweets using simple shortcodes.',
 	    'sort' => '3',
 	    'recommendation_order' => '',
 	    'introduced' => '1.1',
@@ -893,7 +893,7 @@ function jetpack_get_module_info( $key ) {
 	  'shortlinks' => 
 	  array (
 	    'name' => 'WP.me Shortlinks',
-	    'description' => 'Generates shorter links using the wp.me domain.',
+	    'description' => 'Share short, easy-to-remember links to your posts and pages.',
 	    'sort' => '8',
 	    'recommendation_order' => '',
 	    'introduced' => '1.1',
@@ -911,7 +911,7 @@ function jetpack_get_module_info( $key ) {
 	  'sitemaps' => 
 	  array (
 	    'name' => 'Sitemaps',
-	    'description' => 'Make it easy for search engines to find your site.',
+	    'description' => 'Generate XML sitemaps so search engines can index your site efficiently.',
 	    'sort' => '13',
 	    'recommendation_order' => '',
 	    'introduced' => '3.9',
@@ -929,7 +929,7 @@ function jetpack_get_module_info( $key ) {
 	  'sso' => 
 	  array (
 	    'name' => 'Secure Sign On',
-	    'description' => 'Allow users to log in to this site using WordPress.com accounts',
+	    'description' => 'Let users log in with their WordPress.com account for quick, secure access.',
 	    'sort' => '30',
 	    'recommendation_order' => '5',
 	    'introduced' => '2.6',
@@ -947,7 +947,7 @@ function jetpack_get_module_info( $key ) {
 	  'stats' => 
 	  array (
 	    'name' => 'Jetpack Stats',
-	    'description' => 'Collect valuable traffic stats and insights.',
+	    'description' => 'Clear, concise traffic insights right in your WordPress dashboard.',
 	    'sort' => '1',
 	    'recommendation_order' => '2',
 	    'introduced' => '1.1',
@@ -965,7 +965,7 @@ function jetpack_get_module_info( $key ) {
 	  'subscriptions' => 
 	  array (
 	    'name' => 'Newsletter',
-	    'description' => 'Let visitors subscribe to new posts and comments via email',
+	    'description' => 'Grow your subscriber list and deliver your content directly to their email inbox.',
 	    'sort' => '9',
 	    'recommendation_order' => '8',
 	    'introduced' => '1.2',
@@ -983,7 +983,7 @@ function jetpack_get_module_info( $key ) {
 	  'tiled-gallery' => 
 	  array (
 	    'name' => 'Tiled Galleries',
-	    'description' => 'Display image galleries in a variety of elegant arrangements.',
+	    'description' => 'Create visually engaging tiled image galleries with multiple layout options.',
 	    'sort' => '24',
 	    'recommendation_order' => '',
 	    'introduced' => '2.1',
@@ -1000,8 +1000,8 @@ function jetpack_get_module_info( $key ) {
 	  ),
 	  'vaultpress' => 
 	  array (
-	    'name' => 'Backups and Scanning',
-	    'description' => 'Protect your site with daily or real-time backups and automated virus scanning and threat detection.',
+	    'name' => 'VaultPress Backup',
+	    'description' => 'Real-time backups save every change, and one-click restores get you back online quickly.',
 	    'sort' => '32',
 	    'recommendation_order' => '',
 	    'introduced' => '0:1.2',
@@ -1019,7 +1019,7 @@ function jetpack_get_module_info( $key ) {
 	  'verification-tools' => 
 	  array (
 	    'name' => 'Site verification',
-	    'description' => 'Establish your site\'s authenticity with external services.',
+	    'description' => 'Verify your site with search engines and social platforms in a couple of clicks.',
 	    'sort' => '33',
 	    'recommendation_order' => '',
 	    'introduced' => '3.0',
@@ -1037,7 +1037,7 @@ function jetpack_get_module_info( $key ) {
 	  'videopress' => 
 	  array (
 	    'name' => 'VideoPress',
-	    'description' => 'Save on hosting storage and bandwidth costs by streaming fast, ad-free video from our global network.',
+	    'description' => 'Powerful and flexible video hosting.',
 	    'sort' => '27',
 	    'recommendation_order' => '',
 	    'introduced' => '2.5',
@@ -1055,7 +1055,7 @@ function jetpack_get_module_info( $key ) {
 	  'waf' => 
 	  array (
 	    'name' => 'Firewall',
-	    'description' => 'Protect your site with Jetpack\'s Web Application Firewall.',
+	    'description' => 'Filter malicious traffic in real time with Jetpack’s site firewall.',
 	    'sort' => '5',
 	    'recommendation_order' => '',
 	    'introduced' => '10.9',
@@ -1073,7 +1073,7 @@ function jetpack_get_module_info( $key ) {
 	  'widget-visibility' => 
 	  array (
 	    'name' => 'Widget Visibility',
-	    'description' => 'Control where widgets appear on your site.',
+	    'description' => 'Choose which widgets appear on specific pages or posts with advanced controls.',
 	    'sort' => '17',
 	    'recommendation_order' => '',
 	    'introduced' => '2.4',
@@ -1091,7 +1091,7 @@ function jetpack_get_module_info( $key ) {
 	  'widgets' => 
 	  array (
 	    'name' => 'Extra Sidebar Widgets',
-	    'description' => 'Provides additional widgets for use on your site.',
+	    'description' => 'Add more widget options to your site, like social feeds, subscriptions, and more.',
 	    'sort' => '4',
 	    'recommendation_order' => '',
 	    'introduced' => '1.2',
@@ -1109,7 +1109,7 @@ function jetpack_get_module_info( $key ) {
 	  'woocommerce-analytics' => 
 	  array (
 	    'name' => 'WooCommerce Analytics',
-	    'description' => 'Enhanced analytics for WooCommerce and Jetpack users.',
+	    'description' => 'Get actionable insights on your store’s orders, revenue, and customers.',
 	    'sort' => '13',
 	    'recommendation_order' => '',
 	    'introduced' => '8.4',
@@ -1127,7 +1127,7 @@ function jetpack_get_module_info( $key ) {
 	  'wordads' => 
 	  array (
 	    'name' => 'Ads',
-	    'description' => 'Earn income by allowing Jetpack to display high quality ads.',
+	    'description' => 'Earn revenue by displaying high‑quality ads on your site.',
 	    'sort' => '1',
 	    'recommendation_order' => '',
 	    'introduced' => '4.5.0',

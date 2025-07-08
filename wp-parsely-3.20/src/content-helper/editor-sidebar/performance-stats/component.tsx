@@ -35,8 +35,12 @@ import { PerformanceData } from './model';
 import './performance-stats.scss';
 import { PerformanceStatsProvider } from './provider';
 
-// Number of attempts to fetch the data before displaying an error.
-const FETCH_RETRIES = 1;
+/**
+ * The maximum number of retries for fetching the performance stats.
+ *
+ * @since 3.20.0 Renamed from FETCH_RETRIES to MAX_FETCH_RETRIES.
+ */
+const MAX_FETCH_RETRIES = 1;
 
 /**
  * Panel metadata descriptor.
@@ -231,7 +235,7 @@ export const PerformanceStats = (
 		};
 
 		setLoading( true );
-		fetchPosts( FETCH_RETRIES );
+		fetchPosts( MAX_FETCH_RETRIES );
 
 		return (): void => {
 			setError( undefined );
@@ -305,7 +309,7 @@ export const PerformanceStats = (
 			{ window.wpParselyPostUrl && (
 				<Button
 					className="wp-parsely-view-post"
-					variant={ 'primary' }
+					variant="secondary"
 					onClick={ () => {
 						Telemetry.trackEvent( 'editor_sidebar_view_post_pressed' );
 					} }

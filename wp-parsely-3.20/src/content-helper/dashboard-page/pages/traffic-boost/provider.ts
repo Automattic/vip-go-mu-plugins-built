@@ -139,6 +139,13 @@ type AcceptSuggestionReturn = {
 type DiscardSuggestionResponse = SuccessResponse & ErrorResponse;
 
 /**
+ * The maximum number of retries for fetching Traffic Boost suggestions.
+ *
+ * @since 3.20.0
+ */
+const MAX_FETCH_RETRIES = 3;
+
+/**
  * Traffic Boost provider class.
  *
  * Provides methods to fetch Traffic Boost links and inbound smart links,
@@ -223,7 +230,7 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 	): Promise<TrafficBoostLink[]> {
 		const maxItemsPerBatch = options?.maxItemsPerBatch ?? Math.min( numberOfSuggestions, 5 );
 
-		let maxRetries = options?.maxRetries ?? 3;
+		let maxRetries = options?.maxRetries ?? MAX_FETCH_RETRIES;
 		let totalSuggestions = 0;
 		let generatedSuggestions: TrafficBoostLink[] = [];
 		let excludedUrls: string[] = options?.urlExclusionList ?? [];
@@ -271,7 +278,6 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 				// If the error is an AbortError, we need to throw it.
 				if (
 					( error instanceof DOMException && error.name === 'AbortError' ) ||
-					( error instanceof ContentHelperError && error.code === ContentHelperErrorCode.ParselyAborted ) ||
 					( error instanceof ContentHelperError && ! error.retryFetch )
 				) {
 					throw error;

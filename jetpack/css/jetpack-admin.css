@@ -1,14 +1,4 @@
 /**
- * em()
- *
- * Convert px to em in a readable fashion.
- * ==========================================================================
-
- * Examples:
- * 1. font-size: em(14px);
- * 2. font-size: em(30px/14px);
- */
-/**
  * Breakpoint Mixin
  *
  * Uses Sass Maps which requires Sass v3.3.0 or newer
@@ -116,6 +106,16 @@
     transform: rotate(1turn);
   }
 }
+/**
+ * em()
+ *
+ * Convert px to em in a readable fashion.
+ * ==========================================================================
+
+ * Examples:
+ * 1. font-size: em(14px);
+ * 2. font-size: em(30px/14px);
+ */
 .button,
 .download-jetpack {
   transition: all 0.1s ease-in-out;
@@ -967,7 +967,7 @@
   }
 }
 .filter-search .button {
-  background: rgb(255, 255, 255);
+  background: #fff;
   border: 1.5px solid rgb(0, 0, 0);
   border-radius: 4px;
   font-size: 1rem;
@@ -1015,7 +1015,7 @@
   align-items: center;
   padding: 6px 24px;
   height: 40px;
-  background: rgb(255, 255, 255);
+  background: #fff;
   border: 1.5px solid rgb(0, 0, 0);
   border-radius: 4px;
   font-size: 1rem;
@@ -1046,7 +1046,7 @@
   line-height: 20px;
   font-size: 0.75rem;
   font-weight: 600;
-  background: rgb(255, 255, 255);
+  background: #fff;
   border: 1.5px solid rgb(0, 0, 0);
   border-radius: 4px;
   box-shadow: none;
@@ -1170,7 +1170,7 @@
   font-size: 13px;
   line-height: 18px;
   font-weight: 400;
-  background: rgb(255, 255, 255);
+  background: #fff;
 }
 .wrap .manage-right .button-group .button:hover {
   background: #F6F7F7;
@@ -1180,14 +1180,14 @@
 }
 .wrap .manage-right .button-group button.dops-button.button.active {
   background: rgb(0, 0, 0);
-  color: rgb(255, 255, 255);
+  color: #fff;
   font-weight: 600;
 }
 .wrap .manage-right .button-group button.dops-button.button.active:hover {
   background: #2C3338;
 }
 .wrap .manage-right .button-group button.dops-button.button.active:focus {
-  border-color: rgb(255, 255, 255);
+  border-color: #fff;
   box-shadow: 0 0 0 1px rgb(0, 0, 0);
 }
 .wrap .manage-right .subsubsub {
@@ -1217,7 +1217,7 @@
   padding: 2px 6px;
 }
 .wrap .manage-right .subsubsub li.current a, .wrap .manage-right .subsubsub li.current .count {
-  color: rgb(255, 255, 255);
+  color: #fff;
   text-decoration: none;
   font-weight: 700;
 }
@@ -1293,7 +1293,7 @@ tr.jetpack-module {
   gap: 16px;
   width: 100%;
   height: 60px;
-  background: rgb(255, 255, 255);
+  background: #fff;
   border-bottom: 1px solid #DCDCDE;
 }
 @media (max-width: 782px) {
@@ -1348,7 +1348,7 @@ tr.jetpack-module .row-actions span.configure {
   font-size: 14px;
 }
 .configure-module p.success, .configure-module p.error {
-  color: rgb(255, 255, 255);
+  color: #fff;
   padding: 10px;
 }
 .configure-module p.success {

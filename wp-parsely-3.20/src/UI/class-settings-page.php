@@ -109,7 +109,8 @@ final class Settings_Page {
 	private $managed_options_badge = array();
 
 	/**
-	 * The Content Helper features that can be configured in the settings page.
+	 * The Content Intelligence features that can be configured in the settings
+	 * page.
 	 *
 	 * @since 3.16.0
 	 *
@@ -429,12 +430,12 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Registers the Content Helper section and its settings.
+	 * Registers the Content Intelligence section and its settings.
 	 *
 	 * @since 3.16.0
 	 */
 	private function initialize_content_helper_section(): void {
-		$section_key = 'content-helper-section';
+		$section_key = 'content-intelligence-section';
 
 		add_settings_section(
 			$section_key,
@@ -936,7 +937,7 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Prints a Content Helper AI feature section.
+	 * Prints a Content Intelligence AI feature section.
 	 *
 	 * @since 3.16.0
 	 *
@@ -1309,7 +1310,7 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Validates the fields of the Content Helper section.
+	 * Validates the fields of the Content Intelligence section.
 	 *
 	 * @since 3.16.0
 	 *
@@ -1318,7 +1319,7 @@ final class Settings_Page {
 	 */
 	private function validate_content_helper_section( $input ) {
 		/**
-		 * Sanitizes the Content Helper data.
+		 * Sanitizes the Content Intelligence data.
 		 *
 		 * @since 3.16.0
 		 */

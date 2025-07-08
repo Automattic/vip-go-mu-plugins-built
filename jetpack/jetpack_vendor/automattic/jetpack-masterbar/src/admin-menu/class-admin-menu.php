@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu as Jetpack_Admin_UI_Admin;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
@@ -17,6 +18,14 @@ require_once __DIR__ . '/class-base-admin-menu.php';
  * Class Admin_Menu.
  */
 class Admin_Menu extends Base_Admin_Menu {
+
+	/**
+	 * Register the hooks.
+	 */
+	public function __construct() {
+		parent::__construct();
+		add_action( 'admin_menu', array( $this, 'register_nav_unification_jetpack_menus' ), 999 );
+	}
 
 	/**
 	 * Create the desired menu output.
@@ -99,20 +108,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Adds My Home menu.
-	 */
-	public function add_my_home_menu() {
-
-		if ( self::DEFAULT_VIEW !== $this->get_preferred_view( 'index.php' ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( __( 'My Home', 'jetpack-masterbar' ), __( 'My Home', 'jetpack-masterbar' ), 'read', 'https://wordpress.com/home/' . $this->domain, null, 'dashicons-admin-home', 1.5 );
-			return;
-		}
-
-		$this->update_menu( 'index.php', 'https://wordpress.com/home/' . $this->domain, __( 'My Home', 'jetpack-masterbar' ), 'read', 'dashicons-admin-home' );
 	}
 
 	/**
@@ -398,6 +393,41 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
+	 * Register the nav unification submenu items using the Jetpack APIs.
+	 *
+	 * This is needed because there's a bug in WP Core that ignores the position argument.
+	 *
+	 * @see https://core.trac.wordpress.org/ticket/52035
+	 *
+	 * @return void
+	 */
+	public function register_nav_unification_jetpack_menus() {
+		Jetpack_Admin_UI_Admin::add_menu(
+			esc_attr__( 'Activity Log', 'jetpack-masterbar' ),
+			__( 'Activity Log', 'jetpack-masterbar' ),
+			'manage_options',
+			'https://wordpress.com/activity-log/' . $this->domain,
+			/**
+			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			 */
+			null,
+			2
+		);
+
+		Jetpack_Admin_UI_Admin::add_menu(
+			esc_attr__( 'Backup', 'jetpack-masterbar' ),
+			__( 'Backup', 'jetpack-masterbar' ),
+			'manage_options',
+			'https://wordpress.com/backup/' . $this->domain,
+			/**
+			 * Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			 */
+			null,
+			3
+		);
+	}
+
+	/**
 	 * Create Jetpack menu.
 	 *
 	 * @param int  $position  Menu position.
@@ -415,14 +445,9 @@ class Admin_Menu extends Base_Admin_Menu {
 			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack-masterbar' ), __( 'Jetpack', 'jetpack-masterbar' ), 'manage_options', 'jetpack', null, $icon, $position );
 		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Activity Log', 'jetpack-masterbar' ), __( 'Activity Log', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/activity-log/' . $this->domain, null, 2 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'jetpack', esc_attr__( 'Backup', 'jetpack-masterbar' ), __( 'Backup', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/backup/' . $this->domain, null, 3 );
 
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'jetpack' ) ) {
 			$this->hide_submenu_page( 'jetpack', 'jetpack#/settings' );
-			$this->hide_submenu_page( 'jetpack', 'stats' );
 			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
 			$this->hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-scanner' ) ) );
 		}
@@ -438,34 +463,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 */
 	public function add_jetpack_menu() {
 		$this->create_jetpack_menu();
-	}
-
-	/**
-	 * Add the calypso /woocommerce-installation/ menu item.
-	 *
-	 * @param array $current_plan The site's plan if they have one. This is passed from WPcom_Admin_Menu to prevent
-	 * redundant database queries.
-	 */
-	public function add_woocommerce_installation_menu( $current_plan = null ) {
-		/**
-		 * Whether to show the WordPress.com WooCommerce Installation menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_woocommerce_installation_menu', '__return_true' );
-		 * @module masterbar
-		 * @since jetpack-10.3.0
-		 * @param bool $jetpack_show_wpcom_woocommerce_installation_menu Load the WordPress.com WooCommerce Installation menu item. Default to false.
-		 * @param array $current_plan Data about the current site's plan.
-		 */
-		if ( apply_filters( 'jetpack_show_wpcom_woocommerce_installation_menu', false, $current_plan ) ) {
-			$this->add_admin_menu_separator( 54, 'activate_plugins' );
-
-			$icon_url = 'data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmlld0JveD0iMCAwIDg1LjkgNDcuNiI+CjxwYXRoIGZpbGw9IiNhMmFhYjIiIGQ9Ik03Ny40LDAuMWMtNC4zLDAtNy4xLDEuNC05LjYsNi4xTDU2LjQsMjcuN1Y4LjZjMC01LjctMi43LTguNS03LjctOC41cy03LjEsMS43LTkuNiw2LjVMMjguMywyNy43VjguOAoJYzAtNi4xLTIuNS04LjctOC42LTguN0g3LjNDMi42LDAuMSwwLDIuMywwLDYuM3MyLjUsNi40LDcuMSw2LjRoNS4xdjI0LjFjMCw2LjgsNC42LDEwLjgsMTEuMiwxMC44UzMzLDQ1LDM2LjMsMzguOWw3LjItMTMuNXYxMS40CgljMCw2LjcsNC40LDEwLjgsMTEuMSwxMC44czkuMi0yLjMsMTMtOC43bDE2LjYtMjhjMy42LTYuMSwxLjEtMTAuOC02LjktMTAuOEM3Ny4zLDAuMSw3Ny4zLDAuMSw3Ny40LDAuMXoiLz4KPC9zdmc+Cg==';
-			$menu_url = 'https://wordpress.com/woocommerce-installation/' . $this->domain;
-
-			// Only show the menu if the user has the capability to activate_plugins.
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( esc_attr__( 'WooCommerce', 'jetpack-masterbar' ), esc_attr__( 'WooCommerce', 'jetpack-masterbar' ), 'activate_plugins', $menu_url, null, $icon_url, 55 );
-		}
 	}
 
 	/**

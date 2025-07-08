@@ -99,31 +99,21 @@ class Endpoint_Analytics_Posts extends Content_API_Base_Endpoint {
 	 */
 	public function get_endpoint_url( array $query_args = array() ): string {
 		// Store the values of the parameters requiring repeating keys.
-		/** @var array<string> $authors */
-		$authors = $query_args['author'] ?? array();
-
 		/** @var array<string> $tags */
 		$tags = $query_args['tag'] ?? array();
-
-		/** @var array<string> $sections */
-		$sections = $query_args['section'] ?? array();
 
 		/** @var array<string> $urls */
 		$urls = $query_args['urls'] ?? array();
 
 		// Remove the parameters requiring repeating keys.
-		unset( $query_args['author'] );
 		unset( $query_args['tag'] );
-		unset( $query_args['section'] );
 		unset( $query_args['urls'] );
 
 		// Generate the endpoint URL.
 		$endpoint_url = parent::get_endpoint_url( $query_args );
 
 		// Append the parameters requiring repeating keys to the endpoint URL.
-		$endpoint_url = $this->append_same_key_params_to_url( $endpoint_url, $authors, 'author' );
 		$endpoint_url = $this->append_same_key_params_to_url( $endpoint_url, $tags, 'tag' );
-		$endpoint_url = $this->append_same_key_params_to_url( $endpoint_url, $sections, 'section' );
 		$endpoint_url = $this->append_same_key_params_to_url( $endpoint_url, $urls, 'url' );
 
 		return $endpoint_url;

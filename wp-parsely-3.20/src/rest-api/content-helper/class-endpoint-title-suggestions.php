@@ -1,7 +1,7 @@
 <?php
 /**
  * API Endpoint: Title Suggestions
- * Parse.ly Content Helper `/title-suggestions` API endpoint class
+ * Parse.ly Content Intelligence `/title-suggestions` API endpoint class
  *
  * @package Parsely
  * @since   3.17.0
@@ -41,7 +41,7 @@ class Endpoint_Title_Suggestions extends Base_Endpoint {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @param Content_Helper_Controller $controller The content helper controller.
+	 * @param Content_Helper_Controller $controller The Content Intelligence controller.
 	 */
 	public function __construct( Content_Helper_Controller $controller ) {
 		parent::__construct( $controller );

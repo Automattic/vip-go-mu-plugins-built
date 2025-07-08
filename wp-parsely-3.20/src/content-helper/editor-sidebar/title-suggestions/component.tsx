@@ -230,7 +230,7 @@ export const TitleSuggestionsPanel = (): React.JSX.Element => {
 						target="_blank"
 						variant="link"
 					>
-						{ __( 'Learn more about Parse.ly AI', 'wp-parsely' ) }
+						{ __( 'Learn more about Title Suggestions', 'wp-parsely' ) }
 						<Icon
 							icon={ external }
 							size={ 18 }
@@ -286,7 +286,7 @@ export const TitleSuggestionsPanel = (): React.JSX.Element => {
 				/>
 				<div className="title-suggestions-generate">
 					<Button
-						variant="primary"
+						variant="secondary"
 						isBusy={ loading }
 						disabled={ loading || tone === 'custom' || persona === 'custom' }
 						onClick={ generateOnClickHandler }

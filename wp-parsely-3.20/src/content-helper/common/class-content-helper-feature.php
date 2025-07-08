@@ -1,6 +1,6 @@
 <?php
 /**
- * Content Helper: Base class for all Content Helper features
+ * Content Intelligence: Base class for all Content Intelligence features
  *
  * @package Parsely
  * @since   3.9.0
@@ -15,7 +15,7 @@ use Parsely\Permissions;
 use WP_REST_Request;
 
 /**
- * Base class for all Content Helper features.
+ * Base class for all Content Intelligence features.
  *
  * @since 3.9.0
  */
@@ -29,8 +29,8 @@ abstract class Content_Helper_Feature {
 	protected $parsely;
 
 	/**
-	 * Returns the global Content Helper filter name. The global filter controls
-	 * the enabled/disabled state of all Content Helper features.
+	 * Returns the global Content Intelligence filter name. The global filter
+	 * controls the enabled/disabled state of all Content Intelligence features.
 	 *
 	 * @since 3.9.0
 	 *
@@ -42,7 +42,7 @@ abstract class Content_Helper_Feature {
 
 	/**
 	 * Returns the feature's filter name. The feature filter controls the
-	 * enabled/disabled state of a particular Content Helper feature.
+	 * enabled/disabled state of a particular Content Intelligence feature.
 	 *
 	 * @since 3.9.0
 	 *
@@ -136,7 +136,7 @@ abstract class Content_Helper_Feature {
 		$are_credentials_set = $this->parsely->site_id_is_set() &&
 			$this->parsely->api_secret_is_set();
 
-		// Inject Content Helper permissions.
+		// Inject Content Intelligence permissions.
 		$permissions_json = Permissions::get_pch_permissions_json(
 			$this->parsely->get_options()['content_helper']
 		);

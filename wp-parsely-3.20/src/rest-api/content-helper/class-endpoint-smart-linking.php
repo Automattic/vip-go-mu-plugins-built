@@ -1,7 +1,7 @@
 <?php
 /**
  * Endpoint: Smart Linking
- * Parse.ly Content Helper `/smart-linking` API endpoint class
+ * Parse.ly Content Intelligence `/smart-linking` API endpoint class
  *
  * @package Parsely
  * @since   3.17.0
@@ -47,7 +47,7 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 *
 	 * @since 3.17.0
 	 *
-	 * @param Content_Helper_Controller $controller The content helper controller.
+	 * @param Content_Helper_Controller $controller The Content Intelligence controller.
 	 */
 	public function __construct( Content_Helper_Controller $controller ) {
 		parent::__construct( $controller );

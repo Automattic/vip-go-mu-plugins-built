@@ -64,7 +64,7 @@ abstract class Editor_Sidebar_Feature extends Content_Helper_Feature {
 
 	/**
 	 * Returns the feature's filter name. The feature filter controls the
-	 * enabled/disabled state of a particular Content Helper feature.
+	 * enabled/disabled state of a particular Content Intelligence feature.
 	 *
 	 * Not in use for Editor Sidebar features.
 	 *

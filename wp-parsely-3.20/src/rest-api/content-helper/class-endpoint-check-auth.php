@@ -1,7 +1,7 @@
 <?php
 /**
  * API Endpoint: Check Auth
- * Parse.ly Content Helper `/check-auth` API endpoint class
+ * Parse.ly Content Intelligence `/check-auth` API endpoint class
  *
  * @package Parsely
  * @since   3.19.0
@@ -40,7 +40,7 @@ class Endpoint_Check_Auth extends Base_Endpoint {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @param Content_Helper_Controller $controller The content helper controller.
+	 * @param Content_Helper_Controller $controller The Content Intelligence controller.
 	 */
 	public function __construct( Content_Helper_Controller $controller ) {
 		parent::__construct( $controller );

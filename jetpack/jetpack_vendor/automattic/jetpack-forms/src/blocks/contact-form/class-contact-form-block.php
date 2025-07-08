@@ -14,6 +14,7 @@ use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Request;
 use Jetpack;
 
 /**
@@ -45,6 +46,19 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
+	}
+	/**
+	 * Register the contact form block feature flag.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_feature( $features ) {
+		// Register the contact form block feature flag.
+		$features['multistep-form'] = Blocks::get_variation() === 'beta';
+		return $features;
 	}
 
 	/**
@@ -58,7 +72,7 @@ class Contact_Form_Block {
 	 *  @return array
 	 */
 	public static function find_nested_html_block( $parsed_block, $source_block, $parent_block ) {
-		if ( $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
+		if ( ! empty( $parsed_block['blockName'] ) && $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
 			$parsed_block['hasJPFormParent'] = true;
 		}
 		return $parsed_block;
@@ -92,53 +106,181 @@ class Contact_Form_Block {
 			return;
 		}
 
+		// Field inner block types.
+		Blocks::jetpack_register_block(
+			'jetpack/input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradients'  => false,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'selectors'    => array(
+					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
+					'color'  => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
+				),
+				'uses_context' => array( 'jetpack/field-default-value' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/label',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradients'  => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-required',
+					'jetpack/field-date-format',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/options',
+			array(
+				'supports'         => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => false,
+						'background' => true,
+					),
+					'spacing'              => array(
+						'blockGap' => false,
+					),
+				),
+				'provides_context' => array(
+					'jetpack/field-options-type' => 'type',
+				),
+				'selectors'        => array(
+					'border' => '.wp-block-jetpack-options, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-options) > *',
+					'color'  => '.wp-block-jetpack-options, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-options) > *',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/option',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradients'  => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-default-value',
+					'jetpack/field-options-type',
+					'jetpack/field-required',
+				),
+			)
+		);
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-email',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-url',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'provides_context' => array(
+					'jetpack/field-required'    => 'required',
+					'jetpack/field-date-format' => 'dateFormat',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-telephone',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-textarea',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'provides_context' => array(
+					'jetpack/field-required'      => 'required',
+					'jetpack/field-default-value' => 'defaultValue',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -147,18 +289,21 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox_multiple' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-checkbox',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_option' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_radio' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-radio',
 			array(
@@ -168,7 +313,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-select',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -181,31 +327,80 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-number',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 
-		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-		if ( 'beta' === $blocks_variation ) {
-			self::register_beta_blocks();
-		}
-	}
-
-	/**
-	 * Register beta blocks
-	 */
-	private static function register_beta_blocks() {
 		Blocks::jetpack_register_block(
 			'jetpack/field-file',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/dropzone',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
+			)
+		);
+
+		// Paid file field block
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			array( __CLASS__, 'set_file_field_extension_available' )
+		);
+
+		/**
+		 * The blocks 'jetpack/field-checkbox-multiple' and 'jetpack/field-radio' are wrapper blocks.
+		 * Styles must be registered so that they are available to be overridden by the theme or global styles.
+		 * Form field blocks define the block style via the settings in their index.js files.
+		 * A follow up issue is to update them to use block.json files, which can be reused
+		 * in both JS and PHP block registration.
+		 */
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'       => 'list',
+				'label'      => __( 'List', 'jetpack-forms' ),
+				'is_default' => true,
+			)
+		);
+
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'  => 'button',
+				'label' => __( 'Button', 'jetpack-forms' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-navigation',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step_navigation' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-progress-indicator',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-container'
 		);
 	}
 
@@ -232,7 +427,7 @@ class Contact_Form_Block {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
 				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
 				esc_attr( Blocks::classes( 'contact-form', $atts ) ),

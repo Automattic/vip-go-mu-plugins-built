@@ -1,6 +1,6 @@
 <?php
 /**
- * Content Helper: Excerpt Suggestions feature class
+ * Content Intelligence: Excerpt Suggestions feature class
  *
  * @package Parsely
  * @since   3.13.0
@@ -13,7 +13,7 @@ namespace Parsely\Content_Helper;
 use Parsely\Content_Helper\Editor_Sidebar\Editor_Sidebar_Feature;
 
 /**
- * Content Helper: Excerpt Suggestions feature class
+ * Content Intelligence: Excerpt Suggestions feature class
  *
  * @since 3.13.0
  * @since 3.17.0 Renamed to Excerpt Suggestions and converted to an Editor Sidebar feature.
@@ -101,7 +101,7 @@ class Excerpt_Suggestions extends Editor_Sidebar_Feature {
 	}
 
 	/**
-	 * Inserts Content Helper Excerpt Suggestions inline scripts.
+	 * Inserts Content Intelligence Excerpt Suggestions inline scripts.
 	 *
 	 * @since 3.17.0
 	 */

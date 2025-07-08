@@ -8,7 +8,7 @@ import {
 	MenuItem,
 	TextControl,
 } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
+import { useDebounce, useInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit } from '@wordpress/icons';
@@ -192,9 +192,13 @@ export const PersonaSelector = ( {
 	disabled = false,
 	allowCustom = false,
 }: Readonly<PersonaSelectorProps> ): React.JSX.Element => {
+	const togglePropsId = `parsely-persona-selector-${ useInstanceId( PersonaSelector ) }`;
+
 	return (
 		<Disabled isDisabled={ disabled }>
-			{ label && <div className="wp-parsely-dropdown-label">{ label }</div> }
+			{ label && <label htmlFor={ togglePropsId } className="wp-parsely-editor-sidebar-label">
+				{ label }
+			</label> }
 			<DropdownMenu
 				label={ __( 'Persona', 'wp-parsely' ) }
 				className={ 'parsely-persona-selector-dropdown' + ( disabled ? ' is-disabled' : '' ) }
@@ -202,6 +206,7 @@ export const PersonaSelector = ( {
 					className: 'wp-parsely-popover',
 				} }
 				toggleProps={ {
+					id: togglePropsId,
 					children: (
 						<>
 							<div className="parsely-persona-selector-label">

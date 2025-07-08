@@ -1,6 +1,6 @@
 <?php
 /**
- * API Content Helper Controller
+ * API Content Intelligence Controller
  *
  * @package Parsely
  * @since   3.17.0
@@ -13,9 +13,10 @@ namespace Parsely\REST_API\Content_Helper;
 use Parsely\REST_API\REST_API_Controller;
 
 /**
- * The Content Helper API Controller.
+ * The Content Intelligence API Controller.
  *
- * Used to define the namespace, version, and endpoints for the Content Helper API.
+ * Used to define the namespace, version, and endpoints for the Content
+ * Intelligence API.
  *
  * @since 3.17.0
  */
@@ -32,7 +33,7 @@ class Content_Helper_Controller extends REST_API_Controller {
 	}
 
 	/**
-	 * Initializes the Content Helper API endpoints.
+	 * Initializes the Content Intelligence API endpoints.
 	 *
 	 * @since 3.17.0
 	 */
