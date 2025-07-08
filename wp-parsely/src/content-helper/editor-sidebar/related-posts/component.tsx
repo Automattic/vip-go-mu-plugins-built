@@ -35,7 +35,12 @@ import { RelatedPostsProvider } from './provider';
 import './related-posts.scss';
 import { RelatedPostsStore } from './store';
 
-const FETCH_RETRIES = 1;
+/**
+ * The maximum number of retries for fetching the related posts.
+ *
+ * @since 3.20.0 Renamed from FETCH_RETRIES to MAX_FETCH_RETRIES.
+ */
+const MAX_FETCH_RETRIES = 1;
 
 /**
  * The Related Posts panel in the Editor Sidebar.
@@ -171,8 +176,8 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 			const { getEditedPostContent } = select( 'core/editor' ) as GutenbergFunction;
 			debouncedSetPostContent( getEditedPostContent() );
 		} else {
-			// It would be better to mock this in the Content Helper structure
-			// test.
+			// It would be better to mock this in the Content Intelligence
+			// structure test.
 			debouncedSetPostContent( 'Jest test is running' );
 		}
 	}, [ debouncedSetPostContent ] );
@@ -196,7 +201,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 			} );
 			Telemetry.trackEvent( 'related_posts_metric_changed', { metric: updatedMetric } );
 
-			fetchPosts( period, updatedMetric, filters, FETCH_RETRIES );
+			fetchPosts( period, updatedMetric, filters, MAX_FETCH_RETRIES );
 		}
 	};
 
@@ -219,7 +224,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 			} );
 			Telemetry.trackEvent( 'related_posts_period_changed', { period: updatedPeriod } );
 
-			fetchPosts( updatedPeriod, metric, filters, FETCH_RETRIES );
+			fetchPosts( updatedPeriod, metric, filters, MAX_FETCH_RETRIES );
 		}
 	};
 
@@ -258,7 +263,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 
 	if ( firstRun ) {
 		// Run initial fetch when the component is mounted.
-		fetchPosts( period, metric, filters, FETCH_RETRIES );
+		fetchPosts( period, metric, filters, MAX_FETCH_RETRIES );
 		setFirstRun( false );
 	}
 
@@ -293,7 +298,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 		}
 
 		setFilters( updatedFilters );
-		fetchPosts( period, metric, updatedFilters, FETCH_RETRIES );
+		fetchPosts( period, metric, updatedFilters, MAX_FETCH_RETRIES );
 	};
 
 	// No filter data could be retrieved. Prevent the component from rendering.

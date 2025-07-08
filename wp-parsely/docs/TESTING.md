@@ -122,10 +122,10 @@ Before releasing a new wp-parsely version, we should perform a basic manual smok
 - Visit the settings page and click on the tabs
 - Update a setting using the settings page
 - Try to save an invalid Site ID and API Secret combination
-- Try the Content Helper Widget and Sidebar with:
+- Try the Content Intelligence Widget and Sidebar with:
   - An empty API Secret
   - No Site ID
-- Check that The Content Helper Post List Stats appears
+- Check that The Content Intelligence Post List Stats appears
 - Check that "ld+json" and "parsely-cfg" are injected into the front-end
 
 This list is currently a work in progress.

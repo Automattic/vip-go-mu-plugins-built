@@ -11,7 +11,8 @@ declare(strict_types=1);
 namespace Parsely\REST_API\Settings;
 
 /**
- * Endpoint for saving and retrieving Content Helper Traffic Boost settings.
+ * Endpoint for saving and retrieving Content Intelligence Traffic Boost
+ * settings.
  *
  * @since 3.19.0
  *

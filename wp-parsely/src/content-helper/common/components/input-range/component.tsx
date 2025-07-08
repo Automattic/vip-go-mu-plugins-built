@@ -2,11 +2,11 @@
  * WordPress dependencies
  */
 import {
-	__experimentalHeading as Heading,
 	__experimentalInputControlSuffixWrapper as InputControlSuffixWrapper,
 	__experimentalNumberControl as NumberControl,
 	RangeControl,
 } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 
 /**
  * Defines the props structure for InputRange.
@@ -46,11 +46,16 @@ export const InputRange = ( {
 	disabled,
 	className,
 }: Readonly<InputRangeProps> ): React.JSX.Element => {
+	const numberControlId = `parsely-inputrange-control-${ useInstanceId( InputRange ) }`;
+
 	return (
 		<div className={ `parsely-inputrange-control ${ className ? className : '' }` }>
-			<Heading className={ 'parsely-inputrange-control__label' } level={ 3 }>{ label }</Heading>
+			<label htmlFor={ numberControlId } className={ 'wp-parsely-editor-sidebar-label' }>
+				{ label }
+			</label>
 			<div className={ 'parsely-inputrange-control__controls' }>
 				<NumberControl
+					id={ numberControlId }
 					disabled={ disabled }
 					value={ value }
 					suffix={ <InputControlSuffixWrapper>{ suffix }</InputControlSuffixWrapper> }

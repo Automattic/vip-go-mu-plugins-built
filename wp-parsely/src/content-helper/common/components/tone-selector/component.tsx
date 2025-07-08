@@ -8,7 +8,7 @@ import {
 	MenuItem,
 	TextControl,
 } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
+import { useDebounce, useInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, edit } from '@wordpress/icons';
@@ -192,9 +192,13 @@ export const ToneSelector = ( {
 	disabled = false,
 	allowCustom = false,
 }: Readonly<ToneSelectorProps> ): React.JSX.Element => {
+	const togglePropsId = `parsely-tone-selector-${ useInstanceId( ToneSelector ) }`;
+
 	return (
 		<Disabled isDisabled={ disabled }>
-			<div className="wp-parsely-dropdown-label">{ label }</div>
+			<label htmlFor={ togglePropsId } className="wp-parsely-editor-sidebar-label">
+				{ label }
+			</label>
 			<DropdownMenu
 				label={ __( 'Tone', 'wp-parsely' ) }
 				className={ 'parsely-tone-selector-dropdown' + ( disabled ? ' is-disabled' : '' ) }
@@ -202,6 +206,7 @@ export const ToneSelector = ( {
 					className: 'wp-parsely-popover',
 				} }
 				toggleProps={ {
+					id: togglePropsId,
 					children: (
 						<>
 							<div className="parsely-tone-selector-label">

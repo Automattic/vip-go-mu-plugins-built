@@ -326,7 +326,7 @@ final class Dashboard_Page {
 	}
 
 	/**
-	 * Injects Content Helper permissions into the dashboard page.
+	 * Injects Content Intelligence permissions into the dashboard page.
 	 *
 	 * @since 3.19.0
 	 */

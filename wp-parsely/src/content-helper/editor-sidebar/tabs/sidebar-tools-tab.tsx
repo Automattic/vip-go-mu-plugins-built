@@ -28,7 +28,7 @@ type SidebarToolsTabProps = {
 
 /**
  * SidebarToolsTab component.
- * Renders the Tools tab in the Content Helper sidebar.
+ * Renders the Tools tab in the Content Intelligence sidebar.
  *
  * @since 3.14.0
  *

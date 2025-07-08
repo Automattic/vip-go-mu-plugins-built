@@ -1,8 +1,9 @@
 <?php
 /**
- * API Content Helper Feature Trait
- * Provides a trait for Content Helper endpoints that require a feature to be enabled, by
- * providing a method to check if the current user has permission to use the feature.
+ * API Content Intelligence Feature Trait
+ * Provides a trait for Content Intelligence endpoints that require a feature to
+ * be enabled, by providing a method to check if the current user has permission
+ * to use the feature.
  *
  * @package Parsely
  * @since   3.17.0
@@ -17,7 +18,7 @@ use WP_Error;
 use WP_REST_Request;
 
 /**
- * Trait for content helper endpoints that require a feature to be enabled.
+ * Trait for Content Intelligence endpoints that require a feature to be enabled.
  *
  * @since 3.17.0
  */

@@ -12,7 +12,7 @@
 @import "../components/loading/style";
 
 /**
- * Common styles for the content helper.
+ * Common styles for Content Intelligence.
  */
 .parsely-panel-settings {
 	width: 100%;
@@ -48,13 +48,14 @@
 	}
 }
 
-.wp-parsely-dropdown-label {
+.wp-parsely-editor-sidebar-label {
+	// Replicate native label styles.
 	align-self: stretch;
 	color: var(--sidebar-black);
 	font-size: var(--font-size--smaller);
 	font-style: normal;
-	font-weight: 600;
-	line-height: var(--grid-unit-20);
+	font-weight: 500;
+	line-height: 1.4;
 	text-transform: uppercase;
 }
 

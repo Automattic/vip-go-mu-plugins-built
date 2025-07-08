@@ -23,7 +23,13 @@ import { PostData } from '../../common/utils/post';
 import { DashboardWidgetProvider, TOP_POSTS_DEFAULT_LIMIT } from '../provider';
 import { TopPostListItem } from './top-posts-list-item';
 
-const FETCH_RETRIES = 1;
+/**
+ * The maximum number of retries for fetching the top posts.
+ *
+ * @since 3.4.0
+ * @since 3.20.0 Renamed from FETCH_RETRIES to MAX_FETCH_RETRIES.
+ */
+const MAX_FETCH_RETRIES = 1;
 
 /**
  * List of the top posts.
@@ -63,7 +69,7 @@ export function TopPosts(): React.JSX.Element {
 		};
 
 		setLoading( true );
-		fetchPosts( FETCH_RETRIES );
+		fetchPosts( MAX_FETCH_RETRIES );
 
 		return (): void => {
 			setLoading( false );

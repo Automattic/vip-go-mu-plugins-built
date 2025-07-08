@@ -515,7 +515,7 @@ const SmartLinkingReviewModalComponent = ( {
 						<Button variant="secondary" onClick={ () => onCloseConfirmCloseDialog( false ) }>
 							{ __( 'Go Back', 'wp-parsely' ) }
 						</Button>
-						<Button variant="primary" onClick={ () => onCloseConfirmCloseDialog( true ) }>
+						<Button variant="secondary" isDestructive onClick={ () => onCloseConfirmCloseDialog( true ) }>
 							{ __( 'Close', 'wp-parsely' ) }
 						</Button>
 					</div>

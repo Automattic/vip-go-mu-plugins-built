@@ -45,12 +45,12 @@ class Permissions {
 
 	/**
 	 * Returns whether the current user has the permission to access the
-	 * specified Content Helper feature.
+	 * specified Content Intelligence feature.
 	 *
 	 * @since 3.16.0
 	 *
 	 * @param string                         $feature_name The feature's name.
-	 * @param Parsely_Options_Content_Helper $pch_options The Content Helper options.
+	 * @param Parsely_Options_Content_Helper $pch_options The Content Intelligence options.
 	 * @param int|false                      $post_id The post ID, if the check is for a specific post.
 	 * @return bool Whether the current user can access the specified feature.
 	 */
@@ -74,8 +74,8 @@ class Permissions {
 		$user_roles   = $current_user->roles;
 
 		/**
-		 * Filters whether the current user can use the specified Content Helper
-		 * feature.
+		 * Filters whether the current user can use the specified Content
+		 * Intelligence feature.
 		 *
 		 * This filter can be used to override the default permissions check.
 		 *
@@ -148,8 +148,8 @@ class Permissions {
 	}
 
 	/**
-	 * Returns a JSON-encoded string with the Content Helper permissions for the
-	 * current user.
+	 * Returns a JSON-encoded string with the Content Intelligence permissions
+	 * for the current user.
 	 *
 	 * @since 3.16.0
 	 *
@@ -179,7 +179,7 @@ class Permissions {
 	}
 
 	/**
-	 * Builds and returns a permissions settings array for the Content Helper,
+	 * Builds and returns a permissions settings array for Content Intelligence,
 	 * based on the passed values.
 	 *
 	 * @since 3.16.0

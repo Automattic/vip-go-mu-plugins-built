@@ -283,7 +283,7 @@ export const ReviewSuggestion = ( {
 									className="wp-parsely-review-suggestion-reject"
 									icon={ closeSmall }
 									onClick={ onReject }
-									variant={ 'secondary' }>
+									variant="secondary">
 									{ __( 'Reject', 'wp-parsely' ) }
 								</Button>
 							</Tooltip>
@@ -306,7 +306,7 @@ export const ReviewSuggestion = ( {
 									className="wp-parsely-review-suggestion-reject"
 									icon={ closeSmall }
 									onClick={ onRemove }
-									variant={ 'secondary' }>
+									variant="secondary">
 									{ __( 'Remove', 'wp-parsely' ) }
 								</Button>
 							</Tooltip>

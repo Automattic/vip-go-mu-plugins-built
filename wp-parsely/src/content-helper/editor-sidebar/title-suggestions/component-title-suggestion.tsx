@@ -221,7 +221,7 @@ export const TitleSuggestion = (
 							<Button onClick={ closeModal } variant="secondary">
 								{ __( 'Cancel', 'wp-parsely' ) }
 							</Button>
-							<Button onClick={ onClickReplace } variant="primary">
+							<Button onClick={ onClickReplace } variant="secondary">
 								{ __( 'Replace', 'wp-parsely' ) }
 							</Button>
 						</div>

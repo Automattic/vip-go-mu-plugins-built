@@ -1,5 +1,5 @@
 /**
- * Defines the structure of a Content Helper Permissions object.
+ * Defines the structure of a Content Intelligence Permissions object.
  *
  * @since 3.16.0
  */
@@ -11,7 +11,7 @@ export interface ContentHelperPermissions {
 }
 
 /**
- * Returns the current user's permissions for the Content Helper.
+ * Returns the current user's permissions for Content Intelligence.
  *
  * @since 3.16.0
  *

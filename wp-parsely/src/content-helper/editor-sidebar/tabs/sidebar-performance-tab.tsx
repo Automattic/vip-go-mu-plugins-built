@@ -19,7 +19,7 @@ type SidebarPerformanceTabProps = {
 
 /**
  * SidebarPerformanceTab component.
- * Renders the Performance tab in the Content Helper Sidebar.
+ * Renders the Performance tab in the Content Intelligence Sidebar.
  *
  * @since 3.14.0
  *

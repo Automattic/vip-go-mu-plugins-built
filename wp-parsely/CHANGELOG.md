@@ -5,11 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.20.4](https://github.com/Parsely/wp-parsely/compare/3.20.3...3.20.4) - 2025-07-08
+
+### Fixed
+
+- Fix: Allow domain override in canonical URLs ([#3525](https://github.com/Parsely/wp-parsely/pull/3525))
+- Improve Content Helper error handling ([#3477](https://github.com/Parsely/wp-parsely/pull/3477))
+- PCH: Fix some accessibility issues in Post Editor tooling ([#3476](https://github.com/Parsely/wp-parsely/pull/3476))
+- Stop fetch retries when ParselyAborted errors occur ([#3455](https://github.com/Parsely/wp-parsely/pull/3455))
+- Analytics Posts Endpoint: Fix incorrect validation logic ([#3454](https://github.com/Parsely/wp-parsely/pull/3454))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.20.4+label%3ADeps).
+
 ## [3.20.3](https://github.com/Parsely/wp-parsely/compare/3.20.2...3.20.3) - 2025-06-25
 
 ### Changed
 
-- Update "Content Helper" to "Content Intelligence" on settings page ([#3489](github.com/Parsely/wp-parsely/pull/3489))
+- Update "Content Helper" to "Content Intelligence" on settings page ([#3489](https://github.com/Parsely/wp-parsely/pull/3489))
 
 ### Fixed
 

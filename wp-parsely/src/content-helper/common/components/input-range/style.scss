@@ -8,10 +8,6 @@
 	gap: var(--grid-unit-10);
 	align-self: stretch;
 
-	.parsely-inputrange-control__label {
-		margin: 0;
-	}
-
 	.parsely-inputrange-control__controls {
 		display: flex;
 		height: to_rem(40px);
@@ -37,10 +33,6 @@
 
 			.components-base-control__field {
 				flex-grow: 1;
-			}
-
-			.components-input-control__suffix {
-				color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 			}
 		}
 

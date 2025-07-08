@@ -11,7 +11,8 @@ declare(strict_types=1);
 namespace Parsely\REST_API\Settings;
 
 /**
- * Endpoint for saving and retrieving Content Helper Editor Sidebar settings.
+ * Endpoint for saving and retrieving Content Intelligence Editor Sidebar
+ * settings.
  *
  * @since 3.17.0
  *

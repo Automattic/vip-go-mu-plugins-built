@@ -7,7 +7,7 @@ export const DASHBOARD_BASE_URL = 'https://dash.parsely.com';
 export const PUBLIC_API_BASE_URL = 'https://api.parsely.com/v2';
 
 /**
- * Periods that are available in the Content Helper.
+ * Periods that are available in Content Intelligence.
  *
  * @since 3.10.0
  * @since 3.11.0 Moved to constants.ts.
@@ -23,7 +23,7 @@ export enum Period {
 }
 
 /**
- * Metrics that are available in the Content Helper.
+ * Metrics that are available in Content Intelligence.
  *
  * @since 3.10.0
  * @since 3.11.0 Moved to constants.ts.
@@ -34,7 +34,7 @@ export enum Metric {
 }
 
 /**
- * Post filter types that are available in the Content Helper.
+ * Post filter types that are available in Content Intelligence.
  *
  * @since 3.11.0
  */

@@ -60,8 +60,9 @@ export enum SmartLinkingPanelContext {
  * The maximum number of retries for fetching smart links.
  *
  * @since 3.15.0
+ * @since 3.20.0 Renamed from MAX_NUMBER_OF_RETRIES to MAX_FETCH_RETRIES.
  */
-export const MAX_NUMBER_OF_RETRIES = 3;
+const MAX_FETCH_RETRIES = 3;
 
 /**
  * Smart Linking Panel.
@@ -472,11 +473,11 @@ export const SmartLinkingPanel = ( {
 
 			// If selected block is not set, the overlay will be removed from the entire content.
 			removeOverlay( isFullContent ? 'all' : selectedBlock?.clientId );
-		}, 60000 * MAX_NUMBER_OF_RETRIES );
+		}, 60000 * MAX_FETCH_RETRIES );
 
 		const previousApplyTo = applyTo;
 		try {
-			const generatedLinks = await generateSmartLinksWithRetry( MAX_NUMBER_OF_RETRIES );
+			const generatedLinks = await generateSmartLinksWithRetry( MAX_FETCH_RETRIES );
 			const processedSmartLinks = await processSmartLinks( generatedLinks );
 
 			// If after processing the smart links there are no links to suggest, show an error message.
@@ -550,7 +551,7 @@ export const SmartLinkingPanel = ( {
 		} catch ( err: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			// If the request was aborted, throw the AbortError to be handled elsewhere.
 			if ( err.code && err.code === ContentHelperErrorCode.ParselyAborted ) {
-				err.numRetries = MAX_NUMBER_OF_RETRIES - retries;
+				err.numRetries = MAX_FETCH_RETRIES - retries;
 				throw err;
 			}
 
@@ -645,7 +646,7 @@ export const SmartLinkingPanel = ( {
 				/* translators: %1$d: number of retry attempts, %2$d: maximum number of retries */
 				__( 'Retrying… Attempt %1$d of %2$d', 'wp-parsely' ),
 				retryAttempt,
-				MAX_NUMBER_OF_RETRIES
+				MAX_FETCH_RETRIES
 			);
 		}
 		if ( loading ) {
@@ -674,7 +675,7 @@ export const SmartLinkingPanel = ( {
 						target="_blank"
 						variant="link"
 					>
-						{ __( 'Learn more about Parse.ly AI', 'wp-parsely' ) }
+						{ __( 'Learn more about Smart Linking', 'wp-parsely' ) }
 						<Icon icon={ external } size={ 18 } className="parsely-external-link-icon" />
 					</Button>
 				</div>
@@ -708,7 +709,7 @@ export const SmartLinkingPanel = ( {
 				<div className="smart-linking-generate">
 					<Button
 						onClick={ generateSmartLinks }
-						variant="primary"
+						variant="secondary"
 						isBusy={ loading }
 						disabled={ loading }
 					>

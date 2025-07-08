@@ -561,13 +561,14 @@ class Parsely {
 			$this->set_default_full_metadata_in_non_posts();
 		}
 
-		// Existing plugin installation without Content Helper options.
+		// Existing plugin installation without Content Intelligence options.
 		/* @phpstan-ignore isset.offset, booleanAnd.alwaysFalse */
 		if ( is_array( $options ) && ! isset( $options['content_helper'] ) ) {
 			$this->set_default_content_helper_settings_values();
 		}
 
-		// Existing plugin installation that's missing a Content Helper feature option.
+		// Existing plugin installation that's missing a Content Intelligence
+		// feature option.
 		/* @phpstan-ignore isset.offset */
 		if ( is_array( $options ) && isset( $options['content_helper'] ) ) {
 			/** @var array<string,Parsely_Options_Content_Helper_Feature> $pch_options */
@@ -685,7 +686,7 @@ class Parsely {
 	}
 
 	/**
-	 * Sets the default values for Content Helper options.
+	 * Sets the default values for Content Intelligence options.
 	 *
 	 * Gives PCH access to all users having the edit_posts capability, to keep
 	 * consistent behavior with plugin versions prior to 3.16.0.
@@ -1007,48 +1008,60 @@ class Parsely {
 		$canonical_url = get_post_meta( $post_id, self::PARSELY_CANONICAL_URL_META_KEY, true );
 
 		if ( null !== $canonical_url && is_string( $canonical_url ) && '' !== $canonical_url ) {
-			return $canonical_url;
+			return self::get_canonical_url( $canonical_url );
 		}
 
 		$permalink = get_permalink( $post );
 
 		if ( false === $permalink ) {
-			return 'no permalink';
+			return __( 'no permalink', 'wp-parsely' );
 		}
 
 		return self::get_canonical_url( $permalink );
 	}
 
 	/**
-	 * Gets the canonical URL for a given URL.
+	 * Returns the canonical version of the passed URL.
 	 *
-	 * If the current domain is different from the Parse.ly site ID, this function
-	 * will return the URL with the current domain.
+	 * In this context, the canonical URL is the URL containing the Site ID as
+	 * its domain. If the Site ID differs from the real domain, the
+	 * `wp_parsely_canonical_url_domain` filter can be used to set it.
 	 *
 	 * @since 3.19.0
+	 * @since 3.20.4 Made the domain overridable.
 	 *
 	 * @param string $url The URL to get the canonical URL for.
 	 * @return string The canonical URL.
 	 */
 	public static function get_canonical_url( string $url ): string {
-		$parsely = \Parsely\get_parsely();
-		$site_id = $parsely->get_site_id();
+		$canonical_url_domain = apply_filters(
+			'wp_parsely_canonical_url_domain',
+			null
+		);
 
-		if ( wp_parse_url( $url, PHP_URL_HOST ) === $site_id ) {
+		// Handle domain override.
+		if ( is_string( $canonical_url_domain ) ) {
+			// Get the canonical URL domain without protocol, trailing slashes
+			// or accidental whitespace.
+			$canonical_url_domain = rtrim( $canonical_url_domain, '/' );
+			$canonical_url_domain = preg_replace( '#^https?://#', '', trim( $canonical_url_domain ) );
+
+			if ( is_string( $canonical_url_domain ) && '' !== $canonical_url_domain ) {
+				$url_domain = (string) wp_parse_url( $url, PHP_URL_HOST );
+				return str_replace( $url_domain, $canonical_url_domain, $url );
+			}
+		}
+
+		$site_id       = \Parsely\get_parsely()->get_site_id();
+		$home_url_host = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+
+		if ( $home_url_host === $site_id ) {
+			// URL does not need to be modified.
 			return $url;
 		}
 
-		$home_url = home_url();
-
-		// Strip the protocol from the home URL.
-		$home_url = preg_replace( '/^https?:\/\//', '', $home_url );
-
-		if ( null === $home_url ) {
-			return $url;
-		}
-
-		// Replace the current domain with the Parse.ly site ID.
-		return str_replace( $home_url, $site_id, $url );
+		// Return the URL with the Site ID as the domain.
+		return str_replace( $home_url_host, $site_id, $url );
 	}
 
 	/**
@@ -1061,8 +1074,14 @@ class Parsely {
 	 * @return bool True if the canonical URL was set, false otherwise.
 	 */
 	public static function set_canonical_url( $post, string $url ): bool {
-		$post_id = is_int( $post ) ? $post : $post->ID;
-		return false !== update_post_meta( $post_id, self::PARSELY_CANONICAL_URL_META_KEY, $url );
+		$post_id       = is_int( $post ) ? $post : $post->ID;
+		$canonical_url = self::get_canonical_url( $url );
+
+		return false !== update_post_meta(
+			$post_id,
+			self::PARSELY_CANONICAL_URL_META_KEY,
+			sanitize_url( $canonical_url, array( 'http', 'https' ) )
+		);
 	}
 
 	/**
