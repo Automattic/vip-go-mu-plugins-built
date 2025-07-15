@@ -1043,8 +1043,8 @@ class Parsely {
 		if ( is_string( $canonical_url_domain ) ) {
 			// Get the canonical URL domain without protocol, trailing slashes
 			// or accidental whitespace.
-			$canonical_url_domain = rtrim( $canonical_url_domain, '/' );
-			$canonical_url_domain = preg_replace( '#^https?://#', '', trim( $canonical_url_domain ) );
+			$canonical_url_domain = rtrim( trim( $canonical_url_domain ), '/' );
+			$canonical_url_domain = preg_replace( '#^https?://#', '', $canonical_url_domain );
 
 			if ( is_string( $canonical_url_domain ) && '' !== $canonical_url_domain ) {
 				$url_domain = (string) wp_parse_url( $url, PHP_URL_HOST );

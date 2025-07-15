@@ -207,6 +207,8 @@ class ComposerStaticInit713dd5c7b2bf6e4b45c0e3cf26247561
         'Parsely\\REST_API\\Stats\\Related_Posts_Trait' => __DIR__ . '/../..' . '/src/rest-api/stats/trait-related-posts.php',
         'Parsely\\REST_API\\Stats\\Stats_Controller' => __DIR__ . '/../..' . '/src/rest-api/stats/class-stats-controller.php',
         'Parsely\\REST_API\\Use_Post_ID_Parameter_Trait' => __DIR__ . '/../..' . '/src/rest-api/trait-use-post-id-parameter.php',
+        'Parsely\\REST_API\\Utils\\Endpoint_Post' => __DIR__ . '/../..' . '/src/rest-api/utils/class-endpoint-post.php',
+        'Parsely\\REST_API\\Utils\\Utils_Controller' => __DIR__ . '/../..' . '/src/rest-api/utils/class-utils-controller.php',
         'Parsely\\Recommendations_Block' => __DIR__ . '/../..' . '/src/blocks/recommendations/class-recommendations-block.php',
         'Parsely\\Scripts' => __DIR__ . '/../..' . '/src/class-scripts.php',
         'Parsely\\Services\\Base_API_Service' => __DIR__ . '/../..' . '/src/services/class-base-api-service.php',

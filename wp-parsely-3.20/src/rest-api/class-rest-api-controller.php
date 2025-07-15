@@ -13,6 +13,7 @@ namespace Parsely\REST_API;
 use Parsely\REST_API\Content_Helper\Content_Helper_Controller;
 use Parsely\REST_API\Settings\Settings_Controller;
 use Parsely\REST_API\Stats\Stats_Controller;
+use Parsely\REST_API\Utils\Utils_Controller;
 
 /**
  * The REST API Controller.
@@ -64,6 +65,7 @@ class REST_API_Controller extends Base_API_Controller {
 			new Content_Helper_Controller( $this->get_parsely() ),
 			new Stats_Controller( $this->get_parsely() ),
 			new Settings_Controller( $this->get_parsely() ),
+			new Utils_Controller( $this->get_parsely() ),
 		);
 
 		// Initialize the controllers.

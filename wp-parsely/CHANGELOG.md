@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.20.5](https://github.com/Parsely/wp-parsely/compare/3.20.4...3.20.5) - 2025-07-15
+
+### Fixed
+
+- Improve whitespace trimming in get_canonical_url() ([#3534](https://github.com/Parsely/wp-parsely/pull/3534))
+- PCI Engagement Boost: Allow Pages and CPTs ([#3532](https://github.com/Parsely/wp-parsely/pull/3532))
+
 ## [3.20.4](https://github.com/Parsely/wp-parsely/compare/3.20.3...3.20.4) - 2025-07-08
 
 ### Fixed

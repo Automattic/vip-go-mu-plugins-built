@@ -104,6 +104,15 @@ export type FetchResponse<T> = {
 };
 
 /**
+ * Structure of the response from the 'utils/post/[post-id]/rest-route' endpoint.
+ *
+ * @since 3.20.5
+ */
+type PostRestRouteResponse = {
+	data: string;
+}
+
+/**
  * Type definition for query parameters.
  *
  * @since 3.18.0
@@ -334,8 +343,29 @@ export abstract class BaseWordPressProvider extends BaseProvider {
 	): Promise<HydratedPost> {
 		const context = 'edit';
 
+		let postRestRoute: PostRestRouteResponse;
+
+		try {
+			postRestRoute = await this.fetch<PostRestRouteResponse>( {
+				method: 'GET',
+				path: `/wp-parsely/v2/utils/post/${ postId }/rest-route`,
+			}, id );
+		} catch ( error ) {
+			throw new ContentHelperError(
+				__( "The target post's REST route could not be fetched.", 'wp-parsely' ),
+				ContentHelperErrorCode.UnknownError,
+			);
+		}
+
+		if ( ! postRestRoute || ! postRestRoute.data || '' === postRestRoute.data ) {
+			throw new ContentHelperError(
+				__( "The target post's REST route could not be fetched.", 'wp-parsely' ),
+				ContentHelperErrorCode.UnknownError,
+			);
+		}
+
 		const post = await this.apiFetch<Post>( {
-			path: `/wp/v2/posts/${ postId }?_embed&context=${ context }`,
+			path: `${ postRestRoute.data }?_embed&context=${ context }`,
 			method: 'GET',
 		}, id );
 

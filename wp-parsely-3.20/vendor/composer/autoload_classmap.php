@@ -184,6 +184,8 @@ return array(
     'Parsely\\REST_API\\Stats\\Related_Posts_Trait' => $baseDir . '/src/rest-api/stats/trait-related-posts.php',
     'Parsely\\REST_API\\Stats\\Stats_Controller' => $baseDir . '/src/rest-api/stats/class-stats-controller.php',
     'Parsely\\REST_API\\Use_Post_ID_Parameter_Trait' => $baseDir . '/src/rest-api/trait-use-post-id-parameter.php',
+    'Parsely\\REST_API\\Utils\\Endpoint_Post' => $baseDir . '/src/rest-api/utils/class-endpoint-post.php',
+    'Parsely\\REST_API\\Utils\\Utils_Controller' => $baseDir . '/src/rest-api/utils/class-utils-controller.php',
     'Parsely\\Recommendations_Block' => $baseDir . '/src/blocks/recommendations/class-recommendations-block.php',
     'Parsely\\Scripts' => $baseDir . '/src/class-scripts.php',
     'Parsely\\Services\\Base_API_Service' => $baseDir . '/src/services/class-base-api-service.php',
