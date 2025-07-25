@@ -161,9 +161,9 @@ if ( class_exists( 'QM_Output_Html' ) ) {
 				$count = count( $data->http );
 
 				/* translators: %s: Number of logs that are available */
-				$label = __( 'Queries (%s)', 'query-monitor' );
+				$label = __( 'Queries (%s)', 'remote-data-blocks' );
 			} else {
-				$label = __( 'Queries', 'query-monitor' );
+				$label = __( 'Queries', 'remote-data-blocks' );
 			}
 
 			$menu['qm-remote-data-blocks']['children'][ $this->collector->id() ] = $this->menu( [

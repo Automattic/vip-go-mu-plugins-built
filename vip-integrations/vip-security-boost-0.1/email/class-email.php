@@ -4,6 +4,7 @@ namespace Automattic\VIP\Security\Email;
 
 use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Logger;
+use function Automattic\VIP\Security\Utils\is_production_env;
 
 class Email {
 	/**
@@ -58,7 +59,7 @@ class Email {
 		$user_name = get_user_meta( $user_id, 'user_name', true );
 
 		// Prefix subject with environment so we can easily identify test emails.
-		if ( 'production' !== constant( 'VIP_GO_APP_ENVIRONMENT' ) ) {
+		if ( ! is_production_env() ) {
 			$subject = constant( 'VIP_GO_APP_ENVIRONMENT' ) . ' - ' . $subject;
 		}
 

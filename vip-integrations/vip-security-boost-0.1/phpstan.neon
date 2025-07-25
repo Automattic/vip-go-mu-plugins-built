@@ -1,0 +1,21 @@
+includes:
+	- phpstan-baseline.neon
+	- vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+  level: 5
+  paths:
+    - modules
+    - utils
+    - tests
+    - email
+    - class-loader.php
+    - vip-security-boost.php
+  scanDirectories:
+    - mu-plugins
+  scanFiles:
+    - %rootDir%/../../php-stubs/wordpress-stubs/wordpress-stubs.php
+    - %rootDir%/../../php-stubs/wordpress-tests-stubs/wordpress-tests-stubs.php
+  dynamicConstantNames:
+    - VIP_GO_APP_ENVIRONMENT
+    - VIP_GO_APP_ID
+    - VIP_SECURITY_BOOST_CONFIGS

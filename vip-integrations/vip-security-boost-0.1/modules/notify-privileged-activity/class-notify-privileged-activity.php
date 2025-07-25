@@ -112,7 +112,7 @@ class Notify_Privileged_Activity {
 		if ( class_exists( Support_User::class ) && Support_User::user_has_vip_support_role( $user->ID ) ) {
 			Logger::info(
 				self::LOG_FEATURE_NAME,
-				'Skipping notification for VIP Support user: ' . $user->ID
+				'Skipping notification for VIP Support user: ' . $user->user_login
 			);
 			return;
 		}

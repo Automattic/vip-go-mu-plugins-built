@@ -91,15 +91,15 @@ class GoogleSheetsDataSource extends GenericHttpDataSource {
 	}
 
 	public static function preprocess_get_response( array $response_data, ?string $row_id = null ): array {
-		$selected_row = null;
+		$selected_row = [];
 
-		if ( isset( $response_data['values'] ) && is_array( $response_data['values'] ) ) {
+		if ( isset( $response_data['values'] ) && is_array( $response_data['values'] ) && ! empty( $row_id ) ) {
 			$values = $response_data['values'];
 			$columns = array_shift( $values ); // Get column names from first row
 
-			// if the values are now empty, give back $selected_row as null
-			// This can happen if rows are deleted in the sheet after they
-			// have been used in a remote data block.
+			// if the values are now empty, give back $selected_row as an
+			// empty array. This can happen if rows are deleted in the
+			// sheet after they have been used in a remote data block.
 			if ( empty( $values ) ) {
 				return [];
 			}

@@ -6,9 +6,14 @@ use Automattic\VIP\Security\Utils\Logger;
 
 class Loader {
 	const LOG_FEATURE_NAME = 'sb_module_loader';
+
 	public static function init() {
 		if ( ! defined( 'VIP_SECURITY_BOOST_CONFIGS' ) ) {
-			throw new \Exception( 'VIP_SECURITY_BOOST_CONFIGS is not defined.' );
+			Logger::warning_log_if_user_logged_in(
+				self::LOG_FEATURE_NAME,
+				'VIP_SECURITY_BOOST_CONFIGS is not defined.'
+			);
+			return;
 		}
 
 		$configs         = constant( 'VIP_SECURITY_BOOST_CONFIGS' );
@@ -34,9 +39,7 @@ class Loader {
 				// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 				require_once $load_path;
 			} else {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error( 'Module not found: ' . esc_html( $module ), E_USER_WARNING );
-				Logger::error(
+				Logger::warning_log_if_user_logged_in(
 					self::LOG_FEATURE_NAME,
 					'Module not found: ' . $module
 				);

@@ -20,7 +20,7 @@ $previous_page_link = $pagination_links['previous_page'] ?? null;
 $previous_page_link_label = 'Previous';
 
 ?>
-<div <?php echo get_block_wrapper_attributes(); ?>>
+<div <?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>>
 	<div class="remote-data-pagination">
 		<?php if ( null === $previous_page_link ) : ?>
 			<?php echo esc_html( $previous_page_link_label ); ?>

@@ -2,7 +2,6 @@
 
 namespace Automattic\VIP\Security\SessionControl;
 
-use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Logger;
 use Automattic\VIP\Security\Utils\Configs;
 
@@ -17,54 +16,36 @@ use Automattic\VIP\Security\Utils\Configs;
 class Session_Control {
 	const LOG_FEATURE_NAME     = 'sb_session_control';
 	public const DEFAULT_VALUE = 'default';
-	/**
-	 * Session expiration time in days
-	 *
-	 * @var string|int
-	 */
-	private static $expiration_days = self::DEFAULT_VALUE;
-
 
 	/**
 	 * Initialize the module
 	 */
 	public static function init() {
-		if ( ! defined( 'VIP_SECURITY_BOOST_CONFIGS' ) ) {
-			return;
-		}
-
-		$session_configs       = Configs::get_module_configs( 'session-control' );
-		$expiration_days_value = $session_configs['expiration_days'] ?? self::DEFAULT_VALUE;
+		$expiration_days_value = self::get_expiration_days_from_config();
 
 		// Only apply if a valid expiration time is set
-		if ( self::DEFAULT_VALUE !== $expiration_days_value ) {
-			// Validate the expiration days value (must be between 1 and 13)
-			// check if it's valid int
-			if ( ! is_numeric( $expiration_days_value ) ) {
-				Logger::warning(
-					self::LOG_FEATURE_NAME,
-					'Invalid session expiration days. Must be an integer. Reverting to default.'
-				);
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error( 'Invalid session expiration days. Must be an integer. Reverting to default.', E_USER_WARNING );
-				return;
-			}
-			$expiration_days = intval( $expiration_days_value );
-
-			if ( $expiration_days < 1 || $expiration_days > 13 ) {
-
-				Logger::warning(
-					self::LOG_FEATURE_NAME,
-					'Invalid session expiration days. Must be between 1 and 13. Reverting to default.'
-				);
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-				trigger_error( 'Invalid session expiration days. Must be between 1 and 13. Reverting to default.', E_USER_WARNING );
-				return;
-			}
-			self::$expiration_days = $expiration_days;
+		if ( ! self::is_default_wordpress_expiration_days( $expiration_days_value ) ) {
 			// Add filters to modify session expiration time
 			add_filter( 'auth_cookie_expiration', array( __CLASS__, 'set_auth_cookie_expiration' ), 99, 3 );
 		}
+	}
+
+	public static function is_expiration_days_within_range( string $expiration_days_value ): bool {
+		if ( ! is_numeric( $expiration_days_value ) ) {
+			return false;
+		}
+		$expiration_days = intval( $expiration_days_value );
+		return $expiration_days >= 1 && $expiration_days <= 13;
+	}
+
+	public static function get_expiration_days_from_config(): string {
+		$session_configs       = Configs::get_module_configs( 'session-control' );
+		$expiration_days_value = $session_configs['expiration_days'] ?? self::DEFAULT_VALUE;
+		return $expiration_days_value;
+	}
+
+	public static function is_default_wordpress_expiration_days( string $expiration_days_value ): bool {
+		return self::DEFAULT_VALUE === $expiration_days_value;
 	}
 
 	/**
@@ -76,11 +57,25 @@ class Session_Control {
 	 *
 	 * @return int Modified expiration timestamp
 	 */
-	public static function set_auth_cookie_expiration( $expiration, $user_id, $remember ) {
+	public static function set_auth_cookie_expiration( int $expiration, int $user_id, bool $remember ): int {
+		$expiration_days_value = self::get_expiration_days_from_config();
+
+		if ( self::is_default_wordpress_expiration_days( $expiration_days_value ) ) {
+			return $expiration;
+		}
+
+		if ( ! self::is_expiration_days_within_range( $expiration_days_value ) ) {
+			Logger::warning( self::LOG_FEATURE_NAME, 'Invalid session expiration days. Reverting to default.', [
+				'expiration_days' => $expiration_days_value,
+			] );
+			return $expiration;
+		}
+
 		// Only apply custom expiration if "Remember Me" is checked
-		if ( $remember && self::DEFAULT_VALUE !== self::$expiration_days ) {
+		if ( $remember ) {
+			$expiration_days = intval( $expiration_days_value );
 			// Convert days to seconds
-			$days_in_seconds = self::$expiration_days * DAY_IN_SECONDS;
+			$days_in_seconds = $expiration_days * DAY_IN_SECONDS;
 			// Set the expiration time based on our configuration
 			return $days_in_seconds;
 		}

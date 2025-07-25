@@ -6,6 +6,7 @@
 namespace Automattic\VIP\Security\Utils;
 
 use Prometheus\Counter;
+use Prometheus\Gauge;
 use Prometheus\RegistryInterface;
 
 /**
@@ -18,6 +19,7 @@ class Collector implements \Automattic\VIP\Prometheus\CollectorInterface {
 	private Counter $blocked_users_view_counter;
 	private Counter $user_unblock_counter;
 	private Counter $privileged_email_sent_counter;
+	private Gauge $inactive_users_query_time;
 
 	public function initialize( RegistryInterface $registry ): void {
 		$this->mfa_display_counter = $registry->getOrRegisterCounter(
@@ -62,6 +64,13 @@ class Collector implements \Automattic\VIP\Prometheus\CollectorInterface {
 			[ 'email_type', 'recipient_role' ]
 		);
 
+		$this->inactive_users_query_time = $registry->getOrRegisterGauge(
+			'vip_security_boost',
+			'inactive_users_query_time',
+			'Query time for inactive users count in milliseconds',
+			[]
+		);
+
 		// Set up action hooks for automatic metric collection
 		add_action( 'vip_security_mfa_display', [ $this, 'mfa_display' ], 10, 1 );
 		add_action( 'vip_security_mfa_filter_click', [ $this, 'mfa_filter_click' ], 10, 1 );
@@ -69,6 +78,7 @@ class Collector implements \Automattic\VIP\Prometheus\CollectorInterface {
 		add_action( 'vip_security_blocked_users_view', [ $this, 'blocked_users_view' ] );
 		add_action( 'vip_security_user_unblock', [ $this, 'user_unblock' ], 10, 2 );
 		add_action( 'vip_security_privileged_email_sent', [ $this, 'privileged_email_sent' ], 10, 2 );
+		add_action( 'vip_security_inactive_users_query_time', [ $this, 'set_inactive_users_query_time' ], 10, 1 );
 	}
 
 	public function mfa_display( bool $filter_enabled ): void {
@@ -93,6 +103,10 @@ class Collector implements \Automattic\VIP\Prometheus\CollectorInterface {
 
 	public function privileged_email_sent( string $email_type, string $recipient_role ): void {
 		$this->privileged_email_sent_counter->inc( [ $email_type, $recipient_role ] );
+	}
+
+	public function set_inactive_users_query_time( float $query_time ): void {
+		$this->inactive_users_query_time->set( $query_time );
 	}
 
 	public function collect_metrics(): void {

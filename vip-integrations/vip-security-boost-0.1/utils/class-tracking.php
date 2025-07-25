@@ -20,13 +20,6 @@ class Tracking {
 	 */
 	private static ?Telemetry $telemetry = null;
 
-	private Counter $mfa_display_counter;
-	private Counter $mfa_filter_click_counter;
-	private Counter $mfa_sorting_counter;
-	private Counter $blocked_users_view_counter;
-	private Counter $user_unblock_counter;
-	private Counter $privileged_email_sent_counter;
-
 	/**
 	 * Get the Telemetry instance.
 	 *
@@ -65,60 +58,13 @@ class Tracking {
 	 */
 	private static function maybe_get_non_production_prefix( $trailing_underscore = true ): string {
 		$trailing_underscore = $trailing_underscore ? '_' : '';
-		if ( ! defined( 'VIP_GO_APP_ENVIRONMENT' ) || 'local' === constant( 'VIP_GO_APP_ENVIRONMENT' ) ) {
+		if ( is_local_env() ) {
 			return 'local' . $trailing_underscore;
 		}
-		if ( 'production' !== constant( 'VIP_GO_APP_ENVIRONMENT' ) ) {
+		if ( ! is_production_env() ) {
 			return 'nonprod' . $trailing_underscore;
 		}
 		return '';
-	}
-
-	/**
-	 * Initialize stats used by the class-collector.php for the prometheus stats.
-	 */
-	public function initialize( RegistryInterface $registry ): void {
-		$this->mfa_display_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'mfa_display_total',
-			'Number of MFA display views',
-			[ 'filtered' ]
-		);
-
-		$this->mfa_filter_click_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'mfa_filter_click_total',
-			'Number of MFA filter clicks',
-			[ 'filter_type' ]
-		);
-
-		$this->mfa_sorting_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'mfa_sorting_total',
-			'Number of MFA sorting actions',
-			[ 'sort_column', 'sort_order' ]
-		);
-
-		$this->blocked_users_view_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'blocked_users_view_total',
-			'Number of blocked users view accesses',
-			[]
-		);
-
-		$this->user_unblock_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'user_unblock_total',
-			'Number of user unblock actions',
-			[ 'user_role' ]
-		);
-
-		$this->privileged_email_sent_counter = $registry->getOrRegisterCounter(
-			'vip_security_boost',
-			'privileged_email_sent_total',
-			'Number of privileged activity emails sent',
-			[ 'email_type', 'recipient_role' ]
-		);
 	}
 
 	public static function mfa_display( $filter_enabled ) {
@@ -171,7 +117,6 @@ class Tracking {
 	 * Record stats using VIP Stats
 	 *
 	 * @param string $stat_name Stat name.
-	 * @param mixed  $value Stat value.
 	 */
 	private static function record_stats( $stat_name ) {
 		$env_prefix = self::maybe_get_non_production_prefix( false );
@@ -180,7 +125,7 @@ class Tracking {
 			$stat_code = self::PREFIX . '_' . $env_prefix;
 		}
 		// We're tracking the stats in production only
-		if ( ! defined( 'VIP_GO_APP_ENVIRONMENT' ) || 'local' === constant( 'VIP_GO_APP_ENVIRONMENT' ) ) {
+		if ( is_local_env() ) {
 			Logger::info( 'vip-security-boost', 'Bumping stats for /s/' . $stat_code . '/' . $stat_name, [
 				'stat_name' => $stat_name,
 			] );

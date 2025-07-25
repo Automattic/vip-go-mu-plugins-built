@@ -56,7 +56,7 @@ class Xml_Rpc {
 			exit( 'Access to XML-RPC is disabled on this site.' );
 			// phpcs:ignore Squiz.PHP.NonExecutableCode.Unreachable
 			return $server_class;
-		});
+		}, PHP_INT_MIN, 1 );
 	}
 
 	/**

@@ -10,7 +10,7 @@ $source_args = $block->attributes['metadata']['bindings']['content']['args'] ?? 
 
 ?>
 
-<div <?php echo get_block_wrapper_attributes(); ?>>
+<div <?php echo wp_kses_data( get_block_wrapper_attributes() ); ?>>
 	<?php
 	$binding_value = BlockBindings::get_value( $source_args, $block, 'content' );
 

@@ -2,12 +2,23 @@
 
 namespace Automattic\VIP\Security\Utils;
 
+use Automattic\VIP\Security\Utils\Logger;
+
 function load_integration_configs_from_url() {
 	$config_api_url = vip_get_env_var( 'VIP_CONFIG_API_URL', getenv( 'VIP_CONFIG_API_URL' ) );
 
 	if ( ! $config_api_url ) {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-		trigger_error( 'VIP_CONFIG_API_URL is not defined.', E_USER_ERROR );
+		Logger::info(
+			'sb_dev_env',
+			'VIP_CONFIG_API_URL is not set, skipping loading integration configs from URL.'
+		);
+		// Define default empty configuration for local development
+		if ( ! defined( 'VIP_SECURITY_BOOST_CONFIGS' ) ) {
+			define( 'VIP_SECURITY_BOOST_CONFIGS', [
+				'enabled_modules' => [],
+				'module_configs'  => [],
+			] );
+		}
 		return;
 	}
 

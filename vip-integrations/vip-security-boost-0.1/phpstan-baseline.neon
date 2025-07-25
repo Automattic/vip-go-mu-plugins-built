@@ -1,0 +1,61 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: modules/inactive-users/class-inactive-users.php
+
+		-
+			message: '#^Filter callback return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: modules/xml-rpc/class-xml-rpc.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: modules/xml-rpc/class-xml-rpc.php
+
+		-
+			message: '#^Inner named functions are not supported by PHPStan\. Consider refactoring to an anonymous function, class method, or a top\-level\-defined function\. See issue \#165 \(https\://github\.com/phpstan/phpstan/issues/165\) for more details\.$#'
+			identifier: function.inner
+			count: 2
+			path: tests/phpunit/test-class-configs.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertIsArray\(\) with array will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 3
+			path: tests/phpunit/test-configs.php
+
+		-
+			message: '#^Action callback returns true but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: tests/phpunit/test-forced-mfa-users.php
+
+		-
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertTrue\(\) with true will always evaluate to true\.$#'
+			identifier: method.alreadyNarrowedType
+			count: 3
+			path: tests/phpunit/test-inactive-users.php
+
+		-
+			message: '#^Parameter \#1 \$last_seen_timestamp of static method Automattic\\VIP\\Security\\InactiveUsers\\Inactive_Users\:\:get_last_seen_date_string\(\) expects int, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/phpunit/test-inactive-users.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''\\\\Automattic\\\\VIP…'' and ''reset_mock'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/phpunit/test-notify-privileged-activity.php
+
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: utils/class-configs.php

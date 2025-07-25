@@ -44,4 +44,19 @@ class Configs {
 			self::$cached_module_configs = $module_configs;
 		}
 	}
+	/**
+	 * Get the bot user login based on environment.
+	 * In production, WPCOM_VIP_MACHINE_USER_LOGIN is overridden via secrets.
+	 * In local/test, we want to use 'wpcomvip'.
+	 */
+	public static function get_bot_login(): string {
+		$is_local_env = ! defined( 'VIP_GO_APP_ENVIRONMENT' ) || 'local' === constant( 'VIP_GO_APP_ENVIRONMENT' );
+		$is_test_env  = defined( 'VIP_GO_APP_ENVIRONMENT' ) && 'test' === constant( 'VIP_GO_APP_ENVIRONMENT' );
+	
+		if ( $is_local_env || $is_test_env ) {
+			return 'wpcomvip';
+		}
+	
+		return defined( 'WPCOM_VIP_MACHINE_USER_LOGIN' ) ? constant( 'WPCOM_VIP_MACHINE_USER_LOGIN' ) : 'wpcomvip';
+	}
 }
