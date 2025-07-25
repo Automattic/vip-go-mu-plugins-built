@@ -526,25 +526,18 @@ class Inactive_Users {
 		$has_blocked_users = wp_cache_get( $cache_key, self::LAST_SEEN_CACHE_GROUP );
 
 		if ( false === $has_blocked_users ) {
-			$query_args = array(
-				'blog_id'      => $blog_id,
-				'fields'       => 'ID',
-				'meta_key'     => self::LAST_SEEN_META_KEY,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-				'meta_value'   => self::get_inactivity_timestamp(),
-				'meta_type'    => 'NUMERIC',
-				'meta_compare' => '<',
-				'count_total'  => false,
-				'number'       => 1, // To minimize the query time, we only need to know if there are any blocked users to show the link
+			// Reuse the same logic we use elsewhere to determine if a user is considered blocked
+			// so that the link visibility and the actual list stay in sync.
+			$query_args = array_merge(
+				[
+					'blog_id'     => $blog_id,
+					'fields'      => 'ID',
+					'count_total' => false,
+					'number'      => 1, // we only need to know if at least one match exists
+				],
+				self::get_inactive_users_query_args()
 			);
-			
-			// Use capability__in if capabilities are configured, otherwise use role__in
-			if ( ! empty( self::$elevated_capabilities ) ) {
-				$query_args['capability__in'] = self::$elevated_capabilities;
-			} else {
-				$query_args['role__in'] = ! empty( self::$elevated_roles ) ? self::$elevated_roles : array();
-			}
-			
+
 			$users_query = new \WP_User_Query( $query_args );
 
 			$has_blocked_users = ! empty( $users_query->get_results() ) ? 1 : 0;
@@ -802,7 +795,7 @@ class Inactive_Users {
 		 * @param array $elevated_capabilities The elevated capabilities.
 		 */
 		$elevated_capabilities = apply_filters( 'vip_security_boost_inactive_users_elevated_capabilities', self::$elevated_capabilities );
-		
+
 		/**
 		 * Filters the last seen elevated roles that are used to determine if the last seen should be checked.
 		 *
