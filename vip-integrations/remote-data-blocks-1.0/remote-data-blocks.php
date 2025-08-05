@@ -4,10 +4,10 @@
  * Plugin Name: Remote Data Blocks
  * Plugin URI: https://remotedatablocks.com
  * Description: Integrate external data sources into WordPress blocks, enabling dynamic content from APIs and databases within the block editor and within your content.
- * Author: WPVIP
- * Author URI: https://wpvip.com
+ * Author: Automattic
+ * Author URI: https://automattic.com
  * Text Domain: remote-data-blocks
- * Version: 1.0.4
+ * Version: 1.0.5
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * License: GPLv2 or later
@@ -26,7 +26,7 @@ if ( defined( 'REMOTE_DATA_BLOCKS__LOADED' ) ) {
 define( 'REMOTE_DATA_BLOCKS__LOADED', true );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_ROOT', __FILE__ );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.0.4' );
+define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.0.5' );
 
 define( 'REMOTE_DATA_BLOCKS__REST_NAMESPACE', 'remote-data-blocks/v1' );
 

@@ -3,7 +3,7 @@
         'name' => 'automattic/remote-data-blocks',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => '0e301742b47671f70d87a0a71f4c13055c6f3135',
+        'reference' => 'd8c09a4122b62dd18240bfb2609890c3c65d8297',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'automattic/remote-data-blocks' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => '0e301742b47671f70d87a0a71f4c13055c6f3135',
+            'reference' => 'd8c09a4122b62dd18240bfb2609890c3c65d8297',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

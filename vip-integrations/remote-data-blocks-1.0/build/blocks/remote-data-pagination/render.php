@@ -7,6 +7,10 @@ use RemoteDataBlocks\Editor\DataBinding\BlockBindings;
 // $content (string): The block default content.
 // $block (WP_Block): The block instance.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $pagination_links = BlockBindings::get_pagination_links( $block );
 
 // Skip the rendering if there are no pagination links.

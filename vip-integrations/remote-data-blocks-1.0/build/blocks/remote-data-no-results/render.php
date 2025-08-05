@@ -7,6 +7,10 @@ use RemoteDataBlocks\Editor\DataBinding\BlockBindings;
 // $content (string): The block default content.
 // $block (WP_Block): The block instance.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 $should_render_fallback_content = BlockBindings::should_render_fallback_content( $block->context, $attributes );
 
 // The fallback content should only be rendered if the query errors out, or if the query returns no results.

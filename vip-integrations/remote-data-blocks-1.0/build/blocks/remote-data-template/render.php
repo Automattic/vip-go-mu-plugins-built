@@ -7,4 +7,8 @@ use RemoteDataBlocks\Editor\DataBinding\BlockBindings;
 // $content (string): The block default content.
 // $block (WP_Block): The block instance.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 echo wp_kses_post( BlockBindings::render_remote_data_template_block( $attributes, $content, $block ) );
