@@ -3,6 +3,7 @@ namespace Automattic\VIP\Security\MFAUsers;
 
 use Automattic\VIP\Security\Utils\Configs;
 use Automattic\VIP\Security\Utils\Capability_Utils;
+use Automattic\VIP\Security\Utils\Users_Query_Utils;
 
 class Highlight_MFA_Users {
 	const MFA_SKIP_USER_IDS_OPTION_KEY    = 'vip_security_mfa_skip_user_ids';
@@ -48,6 +49,7 @@ class Highlight_MFA_Users {
 		self::$capabilities = Capability_Utils::normalize_capabilities_input( $highlight_mfa_configs['capabilities'] ?? [] );
 		self::$roles        = Capability_Utils::normalize_roles_input( $highlight_mfa_configs['roles'] ?? self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS );
 
+		add_action( 'admin_init', [ __CLASS__, 'maybe_fix_found_users_query' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'display_mfa_disabled_notice' ] );
 		add_filter( 'users_list_table_query_args', [ __CLASS__, 'filter_users_by_mfa_status_args' ] );
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_tracking_scripts' ] );
@@ -66,9 +68,6 @@ class Highlight_MFA_Users {
 
 		// Handle sorting
 		add_filter( 'users_list_table_query_args', [ __CLASS__, 'sort_columns' ] );
-
-		// Hook into found_users_query to fix the count query for pagination
-		add_filter( 'found_users_query', [ __CLASS__, 'fix_found_users_query' ], 10, 2 );
 
 		// Clear cache when users are created or deleted
 		add_action( 'user_register', [ __CLASS__, 'clear_mfa_count_cache' ] );
@@ -90,6 +89,49 @@ class Highlight_MFA_Users {
 		add_action( 'set_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
 		add_action( 'add_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
 		add_action( 'remove_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
+
+		// Add SDS hook
+		add_filter( 'vip_site_details_index_security_boost_data', [ __CLASS__, 'add_users_without_2fa_count_to_sds_payload' ] );
+	}
+
+	/**
+	 * Add the users_without_2fa_count to the SDS payload.
+	 *
+	 * @param array $data The SDS payload data.
+	 * @return array The modified SDS payload data.
+	 */
+	public static function add_users_without_2fa_count_to_sds_payload( $data ) {
+		// Add fix for unreliable FOUND_ROWS() query
+		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
+
+		$users_without_2fa_count = self::get_mfa_disabled_count();
+
+		$data['users_without_2fa_count'] = $users_without_2fa_count;
+
+		if ( is_multisite() ) {
+			// Get number of users without 2FA for all blogs (network-wide with blog_id = 0)
+			$users_without_2fa_count_all_blogs = self::get_mfa_disabled_count( 0 );
+
+			// Add network-wide users without 2FA count to the SDS payload
+			$data['users_without_2fa_count_all_blogs'] = $users_without_2fa_count_all_blogs;
+		}
+
+		// Remove fix for unreliable FOUND_ROWS() query
+		remove_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10 );
+
+		return $data;
+	}
+
+	/**
+	 * Add filter to fix found_users_query when filtering for MFA disabled users.
+	 */
+	public static function maybe_fix_found_users_query() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! is_admin() || ! isset( $_GET['filter_mfa_disabled'] ) || '1' !== $_GET['filter_mfa_disabled'] ) {
+			return;
+		}
+
+		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
 	}
 
 	/**
@@ -113,7 +155,9 @@ class Highlight_MFA_Users {
 	 *
 	 * @return int The number of users with MFA disabled.
 	 */
-	private static function get_mfa_disabled_count() {
+	private static function get_mfa_disabled_count( $blog_id = null ) {
+		$blog_id = $blog_id ?? get_current_blog_id();
+
 		// Try to get from cache first
 		$cached_count = wp_cache_get( self::get_mfa_count_cache_key(), self::MFA_COUNT_CACHE_GROUP );
 		if ( false !== $cached_count ) {
@@ -140,16 +184,20 @@ class Highlight_MFA_Users {
 			'exclude' => $skipped_user_ids,
 			'number'  => -1, // Get all relevant users
 		];
-		
+
 		// Use native capability filtering if capabilities are configured
 		if ( Capability_Utils::are_capabilities_configured( self::$capabilities ) ) {
 			$args['capability__in'] = self::$capabilities;
 		} else {
 			$args['role__in'] = self::$roles;
 		}
-		
-		$user_query = new \WP_User_Query( $args );
-		$user_ids   = $user_query->get_results();
+
+		// Use our utility method that properly handles network-wide capability filtering
+		$user_ids = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
+			$args,
+			$blog_id,
+			false // return user IDs, not count
+		);
 
 		$mfa_disabled_count = 0;
 		foreach ( $user_ids as $user_id ) {
@@ -354,10 +402,10 @@ class Highlight_MFA_Users {
 	}
 
 	/**
- * Filter users by MFA status using the correct hook for the user list table.
- * @param array $args The query arguments.
- * @return array The modified query arguments.
- */
+	 * Filter users by MFA status using the correct hook for the user list table.
+	 * @param array $args The query arguments.
+	 * @return array The modified query arguments.
+	 */
 	public static function filter_users_by_mfa_status_args( $args ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is not required for this check
 		if ( is_admin() && isset( $_GET['filter_mfa_disabled'] ) && '1' === $_GET['filter_mfa_disabled'] ) {
@@ -493,39 +541,6 @@ class Highlight_MFA_Users {
 		}
 
 		return $args;
-	}
-
-	/**
-	 * This function replaces WordPress's potentially unreliable `SELECT FOUND_ROWS()`
-	 * with a direct `SELECT COUNT(DISTINCT ID)` query. It dynamically uses the
-	 * exact same `FROM` and `WHERE` clauses that the main `WP_User_Query` is using,
-	 * ensuring the total user count is always accurate for pagination.
-	 *
-	 * @param string         $sql   The original SQL query (usually 'SELECT FOUND_ROWS()').
-	 * @param \WP_User_Query $query The WP_User_Query instance.
-	 * @return string The corrected SQL query for counting users.
-	 */
-	public static function fix_found_users_query( $sql, $query ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! is_admin() || ! isset( $_GET['filter_mfa_disabled'] ) || '1' !== $_GET['filter_mfa_disabled'] ) {
-			return $sql;
-		}
-
-		// The WP_User_Query object ($query) has already prepared its SQL clauses for the main query.
-		// We can reuse them to build a reliable COUNT query.
-		// These properties are populated by the prepare_query() method.
-		if ( empty( $query->query_from ) || empty( $query->query_where ) ) {
-			// This is unexpected, but as a fallback, return the original SQL to avoid errors.
-			return $sql;
-		}
-
-		global $wpdb;
-
-		// Build the reliable count query using the same FROM and WHERE clauses as the main query.
-		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
-		$count_sql = "SELECT COUNT(DISTINCT {$wpdb->users}.ID) {$query->query_from} {$query->query_where}";
-
-		return $count_sql;
 	}
 
 	/**

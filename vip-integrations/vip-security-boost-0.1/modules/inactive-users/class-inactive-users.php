@@ -4,8 +4,8 @@ namespace Automattic\VIP\Security\InactiveUsers;
 use Automattic\VIP\Utils\Context;
 use Automattic\VIP\Security\Utils\Logger;
 use Automattic\VIP\Security\Utils\Configs;
-use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Capability_Utils;
+use Automattic\VIP\Security\Utils\Users_Query_Utils;
 
 class Inactive_Users {
 	protected static $considered_inactive_after_days;
@@ -45,9 +45,10 @@ class Inactive_Users {
 		// Use a global cache group since users are shared among network sites.
 		wp_cache_add_global_groups( array( self::LAST_SEEN_CACHE_GROUP ) );
 
-		add_filter( 'determine_current_user', [ __CLASS__, 'record_activity' ], 30, 1 );
+		add_action( 'set_current_user', [ __CLASS__, 'record_activity' ], 30 );
 
 		add_action( 'admin_init', [ __CLASS__, 'register_release_date' ] );
+		add_action( 'admin_init', [ __CLASS__, 'maybe_fix_found_users_query' ] );
 
 		// skipping inactivity checks for new users
 		if ( is_multisite() ) {
@@ -90,13 +91,22 @@ class Inactive_Users {
 		}
 
 		// Add SDS hook
-		add_filter( 'vip_site_details_index_data', [ __CLASS__, 'add_inactive_users_count_to_sds_payload' ] );
+		add_filter( 'vip_site_details_index_security_boost_data', [ __CLASS__, 'add_inactive_users_count_to_sds_payload' ] );
+	}
+
+	public static function maybe_fix_found_users_query() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! is_admin() || ! isset( $_GET['last_seen_filter'] ) || 'blocked' !== $_GET['last_seen_filter'] ) {
+			// Not in admin or not filtering for blocked users, nothing to do
+			return;
+		}
+
+		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
 	}
 
 	public static function add_inactive_users_count_to_sds_payload( $data ) {
-		if ( ! isset( $data[ Constants::SDS_DATA_KEY ] ) ) {
-			$data[ Constants::SDS_DATA_KEY ] = array();
-		}
+		// Add fix for unreliable FOUND_ROWS() query
+		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
 
 		// Start timer to measure query time
 		$timer = microtime( true );
@@ -105,14 +115,14 @@ class Inactive_Users {
 		$inactive_users_count = self::get_inactive_users_count();
 
 		// Add inactive users count for the current blog to the SDS payload
-		$data[ Constants::SDS_DATA_KEY ]['inactive_users_count'] = $inactive_users_count;
+		$data['inactive_users_count'] = $inactive_users_count;
 
 		if ( is_multisite() ) {
 			// Get number of inactive users for all blogs (network-wide with blog_id = 0)
 			$inactive_users_count_all_blogs = self::get_inactive_users_count( 0 );
 
 			// Add network-wide inactive users count to the SDS payload
-			$data[ Constants::SDS_DATA_KEY ]['inactive_users_count_all_blogs'] = $inactive_users_count_all_blogs;
+			$data['inactive_users_count_all_blogs'] = $inactive_users_count_all_blogs;
 		}
 
 		// Stop timer
@@ -121,35 +131,33 @@ class Inactive_Users {
 		// Register query time metric
 		do_action( 'vip_security_inactive_users_query_time', $timer );
 
+		// Remove fix for unreliable FOUND_ROWS() query
+		remove_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10 );
+
 		return $data;
 	}
 
-	public static function record_activity( $user_id ) {
+	public static function record_activity() {
+		$user_id = get_current_user_id();
+
 		if ( ! $user_id ) {
-			return $user_id;
+			return;
 		}
 
 		if ( wp_cache_get( $user_id, self::LAST_SEEN_CACHE_GROUP ) ) {
 			// Last seen meta was checked recently
-			return $user_id;
-		}
-
-		$user = get_userdata( $user_id );
-		if ( ! $user ) {
-			return $user_id;
+			return;
 		}
 
 		if ( self::is_considered_inactive( $user_id ) ) {
 			// User needs to be unblocked first
-			return $user_id;
+			return;
 		}
 
 		// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined
 		if ( wp_cache_add( $user_id, true, self::LAST_SEEN_CACHE_GROUP, self::LAST_SEEN_UPDATE_USER_META_CACHE_TTL ) ) {
 			update_user_meta( $user_id, self::LAST_SEEN_META_KEY, time() );
 		}
-
-		return $user_id;
 	}
 
 	/**
@@ -318,13 +326,12 @@ class Inactive_Users {
 			}
 		}
 
-		$args = array_merge( [
-			'blog_id'     => $blog_id,
-			'count_total' => true,
-		], self::get_inactive_users_query_args() );
-
-		$users_query = new \WP_User_Query( $args );
-		$count       = $users_query->get_total();
+		// Use our utility method that properly handles network-wide capability filtering
+		$count = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
+			self::get_inactive_users_query_args(),
+			$blog_id,
+			true // count only
+		);
 
 		// Cache the result for global queries (blog_id = 0)
 		if ( 0 === $blog_id ) {
@@ -601,10 +608,17 @@ class Inactive_Users {
 			$error = __( 'You do not have permission to unblock this user.', 'wpvip' );
 		}
 
+		// Additional multisite security check: ensure user belongs to current site
+		if ( ! $error && is_multisite() && ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			$error = __( 'You can only unblock users who are members of this site.', 'wpvip' );
+		}
+
 		$ignore_inactivity_check_until = strtotime( '+2 days' );
 		if ( ! $error && ! self::ignore_inactivity_check_for_user( $user_id, $ignore_inactivity_check_until ) ) {
 			$error = __( 'Unable to unblock user.', 'wpvip' );
-		} else {
+		}
+
+		if ( ! $error ) {
 			// Track successful user unblock
 			$user      = get_userdata( $user_id );
 			$user_role = $user && ! empty( $user->roles ) ? $user->roles[0] : '';
@@ -632,8 +646,9 @@ class Inactive_Users {
 			'reset_last_seen_success' => 1,
 		), $url );
 
-		wp_safe_redirect( $url );
-		exit();
+		if ( wp_safe_redirect( $url ) ) {
+			exit();
+		}
 	}
 
 	public static function ignore_inactivity_check_for_user( $user_id, $until_timestamp = null ) {

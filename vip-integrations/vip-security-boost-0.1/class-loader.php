@@ -1,7 +1,6 @@
 <?php
 namespace Automattic\VIP\Security;
 
-use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Logger;
 
 class Loader {
@@ -45,6 +44,8 @@ class Loader {
 				);
 			}
 		}
+		// always load the data-sync module, that's not a module we provide an enable flag for.
+		require_once __DIR__ . '/modules/data-sync/class-data-sync.php';
 	}
 }
 

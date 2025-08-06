@@ -14,6 +14,15 @@ namespace Automattic\VIP\Security\Utils;
 class Capability_Utils {
 	
 	/**
+	 * Track recursion state per user ID to prevent infinite loops.
+	 * Uses user ID as key to handle concurrent checks for different users.
+	 * 
+	 * @var array<int, bool>
+	 */
+	private static $checking_capability = [];
+	const LOG_FEATURE_NAME              = 'sb_capability_utils';
+
+	/**
 	 * Check if a user has elevated permissions based on capabilities or roles.
 	 * 
 	 * @param \WP_User|false|null $user The user to check.
@@ -34,14 +43,69 @@ class Capability_Utils {
 		$roles        = self::normalize_roles_input( $roles );
 		
 		if ( ! empty( $capabilities ) ) {
-			return self::user_has_any_capability( $user, $capabilities );
+			// Always use full resolution for capabilities (detects dynamic grants)
+			return self::user_has_any_capability_full( $user, $capabilities );
 		}
 		
 		return self::user_has_any_role( $user, $roles );
 	}
 	
 	/**
+	 * Check if a user has any of the specified capabilities using full capability resolution.
+	 * 
+	 * This method uses user_can() to check capabilities, which includes dynamic grants
+	 * from map_meta_cap and user_has_cap filters. It includes recursion protection
+	 * to prevent infinite loops when called from within capability filters.
+	 * 
+	 * @param \WP_User|false|null $user The user to check.
+	 * @param array $capabilities Array of capabilities to check.
+	 * @return bool True if user has any of the capabilities, false otherwise.
+	 */
+	public static function user_has_any_capability_full( $user, $capabilities ): bool {
+		if ( ! ( $user instanceof \WP_User ) || ! $user->exists() || empty( $capabilities ) ) {
+			return false;
+		}
+		
+		// Check if we're already checking capabilities for this user
+		if ( isset( self::$checking_capability[ $user->ID ] ) && self::$checking_capability[ $user->ID ] ) {
+			// We're in a recursive call - fall back to allcaps check
+			Logger::error(
+				self::LOG_FEATURE_NAME,
+				'Recursion detected in user_has_any_capability_full for user ID ' . $user->ID
+			);
+				return self::user_has_any_capability( $user, $capabilities );
+		}
+		
+		// Set recursion guard
+		self::$checking_capability[ $user->ID ] = true;
+		
+		$has_capability = false;
+		
+		try {
+			foreach ( $capabilities as $capability ) {
+				if ( ! is_string( $capability ) || trim( $capability ) === '' ) {
+					continue;
+				}
+				
+				// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is from configuration
+				if ( user_can( $user, $capability ) ) {
+					$has_capability = true;
+					break;
+				}
+			}
+		} finally {
+			// Always clear recursion guard, even if an exception occurs
+			unset( self::$checking_capability[ $user->ID ] );
+		}
+		
+		return $has_capability;
+	}
+	
+	/**
 	 * Check if a user has any of the specified capabilities (OR logic).
+	 * 
+	 * This method directly checks the allcaps array to avoid infinite loops
+	 * when called from within map_meta_cap filters.
 	 * 
 	 * @param \WP_User|false|null $user The user to check.
 	 * @param array $capabilities Array of capabilities to check.
@@ -52,9 +116,25 @@ class Capability_Utils {
 			return false;
 		}
 		
+		// Ensure allcaps exists and is an array to prevent fatal errors
+		// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_allcaps -- PHPStan thinks allcaps always exists, but it can be unset/corrupted
+		// @phpstan-ignore-next-line
+		if ( ! property_exists( $user, 'allcaps' ) || ! is_array( $user->allcaps ) ) {
+			Logger::error(
+				'Capability_Utils::user_has_any_capability',
+				'allcaps does not exist or is not an array'
+			);
+			return false;
+		}
+
 		foreach ( $capabilities as $capability ) {
-			// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability is from configuration
-			if ( user_can( $user, $capability ) ) {
+			// Skip non-scalar capabilities to prevent errors
+			if ( ! is_string( $capability ) || trim( $capability ) === '' ) {
+				continue;
+			}
+			
+			// Check if capability exists and is truthy
+			if ( isset( $user->allcaps[ $capability ] ) && $user->allcaps[ $capability ] ) {
 				return true;
 			}
 		}
