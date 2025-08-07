@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
 /**
@@ -151,6 +152,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'stylevariationstyles'     => null,
 				'optionsclasses'           => null,
 				'optionsstyles'            => null,
+				'align'                    => null,
+				'variation'                => null,
 			),
 			$attributes,
 			'contact-field'
@@ -474,7 +477,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 
 		$extra_attrs = array();
 
-		if ( $field_type === 'number' ) {
+		if ( $field_type === 'number' || $field_type === 'slider' ) {
 			if ( is_numeric( $this->get_attribute( 'min' ) ) ) {
 				$extra_attrs['min'] = $this->get_attribute( 'min' );
 			}
@@ -614,8 +617,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				. $extra_attrs_string
 				. '>'
 				. wp_kses_post( $label )
-				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' )
-				. "</label>\n";
+				. ( $required ? '<span class="grunion-label-required" aria-hidden="true">' . $required_field_text . '</span>' : '' ) .
+			"</label>\n";
 	}
 
 	/**
@@ -1182,6 +1185,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			data-wp-on--dragleave="actions.dragLeave"
 			data-wp-on--mouseleave="actions.dragLeave"
 			data-wp-on--drop="actions.fileDropped"
+			data-wp-on--jetpack-form-reset="actions.resetFiles"
 			data-is-required="<?php echo esc_attr( $required ); ?>"
 		>
 			<div class="jetpack-form-file-field__dropzone" data-wp-class--is-dropping="context.isDropping" data-wp-class--is-hidden="state.hasMaxFiles">
@@ -1231,7 +1235,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	private function enqueue_file_field_assets() {
-		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+		$version = Constants::get_constant( 'JETPACK__VERSION' );
 
 		\wp_enqueue_script_module(
 			'jetpack-form-file-field',
@@ -1458,6 +1462,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_date_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
+		static $is_loaded = false;
 		$this->set_invalid_message( 'date', __( 'Please enter a valid date.', 'jetpack-forms' ) );
 		// WARNING: sync data with DATE_FORMATS in jetpack-field-datepicker.js
 		$formats = array(
@@ -1472,40 +1477,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'yy-mm-dd' => array(
 				/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
 				'label' => __( 'YYYY-MM-DD', 'jetpack-forms' ),
-			),
-		);
-		// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$local = array(
-			// translators: These are the two letter abbreviated names of the days of the week.
-			'days'      => array( __( 'Su', 'jetpack-forms' ), __( 'Mo', 'jetpack-forms' ), __( 'Tu', 'jetpack-forms' ), __( 'We', 'jetpack-forms' ), __( 'Th', 'jetpack-forms' ), __( 'Fr', 'jetpack-forms' ), __( 'Sa', 'jetpack-forms' ) ),
-			'months'    => array(
-				__( 'January', 'jetpack-forms' ),
-				__( 'February', 'jetpack-forms' ),
-				__( 'March', 'jetpack-forms' ),
-				__( 'April', 'jetpack-forms' ),
-				__( 'May', 'jetpack-forms' ),
-				__( 'June', 'jetpack-forms' ),
-				__( 'July', 'jetpack-forms' ),
-				__( 'August', 'jetpack-forms' ),
-				__( 'September', 'jetpack-forms' ),
-				__( 'October', 'jetpack-forms' ),
-				__( 'November', 'jetpack-forms' ),
-				__( 'December', 'jetpack-forms' ),
-			),
-			'today'     => __( 'Today', 'jetpack-forms' ),
-			'clear'     => __( 'Clear', 'jetpack-forms' ),
-			'close'     => __( 'Close', 'jetpack-forms' ),
-			'ariaLabel' => array(
-				'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker.', 'jetpack-forms' ),
-				'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
-				'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
-				'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
-				'monthPickerButton' => __( 'Month picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
-				'yearPickerButton'  => __( 'Year picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
-				'dayButton'         => __( 'Use the space key to select the date.', 'jetpack-forms' ),
-				'todayButton'       => __( 'Today button. Use the space key to select the current date.', 'jetpack-forms' ),
-				'clearButton'       => __( 'Clear button. Use the space key to clear the date picker.', 'jetpack-forms' ),
-				'closeButton'       => __( 'Close button. Use the space key to close the date picker.', 'jetpack-forms' ),
 			),
 		);
 
@@ -1528,17 +1499,70 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		Assets::register_script(
-			'grunion-frontend',
-			'../../dist/contact-form/js/grunion-frontend.js',
+			'jp-forms-date-picker',
+			'../../dist/contact-form/js/date-picker.js',
 			__FILE__,
 			array(
 				'enqueue'      => true,
-				'dependencies' => array( 'jquery', 'jquery-ui-datepicker' ),
-				'version'      => \JETPACK__VERSION,
+				'dependencies' => array(),
+				'version'      => Constants::get_constant( 'JETPACK__VERSION' ),
 			)
 		);
 
-		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( '../../dist/contact-form/css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+		/**
+		 * Filter the localized date picker script.
+		 */
+		if ( ! $is_loaded ) {
+			\wp_localize_script(
+				'jp-forms-date-picker',
+				'jpDatePicker',
+				array(
+					'offset' => intval( get_option( 'start_of_week', 1 ) ),
+					'lang'   => array(
+						// translators: These are the two letter abbreviated name of the week.
+						'days'      => array(
+							__( 'Su', 'jetpack-forms' ),
+							__( 'Mo', 'jetpack-forms' ),
+							__( 'Tu', 'jetpack-forms' ),
+							__( 'We', 'jetpack-forms' ),
+							__( 'Th', 'jetpack-forms' ),
+							__( 'Fr', 'jetpack-forms' ),
+							__( 'Sa', 'jetpack-forms' ),
+						),
+						'months'    => array(
+							__( 'January', 'jetpack-forms' ),
+							__( 'February', 'jetpack-forms' ),
+							__( 'March', 'jetpack-forms' ),
+							__( 'April', 'jetpack-forms' ),
+							__( 'May', 'jetpack-forms' ),
+							__( 'June', 'jetpack-forms' ),
+							__( 'July', 'jetpack-forms' ),
+							__( 'August', 'jetpack-forms' ),
+							__( 'September', 'jetpack-forms' ),
+							__( 'October', 'jetpack-forms' ),
+							__( 'November', 'jetpack-forms' ),
+							__( 'December', 'jetpack-forms' ),
+						),
+						'today'     => __( 'Today', 'jetpack-forms' ),
+						'clear'     => __( 'Clear', 'jetpack-forms' ),
+						'close'     => __( 'Close', 'jetpack-forms' ),
+						'ariaLabel' => array(
+							'enterPicker'       => __( 'You are on a date picker input. Use the down key to focus into the date picker. Or type the date in the format MM/DD/YYYY', 'jetpack-forms' ),
+							'dayPicker'         => __( 'You are currently inside the date picker, use the arrow keys to navigate between the dates. Use tab key to jump to more controls.', 'jetpack-forms' ),
+							'monthPicker'       => __( 'You are currently inside the month picker, use the arrow keys to navigate between the months. Use the space key to select it.', 'jetpack-forms' ),
+							'yearPicker'        => __( 'You are currently inside the year picker, use the up and down arrow keys to navigate between the years. Use the space key to select it.', 'jetpack-forms' ),
+							'monthPickerButton' => __( 'Month picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+							'yearPickerButton'  => __( 'Year picker. Use the space key to enter the month picker.', 'jetpack-forms' ),
+							'dayButton'         => __( 'Use the space key to select the date.', 'jetpack-forms' ),
+							'todayButton'       => __( 'Today button. Use the space key to select the current date.', 'jetpack-forms' ),
+							'clearButton'       => __( 'Clear button. Use the space key to clear the date picker.', 'jetpack-forms' ),
+							'closeButton'       => __( 'Close button. Use the space key to close the date picker.', 'jetpack-forms' ),
+						),
+					),
+				)
+			);
+			$is_loaded = true;
+		}
 
 		return $field;
 	}
@@ -1866,7 +1890,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$interactivity_attrs = ''; // Reset interactivity attributes for the field wrapper.
 		}
 
-		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
+		$field .= "\n<div {$block_style} {$interactivity_attrs} {$shell_field_class} data-wp-init='callbacks.initializeField' data-wp-on--jetpack-form-reset='callbacks.initializeField' >\n"; // new in Jetpack 6.8.0
 
 		switch ( $type ) {
 			case 'email':
@@ -1902,8 +1926,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'number':
 				$field .= $this->render_number_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
 				break;
+			case 'slider':
+				$field .= $this->render_slider_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $extra_attrs );
+				break;
 			case 'file':
 				$field .= $this->render_file_field( $id, $label, $field_class, $required, $required_field_text );
+				break;
+			case 'rating':
+				$field .= $this->render_rating_field(
+					$id,
+					$label,
+					$value,
+					$field_class,
+					$required,
+					$required_field_text
+				);
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
@@ -2023,5 +2060,236 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$form_style = $this->get_form_style();
 
 		return in_array( $form_style, array( 'outlined', 'animated' ), true );
+	}
+
+	/**
+	 * Return the HTML for the rating (stars/hearts/etc.) field.
+	 *
+	 * This field is purely decorative (spans acting as buttons) and stores the
+	 * selected rating in a hidden input so it is handled by existing form
+	 * validation/submission logic.
+	 *
+	 * @since 0.46.0
+	 *
+	 * @param string $id                 Field ID.
+	 * @param string $label              Field label.
+	 * @param string $value              Current value.
+	 * @param string $class              Additional CSS classes.
+	 * @param bool   $required           Whether field is required.
+	 * @param string $required_field_text Required label text.
+	 * @return string HTML markup.
+	 */
+	private function render_rating_field( $id, $label, $value, $class, $required, $required_field_text ) {
+		// Enqueue stylesheet for rating field.
+		wp_enqueue_style( 'jetpack-form-field-rating-style', plugins_url( '../../dist/blocks/field-rating/style.css', __FILE__ ), array(), Constants::get_constant( 'JETPACK__VERSION' ) );
+
+		// Read block attributes needed for rendering.
+
+		$max_attr = $this->get_attribute( 'max' );
+
+		$max_rating = is_numeric( $max_attr ) && (int) $max_attr > 0 ? (int) $max_attr : 5;
+
+		$initial_rating = (int) $value ? (int) $value : 0;
+
+		$label_html = $this->render_label( 'rating', $id, $label, $required, $required_field_text );
+
+		/*
+		 * Determine which icon SVG to use based on CSS classes.
+		 * Check field_classes for style classes (this is where WordPress puts them).
+		 */
+
+		$has_hearts_style = false !== strpos( $this->field_classes, 'is-style-hearts' );
+
+		// SVG icon definitions - keep in sync with JavaScript icons.js
+		$star_svg  = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.62L12 2 9.19 8.62 2 9.24l5.46 4.73L5.82 21z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
+		$heart_svg = '<svg class="jetpack-field-rating__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor" stroke="var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333))" stroke-width="2" stroke-linejoin="round"></path></svg>';
+
+		$icon_svg = $has_hearts_style ? $heart_svg : $star_svg;
+
+		$spans = '';
+		for ( $i = 1; $i <= $max_rating; $i++ ) {
+			$spans .= sprintf(
+				'<label class="jetpack-field-rating__label">%6$s
+					<input
+						class="jetpack-field-rating__input"
+						type="radio"
+						data-wp-on--change="actions.onFieldChange"
+						%1$s
+						%2$s
+						name="%3$s"
+						value="%4$s/%5$s" />
+				</label>',
+				checked( $i, $initial_rating, false ),
+				$required ? 'required aria-required="true"' : '',
+				esc_attr( $id ),
+				esc_attr( $i ),
+				esc_attr( $max_rating ),
+				$icon_svg
+			);
+		}
+
+		$style_attr = '';
+
+		$css_styles = array_filter( array_map( 'trim', explode( ';', $this->field_styles ) ) );
+
+		$css_key_value_pairs = array_reduce(
+			$css_styles,
+			function ( $pairs, $style ) {
+				list( $key, $value )   = explode( ':', $style );
+				$pairs[ trim( $key ) ] = trim( $value );
+				return $pairs;
+			},
+			array()
+		);
+
+		// The rating input overwrites the text color, so we are using a custom logic to set the star color as a CSS variable.
+		$has_star_color = isset( $css_key_value_pairs['color'] );
+
+		if ( $has_star_color ) {
+			$color_value = $css_key_value_pairs['color'];
+			$style_attr  = 'style="--jetpack--contact-form--rating-star-color: ' . esc_attr( $color_value ) . ';';
+			unset( $css_key_value_pairs['color'] );
+		} else {
+			// Theme colors are set in the field_classes attribute
+			$preset_colors = array(
+				'has-base-color'     => '--wp--preset--color--base',
+				'has-contrast-color' => '--wp--preset--color--contrast',
+			);
+
+			if ( preg_match( '/has-accent-(\d+)-color/', $this->field_classes, $matches ) ) {
+				$accent_number = $matches[1];
+				$preset_colors[ 'has-accent-' . $accent_number . '-color' ] = '--wp--preset--color--accent-' . $accent_number;
+			}
+
+			foreach ( $preset_colors as $class => $css_var ) {
+				if ( strpos( $this->field_classes, $class ) !== false ) {
+					$style_attr = 'style="--jetpack--contact-form--rating-star-color: var(' . esc_attr( $css_var ) . ');';
+
+					break;
+				}
+			}
+		}
+
+		$remaining_styles = array_map(
+			function ( $key, $value ) {
+				return $key . ': ' . $value;
+			},
+			array_keys( $css_key_value_pairs ),
+			array_values( $css_key_value_pairs )
+		);
+
+		$style_attr .= ' ' . implode( ';', $remaining_styles ) . '"';
+
+		return $label_html . sprintf(
+			'<div class="jetpack-field-rating %3$s" %1$s>%2$s</div>',
+			$style_attr,
+			$spans,
+			$this->field_classes
+		) . $this->get_error_div( $id, 'rating' );
+	}
+
+	/**
+	 * Return the HTML for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param int    $id The field ID.
+	 * @param string $label The field label.
+	 * @param string $value The field value.
+	 * @param string $class The field class.
+	 * @param bool   $required Whether the field is required.
+	 * @param string $required_field_text The required field text.
+	 * @param string $placeholder The field placeholder.
+	 * @param array  $extra_attrs Extra attributes (e.g., min, max).
+	 *
+	 * @return string HTML for the slider field.
+	 */
+	public function render_slider_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $extra_attrs = array() ) {
+		$this->enqueue_slider_field_assets();
+		$this->set_invalid_message( 'slider', __( 'Please select a valid value', 'jetpack-forms' ) );
+		if ( isset( $extra_attrs['min'] ) ) {
+			// translators: %d is the minimum value.
+			$this->set_invalid_message( 'min_slider', __( 'Please select a value that is no less than %d.', 'jetpack-forms' ) );
+		}
+		if ( isset( $extra_attrs['max'] ) ) {
+			// translators: %d is the maximum value.
+			$this->set_invalid_message( 'max_slider', __( 'Please select a value that is no more than %d.', 'jetpack-forms' ) );
+		}
+		$min            = isset( $extra_attrs['min'] ) ? $extra_attrs['min'] : 0;
+		$max            = isset( $extra_attrs['max'] ) ? $extra_attrs['max'] : 100;
+		$starting_value = isset( $extra_attrs['default'] ) ? $extra_attrs['default'] : 0;
+		$current_value  = ( $value !== '' && $value !== null ) ? $value : $starting_value;
+
+		$field = $this->render_label( 'slider', $id, $label, $required, $required_field_text );
+
+		ob_start();
+		?>
+		<div class="jetpack-field-slider__input-row"
+			data-wp-context='
+			<?php
+			echo wp_json_encode(
+				array(
+					'min'     => $min,
+					'max'     => $max,
+					'default' => $starting_value,
+				)
+			);
+			?>
+			'>
+			<span class="jetpack-field-slider__min-label"><?php echo esc_html( $min ); ?></span>
+			<div class="jetpack-field-slider__input-container">
+				<input
+					type="range"
+					name="<?php echo esc_attr( $id ); ?>"
+					id="<?php echo esc_attr( $id ); ?>"
+					value="<?php echo esc_attr( $current_value ); ?>"
+					min="<?php echo esc_attr( $min ); ?>"
+					max="<?php echo esc_attr( $max ); ?>"
+					class="<?php echo esc_attr( $class ); ?>"
+					placeholder="<?php echo esc_attr( $placeholder ); ?>"
+					<?php
+					if ( $required ) :
+						?>
+						required<?php endif; ?>
+					data-wp-bind--value="state.getSliderValue"
+					data-wp-on--input="actions.onSliderChange"
+					data-wp-bind--aria-invalid="state.fieldHasErrors"
+				/>
+				<div
+					class="jetpack-field-slider__value-indicator"
+					data-wp-text="state.getSliderValue"
+					data-wp-style--left="state.getSliderPosition"
+				><?php echo esc_html( $current_value ); ?></div>
+			</div>
+			<span class="jetpack-field-slider__max-label"><?php echo esc_html( $max ); ?></span>
+		</div>
+		<?php
+		$field .= ob_get_clean();
+		return $field . $this->get_error_div( $id, 'slider' );
+	}
+
+	/**
+	 * Enqueues scripts and styles needed for the slider field.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @return void
+	 */
+	private function enqueue_slider_field_assets() {
+		$version = defined( 'JETPACK__VERSION' ) ? \JETPACK__VERSION : '0.1';
+
+		\wp_enqueue_style(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/contact-form/css/slider-field.css', __FILE__ ),
+			array(),
+			$version
+		);
+
+		\wp_enqueue_script_module(
+			'jetpack-form-slider-field',
+			plugins_url( '../../dist/modules/slider-field/view.js', __FILE__ ),
+			array( '@wordpress/interactivity' ),
+			$version
+		);
 	}
 }

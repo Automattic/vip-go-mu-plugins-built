@@ -21,6 +21,8 @@ use WP_Error;
 
 /**
  * Brute Force Protection class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Brute_Force_Protection {
 
@@ -1165,9 +1167,11 @@ class Brute_Force_Protection {
 			$uri = network_home_url();
 		}
 
+		$domain  = '';
 		$uridata = wp_parse_url( $uri );
-
-		$domain = $uridata['host'];
+		if ( false !== $uridata ) {
+			$domain = $uridata['host'];
+		}
 
 		// If we still don't have the site_url, get it.
 		if ( ! $domain ) {

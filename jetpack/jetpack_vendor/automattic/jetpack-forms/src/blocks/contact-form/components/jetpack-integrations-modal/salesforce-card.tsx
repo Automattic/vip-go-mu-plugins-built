@@ -1,10 +1,13 @@
-import { TextControl, BaseControl, ExternalLink, Icon } from '@wordpress/components';
+import { Badge } from '@automattic/ui';
+import '@automattic/ui/style.css';
+import { TextControl, BaseControl, ExternalLink } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../icons/salesforce';
 import HelpMessage from '../help-message';
 import IntegrationCard from './integration-card';
 import type { SingleIntegrationCardProps } from '../../../../types';
+import type { FocusEvent } from 'react';
 
 export function isValidSalesforceOrgId( id: string | undefined ): boolean {
 	return typeof id === 'string' && /^[a-zA-Z0-9]{15,18}$/.test( id.trim() );
@@ -49,7 +52,7 @@ const SalesforceCard = ( {
 		} );
 	};
 
-	const onBlurOrgIdField = ( e: React.FocusEvent< HTMLInputElement > ) => {
+	const onBlurOrgIdField = ( e: FocusEvent< HTMLInputElement > ) => {
 		setOrganizationIdError( ! isValidSalesforceOrgId( e.target.value ) );
 	};
 
@@ -66,10 +69,9 @@ const SalesforceCard = ( {
 			? __( 'Enter a Salesforce Organization ID to enable.', 'jetpack-forms' )
 			: undefined,
 		setupBadge: (
-			<span className="integration-card__setup-badge">
-				<Icon icon="info-outline" size={ 12 } />
+			<Badge intent="default" className="integration-card__setup-badge">
 				{ __( 'Enter organization ID', 'jetpack-forms' ) }
-			</span>
+			</Badge>
 		),
 	};
 
