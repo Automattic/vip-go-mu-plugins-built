@@ -95,7 +95,7 @@ class Inactive_Users {
 	}
 
 	public static function maybe_fix_found_users_query() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! is_admin() || ! isset( $_GET['last_seen_filter'] ) || 'blocked' !== $_GET['last_seen_filter'] ) {
 			// Not in admin or not filtering for blocked users, nothing to do
 			return;
@@ -154,7 +154,7 @@ class Inactive_Users {
 			return;
 		}
 
-		// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined
+	// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined
 		if ( wp_cache_add( $user_id, true, self::LAST_SEEN_CACHE_GROUP, self::LAST_SEEN_UPDATE_USER_META_CACHE_TTL ) ) {
 			update_user_meta( $user_id, self::LAST_SEEN_META_KEY, time() );
 		}
@@ -165,6 +165,12 @@ class Inactive_Users {
 	 */
 	public static function maybe_block_inactive_user_on_authenticate( $user ) {
 		if ( is_wp_error( $user ) ) {
+			// checking if we have an application password error and if so add an error filter.
+			if ( Context::is_xmlrpc_api() && is_wp_error( self::$application_password_authentication_error ) ) {
+				add_filter('xmlrpc_login_error', function () {
+					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ) );
+				});
+			}
 			return $user;
 		}
 
@@ -199,6 +205,9 @@ class Inactive_Users {
 	}
 
 	/**
+	 * Block inactive users on application password authentication, active only when BLOCK mode is enabled
+	 * WARNING: Do not add log2logstash logs here, because this function is hooked into wp_is_application_passwords_available_for_user
+	 * which is called on the get_userdata hook and will trigger a loop.
 	 * @param bool $available True if application password is available, false otherwise. Active only when BLOCK mode is enabled
 	 * @param \WP_User $user The user to check.
 	 * @return bool
@@ -209,10 +218,6 @@ class Inactive_Users {
 		}
 
 		if ( self::is_considered_inactive( $user->ID ) ) {
-			Logger::info(
-				self::LOG_FEATURE_NAME,
-				'User ' . $user->user_login . ' is flagged as inactive, application password authentication was blocked.'
-			);
 			self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ), array( 'status' => 403 ) );
 
 			return false;
@@ -247,8 +252,8 @@ class Inactive_Users {
 
 			// Create the badge
 			$badge_text = self::is_block_action_enabled() ?
-				esc_html__( 'Blocked: Inactivity', 'wpvip' ) :
-				esc_html__( 'Inactive User', 'wpvip' );
+			esc_html__( 'Blocked: Inactivity', 'wpvip' ) :
+			esc_html__( 'Inactive User', 'wpvip' );
 
 			$badge_class = self::is_block_action_enabled() ? 'blocked' : 'inactive';
 
@@ -393,14 +398,14 @@ class Inactive_Users {
 			),
 
 			// Only consider users that have not been active since the inactivity threshold
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-			'meta_query' => array(
-				[
-					'relation' => 'AND',
-					$or_clauses,
-					$ignore_clause,
-				],
-			),
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+		'meta_query'     => array(
+			[
+				'relation' => 'AND',
+				$or_clauses,
+				$ignore_clause,
+			],
+		),
 		);
 		// Use capability__in if capabilities are configured, otherwise use role__in
 		if ( ! empty( self::$elevated_capabilities ) ) {
@@ -416,10 +421,10 @@ class Inactive_Users {
 	public static function last_seen_blocked_users_filter_query_args( $vars ) {
 		// Only filter when the “blocked” last_seen_filter is set and valid
 		if (
-			isset( $_GET['last_seen_filter'] ) &&
-			'blocked' === $_GET['last_seen_filter'] &&
-			isset( $_GET['last_seen_filter_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( $_GET['last_seen_filter_nonce'] ), 'last_seen_filter' )
+		isset( $_GET['last_seen_filter'] ) &&
+		'blocked' === $_GET['last_seen_filter'] &&
+		isset( $_GET['last_seen_filter_nonce'] ) &&
+		wp_verify_nonce( sanitize_text_field( $_GET['last_seen_filter_nonce'] ), 'last_seen_filter' )
 		) {
 			// Track blocked users view
 			do_action( 'vip_security_blocked_users_view' );

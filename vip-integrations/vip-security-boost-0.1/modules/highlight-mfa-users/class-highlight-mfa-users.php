@@ -144,8 +144,15 @@ class Highlight_MFA_Users {
 		$blog_id = $blog_id ?? get_current_blog_id();
 
 		// Include a hash of the roles configuration to invalidate cache when roles change
-		$roles_hash        = md5( wp_json_encode( self::$roles ) );
-		$capabilities_hash = md5( wp_json_encode( self::$capabilities ) );
+		// Remove duplicates + sort to make the cache key stable regardless of array order
+		$roles = array_values( array_unique( self::$roles ) );
+		$caps  = array_values( array_unique( self::$capabilities ) );
+
+		sort( $roles, SORT_STRING );
+		sort( $caps, SORT_STRING );
+
+		$roles_hash        = md5( wp_json_encode( $roles ) );
+		$capabilities_hash = md5( wp_json_encode( $caps ) );
 
 		return self::MFA_COUNT_CACHE_KEY_PREFIX . '_' . $blog_id . '_' . $roles_hash . '_' . $capabilities_hash;
 	}
@@ -156,10 +163,11 @@ class Highlight_MFA_Users {
 	 * @return int The number of users with MFA disabled.
 	 */
 	private static function get_mfa_disabled_count( $blog_id = null ) {
-		$blog_id = $blog_id ?? get_current_blog_id();
+		$blog_id   = $blog_id ?? get_current_blog_id();
+		$cache_key = self::get_mfa_count_cache_key( $blog_id );
 
 		// Try to get from cache first
-		$cached_count = wp_cache_get( self::get_mfa_count_cache_key(), self::MFA_COUNT_CACHE_GROUP );
+		$cached_count = wp_cache_get( $cache_key, self::MFA_COUNT_CACHE_GROUP );
 		if ( false !== $cached_count ) {
 			return (int) $cached_count;
 		}
@@ -208,7 +216,7 @@ class Highlight_MFA_Users {
 
 		// Cache the result
 		// phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined
-		wp_cache_set( self::get_mfa_count_cache_key(), $mfa_disabled_count, self::MFA_COUNT_CACHE_GROUP, self::MFA_COUNT_CACHE_TTL );
+		wp_cache_set( $cache_key, $mfa_disabled_count, self::MFA_COUNT_CACHE_GROUP, self::MFA_COUNT_CACHE_TTL );
 
 		return $mfa_disabled_count;
 	}
@@ -217,8 +225,13 @@ class Highlight_MFA_Users {
 	 * Clear the MFA disabled count cache.
 	 * Called when user MFA settings or roles change.
 	 */
-	public static function clear_mfa_count_cache() {
-		wp_cache_delete( self::get_mfa_count_cache_key(), self::MFA_COUNT_CACHE_GROUP );
+	public static function clear_mfa_count_cache( $blog_id = null ) {
+		$blog_id = $blog_id ?? get_current_blog_id();
+
+		wp_cache_delete( self::get_mfa_count_cache_key( $blog_id ), self::MFA_COUNT_CACHE_GROUP );
+
+		// Clear the network-wide key as well
+		wp_cache_delete( self::get_mfa_count_cache_key( 0 ), self::MFA_COUNT_CACHE_GROUP );
 	}
 
 	/**
@@ -233,6 +246,9 @@ class Highlight_MFA_Users {
 			self::clear_mfa_count_cache();
 			return;
 		}
+
+		// Clear the network-wide key as well
+		wp_cache_delete( self::get_mfa_count_cache_key( 0 ), self::MFA_COUNT_CACHE_GROUP );
 
 		// Get all sites where this user has roles
 		$user_blogs = get_blogs_of_user( $user_id );
