@@ -168,7 +168,7 @@ class Inactive_Users {
 			// checking if we have an application password error and if so add an error filter.
 			if ( Context::is_xmlrpc_api() && is_wp_error( self::$application_password_authentication_error ) ) {
 				add_filter('xmlrpc_login_error', function () {
-					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ) );
+					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ) );
 				});
 			}
 			return $user;
@@ -181,11 +181,11 @@ class Inactive_Users {
 			);
 			if ( Context::is_xmlrpc_api() ) {
 				add_filter('xmlrpc_login_error', function () {
-					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ) );
+					return new \IXR_Error( 403, __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ) );
 				});
 			}
 
-			return new \WP_Error( 'inactive_account', __( '<strong>Error</strong>: Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ) );
+			return new \WP_Error( 'inactive_account', __( '<strong>Error</strong>: Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ) );
 		}
 
 		return $user;
@@ -218,7 +218,7 @@ class Inactive_Users {
 		}
 
 		if ( self::is_considered_inactive( $user->ID ) ) {
-			self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site administrator.', 'wpvip' ), array( 'status' => 403 ) );
+			self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ), array( 'status' => 403 ) );
 
 			return false;
 		}

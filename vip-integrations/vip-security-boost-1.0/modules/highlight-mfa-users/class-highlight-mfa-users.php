@@ -44,10 +44,10 @@ class Highlight_MFA_Users {
 
 		// Feature is always active unless specific users are skipped via option.
 		$highlight_mfa_configs = Configs::get_module_configs( 'highlight-mfa-users' );
-		
-		// Normalize capabilities and roles configuration
-		self::$capabilities = Capability_Utils::normalize_capabilities_input( $highlight_mfa_configs['capabilities'] ?? [] );
-		self::$roles        = Capability_Utils::normalize_roles_input( $highlight_mfa_configs['roles'] ?? self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS );
+
+		// Make it default to DEFAULT_ADMIN_EDITOR_ROLE_SLUGS for now
+		self::$capabilities = [];
+		self::$roles        = Capability_Utils::normalize_roles_input( self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS );
 
 		add_action( 'admin_init', [ __CLASS__, 'maybe_fix_found_users_query' ] );
 		add_action( 'admin_notices', [ __CLASS__, 'display_mfa_disabled_notice' ] );
@@ -89,38 +89,8 @@ class Highlight_MFA_Users {
 		add_action( 'set_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
 		add_action( 'add_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
 		add_action( 'remove_user_role', [ __CLASS__, 'clear_mfa_count_cache_for_user_role_change' ], 10, 1 );
-
-		// Add SDS hook
-		add_filter( 'vip_site_details_index_security_boost_data', [ __CLASS__, 'add_users_without_2fa_count_to_sds_payload' ] );
 	}
 
-	/**
-	 * Add the users_without_2fa_count to the SDS payload.
-	 *
-	 * @param array $data The SDS payload data.
-	 * @return array The modified SDS payload data.
-	 */
-	public static function add_users_without_2fa_count_to_sds_payload( $data ) {
-		// Add fix for unreliable FOUND_ROWS() query
-		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
-
-		$users_without_2fa_count = self::get_mfa_disabled_count();
-
-		$data['users_without_2fa_count'] = $users_without_2fa_count;
-
-		if ( is_multisite() ) {
-			// Get number of users without 2FA for all blogs (network-wide with blog_id = 0)
-			$users_without_2fa_count_all_blogs = self::get_mfa_disabled_count( 0 );
-
-			// Add network-wide users without 2FA count to the SDS payload
-			$data['users_without_2fa_count_all_blogs'] = $users_without_2fa_count_all_blogs;
-		}
-
-		// Remove fix for unreliable FOUND_ROWS() query
-		remove_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10 );
-
-		return $data;
-	}
 
 	/**
 	 * Add filter to fix found_users_query when filtering for MFA disabled users.
@@ -185,32 +155,116 @@ class Highlight_MFA_Users {
 		}
 		$skipped_user_ids = array_unique( array_filter( array_map( 'intval', $skipped_user_ids ) ) );
 
-		// Build query args - use capabilities if configured, otherwise fall back to roles
-		$args = [
-			'fields'  => 'ID',
-			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excluding a potentially small, known set of users (skipped + ID 1)
-			'exclude' => $skipped_user_ids,
-			'number'  => -1, // Get all relevant users
-		];
+		// Use direct database query for better performance with large user counts
+		global $wpdb;
 
-		// Use native capability filtering if capabilities are configured
-		if ( Capability_Utils::are_capabilities_configured( self::$capabilities ) ) {
-			$args['capability__in'] = self::$capabilities;
-		} else {
-			$args['role__in'] = self::$roles;
+		// Build the exclude list for SQL
+		$exclude_sql = '';
+		if ( ! empty( $skipped_user_ids ) ) {
+			$exclude_sql = 'AND u.ID NOT IN (' . implode( ',', array_map( 'intval', $skipped_user_ids ) ) . ')';
 		}
 
-		// Use our utility method that properly handles network-wide capability filtering
-		$user_ids = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
-			$args,
-			$blog_id,
-			false // return user IDs, not count
-		);
+		// Build role/capability conditions
+		$role_conditions = [];
+		
+		// For single site or specific blog in multisite
+		if ( ! is_multisite() || 0 !== $blog_id ) {
+			// $blog_id has already been set earlier in this function and does not need to be reassigned here
+			$meta_key_prefix = $wpdb->get_blog_prefix( $blog_id );
+			
+			// Build conditions for roles
+			if ( ! Capability_Utils::are_capabilities_configured( self::$capabilities ) ) {
+				foreach ( self::$roles as $role ) {
+					$role_escaped      = esc_sql( $role );
+					$role_conditions[] = "um_cap.meta_value LIKE '%\"{$role_escaped}\";b:1%'";
+				}
+			} else {
+				// For capabilities, find all roles that have the required capabilities
+				// WordPress stores roles in user meta, not individual capabilities
+				$roles_with_required_caps = [];
+				
+				foreach ( self::$capabilities as $capability ) {
+					// Get all roles
+					$all_roles = wp_roles()->roles;
+					
+					foreach ( $all_roles as $role_slug => $role_info ) {
+						// Check if this role has the capability
+						if ( isset( $role_info['capabilities'][ $capability ] ) && $role_info['capabilities'][ $capability ] ) {
+							$roles_with_required_caps[] = $role_slug;
+						}
+					}
+				}
+				
+				// Remove duplicates and add conditions for each role
+				$roles_with_required_caps = array_unique( $roles_with_required_caps );
+				foreach ( $roles_with_required_caps as $role_slug ) {
+					$role_escaped      = esc_sql( $role_slug );
+					$role_conditions[] = "um_cap.meta_value LIKE '%\"{$role_escaped}\";b:1%'";
+				}
+			}
+			
+			$role_conditions    = array_unique( $role_conditions );
+			$role_condition_sql = '(' . implode( ' OR ', $role_conditions ) . ')';
+			
+			// Query to count users without 2FA
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			// phpcs:disable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sql = $wpdb->prepare(
+				"SELECT COUNT(DISTINCT u.ID)
+				FROM {$wpdb->users} u
+				INNER JOIN {$wpdb->usermeta} um_cap 
+					ON u.ID = um_cap.user_id 
+					AND um_cap.meta_key = %s
+				LEFT JOIN {$wpdb->usermeta} um_2fa 
+					ON u.ID = um_2fa.user_id 
+					AND um_2fa.meta_key = %s
+				WHERE {$role_condition_sql}
+				{$exclude_sql}
+				AND (
+					um_2fa.meta_value IS NULL 
+					OR um_2fa.meta_value = ''
+					OR um_2fa.meta_value = 'a:0:{}'
+				)",
+				$meta_key_prefix . 'capabilities',
+				'_two_factor_enabled_providers'
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+			// phpcs:enable WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$mfa_disabled_count = (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery
+		} else {
+			// For network-wide queries (blog_id = 0), we need a different approach
+			// Fall back to the original method for now as network-wide is complex
+			$args = [
+				'fields'  => 'ID',
+				// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
+				'exclude' => $skipped_user_ids,
+				'number'  => -1, // Get all relevant users
+			];
 
-		$mfa_disabled_count = 0;
-		foreach ( $user_ids as $user_id ) {
-			if ( ! \Two_Factor_Core::is_user_using_two_factor( $user_id ) ) {
-				++$mfa_disabled_count;
+			// Use native capability filtering if capabilities are configured
+			if ( Capability_Utils::are_capabilities_configured( self::$capabilities ) ) {
+				$args['capability__in'] = self::$capabilities;
+			} else {
+				$args['role__in'] = self::$roles;
+			}
+
+			// Use our utility method that properly handles network-wide capability filtering
+			$user_ids = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
+				$args,
+				$blog_id,
+				false // return user IDs, not count
+			);
+
+			$mfa_disabled_count = 0;
+			foreach ( $user_ids as $user_id ) {
+				if ( ! \Two_Factor_Core::is_user_using_two_factor( $user_id ) ) {
+					++$mfa_disabled_count;
+				}
 			}
 		}
 
@@ -266,13 +320,24 @@ class Highlight_MFA_Users {
 
 	/**
 	 * Clear the MFA count cache when Two Factor user meta is updated.
+	 * Also clears cache when user capabilities are updated (e.g., via WP-CLI).
 	 *
 	 * @param int    $meta_id  ID of updated metadata entry.
 	 * @param int    $user_id  User ID.
 	 * @param string $meta_key Metadata key.
 	 */
 	public static function clear_mfa_count_cache_on_meta_update( $meta_id, $user_id, $meta_key ) {
+		global $wpdb;
+		
+		// Clear cache when 2FA settings change
 		if ( \Two_Factor_Core::ENABLED_PROVIDERS_USER_META_KEY === $meta_key ) {
+			self::clear_mfa_count_cache_for_user_sites( $user_id );
+		}
+		
+		// Clear cache when capabilities change (handles WP-CLI updates)
+		// Check for both single site and multisite capability keys
+		if ( $wpdb->prefix . 'capabilities' === $meta_key || 
+			strpos( $meta_key, '_capabilities' ) !== false ) {
 			self::clear_mfa_count_cache_for_user_sites( $user_id );
 		}
 	}
@@ -303,9 +368,9 @@ class Highlight_MFA_Users {
 		}
 
 		// Check if capabilities are configured or using default roles
-		$has_capabilities  = Capability_Utils::are_capabilities_configured( self::$capabilities );
-		$is_default_config = ! $has_capabilities && 
-								empty( array_diff( self::$roles, self::DEFAULT_ADMIN_EDITOR_ROLE_SLUGS ) );
+		$has_capabilities = Capability_Utils::are_capabilities_configured( self::$capabilities );
+		// Set to true for now to show Administrator and Editor in notice
+		$is_default_config = true;
 
 		// Get the cached MFA disabled count
 		$mfa_disabled_count = self::get_mfa_disabled_count();
