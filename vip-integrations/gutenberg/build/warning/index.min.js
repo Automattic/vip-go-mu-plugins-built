@@ -1,0 +1,2 @@
+(()=>{"use strict";var e={d:(t,n)=>{for(var o in n)e.o(n,o)&&!e.o(t,o)&&Object.defineProperty(t,o,{enumerable:!0,get:n[o]})},o:(e,t)=>Object.prototype.hasOwnProperty.call(e,t)},t={};function n(e){}e.d(t,{default:()=>n}),new Set,(window.wp=window.wp||{}).warning=t.default})();
+//# sourceMappingURL=index.min.js.map

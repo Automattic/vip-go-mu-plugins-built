@@ -105,9 +105,7 @@ class Inactive_Users {
 	}
 
 	public static function add_inactive_users_count_to_sds_payload( $data ) {
-		// Add fix for unreliable FOUND_ROWS() query
-		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
-
+		$inact_ts = self::get_inactivity_timestamp();
 		// Start timer to measure query time
 		$timer = microtime( true );
 
@@ -130,9 +128,6 @@ class Inactive_Users {
 
 		// Register query time metric
 		do_action( 'vip_security_inactive_users_query_time', $timer );
-
-		// Remove fix for unreliable FOUND_ROWS() query
-		remove_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10 );
 
 		return $data;
 	}
@@ -331,12 +326,26 @@ class Inactive_Users {
 			}
 		}
 
+		/**
+		 * We're doing two separate queries to avoid the query getting too complex and slow since excluding the last_seen meta would add an extra join
+		 * multiplying the complexity of the query beneath it
+		 */
 		// Use our utility method that properly handles network-wide capability filtering
-		$count = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
-			self::get_inactive_users_query_args(),
+		$inactive_users_with_last_seen_count    = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
+			self::get_inactive_users_query_args( 'with_last_seen' ),
 			$blog_id,
 			true // count only
 		);
+		$inactive_users_without_last_seen_count = 0;
+		if ( self::is_release_date_older_than_cutoff() ) {
+			$inactive_users_without_last_seen_count = \Automattic\VIP\Security\Utils\Users_Query_Utils::query_users_with_capability_filtering(
+				self::get_inactive_users_query_args( 'without_last_seen' ),
+				$blog_id,
+				true // count only
+			);
+		}
+
+		$count = $inactive_users_with_last_seen_count + $inactive_users_without_last_seen_count;
 
 		// Cache the result for global queries (blog_id = 0)
 		if ( 0 === $blog_id ) {
@@ -347,48 +356,68 @@ class Inactive_Users {
 		return $count;
 	}
 
-	public static function get_inactive_users_query_args() {
-		$inact_ts = self::get_inactivity_timestamp();
+	public static function is_release_date_older_than_cutoff() {
+		return static::get_last_seen_release_date_timestamp() < self::get_inactivity_timestamp();
+	}
 
-		// Users whose last_seen < inactivity cutoff
-		$or_clauses = array(
-			'relation' => 'OR',
-			array(
-				'key'     => self::LAST_SEEN_META_KEY,
-				'value'   => $inact_ts,
-				'type'    => 'NUMERIC',
-				'compare' => '<',
-			),
-		);
-
+	public static function get_last_seen_release_date_timestamp() {
 		$release_ts = get_option( self::LAST_SEEN_RELEASE_DATE_TIMESTAMP_OPTION_KEY );
 		if ( false === $release_ts ) {
 			$release_ts = static::get_fallback_release_date_timestamp();
 		}
+		return $release_ts;
+	}
 
-		// If release date older than the cutoff, include “NOT EXISTS”
-		if ( $release_ts < $inact_ts ) {
-			$or_clauses[] = array(
-				'key'     => self::LAST_SEEN_META_KEY,
-				'compare' => 'NOT EXISTS',
-			);
-		}
+	/**
+	 * 'full' will do a single query with both last_seen and NOT EXISTS clauses which is more expensive.
+	 * 'with_last_seen' will do a single query with only last_seen clause.
+	 * 'without_last_seen' will do a single query with only NOT EXISTS clause.
+	 *
+	 *
+	 * @param string $select_type 'full' or 'with_last_seen' or 'without_last_seen'
+	 */
+	public static function get_inactive_users_query_args( $select_type = 'full' ) {
+		$inact_ts   = self::get_inactivity_timestamp();
+		$release_ts = static::get_last_seen_release_date_timestamp();
 
-		// Users whose “ignore until” has expired (or was never set)
-		$ignore_clause = array(
-			'relation' => 'OR',
-			array(
-				'key'     => self::LAST_SEEN_IGNORE_INACTIVITY_CHECK_UNTIL_META_KEY,
-				'value'   => time(),
-				'type'    => 'NUMERIC',
-				'compare' => '<',
-			),
-			array(
-				'key'     => self::LAST_SEEN_IGNORE_INACTIVITY_CHECK_UNTIL_META_KEY,
-				'compare' => 'NOT EXISTS',
-			),
+		// Users whose last_seen < inactivity cutoff
+		$last_seen_or_clauses = array();
+		$last_seen_clause     = array(
+			'key'     => self::LAST_SEEN_META_KEY,
+			'value'   => $inact_ts,
+			'type'    => 'NUMERIC',
+			'compare' => '<',
 		);
 
+		$last_seen_not_exists_clause = array(
+			'key'     => self::LAST_SEEN_META_KEY,
+			'compare' => 'NOT EXISTS',
+		);
+		switch ( $select_type ) {
+			case 'full':
+				$last_seen_or_clauses = array(
+					'relation' => 'OR',
+					$last_seen_clause,
+				);
+				if ( $release_ts < $inact_ts ) {
+					$last_seen_or_clauses[] = $last_seen_not_exists_clause;
+				}
+				break;
+			case 'with_last_seen':
+				$last_seen_or_clauses = $last_seen_clause;
+				break;
+			case 'without_last_seen':
+				if ( $release_ts < $inact_ts ) {
+					$last_seen_or_clauses = $last_seen_not_exists_clause;
+				}
+				break;
+			default:
+				break;
+		}
+		/*
+		* we are intentionally not excluding users with LAST_SEEN_IGNORE_INACTIVITY_CHECK_UNTIL_META_KEY to keep the query light.
+		* This will result in a possible difference between the count and the actual number of inactive users
+		*/
 		$vars = array(
 			// Only consider users that registered before the inactivity threshold
 			'date_query' => array(
@@ -398,20 +427,19 @@ class Inactive_Users {
 			),
 
 			// Only consider users that have not been active since the inactivity threshold
-		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-		'meta_query'     => array(
-			[
-				'relation' => 'AND',
-				$or_clauses,
-				$ignore_clause,
-			],
-		),
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'meta_query' => array(
+				[
+					'relation' => 'AND',
+					$last_seen_or_clauses,
+				],
+			),
 		);
 		// Use capability__in if capabilities are configured, otherwise use role__in
 		if ( ! empty( self::$elevated_capabilities ) ) {
-			$vars['capability__in'] = self::$elevated_capabilities;
+				$vars['capability__in'] = self::$elevated_capabilities;
 		} else {
-			$vars['role__in'] = Capability_Utils::normalize_roles_input( self::$elevated_roles );
+				$vars['role__in'] = Capability_Utils::normalize_roles_input( self::$elevated_roles );
 		}
 		return $vars;
 	}
