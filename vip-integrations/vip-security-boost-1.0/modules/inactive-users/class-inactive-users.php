@@ -169,6 +169,11 @@ class Inactive_Users {
 			return $user;
 		}
 
+		// If user is not a WP_User instance, return it to avoid null reference errors below
+		if ( ! $user instanceof \WP_User ) {
+			return $user;
+		}
+
 		if ( $user->ID && self::is_considered_inactive( $user->ID ) ) {
 			Logger::info(
 				self::LOG_FEATURE_NAME,
