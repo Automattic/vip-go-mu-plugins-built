@@ -34,7 +34,6 @@ class ComposerStaticInitf69a0380ae3b4038515ad713b5256f82
         'Ahc\\Jwt\\ValidatesJWT' => __DIR__ . '/..' . '/adhocore/jwt/src/ValidatesJWT.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'VIPRealTimeCollaboration\\Api\\AuthApiController' => __DIR__ . '/../..' . '/inc/Api/AuthApiController.php',
-        'VIPRealTimeCollaboration\\Api\\CrdtApiController' => __DIR__ . '/../..' . '/inc/Api/CrdtApiController.php',
         'VIPRealTimeCollaboration\\Api\\RestApi' => __DIR__ . '/../..' . '/inc/Api/RestApi.php',
         'VIPRealTimeCollaboration\\Assets\\Assets' => __DIR__ . '/../..' . '/inc/Assets/Assets.php',
         'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => __DIR__ . '/../..' . '/inc/Auth/SyncPermissions.php',

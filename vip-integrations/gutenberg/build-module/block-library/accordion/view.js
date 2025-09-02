@@ -29,7 +29,7 @@ var x = (y) => {
 } 
 var y = (x) => (() => (x))
 const interactivity_namespaceObject = x({ ["getContext"]: () => (__WEBPACK_EXTERNAL_MODULE__wordpress_interactivity_8e89b257__.getContext), ["store"]: () => (__WEBPACK_EXTERNAL_MODULE__wordpress_interactivity_8e89b257__.store) });
-;// ./packages/block-library/build-module/accordions/view.js
+;// ./packages/block-library/build-module/accordion/view.js
 /**
  * WordPress dependencies
  */

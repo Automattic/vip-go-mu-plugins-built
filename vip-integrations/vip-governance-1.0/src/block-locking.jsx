@@ -18,9 +18,11 @@ export function setupBlockLocking( governanceRules ) {
 			const { name: blockName, clientId } = props;
 
 			const { getBlockParents, getBlockName } = select( blockEditorStore );
-			const parentClientIds = getBlockParents(clientId, true);
+			const parentClientIds = getBlockParents( clientId, true );
 
-			const isParentLocked = parentClientIds.some( parentClientId => isBlockLocked(parentClientId) );
+			const isParentLocked = parentClientIds.some( parentClientId =>
+				isBlockLocked( parentClientId )
+			);
 
 			if ( isParentLocked ) {
 				// To avoid layout issues, only disable the outermost locked block
@@ -54,7 +56,6 @@ export function setupBlockLocking( governanceRules ) {
 			if ( isAllowed ) {
 				return <BlockEdit { ...props } />;
 			} else {
-
 				// Only available on WP 6.4 and above, so this guards against that.
 				if ( wp?.blockEditor?.useBlockEditingMode ) {
 					const { useBlockEditingMode } = wp.blockEditor;
@@ -64,13 +65,15 @@ export function setupBlockLocking( governanceRules ) {
 				// Mark block as locked so that children can detect they're within an existing locked block
 				setBlockLocked( clientId );
 
-				return <>
-					<Disabled>
-						<div style={ { opacity: 0.6, backgroundColor: '#eee', border: '2px dashed #999' } }>
-							<BlockEdit { ...props } />
-						</div>
-					</Disabled>
-				</>;
+				return (
+					<>
+						<Disabled>
+							<div style={ { opacity: 0.6, backgroundColor: '#eee', border: '2px dashed #999' } }>
+								<BlockEdit { ...props } />
+							</div>
+						</Disabled>
+					</>
+				);
 			}
 		};
 	}, 'withDisabledBlocks' );
@@ -93,7 +96,7 @@ const lockedBlockMap = {};
  * @returns {void}
  */
 function setBlockLocked( clientId ) {
-	lockedBlockMap[clientId] = true;
+	lockedBlockMap[ clientId ] = true;
 }
 
 /**

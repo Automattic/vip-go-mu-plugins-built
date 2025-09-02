@@ -5,10 +5,10 @@
 	"version": "0.1.0",
 	"title": "Accordion Header",
 	"category": "design",
-	"description": "Accordion header.",
+	"description": "Displays an accordion header.",
 	"example": {},
 	"__experimental": true,
-	"parent": [ "core/accordion-item" ],
+	"parent": [ "core/accordion-content" ],
 	"usesContext": [
 		"core/accordion-icon-position",
 		"core/accordion-show-icon"

@@ -17,6 +17,7 @@ use VIPRealTimeCollaboration\Api\RestApi;
 use VIPRealTimeCollaboration\Assets\Assets;
 use VIPRealTimeCollaboration\Auth\SyncPermissions;
 use VIPRealTimeCollaboration\Compatibility\Compatibility;
+use VIPRealTimeCollaboration\Editor\CrdtPersistence;
 use VIPRealTimeCollaboration\Overrides\Overrides;
 
 defined( 'ABSPATH' ) || exit();
@@ -45,6 +46,7 @@ add_action( 'plugins_loaded', static function (): void {
 
 	new Assets();
 	new Compatibility();
+	new CrdtPersistence();
 	new Overrides();
 	new RestApi();
 

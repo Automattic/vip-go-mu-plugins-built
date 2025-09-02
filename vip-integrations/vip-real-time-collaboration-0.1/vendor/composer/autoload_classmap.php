@@ -11,7 +11,6 @@ return array(
     'Ahc\\Jwt\\ValidatesJWT' => $vendorDir . '/adhocore/jwt/src/ValidatesJWT.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'VIPRealTimeCollaboration\\Api\\AuthApiController' => $baseDir . '/inc/Api/AuthApiController.php',
-    'VIPRealTimeCollaboration\\Api\\CrdtApiController' => $baseDir . '/inc/Api/CrdtApiController.php',
     'VIPRealTimeCollaboration\\Api\\RestApi' => $baseDir . '/inc/Api/RestApi.php',
     'VIPRealTimeCollaboration\\Assets\\Assets' => $baseDir . '/inc/Assets/Assets.php',
     'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => $baseDir . '/inc/Auth/SyncPermissions.php',

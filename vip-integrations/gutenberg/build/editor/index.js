@@ -10405,20 +10405,27 @@ function Email({
   const value = field.getValue({
     item: data
   });
+  const [customValidity, setCustomValidity] = (0,external_wp_element_namespaceObject.useState)(undefined);
   const onChangeControl = (0,external_wp_element_namespaceObject.useCallback)(newValue => onChange({
     [id]: newValue
   }), [id, onChange]);
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ValidatedTextControl, {
     required: !!field.isValid?.required,
-    customValidator: newValue => {
-      if (field.isValid?.custom) {
-        return field.isValid.custom({
-          ...data,
-          [id]: newValue
-        }, field);
+    onValidate: newValue => {
+      const message = field.isValid?.custom?.({
+        ...data,
+        [id]: newValue
+      }, field);
+      if (message) {
+        setCustomValidity({
+          type: 'invalid',
+          message
+        });
+        return;
       }
-      return null;
+      setCustomValidity(undefined);
     },
+    customValidity: customValidity,
     type: "email",
     label: label,
     placeholder: placeholder,
@@ -10501,6 +10508,7 @@ function Integer({
   const value = (_field$getValue = field.getValue({
     item: data
   })) !== null && _field$getValue !== void 0 ? _field$getValue : '';
+  const [customValidity, setCustomValidity] = (0,external_wp_element_namespaceObject.useState)(undefined);
   const onChangeControl = (0,external_wp_element_namespaceObject.useCallback)(newValue => {
     onChange({
       // Do not convert an empty string or undefined to a number,
@@ -10519,15 +10527,21 @@ function Integer({
   }
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ValidatedNumberControl, {
     required: !!field.isValid?.required,
-    customValidator: newValue => {
-      if (field.isValid?.custom) {
-        return field.isValid.custom({
-          ...data,
-          [id]: [undefined, '', null].includes(newValue) ? undefined : Number(newValue)
-        }, field);
+    onValidate: newValue => {
+      const message = field.isValid?.custom?.({
+        ...data,
+        [id]: [undefined, '', null].includes(newValue) ? undefined : Number(newValue)
+      }, field);
+      if (message) {
+        setCustomValidity({
+          type: 'invalid',
+          message
+        });
+        return;
       }
-      return null;
+      setCustomValidity(undefined);
     },
+    customValidity: customValidity,
     label: label,
     help: description,
     value: value,
@@ -10667,20 +10681,27 @@ function Text({
   const value = field.getValue({
     item: data
   });
+  const [customValidity, setCustomValidity] = (0,external_wp_element_namespaceObject.useState)(undefined);
   const onChangeControl = (0,external_wp_element_namespaceObject.useCallback)(newValue => onChange({
     [id]: newValue
   }), [id, onChange]);
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(text_ValidatedTextControl, {
     required: !!field.isValid?.required,
-    customValidator: newValue => {
-      if (field.isValid?.custom) {
-        return field.isValid.custom({
-          ...data,
-          [id]: newValue
-        }, field);
+    onValidate: newValue => {
+      const message = field.isValid?.custom?.({
+        ...data,
+        [id]: newValue
+      }, field);
+      if (message) {
+        setCustomValidity({
+          type: 'invalid',
+          message
+        });
+        return;
       }
-      return null;
+      setCustomValidity(undefined);
     },
+    customValidity: customValidity,
     label: label,
     placeholder: placeholder,
     value: value !== null && value !== void 0 ? value : '',
@@ -10744,6 +10765,7 @@ function ToggleGroup({
  */
 
 
+
 /**
  * Internal dependencies
  */
@@ -10764,17 +10786,24 @@ function boolean_Boolean({
     getValue,
     label
   } = field;
+  const [customValidity, setCustomValidity] = (0,external_wp_element_namespaceObject.useState)(undefined);
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ValidatedToggleControl, {
     required: !!field.isValid.required,
-    customValidator: newValue => {
-      if (field.isValid?.custom) {
-        return field.isValid.custom({
-          ...data,
-          [id]: newValue
-        }, field);
+    onValidate: newValue => {
+      const message = field.isValid?.custom?.({
+        ...data,
+        [id]: newValue
+      }, field);
+      if (message) {
+        setCustomValidity({
+          type: 'invalid',
+          message
+        });
+        return;
       }
-      return null;
+      setCustomValidity(undefined);
     },
+    customValidity: customValidity,
     hidden: hideLabelFromVision,
     __nextHasNoMarginBottom: true,
     label: label,
@@ -11073,10 +11102,11 @@ function normalizeLayout(layout) {
       labelPosition: (_layout$labelPosition = layout?.labelPosition) !== null && _layout$labelPosition !== void 0 ? _layout$labelPosition : 'top'
     };
   } else if (layout?.type === 'panel') {
-    var _layout$labelPosition2;
+    var _layout$labelPosition2, _layout$openAs;
     normalizedLayout = {
       type: 'panel',
-      labelPosition: (_layout$labelPosition2 = layout?.labelPosition) !== null && _layout$labelPosition2 !== void 0 ? _layout$labelPosition2 : 'side'
+      labelPosition: (_layout$labelPosition2 = layout?.labelPosition) !== null && _layout$labelPosition2 !== void 0 ? _layout$labelPosition2 : 'side',
+      openAs: (_layout$openAs = layout?.openAs) !== null && _layout$openAs !== void 0 ? _layout$openAs : 'dropdown'
     };
   } else if (layout?.type === 'card') {
     if (layout.withHeader === false) {
@@ -11242,12 +11272,7 @@ const closeSmall = /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)
 });
 /* harmony default export */ const close_small = (closeSmall);
 
-;// ./packages/dataviews/build-module/dataforms-layouts/panel/index.js
-/**
- * External dependencies
- */
-
-
+;// ./packages/dataviews/build-module/dataforms-layouts/panel/dropdown.js
 /**
  * WordPress dependencies
  */
@@ -11259,7 +11284,6 @@ const closeSmall = /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)
 /**
  * Internal dependencies
  */
-
 
 
 
@@ -11365,6 +11389,150 @@ function PanelDropdown({
     })
   });
 }
+/* harmony default export */ const dropdown = (PanelDropdown);
+
+;// ./packages/dataviews/build-module/dataforms-layouts/panel/modal.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+
+
+function ModalContent({
+  data,
+  form,
+  fieldLabel,
+  onChange,
+  onClose
+}) {
+  const [changes, setChanges] = (0,external_wp_element_namespaceObject.useState)({});
+  const onApply = () => {
+    onChange(changes);
+    onClose();
+  };
+  const handleOnChange = value => {
+    setChanges(prev => ({
+      ...prev,
+      ...value
+    }));
+  };
+
+  // Merge original data with local changes for display
+  const displayData = {
+    ...data,
+    ...changes
+  };
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_wp_components_namespaceObject.Modal, {
+    className: "dataforms-layouts-panel__modal",
+    onRequestClose: onClose,
+    isFullScreen: false,
+    title: fieldLabel,
+    size: "medium",
+    children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(DataFormLayout, {
+      data: displayData,
+      form: form,
+      onChange: handleOnChange,
+      children: (FieldLayout, nestedField) => {
+        var _form$fields;
+        return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(FieldLayout, {
+          data: displayData,
+          field: nestedField,
+          onChange: handleOnChange,
+          hideLabelFromVision: ((_form$fields = form?.fields) !== null && _form$fields !== void 0 ? _form$fields : []).length < 2
+        }, nestedField.id);
+      }
+    }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_wp_components_namespaceObject.__experimentalHStack, {
+      className: "dataforms-layouts-panel__modal-footer",
+      spacing: 3,
+      children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.__experimentalSpacer, {}), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.Button, {
+        variant: "tertiary",
+        onClick: onClose,
+        __next40pxDefaultSize: true,
+        children: (0,external_wp_i18n_namespaceObject.__)('Cancel')
+      }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.Button, {
+        variant: "primary",
+        onClick: onApply,
+        __next40pxDefaultSize: true,
+        children: (0,external_wp_i18n_namespaceObject.__)('Apply')
+      })]
+    })]
+  });
+}
+function PanelModal({
+  fieldDefinition,
+  labelPosition,
+  data,
+  onChange,
+  field
+}) {
+  const [isOpen, setIsOpen] = (0,external_wp_element_namespaceObject.useState)(false);
+  const fieldLabel = isCombinedField(field) ? field.label : fieldDefinition?.label;
+  const form = (0,external_wp_element_namespaceObject.useMemo)(() => ({
+    layout: DEFAULT_LAYOUT,
+    fields: isCombinedField(field) ? field.children :
+    // If not explicit children return the field id itself.
+    [{
+      id: field.id
+    }]
+  }), [field]);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_ReactJSXRuntime_namespaceObject.Fragment, {
+    children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.Button, {
+      className: "dataforms-layouts-modal__field-control",
+      size: "compact",
+      variant: ['none', 'top'].includes(labelPosition) ? 'link' : 'tertiary',
+      "aria-expanded": isOpen,
+      "aria-label": (0,external_wp_i18n_namespaceObject.sprintf)(
+      // translators: %s: Field name.
+      (0,external_wp_i18n_namespaceObject._x)('Edit %s', 'field'), fieldLabel || ''),
+      onClick: () => setIsOpen(true),
+      disabled: fieldDefinition.readOnly === true,
+      accessibleWhenDisabled: true,
+      children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(fieldDefinition.render, {
+        item: data,
+        field: fieldDefinition
+      })
+    }), isOpen && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ModalContent, {
+      data: data,
+      form: form,
+      fieldLabel: fieldLabel !== null && fieldLabel !== void 0 ? fieldLabel : '',
+      onChange: onChange,
+      onClose: () => setIsOpen(false)
+    })]
+  });
+}
+/* harmony default export */ const modal = (PanelModal);
+
+;// ./packages/dataviews/build-module/dataforms-layouts/panel/index.js
+/**
+ * External dependencies
+ */
+
+
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+
+
+
+
 function FormPanelField({
   data,
   field,
@@ -11399,6 +11567,20 @@ function FormPanelField({
   const labelPosition = layout.labelPosition;
   const labelClassName = dist_clsx('dataforms-layouts-panel__field-label', `dataforms-layouts-panel__field-label--label-position-${labelPosition}`);
   const fieldLabel = isCombinedField(field) ? field.label : fieldDefinition?.label;
+  const renderedControl = layout.openAs === 'modal' ? /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(modal, {
+    field: field,
+    fieldDefinition: fieldDefinition,
+    data: data,
+    onChange: onChange,
+    labelPosition: labelPosition
+  }) : /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(dropdown, {
+    field: field,
+    popoverAnchor: popoverAnchor,
+    fieldDefinition: fieldDefinition,
+    data: data,
+    onChange: onChange,
+    labelPosition: labelPosition
+  });
   if (labelPosition === 'top') {
     return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_wp_components_namespaceObject.__experimentalVStack, {
       className: "dataforms-layouts-panel__field",
@@ -11411,28 +11593,14 @@ function FormPanelField({
         children: fieldLabel
       }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
         className: "dataforms-layouts-panel__field-control",
-        children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(PanelDropdown, {
-          field: field,
-          popoverAnchor: popoverAnchor,
-          fieldDefinition: fieldDefinition,
-          data: data,
-          onChange: onChange,
-          labelPosition: labelPosition
-        })
+        children: renderedControl
       })]
     });
   }
   if (labelPosition === 'none') {
     return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
       className: "dataforms-layouts-panel__field",
-      children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(PanelDropdown, {
-        field: field,
-        popoverAnchor: popoverAnchor,
-        fieldDefinition: fieldDefinition,
-        data: data,
-        onChange: onChange,
-        labelPosition: labelPosition
-      })
+      children: renderedControl
     });
   }
 
@@ -11445,14 +11613,7 @@ function FormPanelField({
       children: fieldLabel
     }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
       className: "dataforms-layouts-panel__field-control",
-      children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(PanelDropdown, {
-        field: field,
-        popoverAnchor: popoverAnchor,
-        fieldDefinition: fieldDefinition,
-        data: data,
-        onChange: onChange,
-        labelPosition: labelPosition
-      })
+      children: renderedControl
     })]
   });
 }
@@ -34087,7 +34248,7 @@ function Thread({
         className: "editor-collab-sidebar-panel__show-more-reply",
         children: (0,external_wp_i18n_namespaceObject.sprintf)(
         // translators: %s: number of replies.
-        (0,external_wp_i18n_namespaceObject._x)('%s more replies..', 'Show replies button'), thread?.reply?.length)
+        (0,external_wp_i18n_namespaceObject._x)('%s more replies', 'Show replies button'), thread?.reply?.length)
       }), isFocused && thread.reply.map(reply => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_wp_components_namespaceObject.__experimentalVStack, {
         className: "editor-collab-sidebar-panel__child-thread",
         id: reply.id,

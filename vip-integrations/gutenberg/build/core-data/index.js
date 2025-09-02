@@ -2190,10 +2190,13 @@ const external_wp_richText_namespaceObject = window["wp"]["richText"];
 
 
 
+// @ts-expect-error - This is a TypeScript file, and @wordpress/blocks doesn't have a tsconfig.json?
+
 // The Y.Map type is not easy to work with. The generic type it accepts represents
 // the possible values of the map, which are varied in our case. This type is
 // accurate, but will require aggressive type narrowing when the map values are
 // accessed -- or type casting with `as`.
+// export type YBlock = Y.Map< Block[ keyof Block ] >;
 
 const serializableBlocksCache = new WeakMap();
 function makeBlockAttributesSerializable(attributes) {
@@ -2211,6 +2214,7 @@ function makeBlocksSerializable(blocks) {
   return blocks.map(block => {
     const blockAsJson = block instanceof external_wp_sync_namespaceObject.Y.Map ? block.toJSON() : block;
     const {
+      name,
       innerBlocks,
       attributes,
       ...rest
@@ -2220,6 +2224,7 @@ function makeBlocksSerializable(blocks) {
     // delete rest.isValid
     return {
       ...rest,
+      name,
       attributes: makeBlockAttributesSerializable(attributes),
       innerBlocks: makeBlocksSerializable(innerBlocks)
     };
@@ -2233,24 +2238,75 @@ function makeBlocksSerializable(blocks) {
 function areBlocksEqual(gblock, yblock) {
   const yblockAsJson = yblock.toJSON();
 
-  // we must not sync clientId, as this can't be generated consistenctly and
+  // we must not sync clientId, as this can't be generated consistently and
   // hence will lead to merge conflicts.
   const overwrites = {
     innerBlocks: null,
     clientId: null
   };
-  const res = equalityDeep(Object.assign({}, gblock, overwrites), Object.assign({}, yblock, overwrites));
+  const res = equalityDeep(Object.assign({}, gblock, overwrites), Object.assign({}, yblockAsJson, overwrites));
   const inners = gblock.innerBlocks || [];
-  const yinners = yblockAsJson.innerBlocks || [];
-  return res && inners.length === yinners.length && inners.every((block, i) => areBlocksEqual(block, yinners[i]));
+  const yinners = yblock.get('innerBlocks');
+  return res && inners.length === yinners.length && inners.every((block, i) => areBlocksEqual(block, yinners.get(i)));
 }
-function mergeBlocks(yblocks, newValue, _origin) {
-  var _serializableBlocksCa, _blocks$length;
-  // Ensure we are working with serializable block data.
-  if (!serializableBlocksCache.has(newValue)) {
-    serializableBlocksCache.set(newValue, makeBlocksSerializable(newValue));
+function createNewYAttributeMap(blockName, attributes) {
+  return new external_wp_sync_namespaceObject.Y.Map(Object.entries(attributes).map(([attributeName, attributeValue]) => {
+    return [attributeName, createNewYAttributeValue(blockName, attributeName, attributeValue)];
+  }));
+}
+function createNewYAttributeValue(blockName, attributeName, attributeValue) {
+  const isRichText = isRichTextAttribute(blockName, attributeName);
+  if (isRichText && 'string' === typeof attributeValue) {
+    return new external_wp_sync_namespaceObject.Y.Text(attributeValue);
   }
-  const blocks = (_serializableBlocksCa = serializableBlocksCache.get(newValue)) !== null && _serializableBlocksCa !== void 0 ? _serializableBlocksCa : [];
+  return attributeValue;
+}
+function createNewYBlock(block) {
+  return new external_wp_sync_namespaceObject.Y.Map(Object.entries(block).map(([key, value]) => {
+    switch (key) {
+      case 'attributes':
+        {
+          return [key, createNewYAttributeMap(block.name, value)];
+        }
+      case 'innerBlocks':
+        {
+          const innerBlocks = new external_wp_sync_namespaceObject.Y.Array();
+
+          // If not an array, set to empty Y.Array.
+          if (!Array.isArray(value)) {
+            return [key, innerBlocks];
+          }
+          innerBlocks.insert(0, value.map(innerBlock => createNewYBlock(innerBlock)));
+          return [key, innerBlocks];
+        }
+      default:
+        return [key, value];
+    }
+  }));
+}
+
+/**
+ * Merge incoming block data into the local Y.Doc.
+ * This function is called to sync local block changes to a shared Y.Doc.
+ *
+ * @param yblocks        The blocks in the local Y.Doc.
+ * @param incomingBlocks Gutenberg blocks being synced.
+ * @param _origin        The origin of the sync, either 'syncProvider.getInitialCRDTDoc' or 'gutenberg'.
+ */
+function mergeCrdtBlocks(yblocks,
+// yblocks represent the blocks in the local Y.Doc
+incomingBlocks,
+// incomingBlocks represent JSON blocks being synced, either from a peer or from the local editor
+_origin) {
+  var _serializableBlocksCa, _blocksToSync$length;
+  // Ensure we are working with serializable block data.
+  if (!serializableBlocksCache.has(incomingBlocks)) {
+    serializableBlocksCache.set(incomingBlocks, makeBlocksSerializable(incomingBlocks));
+  }
+  const allBlocks = (_serializableBlocksCa = serializableBlocksCache.get(incomingBlocks)) !== null && _serializableBlocksCa !== void 0 ? _serializableBlocksCa : [];
+
+  // Ensure we skip blocks that we don't want to sync at the moment
+  const blocksToSync = allBlocks.filter(block => shouldBlockBeSynced(block));
 
   // This is a rudimentary diff implementation similar to the y-prosemirror diffing
   // approach.
@@ -2262,31 +2318,64 @@ function mergeBlocks(yblocks, newValue, _origin) {
   // E.g.:
   //   - textual content (using rich-text formatting?) may always be stored under `block.text`
   //   - local information that shouldn't be shared (e.g. clientId or isDragging) is stored under `block.private`
-
-  const numOfCommonEntries = min((_blocks$length = blocks.length) !== null && _blocks$length !== void 0 ? _blocks$length : 0, yblocks.length);
+  const numOfCommonEntries = min((_blocksToSync$length = blocksToSync.length) !== null && _blocksToSync$length !== void 0 ? _blocksToSync$length : 0, yblocks.length);
   let left = 0;
   let right = 0;
 
   // skip equal blocks from left
-  for (; left < numOfCommonEntries && areBlocksEqual(blocks[left], yblocks.get(left)); left++) {
+  for (; left < numOfCommonEntries && areBlocksEqual(blocksToSync[left], yblocks.get(left)); left++) {
     /* nop */
   }
 
   // skip equal blocks from right
-  for (; right < numOfCommonEntries - left && areBlocksEqual(blocks[blocks.length - right - 1], yblocks.get(yblocks.length - right - 1)); right++) {
+  for (; right < numOfCommonEntries - left && areBlocksEqual(blocksToSync[blocksToSync.length - right - 1], yblocks.get(yblocks.length - right - 1)); right++) {
     /* nop */
   }
   const numOfUpdatesNeeded = numOfCommonEntries - left - right;
-  const numOfInsertionsNeeded = max(0, blocks.length - yblocks.length);
-  const numOfDeletionsNeeded = max(0, yblocks.length - blocks.length);
+  const numOfInsertionsNeeded = max(0, blocksToSync.length - yblocks.length);
+  const numOfDeletionsNeeded = max(0, yblocks.length - blocksToSync.length);
 
   // updates
   for (let i = 0; i < numOfUpdatesNeeded; i++, left++) {
-    const block = blocks[left];
+    const block = blocksToSync[left];
     const yblock = yblocks.get(left);
-    Object.entries(block).forEach(([k, v]) => {
-      if (!equalityDeep(block[k], yblock.get(k))) {
-        yblock.set(k, v);
+    Object.entries(block).forEach(([key, value]) => {
+      switch (key) {
+        case 'attributes':
+          {
+            const currentAttributes = yblock.get(key);
+
+            // If attributes are not set on the yblock, use the new values.
+            if (!currentAttributes) {
+              yblock.set(key, createNewYAttributeMap(block.name, value));
+              break;
+            }
+            Object.entries(value).forEach(([attributeName, attributeValue]) => {
+              if (equalityDeep(currentAttributes?.get(attributeName), attributeValue)) {
+                return;
+              }
+              currentAttributes.set(attributeName, createNewYAttributeValue(block.name, attributeName, attributeValue));
+            });
+
+            // Delete any attributes that are no longer present.
+            currentAttributes.forEach((_attrValue, attrName) => {
+              if (!value.hasOwnProperty(attrName)) {
+                currentAttributes.delete(attrName);
+              }
+            });
+            break;
+          }
+        case 'innerBlocks':
+          {
+            // Recursively merge innerBlocks
+            const yInnerBlocks = yblock.get(key);
+            mergeCrdtBlocks(yInnerBlocks, value !== null && value !== void 0 ? value : [], _origin);
+            break;
+          }
+        default:
+          if (!equalityDeep(block[key], yblock.get(key))) {
+            yblock.set(key, value);
+          }
       }
     });
     yblock.forEach((_v, k) => {
@@ -2301,7 +2390,8 @@ function mergeBlocks(yblocks, newValue, _origin) {
 
   // inserts
   for (let i = 0; i < numOfInsertionsNeeded; i++, left++) {
-    yblocks.insert(left, [new external_wp_sync_namespaceObject.Y.Map(Object.entries(blocks[left]))]);
+    const newBlock = [createNewYBlock(blocksToSync[left])];
+    yblocks.insert(left, newBlock);
   }
 
   // remove duplicate clientids
@@ -2315,6 +2405,58 @@ function mergeBlocks(yblocks, newValue, _origin) {
     }
     knownClientIds.add(clientId);
   }
+}
+
+/**
+ * Determine if a block should be synced.
+ *
+ * Ex: A gallery block should not be synced until the images have been
+ * uploaded to WordPress, and their url is available. Before that,
+ * it's not possible to access the blobs on a client as those are
+ * local.
+ *
+ * @param block The block to check.
+ * @return True if the block should be synced, false otherwise.
+ */
+function shouldBlockBeSynced(block) {
+  // Verify that the gallery block is ready to be synced.
+  // This means that, all images have had their blobs converted to full URLs.
+  // Checking for only the blobs ensures that blocks that have just been inserted work as well.
+  if ('core/gallery' === block.name) {
+    return !block.innerBlocks.some(innerBlock => innerBlock.attributes && innerBlock.attributes.blob);
+  }
+
+  // Allow all other blocks to be synced.
+  return true;
+}
+
+// Cache rich-text attributes for all block types.
+let cachedRichTextAttributes;
+
+/**
+ * Given a block name and attribute key, return true if the attribute is rich-text typed.
+ *
+ * @param blockName     The name of the block, e.g. 'core/paragraph'.
+ * @param attributeName The name of the attribute to check, e.g. 'content'.
+ * @return True if the attribute is rich-text typed, false otherwise.
+ */
+function isRichTextAttribute(blockName, attributeName) {
+  var _cachedRichTextAttrib;
+  if (!cachedRichTextAttributes) {
+    // Parse the attributes for all blocks once.
+    cachedRichTextAttributes = new Map();
+    for (const blockType of (0,external_wp_blocks_namespaceObject.getBlockTypes)()) {
+      const richTextAttributeMap = new Map();
+      for (const [name, definition] of Object.entries((_blockType$attributes = blockType.attributes) !== null && _blockType$attributes !== void 0 ? _blockType$attributes : {})) {
+        var _blockType$attributes;
+        if ('rich-text' === definition.type) {
+          richTextAttributeMap.set(name, true);
+        }
+      }
+      cachedRichTextAttributes.set(blockType.name, richTextAttributeMap);
+    }
+  }
+  return (_cachedRichTextAttrib = cachedRichTextAttributes.get(blockName)?.has(attributeName)) !== null && _cachedRichTextAttrib !== void 0 ? _cachedRichTextAttrib : false;
 }
 
 ;// ./packages/core-data/build-module/utils/crdt.js
@@ -2354,7 +2496,7 @@ function defaultApplyChangesToCRDTDoc(ydoc, changes, origin) {
 
           // Merge blocks does not need `setValue` because it has been
           // called above and the result can be operated on directly.
-          mergeBlocks(currentBlocks, newBlocks, origin);
+          mergeCrdtBlocks(currentBlocks, newBlocks, origin);
           break;
         }
       case 'title':
@@ -3996,44 +4138,6 @@ const {
   unlock
 } = (0,external_wp_privateApis_namespaceObject.__dangerousOptInToUnstableAPIsOnlyForCoreModules)('I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.', '@wordpress/core-data');
 
-;// external ["wp","hooks"]
-const external_wp_hooks_namespaceObject = window["wp"]["hooks"];
-;// ./packages/core-data/build-module/sync.js
-/**
- * WordPress dependencies
- */
-
-
-let syncProvider = null;
-
-/**
- * Returns the current sync provider, filterable by external code.
- *
- * If no sync provider is set, it returns a fallback no-op sync provider to
- * remove the need for defensive checks in the code that uses it.
- *
- * @return The current sync provider.
- */
-function getSyncProvider() {
-  if (syncProvider) {
-    return syncProvider;
-  }
-  const fallbackNoOpSyncProvider = new external_wp_sync_namespaceObject.SyncProvider(null, null);
-  syncProvider = (0,external_wp_hooks_namespaceObject.applyFilters)('core.getSyncProvider', null);
-
-  // If the filter does not produce a provider and the experimental flag is set,
-  // get the WebRTC sync provider.
-  if (!syncProvider && window.__experimentalEnableSync) {
-    syncProvider = (0,external_wp_sync_namespaceObject.getWebRTCSyncProvider)();
-  }
-
-  // If no sync provider is set, use the fallback no-op sync provider.
-  if (!syncProvider) {
-    syncProvider = fallbackNoOpSyncProvider;
-  }
-  return syncProvider;
-}
-
 ;// ./packages/core-data/build-module/utils/log-entity-deprecation.js
 /**
  * WordPress dependencies
@@ -4088,6 +4192,44 @@ function logEntityDeprecation(kind, name, functionName, {
   setTimeout(() => {
     loggedAlready = false;
   }, 0);
+}
+
+;// external ["wp","hooks"]
+const external_wp_hooks_namespaceObject = window["wp"]["hooks"];
+;// ./packages/core-data/build-module/sync.js
+/**
+ * WordPress dependencies
+ */
+
+
+let syncProvider = null;
+
+/**
+ * Returns the current sync provider, filterable by external code.
+ *
+ * If no sync provider is set, it returns a fallback no-op sync provider to
+ * remove the need for defensive checks in the code that uses it.
+ *
+ * @return The current sync provider.
+ */
+function getSyncProvider() {
+  if (syncProvider) {
+    return syncProvider;
+  }
+  const fallbackNoOpSyncProvider = new external_wp_sync_namespaceObject.SyncProvider(null, null);
+  syncProvider = (0,external_wp_hooks_namespaceObject.applyFilters)('core.getSyncProvider', null);
+
+  // If the filter does not produce a provider and the experimental flag is set,
+  // get the WebRTC sync provider.
+  if (!syncProvider && window.__experimentalEnableSync) {
+    syncProvider = (0,external_wp_sync_namespaceObject.getWebRTCSyncProvider)();
+  }
+
+  // If no sync provider is set, use the fallback no-op sync provider.
+  if (!syncProvider) {
+    syncProvider = fallbackNoOpSyncProvider;
+  }
+  return syncProvider;
 }
 
 ;// ./packages/core-data/build-module/private-selectors.js
@@ -6295,6 +6437,13 @@ const saveEntityRecord = (kind, name, record, {
           edits = {
             ...edits,
             ...entityConfig.__unstablePrePersist(persistedRecord, edits)
+          };
+        }
+        if (window.__experimentalEnableSync && entityConfig.syncConfig?.enabled) {
+          // Allow sync provider to create meta for the entity before persisting.
+          edits.meta = {
+            ...edits.meta,
+            ...(await getSyncProvider().createEntityMeta(entityConfig.syncConfig, persistedRecord, edits))
           };
         }
         updatedRecord = await __unstableFetch({

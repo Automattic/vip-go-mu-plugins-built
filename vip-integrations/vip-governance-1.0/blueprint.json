@@ -1,5 +1,5 @@
 {
- "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
   "landingPage": "/wp-admin/admin.php?page=vip-block-governance",
   "preferredVersions": {
     "php": "8.0",

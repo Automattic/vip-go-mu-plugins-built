@@ -59312,6 +59312,7 @@ function UnforwardedMenuItem(props, ref) {
     role: role,
     icon: iconPosition === 'left' ? icon : undefined,
     className: className,
+    accessibleWhenDisabled: true,
     ...buttonProps,
     children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("span", {
       className: "components-menu-item__item",
@@ -81349,11 +81350,48 @@ const DateRangeCalendar = ({
   });
 };
 
-;// ./packages/components/build-module/validated-form-controls/control-with-error.js
+;// ./packages/components/build-module/validated-form-controls/validity-indicator.js
+/**
+ * External dependencies
+ */
+
+
 /**
  * WordPress dependencies
  */
 
+
+/**
+ * Internal dependencies
+ */
+
+
+
+function ValidityIndicator({
+  type,
+  message
+}) {
+  const ICON = {
+    valid: library_published,
+    invalid: library_error
+  };
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)("p", {
+    className: dist_clsx('components-validated-control__indicator', `is-${type}`),
+    children: [type === 'validating' ? /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(spinner, {
+      className: "components-validated-control__indicator-spinner"
+    }) : /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(build_module_icon, {
+      className: "components-validated-control__indicator-icon",
+      icon: ICON[type],
+      size: 16,
+      fill: "currentColor"
+    }), message]
+  });
+}
+
+;// ./packages/components/build-module/validated-form-controls/control-with-error.js
+/**
+ * WordPress dependencies
+ */
 
 
 /**
@@ -81393,11 +81431,13 @@ function appendRequiredIndicator(label, required, markWhenOptional) {
 function UnforwardedControlWithError({
   required,
   markWhenOptional,
-  customValidator,
+  onValidate,
+  customValidity,
   getValidityTarget,
   children
 }, forwardedRef) {
   const [errorMessage, setErrorMessage] = (0,external_wp_element_namespaceObject.useState)();
+  const [statusMessage, setStatusMessage] = (0,external_wp_element_namespaceObject.useState)();
   const [isTouched, setIsTouched] = (0,external_wp_element_namespaceObject.useState)(false);
 
   // Ensure that error messages are visible after user attemps to submit a form
@@ -81410,12 +81450,49 @@ function UnforwardedControlWithError({
       validityTarget?.removeEventListener('invalid', showValidationMessage);
     };
   });
-  const validate = () => {
-    const message = customValidator?.();
+  (0,external_wp_element_namespaceObject.useEffect)(() => {
+    if (!isTouched) {
+      return;
+    }
     const validityTarget = getValidityTarget();
-    validityTarget?.setCustomValidity(message !== null && message !== void 0 ? message : '');
-    setErrorMessage(validityTarget?.validationMessage);
-  };
+    if (!customValidity?.type) {
+      validityTarget?.setCustomValidity('');
+      setErrorMessage(validityTarget?.validationMessage);
+      setStatusMessage(undefined);
+      return;
+    }
+    switch (customValidity.type) {
+      case 'validating':
+        {
+          // Wait before showing a validating state.
+          const timer = setTimeout(() => {
+            setStatusMessage({
+              type: 'validating',
+              message: customValidity.message
+            });
+          }, 1000);
+          return () => clearTimeout(timer);
+        }
+      case 'valid':
+        {
+          validityTarget?.setCustomValidity('');
+          setErrorMessage(validityTarget?.validationMessage);
+          setStatusMessage({
+            type: 'valid',
+            message: customValidity.message
+          });
+          return;
+        }
+      case 'invalid':
+        {
+          var _customValidity$messa;
+          validityTarget?.setCustomValidity((_customValidity$messa = customValidity.message) !== null && _customValidity$messa !== void 0 ? _customValidity$messa : '');
+          setErrorMessage(validityTarget?.validationMessage);
+          setStatusMessage(undefined);
+          return undefined;
+        }
+    }
+  }, [isTouched, customValidity?.type, customValidity?.message, getValidityTarget]);
   const onBlur = event => {
     // Only consider "blurred from the component" if focus has fully left the wrapping div.
     // This prevents unnecessary blurs from components with multiple focusable elements.
@@ -81430,7 +81507,7 @@ function UnforwardedControlWithError({
         }
         return;
       }
-      validate();
+      onValidate?.();
     }
   };
   const onChange = (...args) => {
@@ -81439,14 +81516,14 @@ function UnforwardedControlWithError({
     // Only validate incrementally if the field has blurred at least once,
     // or currently has an error message.
     if (isTouched || errorMessage) {
-      validate();
+      onValidate?.();
     }
   };
   const onKeyDown = event => {
     // Ensures that custom validators are triggered when the user submits by pressing Enter,
     // without ever blurring the control.
     if (event.key === 'Enter') {
-      validate();
+      onValidate?.();
     }
   };
   return (
@@ -81462,17 +81539,15 @@ function UnforwardedControlWithError({
         label: appendRequiredIndicator(children.props.label, required, markWhenOptional),
         onChange,
         required
-      }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
+      }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)("div", {
         "aria-live": "polite",
-        children: errorMessage && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)("p", {
-          className: "components-validated-control__error",
-          children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(build_module_icon, {
-            className: "components-validated-control__error-icon",
-            icon: library_error,
-            size: 16,
-            fill: "currentColor"
-          }), errorMessage]
-        })
+        children: [errorMessage && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ValidityIndicator, {
+          type: "invalid",
+          message: errorMessage
+        }), !errorMessage && statusMessage && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ValidityIndicator, {
+          type: statusMessage.type,
+          message: statusMessage.message
+        })]
       })]
     })
   );
@@ -81494,7 +81569,8 @@ const ControlWithError = (0,external_wp_element_namespaceObject.forwardRef)(Unfo
 
 const UnforwardedValidatedNumberControl = ({
   required,
-  customValidator,
+  onValidate,
+  customValidity,
   onChange,
   markWhenOptional,
   ...restProps
@@ -81505,9 +81581,10 @@ const UnforwardedValidatedNumberControl = ({
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
     required: required,
     markWhenOptional: markWhenOptional,
-    customValidator: () => {
-      return customValidator?.(valueRef.current);
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
     },
+    customValidity: customValidity,
     getValidityTarget: () => validityTargetRef.current,
     children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(number_control, {
       __next40pxDefaultSize: true,
@@ -81540,7 +81617,8 @@ const ValidatedNumberControl = (0,external_wp_element_namespaceObject.forwardRef
 
 const UnforwardedValidatedTextControl = ({
   required,
-  customValidator,
+  onValidate,
+  customValidity,
   onChange,
   markWhenOptional,
   ...restProps
@@ -81551,9 +81629,10 @@ const UnforwardedValidatedTextControl = ({
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
     required: required,
     markWhenOptional: markWhenOptional,
-    customValidator: () => {
-      return customValidator?.(valueRef.current);
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
     },
+    customValidity: customValidity,
     getValidityTarget: () => validityTargetRef.current,
     children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(text_control, {
       __next40pxDefaultSize: true,
@@ -81586,7 +81665,8 @@ const ValidatedTextControl = (0,external_wp_element_namespaceObject.forwardRef)(
 
 const UnforwardedValidatedToggleControl = ({
   required,
-  customValidator,
+  onValidate,
+  customValidity,
   onChange,
   markWhenOptional,
   ...restProps
@@ -81605,9 +81685,10 @@ const UnforwardedValidatedToggleControl = ({
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
     required: required,
     markWhenOptional: markWhenOptional,
-    customValidator: () => {
-      return customValidator?.(valueRef.current);
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
     },
+    customValidity: customValidity,
     getValidityTarget: () => validityTargetRef.current,
     children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(toggle_control, {
       __nextHasNoMarginBottom: true,

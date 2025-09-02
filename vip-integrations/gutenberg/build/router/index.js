@@ -1684,7 +1684,7 @@ function RouterProvider({
   const location = (0,external_wp_element_namespaceObject.useSyncExternalStore)(router_history.listen, getLocationWithQuery, getLocationWithQuery);
   const matcher = (0,external_wp_element_namespaceObject.useMemo)(() => {
     const ret = new route_recognizer_es();
-    routes.forEach(route => {
+    (routes !== null && routes !== void 0 ? routes : []).forEach(route => {
       ret.add([{
         path: route.path,
         handler: route

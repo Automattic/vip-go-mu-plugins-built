@@ -3,3 +3,7 @@ vendor
 *.php
 package-lock.json
 package.json
+build/
+README.md
+governance-rules.json
+governance-schema.json

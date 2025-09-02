@@ -3,7 +3,7 @@
         'name' => 'automattic/vip-real-time-collaboration',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => 'affe7c1ea655f27484f5ee7ec7d5f782eda399ef',
+        'reference' => '3e39b4ab55140ce5f89933cb3ee7422c8cab7bf6',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -22,7 +22,7 @@
         'automattic/vip-real-time-collaboration' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => 'affe7c1ea655f27484f5ee7ec7d5f782eda399ef',
+            'reference' => '3e39b4ab55140ce5f89933cb3ee7422c8cab7bf6',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

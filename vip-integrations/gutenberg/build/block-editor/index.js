@@ -48089,6 +48089,9 @@ function getDropTargetPosition(blocksData, position, orientation = 'vertical', o
     blockOrientation
   }) => {
     const rect = getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
     let [distance, edge] = getDistanceToNearestEdge(position, rect, allowedEdges);
     // If the the point is close to a side, prioritize that side.
     const [sideDistance, sideEdge] = getDistanceToNearestEdge(position, rect, ['left', 'right']);
@@ -48284,7 +48287,10 @@ function useBlockDropZone({
       const clientId = block.clientId;
       return {
         isUnmodifiedDefaultBlock: (0,external_wp_blocks_namespaceObject.isUnmodifiedDefaultBlock)(block),
-        getBoundingClientRect: () => ownerDocument.getElementById(`block-${clientId}`).getBoundingClientRect(),
+        getBoundingClientRect: () => {
+          const blockElement = ownerDocument.getElementById(`block-${clientId}`);
+          return blockElement ? blockElement.getBoundingClientRect() : null;
+        },
         blockIndex: getBlockIndex(clientId),
         blockOrientation: getBlockListSettings(clientId)?.orientation
       };

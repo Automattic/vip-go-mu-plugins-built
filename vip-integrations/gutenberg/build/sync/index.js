@@ -102,6 +102,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // EXPORTS
 __webpack_require__.d(__webpack_exports__, {
+  CRDT_DOC_VERSION: () => (/* reexport */ CRDT_DOC_VERSION),
   SyncProvider: () => (/* reexport */ SyncProvider),
   Y: () => (/* reexport */ yjs_namespaceObject),
   connectIndexDb: () => (/* reexport */ connectIndexDb),
@@ -17443,6 +17444,10 @@ class UndoManager {
  * Internal dependencies
  */
 
+// This version number should be incremented whenever there are breaking changes
+// to Yjs doc schema or in how it is interpreted by code in the SyncConfig. This
+// allows implementors to invalidate persisted CRDT docs, if any.
+const CRDT_DOC_VERSION = 1;
 class SyncProvider {
   /**
    * CAUTION: We currently store a single UndoManager instance under these
@@ -17491,8 +17496,9 @@ class SyncProvider {
    * @param {Function}   handleChanges Callback to call when data changes.
    */
   async bootstrap(syncConfig, record, handleChanges) {
+    const meta = new Map([['version', CRDT_DOC_VERSION]]);
     const ydoc = new Doc({
-      meta: new Map()
+      meta
     });
     const objectId = syncConfig.getObjectId(record);
     const objectType = syncConfig.objectType;
@@ -17521,13 +17527,12 @@ class SyncProvider {
       ydoc
     });
 
-    // Get the initial data to be synced for this record.
-    const initialCRDTDoc = await this.getInitialCRDTDoc(syncConfig, record);
+    // Get the initial document state.
+    const initialDoc = await this.getInitialCRDTDoc(syncConfig, record);
 
-    // Create the initial document, possible from persisted doc.
+    // Apply the initial document to the current document as a singular update.
     transact(ydoc, () => {
-      // apply remote changes
-      applyUpdate(ydoc, encodeStateAsUpdate(initialCRDTDoc));
+      applyUpdate(ydoc, encodeStateAsUpdate(initialDoc));
     }, 'syncProvider.bootstrap', false);
   }
 
@@ -17561,14 +17566,54 @@ class SyncProvider {
    */
   async getInitialCRDTDoc(syncConfig, record) {
     // IMPORTANT: We use a new Yjs document so that the initial state can be
-    // applied to the "real" Yjs document as a singular update.
-    const initialStateDoc = new Doc({
-      meta: new Map()
-    });
+    // applied to the "real" Yjs document as a singular update. Therefore, we
+    // don't need to wrap the changes in a transaction.
+    const initialStateDoc = new Doc();
+
+    // Load the persisted document from previous sessions.
+    const persistedDoc = await this.getPersistedCRDTDoc(syncConfig, record, CRDT_DOC_VERSION);
+
+    // If it exists and matches the current version, apply it as the base state
+    // of the initial document.
+    if (persistedDoc && CRDT_DOC_VERSION === persistedDoc.meta?.get('version')) {
+      applyUpdate(initialStateDoc, encodeStateAsUpdate(persistedDoc));
+    }
     const initialData = syncConfig.getInitialObjectData(record);
     syncConfig.applyChangesToCRDTDoc(initialStateDoc, initialData, 'syncProvider.getInitialCRDTDoc');
     return initialStateDoc;
   }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+
+  /**
+   * Create meta for the entity, e.g., to persist the CRDT doc against the
+   * entity. Custom sync providers can override this method to provide their
+   * implementation.
+   *
+   * @param {SyncConfig}            _syncConfig Sync configuration for the object type.
+   * @param {ObjectData}            _record     Record representing this object type.
+   * @param {Partial< ObjectData >} _changes    Updates to make.
+   * @return {Promise< Record< string, any > >} Entity meta.
+   */
+  async createEntityMeta(_syncConfig, _record, _changes) {
+    return Promise.resolve({});
+  }
+
+  /**
+   * Get the persisted CRDT document from the object data, e.g., from meta.
+   * Custom sync providers can override this method to provide their
+   * implementation.
+   *
+   * @param {SyncConfig} _syncConfig      Sync configuration for the object type.
+   * @param {ObjectData} _record          Record representing this object type.
+   * @param {number}     _expectedVersion Expected version of persisted CRDT document.
+   * @return {Promise< CRDTDoc | null >} The persisted CRDT document, or null if none exists.
+   */
+  async getPersistedCRDTDoc(_syncConfig, _record, _expectedVersion) {
+    return Promise.resolve(null);
+  }
+
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   /**
    * Get the undo manager.
@@ -17580,7 +17625,7 @@ class SyncProvider {
   }
 
   /**
-   * Fetch data from local database or remote source.
+   * Update CRDT document with changes from the local store.
    *
    * @param {ObjectType}            objectType Object type to load.
    * @param {ObjectData}            record     Record to load.

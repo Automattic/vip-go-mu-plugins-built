@@ -5,10 +5,10 @@
  * Description: Add additional governance capabilities to the block editor.
  * Author: WordPress VIP
  * Text Domain: vip-governance
- * Version: 1.0.12
+ * Version: 1.0.14
  * Requires at least: 6.0
  * Tested up to: 6.8
- * Requires PHP: 8.0
+ * Requires PHP: 8.1
  * License: GPL-3
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  *
@@ -22,18 +22,18 @@ if ( ! defined( 'VIP_GOVERNANCE_LOADED' ) ) {
 
 	// ToDo: When 6.4 is our min version, switch to wp_admin_notice.
 	global $wp_version;
-	if ( version_compare( phpversion(), '8.0', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
+	if ( version_compare( phpversion(), '8.1', '<' ) || version_compare( $wp_version, '6.0', '<' ) ) {
 		add_action( 'admin_notices', function () {
 			?>
 			<div class="notice notice-error">
-					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.0+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
+					<p><?php esc_html_e( 'WordPress VIP Block Governance requires PHP 8.1+ and WordPress 6.0+.', 'vip-governance' ); ?></p>
 				</div>
 			<?php
 		}, 10, 0 );
 		return;
 	}
 
-	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.12' );
+	define( 'WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '1.0.14' );
 	define( 'WPCOMVIP__GOVERNANCE__RULES_SCHEMA_VERSION', '1.0.0' );
 
 	if ( ! defined( 'WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE' ) ) {
