@@ -68,7 +68,7 @@ class Token
             return false;
         }
 
-        if (empty($values)) {
+        if (!$values) {
             return true;
         }
 
@@ -103,9 +103,9 @@ class Token
     public function __toString(): string
     {
         if ($this->value) {
-            return sprintf('<%s "%s" at %s>', $this->type, $this->value, $this->position);
+            return \sprintf('<%s "%s" at %s>', $this->type, $this->value, $this->position);
         }
 
-        return sprintf('<%s at %s>', $this->type, $this->position);
+        return \sprintf('<%s at %s>', $this->type, $this->position);
     }
 }

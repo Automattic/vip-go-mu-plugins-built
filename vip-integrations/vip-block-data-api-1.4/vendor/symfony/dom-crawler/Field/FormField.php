@@ -63,7 +63,7 @@ abstract class FormField
         $xpath = new \DOMXPath($this->node->ownerDocument);
 
         if ($this->node->hasAttribute('id')) {
-            $labels = $xpath->query(sprintf('descendant::label[@for="%s"]', $this->node->getAttribute('id')));
+            $labels = $xpath->query(\sprintf('descendant::label[@for="%s"]', $this->node->getAttribute('id')));
             if ($labels->length > 0) {
                 return $labels->item(0);
             }
@@ -92,6 +92,8 @@ abstract class FormField
 
     /**
      * Sets the value of the field.
+     *
+     * @return void
      */
     public function setValue(?string $value)
     {
@@ -116,6 +118,8 @@ abstract class FormField
 
     /**
      * Initializes the form field.
+     *
+     * @return void
      */
     abstract protected function initialize();
 }

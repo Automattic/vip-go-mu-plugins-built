@@ -17335,6 +17335,12 @@ function createWebRTCConnection({
   };
 }
 
+;// ./packages/sync/build-module/config.js
+// This version number should be incremented whenever there are breaking changes
+// to Yjs doc schema or in how it is interpreted by code in the SyncConfig. This
+// allows implementors to invalidate persisted CRDT docs, if any.
+const CRDT_DOC_VERSION = 1;
+
 ;// ./packages/sync/build-module/undo-manager.js
 /**
  * External dependencies
@@ -17434,6 +17440,24 @@ class UndoManager {
   }
 }
 
+;// ./packages/sync/build-module/utils.js
+/**
+ * External dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
+function createYjsDoc(objectType) {
+  // Meta is not synced and does not get persisted with the document.
+  const meta = new Map([['objectType', objectType], ['version', CRDT_DOC_VERSION]]);
+  return new Doc({
+    meta
+  });
+}
+
 ;// ./packages/sync/build-module/provider.js
 /**
  * External dependencies
@@ -17444,10 +17468,11 @@ class UndoManager {
  * Internal dependencies
  */
 
-// This version number should be incremented whenever there are breaking changes
-// to Yjs doc schema or in how it is interpreted by code in the SyncConfig. This
-// allows implementors to invalidate persisted CRDT docs, if any.
-const CRDT_DOC_VERSION = 1;
+
+
+const CRDT_STATE_MAP_KEY = 'state';
+const CRDT_STATE_PERSISTED_AT_KEY = 'persistedAt';
+const LOCAL_ORIGINS = ['gutenberg', 'syncProvider'];
 class SyncProvider {
   /**
    * CAUTION: We currently store a single UndoManager instance under these
@@ -17455,85 +17480,102 @@ class SyncProvider {
    *
    * 1. Only entities loaded by the block editor support an undo manager.
    * 2. Only one such entity is loaded at a time.
-   * 3. The entity's SyncConfig has `supportsUndo` set to true.
+   * 3. The entity's SyncConfig has `supports.undo` set to true.
    *
    * If these assumptions fail, we will need to refactor the selectors provided
    * by `@wordpress/core-data` (e.g., `getUndoManager`) to support multiple
    * UndoManager instances by requiring the entity type and ID as parameters.
    */
-  undoManager = null;
-  configs = new Map();
+
   connections = new Map();
   entityStates = new Map();
 
   /**
    * Constructor.
    *
-   * @param {ConnectDoc | null} connectLocal  Connect the document to a local database.
-   * @param {ConnectDoc | null} connectRemote Connect the document to a remote sync connection.
+   * @param {ConnectDoc[]} connectionCreators Functions that create Yjs connection providers.
    */
-  constructor(connectLocal, connectRemote) {
-    this.connectLocal = connectLocal;
-    this.connectRemote = connectRemote;
+  constructor(connectionCreators = []) {
+    this.connectionCreators = connectionCreators;
   }
 
   /**
-   * Connect to a document.
+   * Bootstrap an entity for syncing and manage its lifecycle.
+   *
+   * @param {SyncConfig}     syncConfig Sync configuration for the object type.
+   * @param {ObjectData}     record     Record representing this object type.
+   * @param {RecordHandlers} handlers   Handlers for updating and fetching the record.
+   */
+  async bootstrap(syncConfig, record, handlers) {
+    const objectId = syncConfig.getObjectId(record);
+    const objectType = syncConfig.objectType;
+    const ydoc = createYjsDoc(objectType);
+    const connections = await this.connect(objectId, objectType, ydoc);
+    const entityId = this.getEntityId(objectType, objectId);
+
+    // Clean up connections and in-memory state when the entity is discarded.
+    const onDiscard = () => {
+      connections.forEach(result => result.destroy());
+      ydoc.off('update', onUpdate);
+      ydoc.destroy();
+      this.connections.delete(entityId);
+      this.entityStates.delete(entityId);
+    };
+
+    // When the CRDT document is updated by a connection (not a local origin like
+    // Gutenberg or this SyncProvider), update the local store.
+    const onUpdate = (_update, origin) => {
+      if (LOCAL_ORIGINS.includes(origin)) {
+        return;
+      }
+      void this.updateEntityRecord(objectType, objectId);
+    };
+    const entityState = {
+      discard: onDiscard,
+      handlers,
+      lastPersistedAt: Date.now(),
+      syncConfig,
+      ydoc
+    };
+    if (syncConfig.supports?.undo) {
+      entityState.undoManager = new UndoManager(ydoc);
+      this.undoManager = entityState.undoManager;
+    }
+    this.connections.set(entityId, connections);
+    this.entityStates.set(this.getEntityId(objectType, objectId), entityState);
+
+    // Get the initial document state.
+    const initialDoc = await this.getInitialCRDTDoc(syncConfig, record);
+
+    // Attach the update listener before applying the initial state so that
+    // we update the entity record in the local store.
+    ydoc.on('update', onUpdate);
+
+    // Apply the initial document to the current document as a singular update.
+    transact(ydoc, () => {
+      applyUpdate(ydoc, encodeStateAsUpdate(initialDoc));
+    }, 'syncProvider', false);
+  }
+
+  /**
+   * Establish connections for the given entity and its Yjs document.
    *
    * @param {ObjectID}   objectId   Object ID to connect.
    * @param {ObjectType} objectType Object type to connect.
    * @param {CRDTDoc}    ydoc       Yjs document for the object.
    */
   async connect(objectId, objectType, ydoc) {
-    return (await Promise.all([this.connectLocal?.(objectId, objectType, ydoc), this.connectRemote?.(objectId, objectType, ydoc)])).filter(result => Boolean(result));
+    return await Promise.all(this.connectionCreators?.map(create => create(objectId, objectType, ydoc)));
   }
 
   /**
-   * Fetch data from local database or remote source.
+   * Stop syncing an entity and destroy its in-memory state.
    *
-   * @param {SyncConfig} syncConfig    Sync configuration for the object type.
-   * @param {ObjectData} record        Record representing this object type.
-   * @param {Function}   handleChanges Callback to call when data changes.
+   * @param {ObjectType} objectType Object type to discard.
+   * @param {ObjectID}   objectId   Object ID to discard.
    */
-  async bootstrap(syncConfig, record, handleChanges) {
-    const meta = new Map([['version', CRDT_DOC_VERSION]]);
-    const ydoc = new Doc({
-      meta
-    });
-    const objectId = syncConfig.getObjectId(record);
-    const objectType = syncConfig.objectType;
-    const connections = await this.connect(objectId, objectType, ydoc);
-    const entityId = this.getEntityId(objectType, objectId);
-    const onDestroy = () => {
-      connections.forEach(result => result.destroy());
-      ydoc.off('update', onUpdate);
-      ydoc.destroy();
-      this.entityStates.delete(entityId);
-    };
-    const onUpdate = (_update, origin) => {
-      if (origin !== 'gutenberg') {
-        const data = syncConfig.fromCRDTDoc(ydoc);
-        handleChanges(data);
-      }
-    };
-    ydoc.on('update', onUpdate);
-    if (syncConfig.supportsUndo) {
-      this.undoManager = new UndoManager(ydoc);
-    }
-    this.configs.set(objectType, syncConfig);
-    this.connections.set(entityId, connections);
-    this.entityStates.set(entityId, {
-      destroy: onDestroy,
-      ydoc
-    });
-
-    // Get the initial document state.
-    const initialDoc = await this.getInitialCRDTDoc(syncConfig, record);
-
-    // Apply the initial document to the current document as a singular update.
-    transact(ydoc, () => {
-      applyUpdate(ydoc, encodeStateAsUpdate(initialDoc));
-    }, 'syncProvider.bootstrap', false);
+  discard(objectType, objectId) {
+    this.entityStates.get(this.getEntityId(objectType, objectId))?.discard();
   }
 
   /**
@@ -17547,17 +17589,6 @@ class SyncProvider {
   }
 
   /**
-   * Get the entity state for the given object type and object ID.
-   *
-   * @param {ObjectType} objectType Object type.
-   * @param {ObjectID}   objectId   Object ID.
-   */
-  getEntityState(objectType, objectId) {
-    var _this$entityStates$ge;
-    return (_this$entityStates$ge = this.entityStates.get(this.getEntityId(objectType, objectId))) !== null && _this$entityStates$ge !== void 0 ? _this$entityStates$ge : null;
-  }
-
-  /**
    * Get the CRDTDoc that represents the initial state of the object data. Custom
    * sync providers can override this method to provide a custom initial state.
    *
@@ -17565,21 +17596,23 @@ class SyncProvider {
    * @param {ObjectData} record     Initial data to apply to the document.
    */
   async getInitialCRDTDoc(syncConfig, record) {
-    // IMPORTANT: We use a new Yjs document so that the initial state can be
-    // applied to the "real" Yjs document as a singular update. Therefore, we
-    // don't need to wrap the changes in a transaction.
-    const initialStateDoc = new Doc();
-
     // Load the persisted document from previous sessions.
     const persistedDoc = await this.getPersistedCRDTDoc(syncConfig, record, CRDT_DOC_VERSION);
 
     // If it exists and matches the current version, apply it as the base state
     // of the initial document.
     if (persistedDoc && CRDT_DOC_VERSION === persistedDoc.meta?.get('version')) {
-      applyUpdate(initialStateDoc, encodeStateAsUpdate(persistedDoc));
+      return persistedDoc;
     }
+
+    // Otherwise, use the current record.
     const initialData = syncConfig.getInitialObjectData(record);
-    syncConfig.applyChangesToCRDTDoc(initialStateDoc, initialData, 'syncProvider.getInitialCRDTDoc');
+
+    // IMPORTANT: We use a new Yjs document so that the initial state can be
+    // applied to the "real" Yjs document as a singular update. Therefore, we
+    // don't need to wrap the changes in a transaction.
+    const initialStateDoc = createYjsDoc(syncConfig.objectType);
+    syncConfig.applyChangesToCRDTDoc(initialStateDoc, initialData, record, 'syncProvider.getInitialCRDTDoc');
     return initialStateDoc;
   }
 
@@ -17621,37 +17654,100 @@ class SyncProvider {
    * @return {UndoManager | null} The undo manager, or null if unsupported.
    */
   getUndoManager() {
-    return this.undoManager;
+    var _this$undoManager;
+    return (_this$undoManager = this.undoManager) !== null && _this$undoManager !== void 0 ? _this$undoManager : null;
   }
 
   /**
    * Update CRDT document with changes from the local store.
    *
-   * @param {ObjectType}            objectType Object type to load.
+   * @param {SyncConfig}            syncConfig Sync configuration for the object type.
    * @param {ObjectData}            record     Record to load.
    * @param {Partial< ObjectData >} changes    Updates to make.
    * @param {string}                origin     The source of change.
    */
-  update(objectType, record, changes, origin) {
-    const syncConfig = this.configs.get(objectType);
-    const objectId = syncConfig?.getObjectId(record);
-    if (!syncConfig || !objectId) {
-      return;
-    }
-    const ydoc = this.getEntityState(objectType, objectId)?.ydoc;
+  updateCRDTDoc(syncConfig, record, changes, origin) {
+    const objectType = syncConfig.objectType;
+    const objectId = syncConfig.getObjectId(record);
+    const entityId = this.getEntityId(objectType, objectId);
+    const ydoc = this.entityStates.get(entityId)?.ydoc;
     ydoc?.transact(() => {
-      syncConfig.applyChangesToCRDTDoc(ydoc, changes, origin);
+      syncConfig.applyChangesToCRDTDoc(ydoc, changes, record, origin);
     }, origin);
   }
 
   /**
-   * Stop updating a document and discard it.
+   * Update the entity record in the local store with changes from the CRDT
+   * document.
    *
-   * @param {ObjectType} objectType Object type to discard.
-   * @param {ObjectID}   objectId   Object ID to discard.
+   * @param {ObjectType} objectType Object type of record to update.
+   * @param {ObjectID}   objectId   Object ID of record to update.
    */
-  discard(objectType, objectId) {
-    this.getEntityState(objectType, objectId)?.destroy();
+  async updateEntityRecord(objectType, objectId) {
+    var _ref;
+    const entityId = this.getEntityId(objectType, objectId);
+    const entityState = this.entityStates.get(entityId);
+    if (!entityState) {
+      return;
+    }
+    const {
+      handlers,
+      lastPersistedAt,
+      syncConfig,
+      ydoc
+    } = entityState;
+    const currentRecord = await handlers.getEditedRecord();
+
+    // Determine which synced properties have actually changed by comparing
+    // them against the current entity record.
+    const changes = syncConfig.getChangesFromCRDTDoc(ydoc, currentRecord);
+
+    // This is a good spot to debug to see which changes are being synced. Note
+    // that `blocks` will always appear in the changes, but will only result
+    // in an update to the store if the blocks have changed.
+
+    handlers.editRecord(changes);
+
+    // Determine if we should refetch the persisted entity record from the
+    // REST API because another client has persisted changes.
+    const ystateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
+    const persistedAt = (_ref = ystateMap.get(CRDT_STATE_PERSISTED_AT_KEY)) !== null && _ref !== void 0 ? _ref : 0;
+    if (persistedAt > lastPersistedAt) {
+      this.entityStates.set(entityId, {
+        ...entityState,
+        lastPersistedAt: persistedAt
+      });
+      void handlers.refetchPersistedRecord();
+    }
+  }
+
+  /**
+   * Update the last persisted timestamp in the CRDT document state map. This is
+   * used by peers as a signal that they need to refetch the persisted entity.
+   *
+   * @param {SyncConfig} syncConfig Sync configuration for the object type.
+   * @param {ObjectData} record     Record representing this object type.
+   */
+  updateLastPersistedDate(syncConfig, record) {
+    const objectId = syncConfig.getObjectId(record);
+    const objectType = syncConfig.objectType;
+    const entityId = this.getEntityId(objectType, objectId);
+    const entityState = this.entityStates.get(entityId);
+    if (!entityState) {
+      return;
+    }
+    const ydoc = entityState.ydoc;
+    const lastPersistedAt = Date.now();
+
+    // Update in-memory state.
+    this.entityStates.set(entityId, {
+      ...entityState,
+      lastPersistedAt
+    });
+    transact(ydoc, () => {
+      const stateMap = ydoc.getMap('state');
+      stateMap.set(CRDT_STATE_PERSISTED_AT_KEY, lastPersistedAt);
+    }, 'syncProvider', true);
   }
 }
 
@@ -17671,18 +17767,19 @@ class SyncProvider {
 
 
 
+
 /**
  * Returns a WebRTC sync provider. This is the curent default sync provider.
  *
  * @return {SyncProvider} The WebRTC sync provider.
  */
 function getWebRTCSyncProvider() {
-  return new SyncProvider(connectIndexDb, createWebRTCConnection({
+  return new SyncProvider([connectIndexDb, createWebRTCConnection({
     password: window?.__experimentalCollaborativeEditingSecret,
     signaling: [
     //'ws://localhost:4444',
     window?.wp?.ajax?.settings?.url]
-  }));
+  })]);
 }
 
 })();

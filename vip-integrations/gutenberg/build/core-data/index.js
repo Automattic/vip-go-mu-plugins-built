@@ -2474,9 +2474,21 @@ function isRichTextAttribute(blockName, attributeName) {
  * Internal dependencies
  */
 
-function defaultApplyChangesToCRDTDoc(ydoc, changes, origin) {
-  const ymap = ydoc.getMap('document');
+// Key used to store the document map in the Y.Doc.
+const DOCUMENT_MAP_KEY = 'document';
+function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, origin) {
+  const ymap = ydoc.getMap(DOCUMENT_MAP_KEY);
   Object.entries(changes).forEach(([key, newValue]) => {
+    if (!syncedProperties.has(key)) {
+      ymap.delete(key);
+      return;
+    }
+
+    // Cannot serialize function values, so cannot sync them.
+    if ('function' === typeof newValue) {
+      return;
+    }
+
     // Return .get() result so that caller can operate on the data type
     // without having to call .get() themselves.
     function setValue(updatedValue) {
@@ -2491,26 +2503,56 @@ function defaultApplyChangesToCRDTDoc(ydoc, changes, origin) {
             currentBlocks = setValue(new external_wp_sync_namespaceObject.Y.Array()); // Initialize
           }
 
-          // Block[] from local changes or Y.Array< Y.Map > from peer.
+          // Block[] from local changes.
           const newBlocks = newValue !== null && newValue !== void 0 ? newValue : [];
 
-          // Merge blocks does not need `setValue` because it has been
-          // called above and the result can be operated on directly.
+          // Merge blocks does not need `setValue` because it is operating on a
+          // Yjs type that is already in the Y.Doc.
           mergeCrdtBlocks(currentBlocks, newBlocks, origin);
+          break;
+        }
+      case 'excerpt':
+        {
+          const currentValue = ymap.get('excerpt');
+          const rawNewValue = getRawValue(newValue);
+          mergeValue(currentValue, rawNewValue, setValue);
+          break;
+        }
+      case 'slug':
+        {
+          // Do not sync an empty slug. This indicates that the post is using
+          // the default auto-generated slug.
+          if (!newValue) {
+            break;
+          }
+          const currentValue = ymap.get('slug');
+          mergeValue(currentValue, newValue, setValue);
+          break;
+        }
+      case 'status':
+        {
+          const currentValue = ymap.get('status');
+          let newStatus = newValue;
+
+          // Undefined status indicates that we want to reset to the current
+          // persisted value.
+          if (undefined === newStatus) {
+            newStatus = record.status;
+          }
+          mergeValue(currentValue, newStatus, setValue);
           break;
         }
       case 'title':
         {
-          var _newValue$raw;
           const currentValue = ymap.get('title');
 
           // Copy logic from prePersistPostType to ensure that the "Auto
           // Draft" template title is not synced.
-          let rawNewValue = (_newValue$raw = newValue?.raw) !== null && _newValue$raw !== void 0 ? _newValue$raw : newValue;
+          let rawNewValue = getRawValue(newValue);
           if (!currentValue && 'Auto Draft' === rawNewValue) {
             rawNewValue = '';
           }
-          mergePrimitiveValue(currentValue, rawNewValue, setValue);
+          mergeValue(currentValue, rawNewValue, setValue);
           break;
         }
 
@@ -2519,13 +2561,80 @@ function defaultApplyChangesToCRDTDoc(ydoc, changes, origin) {
       default:
         {
           const currentValue = ymap.get(key);
-          mergePrimitiveValue(currentValue, newValue, setValue);
+          mergeValue(currentValue, newValue, setValue);
         }
     }
   });
 }
-function mergePrimitiveValue(currentValue, newValue, setValue) {
-  if (!equalityDeep(currentValue, newValue)) {
+
+/**
+ * Given a local Y.Doc that *may* contain changes from remote peers, compare
+ * against the local record and determine if there are changes (edits) we want
+ * to dispatch.
+ *
+ * @param {CRDTDoc}       ydoc
+ * @param {ObjectData}    record
+ * @param {Set< string >} syncedProperties
+ */
+function getPostChangesFromCRDTDoc(ydoc, record, syncedProperties) {
+  const ymap = ydoc.getMap(DOCUMENT_MAP_KEY);
+  return Object.fromEntries(Object.entries(ymap.toJSON()).filter(([key, newValue]) => {
+    if (!syncedProperties.has(key)) {
+      return false;
+    }
+    const currentValue = record[key];
+    switch (key) {
+      case 'blocks':
+        {
+          // We don't need to add special equality checks for `blocks` here
+          // since that is done by the store for us!
+          return true;
+        }
+      case 'date':
+        {
+          // Do not sync an empty date if our current value is a "floating" date.
+          // Borrowing logic from the isEditedPostDateFloating selector.
+          const currentDateIsFloating = ['draft', 'auto-draft', 'pending'].includes(ymap.get('status')) && (null === currentValue || record.modified === currentValue);
+          if (!newValue && currentDateIsFloating) {
+            return false;
+          }
+          return haveValuesChanged(currentValue, newValue);
+        }
+      case 'status':
+        {
+          // Do not sync an invalid status.
+          if ('auto-draft' === newValue) {
+            return false;
+          }
+          return haveValuesChanged(currentValue, newValue);
+        }
+      case 'excerpt':
+      case 'title':
+        {
+          return haveValuesChanged(getRawValue(currentValue), newValue);
+        }
+
+      // Add support for additional data types here.
+
+      default:
+        {
+          return haveValuesChanged(currentValue, newValue);
+        }
+    }
+  }));
+}
+function getRawValue(value) {
+  // Value may be a string property or a nested object with a `raw` property.
+  if ('string' === typeof value) {
+    return value;
+  }
+  return value?.raw;
+}
+function haveValuesChanged(currentValue, newValue) {
+  return !equalityDeep(currentValue, newValue);
+}
+function mergeValue(currentValue, newValue, setValue) {
+  if (haveValuesChanged(currentValue, newValue)) {
     setValue(newValue);
   }
 }
@@ -2549,14 +2658,6 @@ function mergePrimitiveValue(currentValue, newValue, setValue) {
 
 const DEFAULT_ENTITY_KEY = 'id';
 const POST_RAW_ATTRIBUTES = ['title', 'excerpt', 'content'];
-
-/**
- * @param {Y.Doc} ydoc
- * @return {import('@wordpress/sync').ObjectData} The JSON representation of the document.
- */
-const defaultFromCRDTDoc = ydoc => {
-  return ydoc.getMap('document').toJSON();
-};
 const rootEntitiesConfig = [{
   label: (0,external_wp_i18n_namespaceObject.__)('Base'),
   kind: 'root',
@@ -2779,7 +2880,7 @@ const prePersistPostType = (persistedRecord, edits) => {
  * @return {Promise} Entities promise
  */
 async function loadPostTypeEntities() {
-  const syncedProperties = new Set(['blocks', 'featured_media', 'format', 'generated_slug', 'password', 'slug', 'sticky', 'tags', 'template', 'title']);
+  const syncedProperties = new Set(['author', 'blocks', 'comment_status', 'date', 'excerpt', 'featured_media', 'format', 'ping_status', 'status', 'tags', 'template', 'slug', 'title']);
   const postTypes = await external_wp_apiFetch_default()({
     path: '/wp/v2/types?context=edit'
   });
@@ -2810,18 +2911,32 @@ async function loadPostTypeEntities() {
       __unstablePrePersist: isTemplate ? undefined : prePersistPostType,
       __unstable_rest_base: postType.rest_base,
       syncConfig: {
+        /**
+         * Is syncing enabled for this entity?
+         */
         enabled: Boolean(postType.supports?.['collaborative-editing'] && postType.supports?.editor),
         /**
-         * @param {Y.Doc}  ydoc
-         * @param {Object} changes
-         * @param {string} origin
+         * Apply changes from the local editor to the local CRDT document so
+         * that those changes can be synced to other peers (via the provider).
+         *
+         * @param {import('@wordpress/sync').CRDTDoc}               crdtDoc
+         * @param {Partial< import('@wordpress/sync').ObjectData >} changes
+         * @param {import('@wordpress/sync').ObjectData}            record
+         * @param {string}                                          origin
+         * @return {void}
          */
-        applyChangesToCRDTDoc: (ydoc, changes, origin) => {
-          const filteredChanges = Object.fromEntries(Object.entries(changes).filter(([key, value]) => syncedProperties.has(key) && 'function' !== typeof value // cannot serialize function values
-          ));
-          defaultApplyChangesToCRDTDoc(ydoc, filteredChanges, origin);
+        applyChangesToCRDTDoc: (crdtDoc, changes, record, origin) => {
+          applyPostChangesToCRDTDoc(crdtDoc, changes, record, syncedProperties, origin);
         },
-        fromCRDTDoc: defaultFromCRDTDoc,
+        /**
+         * Extract changes from a CRDT document that can be used to update the
+         * local editor state.
+         *
+         * @param {import('@wordpress/sync').CRDTDoc}    crdtDoc
+         * @param {import('@wordpress/sync').ObjectData} record
+         * @return {Partial< import('@wordpress/sync').ObjectData >} Changes to record
+         */
+        getChangesFromCRDTDoc: (crdtDoc, record) => getPostChangesFromCRDTDoc(crdtDoc, record, syncedProperties),
         /**
          * This initial object data represents the data that will be synced via
          * the CRDT document, which may differ from the entity record. There may
@@ -2842,12 +2957,26 @@ async function loadPostTypeEntities() {
             blocks
           }).filter(([key]) => syncedProperties.has(key)));
         },
+        /**
+         * Get the immutable identifier for an entity record.
+         *
+         * @param {import('@wordpress/sync').ObjectData} record
+         * @return {import('@wordpress/sync').ObjectID} The entity's ID
+         */
         getObjectId: ({
           id
         }) => id,
+        /**
+         * The object type for the entity, used to scope CRDT documents.
+         */
         objectType: `postType/${postType.slug}`,
-        supportsAwareness: true,
-        supportsUndo: true
+        /**
+         * Sync features supported by the entity.
+         */
+        supports: {
+          awareness: true,
+          undo: true
+        }
       },
       supportsPagination: true,
       getRevisionsUrl: (parentId, revisionId) => `/${namespace}/${postType.rest_base}/${parentId}/revisions${revisionId ? '/' + revisionId : ''}`,
@@ -4216,7 +4345,7 @@ function getSyncProvider() {
   if (syncProvider) {
     return syncProvider;
   }
-  const fallbackNoOpSyncProvider = new external_wp_sync_namespaceObject.SyncProvider(null, null);
+  const fallbackNoOpSyncProvider = new external_wp_sync_namespaceObject.SyncProvider();
   syncProvider = (0,external_wp_hooks_namespaceObject.applyFilters)('core.getSyncProvider', null);
 
   // If the filter does not produce a provider and the experimental flag is set,
@@ -6234,9 +6363,7 @@ const editEntityRecord = (kind, name, recordId, edits, options = {}) => ({
   };
   if (window.__experimentalEnableSync && entityConfig.syncConfig) {
     if (true) {
-      // @todo this always updates the Yjs doc, which is undesirable, probably we can read the yjs
-      // content from the comment tag here
-      getSyncProvider().update(entityConfig.syncConfig.objectType, record, edit.edits, 'gutenberg');
+      getSyncProvider().updateCRDTDoc(entityConfig.syncConfig, record, edit.edits, 'gutenberg');
     }
   }
   if (!options.undoIgnore) {
@@ -6452,6 +6579,9 @@ const saveEntityRecord = (kind, name, record, {
           data: edits
         });
         dispatch.receiveEntityRecords(kind, name, updatedRecord, undefined, true, edits);
+        if (window.__experimentalEnableSync && entityConfig.syncConfig?.enabled) {
+          getSyncProvider().updateLastPersistedDate(entityConfig.syncConfig, persistedRecord);
+        }
       }
     } catch (_error) {
       hasError = true;
@@ -7302,18 +7432,33 @@ const resolvers_getEntityRecord = (kind, name, key = '', query) => async ({
     }
     if (window.__experimentalEnableSync && entityConfig.syncConfig?.enabled && !query) {
       if (true) {
-        // Loads the persisted document.
-        await getSyncProvider().bootstrap(entityConfig.syncConfig, record, edits => {
-          dispatch({
-            type: 'EDIT_ENTITY_RECORD',
-            kind,
-            name,
-            recordId: key,
-            edits,
-            meta: {
-              undo: undefined
-            }
-          });
+        await getSyncProvider().bootstrap(
+        // Bootstrap syncing for the entity.
+        entityConfig.syncConfig, record, {
+          // Handle edits sourced from the sync provider.
+          editRecord: edits => {
+            dispatch({
+              type: 'EDIT_ENTITY_RECORD',
+              kind,
+              name,
+              recordId: key,
+              edits,
+              meta: {
+                undo: undefined
+              }
+            });
+          },
+          // Get the current entity record.
+          getEditedRecord: async () => await resolveSelect.getEditedEntityRecord(kind, name, key),
+          // Refetch the persisted entity record.
+          refetchPersistedRecord: () => {
+            void (async () => {
+              dispatch.receiveEntityRecords(kind, name, await external_wp_apiFetch_default()({
+                path,
+                parse: true
+              }), query);
+            })();
+          }
         });
       }
     }
