@@ -40,7 +40,7 @@ export const SuggestionBubble = ( { postId, numberOfSuggestions }: SuggestionBub
 		navigate( `/engagement-boost/${ postId }` );
 	};
 
-	const pendingSuggestionsText = sprintf( /* translators: 1: Number of suggestions generated on this post */
+	const pendingSuggestionsText = sprintf( /* translators: %d: Number of suggestions generated on this post */
 		_n( '%d pending suggestion', '%d pending suggestions', numberOfSuggestions, 'wp-parsely' ),
 		numberOfSuggestions
 	);

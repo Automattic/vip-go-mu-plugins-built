@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.20.6
+ * Version:           3.20.7
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -49,7 +49,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION             = '3.20.6';
+const PARSELY_VERSION             = '3.20.7';
 const PARSELY_FILE                = __FILE__;
 const PARSELY_DATA_SCHEMA_VERSION = '1';
 const PARSELY_CACHE_GROUP         = 'wp-parsely';
@@ -112,6 +112,54 @@ function parsely_admin_init_register(): void {
 	( new Post_List_Stats( $parsely ) )->run();
 	( new Site_Health( $parsely ) )->run();
 	( new Dashboard_Widget( $parsely ) )->run();
+}
+
+add_action( 'admin_init', __NAMESPACE__ . '\\create_engagement_boost_changeset_post' );
+/**
+ * Creates a predefined changeset post in order to make the Engagement Boost
+ * preview work for non-administrator user roles.
+ *
+ * When the Engagement Boost preview iframe is loaded, it calls the WordPress
+ * Customizer in the `iFrameSrc()` function. The Customizer requires the current
+ * user to have the `customize` capability (available to Administrators), or the
+ * passed UUID to have a corresponding changeset post in the database. Otherwise
+ * it fails with -1 ("Non-existent changeset UUID") around line 561 in
+ * `class-wp-customize-manager.php` and prevents preview, displaying "-1".
+ *
+ * By creating a predefined changeset post with a known UUID that we use in
+ * `iFrameSrc()`, we guarantee that the preview will work for all authorized
+ * user roles.
+ *
+ * @since 3.20.7
+ */
+function create_engagement_boost_changeset_post(): void {
+	if ( ! function_exists( 'post_exists' ) ) {
+		return;
+	}
+
+	$parsely = get_parsely();
+
+	if ( ! $parsely->api_secret_is_set() || ! Permissions::current_user_can_use_pch_feature(
+		'traffic_boost',
+		$parsely->get_options()['content_helper']
+	) ) {
+		return;
+	}
+
+	// Needs to match the UUID in `iFrameSrc()` in `preview-iframe.tsx`.
+	$uuid    = '905b130b-4129-4416-919c-9e31433a6f65';
+	$post_id = post_exists( "wp-parsely-$uuid", '', '', 'customize_changeset', 'private' );
+
+	if ( 0 === $post_id ) {
+		wp_insert_post(
+			array(
+				'post_type'   => 'customize_changeset',
+				'post_name'   => $uuid,
+				'post_title'  => "wp-parsely-$uuid",
+				'post_status' => 'private',
+			)
+		);
+	}
 }
 
 add_action( 'init', __NAMESPACE__ . '\\parsely_wp_admin_early_register' );

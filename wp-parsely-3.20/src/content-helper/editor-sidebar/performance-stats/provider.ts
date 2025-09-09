@@ -125,7 +125,7 @@ export class PerformanceStatsProvider extends BaseProvider {
 			const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' ) ?? '';
 			return Promise.reject( new ContentHelperError(
 				sprintf(
-					/* translators: Title of the published post */
+					/* translators: %s: Title of the published post */
 					__( '<strong>%s</strong> has 0 views, or the Parse.ly API returned no data.',
 						'wp-parsely' ), postTitle
 				), ContentHelperErrorCode.ParselyApiReturnedNoData, ''
@@ -136,7 +136,7 @@ export class PerformanceStatsProvider extends BaseProvider {
 		if ( response.length > 1 ) {
 			return Promise.reject( new ContentHelperError(
 				sprintf(
-					/* translators: URL of the published post */
+					/* translators: %d: URL of the published post */
 					__( 'Multiple results were returned for the post %d by the Parse.ly API.',
 						'wp-parsely' ), postId
 				), ContentHelperErrorCode.ParselyApiReturnedTooManyResults

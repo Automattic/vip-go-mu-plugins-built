@@ -14,12 +14,12 @@ import { Loading } from '../../../../../common/components/loading';
 import { ErrorIcon } from '../../../../../common/icons/error-icon';
 import { TRAFFIC_BOOST_LOADING_MESSAGES, TrafficBoostLink } from '../../provider';
 import { TrafficBoostStore } from '../../store';
+import { useExistingLinkHighlight } from '../hooks/use-existing-link-highlight';
 import { useIframeHighlight } from '../hooks/use-iframe-highlight';
 import { TextSelection } from '../preview';
 import { getContentArea, isExternalURL } from '../utils';
 import { PreviewActions } from './preview-actions';
 import { TextSelectionTooltip } from './text-selection-tooltip';
-import { useExistingLinkHighlight } from '../hooks/use-existing-link-highlight';
 
 /**
  * Props structure for PreviewIframe.
@@ -86,8 +86,11 @@ export const PreviewIframe = ( {
 			return previewUrl;
 		}
 
+		// Needs to match the UUID in `create_engagement_boost_changeset_post()`
+		// in `wp-parsely.php`.
+		const uuid = '905b130b-4129-4416-919c-9e31433a6f65';
 		const url = new URL( previewUrl );
-		url.searchParams.set( 'customize_changeset_uuid', crypto.randomUUID() );
+		url.searchParams.set( 'customize_changeset_uuid', uuid );
 
 		return url.toString();
 	}, [ previewUrl ] );

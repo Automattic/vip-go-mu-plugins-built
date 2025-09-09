@@ -102,8 +102,13 @@ export const ReviewModalSidebar = ( {
 		</span>
 	);
 
+	type Tab = {
+		name: 'outbound' | 'inbound',
+		title: string,
+	};
+
 	// Build the tabs array.
-	let tabs = [];
+	let tabs: Tab[] = [];
 
 	if ( outboundLinks && outboundLinks.length > 0 ) {
 		tabs.push( {

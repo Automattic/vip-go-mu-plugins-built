@@ -173,7 +173,7 @@ const SuggestionsTab = ( {
 			await updateSuggestion( updatedLink, trafficBoostLink.uid );
 			setIsGenerating( trafficBoostLink, false );
 		} catch ( err: unknown ) {
-			let errorMessage = __( 'Failed to find a link placement.', 'wp-parsely' );
+			let errorMessage: string = __( 'Failed to find a link placement.', 'wp-parsely' );
 			if ( err instanceof ContentHelperError && err.message && err.code !== ContentHelperErrorCode.UnknownError ) {
 				errorMessage += ` ${ err.message }`;
 			}
@@ -249,7 +249,7 @@ const SuggestionsTab = ( {
 
 			setIsGeneratingSuggestions( false );
 		} catch ( err ) {
-			let errorMessage = __( 'Failed to generate suggestions.', 'wp-parsely' );
+			let errorMessage: string = __( 'Failed to generate suggestions.', 'wp-parsely' );
 			if ( err instanceof ContentHelperError && err.message && err.code !== ContentHelperErrorCode.UnknownError ) {
 				errorMessage += ` ${ err.message }`;
 			}

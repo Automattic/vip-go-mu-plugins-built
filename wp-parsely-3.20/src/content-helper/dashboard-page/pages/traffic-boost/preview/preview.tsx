@@ -3,7 +3,7 @@
  */
 import { Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { error, link as linkIcon, linkOff } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
@@ -270,7 +270,7 @@ export const TrafficBoostPreview = ( {
 				);
 			}
 		} catch ( err: unknown ) {
-			let errorMessage = __( 'Failed to accept suggestion.', 'wp-parsely' );
+			let errorMessage: string = __( 'Failed to accept suggestion.', 'wp-parsely' );
 			if ( err instanceof ContentHelperError && err.message && err.code !== ContentHelperErrorCode.UnknownError ) {
 				errorMessage += ` ${ err.message }`;
 			}
@@ -368,7 +368,7 @@ export const TrafficBoostPreview = ( {
 				);
 			}
 		} catch ( err: unknown ) {
-			let errorMessage = __( 'Failed to remove link.', 'wp-parsely' );
+			let errorMessage: string = __( 'Failed to remove link.', 'wp-parsely' );
 			if ( err instanceof ContentHelperError && err.message && err.code !== ContentHelperErrorCode.UnknownError ) {
 				errorMessage += ` ${ err.message }`;
 			}
@@ -434,7 +434,7 @@ export const TrafficBoostPreview = ( {
 				);
 			}
 		} catch ( err: unknown ) {
-			let errorMessage = __( 'Failed to update link.', 'wp-parsely' );
+			let errorMessage: string = __( 'Failed to update link.', 'wp-parsely' );
 			if ( err instanceof ContentHelperError && err.message && err.code !== ContentHelperErrorCode.UnknownError ) {
 				errorMessage += ` ${ err.message }`;
 			}

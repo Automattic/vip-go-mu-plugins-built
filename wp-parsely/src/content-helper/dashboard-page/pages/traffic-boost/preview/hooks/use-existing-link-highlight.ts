@@ -309,7 +309,7 @@ export const useExistingLinkHighlight = ( {
 
 		// Filter out links that don't have text.
 		links = links.filter( ( link ) => link.textContent?.trim() !== '' );
-		let linkLabel = __( 'Highlighted link', 'wp-parsely' );
+		let linkLabel: string = __( 'Highlighted link', 'wp-parsely' );
 
 		switch ( selectedLinkType ) {
 			case 'external':

@@ -265,7 +265,7 @@ export const SmartLinkingPanel = ( {
 		} else if ( numAddedLinks > 0 ) {
 			createNotice(
 				'success',
-				/* translators: %d: number of smart links applied */
+				/* translators: %s: number of smart links applied */
 				sprintf( __( '%s Smart Links successfully applied.', 'wp-parsely' ), numAddedLinks ),
 				{
 					type: 'snackbar',
@@ -499,7 +499,7 @@ export const SmartLinkingPanel = ( {
 			// Handle the case where the operation was aborted by the user.
 			if ( e.code && e.code === ContentHelperErrorCode.ParselyAborted ) {
 				contentHelperError.message = sprintf(
-					/* translators: %d: number of retry attempts, %s: attempt plural */
+					/* translators: 1: number of retry attempts, 2: attempt plural */
 					__( 'The Smart Linking process was cancelled after %1$d %2$s.', 'wp-parsely' ),
 					e.numRetries,
 					_n( 'attempt', 'attempts', e.numRetries, 'wp-parsely' )
@@ -695,7 +695,7 @@ export const SmartLinkingPanel = ( {
 						className="wp-parsely-smart-linking-suggested-links"
 					>
 						{ sprintf(
-							/* translators: 1 - number of smart links generated */
+							/* translators: %s: number of smart links generated */
 							__( 'Successfully added %s Smart Links.', 'wp-parsely' ),
 							numAddedLinks > 0 ? numAddedLinks : suggestedLinks.length,
 						) }

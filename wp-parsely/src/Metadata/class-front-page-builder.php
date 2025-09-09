@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace Parsely\Metadata;
 
+use Parsely\Parsely;
+use WP_Post;
+
 /**
  * Implements abstract Metadata Builder class to generate the metadata array
  * for a front page.
@@ -17,6 +20,28 @@ namespace Parsely\Metadata;
  * @since 3.4.0
  */
 class Front_Page_Builder extends Metadata_Builder {
+	/**
+	 * Post object to generate the metadata for.
+	 *
+	 * @since 3.20.7
+	 *
+	 * @var WP_Post
+	 */
+	private $post;
+
+	/**
+	 * Constructor.
+	 *
+	 * @since 3.20.7
+	 *
+	 * @param Parsely $parsely Instance of Parsely class.
+	 * @param WP_Post $post Post object to generate the metadata for.
+	 */
+	public function __construct( Parsely $parsely, WP_Post $post ) {
+		parent::__construct( $parsely );
+		$this->post = $post;
+	}
+
 	/**
 	 * Generates the metadata object by calling the build_* methods and
 	 * returns the value.
@@ -29,6 +54,17 @@ class Front_Page_Builder extends Metadata_Builder {
 		$this->build_basic();
 		$this->build_headline();
 		$this->build_url();
+
+		if ( true === $this->parsely->get_options()['full_metadata_in_non_posts'] ) {
+			$this->build_main_entity( 'non-post' );
+			$this->build_thumbnail_url( $this->post );
+			$this->build_image( $this->post );
+			$this->build_article_section( $this->post );
+			$this->build_author( $this->post );
+			$this->build_publisher();
+			$this->build_keywords( $this->post );
+			$this->build_metadata_post_times( $this->post );
+		}
 
 		return $this->metadata;
 	}

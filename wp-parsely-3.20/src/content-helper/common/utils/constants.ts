@@ -85,7 +85,7 @@ export function getPeriodDescription(
 	const timeValue = parseInt( period, 10 );
 	const timeUnit = period.charAt( period.length - 1 );
 
-	let description = __( 'Unknown Period', 'wp-parsely' );
+	let description: string = __( 'Unknown Period', 'wp-parsely' );
 
 	/* eslint-disable @wordpress/valid-sprintf */
 	switch ( timeUnit ) {

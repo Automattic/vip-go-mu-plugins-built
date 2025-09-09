@@ -91,12 +91,12 @@ class Metadata {
 
 		if ( is_front_page() ) {
 			if ( ! is_paged() ) {
-				$builder = new Front_Page_Builder( $this->parsely );
+				$builder = new Front_Page_Builder( $this->parsely, $post );
 			} else {
-				$builder = new Paginated_Front_Page_Builder( $this->parsely );
+				$builder = new Paginated_Front_Page_Builder( $this->parsely, $post );
 			}
 		} elseif ( 'page' === get_option( 'show_on_front' ) && ! Utils::get_page_on_front() ) {
-			$builder = new Front_Page_Builder( $this->parsely );
+			$builder = new Front_Page_Builder( $this->parsely, $post );
 		} elseif (
 			is_home() && (
 				! ( 'page' === get_option( 'show_on_front' ) && ! Utils::get_page_on_front() ) ||
