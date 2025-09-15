@@ -2,12 +2,35 @@
 namespace Automattic\VIP\Security\PrivilegedActivityNotifier;
 
 use Automattic\VIP\Security\Email\Email;
+use Automattic\VIP\Security\Utils\Email_Utils;
 use Automattic\VIP\Security\Constants;
 use Automattic\VIP\Security\Utils\Logger;
 use Automattic\VIP\Support_User\User as Support_User;
 
 class Notify_Privileged_Activity {
 	const LOG_FEATURE_NAME = 'sb_notify_privileged_activity';
+
+	/**
+	 * Only treat as the Jetpack connection owner if:
+	 *  - The login matches the canonical owner
+	 *  - Email domain is A8C/VIP owned
+	 */
+	private static function is_jetpack_connection_owner( $user ): bool {
+		if ( ! ( $user instanceof \WP_User ) ) {
+			return false;
+		}
+
+		if ( strtolower( (string) $user->user_login ) !== Constants::JETPACK_OWNER_LOGIN ) {
+			return false;
+		}
+
+		if ( ! class_exists( Support_User::class ) || ! Support_User::is_a8c_email( $user->user_email ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public static function init() {
 		if ( is_multisite() ) {
 			add_action( 'add_user_to_blog', [ __CLASS__, 'notify_admin_user_creation' ] );
@@ -108,6 +131,15 @@ class Notify_Privileged_Activity {
 	 * @param string   $subject The email subject.
 	 */
 	private static function send_notification( $user, $subject, $email_title, $template ) {
+		// Skip notification for the Jetpack connection owner
+		if ( self::is_jetpack_connection_owner( $user ) ) {
+			Logger::info(
+				self::LOG_FEATURE_NAME,
+				'Skipping notification for Jetpack connection owner: ' . $user->user_login
+			);
+			return;
+		}
+
 		// Skip notification for VIP Support users
 		if ( class_exists( Support_User::class ) && Support_User::user_has_vip_support_role( $user->ID ) ) {
 			Logger::info(
