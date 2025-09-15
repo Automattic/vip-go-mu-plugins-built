@@ -59,6 +59,7 @@ final class Assets {
 			'debug' => [],
 			'rtcPostMetaKey' => CrdtPersistence::POST_META_KEY,
 			'wsUrl' => $vip_rtc_ws_url,
+			'blogId' => get_current_blog_id(),
 		] );
 
 		/** @psalm-suppress DocblockTypeContradiction */ // wp_json_encode() can return an empty string.

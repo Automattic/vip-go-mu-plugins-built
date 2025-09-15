@@ -2913,6 +2913,8 @@ async function loadPostTypeEntities() {
       syncConfig: {
         /**
          * Is syncing enabled for this entity?
+         *
+         * @type {boolean}
          */
         enabled: Boolean(postType.supports?.['collaborative-editing'] && postType.supports?.editor),
         /**
@@ -2968,15 +2970,25 @@ async function loadPostTypeEntities() {
         }) => id,
         /**
          * The object type for the entity, used to scope CRDT documents.
+         *
+         * @type {import('@wordpress/sync').ObjectType}
          */
         objectType: `postType/${postType.slug}`,
         /**
          * Sync features supported by the entity.
+         *
+         * @type {Record< string, boolean >}
          */
         supports: {
           awareness: true,
           undo: true
-        }
+        },
+        /**
+         * The properties that should be synced via the CRDT document.
+         *
+         * @type {Set< string >}
+         */
+        syncedProperties
       },
       supportsPagination: true,
       getRevisionsUrl: (parentId, revisionId) => `/${namespace}/${postType.rest_base}/${parentId}/revisions${revisionId ? '/' + revisionId : ''}`,

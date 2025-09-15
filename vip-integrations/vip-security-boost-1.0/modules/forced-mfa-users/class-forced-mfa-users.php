@@ -27,20 +27,11 @@ class Forced_MFA_Users {
 	private static $capabilities = [];
 
 	public static function init() {
-		// If plugins_loaded has already fired (e.g., in tests), register hooks immediately
-		if ( did_action( 'plugins_loaded' ) ) {
-			self::register_hooks();
-		} else {
-			add_action( 'plugins_loaded', [ __CLASS__, 'register_hooks' ] );
-		}
+		// we want to add the hooks right away. Adding it with the "plugins_loaded" action won't work. We want to run it ASAP to make sure we add wpcom_vip_internal_is_two_factor_forced if needed.
+		self::register_hooks();
 	}
 
 	public static function register_hooks() {
-		// Ensure the Two Factor plugin is active
-		if ( ! class_exists( '\Two_Factor_Core' ) ) {
-			return;
-		}
-
 		$forced_mfa_configs = Configs::get_module_configs( 'forced-mfa-users' );
 
 		// Normalize capabilities and roles configuration
@@ -52,7 +43,17 @@ class Forced_MFA_Users {
 			add_action( 'set_current_user', [ __CLASS__, 'maybe_enforce_two_factor' ], 10 );
 			add_filter( 'vip_site_details_index_security_boost_data', [ __CLASS__, 'add_custom_enforced_capabilities_to_sds' ] );
 		}
-
+		if ( did_action( 'plugins_loaded' ) ) {
+			self::register_plugin_loaded_hooks();
+		} else {
+			add_action( 'plugins_loaded', [ __CLASS__, 'register_plugin_loaded_hooks' ] );
+		}
+	}
+	public static function register_plugin_loaded_hooks() {
+		if ( ! self::has_two_factor_plugin() ) {
+			// Two Factor plugin is not active, nothing more to do
+			return;
+		}
 		// Always add SDS reporting hook (even without config, to report zero count)
 		add_filter( 'vip_site_details_index_security_boost_data', [ __CLASS__, 'add_users_without_2fa_count_to_sds_payload' ] );
 
@@ -112,10 +113,19 @@ class Forced_MFA_Users {
 		return array_unique( array_merge( self::$roles, self::get_custom_enforced_roles() ) );
 	}
 
+	public static function has_two_factor_plugin() {
+		return class_exists( '\Two_Factor_Core' );
+	}
+
 	/**
 	 * Require 2FA based on capabilities or roles set in config
 	 */
 	public static function maybe_enforce_two_factor() {
+		// Ensure the Two Factor plugin is active
+		if ( ! self::has_two_factor_plugin() ) {
+			return;
+		}
+
 		if ( ! is_user_logged_in() ) {
 			return;
 		}
@@ -155,6 +165,10 @@ class Forced_MFA_Users {
 	 * @return array The modified SDS payload data.
 	 */
 	public static function add_users_without_2fa_count_to_sds_payload( $data ) {
+		// Ensure the Two Factor plugin is active
+		if ( ! self::has_two_factor_plugin() ) {
+			return $data;
+		}
 		// Add fix for unreliable FOUND_ROWS() query
 		add_filter( 'found_users_query', [ Users_Query_Utils::class, 'fix_found_users_query' ], 10, 2 );
 
