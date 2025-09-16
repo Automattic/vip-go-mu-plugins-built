@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit();
  * now, this is limited to posts.
  */
 final class CrdtPersistence {
-	const POST_META_KEY = 'vip_rtc_state';
+	const POST_META_KEY = '_vip_rtc_state';
 
 	public function __construct() {
 		add_action( 'init', [ $this, 'register_meta' ], 999, 0 );

@@ -30,10 +30,14 @@ if ( defined( 'VIP_REAL_TIME_COLLABORATION__LOADED' ) ) {
 define( 'VIP_REAL_TIME_COLLABORATION__LOADED', true );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_ROOT', __FILE__ );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.1.0' );
+define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.1.1' );
 
 // Autoloader
 require_once __DIR__ . '/vendor/autoload.php';
+
+// Examples (must be manually built):
+// require_once __DIR__ . '/examples/local-updates-block/local-updates-block.php';
+// require_once __DIR__ . '/examples/post-meta-block/post-meta-block.php';
 
 add_action( 'plugins_loaded', static function (): void {
 	// If the plugin cannot load, return early.
