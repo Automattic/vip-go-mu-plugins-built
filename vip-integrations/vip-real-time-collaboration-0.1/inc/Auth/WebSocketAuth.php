@@ -48,6 +48,7 @@ final class WebSocketAuth {
 
 		// Get the JWT secret from constant
 		if ( defined( 'VIP_RTC_WS_AUTH_SECRET' ) ) {
+			/** @psalm-suppress RedundantCast */
 			$jwt_secret = (string) constant( 'VIP_RTC_WS_AUTH_SECRET' );
 		} else {
 			return new WP_Error(

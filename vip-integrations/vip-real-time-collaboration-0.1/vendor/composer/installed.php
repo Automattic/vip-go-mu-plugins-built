@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'automattic/vip-real-time-collaboration',
-        'pretty_version' => 'dev-trunk',
-        'version' => 'dev-trunk',
-        'reference' => '2ce6c35a635e8beb8dab335a7ca843aefcc6315d',
+        'pretty_version' => 'v0.1.1',
+        'version' => '0.1.1.0',
+        'reference' => '537045167493c7efeb298a7f9c4d9842efd9d453',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -20,9 +20,9 @@
             'dev_requirement' => false,
         ),
         'automattic/vip-real-time-collaboration' => array(
-            'pretty_version' => 'dev-trunk',
-            'version' => 'dev-trunk',
-            'reference' => '2ce6c35a635e8beb8dab335a7ca843aefcc6315d',
+            'pretty_version' => 'v0.1.1',
+            'version' => '0.1.1.0',
+            'reference' => '537045167493c7efeb298a7f9c4d9842efd9d453',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

@@ -4,7 +4,6 @@ namespace VIPRealTimeCollaboration\Editor;
 
 use VIPRealTimeCollaboration\Compatibility\Compatibility;
 use function add_action;
-use function post_type_supports;
 use function register_meta;
 
 defined( 'ABSPATH' ) || exit();
@@ -30,7 +29,15 @@ final class CrdtPersistence {
 						return user_can( $user_id, 'edit_post', $object_id );
 					},
 					'object_subtype' => $post_type,
-					'revisions_enabled' => post_type_supports( $post_type, 'revisions' ),
+					// IMPORTANT: Revisions must be disabled because we always want to
+					// preserve the latest persisted CRDT document, even when a revision
+					// is restored. This ensures that we can continue to apply updates to
+					// a shared document and peers can simply merge the restored revision
+					// like any other incoming update.
+					//
+					// If we want to persist CRDT documents alongisde revisions in the
+					// future, we should do so in a separate meta key.
+					'revisions_enabled' => false,
 					'show_in_rest' => true,
 					'single' => true,
 					'type' => 'string',

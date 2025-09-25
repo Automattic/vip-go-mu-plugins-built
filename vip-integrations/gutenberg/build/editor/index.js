@@ -27789,6 +27789,11 @@ function PostLockedModal() {
   if (!isLocked) {
     return null;
   }
+
+  // Potentially refactor this into the above shortcircuit (!isLocked).
+  if (window.__experimentalEnableSync) {
+    return null;
+  }
   const userDisplayName = user.name;
   const userAvatar = user.avatar;
   const unlockUrl = (0,external_wp_url_namespaceObject.addQueryArgs)('post.php', {

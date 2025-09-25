@@ -1442,8 +1442,6 @@ const external_wp_apiFetch_namespaceObject = window["wp"]["apiFetch"];
 var external_wp_apiFetch_default = /*#__PURE__*/__webpack_require__.n(external_wp_apiFetch_namespaceObject);
 ;// external ["wp","i18n"]
 const external_wp_i18n_namespaceObject = window["wp"]["i18n"];
-;// external ["wp","blocks"]
-const external_wp_blocks_namespaceObject = window["wp"]["blocks"];
 ;// ./node_modules/lib0/array.js
 /**
  * Utility module to work with Arrays.
@@ -2024,6 +2022,10 @@ const isTemplate = (T) =>
    **/
   n => n && n.constructor === T
 
+;// external ["wp","blocks"]
+const external_wp_blocks_namespaceObject = window["wp"]["blocks"];
+;// external ["wp","hooks"]
+const external_wp_hooks_namespaceObject = window["wp"]["hooks"];
 ;// external ["wp","sync"]
 const external_wp_sync_namespaceObject = window["wp"]["sync"];
 ;// ./node_modules/uuid/dist/esm-browser/native.js
@@ -2291,7 +2293,7 @@ function createNewYBlock(block) {
  *
  * @param yblocks        The blocks in the local Y.Doc.
  * @param incomingBlocks Gutenberg blocks being synced.
- * @param _origin        The origin of the sync, either 'syncProvider.getInitialCRDTDoc' or 'gutenberg'.
+ * @param _origin        The origin of the sync, either 'syncProvider' or 'gutenberg'.
  */
 function mergeCrdtBlocks(yblocks,
 // yblocks represent the blocks in the local Y.Doc
@@ -2468,19 +2470,31 @@ function isRichTextAttribute(blockName, attributeName) {
 /**
  * WordPress dependencies
  */
+// @ts-ignore No types available.
+
+
 
 
 /**
  * Internal dependencies
  */
 
-// Key used to store the document map in the Y.Doc.
-const DOCUMENT_MAP_KEY = 'document';
-function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, origin) {
-  const ymap = ydoc.getMap(DOCUMENT_MAP_KEY);
+/**
+ * Given a set of local changes to a post record, apply those changes to the
+ * local Y.Doc.
+ *
+ * @param {CRDTDoc}       ydoc
+ * @param {PostChanges}   changes
+ * @param {Post}          rawRecord
+ * @param {Type}          postType
+ * @param {Set< string >} syncedProperties
+ * @param {string}        origin
+ * @return {void}
+ */
+function applyPostChangesToCRDTDoc(ydoc, changes, rawRecord, postType, syncedProperties, origin) {
+  const ymap = ydoc.getMap(external_wp_sync_namespaceObject.CRDT_RECORD_MAP_KEY);
   Object.entries(changes).forEach(([key, newValue]) => {
     if (!syncedProperties.has(key)) {
-      ymap.delete(key);
       return;
     }
 
@@ -2489,22 +2503,24 @@ function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, orig
       return;
     }
 
-    // Return .get() result so that caller can operate on the data type
-    // without having to call .get() themselves.
+    // Set the value in the root document.
     function setValue(updatedValue) {
       ymap.set(key, updatedValue);
-      return ymap.get(key);
     }
     switch (key) {
       case 'blocks':
         {
+          var _ref;
           let currentBlocks = ymap.get('blocks');
+
+          // Initialize.
           if (!(currentBlocks instanceof external_wp_sync_namespaceObject.Y.Array)) {
-            currentBlocks = setValue(new external_wp_sync_namespaceObject.Y.Array()); // Initialize
+            currentBlocks = new external_wp_sync_namespaceObject.Y.Array();
+            setValue(currentBlocks);
           }
 
           // Block[] from local changes.
-          const newBlocks = newValue !== null && newValue !== void 0 ? newValue : [];
+          const newBlocks = (_ref = newValue) !== null && _ref !== void 0 ? _ref : [];
 
           // Merge blocks does not need `setValue` because it is operating on a
           // Yjs type that is already in the Y.Doc.
@@ -2516,6 +2532,34 @@ function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, orig
           const currentValue = ymap.get('excerpt');
           const rawNewValue = getRawValue(newValue);
           mergeValue(currentValue, rawNewValue, setValue);
+          break;
+        }
+
+      // Meta is overloaded term in Core; here, it refers to post meta.
+      case 'meta':
+        {
+          let metaMap = ymap.get('meta');
+
+          // Initialize.
+          if (!(metaMap instanceof external_wp_sync_namespaceObject.Y.Map)) {
+            metaMap = new external_wp_sync_namespaceObject.Y.Map();
+            setValue(metaMap);
+          }
+
+          // Iterate over each meta property in the new value and merge it (if it
+          // is a synced meta property).
+          Object.entries(newValue !== null && newValue !== void 0 ? newValue : {}).forEach(([metaKey, metaValue]) => {
+            if (!shouldSyncMetaForPostType(metaKey, postType)) {
+              return;
+            }
+            mergeValue(metaMap.get(metaKey),
+            // current value in CRDT
+            metaValue,
+            // new value from local changes
+            updatedMetaValue => {
+              metaMap.set(metaKey, updatedMetaValue);
+            });
+          });
           break;
         }
       case 'slug':
@@ -2537,7 +2581,7 @@ function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, orig
           // Undefined status indicates that we want to reset to the current
           // persisted value.
           if (undefined === newStatus) {
-            newStatus = record.status;
+            newStatus = rawRecord.status;
           }
           mergeValue(currentValue, newStatus, setValue);
           break;
@@ -2573,11 +2617,13 @@ function applyPostChangesToCRDTDoc(ydoc, changes, record, syncedProperties, orig
  * to dispatch.
  *
  * @param {CRDTDoc}       ydoc
- * @param {ObjectData}    record
+ * @param {Post}          record
+ * @param {Type}          postType
  * @param {Set< string >} syncedProperties
+ * @return {Partial<PostChanges>} The changes that should be applied to the local record.
  */
-function getPostChangesFromCRDTDoc(ydoc, record, syncedProperties) {
-  const ymap = ydoc.getMap(DOCUMENT_MAP_KEY);
+function getPostChangesFromCRDTDoc(ydoc, record, postType, syncedProperties) {
+  const ymap = ydoc.getMap(external_wp_sync_namespaceObject.CRDT_RECORD_MAP_KEY);
   return Object.fromEntries(Object.entries(ymap.toJSON()).filter(([key, newValue]) => {
     if (!syncedProperties.has(key)) {
       return false;
@@ -2599,6 +2645,18 @@ function getPostChangesFromCRDTDoc(ydoc, record, syncedProperties) {
             return false;
           }
           return haveValuesChanged(currentValue, newValue);
+        }
+      case 'meta':
+        {
+          const allowedMeta = Object.fromEntries(Object.entries(newValue !== null && newValue !== void 0 ? newValue : {}).filter(([metaKey]) => shouldSyncMetaForPostType(metaKey, postType)));
+
+          // Merge the allowed meta changes with the current meta values since
+          // not all meta properties are synced.
+          const mergedValue = {
+            ...currentValue,
+            ...allowedMeta
+          };
+          return haveValuesChanged(currentValue, mergedValue);
         }
       case 'status':
         {
@@ -2623,12 +2681,47 @@ function getPostChangesFromCRDTDoc(ydoc, record, syncedProperties) {
     }
   }));
 }
+function getInitialPostObjectData(record, postType, syncedProperties) {
+  // Mix in the parsed blocks.
+  const blocks = (0,external_wp_blocks_namespaceObject.parse)(getRawValue(record.content));
+  return Object.fromEntries(Object.entries({
+    ...record,
+    blocks
+  })
+  // Only allow properties in the synced properties set.
+  .filter(([key]) => syncedProperties.has(key)).map(([key, value]) => {
+    switch (key) {
+      case 'content':
+      case 'excerpt':
+      case 'title':
+        {
+          return [key, getRawValue(value)];
+        }
+      case 'meta':
+        {
+          return [key, Object.fromEntries(Object.entries(value !== null && value !== void 0 ? value : {}).filter(([metaKey]) => shouldSyncMetaForPostType(metaKey, postType)))];
+        }
+    }
+    return [key, value];
+  }));
+}
+
+/**
+ * Extract the raw string value from a property that may be a string or an object
+ * with a `raw` property (`RenderedText`).
+ *
+ * @param {unknown} value The value to extract from.
+ * @return {string|undefined} The raw string value, or undefined if it could not be determined.
+ */
 function getRawValue(value) {
   // Value may be a string property or a nested object with a `raw` property.
   if ('string' === typeof value) {
     return value;
   }
-  return value?.raw;
+  if (value && 'object' === typeof value && 'raw' in value && 'string' === typeof value.raw) {
+    return value.raw;
+  }
+  return undefined;
 }
 function haveValuesChanged(currentValue, newValue) {
   return !equalityDeep(currentValue, newValue);
@@ -2637,6 +2730,90 @@ function mergeValue(currentValue, newValue, setValue) {
   if (haveValuesChanged(currentValue, newValue)) {
     setValue(newValue);
   }
+}
+
+/**
+ * Given a post type definition, return the set of properties that should be
+ * synced for that post type.
+ *
+ * @param {Type} postType The post type definition.
+ * @return {Set<string>} The set of properties that should be synced.
+ */
+function getSyncedPropertiesForPostType(postType) {
+  const syncedProperties = new Set(['date', 'status', 'tags', 'template', 'slug', 'sticky']);
+  Object.entries(postType.supports || {}).forEach(([feature, isSupported]) => {
+    if (!isSupported) {
+      return;
+    }
+    switch (feature) {
+      case 'author':
+        syncedProperties.add('author');
+        break;
+      case 'comments':
+        syncedProperties.add('comment_status');
+        break;
+      case 'custom-fields':
+        syncedProperties.add('meta');
+        break;
+      case 'editor':
+        syncedProperties.add('blocks');
+        break;
+      case 'excerpt':
+        syncedProperties.add('excerpt');
+        break;
+      case 'post-formats':
+        syncedProperties.add('format');
+        break;
+      case 'thumbnail':
+        syncedProperties.add('featured_media');
+        break;
+      case 'trackbacks':
+        syncedProperties.add('ping_status');
+        break;
+      case 'title':
+        syncedProperties.add('title');
+        break;
+    }
+  });
+  return syncedProperties;
+}
+const metaDecisionCache = new Map();
+
+/**
+ * Given a meta key and post type definition, return a decision on whether to
+ * sync the meta property.
+ *
+ * @param {string} metaKey  The meta key.
+ * @param {Type}   postType The post type definition.
+ * @return {boolean} Whether to sync the meta property.
+ */
+function shouldSyncMetaForPostType(metaKey, postType) {
+  if (!metaDecisionCache.has(postType.slug)) {
+    metaDecisionCache.set(postType.slug, new Map());
+  }
+  const decisionMap = metaDecisionCache.get(postType.slug);
+  if (decisionMap.has(metaKey)) {
+    return decisionMap.get(metaKey);
+  }
+
+  /**
+   * In order to be available to the sync module, meta properties must be
+   * registered against the post type and made available via the REST API
+   * (`'show_in_rest' => true`).
+   *
+   * Of the registered meta properties, by default we do not sync "hidden" meta
+   * fields (leading underscore in the meta key). This filter allows third-party
+   * code to override that behavior.
+   *
+   * @param {boolean} shouldSync   Whether to sync the meta property.
+   * @param {string}  metaKey      Meta key.
+   * @param {string}  postTypeSlug The post type slug.
+   * @param {Type}    postType     The post type definition.
+   * @return {boolean} The filtered list of meta properties to sync.
+   */
+  const shouldSync = Boolean((0,external_wp_hooks_namespaceObject.applyFilters)('sync.shouldSyncMeta', !metaKey.startsWith('_'), metaKey, postType.slug, postType));
+  decisionMap.set(metaKey, shouldSync);
+  return shouldSync;
 }
 
 ;// ./packages/core-data/build-module/entities.js
@@ -2648,7 +2825,6 @@ function mergeValue(currentValue, newValue, setValue) {
 /**
  * WordPress dependencies
  */
-
 
 
 
@@ -2880,7 +3056,6 @@ const prePersistPostType = (persistedRecord, edits) => {
  * @return {Promise} Entities promise
  */
 async function loadPostTypeEntities() {
-  const syncedProperties = new Set(['author', 'blocks', 'comment_status', 'date', 'excerpt', 'featured_media', 'format', 'ping_status', 'status', 'tags', 'template', 'slug', 'title']);
   const postTypes = await external_wp_apiFetch_default()({
     path: '/wp/v2/types?context=edit'
   });
@@ -2888,6 +3063,7 @@ async function loadPostTypeEntities() {
     var _postType$rest_namesp;
     const isTemplate = ['wp_template', 'wp_template_part'].includes(name);
     const namespace = (_postType$rest_namesp = postType?.rest_namespace) !== null && _postType$rest_namesp !== void 0 ? _postType$rest_namesp : 'wp/v2';
+    const syncedProperties = getSyncedPropertiesForPostType(postType);
     return {
       kind: 'postType',
       baseURL: `/${namespace}/${postType.rest_base}`,
@@ -2928,7 +3104,7 @@ async function loadPostTypeEntities() {
          * @return {void}
          */
         applyChangesToCRDTDoc: (crdtDoc, changes, record, origin) => {
-          applyPostChangesToCRDTDoc(crdtDoc, changes, record, syncedProperties, origin);
+          applyPostChangesToCRDTDoc(crdtDoc, changes, record, postType, syncedProperties, origin);
         },
         /**
          * Extract changes from a CRDT document that can be used to update the
@@ -2938,7 +3114,7 @@ async function loadPostTypeEntities() {
          * @param {import('@wordpress/sync').ObjectData} record
          * @return {Partial< import('@wordpress/sync').ObjectData >} Changes to record
          */
-        getChangesFromCRDTDoc: (crdtDoc, record) => getPostChangesFromCRDTDoc(crdtDoc, record, syncedProperties),
+        getChangesFromCRDTDoc: (crdtDoc, record) => getPostChangesFromCRDTDoc(crdtDoc, record, postType, syncedProperties),
         /**
          * This initial object data represents the data that will be synced via
          * the CRDT document, which may differ from the entity record. There may
@@ -2948,17 +3124,7 @@ async function loadPostTypeEntities() {
          * @param {import('@wordpress/sync').ObjectData} record
          * @return {import('@wordpress/sync').ObjectData} The initial data
          */
-        getInitialObjectData: record => {
-          var _ref, _record$content$raw;
-          // Mix in the parsed blocks into the record. Only allow properties in
-          // the synced properties set.
-          const content = (_ref = (_record$content$raw = record.content?.raw) !== null && _record$content$raw !== void 0 ? _record$content$raw : record.content) !== null && _ref !== void 0 ? _ref : '';
-          const blocks = (0,external_wp_blocks_namespaceObject.parse)(content);
-          return Object.fromEntries(Object.entries({
-            ...record,
-            blocks
-          }).filter(([key]) => syncedProperties.has(key)));
-        },
+        getInitialObjectData: record => getInitialPostObjectData(record, postType, syncedProperties),
         /**
          * Get the immutable identifier for an entity record.
          *
@@ -2975,12 +3141,15 @@ async function loadPostTypeEntities() {
          */
         objectType: `postType/${postType.slug}`,
         /**
-         * Sync features supported by the entity.
+         * Sync features supported by the entity. Since overall syncing support
+         * is gated by the `enabled` property, we don't need to check for
+         * "editor" support here.
          *
          * @type {Record< string, boolean >}
          */
         supports: {
           awareness: true,
+          crdtPersistence: Boolean(postType.supports?.['custom-fields']),
           undo: true
         },
         /**
@@ -4335,8 +4504,6 @@ function logEntityDeprecation(kind, name, functionName, {
   }, 0);
 }
 
-;// external ["wp","hooks"]
-const external_wp_hooks_namespaceObject = window["wp"]["hooks"];
 ;// ./packages/core-data/build-module/sync.js
 /**
  * WordPress dependencies
@@ -6582,7 +6749,10 @@ const saveEntityRecord = (kind, name, record, {
           // Allow sync provider to create meta for the entity before persisting.
           edits.meta = {
             ...edits.meta,
-            ...(await getSyncProvider().createEntityMeta(entityConfig.syncConfig, persistedRecord, edits))
+            ...(await getSyncProvider().createEntityMeta(entityConfig.syncConfig, {
+              ...persistedRecord,
+              ...edits
+            }))
           };
         }
         updatedRecord = await __unstableFetch({
@@ -7449,6 +7619,9 @@ const resolvers_getEntityRecord = (kind, name, key = '', query) => async ({
         entityConfig.syncConfig, record, {
           // Handle edits sourced from the sync provider.
           editRecord: edits => {
+            if (!Object.keys(edits).length) {
+              return;
+            }
             dispatch({
               type: 'EDIT_ENTITY_RECORD',
               kind,
