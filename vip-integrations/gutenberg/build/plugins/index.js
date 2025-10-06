@@ -252,6 +252,7 @@ const Context = (0,external_wp_element_namespaceObject.createContext)({
   name: null,
   icon: null
 });
+Context.displayName = 'PluginContext';
 const PluginContextProvider = Context.Provider;
 
 /**

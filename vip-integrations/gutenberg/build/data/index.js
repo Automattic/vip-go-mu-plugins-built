@@ -3479,6 +3479,7 @@ var external_wp_isShallowEqual_default = /*#__PURE__*/__webpack_require__.n(exte
  */
 
 const Context = (0,external_wp_element_namespaceObject.createContext)(default_registry);
+Context.displayName = 'RegistryProviderContext';
 const {
   Consumer,
   Provider
@@ -3586,6 +3587,7 @@ function useRegistry() {
  */
 
 const context_Context = (0,external_wp_element_namespaceObject.createContext)(false);
+context_Context.displayName = 'AsyncModeContext';
 const {
   Consumer: context_Consumer,
   Provider: context_Provider

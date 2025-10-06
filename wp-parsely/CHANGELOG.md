@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.20.8](https://github.com/Parsely/wp-parsely/compare/3.20.7...3.20.8) - 2025-10-06
+
+### Fixed
+
+- content-helper-error.tsx: Include more errors ([#3701](https://github.com/Parsely/wp-parsely/pull/3701))
+- Allow optimal performance_blending_weight auto-selection ([#3694](https://github.com/Parsely/wp-parsely/pull/3694))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.20.8+label%3ADeps).
+
 ## [3.20.7](https://github.com/Parsely/wp-parsely/compare/3.20.6...3.20.7) - 2025-09-09
 
 ### Fixed

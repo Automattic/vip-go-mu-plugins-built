@@ -25,7 +25,6 @@ use WP_Error;
  * @phpstan-type Endpoint_Suggest_Headline_Options = array{
  *     persona?: string,
  *     style?: string,
- *     performance_blending_weight?: float,
  *     max_items?: int,
  *     traffic_sources?: array<int, Traffic_Source>
  * }

@@ -90,38 +90,31 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 			array( 'POST' ),
 			array( $this, 'generate_link_suggestions' ),
 			array(
-				'max_items'                   => array(
+				'max_items'          => array(
 					'type'        => 'integer',
 					'description' => __( 'The maximum number of suggestions to return.', 'wp-parsely' ),
 					'default'     => 10,
 					'required'    => false,
 				),
-				'save'                        => array(
+				'save'               => array(
 					'type'        => 'boolean',
 					'description' => __( 'Whether to save the suggestions.', 'wp-parsely' ),
 					'default'     => false,
 					'required'    => false,
 				),
-				'discard_previous'            => array(
+				'discard_previous'   => array(
 					'type'        => 'boolean',
 					'description' => __( 'Whether to discard the previous suggestions.', 'wp-parsely' ),
 					'default'     => true,
 					'required'    => false,
 				),
-				'url_exclusion_list'          => array(
+				'url_exclusion_list' => array(
 					'type'              => 'array',
 					'description'       => __( 'The URLs to exclude from the suggestions.', 'wp-parsely' ),
 					'required'          => false,
 					'default'           => array(),
 					'validate_callback' => array( Validations\Validate_Url_Exclusion_List::class, 'validate' ),
 					'sanitize_callback' => array( Validations\Validate_Url_Exclusion_List::class, 'sanitize' ),
-				),
-				'performance_blending_weight' => array(
-					'type'              => 'float',
-					'description'       => __( 'The performance blending weight.', 'wp-parsely' ),
-					'default'           => 0.5,
-					'required'          => false,
-					'validate_callback' => array( Validations\Validate_Blending_Weight::class, 'validate' ),
 				),
 			)
 		);
@@ -135,36 +128,29 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 			array( 'POST' ),
 			array( $this, 'generate_placement_suggestions' ),
 			array(
-				'source_post_id'              => array(
+				'source_post_id'         => array(
 					'type'        => 'integer',
 					'description' => __( 'The ID of the source post.', 'wp-parsely' ),
 					'required'    => true,
 				),
-				'ignore_keywords'             => array(
+				'ignore_keywords'        => array(
 					'type'        => 'array',
 					'description' => __( 'The keywords to ignore.', 'wp-parsely' ),
 					'required'    => false,
 				),
-				'keyword_exclusion_list'      => array(
+				'keyword_exclusion_list' => array(
 					'type'        => 'array',
 					'description' => __( 'The keywords to exclude from the suggestions.', 'wp-parsely' ),
 					'required'    => false,
 					'default'     => array(),
 				),
-				'performance_blending_weight' => array(
-					'type'              => 'float',
-					'description'       => __( 'The performance blending weight.', 'wp-parsely' ),
-					'default'           => 0.5,
-					'required'          => false,
-					'validate_callback' => array( Validations\Validate_Blending_Weight::class, 'validate' ),
-				),
-				'allow_duplicate_links'       => array(
+				'allow_duplicate_links'  => array(
 					'type'        => 'boolean',
 					'description' => __( 'Whether to allow duplicate links.', 'wp-parsely' ),
 					'default'     => false,
 					'required'    => false,
 				),
-				'save'                        => array(
+				'save'                   => array(
 					'type'        => 'boolean',
 					'description' => __( 'Whether to save the suggestion.', 'wp-parsely' ),
 					'default'     => true,
@@ -354,19 +340,11 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		 */
 		$url_exclusion_list = $request->get_param( 'url_exclusion_list' );
 
-		/**
-		 * The performance blending weight.
-		 *
-		 * @var float $performance_blending_weight
-		 */
-		$performance_blending_weight = $request->get_param( 'performance_blending_weight' );
-
 		$inbound_suggestions = $this->suggestions_api->get_inbound_links(
 			$post,
 			array(
-				'max_items'                   => $max_items,
-				'url_exclusion_list'          => $url_exclusion_list,
-				'performance_blending_weight' => $performance_blending_weight,
+				'max_items'          => $max_items,
+				'url_exclusion_list' => $url_exclusion_list,
 			)
 		);
 
@@ -456,13 +434,6 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		$allow_duplicate_links = $request->get_param( 'allow_duplicate_links' );
 
 		/**
-		 * The performance blending weight.
-		 *
-		 * @var float $performance_blending_weight
-		 */
-		$performance_blending_weight = $request->get_param( 'performance_blending_weight' );
-
-		/**
 		 * Whether to save the suggestion.
 		 *
 		 * @var bool $save
@@ -480,8 +451,7 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 			$source_post,
 			$destination_post,
 			array(
-				'performance_blending_weight' => $performance_blending_weight,
-				'keyword_exclusion_list'      => $keyword_exclusion_list,
+				'keyword_exclusion_list' => $keyword_exclusion_list,
 			)
 		);
 

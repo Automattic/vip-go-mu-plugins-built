@@ -24,13 +24,6 @@ export const TRAFFIC_BOOST_LOADING_MESSAGES = [
 ];
 
 /**
- * The default performance blending weight for the traffic boost provider.
- *
- * @since 3.19.0
- */
-export const TRAFFIC_BOOST_DEFAULT_PERFORMANCE_BLENDING_WEIGHT = 0.5;
-
-/**
  * Represents a Traffic Boost link.
  *
  * Stores the target post and the smart link associated with it.
@@ -297,13 +290,12 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @param {number}   postId                            The ID of the post to generate suggestions for.
-	 * @param {Object}   options                           The options for the suggestions.
-	 * @param {number}   options.maxItems                  The maximum number of items to generate.
-	 * @param {boolean}  options.discardPrevious           Whether to discard previous suggestions.
-	 * @param {string[]} options.urlExclusionList          The list of URLs to exclude from the suggestions.
-	 * @param {number}   options.performanceBlendingWeight The performance blending weight.
-	 * @param {boolean}  options.save                      Whether to save the suggestions.
+	 * @param {number}   postId                   The ID of the post to generate suggestions for.
+	 * @param {Object}   options                  The options for the suggestions.
+	 * @param {number}   options.maxItems         The maximum number of items to generate.
+	 * @param {boolean}  options.discardPrevious  Whether to discard previous suggestions.
+	 * @param {string[]} options.urlExclusionList The list of URLs to exclude from the suggestions.
+	 * @param {boolean}  options.save             Whether to save the suggestions.
 	 *
 	 * @return {Promise<TrafficBoostLink[]>} The list of suggestions.
 	 */
@@ -314,7 +306,6 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 			save?: boolean;
 			discardPrevious?: boolean;
 			urlExclusionList?: string[];
-			performanceBlendingWeight?: number;
 		},
 	): Promise<TrafficBoostLink[]> {
 		const response = await this.fetch<InboundSmartLinkDataResponse>( {
@@ -325,7 +316,6 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 				save: options?.save ?? false,
 				discard_previous: options?.discardPrevious ?? true,
 				url_exclusion_list: options?.urlExclusionList,
-				performance_blending_weight: options?.performanceBlendingWeight ?? TRAFFIC_BOOST_DEFAULT_PERFORMANCE_BLENDING_WEIGHT,
 			},
 		} );
 
@@ -340,14 +330,13 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 	 *
 	 * @since 3.19.0
 	 *
-	 * @param {HydratedPost}     sourcePost                        The source post.
-	 * @param {HydratedPost}     destinationPost                   The destination post.
-	 * @param {TrafficBoostLink} trafficBoostLink                  The traffic boost link to generate a placement for.
-	 * @param {Object}           options                           The options for the suggestion.
-	 * @param {string[]}         options.ignoreKeywords            The keywords to ignore.
-	 * @param {boolean}          options.save                      Whether to save the suggestion.
-	 * @param {boolean}          options.allowDuplicateLinks       Whether to allow duplicate links.
-	 * @param {number}           options.performanceBlendingWeight The performance blending weight.
+	 * @param {HydratedPost}     sourcePost                  The source post.
+	 * @param {HydratedPost}     destinationPost             The destination post.
+	 * @param {TrafficBoostLink} trafficBoostLink            The traffic boost link to generate a placement for.
+	 * @param {Object}           options                     The options for the suggestion.
+	 * @param {string[]}         options.ignoreKeywords      The keywords to ignore.
+	 * @param {boolean}          options.save                Whether to save the suggestion.
+	 * @param {boolean}          options.allowDuplicateLinks Whether to allow duplicate links.
 	 *
 	 * @return {Promise<TrafficBoostLink>} The generated suggestion.
 	 */
@@ -359,7 +348,6 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 			ignoreKeywords?: string[];
 			save?: boolean;
 			allowDuplicateLinks?: boolean;
-			performanceBlendingWeight?: number;
 		},
 	): Promise<TrafficBoostLink> {
 		const requestPath = `/wp-parsely/v2/content-helper/traffic-boost/${ sourcePost.id }/generate-placement/${ destinationPost.id }`;
@@ -369,7 +357,6 @@ export class TrafficBoostProvider extends BaseWordPressProvider {
 			path: requestPath,
 			data: {
 				keyword_exclusion_list: options?.ignoreKeywords,
-				performance_blending_weight: options?.performanceBlendingWeight ?? TRAFFIC_BOOST_DEFAULT_PERFORMANCE_BLENDING_WEIGHT,
 				save: options?.save ?? true,
 				allow_duplicate_links: options?.allowDuplicateLinks ?? false,
 			},

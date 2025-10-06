@@ -5122,6 +5122,7 @@ var ITI7HKP4_Composite = forwardRef2(function Composite2(props) {
  */
 
 const CompositeContext = (0,external_wp_element_namespaceObject.createContext)({});
+CompositeContext.displayName = 'CompositeContext';
 const context_useCompositeContext = () => (0,external_wp_element_namespaceObject.useContext)(CompositeContext);
 
 ;// ./node_modules/@ariakit/react-core/esm/__chunks/7HVFURXT.js
@@ -12057,6 +12058,7 @@ const computePopoverPosition = c => c === null || Number.isNaN(c) ? undefined : 
 const TooltipInternalContext = (0,external_wp_element_namespaceObject.createContext)({
   isNestedInTooltip: false
 });
+TooltipInternalContext.displayName = 'TooltipInternalContext';
 
 /**
  * Time over anchor to wait before showing tooltip
@@ -12250,6 +12252,7 @@ function use_update_effect_useUpdateEffect(effect, deps) {
 
 
 const ComponentsContext = (0,external_wp_element_namespaceObject.createContext)(/** @type {Record<string, any>} */{});
+ComponentsContext.displayName = 'ComponentsContext';
 const useComponentsContext = () => (0,external_wp_element_namespaceObject.useContext)(ComponentsContext);
 
 /**
@@ -16628,384 +16631,77 @@ function Animate({
 }
 /* harmony default export */ const animate = (Animate);
 
-;// ./node_modules/framer-motion/dist/es/context/MotionConfigContext.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/components/create-proxy.mjs
 
 
-/**
- * @public
- */
-const MotionConfigContext = (0,external_React_.createContext)({
-    transformPagePoint: (p) => p,
-    isStatic: false,
-    reducedMotion: "never",
-});
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/MotionContext/index.mjs
-
-
-const MotionContext = (0,external_React_.createContext)({});
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/PresenceContext.mjs
-
-
-/**
- * @public
- */
-const PresenceContext_PresenceContext = (0,external_React_.createContext)(null);
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/is-browser.mjs
-const is_browser_isBrowser = typeof document !== "undefined";
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/use-isomorphic-effect.mjs
-
-
-
-const useIsomorphicLayoutEffect = is_browser_isBrowser ? external_React_.useLayoutEffect : external_React_.useEffect;
+function createDOMMotionComponentProxy(componentFactory) {
+    if (typeof Proxy === "undefined") {
+        return componentFactory;
+    }
+    /**
+     * A cache of generated `motion` components, e.g `motion.div`, `motion.input` etc.
+     * Rather than generating them anew every render.
+     */
+    const componentCache = new Map();
+    const deprecatedFactoryFunction = (...args) => {
+        if (false) {}
+        return componentFactory(...args);
+    };
+    return new Proxy(deprecatedFactoryFunction, {
+        /**
+         * Called when `motion` is referenced with a prop: `motion.div`, `motion.input` etc.
+         * The prop name is passed through as `key` and we can use that to generate a `motion`
+         * DOM component with that name.
+         */
+        get: (_target, key) => {
+            if (key === "create")
+                return componentFactory;
+            /**
+             * If this element doesn't exist in the component cache, create it and cache.
+             */
+            if (!componentCache.has(key)) {
+                componentCache.set(key, componentFactory(key));
+            }
+            return componentCache.get(key);
+        },
+    });
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/context/LazyContext.mjs
-
-
-const LazyContext = (0,external_React_.createContext)({ strict: false });
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/camel-to-dash.mjs
-/**
- * Convert camelCase to dash-case properties.
- */
-const camelToDash = (str) => str.replace(/([a-z])([A-Z])/gu, "$1-$2").toLowerCase();
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/is-animation-controls.mjs
+function isAnimationControls(v) {
+    return (v !== null &&
+        typeof v === "object" &&
+        typeof v.start === "function");
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/optimized-appear/data-id.mjs
-
-
-const optimizedAppearDataId = "framerAppearId";
-const optimizedAppearDataAttribute = "data-" + camelToDash(optimizedAppearDataId);
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/GlobalConfig.mjs
-const MotionGlobalConfig = {
-    skipAnimations: false,
-    useManualTiming: false,
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/is-keyframes-target.mjs
+const isKeyframesTarget = (v) => {
+    return Array.isArray(v);
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/frameloop/render-step.mjs
-class Queue {
-    constructor() {
-        this.order = [];
-        this.scheduled = new Set();
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/shallow-compare.mjs
+function shallowCompare(next, prev) {
+    if (!Array.isArray(prev))
+        return false;
+    const prevLength = prev.length;
+    if (prevLength !== next.length)
+        return false;
+    for (let i = 0; i < prevLength; i++) {
+        if (prev[i] !== next[i])
+            return false;
     }
-    add(process) {
-        if (!this.scheduled.has(process)) {
-            this.scheduled.add(process);
-            this.order.push(process);
-            return true;
-        }
-    }
-    remove(process) {
-        const index = this.order.indexOf(process);
-        if (index !== -1) {
-            this.order.splice(index, 1);
-            this.scheduled.delete(process);
-        }
-    }
-    clear() {
-        this.order.length = 0;
-        this.scheduled.clear();
-    }
-}
-function createRenderStep(runNextFrame) {
-    /**
-     * We create and reuse two queues, one to queue jobs for the current frame
-     * and one for the next. We reuse to avoid triggering GC after x frames.
-     */
-    let thisFrame = new Queue();
-    let nextFrame = new Queue();
-    let numToRun = 0;
-    /**
-     * Track whether we're currently processing jobs in this step. This way
-     * we can decide whether to schedule new jobs for this frame or next.
-     */
-    let isProcessing = false;
-    let flushNextFrame = false;
-    /**
-     * A set of processes which were marked keepAlive when scheduled.
-     */
-    const toKeepAlive = new WeakSet();
-    const step = {
-        /**
-         * Schedule a process to run on the next frame.
-         */
-        schedule: (callback, keepAlive = false, immediate = false) => {
-            const addToCurrentFrame = immediate && isProcessing;
-            const queue = addToCurrentFrame ? thisFrame : nextFrame;
-            if (keepAlive)
-                toKeepAlive.add(callback);
-            if (queue.add(callback) && addToCurrentFrame && isProcessing) {
-                // If we're adding it to the currently running queue, update its measured size
-                numToRun = thisFrame.order.length;
-            }
-            return callback;
-        },
-        /**
-         * Cancel the provided callback from running on the next frame.
-         */
-        cancel: (callback) => {
-            nextFrame.remove(callback);
-            toKeepAlive.delete(callback);
-        },
-        /**
-         * Execute all schedule callbacks.
-         */
-        process: (frameData) => {
-            /**
-             * If we're already processing we've probably been triggered by a flushSync
-             * inside an existing process. Instead of executing, mark flushNextFrame
-             * as true and ensure we flush the following frame at the end of this one.
-             */
-            if (isProcessing) {
-                flushNextFrame = true;
-                return;
-            }
-            isProcessing = true;
-            [thisFrame, nextFrame] = [nextFrame, thisFrame];
-            // Clear the next frame queue
-            nextFrame.clear();
-            // Execute this frame
-            numToRun = thisFrame.order.length;
-            if (numToRun) {
-                for (let i = 0; i < numToRun; i++) {
-                    const callback = thisFrame.order[i];
-                    if (toKeepAlive.has(callback)) {
-                        step.schedule(callback);
-                        runNextFrame();
-                    }
-                    callback(frameData);
-                }
-            }
-            isProcessing = false;
-            if (flushNextFrame) {
-                flushNextFrame = false;
-                step.process(frameData);
-            }
-        },
-    };
-    return step;
+    return true;
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/frameloop/batcher.mjs
-
-
-
-const stepsOrder = [
-    "read", // Read
-    "resolveKeyframes", // Write/Read/Write/Read
-    "update", // Compute
-    "preRender", // Compute
-    "render", // Write
-    "postRender", // Compute
-];
-const maxElapsed = 40;
-function createRenderBatcher(scheduleNextBatch, allowKeepAlive) {
-    let runNextFrame = false;
-    let useDefaultElapsed = true;
-    const state = {
-        delta: 0,
-        timestamp: 0,
-        isProcessing: false,
-    };
-    const steps = stepsOrder.reduce((acc, key) => {
-        acc[key] = createRenderStep(() => (runNextFrame = true));
-        return acc;
-    }, {});
-    const processStep = (stepId) => {
-        steps[stepId].process(state);
-    };
-    const processBatch = () => {
-        const timestamp = MotionGlobalConfig.useManualTiming
-            ? state.timestamp
-            : performance.now();
-        runNextFrame = false;
-        state.delta = useDefaultElapsed
-            ? 1000 / 60
-            : Math.max(Math.min(timestamp - state.timestamp, maxElapsed), 1);
-        state.timestamp = timestamp;
-        state.isProcessing = true;
-        stepsOrder.forEach(processStep);
-        state.isProcessing = false;
-        if (runNextFrame && allowKeepAlive) {
-            useDefaultElapsed = false;
-            scheduleNextBatch(processBatch);
-        }
-    };
-    const wake = () => {
-        runNextFrame = true;
-        useDefaultElapsed = true;
-        if (!state.isProcessing) {
-            scheduleNextBatch(processBatch);
-        }
-    };
-    const schedule = stepsOrder.reduce((acc, key) => {
-        const step = steps[key];
-        acc[key] = (process, keepAlive = false, immediate = false) => {
-            if (!runNextFrame)
-                wake();
-            return step.schedule(process, keepAlive, immediate);
-        };
-        return acc;
-    }, {});
-    const cancel = (process) => stepsOrder.forEach((key) => steps[key].cancel(process));
-    return { schedule, cancel, state, steps };
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/frameloop/microtask.mjs
-
-
-const { schedule: microtask, cancel: cancelMicrotask } = createRenderBatcher(queueMicrotask, false);
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/utils/use-visual-element.mjs
-
-
-
-
-
-
-
-
-
-function useVisualElement(Component, visualState, props, createVisualElement) {
-    const { visualElement: parent } = (0,external_React_.useContext)(MotionContext);
-    const lazyContext = (0,external_React_.useContext)(LazyContext);
-    const presenceContext = (0,external_React_.useContext)(PresenceContext_PresenceContext);
-    const reducedMotionConfig = (0,external_React_.useContext)(MotionConfigContext).reducedMotion;
-    const visualElementRef = (0,external_React_.useRef)();
-    /**
-     * If we haven't preloaded a renderer, check to see if we have one lazy-loaded
-     */
-    createVisualElement = createVisualElement || lazyContext.renderer;
-    if (!visualElementRef.current && createVisualElement) {
-        visualElementRef.current = createVisualElement(Component, {
-            visualState,
-            parent,
-            props,
-            presenceContext,
-            blockInitialAnimation: presenceContext
-                ? presenceContext.initial === false
-                : false,
-            reducedMotionConfig,
-        });
-    }
-    const visualElement = visualElementRef.current;
-    (0,external_React_.useInsertionEffect)(() => {
-        visualElement && visualElement.update(props, presenceContext);
-    });
-    /**
-     * Cache this value as we want to know whether HandoffAppearAnimations
-     * was present on initial render - it will be deleted after this.
-     */
-    const wantsHandoff = (0,external_React_.useRef)(Boolean(props[optimizedAppearDataAttribute] &&
-        !window.HandoffComplete));
-    useIsomorphicLayoutEffect(() => {
-        if (!visualElement)
-            return;
-        microtask.postRender(visualElement.render);
-        /**
-         * Ideally this function would always run in a useEffect.
-         *
-         * However, if we have optimised appear animations to handoff from,
-         * it needs to happen synchronously to ensure there's no flash of
-         * incorrect styles in the event of a hydration error.
-         *
-         * So if we detect a situtation where optimised appear animations
-         * are running, we use useLayoutEffect to trigger animations.
-         */
-        if (wantsHandoff.current && visualElement.animationState) {
-            visualElement.animationState.animateChanges();
-        }
-    });
-    (0,external_React_.useEffect)(() => {
-        if (!visualElement)
-            return;
-        visualElement.updateFeatures();
-        if (!wantsHandoff.current && visualElement.animationState) {
-            visualElement.animationState.animateChanges();
-        }
-        if (wantsHandoff.current) {
-            wantsHandoff.current = false;
-            // This ensures all future calls to animateChanges() will run in useEffect
-            window.HandoffComplete = true;
-        }
-    });
-    return visualElement;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/is-ref-object.mjs
-function isRefObject(ref) {
-    return (ref &&
-        typeof ref === "object" &&
-        Object.prototype.hasOwnProperty.call(ref, "current"));
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/utils/use-motion-ref.mjs
-
-
-
-/**
- * Creates a ref function that, when called, hydrates the provided
- * external ref and VisualElement.
- */
-function useMotionRef(visualState, visualElement, externalRef) {
-    return (0,external_React_.useCallback)((instance) => {
-        instance && visualState.mount && visualState.mount(instance);
-        if (visualElement) {
-            instance
-                ? visualElement.mount(instance)
-                : visualElement.unmount();
-        }
-        if (externalRef) {
-            if (typeof externalRef === "function") {
-                externalRef(instance);
-            }
-            else if (isRefObject(externalRef)) {
-                externalRef.current = instance;
-            }
-        }
-    }, 
-    /**
-     * Only pass a new ref callback to React if we've received a visual element
-     * factory. Otherwise we'll be mounting/remounting every time externalRef
-     * or other dependencies change.
-     */
-    [visualElement]);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/utils/is-variant-label.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/is-variant-label.mjs
 /**
  * Decides if the supplied variable is variant label
  */
@@ -17015,16 +16711,55 @@ function isVariantLabel(v) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/utils/is-animation-controls.mjs
-function isAnimationControls(v) {
-    return (v !== null &&
-        typeof v === "object" &&
-        typeof v.start === "function");
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/resolve-variants.mjs
+function getValueState(visualElement) {
+    const state = [{}, {}];
+    visualElement === null || visualElement === void 0 ? void 0 : visualElement.values.forEach((value, key) => {
+        state[0][key] = value.get();
+        state[1][key] = value.getVelocity();
+    });
+    return state;
+}
+function resolveVariantFromProps(props, definition, custom, visualElement) {
+    /**
+     * If the variant definition is a function, resolve.
+     */
+    if (typeof definition === "function") {
+        const [current, velocity] = getValueState(visualElement);
+        definition = definition(custom !== undefined ? custom : props.custom, current, velocity);
+    }
+    /**
+     * If the variant definition is a variant label, or
+     * the function returned a variant label, resolve.
+     */
+    if (typeof definition === "string") {
+        definition = props.variants && props.variants[definition];
+    }
+    /**
+     * At this point we've resolved both functions and variant labels,
+     * but the resolved variant label might itself have been a function.
+     * If so, resolve. This can only have returned a valid target object.
+     */
+    if (typeof definition === "function") {
+        const [current, velocity] = getValueState(visualElement);
+        definition = definition(custom !== undefined ? custom : props.custom, current, velocity);
+    }
+    return definition;
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/variant-props.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/resolve-dynamic-variants.mjs
+
+
+function resolveVariant(visualElement, definition, custom) {
+    const props = visualElement.getProps();
+    return resolveVariantFromProps(props, definition, custom !== undefined ? custom : props.custom, visualElement);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/variant-props.mjs
 const variantPriorityOrder = [
     "animate",
     "whileInView",
@@ -17038,325 +16773,7 @@ const variantProps = ["initial", ...variantPriorityOrder];
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/is-controlling-variants.mjs
-
-
-
-
-function isControllingVariants(props) {
-    return (isAnimationControls(props.animate) ||
-        variantProps.some((name) => isVariantLabel(props[name])));
-}
-function isVariantNode(props) {
-    return Boolean(isControllingVariants(props) || props.variants);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/MotionContext/utils.mjs
-
-
-
-function getCurrentTreeVariants(props, context) {
-    if (isControllingVariants(props)) {
-        const { initial, animate } = props;
-        return {
-            initial: initial === false || isVariantLabel(initial)
-                ? initial
-                : undefined,
-            animate: isVariantLabel(animate) ? animate : undefined,
-        };
-    }
-    return props.inherit !== false ? context : {};
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/MotionContext/create.mjs
-
-
-
-
-function useCreateMotionContext(props) {
-    const { initial, animate } = getCurrentTreeVariants(props, (0,external_React_.useContext)(MotionContext));
-    return (0,external_React_.useMemo)(() => ({ initial, animate }), [variantLabelsAsDependency(initial), variantLabelsAsDependency(animate)]);
-}
-function variantLabelsAsDependency(prop) {
-    return Array.isArray(prop) ? prop.join(" ") : prop;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/definitions.mjs
-const featureProps = {
-    animation: [
-        "animate",
-        "variants",
-        "whileHover",
-        "whileTap",
-        "exit",
-        "whileInView",
-        "whileFocus",
-        "whileDrag",
-    ],
-    exit: ["exit"],
-    drag: ["drag", "dragControls"],
-    focus: ["whileFocus"],
-    hover: ["whileHover", "onHoverStart", "onHoverEnd"],
-    tap: ["whileTap", "onTap", "onTapStart", "onTapCancel"],
-    pan: ["onPan", "onPanStart", "onPanSessionStart", "onPanEnd"],
-    inView: ["whileInView", "onViewportEnter", "onViewportLeave"],
-    layout: ["layout", "layoutId"],
-};
-const featureDefinitions = {};
-for (const key in featureProps) {
-    featureDefinitions[key] = {
-        isEnabled: (props) => featureProps[key].some((name) => !!props[name]),
-    };
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/load-features.mjs
-
-
-function loadFeatures(features) {
-    for (const key in features) {
-        featureDefinitions[key] = {
-            ...featureDefinitions[key],
-            ...features[key],
-        };
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/LayoutGroupContext.mjs
-
-
-const LayoutGroupContext = (0,external_React_.createContext)({});
-
-
-
-;// ./node_modules/framer-motion/dist/es/context/SwitchLayoutGroupContext.mjs
-
-
-/**
- * Internal, exported only for usage in Framer
- */
-const SwitchLayoutGroupContext = (0,external_React_.createContext)({});
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/utils/symbol.mjs
-const motionComponentSymbol = Symbol.for("motionComponentSymbol");
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/index.mjs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**
- * Create a `motion` component.
- *
- * This function accepts a Component argument, which can be either a string (ie "div"
- * for `motion.div`), or an actual React component.
- *
- * Alongside this is a config option which provides a way of rendering the provided
- * component "offline", or outside the React render cycle.
- */
-function motion_createMotionComponent({ preloadedFeatures, createVisualElement, useRender, useVisualState, Component, }) {
-    preloadedFeatures && loadFeatures(preloadedFeatures);
-    function MotionComponent(props, externalRef) {
-        /**
-         * If we need to measure the element we load this functionality in a
-         * separate class component in order to gain access to getSnapshotBeforeUpdate.
-         */
-        let MeasureLayout;
-        const configAndProps = {
-            ...(0,external_React_.useContext)(MotionConfigContext),
-            ...props,
-            layoutId: useLayoutId(props),
-        };
-        const { isStatic } = configAndProps;
-        const context = useCreateMotionContext(props);
-        const visualState = useVisualState(props, isStatic);
-        if (!isStatic && is_browser_isBrowser) {
-            /**
-             * Create a VisualElement for this component. A VisualElement provides a common
-             * interface to renderer-specific APIs (ie DOM/Three.js etc) as well as
-             * providing a way of rendering to these APIs outside of the React render loop
-             * for more performant animations and interactions
-             */
-            context.visualElement = useVisualElement(Component, visualState, configAndProps, createVisualElement);
-            /**
-             * Load Motion gesture and animation features. These are rendered as renderless
-             * components so each feature can optionally make use of React lifecycle methods.
-             */
-            const initialLayoutGroupConfig = (0,external_React_.useContext)(SwitchLayoutGroupContext);
-            const isStrict = (0,external_React_.useContext)(LazyContext).strict;
-            if (context.visualElement) {
-                MeasureLayout = context.visualElement.loadFeatures(
-                // Note: Pass the full new combined props to correctly re-render dynamic feature components.
-                configAndProps, isStrict, preloadedFeatures, initialLayoutGroupConfig);
-            }
-        }
-        /**
-         * The mount order and hierarchy is specific to ensure our element ref
-         * is hydrated by the time features fire their effects.
-         */
-        return ((0,external_ReactJSXRuntime_namespaceObject.jsxs)(MotionContext.Provider, { value: context, children: [MeasureLayout && context.visualElement ? ((0,external_ReactJSXRuntime_namespaceObject.jsx)(MeasureLayout, { visualElement: context.visualElement, ...configAndProps })) : null, useRender(Component, props, useMotionRef(visualState, context.visualElement, externalRef), visualState, isStatic, context.visualElement)] }));
-    }
-    const ForwardRefComponent = (0,external_React_.forwardRef)(MotionComponent);
-    ForwardRefComponent[motionComponentSymbol] = Component;
-    return ForwardRefComponent;
-}
-function useLayoutId({ layoutId }) {
-    const layoutGroupId = (0,external_React_.useContext)(LayoutGroupContext).id;
-    return layoutGroupId && layoutId !== undefined
-        ? layoutGroupId + "-" + layoutId
-        : layoutId;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/motion-proxy.mjs
-
-
-/**
- * Convert any React component into a `motion` component. The provided component
- * **must** use `React.forwardRef` to the underlying DOM component you want to animate.
- *
- * ```jsx
- * const Component = React.forwardRef((props, ref) => {
- *   return <div ref={ref} />
- * })
- *
- * const MotionComponent = motion(Component)
- * ```
- *
- * @public
- */
-function createMotionProxy(createConfig) {
-    function custom(Component, customMotionComponentConfig = {}) {
-        return motion_createMotionComponent(createConfig(Component, customMotionComponentConfig));
-    }
-    if (typeof Proxy === "undefined") {
-        return custom;
-    }
-    /**
-     * A cache of generated `motion` components, e.g `motion.div`, `motion.input` etc.
-     * Rather than generating them anew every render.
-     */
-    const componentCache = new Map();
-    return new Proxy(custom, {
-        /**
-         * Called when `motion` is referenced with a prop: `motion.div`, `motion.input` etc.
-         * The prop name is passed through as `key` and we can use that to generate a `motion`
-         * DOM component with that name.
-         */
-        get: (_target, key) => {
-            /**
-             * If this element doesn't exist in the component cache, create it and cache.
-             */
-            if (!componentCache.has(key)) {
-                componentCache.set(key, custom(key));
-            }
-            return componentCache.get(key);
-        },
-    });
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/lowercase-elements.mjs
-/**
- * We keep these listed seperately as we use the lowercase tag names as part
- * of the runtime bundle to detect SVG components
- */
-const lowercaseSVGElements = [
-    "animate",
-    "circle",
-    "defs",
-    "desc",
-    "ellipse",
-    "g",
-    "image",
-    "line",
-    "filter",
-    "marker",
-    "mask",
-    "metadata",
-    "path",
-    "pattern",
-    "polygon",
-    "polyline",
-    "rect",
-    "stop",
-    "switch",
-    "symbol",
-    "svg",
-    "text",
-    "tspan",
-    "use",
-    "view",
-];
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/is-svg-component.mjs
-
-
-function isSVGComponent(Component) {
-    if (
-    /**
-     * If it's not a string, it's a custom React component. Currently we only support
-     * HTML custom React components.
-     */
-    typeof Component !== "string" ||
-        /**
-         * If it contains a dash, the element is a custom HTML webcomponent.
-         */
-        Component.includes("-")) {
-        return false;
-    }
-    else if (
-    /**
-     * If it's in our list of lowercase SVG tags, it's an SVG component
-     */
-    lowercaseSVGElements.indexOf(Component) > -1 ||
-        /**
-         * If it contains a capital letter, it's an SVG component
-         */
-        /[A-Z]/u.test(Component)) {
-        return true;
-    }
-    return false;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/projection/styles/scale-correction.mjs
-const scaleCorrectors = {};
-function addScaleCorrector(correctors) {
-    Object.assign(scaleCorrectors, correctors);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/transform.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/transform.mjs
 /**
  * Generate a list of every possible transform key.
  */
@@ -17386,1629 +16803,19 @@ const transformProps = new Set(transformPropOrder);
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/utils/is-forced-motion-value.mjs
-
-
-
-function isForcedMotionValue(key, { layout, layoutId }) {
-    return (transformProps.has(key) ||
-        key.startsWith("origin") ||
-        ((layout || layoutId !== undefined) &&
-            (!!scaleCorrectors[key] || key === "opacity")));
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/value/utils/is-motion-value.mjs
-const isMotionValue = (value) => Boolean(value && value.getVelocity);
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/build-transform.mjs
-
-
-const translateAlias = {
-    x: "translateX",
-    y: "translateY",
-    z: "translateZ",
-    transformPerspective: "perspective",
-};
-const numTransforms = transformPropOrder.length;
-/**
- * Build a CSS transform style from individual x/y/scale etc properties.
- *
- * This outputs with a default order of transforms/scales/rotations, this can be customised by
- * providing a transformTemplate function.
- */
-function buildTransform(transform, { enableHardwareAcceleration = true, allowTransformNone = true, }, transformIsDefault, transformTemplate) {
-    // The transform string we're going to build into.
-    let transformString = "";
-    /**
-     * Loop over all possible transforms in order, adding the ones that
-     * are present to the transform string.
-     */
-    for (let i = 0; i < numTransforms; i++) {
-        const key = transformPropOrder[i];
-        if (transform[key] !== undefined) {
-            const transformName = translateAlias[key] || key;
-            transformString += `${transformName}(${transform[key]}) `;
-        }
-    }
-    if (enableHardwareAcceleration && !transform.z) {
-        transformString += "translateZ(0)";
-    }
-    transformString = transformString.trim();
-    // If we have a custom `transform` template, pass our transform values and
-    // generated transformString to that before returning
-    if (transformTemplate) {
-        transformString = transformTemplate(transform, transformIsDefault ? "" : transformString);
-    }
-    else if (allowTransformNone && transformIsDefault) {
-        transformString = "none";
-    }
-    return transformString;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/is-css-variable.mjs
-const checkStringStartsWith = (token) => (key) => typeof key === "string" && key.startsWith(token);
-const isCSSVariableName = checkStringStartsWith("--");
-const startsAsVariableToken = checkStringStartsWith("var(--");
-const isCSSVariableToken = (value) => {
-    const startsWithToken = startsAsVariableToken(value);
-    if (!startsWithToken)
-        return false;
-    // Ensure any comments are stripped from the value as this can harm performance of the regex.
-    return singleCssVariableRegex.test(value.split("/*")[0].trim());
-};
-const singleCssVariableRegex = /var\(--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)$/iu;
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/get-as-type.mjs
-/**
- * Provided a value and a ValueType, returns the value as that value type.
- */
-const getValueAsType = (value, type) => {
-    return type && typeof value === "number"
-        ? type.transform(value)
-        : value;
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/clamp.mjs
-const clamp_clamp = (min, max, v) => {
-    if (v > max)
-        return max;
-    if (v < min)
-        return min;
-    return v;
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/value/types/numbers/index.mjs
-
-
-const number = {
-    test: (v) => typeof v === "number",
-    parse: parseFloat,
-    transform: (v) => v,
-};
-const alpha = {
-    ...number,
-    transform: (v) => clamp_clamp(0, 1, v),
-};
-const scale = {
-    ...number,
-    default: 1,
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/value/types/utils.mjs
-/**
- * TODO: When we move from string as a source of truth to data models
- * everything in this folder should probably be referred to as models vs types
- */
-// If this number is a decimal, make it just five decimal places
-// to avoid exponents
-const sanitize = (v) => Math.round(v * 100000) / 100000;
-const floatRegex = /-?(?:\d+(?:\.\d+)?|\.\d+)/gu;
-const colorRegex = /(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))/giu;
-const singleColorRegex = /^(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))$/iu;
-function isString(v) {
-    return typeof v === "string";
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/value/types/numbers/units.mjs
-
-
-const createUnitType = (unit) => ({
-    test: (v) => isString(v) && v.endsWith(unit) && v.split(" ").length === 1,
-    parse: parseFloat,
-    transform: (v) => `${v}${unit}`,
-});
-const degrees = createUnitType("deg");
-const percent = createUnitType("%");
-const px = createUnitType("px");
-const vh = createUnitType("vh");
-const vw = createUnitType("vw");
-const progressPercentage = {
-    ...percent,
-    parse: (v) => percent.parse(v) / 100,
-    transform: (v) => percent.transform(v * 100),
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/type-int.mjs
-
-
-const type_int_int = {
-    ...number,
-    transform: Math.round,
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/number.mjs
-
-
-
-
-const numberValueTypes = {
-    // Border props
-    borderWidth: px,
-    borderTopWidth: px,
-    borderRightWidth: px,
-    borderBottomWidth: px,
-    borderLeftWidth: px,
-    borderRadius: px,
-    radius: px,
-    borderTopLeftRadius: px,
-    borderTopRightRadius: px,
-    borderBottomRightRadius: px,
-    borderBottomLeftRadius: px,
-    // Positioning props
-    width: px,
-    maxWidth: px,
-    height: px,
-    maxHeight: px,
-    size: px,
-    top: px,
-    right: px,
-    bottom: px,
-    left: px,
-    // Spacing props
-    padding: px,
-    paddingTop: px,
-    paddingRight: px,
-    paddingBottom: px,
-    paddingLeft: px,
-    margin: px,
-    marginTop: px,
-    marginRight: px,
-    marginBottom: px,
-    marginLeft: px,
-    // Transform props
-    rotate: degrees,
-    rotateX: degrees,
-    rotateY: degrees,
-    rotateZ: degrees,
-    scale: scale,
-    scaleX: scale,
-    scaleY: scale,
-    scaleZ: scale,
-    skew: degrees,
-    skewX: degrees,
-    skewY: degrees,
-    distance: px,
-    translateX: px,
-    translateY: px,
-    translateZ: px,
-    x: px,
-    y: px,
-    z: px,
-    perspective: px,
-    transformPerspective: px,
-    opacity: alpha,
-    originX: progressPercentage,
-    originY: progressPercentage,
-    originZ: px,
-    // Misc
-    zIndex: type_int_int,
-    backgroundPositionX: px,
-    backgroundPositionY: px,
-    // SVG
-    fillOpacity: alpha,
-    strokeOpacity: alpha,
-    numOctaves: type_int_int,
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/build-styles.mjs
-
-
-
-
-
-
-function buildHTMLStyles(state, latestValues, options, transformTemplate) {
-    const { style, vars, transform, transformOrigin } = state;
-    // Track whether we encounter any transform or transformOrigin values.
-    let hasTransform = false;
-    let hasTransformOrigin = false;
-    // Does the calculated transform essentially equal "none"?
-    let transformIsNone = true;
-    /**
-     * Loop over all our latest animated values and decide whether to handle them
-     * as a style or CSS variable.
-     *
-     * Transforms and transform origins are kept seperately for further processing.
-     */
-    for (const key in latestValues) {
-        const value = latestValues[key];
-        /**
-         * If this is a CSS variable we don't do any further processing.
-         */
-        if (isCSSVariableName(key)) {
-            vars[key] = value;
-            continue;
-        }
-        // Convert the value to its default value type, ie 0 -> "0px"
-        const valueType = numberValueTypes[key];
-        const valueAsType = getValueAsType(value, valueType);
-        if (transformProps.has(key)) {
-            // If this is a transform, flag to enable further transform processing
-            hasTransform = true;
-            transform[key] = valueAsType;
-            // If we already know we have a non-default transform, early return
-            if (!transformIsNone)
-                continue;
-            // Otherwise check to see if this is a default transform
-            if (value !== (valueType.default || 0))
-                transformIsNone = false;
-        }
-        else if (key.startsWith("origin")) {
-            // If this is a transform origin, flag and enable further transform-origin processing
-            hasTransformOrigin = true;
-            transformOrigin[key] = valueAsType;
-        }
-        else {
-            style[key] = valueAsType;
-        }
-    }
-    if (!latestValues.transform) {
-        if (hasTransform || transformTemplate) {
-            style.transform = buildTransform(state.transform, options, transformIsNone, transformTemplate);
-        }
-        else if (style.transform) {
-            /**
-             * If we have previously created a transform but currently don't have any,
-             * reset transform style to none.
-             */
-            style.transform = "none";
-        }
-    }
-    /**
-     * Build a transformOrigin style. Uses the same defaults as the browser for
-     * undefined origins.
-     */
-    if (hasTransformOrigin) {
-        const { originX = "50%", originY = "50%", originZ = 0, } = transformOrigin;
-        style.transformOrigin = `${originX} ${originY} ${originZ}`;
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/create-render-state.mjs
-const createHtmlRenderState = () => ({
-    style: {},
-    transform: {},
-    transformOrigin: {},
-    vars: {},
-});
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/use-props.mjs
-
-
-
-
-
-
-function copyRawValuesOnly(target, source, props) {
-    for (const key in source) {
-        if (!isMotionValue(source[key]) && !isForcedMotionValue(key, props)) {
-            target[key] = source[key];
-        }
-    }
-}
-function useInitialMotionValues({ transformTemplate }, visualState, isStatic) {
-    return (0,external_React_.useMemo)(() => {
-        const state = createHtmlRenderState();
-        buildHTMLStyles(state, visualState, { enableHardwareAcceleration: !isStatic }, transformTemplate);
-        return Object.assign({}, state.vars, state.style);
-    }, [visualState]);
-}
-function useStyle(props, visualState, isStatic) {
-    const styleProp = props.style || {};
-    const style = {};
-    /**
-     * Copy non-Motion Values straight into style
-     */
-    copyRawValuesOnly(style, styleProp, props);
-    Object.assign(style, useInitialMotionValues(props, visualState, isStatic));
-    return style;
-}
-function useHTMLProps(props, visualState, isStatic) {
-    // The `any` isn't ideal but it is the type of createElement props argument
-    const htmlProps = {};
-    const style = useStyle(props, visualState, isStatic);
-    if (props.drag && props.dragListener !== false) {
-        // Disable the ghost element when a user drags
-        htmlProps.draggable = false;
-        // Disable text selection
-        style.userSelect =
-            style.WebkitUserSelect =
-                style.WebkitTouchCallout =
-                    "none";
-        // Disable scrolling on the draggable direction
-        style.touchAction =
-            props.drag === true
-                ? "none"
-                : `pan-${props.drag === "x" ? "y" : "x"}`;
-    }
-    if (props.tabIndex === undefined &&
-        (props.onTap || props.onTapStart || props.whileTap)) {
-        htmlProps.tabIndex = 0;
-    }
-    htmlProps.style = style;
-    return htmlProps;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/utils/valid-prop.mjs
-/**
- * A list of all valid MotionProps.
- *
- * @privateRemarks
- * This doesn't throw if a `MotionProp` name is missing - it should.
- */
-const validMotionProps = new Set([
-    "animate",
-    "exit",
-    "variants",
-    "initial",
-    "style",
-    "values",
-    "variants",
-    "transition",
-    "transformTemplate",
-    "custom",
-    "inherit",
-    "onBeforeLayoutMeasure",
-    "onAnimationStart",
-    "onAnimationComplete",
-    "onUpdate",
-    "onDragStart",
-    "onDrag",
-    "onDragEnd",
-    "onMeasureDragConstraints",
-    "onDirectionLock",
-    "onDragTransitionEnd",
-    "_dragX",
-    "_dragY",
-    "onHoverStart",
-    "onHoverEnd",
-    "onViewportEnter",
-    "onViewportLeave",
-    "globalTapTarget",
-    "ignoreStrict",
-    "viewport",
-]);
-/**
- * Check whether a prop name is a valid `MotionProp` key.
- *
- * @param key - Name of the property to check
- * @returns `true` is key is a valid `MotionProp`.
- *
- * @public
- */
-function isValidMotionProp(key) {
-    return (key.startsWith("while") ||
-        (key.startsWith("drag") && key !== "draggable") ||
-        key.startsWith("layout") ||
-        key.startsWith("onTap") ||
-        key.startsWith("onPan") ||
-        key.startsWith("onLayout") ||
-        validMotionProps.has(key));
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/filter-props.mjs
-
-
-let shouldForward = (key) => !isValidMotionProp(key);
-function loadExternalIsValidProp(isValidProp) {
-    if (!isValidProp)
-        return;
-    // Explicitly filter our events
-    shouldForward = (key) => key.startsWith("on") ? !isValidMotionProp(key) : isValidProp(key);
-}
-/**
- * Emotion and Styled Components both allow users to pass through arbitrary props to their components
- * to dynamically generate CSS. They both use the `@emotion/is-prop-valid` package to determine which
- * of these should be passed to the underlying DOM node.
- *
- * However, when styling a Motion component `styled(motion.div)`, both packages pass through *all* props
- * as it's seen as an arbitrary component rather than a DOM node. Motion only allows arbitrary props
- * passed through the `custom` prop so it doesn't *need* the payload or computational overhead of
- * `@emotion/is-prop-valid`, however to fix this problem we need to use it.
- *
- * By making it an optionalDependency we can offer this functionality only in the situations where it's
- * actually required.
- */
-try {
-    /**
-     * We attempt to import this package but require won't be defined in esm environments, in that case
-     * isPropValid will have to be provided via `MotionContext`. In a 6.0.0 this should probably be removed
-     * in favour of explicit injection.
-     */
-    loadExternalIsValidProp(require("@emotion/is-prop-valid").default);
-}
-catch (_a) {
-    // We don't need to actually do anything here - the fallback is the existing `isPropValid`.
-}
-function filterProps(props, isDom, forwardMotionProps) {
-    const filteredProps = {};
-    for (const key in props) {
-        /**
-         * values is considered a valid prop by Emotion, so if it's present
-         * this will be rendered out to the DOM unless explicitly filtered.
-         *
-         * We check the type as it could be used with the `feColorMatrix`
-         * element, which we support.
-         */
-        if (key === "values" && typeof props.values === "object")
-            continue;
-        if (shouldForward(key) ||
-            (forwardMotionProps === true && isValidMotionProp(key)) ||
-            (!isDom && !isValidMotionProp(key)) ||
-            // If trying to use native HTML drag events, forward drag listeners
-            (props["draggable"] &&
-                key.startsWith("onDrag"))) {
-            filteredProps[key] =
-                props[key];
-        }
-    }
-    return filteredProps;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/transform-origin.mjs
-
-
-function calcOrigin(origin, offset, size) {
-    return typeof origin === "string"
-        ? origin
-        : px.transform(offset + size * origin);
-}
-/**
- * The SVG transform origin defaults are different to CSS and is less intuitive,
- * so we use the measured dimensions of the SVG to reconcile these.
- */
-function calcSVGTransformOrigin(dimensions, originX, originY) {
-    const pxOriginX = calcOrigin(originX, dimensions.x, dimensions.width);
-    const pxOriginY = calcOrigin(originY, dimensions.y, dimensions.height);
-    return `${pxOriginX} ${pxOriginY}`;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/path.mjs
-
-
-const dashKeys = {
-    offset: "stroke-dashoffset",
-    array: "stroke-dasharray",
-};
-const camelKeys = {
-    offset: "strokeDashoffset",
-    array: "strokeDasharray",
-};
-/**
- * Build SVG path properties. Uses the path's measured length to convert
- * our custom pathLength, pathSpacing and pathOffset into stroke-dashoffset
- * and stroke-dasharray attributes.
- *
- * This function is mutative to reduce per-frame GC.
- */
-function buildSVGPath(attrs, length, spacing = 1, offset = 0, useDashCase = true) {
-    // Normalise path length by setting SVG attribute pathLength to 1
-    attrs.pathLength = 1;
-    // We use dash case when setting attributes directly to the DOM node and camel case
-    // when defining props on a React component.
-    const keys = useDashCase ? dashKeys : camelKeys;
-    // Build the dash offset
-    attrs[keys.offset] = px.transform(-offset);
-    // Build the dash array
-    const pathLength = px.transform(length);
-    const pathSpacing = px.transform(spacing);
-    attrs[keys.array] = `${pathLength} ${pathSpacing}`;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/build-attrs.mjs
-
-
-
-
-/**
- * Build SVG visual attrbutes, like cx and style.transform
- */
-function buildSVGAttrs(state, { attrX, attrY, attrScale, originX, originY, pathLength, pathSpacing = 1, pathOffset = 0, 
-// This is object creation, which we try to avoid per-frame.
-...latest }, options, isSVGTag, transformTemplate) {
-    buildHTMLStyles(state, latest, options, transformTemplate);
-    /**
-     * For svg tags we just want to make sure viewBox is animatable and treat all the styles
-     * as normal HTML tags.
-     */
-    if (isSVGTag) {
-        if (state.style.viewBox) {
-            state.attrs.viewBox = state.style.viewBox;
-        }
-        return;
-    }
-    state.attrs = state.style;
-    state.style = {};
-    const { attrs, style, dimensions } = state;
-    /**
-     * However, we apply transforms as CSS transforms. So if we detect a transform we take it from attrs
-     * and copy it into style.
-     */
-    if (attrs.transform) {
-        if (dimensions)
-            style.transform = attrs.transform;
-        delete attrs.transform;
-    }
-    // Parse transformOrigin
-    if (dimensions &&
-        (originX !== undefined || originY !== undefined || style.transform)) {
-        style.transformOrigin = calcSVGTransformOrigin(dimensions, originX !== undefined ? originX : 0.5, originY !== undefined ? originY : 0.5);
-    }
-    // Render attrX/attrY/attrScale as attributes
-    if (attrX !== undefined)
-        attrs.x = attrX;
-    if (attrY !== undefined)
-        attrs.y = attrY;
-    if (attrScale !== undefined)
-        attrs.scale = attrScale;
-    // Build SVG path if one has been defined
-    if (pathLength !== undefined) {
-        buildSVGPath(attrs, pathLength, pathSpacing, pathOffset, false);
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/create-render-state.mjs
-
-
-const createSvgRenderState = () => ({
-    ...createHtmlRenderState(),
-    attrs: {},
-});
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/is-svg-tag.mjs
-const isSVGTag = (tag) => typeof tag === "string" && tag.toLowerCase() === "svg";
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/use-props.mjs
-
-
-
-
-
-
-function useSVGProps(props, visualState, _isStatic, Component) {
-    const visualProps = (0,external_React_.useMemo)(() => {
-        const state = createSvgRenderState();
-        buildSVGAttrs(state, visualState, { enableHardwareAcceleration: false }, isSVGTag(Component), props.transformTemplate);
-        return {
-            ...state.attrs,
-            style: { ...state.style },
-        };
-    }, [visualState]);
-    if (props.style) {
-        const rawStyles = {};
-        copyRawValuesOnly(rawStyles, props.style, props);
-        visualProps.style = { ...rawStyles, ...visualProps.style };
-    }
-    return visualProps;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/use-render.mjs
-
-
-
-
-
-
-
-function createUseRender(forwardMotionProps = false) {
-    const useRender = (Component, props, ref, { latestValues }, isStatic) => {
-        const useVisualProps = isSVGComponent(Component)
-            ? useSVGProps
-            : useHTMLProps;
-        const visualProps = useVisualProps(props, latestValues, isStatic, Component);
-        const filteredProps = filterProps(props, typeof Component === "string", forwardMotionProps);
-        const elementProps = Component !== external_React_.Fragment
-            ? { ...filteredProps, ...visualProps, ref }
-            : {};
-        /**
-         * If component has been handed a motion value as its child,
-         * memoise its initial value and render that. Subsequent updates
-         * will be handled by the onChange handler
-         */
-        const { children } = props;
-        const renderedChildren = (0,external_React_.useMemo)(() => (isMotionValue(children) ? children.get() : children), [children]);
-        return (0,external_React_.createElement)(Component, {
-            ...elementProps,
-            children: renderedChildren,
-        });
-    };
-    return useRender;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/render.mjs
-function renderHTML(element, { style, vars }, styleProp, projection) {
-    Object.assign(element.style, style, projection && projection.getProjectionStyles(styleProp));
-    // Loop over any CSS variables and assign those.
-    for (const key in vars) {
-        element.style.setProperty(key, vars[key]);
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/camel-case-attrs.mjs
-/**
- * A set of attribute names that are always read/written as camel case.
- */
-const camelCaseAttributes = new Set([
-    "baseFrequency",
-    "diffuseConstant",
-    "kernelMatrix",
-    "kernelUnitLength",
-    "keySplines",
-    "keyTimes",
-    "limitingConeAngle",
-    "markerHeight",
-    "markerWidth",
-    "numOctaves",
-    "targetX",
-    "targetY",
-    "surfaceScale",
-    "specularConstant",
-    "specularExponent",
-    "stdDeviation",
-    "tableValues",
-    "viewBox",
-    "gradientTransform",
-    "pathLength",
-    "startOffset",
-    "textLength",
-    "lengthAdjust",
-]);
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/render.mjs
-
-
-
-
-function renderSVG(element, renderState, _styleProp, projection) {
-    renderHTML(element, renderState, undefined, projection);
-    for (const key in renderState.attrs) {
-        element.setAttribute(!camelCaseAttributes.has(key) ? camelToDash(key) : key, renderState.attrs[key]);
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/utils/scrape-motion-values.mjs
-
-
-
-function scrapeMotionValuesFromProps(props, prevProps, visualElement) {
-    var _a;
-    const { style } = props;
-    const newValues = {};
-    for (const key in style) {
-        if (isMotionValue(style[key]) ||
-            (prevProps.style &&
-                isMotionValue(prevProps.style[key])) ||
-            isForcedMotionValue(key, props) ||
-            ((_a = visualElement === null || visualElement === void 0 ? void 0 : visualElement.getValue(key)) === null || _a === void 0 ? void 0 : _a.liveStyle) !== undefined) {
-            newValues[key] = style[key];
-        }
-    }
-    return newValues;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/utils/scrape-motion-values.mjs
-
-
-
-
-function scrape_motion_values_scrapeMotionValuesFromProps(props, prevProps, visualElement) {
-    const newValues = scrapeMotionValuesFromProps(props, prevProps, visualElement);
-    for (const key in props) {
-        if (isMotionValue(props[key]) ||
-            isMotionValue(prevProps[key])) {
-            const targetKey = transformPropOrder.indexOf(key) !== -1
-                ? "attr" + key.charAt(0).toUpperCase() + key.substring(1)
-                : key;
-            newValues[targetKey] = props[key];
-        }
-    }
-    return newValues;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/utils/resolve-variants.mjs
-function resolveVariantFromProps(props, definition, custom, currentValues = {}, currentVelocity = {}) {
-    /**
-     * If the variant definition is a function, resolve.
-     */
-    if (typeof definition === "function") {
-        definition = definition(custom !== undefined ? custom : props.custom, currentValues, currentVelocity);
-    }
-    /**
-     * If the variant definition is a variant label, or
-     * the function returned a variant label, resolve.
-     */
-    if (typeof definition === "string") {
-        definition = props.variants && props.variants[definition];
-    }
-    /**
-     * At this point we've resolved both functions and variant labels,
-     * but the resolved variant label might itself have been a function.
-     * If so, resolve. This can only have returned a valid target object.
-     */
-    if (typeof definition === "function") {
-        definition = definition(custom !== undefined ? custom : props.custom, currentValues, currentVelocity);
-    }
-    return definition;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/use-constant.mjs
-
-
-/**
- * Creates a constant value over the lifecycle of a component.
- *
- * Even if `useMemo` is provided an empty array as its final argument, it doesn't offer
- * a guarantee that it won't re-run for performance reasons later on. By using `useConstant`
- * you can ensure that initialisers don't execute twice or more.
- */
-function useConstant(init) {
-    const ref = (0,external_React_.useRef)(null);
-    if (ref.current === null) {
-        ref.current = init();
-    }
-    return ref.current;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/animation/utils/is-keyframes-target.mjs
-const isKeyframesTarget = (v) => {
-    return Array.isArray(v);
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/resolve-value.mjs
-
-
-const isCustomValue = (v) => {
-    return Boolean(v && typeof v === "object" && v.mix && v.toValue);
-};
-const resolveFinalValueInKeyframes = (v) => {
-    // TODO maybe throw if v.length - 1 is placeholder token?
-    return isKeyframesTarget(v) ? v[v.length - 1] || 0 : v;
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/value/utils/resolve-motion-value.mjs
-
-
-
-/**
- * If the provided value is a MotionValue, this returns the actual value, otherwise just the value itself
- *
- * TODO: Remove and move to library
- */
-function resolveMotionValue(value) {
-    const unwrappedValue = isMotionValue(value) ? value.get() : value;
-    return isCustomValue(unwrappedValue)
-        ? unwrappedValue.toValue()
-        : unwrappedValue;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/utils/use-visual-state.mjs
-
-
-
-
-
-
-
-
-
-function makeState({ scrapeMotionValuesFromProps, createRenderState, onMount, }, props, context, presenceContext) {
-    const state = {
-        latestValues: makeLatestValues(props, context, presenceContext, scrapeMotionValuesFromProps),
-        renderState: createRenderState(),
-    };
-    if (onMount) {
-        state.mount = (instance) => onMount(props, instance, state);
-    }
-    return state;
-}
-const makeUseVisualState = (config) => (props, isStatic) => {
-    const context = (0,external_React_.useContext)(MotionContext);
-    const presenceContext = (0,external_React_.useContext)(PresenceContext_PresenceContext);
-    const make = () => makeState(config, props, context, presenceContext);
-    return isStatic ? make() : useConstant(make);
-};
-function makeLatestValues(props, context, presenceContext, scrapeMotionValues) {
-    const values = {};
-    const motionValues = scrapeMotionValues(props, {});
-    for (const key in motionValues) {
-        values[key] = resolveMotionValue(motionValues[key]);
-    }
-    let { initial, animate } = props;
-    const isControllingVariants$1 = isControllingVariants(props);
-    const isVariantNode$1 = isVariantNode(props);
-    if (context &&
-        isVariantNode$1 &&
-        !isControllingVariants$1 &&
-        props.inherit !== false) {
-        if (initial === undefined)
-            initial = context.initial;
-        if (animate === undefined)
-            animate = context.animate;
-    }
-    let isInitialAnimationBlocked = presenceContext
-        ? presenceContext.initial === false
-        : false;
-    isInitialAnimationBlocked = isInitialAnimationBlocked || initial === false;
-    const variantToSet = isInitialAnimationBlocked ? animate : initial;
-    if (variantToSet &&
-        typeof variantToSet !== "boolean" &&
-        !isAnimationControls(variantToSet)) {
-        const list = Array.isArray(variantToSet) ? variantToSet : [variantToSet];
-        list.forEach((definition) => {
-            const resolved = resolveVariantFromProps(props, definition);
-            if (!resolved)
-                return;
-            const { transitionEnd, transition, ...target } = resolved;
-            for (const key in target) {
-                let valueTarget = target[key];
-                if (Array.isArray(valueTarget)) {
-                    /**
-                     * Take final keyframe if the initial animation is blocked because
-                     * we want to initialise at the end of that blocked animation.
-                     */
-                    const index = isInitialAnimationBlocked
-                        ? valueTarget.length - 1
-                        : 0;
-                    valueTarget = valueTarget[index];
-                }
-                if (valueTarget !== null) {
-                    values[key] = valueTarget;
-                }
-            }
-            for (const key in transitionEnd)
-                values[key] = transitionEnd[key];
-        });
-    }
-    return values;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/noop.mjs
-const noop_noop = (any) => any;
-
-
-
-;// ./node_modules/framer-motion/dist/es/frameloop/frame.mjs
-
-
-
-const { schedule: frame_frame, cancel: cancelFrame, state: frameData, steps, } = createRenderBatcher(typeof requestAnimationFrame !== "undefined" ? requestAnimationFrame : noop_noop, true);
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/svg/config-motion.mjs
-
-
-
-
-
-
-
-
-const svgMotionConfig = {
-    useVisualState: makeUseVisualState({
-        scrapeMotionValuesFromProps: scrape_motion_values_scrapeMotionValuesFromProps,
-        createRenderState: createSvgRenderState,
-        onMount: (props, instance, { renderState, latestValues }) => {
-            frame_frame.read(() => {
-                try {
-                    renderState.dimensions =
-                        typeof instance.getBBox ===
-                            "function"
-                            ? instance.getBBox()
-                            : instance.getBoundingClientRect();
-                }
-                catch (e) {
-                    // Most likely trying to measure an unrendered element under Firefox
-                    renderState.dimensions = {
-                        x: 0,
-                        y: 0,
-                        width: 0,
-                        height: 0,
-                    };
-                }
-            });
-            frame_frame.render(() => {
-                buildSVGAttrs(renderState, latestValues, { enableHardwareAcceleration: false }, isSVGTag(instance.tagName), props.transformTemplate);
-                renderSVG(instance, renderState);
-            });
-        },
-    }),
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/html/config-motion.mjs
-
-
-
-
-const htmlMotionConfig = {
-    useVisualState: makeUseVisualState({
-        scrapeMotionValuesFromProps: scrapeMotionValuesFromProps,
-        createRenderState: createHtmlRenderState,
-    }),
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/create-config.mjs
-
-
-
-
-
-function create_config_createDomMotionConfig(Component, { forwardMotionProps = false }, preloadedFeatures, createVisualElement) {
-    const baseConfig = isSVGComponent(Component)
-        ? svgMotionConfig
-        : htmlMotionConfig;
-    return {
-        ...baseConfig,
-        preloadedFeatures,
-        useRender: createUseRender(forwardMotionProps),
-        createVisualElement,
-        Component,
-    };
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/events/add-dom-event.mjs
-function addDomEvent(target, eventName, handler, options = { passive: true }) {
-    target.addEventListener(eventName, handler, options);
-    return () => target.removeEventListener(eventName, handler);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/events/utils/is-primary-pointer.mjs
-const isPrimaryPointer = (event) => {
-    if (event.pointerType === "mouse") {
-        return typeof event.button !== "number" || event.button <= 0;
-    }
-    else {
-        /**
-         * isPrimary is true for all mice buttons, whereas every touch point
-         * is regarded as its own input. So subsequent concurrent touch points
-         * will be false.
-         *
-         * Specifically match against false here as incomplete versions of
-         * PointerEvents in very old browser might have it set as undefined.
-         */
-        return event.isPrimary !== false;
-    }
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/events/event-info.mjs
-
-
-function extractEventInfo(event, pointType = "page") {
-    return {
-        point: {
-            x: event[`${pointType}X`],
-            y: event[`${pointType}Y`],
-        },
-    };
-}
-const addPointerInfo = (handler) => {
-    return (event) => isPrimaryPointer(event) && handler(event, extractEventInfo(event));
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/events/add-pointer-event.mjs
-
-
-
-function addPointerEvent(target, eventName, handler, options) {
-    return addDomEvent(target, eventName, addPointerInfo(handler), options);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/pipe.mjs
-/**
- * Pipe
- * Compose other transformers to run linearily
- * pipe(min(20), max(40))
- * @param  {...functions} transformers
- * @return {function}
- */
-const combineFunctions = (a, b) => (v) => b(a(v));
-const pipe = (...transformers) => transformers.reduce(combineFunctions);
-
-
-
-;// ./node_modules/framer-motion/dist/es/gestures/drag/utils/lock.mjs
-function createLock(name) {
-    let lock = null;
-    return () => {
-        const openLock = () => {
-            lock = null;
-        };
-        if (lock === null) {
-            lock = name;
-            return openLock;
-        }
-        return false;
-    };
-}
-const globalHorizontalLock = createLock("dragHorizontal");
-const globalVerticalLock = createLock("dragVertical");
-function getGlobalLock(drag) {
-    let lock = false;
-    if (drag === "y") {
-        lock = globalVerticalLock();
-    }
-    else if (drag === "x") {
-        lock = globalHorizontalLock();
-    }
-    else {
-        const openHorizontal = globalHorizontalLock();
-        const openVertical = globalVerticalLock();
-        if (openHorizontal && openVertical) {
-            lock = () => {
-                openHorizontal();
-                openVertical();
-            };
-        }
-        else {
-            // Release the locks because we don't use them
-            if (openHorizontal)
-                openHorizontal();
-            if (openVertical)
-                openVertical();
-        }
-    }
-    return lock;
-}
-function isDragActive() {
-    // Check the gesture lock - if we get it, it means no drag gesture is active
-    // and we can safely fire the tap gesture.
-    const openGestureLock = getGlobalLock(true);
-    if (!openGestureLock)
-        return true;
-    openGestureLock();
-    return false;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/Feature.mjs
-class Feature {
-    constructor(node) {
-        this.isMounted = false;
-        this.node = node;
-    }
-    update() { }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/gestures/hover.mjs
-
-
-
-
-
-
-function addHoverEvent(node, isActive) {
-    const eventName = isActive ? "pointerenter" : "pointerleave";
-    const callbackName = isActive ? "onHoverStart" : "onHoverEnd";
-    const handleEvent = (event, info) => {
-        if (event.pointerType === "touch" || isDragActive())
-            return;
-        const props = node.getProps();
-        if (node.animationState && props.whileHover) {
-            node.animationState.setActive("whileHover", isActive);
-        }
-        const callback = props[callbackName];
-        if (callback) {
-            frame_frame.postRender(() => callback(event, info));
-        }
-    };
-    return addPointerEvent(node.current, eventName, handleEvent, {
-        passive: !node.getProps()[callbackName],
-    });
-}
-class HoverGesture extends Feature {
-    mount() {
-        this.unmount = pipe(addHoverEvent(this.node, true), addHoverEvent(this.node, false));
-    }
-    unmount() { }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/gestures/focus.mjs
-
-
-
-
-class FocusGesture extends Feature {
-    constructor() {
-        super(...arguments);
-        this.isActive = false;
-    }
-    onFocus() {
-        let isFocusVisible = false;
-        /**
-         * If this element doesn't match focus-visible then don't
-         * apply whileHover. But, if matches throws that focus-visible
-         * is not a valid selector then in that browser outline styles will be applied
-         * to the element by default and we want to match that behaviour with whileFocus.
-         */
-        try {
-            isFocusVisible = this.node.current.matches(":focus-visible");
-        }
-        catch (e) {
-            isFocusVisible = true;
-        }
-        if (!isFocusVisible || !this.node.animationState)
-            return;
-        this.node.animationState.setActive("whileFocus", true);
-        this.isActive = true;
-    }
-    onBlur() {
-        if (!this.isActive || !this.node.animationState)
-            return;
-        this.node.animationState.setActive("whileFocus", false);
-        this.isActive = false;
-    }
-    mount() {
-        this.unmount = pipe(addDomEvent(this.node.current, "focus", () => this.onFocus()), addDomEvent(this.node.current, "blur", () => this.onBlur()));
-    }
-    unmount() { }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/gestures/utils/is-node-or-child.mjs
-/**
- * Recursively traverse up the tree to check whether the provided child node
- * is the parent or a descendant of it.
- *
- * @param parent - Element to find
- * @param child - Element to test against parent
- */
-const isNodeOrChild = (parent, child) => {
-    if (!child) {
-        return false;
-    }
-    else if (parent === child) {
-        return true;
-    }
-    else {
-        return isNodeOrChild(parent, child.parentElement);
-    }
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/gestures/press.mjs
-
-
-
-
-
-
-
-
-
-
-function fireSyntheticPointerEvent(name, handler) {
-    if (!handler)
-        return;
-    const syntheticPointerEvent = new PointerEvent("pointer" + name);
-    handler(syntheticPointerEvent, extractEventInfo(syntheticPointerEvent));
-}
-class PressGesture extends Feature {
-    constructor() {
-        super(...arguments);
-        this.removeStartListeners = noop_noop;
-        this.removeEndListeners = noop_noop;
-        this.removeAccessibleListeners = noop_noop;
-        this.startPointerPress = (startEvent, startInfo) => {
-            if (this.isPressing)
-                return;
-            this.removeEndListeners();
-            const props = this.node.getProps();
-            const endPointerPress = (endEvent, endInfo) => {
-                if (!this.checkPressEnd())
-                    return;
-                const { onTap, onTapCancel, globalTapTarget } = this.node.getProps();
-                /**
-                 * We only count this as a tap gesture if the event.target is the same
-                 * as, or a child of, this component's element
-                 */
-                const handler = !globalTapTarget &&
-                    !isNodeOrChild(this.node.current, endEvent.target)
-                    ? onTapCancel
-                    : onTap;
-                if (handler) {
-                    frame_frame.update(() => handler(endEvent, endInfo));
-                }
-            };
-            const removePointerUpListener = addPointerEvent(window, "pointerup", endPointerPress, {
-                passive: !(props.onTap || props["onPointerUp"]),
-            });
-            const removePointerCancelListener = addPointerEvent(window, "pointercancel", (cancelEvent, cancelInfo) => this.cancelPress(cancelEvent, cancelInfo), {
-                passive: !(props.onTapCancel ||
-                    props["onPointerCancel"]),
-            });
-            this.removeEndListeners = pipe(removePointerUpListener, removePointerCancelListener);
-            this.startPress(startEvent, startInfo);
-        };
-        this.startAccessiblePress = () => {
-            const handleKeydown = (keydownEvent) => {
-                if (keydownEvent.key !== "Enter" || this.isPressing)
-                    return;
-                const handleKeyup = (keyupEvent) => {
-                    if (keyupEvent.key !== "Enter" || !this.checkPressEnd())
-                        return;
-                    fireSyntheticPointerEvent("up", (event, info) => {
-                        const { onTap } = this.node.getProps();
-                        if (onTap) {
-                            frame_frame.postRender(() => onTap(event, info));
-                        }
-                    });
-                };
-                this.removeEndListeners();
-                this.removeEndListeners = addDomEvent(this.node.current, "keyup", handleKeyup);
-                fireSyntheticPointerEvent("down", (event, info) => {
-                    this.startPress(event, info);
-                });
-            };
-            const removeKeydownListener = addDomEvent(this.node.current, "keydown", handleKeydown);
-            const handleBlur = () => {
-                if (!this.isPressing)
-                    return;
-                fireSyntheticPointerEvent("cancel", (cancelEvent, cancelInfo) => this.cancelPress(cancelEvent, cancelInfo));
-            };
-            const removeBlurListener = addDomEvent(this.node.current, "blur", handleBlur);
-            this.removeAccessibleListeners = pipe(removeKeydownListener, removeBlurListener);
-        };
-    }
-    startPress(event, info) {
-        this.isPressing = true;
-        const { onTapStart, whileTap } = this.node.getProps();
-        /**
-         * Ensure we trigger animations before firing event callback
-         */
-        if (whileTap && this.node.animationState) {
-            this.node.animationState.setActive("whileTap", true);
-        }
-        if (onTapStart) {
-            frame_frame.postRender(() => onTapStart(event, info));
-        }
-    }
-    checkPressEnd() {
-        this.removeEndListeners();
-        this.isPressing = false;
-        const props = this.node.getProps();
-        if (props.whileTap && this.node.animationState) {
-            this.node.animationState.setActive("whileTap", false);
-        }
-        return !isDragActive();
-    }
-    cancelPress(event, info) {
-        if (!this.checkPressEnd())
-            return;
-        const { onTapCancel } = this.node.getProps();
-        if (onTapCancel) {
-            frame_frame.postRender(() => onTapCancel(event, info));
-        }
-    }
-    mount() {
-        const props = this.node.getProps();
-        const removePointerListener = addPointerEvent(props.globalTapTarget ? window : this.node.current, "pointerdown", this.startPointerPress, {
-            passive: !(props.onTapStart ||
-                props["onPointerStart"]),
-        });
-        const removeFocusListener = addDomEvent(this.node.current, "focus", this.startAccessiblePress);
-        this.removeStartListeners = pipe(removePointerListener, removeFocusListener);
-    }
-    unmount() {
-        this.removeStartListeners();
-        this.removeEndListeners();
-        this.removeAccessibleListeners();
-    }
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/viewport/observers.mjs
-/**
- * Map an IntersectionHandler callback to an element. We only ever make one handler for one
- * element, so even though these handlers might all be triggered by different
- * observers, we can keep them in the same map.
- */
-const observerCallbacks = new WeakMap();
-/**
- * Multiple observers can be created for multiple element/document roots. Each with
- * different settings. So here we store dictionaries of observers to each root,
- * using serialised settings (threshold/margin) as lookup keys.
- */
-const observers = new WeakMap();
-const fireObserverCallback = (entry) => {
-    const callback = observerCallbacks.get(entry.target);
-    callback && callback(entry);
-};
-const fireAllObserverCallbacks = (entries) => {
-    entries.forEach(fireObserverCallback);
-};
-function initIntersectionObserver({ root, ...options }) {
-    const lookupRoot = root || document;
-    /**
-     * If we don't have an observer lookup map for this root, create one.
-     */
-    if (!observers.has(lookupRoot)) {
-        observers.set(lookupRoot, {});
-    }
-    const rootObservers = observers.get(lookupRoot);
-    const key = JSON.stringify(options);
-    /**
-     * If we don't have an observer for this combination of root and settings,
-     * create one.
-     */
-    if (!rootObservers[key]) {
-        rootObservers[key] = new IntersectionObserver(fireAllObserverCallbacks, { root, ...options });
-    }
-    return rootObservers[key];
-}
-function observeIntersection(element, options, callback) {
-    const rootInteresectionObserver = initIntersectionObserver(options);
-    observerCallbacks.set(element, callback);
-    rootInteresectionObserver.observe(element);
-    return () => {
-        observerCallbacks.delete(element);
-        rootInteresectionObserver.unobserve(element);
-    };
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/viewport/index.mjs
-
-
-
-const thresholdNames = {
-    some: 0,
-    all: 1,
-};
-class InViewFeature extends Feature {
-    constructor() {
-        super(...arguments);
-        this.hasEnteredView = false;
-        this.isInView = false;
-    }
-    startObserver() {
-        this.unmount();
-        const { viewport = {} } = this.node.getProps();
-        const { root, margin: rootMargin, amount = "some", once } = viewport;
-        const options = {
-            root: root ? root.current : undefined,
-            rootMargin,
-            threshold: typeof amount === "number" ? amount : thresholdNames[amount],
-        };
-        const onIntersectionUpdate = (entry) => {
-            const { isIntersecting } = entry;
-            /**
-             * If there's been no change in the viewport state, early return.
-             */
-            if (this.isInView === isIntersecting)
-                return;
-            this.isInView = isIntersecting;
-            /**
-             * Handle hasEnteredView. If this is only meant to run once, and
-             * element isn't visible, early return. Otherwise set hasEnteredView to true.
-             */
-            if (once && !isIntersecting && this.hasEnteredView) {
-                return;
-            }
-            else if (isIntersecting) {
-                this.hasEnteredView = true;
-            }
-            if (this.node.animationState) {
-                this.node.animationState.setActive("whileInView", isIntersecting);
-            }
-            /**
-             * Use the latest committed props rather than the ones in scope
-             * when this observer is created
-             */
-            const { onViewportEnter, onViewportLeave } = this.node.getProps();
-            const callback = isIntersecting ? onViewportEnter : onViewportLeave;
-            callback && callback(entry);
-        };
-        return observeIntersection(this.node.current, options, onIntersectionUpdate);
-    }
-    mount() {
-        this.startObserver();
-    }
-    update() {
-        if (typeof IntersectionObserver === "undefined")
-            return;
-        const { props, prevProps } = this.node;
-        const hasOptionsChanged = ["amount", "margin", "root"].some(hasViewportOptionChanged(props, prevProps));
-        if (hasOptionsChanged) {
-            this.startObserver();
-        }
-    }
-    unmount() { }
-}
-function hasViewportOptionChanged({ viewport = {} }, { viewport: prevViewport = {} } = {}) {
-    return (name) => viewport[name] !== prevViewport[name];
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/motion/features/gestures.mjs
-
-
-
-
-
-const gestureAnimations = {
-    inView: {
-        Feature: InViewFeature,
-    },
-    tap: {
-        Feature: PressGesture,
-    },
-    focus: {
-        Feature: FocusGesture,
-    },
-    hover: {
-        Feature: HoverGesture,
-    },
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/shallow-compare.mjs
-function shallowCompare(next, prev) {
-    if (!Array.isArray(prev))
-        return false;
-    const prevLength = prev.length;
-    if (prevLength !== next.length)
-        return false;
-    for (let i = 0; i < prevLength; i++) {
-        if (prev[i] !== next[i])
-            return false;
-    }
-    return true;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/utils/resolve-dynamic-variants.mjs
-
-
-/**
- * Creates an object containing the latest state of every MotionValue on a VisualElement
- */
-function getCurrent(visualElement) {
-    const current = {};
-    visualElement.values.forEach((value, key) => (current[key] = value.get()));
-    return current;
-}
-/**
- * Creates an object containing the latest velocity of every MotionValue on a VisualElement
- */
-function getVelocity(visualElement) {
-    const velocity = {};
-    visualElement.values.forEach((value, key) => (velocity[key] = value.getVelocity()));
-    return velocity;
-}
-function resolveVariant(visualElement, definition, custom) {
-    const props = visualElement.getProps();
-    return resolveVariantFromProps(props, definition, custom !== undefined ? custom : props.custom, getCurrent(visualElement), getVelocity(visualElement));
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/utils/time-conversion.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/time-conversion.mjs
 /**
  * Converts seconds to milliseconds
  *
  * @param seconds - Time in seconds.
  * @return milliseconds - Converted time in milliseconds.
  */
-const secondsToMilliseconds = (seconds) => seconds * 1000;
+const time_conversion_secondsToMilliseconds = (seconds) => seconds * 1000;
 const millisecondsToSeconds = (milliseconds) => milliseconds / 1000;
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/utils/default-transitions.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/default-transitions.mjs
 
 
 const underDampedSpring = {
@@ -19050,31 +16857,33 @@ const getDefaultTransition = (valueKey, { keyframes }) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/utils/transitions.mjs
-/**
- * Decide whether a transition is defined on a given Transition.
- * This filters out orchestration options and returns true
- * if any options are left.
- */
-function isTransitionDefined({ when, delay: _delay, delayChildren, staggerChildren, staggerDirection, repeat, repeatType, repeatDelay, from, elapsed, ...transition }) {
-    return !!Object.keys(transition).length;
-}
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/get-value-transition.mjs
 function getValueTransition(transition, key) {
-    return (transition[key] ||
-        transition["default"] ||
-        transition);
+    return transition
+        ? transition[key] ||
+            transition["default"] ||
+            transition
+        : undefined;
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/use-instant-transition-state.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/GlobalConfig.mjs
+const MotionGlobalConfig = {
+    skipAnimations: false,
+    useManualTiming: false,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/use-instant-transition-state.mjs
 const instantAnimationState = {
     current: false,
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/waapi/utils/get-final-keyframe.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/get-final-keyframe.mjs
 const isNotNull = (value) => value !== null;
 function getFinalKeyframe(keyframes, { repeat, repeatType = "loop" }, finalKeyframe) {
     const resolvedKeyframes = keyframes.filter(isNotNull);
@@ -19088,40 +16897,274 @@ function getFinalKeyframe(keyframes, { repeat, repeatType = "loop" }, finalKeyfr
 
 
 
-;// ./node_modules/framer-motion/dist/es/frameloop/sync-time.mjs
+;// ./node_modules/motion-utils/dist/es/noop.mjs
+const noop_noop = (any) => any;
 
 
 
-let now;
-function clearTime() {
-    now = undefined;
-}
-/**
- * An eventloop-synchronous alternative to performance.now().
- *
- * Ensures that time measurements remain consistent within a synchronous context.
- * Usually calling performance.now() twice within the same synchronous context
- * will return different values which isn't useful for animations when we're usually
- * trying to sync animations to the same frame.
- */
-const time = {
-    now: () => {
-        if (now === undefined) {
-            time.set(frameData.isProcessing || MotionGlobalConfig.useManualTiming
-                ? frameData.timestamp
-                : performance.now());
+;// ./packages/components/node_modules/framer-motion/dist/es/frameloop/render-step.mjs
+function createRenderStep(runNextFrame) {
+    /**
+     * We create and reuse two queues, one to queue jobs for the current frame
+     * and one for the next. We reuse to avoid triggering GC after x frames.
+     */
+    let thisFrame = new Set();
+    let nextFrame = new Set();
+    /**
+     * Track whether we're currently processing jobs in this step. This way
+     * we can decide whether to schedule new jobs for this frame or next.
+     */
+    let isProcessing = false;
+    let flushNextFrame = false;
+    /**
+     * A set of processes which were marked keepAlive when scheduled.
+     */
+    const toKeepAlive = new WeakSet();
+    let latestFrameData = {
+        delta: 0.0,
+        timestamp: 0.0,
+        isProcessing: false,
+    };
+    function triggerCallback(callback) {
+        if (toKeepAlive.has(callback)) {
+            step.schedule(callback);
+            runNextFrame();
         }
-        return now;
-    },
-    set: (newTime) => {
-        now = newTime;
-        queueMicrotask(clearTime);
-    },
-};
+        callback(latestFrameData);
+    }
+    const step = {
+        /**
+         * Schedule a process to run on the next frame.
+         */
+        schedule: (callback, keepAlive = false, immediate = false) => {
+            const addToCurrentFrame = immediate && isProcessing;
+            const queue = addToCurrentFrame ? thisFrame : nextFrame;
+            if (keepAlive)
+                toKeepAlive.add(callback);
+            if (!queue.has(callback))
+                queue.add(callback);
+            return callback;
+        },
+        /**
+         * Cancel the provided callback from running on the next frame.
+         */
+        cancel: (callback) => {
+            nextFrame.delete(callback);
+            toKeepAlive.delete(callback);
+        },
+        /**
+         * Execute all schedule callbacks.
+         */
+        process: (frameData) => {
+            latestFrameData = frameData;
+            /**
+             * If we're already processing we've probably been triggered by a flushSync
+             * inside an existing process. Instead of executing, mark flushNextFrame
+             * as true and ensure we flush the following frame at the end of this one.
+             */
+            if (isProcessing) {
+                flushNextFrame = true;
+                return;
+            }
+            isProcessing = true;
+            [thisFrame, nextFrame] = [nextFrame, thisFrame];
+            // Execute this frame
+            thisFrame.forEach(triggerCallback);
+            // Clear the frame so no callbacks remain. This is to avoid
+            // memory leaks should this render step not run for a while.
+            thisFrame.clear();
+            isProcessing = false;
+            if (flushNextFrame) {
+                flushNextFrame = false;
+                step.process(frameData);
+            }
+        },
+    };
+    return step;
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/is-zero-value-string.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/frameloop/batcher.mjs
+
+
+
+const stepsOrder = [
+    "read", // Read
+    "resolveKeyframes", // Write/Read/Write/Read
+    "update", // Compute
+    "preRender", // Compute
+    "render", // Write
+    "postRender", // Compute
+];
+const maxElapsed = 40;
+function createRenderBatcher(scheduleNextBatch, allowKeepAlive) {
+    let runNextFrame = false;
+    let useDefaultElapsed = true;
+    const state = {
+        delta: 0.0,
+        timestamp: 0.0,
+        isProcessing: false,
+    };
+    const flagRunNextFrame = () => (runNextFrame = true);
+    const steps = stepsOrder.reduce((acc, key) => {
+        acc[key] = createRenderStep(flagRunNextFrame);
+        return acc;
+    }, {});
+    const { read, resolveKeyframes, update, preRender, render, postRender } = steps;
+    const processBatch = () => {
+        const timestamp = MotionGlobalConfig.useManualTiming
+            ? state.timestamp
+            : performance.now();
+        runNextFrame = false;
+        state.delta = useDefaultElapsed
+            ? 1000 / 60
+            : Math.max(Math.min(timestamp - state.timestamp, maxElapsed), 1);
+        state.timestamp = timestamp;
+        state.isProcessing = true;
+        // Unrolled render loop for better per-frame performance
+        read.process(state);
+        resolveKeyframes.process(state);
+        update.process(state);
+        preRender.process(state);
+        render.process(state);
+        postRender.process(state);
+        state.isProcessing = false;
+        if (runNextFrame && allowKeepAlive) {
+            useDefaultElapsed = false;
+            scheduleNextBatch(processBatch);
+        }
+    };
+    const wake = () => {
+        runNextFrame = true;
+        useDefaultElapsed = true;
+        if (!state.isProcessing) {
+            scheduleNextBatch(processBatch);
+        }
+    };
+    const schedule = stepsOrder.reduce((acc, key) => {
+        const step = steps[key];
+        acc[key] = (process, keepAlive = false, immediate = false) => {
+            if (!runNextFrame)
+                wake();
+            return step.schedule(process, keepAlive, immediate);
+        };
+        return acc;
+    }, {});
+    const cancel = (process) => {
+        for (let i = 0; i < stepsOrder.length; i++) {
+            steps[stepsOrder[i]].cancel(process);
+        }
+    };
+    return { schedule, cancel, state, steps };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/frameloop/frame.mjs
+
+
+
+const { schedule: frame_frame, cancel: cancelFrame, state: frameData, steps: frameSteps, } = createRenderBatcher(typeof requestAnimationFrame !== "undefined" ? requestAnimationFrame : noop_noop, true);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/cubic-bezier.mjs
+
+
+/*
+  Bezier function generator
+  This has been modified from Gaëtan Renaudeau's BezierEasing
+  https://github.com/gre/bezier-easing/blob/master/src/index.js
+  https://github.com/gre/bezier-easing/blob/master/LICENSE
+  
+  I've removed the newtonRaphsonIterate algo because in benchmarking it
+  wasn't noticiably faster than binarySubdivision, indeed removing it
+  usually improved times, depending on the curve.
+  I also removed the lookup table, as for the added bundle size and loop we're
+  only cutting ~4 or so subdivision iterations. I bumped the max iterations up
+  to 12 to compensate and this still tended to be faster for no perceivable
+  loss in accuracy.
+  Usage
+    const easeOut = cubicBezier(.17,.67,.83,.67);
+    const x = easeOut(0.5); // returns 0.627...
+*/
+// Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
+const calcBezier = (t, a1, a2) => (((1.0 - 3.0 * a2 + 3.0 * a1) * t + (3.0 * a2 - 6.0 * a1)) * t + 3.0 * a1) *
+    t;
+const subdivisionPrecision = 0.0000001;
+const subdivisionMaxIterations = 12;
+function binarySubdivide(x, lowerBound, upperBound, mX1, mX2) {
+    let currentX;
+    let currentT;
+    let i = 0;
+    do {
+        currentT = lowerBound + (upperBound - lowerBound) / 2.0;
+        currentX = calcBezier(currentT, mX1, mX2) - x;
+        if (currentX > 0.0) {
+            upperBound = currentT;
+        }
+        else {
+            lowerBound = currentT;
+        }
+    } while (Math.abs(currentX) > subdivisionPrecision &&
+        ++i < subdivisionMaxIterations);
+    return currentT;
+}
+function cubicBezier(mX1, mY1, mX2, mY2) {
+    // If this is a linear gradient, return linear easing
+    if (mX1 === mY1 && mX2 === mY2)
+        return noop_noop;
+    const getTForX = (aX) => binarySubdivide(aX, 0, 1, mX1, mX2);
+    // If animation is at start/end, return t without easing
+    return (t) => t === 0 || t === 1 ? t : calcBezier(getTForX(t), mY1, mY2);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/modifiers/mirror.mjs
+// Accepts an easing function and returns a new one that outputs mirrored values for
+// the second half of the animation. Turns easeIn into easeInOut.
+const mirrorEasing = (easing) => (p) => p <= 0.5 ? easing(2 * p) / 2 : (2 - easing(2 * (1 - p))) / 2;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/modifiers/reverse.mjs
+// Accepts an easing function and returns a new one that outputs reversed values.
+// Turns easeIn into easeOut.
+const reverseEasing = (easing) => (p) => 1 - easing(1 - p);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/back.mjs
+
+
+
+
+const backOut = /*@__PURE__*/ cubicBezier(0.33, 1.53, 0.69, 0.99);
+const backIn = /*@__PURE__*/ reverseEasing(backOut);
+const backInOut = /*@__PURE__*/ mirrorEasing(backIn);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/anticipate.mjs
+
+
+const anticipate = (p) => (p *= 2) < 1 ? 0.5 * backIn(p) : 0.5 * (2 - Math.pow(2, -10 * (p - 1)));
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/circ.mjs
+
+
+
+const circIn = (p) => 1 - Math.sin(Math.acos(p));
+const circOut = reverseEasing(circIn);
+const circInOut = mirrorEasing(circIn);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/is-zero-value-string.mjs
 /**
  * Check if the value is a zero value string like "0px" or "0%"
  */
@@ -19129,7 +17172,7 @@ const isZeroValueString = (v) => /^0[^.\s]+$/u.test(v);
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/utils/is-none.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/is-none.mjs
 
 
 function isNone(value) {
@@ -19146,7 +17189,7 @@ function isNone(value) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/errors.mjs
+;// ./node_modules/motion-utils/dist/es/errors.mjs
 
 
 let warning = noop_noop;
@@ -19155,7 +17198,7 @@ if (false) {}
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/is-numerical-string.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/is-numerical-string.mjs
 /**
  * Check if value is a numerical string, ie a string that is purely a number eg "100" or "-100.1"
  */
@@ -19163,7 +17206,24 @@ const isNumericalString = (v) => /^-?(?:\d+(?:\.\d+)?|\.\d+)$/u.test(v);
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/css-variables-conversion.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/is-css-variable.mjs
+const checkStringStartsWith = (token) => (key) => typeof key === "string" && key.startsWith(token);
+const isCSSVariableName = 
+/*@__PURE__*/ checkStringStartsWith("--");
+const startsAsVariableToken = 
+/*@__PURE__*/ checkStringStartsWith("var(--");
+const isCSSVariableToken = (value) => {
+    const startsWithToken = startsAsVariableToken(value);
+    if (!startsWithToken)
+        return false;
+    // Ensure any comments are stripped from the value as this can harm performance of the regex.
+    return singleCssVariableRegex.test(value.split("/*")[0].trim());
+};
+const singleCssVariableRegex = /var\(--(?:[\w-]+\s*|[\w-]+\s*,(?:\s*[^)(\s]|\s*\((?:[^)(]|\([^)(]*\))*\))+\s*)\)$/iu;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/css-variables-conversion.mjs
 
 
 
@@ -19207,7 +17267,56 @@ function getVariableValue(current, element, depth = 1) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/unit-conversion.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/clamp.mjs
+const clamp_clamp = (min, max, v) => {
+    if (v > max)
+        return max;
+    if (v < min)
+        return min;
+    return v;
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/numbers/index.mjs
+
+
+const number = {
+    test: (v) => typeof v === "number",
+    parse: parseFloat,
+    transform: (v) => v,
+};
+const alpha = {
+    ...number,
+    transform: (v) => clamp_clamp(0, 1, v),
+};
+const scale = {
+    ...number,
+    default: 1,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/numbers/units.mjs
+const createUnitType = (unit) => ({
+    test: (v) => typeof v === "string" && v.endsWith(unit) && v.split(" ").length === 1,
+    parse: parseFloat,
+    transform: (v) => `${v}${unit}`,
+});
+const degrees = /*@__PURE__*/ createUnitType("deg");
+const percent = /*@__PURE__*/ createUnitType("%");
+const px = /*@__PURE__*/ createUnitType("px");
+const vh = /*@__PURE__*/ createUnitType("vh");
+const vw = /*@__PURE__*/ createUnitType("vw");
+const progressPercentage = {
+    ...percent,
+    parse: (v) => percent.parse(v) / 100,
+    transform: (v) => percent.transform(v * 100),
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/unit-conversion.mjs
 
 
 
@@ -19274,7 +17383,7 @@ positionalValues.translateY = positionalValues.y;
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/test.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/test.mjs
 /**
  * Tests a provided value against a ValueType
  */
@@ -19282,7 +17391,7 @@ const testValueType = (v) => (type) => type.test(v);
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/type-auto.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/type-auto.mjs
 /**
  * ValueType for "auto"
  */
@@ -19293,7 +17402,7 @@ const auto = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/dimensions.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/dimensions.mjs
 
 
 
@@ -19310,7 +17419,7 @@ const findDimensionValueType = (v) => dimensionValueTypes.find(testValueType(v))
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/KeyframesResolver.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/KeyframesResolver.mjs
 
 
 
@@ -19476,7 +17585,33 @@ class KeyframeResolver {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/color/utils.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/utils/sanitize.mjs
+// If this number is a decimal, make it just five decimal places
+// to avoid exponents
+const sanitize = (v) => Math.round(v * 100000) / 100000;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/utils/float-regex.mjs
+const floatRegex = /-?(?:\d+(?:\.\d+)?|\.\d+)/gu;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/utils/is-nullish.mjs
+function isNullish(v) {
+    return v == null;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/utils/single-color-regex.mjs
+const singleColorRegex = /^(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))$/iu;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/color/utils.mjs
+
+
 
 
 /**
@@ -19484,11 +17619,15 @@ class KeyframeResolver {
  * but false if a number or multiple colors
  */
 const isColorString = (type, testProp) => (v) => {
-    return Boolean((isString(v) && singleColorRegex.test(v) && v.startsWith(type)) ||
-        (testProp && Object.prototype.hasOwnProperty.call(v, testProp)));
+    return Boolean((typeof v === "string" &&
+        singleColorRegex.test(v) &&
+        v.startsWith(type)) ||
+        (testProp &&
+            !isNullish(v) &&
+            Object.prototype.hasOwnProperty.call(v, testProp)));
 };
 const splitColor = (aName, bName, cName) => (v) => {
-    if (!isString(v))
+    if (typeof v !== "string")
         return v;
     const [a, b, c, alpha] = v.match(floatRegex);
     return {
@@ -19501,7 +17640,7 @@ const splitColor = (aName, bName, cName) => (v) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/color/rgba.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/color/rgba.mjs
 
 
 
@@ -19513,8 +17652,8 @@ const rgbUnit = {
     transform: (v) => Math.round(clampRgbUnit(v)),
 };
 const rgba = {
-    test: isColorString("rgb", "red"),
-    parse: splitColor("red", "green", "blue"),
+    test: /*@__PURE__*/ isColorString("rgb", "red"),
+    parse: /*@__PURE__*/ splitColor("red", "green", "blue"),
     transform: ({ red, green, blue, alpha: alpha$1 = 1 }) => "rgba(" +
         rgbUnit.transform(red) +
         ", " +
@@ -19528,7 +17667,7 @@ const rgba = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/color/hex.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/color/hex.mjs
 
 
 
@@ -19563,22 +17702,22 @@ function parseHex(v) {
     };
 }
 const hex = {
-    test: isColorString("#"),
+    test: /*@__PURE__*/ isColorString("#"),
     parse: parseHex,
     transform: rgba.transform,
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/color/hsla.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/color/hsla.mjs
 
 
 
 
 
 const hsla = {
-    test: isColorString("hsl", "hue"),
-    parse: splitColor("hue", "saturation", "lightness"),
+    test: /*@__PURE__*/ isColorString("hsl", "hue"),
+    parse: /*@__PURE__*/ splitColor("hue", "saturation", "lightness"),
     transform: ({ hue, saturation, lightness, alpha: alpha$1 = 1 }) => {
         return ("hsla(" +
             Math.round(hue) +
@@ -19594,8 +17733,7 @@ const hsla = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/color/index.mjs
-
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/color/index.mjs
 
 
 
@@ -19614,7 +17752,7 @@ const color = {
         }
     },
     transform: (v) => {
-        return isString(v)
+        return typeof v === "string"
             ? v
             : v.hasOwnProperty("red")
                 ? rgba.transform(v)
@@ -19624,14 +17762,21 @@ const color = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/complex/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/utils/color-regex.mjs
+const colorRegex = /(?:#[\da-f]{3,8}|(?:rgb|hsl)a?\((?:-?[\d.]+%?[,\s]+){2}-?[\d.]+%?\s*(?:[,/]\s*)?(?:\b\d+(?:\.\d+)?|\.\d+)?%?\))/giu;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/complex/index.mjs
+
+
 
 
 
 function test(v) {
     var _a, _b;
     return (isNaN(v) &&
-        isString(v) &&
+        typeof v === "string" &&
         (((_a = v.match(floatRegex)) === null || _a === void 0 ? void 0 : _a.length) || 0) +
             (((_b = v.match(colorRegex)) === null || _b === void 0 ? void 0 : _b.length) || 0) >
             0);
@@ -19716,7 +17861,7 @@ const complex = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/types/complex/filter.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/types/complex/filter.mjs
 
 
 
@@ -19748,7 +17893,113 @@ const filter = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/defaults.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/number-browser.mjs
+
+
+const browserNumberValueTypes = {
+    // Border props
+    borderWidth: px,
+    borderTopWidth: px,
+    borderRightWidth: px,
+    borderBottomWidth: px,
+    borderLeftWidth: px,
+    borderRadius: px,
+    radius: px,
+    borderTopLeftRadius: px,
+    borderTopRightRadius: px,
+    borderBottomRightRadius: px,
+    borderBottomLeftRadius: px,
+    // Positioning props
+    width: px,
+    maxWidth: px,
+    height: px,
+    maxHeight: px,
+    top: px,
+    right: px,
+    bottom: px,
+    left: px,
+    // Spacing props
+    padding: px,
+    paddingTop: px,
+    paddingRight: px,
+    paddingBottom: px,
+    paddingLeft: px,
+    margin: px,
+    marginTop: px,
+    marginRight: px,
+    marginBottom: px,
+    marginLeft: px,
+    // Misc
+    backgroundPositionX: px,
+    backgroundPositionY: px,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/transform.mjs
+
+
+
+const transformValueTypes = {
+    rotate: degrees,
+    rotateX: degrees,
+    rotateY: degrees,
+    rotateZ: degrees,
+    scale: scale,
+    scaleX: scale,
+    scaleY: scale,
+    scaleZ: scale,
+    skew: degrees,
+    skewX: degrees,
+    skewY: degrees,
+    distance: px,
+    translateX: px,
+    translateY: px,
+    translateZ: px,
+    x: px,
+    y: px,
+    z: px,
+    perspective: px,
+    transformPerspective: px,
+    opacity: alpha,
+    originX: progressPercentage,
+    originY: progressPercentage,
+    originZ: px,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/type-int.mjs
+
+
+const type_int_int = {
+    ...number,
+    transform: Math.round,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/number.mjs
+
+
+
+
+
+
+const numberValueTypes = {
+    ...browserNumberValueTypes,
+    ...transformValueTypes,
+    zIndex: type_int_int,
+    size: px,
+    // SVG
+    fillOpacity: alpha,
+    strokeOpacity: alpha,
+    numOctaves: type_int_int,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/defaults.mjs
 
 
 
@@ -19780,7 +18031,7 @@ const getDefaultValueType = (key) => defaultValueTypes[key];
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/animatable-none.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/animatable-none.mjs
 
 
 
@@ -19797,7 +18048,8 @@ function animatable_none_getAnimatableNone(key, value) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/html/utils/make-none-animatable.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/make-none-animatable.mjs
+
 
 
 /**
@@ -19812,7 +18064,9 @@ function makeNoneKeyframesAnimatable(unresolvedKeyframes, noneKeyframeIndexes, n
     let animatableTemplate = undefined;
     while (i < unresolvedKeyframes.length && !animatableTemplate) {
         const keyframe = unresolvedKeyframes[i];
-        if (typeof keyframe === "string" && !invalidTemplates.has(keyframe)) {
+        if (typeof keyframe === "string" &&
+            !invalidTemplates.has(keyframe) &&
+            analyseComplexValue(keyframe).values.length) {
             animatableTemplate = unresolvedKeyframes[i];
         }
         i++;
@@ -19826,7 +18080,7 @@ function makeNoneKeyframesAnimatable(unresolvedKeyframes, noneKeyframeIndexes, n
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/DOMKeyframesResolver.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/DOMKeyframesResolver.mjs
 
 
 
@@ -19836,26 +18090,29 @@ function makeNoneKeyframesAnimatable(unresolvedKeyframes, noneKeyframeIndexes, n
 
 
 class DOMKeyframesResolver extends KeyframeResolver {
-    constructor(unresolvedKeyframes, onComplete, name, motionValue) {
-        super(unresolvedKeyframes, onComplete, name, motionValue, motionValue === null || motionValue === void 0 ? void 0 : motionValue.owner, true);
+    constructor(unresolvedKeyframes, onComplete, name, motionValue, element) {
+        super(unresolvedKeyframes, onComplete, name, motionValue, element, true);
     }
     readKeyframes() {
         const { unresolvedKeyframes, element, name } = this;
-        if (!element.current)
+        if (!element || !element.current)
             return;
         super.readKeyframes();
         /**
          * If any keyframe is a CSS variable, we need to find its value by sampling the element
          */
         for (let i = 0; i < unresolvedKeyframes.length; i++) {
-            const keyframe = unresolvedKeyframes[i];
-            if (typeof keyframe === "string" && isCSSVariableToken(keyframe)) {
-                const resolved = getVariableValue(keyframe, element.current);
-                if (resolved !== undefined) {
-                    unresolvedKeyframes[i] = resolved;
-                }
-                if (i === unresolvedKeyframes.length - 1) {
-                    this.finalKeyframe = keyframe;
+            let keyframe = unresolvedKeyframes[i];
+            if (typeof keyframe === "string") {
+                keyframe = keyframe.trim();
+                if (isCSSVariableToken(keyframe)) {
+                    const resolved = getVariableValue(keyframe, element.current);
+                    if (resolved !== undefined) {
+                        unresolvedKeyframes[i] = resolved;
+                    }
+                    if (i === unresolvedKeyframes.length - 1) {
+                        this.finalKeyframe = keyframe;
+                    }
                 }
             }
         }
@@ -19915,7 +18172,7 @@ class DOMKeyframesResolver extends KeyframeResolver {
     }
     measureInitialState() {
         const { element, unresolvedKeyframes, name } = this;
-        if (!element.current)
+        if (!element || !element.current)
             return;
         if (name === "height") {
             this.suspendedScrollY = window.pageYOffset;
@@ -19931,7 +18188,7 @@ class DOMKeyframesResolver extends KeyframeResolver {
     measureEndState() {
         var _a;
         const { element, name, unresolvedKeyframes } = this;
-        if (!element.current)
+        if (!element || !element.current)
             return;
         const value = element.getValue(name);
         value && value.jump(this.measuredOrigin, false);
@@ -19955,19 +18212,47 @@ class DOMKeyframesResolver extends KeyframeResolver {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/memo.mjs
-function memo(callback) {
-    let result;
-    return () => {
-        if (result === undefined)
-            result = callback();
-        return result;
-    };
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/utils/is-generator.mjs
+function isGenerator(type) {
+    return typeof type === "function";
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/utils/is-animatable.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/frameloop/sync-time.mjs
+
+
+
+let now;
+function clearTime() {
+    now = undefined;
+}
+/**
+ * An eventloop-synchronous alternative to performance.now().
+ *
+ * Ensures that time measurements remain consistent within a synchronous context.
+ * Usually calling performance.now() twice within the same synchronous context
+ * will return different values which isn't useful for animations when we're usually
+ * trying to sync animations to the same frame.
+ */
+const time = {
+    now: () => {
+        if (now === undefined) {
+            time.set(frameData.isProcessing || MotionGlobalConfig.useManualTiming
+                ? frameData.timestamp
+                : performance.now());
+        }
+        return now;
+    },
+    set: (newTime) => {
+        now = newTime;
+        queueMicrotask(clearTime);
+    },
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/is-animatable.mjs
 
 
 /**
@@ -19999,7 +18284,8 @@ const isAnimatable = (value, name) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/utils/can-animate.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/utils/can-animate.mjs
+
 
 
 
@@ -20021,6 +18307,13 @@ function canAnimate(keyframes, name, type, velocity) {
     const originKeyframe = keyframes[0];
     if (originKeyframe === null)
         return false;
+    /**
+     * These aren't traditionally animatable but we do support them.
+     * In future we could look into making this more generic or replacing
+     * this function with mix() === mixImmediate
+     */
+    if (name === "display" || name === "visibility")
+        return true;
     const targetKeyframe = keyframes[keyframes.length - 1];
     const isOriginAnimatable = isAnimatable(originKeyframe, name);
     const isTargetAnimatable = isAnimatable(targetKeyframe, name);
@@ -20029,22 +18322,34 @@ function canAnimate(keyframes, name, type, velocity) {
     if (!isOriginAnimatable || !isTargetAnimatable) {
         return false;
     }
-    return hasKeyframesChanged(keyframes) || (type === "spring" && velocity);
+    return (hasKeyframesChanged(keyframes) ||
+        ((type === "spring" || isGenerator(type)) && velocity));
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/BaseAnimation.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/BaseAnimation.mjs
 
 
 
 
 
+
+/**
+ * Maximum time allowed between an animation being created and it being
+ * resolved for us to use the latter as the start time.
+ *
+ * This is to ensure that while we prefer to "start" an animation as soon
+ * as it's triggered, we also want to avoid a visual jump if there's a big delay
+ * between these two moments.
+ */
+const MAX_RESOLVE_DELAY = 40;
 class BaseAnimation {
     constructor({ autoplay = true, delay = 0, type = "keyframes", repeat = 0, repeatDelay = 0, repeatType = "loop", ...options }) {
         // Track whether the animation has been stopped. Stopped animations won't restart.
         this.isStopped = false;
         this.hasAttemptedResolve = false;
+        this.createdAt = time.now();
         this.options = {
             autoplay,
             delay,
@@ -20055,6 +18360,23 @@ class BaseAnimation {
             ...options,
         };
         this.updateFinishedPromise();
+    }
+    /**
+     * This method uses the createdAt and resolvedAt to calculate the
+     * animation startTime. *Ideally*, we would use the createdAt time as t=0
+     * as the following frame would then be the first frame of the animation in
+     * progress, which would feel snappier.
+     *
+     * However, if there's a delay (main thread work) between the creation of
+     * the animation and the first commited frame, we prefer to use resolvedAt
+     * to avoid a sudden jump into the animation.
+     */
+    calcStartTime() {
+        if (!this.resolvedAt)
+            return this.createdAt;
+        return this.resolvedAt - this.createdAt > MAX_RESOLVE_DELAY
+            ? this.resolvedAt
+            : this.createdAt;
     }
     /**
      * A getter for resolved data. If keyframes are not yet resolved, accessing
@@ -20073,6 +18395,7 @@ class BaseAnimation {
      * Otherwise, it will call initPlayback on the implementing class.
      */
     onKeyframesResolved(keyframes, finalKeyframe) {
+        this.resolvedAt = time.now();
         this.hasAttemptedResolve = true;
         const { name, type, velocity, delay, onComplete, onUpdate, isGenerator, } = this.options;
         /**
@@ -20111,6 +18434,10 @@ class BaseAnimation {
     then(resolve, reject) {
         return this.currentFinishedPromise.then(resolve, reject);
     }
+    flatten() {
+        this.options.type = "keyframes";
+        this.options.ease = "linear";
+    }
     updateFinishedPromise() {
         this.currentFinishedPromise = new Promise((resolve) => {
             this.resolveFinishedPromise = resolve;
@@ -20120,7 +18447,43 @@ class BaseAnimation {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/velocity-per-second.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/progress.mjs
+/*
+  Progress within given range
+
+  Given a lower limit and an upper limit, we return the progress
+  (expressed as a number 0-1) represented by the given value, and
+  limit that progress to within 0-1.
+
+  @param [number]: Lower limit
+  @param [number]: Upper limit
+  @param [number]: Value to find progress within given range
+  @return [number]: Progress of value within range as expressed 0-1
+*/
+const progress = (from, to, value) => {
+    const toFromDifference = to - from;
+    return toFromDifference === 0 ? 1 : (value - from) / toFromDifference;
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/linear.mjs
+
+
+const generateLinearEasing = (easing, duration, // as milliseconds
+resolution = 10 // as milliseconds
+) => {
+    let points = "";
+    const numPoints = Math.max(Math.round(duration / resolution), 2);
+    for (let i = 0; i < numPoints; i++) {
+        points += easing(progress(0, numPoints - 1, i)) + ", ";
+    }
+    return `linear(${points.substring(0, points.length - 2)})`;
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/velocity-per-second.mjs
 /*
   Convert velocity into velocity per second
 
@@ -20133,7 +18496,7 @@ function velocityPerSecond(velocity, frameDuration) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/utils/velocity.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/utils/velocity.mjs
 
 
 const velocitySampleDuration = 5; // ms
@@ -20144,26 +18507,52 @@ function calcGeneratorVelocity(resolveValue, t, current) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/spring/find.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/spring/defaults.mjs
+const springDefaults = {
+    // Default spring physics
+    stiffness: 100,
+    damping: 10,
+    mass: 1.0,
+    velocity: 0.0,
+    // Default duration/bounce-based options
+    duration: 800, // in ms
+    bounce: 0.3,
+    visualDuration: 0.3, // in seconds
+    // Rest thresholds
+    restSpeed: {
+        granular: 0.01,
+        default: 2,
+    },
+    restDelta: {
+        granular: 0.005,
+        default: 0.5,
+    },
+    // Limits
+    minDuration: 0.01, // in seconds
+    maxDuration: 10.0, // in seconds
+    minDamping: 0.05,
+    maxDamping: 1,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/spring/find.mjs
+
 
 
 
 
 const safeMin = 0.001;
-const minDuration = 0.01;
-const maxDuration = 10.0;
-const minDamping = 0.05;
-const maxDamping = 1;
-function findSpring({ duration = 800, bounce = 0.25, velocity = 0, mass = 1, }) {
+function findSpring({ duration = springDefaults.duration, bounce = springDefaults.bounce, velocity = springDefaults.velocity, mass = springDefaults.mass, }) {
     let envelope;
     let derivative;
-    warning(duration <= secondsToMilliseconds(maxDuration), "Spring duration must be 10 seconds or less");
+    warning(duration <= time_conversion_secondsToMilliseconds(springDefaults.maxDuration), "Spring duration must be 10 seconds or less");
     let dampingRatio = 1 - bounce;
     /**
      * Restrict dampingRatio and duration to within acceptable ranges.
      */
-    dampingRatio = clamp_clamp(minDamping, maxDamping, dampingRatio);
-    duration = clamp_clamp(minDuration, maxDuration, millisecondsToSeconds(duration));
+    dampingRatio = clamp_clamp(springDefaults.minDamping, springDefaults.maxDamping, dampingRatio);
+    duration = clamp_clamp(springDefaults.minDuration, springDefaults.maxDuration, millisecondsToSeconds(duration));
     if (dampingRatio < 1) {
         /**
          * Underdamped spring
@@ -20204,11 +18593,11 @@ function findSpring({ duration = 800, bounce = 0.25, velocity = 0, mass = 1, }) 
     }
     const initialGuess = 5 / duration;
     const undampedFreq = approximateRoot(envelope, derivative, initialGuess);
-    duration = secondsToMilliseconds(duration);
+    duration = time_conversion_secondsToMilliseconds(duration);
     if (isNaN(undampedFreq)) {
         return {
-            stiffness: 100,
-            damping: 10,
+            stiffness: springDefaults.stiffness,
+            damping: springDefaults.damping,
             duration,
         };
     }
@@ -20235,7 +18624,30 @@ function calcAngularFreq(undampedFreq, dampingRatio) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/spring/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/utils/calc-duration.mjs
+/**
+ * Implement a practical max duration for keyframe generation
+ * to prevent infinite loops
+ */
+const maxGeneratorDuration = 20000;
+function calcGeneratorDuration(generator) {
+    let duration = 0;
+    const timeStep = 50;
+    let state = generator.next(duration);
+    while (!state.done && duration < maxGeneratorDuration) {
+        duration += timeStep;
+        state = generator.next(duration);
+    }
+    return duration >= maxGeneratorDuration ? Infinity : duration;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/spring/index.mjs
+
+
+
+
 
 
 
@@ -20247,29 +18659,51 @@ function isSpringType(options, keys) {
 }
 function getSpringOptions(options) {
     let springOptions = {
-        velocity: 0.0,
-        stiffness: 100,
-        damping: 10,
-        mass: 1.0,
+        velocity: springDefaults.velocity,
+        stiffness: springDefaults.stiffness,
+        damping: springDefaults.damping,
+        mass: springDefaults.mass,
         isResolvedFromDuration: false,
         ...options,
     };
     // stiffness/damping/mass overrides duration/bounce
     if (!isSpringType(options, physicsKeys) &&
         isSpringType(options, durationKeys)) {
-        const derived = findSpring(options);
-        springOptions = {
-            ...springOptions,
-            ...derived,
-            mass: 1.0,
-        };
-        springOptions.isResolvedFromDuration = true;
+        if (options.visualDuration) {
+            const visualDuration = options.visualDuration;
+            const root = (2 * Math.PI) / (visualDuration * 1.2);
+            const stiffness = root * root;
+            const damping = 2 * clamp_clamp(0.05, 1, 1 - options.bounce) * Math.sqrt(stiffness);
+            springOptions = {
+                ...springOptions,
+                mass: springDefaults.mass,
+                stiffness,
+                damping,
+            };
+        }
+        else {
+            const derived = findSpring(options);
+            springOptions = {
+                ...springOptions,
+                ...derived,
+                mass: springDefaults.mass,
+            };
+            springOptions.isResolvedFromDuration = true;
+        }
     }
     return springOptions;
 }
-function spring({ keyframes, restDelta, restSpeed, ...options }) {
-    const origin = keyframes[0];
-    const target = keyframes[keyframes.length - 1];
+function spring(optionsOrVisualDuration = springDefaults.visualDuration, bounce = springDefaults.bounce) {
+    const options = typeof optionsOrVisualDuration !== "object"
+        ? {
+            visualDuration: optionsOrVisualDuration,
+            keyframes: [0, 1],
+            bounce,
+        }
+        : optionsOrVisualDuration;
+    let { restSpeed, restDelta } = options;
+    const origin = options.keyframes[0];
+    const target = options.keyframes[options.keyframes.length - 1];
     /**
      * This is the Iterator-spec return value. We ensure it's mutable rather than using a generator
      * to reduce GC during animation.
@@ -20291,8 +18725,12 @@ function spring({ keyframes, restDelta, restSpeed, ...options }) {
      * ratio between feeling good and finishing as soon as changes are imperceptible.
      */
     const isGranularScale = Math.abs(initialDelta) < 5;
-    restSpeed || (restSpeed = isGranularScale ? 0.01 : 2);
-    restDelta || (restDelta = isGranularScale ? 0.005 : 0.5);
+    restSpeed || (restSpeed = isGranularScale
+        ? springDefaults.restSpeed.granular
+        : springDefaults.restSpeed.default);
+    restDelta || (restDelta = isGranularScale
+        ? springDefaults.restDelta.granular
+        : springDefaults.restDelta.default);
     let resolveSpring;
     if (dampingRatio < 1) {
         const angularFreq = calcAngularFreq(undampedAngularFreq, dampingRatio);
@@ -20333,24 +18771,22 @@ function spring({ keyframes, restDelta, restSpeed, ...options }) {
                     dampedAngularFreq);
         };
     }
-    return {
+    const generator = {
         calculatedDuration: isResolvedFromDuration ? duration || null : null,
         next: (t) => {
             const current = resolveSpring(t);
             if (!isResolvedFromDuration) {
-                let currentVelocity = initialVelocity;
-                if (t !== 0) {
-                    /**
-                     * We only need to calculate velocity for under-damped springs
-                     * as over- and critically-damped springs can't overshoot, so
-                     * checking only for displacement is enough.
-                     */
-                    if (dampingRatio < 1) {
-                        currentVelocity = calcGeneratorVelocity(resolveSpring, t, current);
-                    }
-                    else {
-                        currentVelocity = 0;
-                    }
+                let currentVelocity = 0.0;
+                /**
+                 * We only need to calculate velocity for under-damped springs
+                 * as over- and critically-damped springs can't overshoot, so
+                 * checking only for displacement is enough.
+                 */
+                if (dampingRatio < 1) {
+                    currentVelocity =
+                        t === 0
+                            ? time_conversion_secondsToMilliseconds(initialVelocity)
+                            : calcGeneratorVelocity(resolveSpring, t, current);
                 }
                 const isBelowVelocityThreshold = Math.abs(currentVelocity) <= restSpeed;
                 const isBelowDisplacementThreshold = Math.abs(target - current) <= restDelta;
@@ -20363,12 +18799,18 @@ function spring({ keyframes, restDelta, restSpeed, ...options }) {
             state.value = state.done ? target : current;
             return state;
         },
+        toString: () => {
+            const calculatedDuration = Math.min(calcGeneratorDuration(generator), maxGeneratorDuration);
+            const easing = generateLinearEasing((progress) => generator.next(calculatedDuration * progress).value, calculatedDuration, 30);
+            return calculatedDuration + "ms " + easing;
+        },
     };
+    return generator;
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/inertia.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/inertia.mjs
 
 
 
@@ -20457,118 +18899,28 @@ function inertia({ keyframes, velocity = 0.0, power = 0.8, timeConstant = 325, b
 
 
 
-;// ./node_modules/framer-motion/dist/es/easing/cubic-bezier.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/ease.mjs
 
 
-/*
-  Bezier function generator
-  This has been modified from Gaëtan Renaudeau's BezierEasing
-  https://github.com/gre/bezier-easing/blob/master/src/index.js
-  https://github.com/gre/bezier-easing/blob/master/LICENSE
-  
-  I've removed the newtonRaphsonIterate algo because in benchmarking it
-  wasn't noticiably faster than binarySubdivision, indeed removing it
-  usually improved times, depending on the curve.
-  I also removed the lookup table, as for the added bundle size and loop we're
-  only cutting ~4 or so subdivision iterations. I bumped the max iterations up
-  to 12 to compensate and this still tended to be faster for no perceivable
-  loss in accuracy.
-  Usage
-    const easeOut = cubicBezier(.17,.67,.83,.67);
-    const x = easeOut(0.5); // returns 0.627...
-*/
-// Returns x(t) given t, x1, and x2, or y(t) given t, y1, and y2.
-const calcBezier = (t, a1, a2) => (((1.0 - 3.0 * a2 + 3.0 * a1) * t + (3.0 * a2 - 6.0 * a1)) * t + 3.0 * a1) *
-    t;
-const subdivisionPrecision = 0.0000001;
-const subdivisionMaxIterations = 12;
-function binarySubdivide(x, lowerBound, upperBound, mX1, mX2) {
-    let currentX;
-    let currentT;
-    let i = 0;
-    do {
-        currentT = lowerBound + (upperBound - lowerBound) / 2.0;
-        currentX = calcBezier(currentT, mX1, mX2) - x;
-        if (currentX > 0.0) {
-            upperBound = currentT;
-        }
-        else {
-            lowerBound = currentT;
-        }
-    } while (Math.abs(currentX) > subdivisionPrecision &&
-        ++i < subdivisionMaxIterations);
-    return currentT;
-}
-function cubicBezier(mX1, mY1, mX2, mY2) {
-    // If this is a linear gradient, return linear easing
-    if (mX1 === mY1 && mX2 === mY2)
-        return noop_noop;
-    const getTForX = (aX) => binarySubdivide(aX, 0, 1, mX1, mX2);
-    // If animation is at start/end, return t without easing
-    return (t) => t === 0 || t === 1 ? t : calcBezier(getTForX(t), mY1, mY2);
-}
+const easeIn = /*@__PURE__*/ cubicBezier(0.42, 0, 1, 1);
+const easeOut = /*@__PURE__*/ cubicBezier(0, 0, 0.58, 1);
+const easeInOut = /*@__PURE__*/ cubicBezier(0.42, 0, 0.58, 1);
 
 
 
-;// ./node_modules/framer-motion/dist/es/easing/ease.mjs
-
-
-const easeIn = cubicBezier(0.42, 0, 1, 1);
-const easeOut = cubicBezier(0, 0, 0.58, 1);
-const easeInOut = cubicBezier(0.42, 0, 0.58, 1);
-
-
-
-;// ./node_modules/framer-motion/dist/es/easing/utils/is-easing-array.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/utils/is-easing-array.mjs
 const isEasingArray = (ease) => {
     return Array.isArray(ease) && typeof ease[0] !== "number";
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/easing/modifiers/mirror.mjs
-// Accepts an easing function and returns a new one that outputs mirrored values for
-// the second half of the animation. Turns easeIn into easeInOut.
-const mirrorEasing = (easing) => (p) => p <= 0.5 ? easing(2 * p) / 2 : (2 - easing(2 * (1 - p))) / 2;
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/utils/is-bezier-definition.mjs
+const isBezierDefinition = (easing) => Array.isArray(easing) && typeof easing[0] === "number";
 
 
 
-;// ./node_modules/framer-motion/dist/es/easing/modifiers/reverse.mjs
-// Accepts an easing function and returns a new one that outputs reversed values.
-// Turns easeIn into easeOut.
-const reverseEasing = (easing) => (p) => 1 - easing(1 - p);
-
-
-
-;// ./node_modules/framer-motion/dist/es/easing/circ.mjs
-
-
-
-const circIn = (p) => 1 - Math.sin(Math.acos(p));
-const circOut = reverseEasing(circIn);
-const circInOut = mirrorEasing(circIn);
-
-
-
-;// ./node_modules/framer-motion/dist/es/easing/back.mjs
-
-
-
-
-const backOut = cubicBezier(0.33, 1.53, 0.69, 0.99);
-const backIn = reverseEasing(backOut);
-const backInOut = mirrorEasing(backIn);
-
-
-
-;// ./node_modules/framer-motion/dist/es/easing/anticipate.mjs
-
-
-const anticipate = (p) => (p *= 2) < 1 ? 0.5 * backIn(p) : 0.5 * (2 - Math.pow(2, -10 * (p - 1)));
-
-
-
-;// ./node_modules/framer-motion/dist/es/easing/utils/map.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/easing/utils/map.mjs
 
 
 
@@ -20591,7 +18943,7 @@ const easingLookup = {
     anticipate: anticipate,
 };
 const easingDefinitionToFunction = (definition) => {
-    if (Array.isArray(definition)) {
+    if (isBezierDefinition(definition)) {
         // If cubic bezier definition, create bezier curve
         errors_invariant(definition.length === 4, `Cubic bezier arrays must contain four numerical values.`);
         const [x1, y1, x2, y2] = definition;
@@ -20607,27 +18959,20 @@ const easingDefinitionToFunction = (definition) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/progress.mjs
-/*
-  Progress within given range
-
-  Given a lower limit and an upper limit, we return the progress
-  (expressed as a number 0-1) represented by the given value, and
-  limit that progress to within 0-1.
-
-  @param [number]: Lower limit
-  @param [number]: Upper limit
-  @param [number]: Value to find progress within given range
-  @return [number]: Progress of value within range as expressed 0-1
-*/
-const progress = (from, to, value) => {
-    const toFromDifference = to - from;
-    return toFromDifference === 0 ? 1 : (value - from) / toFromDifference;
-};
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/pipe.mjs
+/**
+ * Pipe
+ * Compose other transformers to run linearily
+ * pipe(min(20), max(40))
+ * @param  {...functions} transformers
+ * @return {function}
+ */
+const combineFunctions = (a, b) => (v) => b(a(v));
+const pipe = (...transformers) => transformers.reduce(combineFunctions);
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/mix/number.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/number.mjs
 /*
   Value in range from progress
 
@@ -20655,7 +19000,7 @@ const mixNumber = (from, to, progress) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/hsla-to-rgba.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/hsla-to-rgba.mjs
 // Adapted from https://gist.github.com/mjackson/5311256
 function hueToRgb(p, q, t) {
     if (t < 0)
@@ -20699,7 +19044,15 @@ function hslaToRgba({ hue, saturation, lightness, alpha }) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/mix/color.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/immediate.mjs
+function mixImmediate(a, b) {
+    return (p) => (p > 0 ? b : a);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/color.mjs
+
 
 
 
@@ -20719,10 +19072,12 @@ const colorTypes = [hex, rgba, hsla];
 const getColorType = (v) => colorTypes.find((type) => type.test(v));
 function asRGBA(color) {
     const type = getColorType(color);
-    errors_invariant(Boolean(type), `'${color}' is not an animatable color. Use the equivalent color code instead.`);
+    warning(Boolean(type), `'${color}' is not an animatable color. Use the equivalent color code instead.`);
+    if (!Boolean(type))
+        return false;
     let model = type.parse(color);
     if (type === hsla) {
-        // TODO Remove this cast - needed since Framer Motion's stricter typing
+        // TODO Remove this cast - needed since Motion's stricter typing
         model = hslaToRgba(model);
     }
     return model;
@@ -20730,6 +19085,9 @@ function asRGBA(color) {
 const mixColor = (from, to) => {
     const fromRGBA = asRGBA(from);
     const toRGBA = asRGBA(to);
+    if (!fromRGBA || !toRGBA) {
+        return mixImmediate(from, to);
+    }
     const blended = { ...fromRGBA };
     return (v) => {
         blended.red = mixLinearColor(fromRGBA.red, toRGBA.red, v);
@@ -20742,18 +19100,35 @@ const mixColor = (from, to) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/mix/complex.mjs
-
-
-
-
-
-
-
-
-function mixImmediate(a, b) {
-    return (p) => (p > 0 ? b : a);
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/visibility.mjs
+const invisibleValues = new Set(["none", "hidden"]);
+/**
+ * Returns a function that, when provided a progress value between 0 and 1,
+ * will return the "none" or "hidden" string only when the progress is that of
+ * the origin or target.
+ */
+function mixVisibility(origin, target) {
+    if (invisibleValues.has(origin)) {
+        return (p) => (p <= 0 ? origin : target);
+    }
+    else {
+        return (p) => (p >= 1 ? target : origin);
+    }
 }
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/complex.mjs
+
+
+
+
+
+
+
+
+
+
 function complex_mixNumber(a, b) {
     return (p) => mixNumber(a, b, p);
 }
@@ -20823,6 +19198,12 @@ const mixComplex = (origin, target) => {
         originStats.indexes.color.length === targetStats.indexes.color.length &&
         originStats.indexes.number.length >= targetStats.indexes.number.length;
     if (canInterpolate) {
+        if ((invisibleValues.has(origin) &&
+            !targetStats.values.length) ||
+            (invisibleValues.has(target) &&
+                !originStats.values.length)) {
+            return mixVisibility(origin, target);
+        }
         return pipe(mixArray(matchOrder(originStats, targetStats), targetStats.values), template);
     }
     else {
@@ -20833,7 +19214,7 @@ const mixComplex = (origin, target) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/mix/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/mix/index.mjs
 
 
 
@@ -20849,8 +19230,7 @@ function mix(from, to, p) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/interpolate.mjs
-
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/interpolate.mjs
 
 
 
@@ -20926,7 +19306,7 @@ function interpolate(input, output, { clamp: isClamp = true, ease, mixer } = {})
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/offsets/fill.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/offsets/fill.mjs
 
 
 
@@ -20940,7 +19320,7 @@ function fillOffset(offset, remaining) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/offsets/default.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/offsets/default.mjs
 
 
 function defaultOffset(arr) {
@@ -20951,14 +19331,14 @@ function defaultOffset(arr) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/offsets/time.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/offsets/time.mjs
 function convertOffsetToTimes(offset, duration) {
     return offset.map((o) => o * duration);
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/keyframes.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/generators/keyframes.mjs
 
 
 
@@ -21011,26 +19391,7 @@ function keyframes_keyframes({ duration = 300, keyframes: keyframeValues, times,
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/generators/utils/calc-duration.mjs
-/**
- * Implement a practical max duration for keyframe generation
- * to prevent infinite loops
- */
-const maxGeneratorDuration = 20000;
-function calcGeneratorDuration(generator) {
-    let duration = 0;
-    const timeStep = 50;
-    let state = generator.next(duration);
-    while (!state.done && duration < maxGeneratorDuration) {
-        duration += timeStep;
-        state = generator.next(duration);
-    }
-    return duration >= maxGeneratorDuration ? Infinity : duration;
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/animation/animators/drivers/driver-frameloop.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/drivers/driver-frameloop.mjs
 
 
 
@@ -21049,7 +19410,8 @@ const frameloopDriver = (update) => {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/MainThreadAnimation.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/MainThreadAnimation.mjs
+
 
 
 
@@ -21078,16 +19440,12 @@ const percentToProgress = (percent) => percent / 100;
  * between both WAAPI and main thread animations.
  */
 class MainThreadAnimation extends BaseAnimation {
-    constructor({ KeyframeResolver: KeyframeResolver$1 = KeyframeResolver, ...options }) {
+    constructor(options) {
         super(options);
         /**
          * The time at which the animation was paused.
          */
         this.holdTime = null;
-        /**
-         * The time at which the animation was started.
-         */
-        this.startTime = null;
         /**
          * The time at which the animation was cancelled.
          */
@@ -21106,6 +19464,10 @@ class MainThreadAnimation extends BaseAnimation {
          * without us having to resolve it first.
          */
         this.pendingPlayState = "running";
+        /**
+         * The time at which the animation was started.
+         */
+        this.startTime = null;
         this.state = "idle";
         /**
          * This method is bound to the instance to fix a pattern where
@@ -21120,19 +19482,24 @@ class MainThreadAnimation extends BaseAnimation {
             const { onStop } = this.options;
             onStop && onStop();
         };
-        const { name, motionValue, keyframes } = this.options;
+        const { name, motionValue, element, keyframes } = this.options;
+        const KeyframeResolver$1 = (element === null || element === void 0 ? void 0 : element.KeyframeResolver) || KeyframeResolver;
         const onResolved = (resolvedKeyframes, finalKeyframe) => this.onKeyframesResolved(resolvedKeyframes, finalKeyframe);
-        if (name && motionValue && motionValue.owner) {
-            this.resolver = motionValue.owner.resolveKeyframes(keyframes, onResolved, name, motionValue);
-        }
-        else {
-            this.resolver = new KeyframeResolver$1(keyframes, onResolved, name, motionValue);
-        }
+        this.resolver = new KeyframeResolver$1(keyframes, onResolved, name, motionValue, element);
         this.resolver.scheduleResolve();
+    }
+    flatten() {
+        super.flatten();
+        // If we've already resolved the animation, re-initialise it
+        if (this._resolved) {
+            Object.assign(this._resolved, this.initPlayback(this._resolved.keyframes));
+        }
     }
     initPlayback(keyframes$1) {
         const { type = "keyframes", repeat = 0, repeatDelay = 0, repeatType, velocity = 0, } = this.options;
-        const generatorFactory = generators[type] || keyframes_keyframes;
+        const generatorFactory = isGenerator(type)
+            ? type
+            : generators[type] || keyframes_keyframes;
         /**
          * If our generator doesn't support mixing numbers, we need to replace keyframes with
          * [0, 100] and then make a function that maps that to the actual keyframes.
@@ -21323,7 +19690,7 @@ class MainThreadAnimation extends BaseAnimation {
         return millisecondsToSeconds(this.currentTime);
     }
     set time(newTime) {
-        newTime = secondsToMilliseconds(newTime);
+        newTime = time_conversion_secondsToMilliseconds(newTime);
         this.currentTime = newTime;
         if (this.holdTime !== null || this.speed === 0) {
             this.holdTime = newTime;
@@ -21352,7 +19719,7 @@ class MainThreadAnimation extends BaseAnimation {
         }
         if (this.isStopped)
             return;
-        const { driver = frameloopDriver, onPlay } = this.options;
+        const { driver = frameloopDriver, onPlay, startTime } = this.options;
         if (!this.driver) {
             this.driver = driver((timestamp) => this.tick(timestamp));
         }
@@ -21361,7 +19728,10 @@ class MainThreadAnimation extends BaseAnimation {
         if (this.holdTime !== null) {
             this.startTime = now - this.holdTime;
         }
-        else if (!this.startTime || this.state === "finished") {
+        else if (!this.startTime) {
+            this.startTime = startTime !== null && startTime !== void 0 ? startTime : this.calcStartTime();
+        }
+        else if (this.state === "finished") {
             this.startTime = now;
         }
         if (this.state === "finished") {
@@ -21431,17 +19801,83 @@ function animateValue(options) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/easing/utils/is-bezier-definition.mjs
-const isBezierDefinition = (easing) => Array.isArray(easing) && typeof easing[0] === "number";
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/utils/accelerated-values.mjs
+/**
+ * A list of values that can be hardware-accelerated.
+ */
+const acceleratedValues = new Set([
+    "opacity",
+    "clipPath",
+    "filter",
+    "transform",
+    // TODO: Can be accelerated but currently disabled until https://issues.chromium.org/issues/41491098 is resolved
+    // or until we implement support for linear() easing.
+    // "background-color"
+]);
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/waapi/easing.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/memo.mjs
+function memo(callback) {
+    let result;
+    return () => {
+        if (result === undefined)
+            result = callback();
+        return result;
+    };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/supports-flags.mjs
+/**
+ * Add the ability for test suites to manually set support flags
+ * to better test more environments.
+ */
+const supportsFlags = {
+    linearEasing: undefined,
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/memo-supports.mjs
+
+
+
+function memoSupports(callback, supportsFlag) {
+    const memoized = memo(callback);
+    return () => { var _a; return (_a = supportsFlags[supportsFlag]) !== null && _a !== void 0 ? _a : memoized(); };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/supports-linear-easing.mjs
+
+
+const supportsLinearEasing = /*@__PURE__*/ memoSupports(() => {
+    try {
+        document
+            .createElement("div")
+            .animate({ opacity: 0 }, { easing: "linear(0, 1)" });
+    }
+    catch (e) {
+        return false;
+    }
+    return true;
+}, "linearEasing");
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/easing.mjs
+
+
 
 
 function isWaapiSupportedEasing(easing) {
-    return Boolean(!easing ||
-        (typeof easing === "string" && easing in supportedWaapiEasing) ||
+    return Boolean((typeof easing === "function" && supportsLinearEasing()) ||
+        !easing ||
+        (typeof easing === "string" &&
+            (easing in supportedWaapiEasing || supportsLinearEasing())) ||
         isBezierDefinition(easing) ||
         (Array.isArray(easing) && easing.every(isWaapiSupportedEasing)));
 }
@@ -21452,24 +19888,24 @@ const supportedWaapiEasing = {
     easeIn: "ease-in",
     easeOut: "ease-out",
     easeInOut: "ease-in-out",
-    circIn: cubicBezierAsString([0, 0.65, 0.55, 1]),
-    circOut: cubicBezierAsString([0.55, 0, 1, 0.45]),
-    backIn: cubicBezierAsString([0.31, 0.01, 0.66, -0.59]),
-    backOut: cubicBezierAsString([0.33, 1.53, 0.69, 0.99]),
+    circIn: /*@__PURE__*/ cubicBezierAsString([0, 0.65, 0.55, 1]),
+    circOut: /*@__PURE__*/ cubicBezierAsString([0.55, 0, 1, 0.45]),
+    backIn: /*@__PURE__*/ cubicBezierAsString([0.31, 0.01, 0.66, -0.59]),
+    backOut: /*@__PURE__*/ cubicBezierAsString([0.33, 1.53, 0.69, 0.99]),
 };
-function mapEasingToNativeEasingWithDefault(easing) {
-    return (mapEasingToNativeEasing(easing) ||
-        supportedWaapiEasing.easeOut);
-}
-function mapEasingToNativeEasing(easing) {
+function mapEasingToNativeEasing(easing, duration) {
     if (!easing) {
         return undefined;
+    }
+    else if (typeof easing === "function" && supportsLinearEasing()) {
+        return generateLinearEasing(easing, duration);
     }
     else if (isBezierDefinition(easing)) {
         return cubicBezierAsString(easing);
     }
     else if (Array.isArray(easing)) {
-        return easing.map(mapEasingToNativeEasingWithDefault);
+        return easing.map((segmentEasing) => mapEasingToNativeEasing(segmentEasing, duration) ||
+            supportedWaapiEasing.easeOut);
     }
     else {
         return supportedWaapiEasing[easing];
@@ -21478,14 +19914,14 @@ function mapEasingToNativeEasing(easing) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/waapi/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/index.mjs
 
 
-function animateStyle(element, valueName, keyframes, { delay = 0, duration = 300, repeat = 0, repeatType = "loop", ease, times, } = {}) {
+function startWaapiAnimation(element, valueName, keyframes, { delay = 0, duration = 300, repeat = 0, repeatType = "loop", ease = "easeInOut", times, } = {}) {
     const keyframeOptions = { [valueName]: keyframes };
     if (times)
         keyframeOptions.offset = times;
-    const easing = mapEasingToNativeEasing(ease);
+    const easing = mapEasingToNativeEasing(ease, duration);
     /**
      * If this is an easing array, apply to keyframes, not animation as a whole
      */
@@ -21503,7 +19939,22 @@ function animateStyle(element, valueName, keyframes, { delay = 0, duration = 300
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/animators/AcceleratedAnimation.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/attach-timeline.mjs
+function attachTimeline(animation, timeline) {
+    animation.timeline = timeline;
+    animation.onfinish = null;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/waapi/utils/supports-waapi.mjs
+
+
+const supportsWaapi = /*@__PURE__*/ memo(() => Object.hasOwnProperty.call(Element.prototype, "animate"));
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animators/AcceleratedAnimation.mjs
 
 
 
@@ -21515,19 +19966,12 @@ function animateStyle(element, valueName, keyframes, { delay = 0, duration = 300
 
 
 
-const supportsWaapi = memo(() => Object.hasOwnProperty.call(Element.prototype, "animate"));
-/**
- * A list of values that can be hardware-accelerated.
- */
-const acceleratedValues = new Set([
-    "opacity",
-    "clipPath",
-    "filter",
-    "transform",
-    // TODO: Can be accelerated but currently disabled until https://issues.chromium.org/issues/41491098 is resolved
-    // or until we implement support for linear() easing.
-    // "background-color"
-]);
+
+
+
+
+
+
 /**
  * 10ms is chosen here as it strikes a balance between smooth
  * results (more than one keyframe per frame at 60fps) and
@@ -21538,15 +19982,15 @@ const sampleDelta = 10; //ms
  * Implement a practical max duration for keyframe generation
  * to prevent infinite loops
  */
-const AcceleratedAnimation_maxDuration = 20000;
+const maxDuration = 20000;
 /**
  * Check if an animation can run natively via WAAPI or requires pregenerated keyframes.
  * WAAPI doesn't support spring or function easings so we run these as JS animation before
  * handing off.
  */
 function requiresPregeneratedKeyframes(options) {
-    return (options.type === "spring" ||
-        options.name === "backgroundColor" ||
+    return (isGenerator(options.type) ||
+        options.type === "spring" ||
         !isWaapiSupportedEasing(options.ease));
 }
 function pregenerateKeyframes(keyframes, options) {
@@ -21569,7 +20013,7 @@ function pregenerateKeyframes(keyframes, options) {
      * we're heading for an infinite loop.
      */
     let t = 0;
-    while (!state.done && t < AcceleratedAnimation_maxDuration) {
+    while (!state.done && t < maxDuration) {
         state = sampleAnimation.sample(t);
         pregeneratedKeyframes.push(state.value);
         t += sampleDelta;
@@ -21581,16 +20025,24 @@ function pregenerateKeyframes(keyframes, options) {
         ease: "linear",
     };
 }
+const unsupportedEasingFunctions = {
+    anticipate: anticipate,
+    backInOut: backInOut,
+    circInOut: circInOut,
+};
+function isUnsupportedEase(key) {
+    return key in unsupportedEasingFunctions;
+}
 class AcceleratedAnimation extends BaseAnimation {
     constructor(options) {
         super(options);
-        const { name, motionValue, keyframes } = this.options;
-        this.resolver = new DOMKeyframesResolver(keyframes, (resolvedKeyframes, finalKeyframe) => this.onKeyframesResolved(resolvedKeyframes, finalKeyframe), name, motionValue);
+        const { name, motionValue, element, keyframes } = this.options;
+        this.resolver = new DOMKeyframesResolver(keyframes, (resolvedKeyframes, finalKeyframe) => this.onKeyframesResolved(resolvedKeyframes, finalKeyframe), name, motionValue, element);
         this.resolver.scheduleResolve();
     }
     initPlayback(keyframes, finalKeyframe) {
         var _a;
-        let { duration = 300, times, ease, type, motionValue, name, } = this.options;
+        let { duration = 300, times, ease, type, motionValue, name, startTime, } = this.options;
         /**
          * If element has since been unmounted, return false to indicate
          * the animation failed to initialised.
@@ -21599,10 +20051,20 @@ class AcceleratedAnimation extends BaseAnimation {
             return false;
         }
         /**
+         * If the user has provided an easing function name that isn't supported
+         * by WAAPI (like "anticipate"), we need to provide the corressponding
+         * function. This will later get converted to a linear() easing function.
+         */
+        if (typeof ease === "string" &&
+            supportsLinearEasing() &&
+            isUnsupportedEase(ease)) {
+            ease = unsupportedEasingFunctions[ease];
+        }
+        /**
          * If this animation needs pre-generated keyframes then generate.
          */
         if (requiresPregeneratedKeyframes(this.options)) {
-            const { onComplete, onUpdate, motionValue, ...options } = this.options;
+            const { onComplete, onUpdate, motionValue, element, ...options } = this.options;
             const pregeneratedAnimation = pregenerateKeyframes(keyframes, options);
             keyframes = pregeneratedAnimation.keyframes;
             // If this is a very short animation, ensure we have
@@ -21616,12 +20078,12 @@ class AcceleratedAnimation extends BaseAnimation {
             ease = pregeneratedAnimation.ease;
             type = "keyframes";
         }
-        const animation = animateStyle(motionValue.owner.current, name, keyframes, { ...this.options, duration, times, ease });
+        const animation = startWaapiAnimation(motionValue.owner.current, name, keyframes, { ...this.options, duration, times, ease });
         // Override the browser calculated startTime with one synchronised to other JS
         // and WAAPI animations starting this event loop.
-        animation.startTime = time.now();
+        animation.startTime = startTime !== null && startTime !== void 0 ? startTime : this.calcStartTime();
         if (this.pendingTimeline) {
-            animation.timeline = this.pendingTimeline;
+            attachTimeline(animation, this.pendingTimeline);
             this.pendingTimeline = undefined;
         }
         else {
@@ -21669,7 +20131,7 @@ class AcceleratedAnimation extends BaseAnimation {
         if (!resolved)
             return;
         const { animation } = resolved;
-        animation.currentTime = secondsToMilliseconds(newTime);
+        animation.currentTime = time_conversion_secondsToMilliseconds(newTime);
     }
     get speed() {
         const { resolved } = this;
@@ -21692,6 +20154,15 @@ class AcceleratedAnimation extends BaseAnimation {
         const { animation } = resolved;
         return animation.playState;
     }
+    get startTime() {
+        const { resolved } = this;
+        if (!resolved)
+            return null;
+        const { animation } = resolved;
+        // Coerce to number as TypeScript incorrectly types this
+        // as CSSNumberish
+        return animation.startTime;
+    }
     /**
      * Replace the default DocumentTimeline with another AnimationTimeline.
      * Currently used for scroll animations.
@@ -21705,8 +20176,7 @@ class AcceleratedAnimation extends BaseAnimation {
             if (!resolved)
                 return noop_noop;
             const { animation } = resolved;
-            animation.timeline = timeline;
-            animation.onfinish = null;
+            attachTimeline(animation, timeline);
         }
         return noop_noop;
     }
@@ -21734,6 +20204,8 @@ class AcceleratedAnimation extends BaseAnimation {
         this.isStopped = true;
         if (this.state === "idle")
             return;
+        this.resolveFinishedPromise();
+        this.updateFinishedPromise();
         const { resolved } = this;
         if (!resolved)
             return;
@@ -21751,7 +20223,7 @@ class AcceleratedAnimation extends BaseAnimation {
          * Motion to calculate velocity for any subsequent animation.
          */
         if (this.time) {
-            const { motionValue, onUpdate, onComplete, ...options } = this.options;
+            const { motionValue, onUpdate, onComplete, element, ...options } = this.options;
             const sampleAnimation = new MainThreadAnimation({
                 ...options,
                 keyframes,
@@ -21761,9 +20233,11 @@ class AcceleratedAnimation extends BaseAnimation {
                 times,
                 isGenerator: true,
             });
-            const sampleTime = secondsToMilliseconds(this.time);
+            const sampleTime = time_conversion_secondsToMilliseconds(this.time);
             motionValue.setWithVelocity(sampleAnimation.sample(sampleTime - sampleDelta).value, sampleAnimation.sample(sampleTime).value, sampleDelta);
         }
+        const { onStop } = this.options;
+        onStop && onStop();
         this.cancel();
     }
     complete() {
@@ -21800,7 +20274,111 @@ class AcceleratedAnimation extends BaseAnimation {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/interfaces/motion-value.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/scroll/supports.mjs
+
+
+const supportsScrollTimeline = memo(() => window.ScrollTimeline !== undefined);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/GroupPlaybackControls.mjs
+
+
+class GroupPlaybackControls {
+    constructor(animations) {
+        // Bound to accomodate common `return animation.stop` pattern
+        this.stop = () => this.runAll("stop");
+        this.animations = animations.filter(Boolean);
+    }
+    then(onResolve, onReject) {
+        return Promise.all(this.animations).then(onResolve).catch(onReject);
+    }
+    /**
+     * TODO: Filter out cancelled or stopped animations before returning
+     */
+    getAll(propName) {
+        return this.animations[0][propName];
+    }
+    setAll(propName, newValue) {
+        for (let i = 0; i < this.animations.length; i++) {
+            this.animations[i][propName] = newValue;
+        }
+    }
+    attachTimeline(timeline, fallback) {
+        const subscriptions = this.animations.map((animation) => {
+            if (supportsScrollTimeline() && animation.attachTimeline) {
+                return animation.attachTimeline(timeline);
+            }
+            else {
+                return fallback(animation);
+            }
+        });
+        return () => {
+            subscriptions.forEach((cancel, i) => {
+                cancel && cancel();
+                this.animations[i].stop();
+            });
+        };
+    }
+    get time() {
+        return this.getAll("time");
+    }
+    set time(time) {
+        this.setAll("time", time);
+    }
+    get speed() {
+        return this.getAll("speed");
+    }
+    set speed(speed) {
+        this.setAll("speed", speed);
+    }
+    get startTime() {
+        return this.getAll("startTime");
+    }
+    get duration() {
+        let max = 0;
+        for (let i = 0; i < this.animations.length; i++) {
+            max = Math.max(max, this.animations[i].duration);
+        }
+        return max;
+    }
+    runAll(methodName) {
+        this.animations.forEach((controls) => controls[methodName]());
+    }
+    flatten() {
+        this.runAll("flatten");
+    }
+    play() {
+        this.runAll("play");
+    }
+    pause() {
+        this.runAll("pause");
+    }
+    cancel() {
+        this.runAll("cancel");
+    }
+    complete() {
+        this.runAll("complete");
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/utils/is-transition-defined.mjs
+/**
+ * Decide whether a transition is defined on a given Transition.
+ * This filters out orchestration options and returns true
+ * if any options are left.
+ */
+function isTransitionDefined({ when, delay: _delay, delayChildren, staggerChildren, staggerDirection, repeat, repeatType, repeatDelay, from, elapsed, ...transition }) {
+    return !!Object.keys(transition).length;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/interfaces/motion-value.mjs
+
+
 
 
 
@@ -21824,7 +20402,7 @@ const animateMotionValue = (name, value, target, transition = {}, element, isHan
      * optimized appear effects in milliseconds.
      */
     let { elapsed = 0 } = transition;
-    elapsed = elapsed - secondsToMilliseconds(delay);
+    elapsed = elapsed - time_conversion_secondsToMilliseconds(delay);
     let options = {
         keyframes: Array.isArray(target) ? target : [null, target],
         ease: "easeOut",
@@ -21859,10 +20437,10 @@ const animateMotionValue = (name, value, target, transition = {}, element, isHan
      * as seconds.
      */
     if (options.duration) {
-        options.duration = secondsToMilliseconds(options.duration);
+        options.duration = time_conversion_secondsToMilliseconds(options.duration);
     }
     if (options.repeatDelay) {
-        options.repeatDelay = secondsToMilliseconds(options.repeatDelay);
+        options.repeatDelay = time_conversion_secondsToMilliseconds(options.repeatDelay);
     }
     if (options.from !== undefined) {
         options.keyframes[0] = options.from;
@@ -21893,7 +20471,9 @@ const animateMotionValue = (name, value, target, transition = {}, element, isHan
                 options.onUpdate(finalKeyframe);
                 options.onComplete();
             });
-            return;
+            // We still want to return some animation controls here rather
+            // than returning undefined
+            return new GroupPlaybackControls([]);
         }
     }
     /**
@@ -21911,16 +20491,20 @@ const animateMotionValue = (name, value, target, transition = {}, element, isHan
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/use-will-change/is.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/resolve-value.mjs
 
 
-function isWillChangeMotionValue(value) {
-    return Boolean(isMotionValue(value) && value.add);
-}
+const isCustomValue = (v) => {
+    return Boolean(v && typeof v === "object" && v.mix && v.toValue);
+};
+const resolveFinalValueInKeyframes = (v) => {
+    // TODO maybe throw if v.length - 1 is placeholder token?
+    return isKeyframesTarget(v) ? v[v.length - 1] || 0 : v;
+};
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/array.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/array.mjs
 function addUniqueItem(arr, item) {
     if (arr.indexOf(item) === -1)
         arr.push(item);
@@ -21943,7 +20527,7 @@ function moveItem([...arr], fromIndex, toIndex) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/subscription-manager.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/subscription-manager.mjs
 
 
 class SubscriptionManager {
@@ -21985,7 +20569,7 @@ class SubscriptionManager {
 
 
 
-;// ./node_modules/framer-motion/dist/es/value/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/index.mjs
 
 
 
@@ -22022,7 +20606,7 @@ class MotionValue {
          * This will be replaced by the build step with the latest version number.
          * When MotionValues are provided to motion components, warn if versions are mixed.
          */
-        this.version = "11.1.9";
+        this.version = "11.15.0";
         /**
          * Tracks whether this value can output a velocity. Currently this is only true
          * if the value is numerical, but we might be able to widen the scope here and support
@@ -22030,7 +20614,7 @@ class MotionValue {
          *
          * @internal
          */
-        this.canTrackVelocity = false;
+        this.canTrackVelocity = null;
         /**
          * An object containing a SubscriptionManager for each active event.
          */
@@ -22058,12 +20642,14 @@ class MotionValue {
         };
         this.hasAnimated = false;
         this.setCurrent(init);
-        this.canTrackVelocity = isFloat(this.current);
         this.owner = options.owner;
     }
     setCurrent(current) {
         this.current = current;
         this.updatedAt = time.now();
+        if (this.canTrackVelocity === null && current !== undefined) {
+            this.canTrackVelocity = isFloat(this.current);
+        }
     }
     setPrevFrameValue(prevFrameValue = this.current) {
         this.prevFrameValue = prevFrameValue;
@@ -22302,7 +20888,7 @@ function motionValue(init, options) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/setters.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/setters.mjs
 
 
 
@@ -22331,7 +20917,62 @@ function setTarget(visualElement, definition) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/interfaces/visual-element-target.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/camel-to-dash.mjs
+/**
+ * Convert camelCase to dash-case properties.
+ */
+const camelToDash = (str) => str.replace(/([a-z])([A-Z])/gu, "$1-$2").toLowerCase();
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/optimized-appear/data-id.mjs
+
+
+const optimizedAppearDataId = "framerAppearId";
+const optimizedAppearDataAttribute = "data-" + camelToDash(optimizedAppearDataId);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/optimized-appear/get-appear-id.mjs
+
+
+function getOptimisedAppearId(visualElement) {
+    return visualElement.props[optimizedAppearDataAttribute];
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/utils/is-motion-value.mjs
+const isMotionValue = (value) => Boolean(value && value.getVelocity);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/use-will-change/is.mjs
+
+
+function isWillChangeMotionValue(value) {
+    return Boolean(isMotionValue(value) && value.add);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/value/use-will-change/add-will-change.mjs
+
+
+function addValueToWillChange(visualElement, key) {
+    const willChange = visualElement.getValue("willChange");
+    /**
+     * It could be that a user has set willChange to a regular MotionValue,
+     * in which case we can't add the value to it.
+     */
+    if (isWillChangeMotionValue(willChange)) {
+        return willChange.add(key);
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/interfaces/visual-element-target.mjs
 
 
 
@@ -22354,7 +20995,6 @@ function shouldBlockAnimation({ protectedKeys, needsAnimating }, key) {
 function animateTarget(visualElement, targetAndTransition, { delay = 0, transitionOverride, type } = {}) {
     var _a;
     let { transition = visualElement.getDefaultTransition(), transitionEnd, ...target } = targetAndTransition;
-    const willChange = visualElement.getValue("willChange");
     if (transitionOverride)
         transition = transitionOverride;
     const animations = [];
@@ -22371,7 +21011,6 @@ function animateTarget(visualElement, targetAndTransition, { delay = 0, transiti
         }
         const valueTransition = {
             delay,
-            elapsed: 0,
             ...getValueTransition(transition || {}, key),
         };
         /**
@@ -22379,26 +21018,22 @@ function animateTarget(visualElement, targetAndTransition, { delay = 0, transiti
          * to see if we're handling off from an existing animation.
          */
         let isHandoff = false;
-        if (window.HandoffAppearAnimations) {
-            const props = visualElement.getProps();
-            const appearId = props[optimizedAppearDataAttribute];
+        if (window.MotionHandoffAnimation) {
+            const appearId = getOptimisedAppearId(visualElement);
             if (appearId) {
-                const elapsed = window.HandoffAppearAnimations(appearId, key);
-                if (elapsed !== null) {
-                    valueTransition.elapsed = elapsed;
+                const startTime = window.MotionHandoffAnimation(appearId, key, frame_frame);
+                if (startTime !== null) {
+                    valueTransition.startTime = startTime;
                     isHandoff = true;
                 }
             }
         }
+        addValueToWillChange(visualElement, key);
         value.start(animateMotionValue(key, value, valueTarget, visualElement.shouldReduceMotion && transformProps.has(key)
             ? { type: false }
             : valueTransition, visualElement, isHandoff));
         const animation = value.animation;
         if (animation) {
-            if (isWillChangeMotionValue(willChange)) {
-                willChange.add(key);
-                animation.then(() => willChange.remove(key));
-            }
             animations.push(animation);
         }
     }
@@ -22414,7 +21049,7 @@ function animateTarget(visualElement, targetAndTransition, { delay = 0, transiti
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/interfaces/visual-element-variant.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/interfaces/visual-element-variant.mjs
 
 
 
@@ -22482,8 +21117,7 @@ function sortByTreeOrder(a, b) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/interfaces/visual-element.mjs
-
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/interfaces/visual-element.mjs
 
 
 
@@ -22505,15 +21139,44 @@ function animateVisualElement(visualElement, definition, options = {}) {
         animation = Promise.all(animateTarget(visualElement, resolvedDefinition, options));
     }
     return animation.then(() => {
-        frame_frame.postRender(() => {
-            visualElement.notify("AnimationComplete", definition);
-        });
+        visualElement.notify("AnimationComplete", definition);
     });
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/animation-state.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/get-variant-context.mjs
+
+
+
+const numVariantProps = variantProps.length;
+function getVariantContext(visualElement) {
+    if (!visualElement)
+        return undefined;
+    if (!visualElement.isControllingVariants) {
+        const context = visualElement.parent
+            ? getVariantContext(visualElement.parent) || {}
+            : {};
+        if (visualElement.props.initial !== undefined) {
+            context.initial = visualElement.props.initial;
+        }
+        return context;
+    }
+    const context = {};
+    for (let i = 0; i < numVariantProps; i++) {
+        const name = variantProps[i];
+        const prop = visualElement.props[name];
+        if (isVariantLabel(prop) || prop === false) {
+            context[name] = prop;
+        }
+    }
+    return context;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/animation-state.mjs
+
 
 
 
@@ -22529,7 +21192,7 @@ function animateList(visualElement) {
 }
 function createAnimationState(visualElement) {
     let animate = animateList(visualElement);
-    const state = createState();
+    let state = createState();
     let isInitialRender = true;
     /**
      * This function will be used to reduce the animation definitions for
@@ -22564,8 +21227,8 @@ function createAnimationState(visualElement) {
      *    what to animate those to.
      */
     function animateChanges(changedActiveType) {
-        const props = visualElement.getProps();
-        const context = visualElement.getVariantContext(true) || {};
+        const { props } = visualElement;
+        const context = getVariantContext(visualElement.parent) || {};
         /**
          * A list of animations that we'll build into as we iterate through the animation
          * types. This will get executed at the end of the function.
@@ -22749,9 +21412,12 @@ function createAnimationState(visualElement) {
                 shouldAnimateType = false;
             }
             /**
-             * If this is an inherited prop we want to hard-block animations
+             * If this is an inherited prop we want to skip this animation
+             * unless the inherited variants haven't changed on this render.
              */
-            if (shouldAnimateType && (!isInherited || handledRemovedValues)) {
+            const willAnimateViaParent = isInherited && variantDidChange;
+            const needsAnimating = !willAnimateViaParent || handledRemovedValues;
+            if (shouldAnimateType && needsAnimating) {
                 animations.push(...definitionList.map((animation) => ({
                     animation: animation,
                     options: { type },
@@ -22806,6 +21472,10 @@ function createAnimationState(visualElement) {
         setActive,
         setAnimateFunction,
         getState: () => state,
+        reset: () => {
+            state = createState();
+            isInitialRender = true;
+        },
     };
 }
 function checkVariantsDidChange(prev, next) {
@@ -22839,7 +21509,18 @@ function createState() {
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/animation/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/Feature.mjs
+class Feature {
+    constructor(node) {
+        this.isMounted = false;
+        this.node = node;
+    }
+    update() { }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/animation/index.mjs
 
 
 
@@ -22856,9 +21537,8 @@ class AnimationFeature extends Feature {
     }
     updateAnimationControlsSubscription() {
         const { animate } = this.node.getProps();
-        this.unmount();
         if (isAnimationControls(animate)) {
-            this.unmount = animate.subscribe(this.node);
+            this.unmountControls = animate.subscribe(this.node);
         }
     }
     /**
@@ -22874,12 +21554,16 @@ class AnimationFeature extends Feature {
             this.updateAnimationControlsSubscription();
         }
     }
-    unmount() { }
+    unmount() {
+        var _a;
+        this.node.animationState.reset();
+        (_a = this.unmountControls) === null || _a === void 0 ? void 0 : _a.call(this);
+    }
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/animation/exit.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/animation/exit.mjs
 
 
 let id = 0;
@@ -22912,7 +21596,7 @@ class ExitAnimationFeature extends Feature {
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/animations.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/animations.mjs
 
 
 
@@ -22927,7 +21611,354 @@ const animations = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/distance.mjs
+;// ./node_modules/motion-dom/dist/es/gestures/drag/state/is-active.mjs
+const isDragging = {
+    x: false,
+    y: false,
+};
+function isDragActive() {
+    return isDragging.x || isDragging.y;
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/utils/resolve-elements.mjs
+function resolveElements(elementOrSelector, scope, selectorCache) {
+    var _a;
+    if (elementOrSelector instanceof Element) {
+        return [elementOrSelector];
+    }
+    else if (typeof elementOrSelector === "string") {
+        let root = document;
+        if (scope) {
+            // TODO: Refactor to utils package
+            // invariant(
+            //     Boolean(scope.current),
+            //     "Scope provided, but no element detected."
+            // )
+            root = scope.current;
+        }
+        const elements = (_a = selectorCache === null || selectorCache === void 0 ? void 0 : selectorCache[elementOrSelector]) !== null && _a !== void 0 ? _a : root.querySelectorAll(elementOrSelector);
+        return elements ? Array.from(elements) : [];
+    }
+    return Array.from(elementOrSelector);
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/utils/setup.mjs
+
+
+function setupGesture(elementOrSelector, options) {
+    const elements = resolveElements(elementOrSelector);
+    const gestureAbortController = new AbortController();
+    const eventOptions = {
+        passive: true,
+        ...options,
+        signal: gestureAbortController.signal,
+    };
+    const cancel = () => gestureAbortController.abort();
+    return [elements, eventOptions, cancel];
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/hover.mjs
+
+
+
+/**
+ * Filter out events that are not pointer events, or are triggering
+ * while a Motion gesture is active.
+ */
+function filterEvents(callback) {
+    return (event) => {
+        if (event.pointerType === "touch" || isDragActive())
+            return;
+        callback(event);
+    };
+}
+/**
+ * Create a hover gesture. hover() is different to .addEventListener("pointerenter")
+ * in that it has an easier syntax, filters out polyfilled touch events, interoperates
+ * with drag gestures, and automatically removes the "pointerennd" event listener when the hover ends.
+ *
+ * @public
+ */
+function hover(elementOrSelector, onHoverStart, options = {}) {
+    const [elements, eventOptions, cancel] = setupGesture(elementOrSelector, options);
+    const onPointerEnter = filterEvents((enterEvent) => {
+        const { target } = enterEvent;
+        const onHoverEnd = onHoverStart(enterEvent);
+        if (!onHoverEnd || !target)
+            return;
+        const onPointerLeave = filterEvents((leaveEvent) => {
+            onHoverEnd(leaveEvent);
+            target.removeEventListener("pointerleave", onPointerLeave);
+        });
+        target.addEventListener("pointerleave", onPointerLeave, eventOptions);
+    });
+    elements.forEach((element) => {
+        element.addEventListener("pointerenter", onPointerEnter, eventOptions);
+    });
+    return cancel;
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/utils/is-primary-pointer.mjs
+const isPrimaryPointer = (event) => {
+    if (event.pointerType === "mouse") {
+        return typeof event.button !== "number" || event.button <= 0;
+    }
+    else {
+        /**
+         * isPrimary is true for all mice buttons, whereas every touch point
+         * is regarded as its own input. So subsequent concurrent touch points
+         * will be false.
+         *
+         * Specifically match against false here as incomplete versions of
+         * PointerEvents in very old browser might have it set as undefined.
+         */
+        return event.isPrimary !== false;
+    }
+};
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/press/utils/state.mjs
+const isPressing = new WeakSet();
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/press/utils/keyboard.mjs
+
+
+/**
+ * Filter out events that are not "Enter" keys.
+ */
+function keyboard_filterEvents(callback) {
+    return (event) => {
+        if (event.key !== "Enter")
+            return;
+        callback(event);
+    };
+}
+function firePointerEvent(target, type) {
+    target.dispatchEvent(new PointerEvent("pointer" + type, { isPrimary: true, bubbles: true }));
+}
+const enableKeyboardPress = (focusEvent, eventOptions) => {
+    const element = focusEvent.currentTarget;
+    if (!element)
+        return;
+    const handleKeydown = keyboard_filterEvents(() => {
+        if (isPressing.has(element))
+            return;
+        firePointerEvent(element, "down");
+        const handleKeyup = keyboard_filterEvents(() => {
+            firePointerEvent(element, "up");
+        });
+        const handleBlur = () => firePointerEvent(element, "cancel");
+        element.addEventListener("keyup", handleKeyup, eventOptions);
+        element.addEventListener("blur", handleBlur, eventOptions);
+    });
+    element.addEventListener("keydown", handleKeydown, eventOptions);
+    /**
+     * Add an event listener that fires on blur to remove the keydown events.
+     */
+    element.addEventListener("blur", () => element.removeEventListener("keydown", handleKeydown), eventOptions);
+};
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/press/utils/is-keyboard-accessible.mjs
+const focusableElements = new Set([
+    "BUTTON",
+    "INPUT",
+    "SELECT",
+    "TEXTAREA",
+    "A",
+]);
+function isElementKeyboardAccessible(element) {
+    return focusableElements.has(element.tagName) || element.tabIndex !== -1;
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/utils/is-node-or-child.mjs
+/**
+ * Recursively traverse up the tree to check whether the provided child node
+ * is the parent or a descendant of it.
+ *
+ * @param parent - Element to find
+ * @param child - Element to test against parent
+ */
+const isNodeOrChild = (parent, child) => {
+    if (!child) {
+        return false;
+    }
+    else if (parent === child) {
+        return true;
+    }
+    else {
+        return isNodeOrChild(parent, child.parentElement);
+    }
+};
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/press/index.mjs
+
+
+
+
+
+
+
+
+/**
+ * Filter out events that are not primary pointer events, or are triggering
+ * while a Motion gesture is active.
+ */
+function isValidPressEvent(event) {
+    return isPrimaryPointer(event) && !isDragActive();
+}
+/**
+ * Create a press gesture.
+ *
+ * Press is different to `"pointerdown"`, `"pointerup"` in that it
+ * automatically filters out secondary pointer events like right
+ * click and multitouch.
+ *
+ * It also adds accessibility support for keyboards, where
+ * an element with a press gesture will receive focus and
+ *  trigger on Enter `"keydown"` and `"keyup"` events.
+ *
+ * This is different to a browser's `"click"` event, which does
+ * respond to keyboards but only for the `"click"` itself, rather
+ * than the press start and end/cancel. The element also needs
+ * to be focusable for this to work, whereas a press gesture will
+ * make an element focusable by default.
+ *
+ * @public
+ */
+function press(elementOrSelector, onPressStart, options = {}) {
+    const [elements, eventOptions, cancelEvents] = setupGesture(elementOrSelector, options);
+    const startPress = (startEvent) => {
+        const element = startEvent.currentTarget;
+        if (!isValidPressEvent(startEvent) || isPressing.has(element))
+            return;
+        isPressing.add(element);
+        const onPressEnd = onPressStart(startEvent);
+        const onPointerEnd = (endEvent, success) => {
+            window.removeEventListener("pointerup", onPointerUp);
+            window.removeEventListener("pointercancel", onPointerCancel);
+            if (!isValidPressEvent(endEvent) || !isPressing.has(element)) {
+                return;
+            }
+            isPressing.delete(element);
+            if (onPressEnd) {
+                onPressEnd(endEvent, { success });
+            }
+        };
+        const onPointerUp = (upEvent) => {
+            onPointerEnd(upEvent, options.useGlobalTarget ||
+                isNodeOrChild(element, upEvent.target));
+        };
+        const onPointerCancel = (cancelEvent) => {
+            onPointerEnd(cancelEvent, false);
+        };
+        window.addEventListener("pointerup", onPointerUp, eventOptions);
+        window.addEventListener("pointercancel", onPointerCancel, eventOptions);
+    };
+    elements.forEach((element) => {
+        if (!isElementKeyboardAccessible(element)) {
+            element.tabIndex = 0;
+        }
+        const target = options.useGlobalTarget ? window : element;
+        target.addEventListener("pointerdown", startPress, eventOptions);
+        element.addEventListener("focus", (event) => enableKeyboardPress(event, eventOptions), eventOptions);
+    });
+    return cancelEvents;
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/gestures/drag/state/set-active.mjs
+
+
+function setDragLock(axis) {
+    if (axis === "x" || axis === "y") {
+        if (isDragging[axis]) {
+            return null;
+        }
+        else {
+            isDragging[axis] = true;
+            return () => {
+                isDragging[axis] = false;
+            };
+        }
+    }
+    else {
+        if (isDragging.x || isDragging.y) {
+            return null;
+        }
+        else {
+            isDragging.x = isDragging.y = true;
+            return () => {
+                isDragging.x = isDragging.y = false;
+            };
+        }
+    }
+}
+
+
+
+;// ./node_modules/motion-dom/dist/es/index.mjs
+
+
+
+
+
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/events/event-info.mjs
+
+
+function extractEventInfo(event) {
+    return {
+        point: {
+            x: event.pageX,
+            y: event.pageY,
+        },
+    };
+}
+const addPointerInfo = (handler) => {
+    return (event) => isPrimaryPointer(event) && handler(event, extractEventInfo(event));
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/events/add-dom-event.mjs
+function addDomEvent(target, eventName, handler, options = { passive: true }) {
+    target.addEventListener(eventName, handler, options);
+    return () => target.removeEventListener(eventName, handler);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/events/add-pointer-event.mjs
+
+
+
+function addPointerEvent(target, eventName, handler, options) {
+    return addDomEvent(target, eventName, addPointerInfo(handler), options);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/distance.mjs
 const distance = (a, b) => Math.abs(a - b);
 function distance2D(a, b) {
     // Multi-dimensional
@@ -22938,7 +21969,7 @@ function distance2D(a, b) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/gestures/pan/PanSession.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/pan/PanSession.mjs
 
 
 
@@ -22951,7 +21982,7 @@ function distance2D(a, b) {
  * @internal
  */
 class PanSession {
-    constructor(event, handlers, { transformPagePoint, contextWindow, dragSnapToOrigin = false } = {}) {
+    constructor(event, handlers, { transformPagePoint, contextWindow, dragSnapToOrigin = false, } = {}) {
         /**
          * @internal
          */
@@ -23050,7 +22081,7 @@ function getPanInfo({ point }, history) {
         point,
         delta: subtractPoint(point, lastDevicePoint(history)),
         offset: subtractPoint(point, startDevicePoint(history)),
-        velocity: PanSession_getVelocity(history, 0.1),
+        velocity: getVelocity(history, 0.1),
     };
 }
 function startDevicePoint(history) {
@@ -23059,7 +22090,7 @@ function startDevicePoint(history) {
 function lastDevicePoint(history) {
     return history[history.length - 1];
 }
-function PanSession_getVelocity(history, timeDelta) {
+function getVelocity(history, timeDelta) {
     if (history.length < 2) {
         return { x: 0, y: 0 };
     }
@@ -23069,7 +22100,7 @@ function PanSession_getVelocity(history, timeDelta) {
     while (i >= 0) {
         timestampedPoint = history[i];
         if (lastPoint.timestamp - timestampedPoint.timestamp >
-            secondsToMilliseconds(timeDelta)) {
+            time_conversion_secondsToMilliseconds(timeDelta)) {
             break;
         }
         i--;
@@ -23096,25 +22127,45 @@ function PanSession_getVelocity(history, timeDelta) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/delta-calc.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/is-ref-object.mjs
+function isRefObject(ref) {
+    return (ref &&
+        typeof ref === "object" &&
+        Object.prototype.hasOwnProperty.call(ref, "current"));
+}
 
 
+
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/delta-calc.mjs
+
+
+const SCALE_PRECISION = 0.0001;
+const SCALE_MIN = 1 - SCALE_PRECISION;
+const SCALE_MAX = 1 + SCALE_PRECISION;
+const TRANSLATE_PRECISION = 0.01;
+const TRANSLATE_MIN = 0 - TRANSLATE_PRECISION;
+const TRANSLATE_MAX = 0 + TRANSLATE_PRECISION;
 function calcLength(axis) {
     return axis.max - axis.min;
 }
-function isNear(value, target = 0, maxDistance = 0.01) {
+function isNear(value, target, maxDistance) {
     return Math.abs(value - target) <= maxDistance;
 }
 function calcAxisDelta(delta, source, target, origin = 0.5) {
     delta.origin = origin;
     delta.originPoint = mixNumber(source.min, source.max, delta.origin);
     delta.scale = calcLength(target) / calcLength(source);
-    if (isNear(delta.scale, 1, 0.0001) || isNaN(delta.scale))
-        delta.scale = 1;
     delta.translate =
         mixNumber(target.min, target.max, delta.origin) - delta.originPoint;
-    if (isNear(delta.translate) || isNaN(delta.translate))
-        delta.translate = 0;
+    if ((delta.scale >= SCALE_MIN && delta.scale <= SCALE_MAX) ||
+        isNaN(delta.scale)) {
+        delta.scale = 1.0;
+    }
+    if ((delta.translate >= TRANSLATE_MIN &&
+        delta.translate <= TRANSLATE_MAX) ||
+        isNaN(delta.translate)) {
+        delta.translate = 0.0;
+    }
 }
 function calcBoxDelta(delta, source, target, origin) {
     calcAxisDelta(delta.x, source.x, target.x, origin ? origin.originX : undefined);
@@ -23139,7 +22190,7 @@ function calcRelativePosition(target, layout, parent) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/gestures/drag/utils/constraints.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/drag/utils/constraints.mjs
 
 
 
@@ -23215,7 +22266,7 @@ function calcViewportConstraints(layoutBox, constraintsBox) {
  * Calculate a transform origin relative to the source axis, between 0-1, that results
  * in an asthetically pleasing scale/transform needed to project from source to target.
  */
-function constraints_calcOrigin(source, target) {
+function calcOrigin(source, target) {
     let origin = 0.5;
     const sourceLength = calcLength(source);
     const targetLength = calcLength(target);
@@ -23270,7 +22321,7 @@ function resolvePointElastic(dragElastic, label) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/models.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/models.mjs
 const createAxisDelta = () => ({
     translate: 0,
     scale: 1,
@@ -23289,14 +22340,14 @@ const createBox = () => ({
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/utils/each-axis.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/utils/each-axis.mjs
 function eachAxis(callback) {
     return [callback("x"), callback("y")];
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/conversion.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/conversion.mjs
 /**
  * Bounding boxes tend to be defined as top, left, right, bottom. For various operations
  * it's easier to consider each axis individually. This function returns a bounding box
@@ -23331,7 +22382,7 @@ function transformBoxPoints(point, transformPoint) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/utils/has-transform.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/utils/has-transform.mjs
 function isIdentityScale(scale) {
     return scale === undefined || scale === 1;
 }
@@ -23359,7 +22410,7 @@ function is2DTranslate(value) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/delta-apply.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/delta-apply.mjs
 
 
 
@@ -23394,6 +22445,8 @@ function applyBoxDelta(box, { x, y }) {
     applyAxisDelta(box.x, x.translate, x.scale, x.originPoint);
     applyAxisDelta(box.y, y.translate, y.scale, y.originPoint);
 }
+const TREE_SCALE_SNAP_MIN = 0.999999999999;
+const TREE_SCALE_SNAP_MAX = 1.0000000000001;
 /**
  * Apply a tree of deltas to a box. We do this to calculate the effect of all the transforms
  * in a tree upon our box before then calculating how to project it into our desired viewport-relative box
@@ -23415,10 +22468,10 @@ function applyTreeDeltas(box, treeScale, treePath, isSharedTransition = false) {
          * TODO: Prefer to remove this, but currently we have motion components with
          * display: contents in Framer.
          */
-        const instance = node.instance;
-        if (instance &&
-            instance.style &&
-            instance.style.display === "contents") {
+        const { visualElement } = node.options;
+        if (visualElement &&
+            visualElement.props.style &&
+            visualElement.props.style.display === "contents") {
             continue;
         }
         if (isSharedTransition &&
@@ -23445,13 +22498,14 @@ function applyTreeDeltas(box, treeScale, treePath, isSharedTransition = false) {
      * Snap tree scale back to 1 if it's within a non-perceivable threshold.
      * This will help reduce useless scales getting rendered.
      */
-    treeScale.x = snapToDefault(treeScale.x);
-    treeScale.y = snapToDefault(treeScale.y);
-}
-function snapToDefault(scale) {
-    if (Number.isInteger(scale))
-        return scale;
-    return scale > 1.0000000000001 || scale < 0.999999999999 ? scale : 1;
+    if (treeScale.x < TREE_SCALE_SNAP_MAX &&
+        treeScale.x > TREE_SCALE_SNAP_MIN) {
+        treeScale.x = 1.0;
+    }
+    if (treeScale.y < TREE_SCALE_SNAP_MAX &&
+        treeScale.y > TREE_SCALE_SNAP_MIN) {
+        treeScale.y = 1.0;
+    }
 }
 function translateAxis(axis, distance) {
     axis.min = axis.min + distance;
@@ -23462,28 +22516,22 @@ function translateAxis(axis, distance) {
  * This function basically acts as a bridge between a flat motion value map
  * and applyAxisDelta
  */
-function transformAxis(axis, transforms, [key, scaleKey, originKey]) {
-    const axisOrigin = transforms[originKey] !== undefined ? transforms[originKey] : 0.5;
+function transformAxis(axis, axisTranslate, axisScale, boxScale, axisOrigin = 0.5) {
     const originPoint = mixNumber(axis.min, axis.max, axisOrigin);
     // Apply the axis delta to the final axis
-    applyAxisDelta(axis, transforms[key], transforms[scaleKey], originPoint, transforms.scale);
+    applyAxisDelta(axis, axisTranslate, axisScale, originPoint, boxScale);
 }
-/**
- * The names of the motion values we want to apply as translation, scale and origin.
- */
-const xKeys = ["x", "scaleX", "originX"];
-const yKeys = ["y", "scaleY", "originY"];
 /**
  * Apply a transform to a box from the latest resolved motion values.
  */
 function transformBox(box, transform) {
-    transformAxis(box.x, transform, xKeys);
-    transformAxis(box.y, transform, yKeys);
+    transformAxis(box.x, transform.x, transform.scaleX, transform.scale, transform.originX);
+    transformAxis(box.y, transform.y, transform.scaleY, transform.scale, transform.originY);
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/utils/measure.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/utils/measure.mjs
 
 
 
@@ -23502,15 +22550,16 @@ function measurePageBox(element, rootProjectionNode, transformPagePoint) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/get-context-window.mjs
-// Fixes https://github.com/framer/motion/issues/2270
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/get-context-window.mjs
+// Fixes https://github.com/motiondivision/motion/issues/2270
 const getContextWindow = ({ current }) => {
     return current ? current.ownerDocument.defaultView : null;
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/gestures/drag/VisualElementDragControls.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/drag/VisualElementDragControls.mjs
+
 
 
 
@@ -23537,10 +22586,7 @@ const elementDragControls = new WeakMap();
 // let latestPointerEvent: PointerEvent
 class VisualElementDragControls {
     constructor(visualElement) {
-        // This is a reference to the global drag gesture lock, ensuring only one component
-        // can "capture" the drag of one or both axes.
-        // TODO: Look into moving this into pansession?
-        this.openGlobalLock = null;
+        this.openDragLock = null;
         this.isDragging = false;
         this.currentDirection = null;
         this.originPoint = { x: 0, y: 0 };
@@ -23568,18 +22614,18 @@ class VisualElementDragControls {
             // the component.
             dragSnapToOrigin ? this.pauseAnimation() : this.stopAnimation();
             if (snapToCursor) {
-                this.snapToCursor(extractEventInfo(event, "page").point);
+                this.snapToCursor(extractEventInfo(event).point);
             }
         };
         const onStart = (event, info) => {
             // Attempt to grab the global drag gesture lock - maybe make this part of PanSession
             const { drag, dragPropagation, onDragStart } = this.getProps();
             if (drag && !dragPropagation) {
-                if (this.openGlobalLock)
-                    this.openGlobalLock();
-                this.openGlobalLock = getGlobalLock(drag);
+                if (this.openDragLock)
+                    this.openDragLock();
+                this.openDragLock = setDragLock(drag);
                 // If we don 't have the lock, don't start dragging
-                if (!this.openGlobalLock)
+                if (!this.openDragLock)
                     return;
             }
             this.isDragging = true;
@@ -23613,6 +22659,7 @@ class VisualElementDragControls {
             if (onDragStart) {
                 frame_frame.postRender(() => onDragStart(event, info));
             }
+            addValueToWillChange(this.visualElement, "transform");
             const { animationState } = this.visualElement;
             animationState && animationState.setActive("whileDrag", true);
         };
@@ -23620,7 +22667,7 @@ class VisualElementDragControls {
             // latestPointerEvent = event
             const { dragPropagation, dragDirectionLock, onDirectionLock, onDrag, } = this.getProps();
             // If we didn't successfully receive the gesture lock, early return.
-            if (!dragPropagation && !this.openGlobalLock)
+            if (!dragPropagation && !this.openDragLock)
                 return;
             const { offset } = info;
             // Attempt to detect drag direction if directionLock is true
@@ -23688,9 +22735,9 @@ class VisualElementDragControls {
         this.panSession && this.panSession.end();
         this.panSession = undefined;
         const { dragPropagation } = this.getProps();
-        if (!dragPropagation && this.openGlobalLock) {
-            this.openGlobalLock();
-            this.openGlobalLock = null;
+        if (!dragPropagation && this.openDragLock) {
+            this.openDragLock();
+            this.openDragLock = null;
         }
         animationState && animationState.setActive("whileDrag", false);
     }
@@ -23809,7 +22856,8 @@ class VisualElementDragControls {
     }
     startAxisValueAnimation(axis, transition) {
         const axisValue = this.getAxisMotionValue(axis);
-        return axisValue.start(animateMotionValue(axis, axisValue, 0, transition, this.visualElement));
+        addValueToWillChange(this.visualElement, axis);
+        return axisValue.start(animateMotionValue(axis, axisValue, 0, transition, this.visualElement, false));
     }
     stopAnimation() {
         eachAxis((axis) => this.getAxisMotionValue(axis).stop());
@@ -23877,7 +22925,7 @@ class VisualElementDragControls {
             const axisValue = this.getAxisMotionValue(axis);
             if (axisValue && this.constraints !== false) {
                 const latest = axisValue.get();
-                boxProgress[axis] = constraints_calcOrigin({ min: latest, max: latest }, this.constraints[axis]);
+                boxProgress[axis] = calcOrigin({ min: latest, max: latest }, this.constraints[axis]);
             }
         });
         /**
@@ -23919,7 +22967,7 @@ class VisualElementDragControls {
         });
         const measureDragConstraints = () => {
             const { dragConstraints } = this.getProps();
-            if (isRefObject(dragConstraints)) {
+            if (isRefObject(dragConstraints) && dragConstraints.current) {
                 this.constraints = this.resolveRefConstraints();
             }
         };
@@ -23929,7 +22977,7 @@ class VisualElementDragControls {
             projection.root && projection.root.updateScroll();
             projection.updateLayout();
         }
-        measureDragConstraints();
+        frame_frame.read(measureDragConstraints);
         /**
          * Attach a window resize listener to scale the draggable target within its defined
          * constraints as the window resizes.
@@ -23996,7 +23044,7 @@ function getCurrentDirection(offset, lockThreshold = 10) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/gestures/drag/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/drag/index.mjs
 
 
 
@@ -24025,7 +23073,7 @@ class DragGesture extends Feature {
 
 
 
-;// ./node_modules/framer-motion/dist/es/gestures/pan/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/pan/index.mjs
 
 
 
@@ -24077,7 +23125,18 @@ class PanGesture extends Feature {
 
 
 
-;// ./node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/context/PresenceContext.mjs
+"use client";
+
+
+/**
+ * @public
+ */
+const PresenceContext_PresenceContext = (0,external_React_.createContext)(null);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/components/AnimatePresence/use-presence.mjs
 
 
 
@@ -24113,7 +23172,7 @@ function usePresence() {
     // either be null or non-null for the lifespan of the component.
     const id = (0,external_React_.useId)();
     (0,external_React_.useEffect)(() => register(id), []);
-    const safeToRemove = () => onExitComplete && onExitComplete(id);
+    const safeToRemove = (0,external_React_.useCallback)(() => onExitComplete && onExitComplete(id), [id, onExitComplete]);
     return !isPresent && onExitComplete ? [false, safeToRemove] : [true];
 }
 /**
@@ -24145,7 +23204,26 @@ function isPresent(context) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/node/state.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/context/LayoutGroupContext.mjs
+"use client";
+
+
+const LayoutGroupContext = (0,external_React_.createContext)({});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/SwitchLayoutGroupContext.mjs
+"use client";
+
+
+/**
+ * Internal, exported only for usage in Framer
+ */
+const SwitchLayoutGroupContext = (0,external_React_.createContext)({});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/node/state.mjs
 /**
  * This should only ever be modified on the client otherwise it'll
  * persist through server requests. If we need instanced states we
@@ -24166,7 +23244,7 @@ const globalProjectionState = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/styles/scale-border-radius.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/styles/scale-border-radius.mjs
 
 
 function pixelsToPercent(pixels, axis) {
@@ -24209,7 +23287,7 @@ const correctBorderRadius = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/styles/scale-box-shadow.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/styles/scale-box-shadow.mjs
 
 
 
@@ -24246,7 +23324,23 @@ const correctBoxShadow = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/layout/MeasureLayout.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/styles/scale-correction.mjs
+const scaleCorrectors = {};
+function addScaleCorrector(correctors) {
+    Object.assign(scaleCorrectors, correctors);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/frameloop/microtask.mjs
+
+
+const { schedule: microtask, cancel: cancelMicrotask } = createRenderBatcher(queueMicrotask, false);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/layout/MeasureLayout.mjs
+"use client";
 
 
 
@@ -24381,7 +23475,7 @@ const defaultScaleCorrectors = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/animation/mix-values.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/animation/mix-values.mjs
 
 
 
@@ -24461,8 +23555,8 @@ function getRadius(values, radiusName) {
 //         latestLeadValues.backgroundColor as string
 //     )(p)
 // }
-const easeCrossfadeIn = compress(0, 0.5, circOut);
-const easeCrossfadeOut = compress(0.5, 0.95, noop_noop);
+const easeCrossfadeIn = /*@__PURE__*/ compress(0, 0.5, circOut);
+const easeCrossfadeOut = /*@__PURE__*/ compress(0.5, 0.95, noop_noop);
 function compress(min, max, easing) {
     return (p) => {
         // Could replace ifs with clamp
@@ -24476,7 +23570,7 @@ function compress(min, max, easing) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/copy.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/copy.mjs
 /**
  * Reset an axis to the provided origin box.
  *
@@ -24495,10 +23589,21 @@ function copyBoxInto(box, originBox) {
     copyAxisInto(box.x, originBox.x);
     copyAxisInto(box.y, originBox.y);
 }
+/**
+ * Reset a delta to the provided origin box.
+ *
+ * This is a mutative operation.
+ */
+function copyAxisDeltaInto(delta, originDelta) {
+    delta.translate = originDelta.translate;
+    delta.scale = originDelta.scale;
+    delta.originPoint = originDelta.originPoint;
+    delta.origin = originDelta.origin;
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/delta-remove.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/delta-remove.mjs
 
 
 
@@ -24541,20 +23646,20 @@ function removeAxisTransforms(axis, transforms, [key, scaleKey, originKey], orig
 /**
  * The names of the motion values we want to apply as translation, scale and origin.
  */
-const delta_remove_xKeys = ["x", "scaleX", "originX"];
-const delta_remove_yKeys = ["y", "scaleY", "originY"];
+const xKeys = ["x", "scaleX", "originX"];
+const yKeys = ["y", "scaleY", "originY"];
 /**
  * Remove a transforms from an box. This is essentially the steps of applyAxisBox in reverse
  * and acts as a bridge between motion values and removeAxisDelta
  */
 function removeBoxTransforms(box, transforms, originBox, sourceBox) {
-    removeAxisTransforms(box.x, transforms, delta_remove_xKeys, originBox ? originBox.x : undefined, sourceBox ? sourceBox.x : undefined);
-    removeAxisTransforms(box.y, transforms, delta_remove_yKeys, originBox ? originBox.y : undefined, sourceBox ? sourceBox.y : undefined);
+    removeAxisTransforms(box.x, transforms, xKeys, originBox ? originBox.x : undefined, sourceBox ? sourceBox.x : undefined);
+    removeAxisTransforms(box.y, transforms, yKeys, originBox ? originBox.y : undefined, sourceBox ? sourceBox.y : undefined);
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/geometry/utils.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/geometry/utils.mjs
 
 
 function isAxisDeltaZero(delta) {
@@ -24563,25 +23668,31 @@ function isAxisDeltaZero(delta) {
 function isDeltaZero(delta) {
     return isAxisDeltaZero(delta.x) && isAxisDeltaZero(delta.y);
 }
+function axisEquals(a, b) {
+    return a.min === b.min && a.max === b.max;
+}
 function boxEquals(a, b) {
-    return (a.x.min === b.x.min &&
-        a.x.max === b.x.max &&
-        a.y.min === b.y.min &&
-        a.y.max === b.y.max);
+    return axisEquals(a.x, b.x) && axisEquals(a.y, b.y);
+}
+function axisEqualsRounded(a, b) {
+    return (Math.round(a.min) === Math.round(b.min) &&
+        Math.round(a.max) === Math.round(b.max));
 }
 function boxEqualsRounded(a, b) {
-    return (Math.round(a.x.min) === Math.round(b.x.min) &&
-        Math.round(a.x.max) === Math.round(b.x.max) &&
-        Math.round(a.y.min) === Math.round(b.y.min) &&
-        Math.round(a.y.max) === Math.round(b.y.max));
+    return axisEqualsRounded(a.x, b.x) && axisEqualsRounded(a.y, b.y);
 }
 function aspectRatio(box) {
     return calcLength(box.x) / calcLength(box.y);
 }
+function axisDeltaEquals(a, b) {
+    return (a.translate === b.translate &&
+        a.scale === b.scale &&
+        a.originPoint === b.originPoint);
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/shared/stack.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/shared/stack.mjs
 
 
 class NodeStack {
@@ -24695,7 +23806,7 @@ class NodeStack {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/styles/transform.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/styles/transform.mjs
 function buildProjectionTransform(delta, treeScale, latestTransform) {
     let transform = "";
     /**
@@ -24746,12 +23857,12 @@ function buildProjectionTransform(delta, treeScale, latestTransform) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/compare-by-depth.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/compare-by-depth.mjs
 const compareByDepth = (a, b) => a.depth - b.depth;
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/flat-tree.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/flat-tree.mjs
 
 
 
@@ -24777,7 +23888,26 @@ class FlatTree {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/delay.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/value/utils/resolve-motion-value.mjs
+
+
+
+/**
+ * If the provided value is a MotionValue, this returns the actual value, otherwise just the value itself
+ *
+ * TODO: Remove and move to library
+ */
+function resolveMotionValue(value) {
+    const unwrappedValue = isMotionValue(value) ? value.get() : value;
+    return isCustomValue(unwrappedValue)
+        ? unwrappedValue.toValue()
+        : unwrappedValue;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/delay.mjs
+
 
 
 
@@ -24796,26 +23926,20 @@ function delay(callback, timeout) {
     frame_frame.read(checkElapsed, true);
     return () => cancelFrame(checkElapsed);
 }
-
-
-
-;// ./node_modules/framer-motion/dist/es/debug/record.mjs
-function record(data) {
-    if (window.MotionDebug) {
-        window.MotionDebug.record(data);
-    }
+function delayInSeconds(callback, timeout) {
+    return delay(callback, secondsToMilliseconds(timeout));
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/utils/is-svg-element.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/is-svg-element.mjs
 function isSVGElement(element) {
     return element instanceof SVGElement && element.tagName !== "svg";
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/animation/interfaces/single-value.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/animation/animate/single-value.mjs
 
 
 
@@ -24828,7 +23952,7 @@ function animateSingleValue(value, keyframes, options) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/node/create-projection-node.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/node/create-projection-node.mjs
 
 
 
@@ -24857,6 +23981,13 @@ function animateSingleValue(value, keyframes, options) {
 
 
 
+const metrics = {
+    type: "projectionFrame",
+    totalNodes: 0,
+    resolvedTargetDeltas: 0,
+    recalculatedProjection: 0,
+};
+const isDebug = typeof window !== "undefined" && window.MotionDebug !== undefined;
 const transformAxes = ["", "X", "Y", "Z"];
 const hiddenVisibility = { visibility: "hidden" };
 /**
@@ -24865,16 +23996,6 @@ const hiddenVisibility = { visibility: "hidden" };
  */
 const animationTarget = 1000;
 let create_projection_node_id = 0;
-/**
- * Use a mutable data object for debug data so as to not create a new
- * object every frame.
- */
-const projectionFrameData = {
-    type: "projectionFrame",
-    totalNodes: 0,
-    resolvedTargetDeltas: 0,
-    recalculatedProjection: 0,
-};
 function resetDistortingTransform(key, visualElement, values, sharedAnimationValues) {
     const { latestValues } = visualElement;
     // Record the distorting transform and then temporarily set it to 0
@@ -24884,6 +24005,23 @@ function resetDistortingTransform(key, visualElement, values, sharedAnimationVal
         if (sharedAnimationValues) {
             sharedAnimationValues[key] = 0;
         }
+    }
+}
+function cancelTreeOptimisedTransformAnimations(projectionNode) {
+    projectionNode.hasCheckedOptimisedAppear = true;
+    if (projectionNode.root === projectionNode)
+        return;
+    const { visualElement } = projectionNode.options;
+    if (!visualElement)
+        return;
+    const appearId = getOptimisedAppearId(visualElement);
+    if (window.MotionHasOptimisedAnimation(appearId, "transform")) {
+        const { layout, layoutId } = projectionNode.options;
+        window.MotionCancelOptimisedAnimation(appearId, "transform", frame_frame, !(layout || layoutId));
+    }
+    const { parent } = projectionNode;
+    if (parent && !parent.hasCheckedOptimisedAppear) {
+        cancelTreeOptimisedTransformAnimations(parent);
     }
 }
 function createProjectionNode({ attachResizeListener, defaultParent, measureScroll, checkIsScrollRoot, resetTransform, }) {
@@ -24962,6 +24100,13 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
              */
             this.shouldResetTransform = false;
             /**
+             * Store whether this node has been checked for optimised appear animations. As
+             * effects fire bottom-up, and we want to look up the tree for appear animations,
+             * this makes sure we only check each path once, stopping at nodes that
+             * have already been checked.
+             */
+            this.hasCheckedOptimisedAppear = false;
+            /**
              * An object representing the calculated contextual/accumulated/tree scale.
              * This will be used to scale calculcated projection transforms, as these are
              * calculated in screen-space but need to be scaled for elements to layoutly
@@ -24977,6 +24122,7 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             this.hasTreeAnimated = false;
             // Note: Currently only running on root node
             this.updateScheduled = false;
+            this.scheduleUpdate = () => this.update();
             this.projectionUpdateScheduled = false;
             this.checkUpdateFailed = () => {
                 if (this.isUpdating) {
@@ -24995,16 +24141,24 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                  * Reset debug counts. Manually resetting rather than creating a new
                  * object each frame.
                  */
-                projectionFrameData.totalNodes =
-                    projectionFrameData.resolvedTargetDeltas =
-                        projectionFrameData.recalculatedProjection =
-                            0;
+                if (isDebug) {
+                    metrics.totalNodes =
+                        metrics.resolvedTargetDeltas =
+                            metrics.recalculatedProjection =
+                                0;
+                }
                 this.nodes.forEach(propagateDirtyNodes);
                 this.nodes.forEach(resolveTargetDelta);
                 this.nodes.forEach(calcProjection);
                 this.nodes.forEach(cleanDirtyNodes);
-                record(projectionFrameData);
+                if (isDebug) {
+                    window.MotionDebug.record(metrics);
+                }
             };
+            /**
+             * Frame calculations
+             */
+            this.resolvedRelativeTargetAt = 0.0;
             this.hasProjected = false;
             this.isVisible = true;
             this.animationProgress = 0;
@@ -25179,6 +24333,22 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                 this.options.onExitComplete && this.options.onExitComplete();
                 return;
             }
+            /**
+             * If we're running optimised appear animations then these must be
+             * cancelled before measuring the DOM. This is so we can measure
+             * the true layout of the element rather than the WAAPI animation
+             * which will be unaffected by the resetSkewAndRotate step.
+             *
+             * Note: This is a DOM write. Worst case scenario is this is sandwiched
+             * between other snapshot reads which will cause unnecessary style recalculations.
+             * This has to happen here though, as we don't yet know which nodes will need
+             * snapshots in startUpdate(), but we only want to cancel optimised animations
+             * if a layout animation measurement is actually going to be affected by them.
+             */
+            if (window.MotionCancelOptimisedAnimation &&
+                !this.hasCheckedOptimisedAppear) {
+                cancelTreeOptimisedTransformAnimations(this);
+            }
             !this.root.isUpdating && this.root.startUpdate();
             if (this.isLayoutDirty)
                 return;
@@ -25220,9 +24390,6 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             /**
              * Write
              */
-            if (window.HandoffCancelAllAnimations) {
-                window.HandoffCancelAllAnimations();
-            }
             this.nodes.forEach(resetTransformStyle);
             /**
              * Read ==================
@@ -25244,15 +24411,15 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             frameData.delta = clamp_clamp(0, 1000 / 60, now - frameData.timestamp);
             frameData.timestamp = now;
             frameData.isProcessing = true;
-            steps.update.process(frameData);
-            steps.preRender.process(frameData);
-            steps.render.process(frameData);
+            frameSteps.update.process(frameData);
+            frameSteps.preRender.process(frameData);
+            frameSteps.render.process(frameData);
             frameData.isProcessing = false;
         }
         didUpdate() {
             if (!this.updateScheduled) {
                 this.updateScheduled = true;
-                microtask.read(() => this.update());
+                microtask.read(this.scheduleUpdate);
             }
         }
         clearAllSnapshots() {
@@ -25328,18 +24495,22 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                 needsMeasurement = false;
             }
             if (needsMeasurement) {
+                const isRoot = checkIsScrollRoot(this.instance);
                 this.scroll = {
                     animationId: this.root.animationId,
                     phase,
-                    isRoot: checkIsScrollRoot(this.instance),
+                    isRoot,
                     offset: measureScroll(this.instance),
+                    wasRoot: this.scroll ? this.scroll.isRoot : isRoot,
                 };
             }
         }
         resetTransform() {
             if (!resetTransform)
                 return;
-            const isResetRequested = this.isLayoutDirty || this.shouldResetTransform;
+            const isResetRequested = this.isLayoutDirty ||
+                this.shouldResetTransform ||
+                this.options.alwaysMeasureLayout;
             const hasProjection = this.projectionDelta && !isDeltaZero(this.projectionDelta);
             const transformTemplate = this.getTransformTemplate();
             const transformTemplateValue = transformTemplate
@@ -25376,21 +24547,29 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             };
         }
         measurePageBox() {
+            var _a;
             const { visualElement } = this.options;
             if (!visualElement)
                 return createBox();
             const box = visualElement.measureViewportBox();
-            // Remove viewport scroll to give page-relative coordinates
-            const { scroll } = this.root;
-            if (scroll) {
-                translateAxis(box.x, scroll.offset.x);
-                translateAxis(box.y, scroll.offset.y);
+            const wasInScrollRoot = ((_a = this.scroll) === null || _a === void 0 ? void 0 : _a.wasRoot) || this.path.some(checkNodeWasScrollRoot);
+            if (!wasInScrollRoot) {
+                // Remove viewport scroll to give page-relative coordinates
+                const { scroll } = this.root;
+                if (scroll) {
+                    translateAxis(box.x, scroll.offset.x);
+                    translateAxis(box.y, scroll.offset.y);
+                }
             }
             return box;
         }
         removeElementScroll(box) {
+            var _a;
             const boxWithoutScroll = createBox();
             copyBoxInto(boxWithoutScroll, box);
+            if ((_a = this.scroll) === null || _a === void 0 ? void 0 : _a.wasRoot) {
+                return boxWithoutScroll;
+            }
             /**
              * Performance TODO: Keep a cumulative scroll offset down the tree
              * rather than loop back up the path.
@@ -25403,17 +24582,8 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                      * If this is a new scroll root, we want to remove all previous scrolls
                      * from the viewport box.
                      */
-                    if (scroll.isRoot) {
+                    if (scroll.wasRoot) {
                         copyBoxInto(boxWithoutScroll, box);
-                        const { scroll: rootScroll } = this.root;
-                        /**
-                         * Undo the application of page scroll that was originally added
-                         * to the measured bounding box.
-                         */
-                        if (rootScroll) {
-                            translateAxis(boxWithoutScroll.x, -rootScroll.offset.x);
-                            translateAxis(boxWithoutScroll.y, -rootScroll.offset.y);
-                        }
                     }
                     translateAxis(boxWithoutScroll.x, scroll.offset.x);
                     translateAxis(boxWithoutScroll.y, scroll.offset.y);
@@ -25519,7 +24689,8 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                 (isShared && this.isSharedProjectionDirty) ||
                 this.isProjectionDirty ||
                 ((_a = this.parent) === null || _a === void 0 ? void 0 : _a.isProjectionDirty) ||
-                this.attemptToResolveRelativeTarget);
+                this.attemptToResolveRelativeTarget ||
+                this.root.updateBlockedByResize);
             if (canSkip)
                 return;
             const { layout, layoutId } = this.options;
@@ -25618,7 +24789,9 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             /**
              * Increase debug counter for resolved target deltas
              */
-            projectionFrameData.resolvedTargetDeltas++;
+            if (isDebug) {
+                metrics.resolvedTargetDeltas++;
+            }
         }
         getClosestProjectingParent() {
             if (!this.parent ||
@@ -25713,18 +24886,19 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
                  * projecting, we want to remove the stored transform and schedule
                  * a render to ensure the elements reflect the removed transform.
                  */
-                if (this.projectionTransform) {
-                    this.projectionDelta = createDelta();
-                    this.projectionTransform = "none";
+                if (this.prevProjectionDelta) {
+                    this.createProjectionDeltas();
                     this.scheduleRender();
                 }
                 return;
             }
-            if (!this.projectionDelta) {
-                this.projectionDelta = createDelta();
-                this.projectionDeltaWithTransform = createDelta();
+            if (!this.projectionDelta || !this.prevProjectionDelta) {
+                this.createProjectionDeltas();
             }
-            const prevProjectionTransform = this.projectionTransform;
+            else {
+                copyAxisDeltaInto(this.prevProjectionDelta.x, this.projectionDelta.x);
+                copyAxisDeltaInto(this.prevProjectionDelta.y, this.projectionDelta.y);
+            }
             /**
              * Update the delta between the corrected box and the target box before user-set transforms were applied.
              * This will allow us to calculate the corrected borderRadius and boxShadow to compensate
@@ -25735,10 +24909,10 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
              * layout reprojection or the final bounding box.
              */
             calcBoxDelta(this.projectionDelta, this.layoutCorrected, target, this.latestValues);
-            this.projectionTransform = buildProjectionTransform(this.projectionDelta, this.treeScale);
-            if (this.projectionTransform !== prevProjectionTransform ||
-                this.treeScale.x !== prevTreeScaleX ||
-                this.treeScale.y !== prevTreeScaleY) {
+            if (this.treeScale.x !== prevTreeScaleX ||
+                this.treeScale.y !== prevTreeScaleY ||
+                !axisDeltaEquals(this.projectionDelta.x, this.prevProjectionDelta.x) ||
+                !axisDeltaEquals(this.projectionDelta.y, this.prevProjectionDelta.y)) {
                 this.hasProjected = true;
                 this.scheduleRender();
                 this.notifyListeners("projectionUpdate", target);
@@ -25746,7 +24920,9 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             /**
              * Increase debug counter for recalculated projections
              */
-            projectionFrameData.recalculatedProjection++;
+            if (isDebug) {
+                metrics.recalculatedProjection++;
+            }
         }
         hide() {
             this.isVisible = false;
@@ -25757,7 +24933,8 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             // TODO: Schedule render
         }
         scheduleRender(notifyAll = true) {
-            this.options.scheduleRender && this.options.scheduleRender();
+            var _a;
+            (_a = this.options.visualElement) === null || _a === void 0 ? void 0 : _a.scheduleRender();
             if (notifyAll) {
                 const stack = this.getStack();
                 stack && stack.scheduleRender();
@@ -25765,6 +24942,11 @@ function createProjectionNode({ attachResizeListener, defaultParent, measureScro
             if (this.resumingFrom && !this.resumingFrom.instance) {
                 this.resumingFrom = undefined;
             }
+        }
+        createProjectionDeltas() {
+            this.prevProjectionDelta = createDelta();
+            this.projectionDelta = createDelta();
+            this.projectionDeltaWithTransform = createDelta();
         }
         setAnimationOrigin(delta, hasOnlyRelativeTargetChanged = false) {
             const snapshot = this.snapshot;
@@ -26239,7 +25421,9 @@ function propagateDirtyNodes(node) {
     /**
      * Increase debug counter for nodes encountered this frame
      */
-    projectionFrameData.totalNodes++;
+    if (isDebug) {
+        metrics.totalNodes++;
+    }
     if (!node.parent)
         return;
     /**
@@ -26346,10 +25530,14 @@ function shouldAnimatePositionOnly(animationType, snapshot, layout) {
         (animationType === "preserve-aspect" &&
             !isNear(aspectRatio(snapshot), aspectRatio(layout), 0.2)));
 }
+function checkNodeWasScrollRoot(node) {
+    var _a;
+    return node !== node.root && ((_a = node.scroll) === null || _a === void 0 ? void 0 : _a.wasRoot);
+}
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/node/DocumentProjectionNode.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/node/DocumentProjectionNode.mjs
 
 
 
@@ -26364,7 +25552,7 @@ const DocumentProjectionNode = createProjectionNode({
 
 
 
-;// ./node_modules/framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/projection/node/HTMLProjectionNode.mjs
 
 
 
@@ -26393,7 +25581,7 @@ const HTMLProjectionNode = createProjectionNode({
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/drag.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/drag.mjs
 
 
 
@@ -26412,14 +25600,1572 @@ const drag = {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/reduced-motion/state.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/hover.mjs
+
+
+
+
+
+function handleHoverEvent(node, event, lifecycle) {
+    const { props } = node;
+    if (node.animationState && props.whileHover) {
+        node.animationState.setActive("whileHover", lifecycle === "Start");
+    }
+    const eventName = ("onHover" + lifecycle);
+    const callback = props[eventName];
+    if (callback) {
+        frame_frame.postRender(() => callback(event, extractEventInfo(event)));
+    }
+}
+class HoverGesture extends Feature {
+    mount() {
+        const { current } = this.node;
+        if (!current)
+            return;
+        this.unmount = hover(current, (startEvent) => {
+            handleHoverEvent(this.node, startEvent, "Start");
+            return (endEvent) => handleHoverEvent(this.node, endEvent, "End");
+        });
+    }
+    unmount() { }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/focus.mjs
+
+
+
+
+class FocusGesture extends Feature {
+    constructor() {
+        super(...arguments);
+        this.isActive = false;
+    }
+    onFocus() {
+        let isFocusVisible = false;
+        /**
+         * If this element doesn't match focus-visible then don't
+         * apply whileHover. But, if matches throws that focus-visible
+         * is not a valid selector then in that browser outline styles will be applied
+         * to the element by default and we want to match that behaviour with whileFocus.
+         */
+        try {
+            isFocusVisible = this.node.current.matches(":focus-visible");
+        }
+        catch (e) {
+            isFocusVisible = true;
+        }
+        if (!isFocusVisible || !this.node.animationState)
+            return;
+        this.node.animationState.setActive("whileFocus", true);
+        this.isActive = true;
+    }
+    onBlur() {
+        if (!this.isActive || !this.node.animationState)
+            return;
+        this.node.animationState.setActive("whileFocus", false);
+        this.isActive = false;
+    }
+    mount() {
+        this.unmount = pipe(addDomEvent(this.node.current, "focus", () => this.onFocus()), addDomEvent(this.node.current, "blur", () => this.onBlur()));
+    }
+    unmount() { }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/gestures/press.mjs
+
+
+
+
+
+function handlePressEvent(node, event, lifecycle) {
+    const { props } = node;
+    if (node.animationState && props.whileTap) {
+        node.animationState.setActive("whileTap", lifecycle === "Start");
+    }
+    const eventName = ("onTap" + (lifecycle === "End" ? "" : lifecycle));
+    const callback = props[eventName];
+    if (callback) {
+        frame_frame.postRender(() => callback(event, extractEventInfo(event)));
+    }
+}
+class PressGesture extends Feature {
+    mount() {
+        const { current } = this.node;
+        if (!current)
+            return;
+        this.unmount = press(current, (startEvent) => {
+            handlePressEvent(this.node, startEvent, "Start");
+            return (endEvent, { success }) => handlePressEvent(this.node, endEvent, success ? "End" : "Cancel");
+        }, { useGlobalTarget: this.node.props.globalTapTarget });
+    }
+    unmount() { }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/viewport/observers.mjs
+/**
+ * Map an IntersectionHandler callback to an element. We only ever make one handler for one
+ * element, so even though these handlers might all be triggered by different
+ * observers, we can keep them in the same map.
+ */
+const observerCallbacks = new WeakMap();
+/**
+ * Multiple observers can be created for multiple element/document roots. Each with
+ * different settings. So here we store dictionaries of observers to each root,
+ * using serialised settings (threshold/margin) as lookup keys.
+ */
+const observers = new WeakMap();
+const fireObserverCallback = (entry) => {
+    const callback = observerCallbacks.get(entry.target);
+    callback && callback(entry);
+};
+const fireAllObserverCallbacks = (entries) => {
+    entries.forEach(fireObserverCallback);
+};
+function initIntersectionObserver({ root, ...options }) {
+    const lookupRoot = root || document;
+    /**
+     * If we don't have an observer lookup map for this root, create one.
+     */
+    if (!observers.has(lookupRoot)) {
+        observers.set(lookupRoot, {});
+    }
+    const rootObservers = observers.get(lookupRoot);
+    const key = JSON.stringify(options);
+    /**
+     * If we don't have an observer for this combination of root and settings,
+     * create one.
+     */
+    if (!rootObservers[key]) {
+        rootObservers[key] = new IntersectionObserver(fireAllObserverCallbacks, { root, ...options });
+    }
+    return rootObservers[key];
+}
+function observeIntersection(element, options, callback) {
+    const rootInteresectionObserver = initIntersectionObserver(options);
+    observerCallbacks.set(element, callback);
+    rootInteresectionObserver.observe(element);
+    return () => {
+        observerCallbacks.delete(element);
+        rootInteresectionObserver.unobserve(element);
+    };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/viewport/index.mjs
+
+
+
+const thresholdNames = {
+    some: 0,
+    all: 1,
+};
+class InViewFeature extends Feature {
+    constructor() {
+        super(...arguments);
+        this.hasEnteredView = false;
+        this.isInView = false;
+    }
+    startObserver() {
+        this.unmount();
+        const { viewport = {} } = this.node.getProps();
+        const { root, margin: rootMargin, amount = "some", once } = viewport;
+        const options = {
+            root: root ? root.current : undefined,
+            rootMargin,
+            threshold: typeof amount === "number" ? amount : thresholdNames[amount],
+        };
+        const onIntersectionUpdate = (entry) => {
+            const { isIntersecting } = entry;
+            /**
+             * If there's been no change in the viewport state, early return.
+             */
+            if (this.isInView === isIntersecting)
+                return;
+            this.isInView = isIntersecting;
+            /**
+             * Handle hasEnteredView. If this is only meant to run once, and
+             * element isn't visible, early return. Otherwise set hasEnteredView to true.
+             */
+            if (once && !isIntersecting && this.hasEnteredView) {
+                return;
+            }
+            else if (isIntersecting) {
+                this.hasEnteredView = true;
+            }
+            if (this.node.animationState) {
+                this.node.animationState.setActive("whileInView", isIntersecting);
+            }
+            /**
+             * Use the latest committed props rather than the ones in scope
+             * when this observer is created
+             */
+            const { onViewportEnter, onViewportLeave } = this.node.getProps();
+            const callback = isIntersecting ? onViewportEnter : onViewportLeave;
+            callback && callback(entry);
+        };
+        return observeIntersection(this.node.current, options, onIntersectionUpdate);
+    }
+    mount() {
+        this.startObserver();
+    }
+    update() {
+        if (typeof IntersectionObserver === "undefined")
+            return;
+        const { props, prevProps } = this.node;
+        const hasOptionsChanged = ["amount", "margin", "root"].some(hasViewportOptionChanged(props, prevProps));
+        if (hasOptionsChanged) {
+            this.startObserver();
+        }
+    }
+    unmount() { }
+}
+function hasViewportOptionChanged({ viewport = {} }, { viewport: prevViewport = {} } = {}) {
+    return (name) => viewport[name] !== prevViewport[name];
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/gestures.mjs
+
+
+
+
+
+const gestureAnimations = {
+    inView: {
+        Feature: InViewFeature,
+    },
+    tap: {
+        Feature: PressGesture,
+    },
+    focus: {
+        Feature: FocusGesture,
+    },
+    hover: {
+        Feature: HoverGesture,
+    },
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/layout.mjs
+
+
+
+const layout = {
+    layout: {
+        ProjectionNode: HTMLProjectionNode,
+        MeasureLayout: MeasureLayout,
+    },
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/MotionConfigContext.mjs
+"use client";
+
+
+/**
+ * @public
+ */
+const MotionConfigContext = (0,external_React_.createContext)({
+    transformPagePoint: (p) => p,
+    isStatic: false,
+    reducedMotion: "never",
+});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/MotionContext/index.mjs
+"use client";
+
+
+const MotionContext = (0,external_React_.createContext)({});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/is-browser.mjs
+const is_browser_isBrowser = typeof window !== "undefined";
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/use-isomorphic-effect.mjs
+
+
+
+const useIsomorphicLayoutEffect = is_browser_isBrowser ? external_React_.useLayoutEffect : external_React_.useEffect;
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/LazyContext.mjs
+"use client";
+
+
+const LazyContext = (0,external_React_.createContext)({ strict: false });
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/use-visual-element.mjs
+
+
+
+
+
+
+
+
+
+
+
+function useVisualElement(Component, visualState, props, createVisualElement, ProjectionNodeConstructor) {
+    var _a, _b;
+    const { visualElement: parent } = (0,external_React_.useContext)(MotionContext);
+    const lazyContext = (0,external_React_.useContext)(LazyContext);
+    const presenceContext = (0,external_React_.useContext)(PresenceContext_PresenceContext);
+    const reducedMotionConfig = (0,external_React_.useContext)(MotionConfigContext).reducedMotion;
+    const visualElementRef = (0,external_React_.useRef)(null);
+    /**
+     * If we haven't preloaded a renderer, check to see if we have one lazy-loaded
+     */
+    createVisualElement = createVisualElement || lazyContext.renderer;
+    if (!visualElementRef.current && createVisualElement) {
+        visualElementRef.current = createVisualElement(Component, {
+            visualState,
+            parent,
+            props,
+            presenceContext,
+            blockInitialAnimation: presenceContext
+                ? presenceContext.initial === false
+                : false,
+            reducedMotionConfig,
+        });
+    }
+    const visualElement = visualElementRef.current;
+    /**
+     * Load Motion gesture and animation features. These are rendered as renderless
+     * components so each feature can optionally make use of React lifecycle methods.
+     */
+    const initialLayoutGroupConfig = (0,external_React_.useContext)(SwitchLayoutGroupContext);
+    if (visualElement &&
+        !visualElement.projection &&
+        ProjectionNodeConstructor &&
+        (visualElement.type === "html" || visualElement.type === "svg")) {
+        use_visual_element_createProjectionNode(visualElementRef.current, props, ProjectionNodeConstructor, initialLayoutGroupConfig);
+    }
+    const isMounted = (0,external_React_.useRef)(false);
+    (0,external_React_.useInsertionEffect)(() => {
+        /**
+         * Check the component has already mounted before calling
+         * `update` unnecessarily. This ensures we skip the initial update.
+         */
+        if (visualElement && isMounted.current) {
+            visualElement.update(props, presenceContext);
+        }
+    });
+    /**
+     * Cache this value as we want to know whether HandoffAppearAnimations
+     * was present on initial render - it will be deleted after this.
+     */
+    const optimisedAppearId = props[optimizedAppearDataAttribute];
+    const wantsHandoff = (0,external_React_.useRef)(Boolean(optimisedAppearId) &&
+        !((_a = window.MotionHandoffIsComplete) === null || _a === void 0 ? void 0 : _a.call(window, optimisedAppearId)) &&
+        ((_b = window.MotionHasOptimisedAnimation) === null || _b === void 0 ? void 0 : _b.call(window, optimisedAppearId)));
+    useIsomorphicLayoutEffect(() => {
+        if (!visualElement)
+            return;
+        isMounted.current = true;
+        window.MotionIsMounted = true;
+        visualElement.updateFeatures();
+        microtask.render(visualElement.render);
+        /**
+         * Ideally this function would always run in a useEffect.
+         *
+         * However, if we have optimised appear animations to handoff from,
+         * it needs to happen synchronously to ensure there's no flash of
+         * incorrect styles in the event of a hydration error.
+         *
+         * So if we detect a situtation where optimised appear animations
+         * are running, we use useLayoutEffect to trigger animations.
+         */
+        if (wantsHandoff.current && visualElement.animationState) {
+            visualElement.animationState.animateChanges();
+        }
+    });
+    (0,external_React_.useEffect)(() => {
+        if (!visualElement)
+            return;
+        if (!wantsHandoff.current && visualElement.animationState) {
+            visualElement.animationState.animateChanges();
+        }
+        if (wantsHandoff.current) {
+            // This ensures all future calls to animateChanges() in this component will run in useEffect
+            queueMicrotask(() => {
+                var _a;
+                (_a = window.MotionHandoffMarkAsComplete) === null || _a === void 0 ? void 0 : _a.call(window, optimisedAppearId);
+            });
+            wantsHandoff.current = false;
+        }
+    });
+    return visualElement;
+}
+function use_visual_element_createProjectionNode(visualElement, props, ProjectionNodeConstructor, initialPromotionConfig) {
+    const { layoutId, layout, drag, dragConstraints, layoutScroll, layoutRoot, } = props;
+    visualElement.projection = new ProjectionNodeConstructor(visualElement.latestValues, props["data-framer-portal-id"]
+        ? undefined
+        : getClosestProjectingNode(visualElement.parent));
+    visualElement.projection.setOptions({
+        layoutId,
+        layout,
+        alwaysMeasureLayout: Boolean(drag) || (dragConstraints && isRefObject(dragConstraints)),
+        visualElement,
+        /**
+         * TODO: Update options in an effect. This could be tricky as it'll be too late
+         * to update by the time layout animations run.
+         * We also need to fix this safeToRemove by linking it up to the one returned by usePresence,
+         * ensuring it gets called if there's no potential layout animations.
+         *
+         */
+        animationType: typeof layout === "string" ? layout : "both",
+        initialPromotionConfig,
+        layoutScroll,
+        layoutRoot,
+    });
+}
+function getClosestProjectingNode(visualElement) {
+    if (!visualElement)
+        return undefined;
+    return visualElement.options.allowProjection !== false
+        ? visualElement.projection
+        : getClosestProjectingNode(visualElement.parent);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/use-motion-ref.mjs
+
+
+
+/**
+ * Creates a ref function that, when called, hydrates the provided
+ * external ref and VisualElement.
+ */
+function useMotionRef(visualState, visualElement, externalRef) {
+    return (0,external_React_.useCallback)((instance) => {
+        instance && visualState.mount && visualState.mount(instance);
+        if (visualElement) {
+            if (instance) {
+                visualElement.mount(instance);
+            }
+            else {
+                visualElement.unmount();
+            }
+        }
+        if (externalRef) {
+            if (typeof externalRef === "function") {
+                externalRef(instance);
+            }
+            else if (isRefObject(externalRef)) {
+                externalRef.current = instance;
+            }
+        }
+    }, 
+    /**
+     * Only pass a new ref callback to React if we've received a visual element
+     * factory. Otherwise we'll be mounting/remounting every time externalRef
+     * or other dependencies change.
+     */
+    [visualElement]);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/is-controlling-variants.mjs
+
+
+
+
+function isControllingVariants(props) {
+    return (isAnimationControls(props.animate) ||
+        variantProps.some((name) => isVariantLabel(props[name])));
+}
+function isVariantNode(props) {
+    return Boolean(isControllingVariants(props) || props.variants);
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/MotionContext/utils.mjs
+
+
+
+function getCurrentTreeVariants(props, context) {
+    if (isControllingVariants(props)) {
+        const { initial, animate } = props;
+        return {
+            initial: initial === false || isVariantLabel(initial)
+                ? initial
+                : undefined,
+            animate: isVariantLabel(animate) ? animate : undefined,
+        };
+    }
+    return props.inherit !== false ? context : {};
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/context/MotionContext/create.mjs
+
+
+
+
+function useCreateMotionContext(props) {
+    const { initial, animate } = getCurrentTreeVariants(props, (0,external_React_.useContext)(MotionContext));
+    return (0,external_React_.useMemo)(() => ({ initial, animate }), [variantLabelsAsDependency(initial), variantLabelsAsDependency(animate)]);
+}
+function variantLabelsAsDependency(prop) {
+    return Array.isArray(prop) ? prop.join(" ") : prop;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/definitions.mjs
+const featureProps = {
+    animation: [
+        "animate",
+        "variants",
+        "whileHover",
+        "whileTap",
+        "exit",
+        "whileInView",
+        "whileFocus",
+        "whileDrag",
+    ],
+    exit: ["exit"],
+    drag: ["drag", "dragControls"],
+    focus: ["whileFocus"],
+    hover: ["whileHover", "onHoverStart", "onHoverEnd"],
+    tap: ["whileTap", "onTap", "onTapStart", "onTapCancel"],
+    pan: ["onPan", "onPanStart", "onPanSessionStart", "onPanEnd"],
+    inView: ["whileInView", "onViewportEnter", "onViewportLeave"],
+    layout: ["layout", "layoutId"],
+};
+const featureDefinitions = {};
+for (const key in featureProps) {
+    featureDefinitions[key] = {
+        isEnabled: (props) => featureProps[key].some((name) => !!props[name]),
+    };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/features/load-features.mjs
+
+
+function loadFeatures(features) {
+    for (const key in features) {
+        featureDefinitions[key] = {
+            ...featureDefinitions[key],
+            ...features[key],
+        };
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/symbol.mjs
+const motionComponentSymbol = Symbol.for("motionComponentSymbol");
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/index.mjs
+"use client";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Create a `motion` component.
+ *
+ * This function accepts a Component argument, which can be either a string (ie "div"
+ * for `motion.div`), or an actual React component.
+ *
+ * Alongside this is a config option which provides a way of rendering the provided
+ * component "offline", or outside the React render cycle.
+ */
+function createRendererMotionComponent({ preloadedFeatures, createVisualElement, useRender, useVisualState, Component, }) {
+    preloadedFeatures && loadFeatures(preloadedFeatures);
+    function MotionComponent(props, externalRef) {
+        /**
+         * If we need to measure the element we load this functionality in a
+         * separate class component in order to gain access to getSnapshotBeforeUpdate.
+         */
+        let MeasureLayout;
+        const configAndProps = {
+            ...(0,external_React_.useContext)(MotionConfigContext),
+            ...props,
+            layoutId: useLayoutId(props),
+        };
+        const { isStatic } = configAndProps;
+        const context = useCreateMotionContext(props);
+        const visualState = useVisualState(props, isStatic);
+        if (!isStatic && is_browser_isBrowser) {
+            useStrictMode(configAndProps, preloadedFeatures);
+            const layoutProjection = getProjectionFunctionality(configAndProps);
+            MeasureLayout = layoutProjection.MeasureLayout;
+            /**
+             * Create a VisualElement for this component. A VisualElement provides a common
+             * interface to renderer-specific APIs (ie DOM/Three.js etc) as well as
+             * providing a way of rendering to these APIs outside of the React render loop
+             * for more performant animations and interactions
+             */
+            context.visualElement = useVisualElement(Component, visualState, configAndProps, createVisualElement, layoutProjection.ProjectionNode);
+        }
+        /**
+         * The mount order and hierarchy is specific to ensure our element ref
+         * is hydrated by the time features fire their effects.
+         */
+        return ((0,external_ReactJSXRuntime_namespaceObject.jsxs)(MotionContext.Provider, { value: context, children: [MeasureLayout && context.visualElement ? ((0,external_ReactJSXRuntime_namespaceObject.jsx)(MeasureLayout, { visualElement: context.visualElement, ...configAndProps })) : null, useRender(Component, props, useMotionRef(visualState, context.visualElement, externalRef), visualState, isStatic, context.visualElement)] }));
+    }
+    const ForwardRefMotionComponent = (0,external_React_.forwardRef)(MotionComponent);
+    ForwardRefMotionComponent[motionComponentSymbol] = Component;
+    return ForwardRefMotionComponent;
+}
+function useLayoutId({ layoutId }) {
+    const layoutGroupId = (0,external_React_.useContext)(LayoutGroupContext).id;
+    return layoutGroupId && layoutId !== undefined
+        ? layoutGroupId + "-" + layoutId
+        : layoutId;
+}
+function useStrictMode(configAndProps, preloadedFeatures) {
+    const isStrict = (0,external_React_.useContext)(LazyContext).strict;
+    /**
+     * If we're in development mode, check to make sure we're not rendering a motion component
+     * as a child of LazyMotion, as this will break the file-size benefits of using it.
+     */
+    if (false) {}
+}
+function getProjectionFunctionality(props) {
+    const { drag, layout } = featureDefinitions;
+    if (!drag && !layout)
+        return {};
+    const combined = { ...drag, ...layout };
+    return {
+        MeasureLayout: (drag === null || drag === void 0 ? void 0 : drag.isEnabled(props)) || (layout === null || layout === void 0 ? void 0 : layout.isEnabled(props))
+            ? combined.MeasureLayout
+            : undefined,
+        ProjectionNode: combined.ProjectionNode,
+    };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/lowercase-elements.mjs
+/**
+ * We keep these listed separately as we use the lowercase tag names as part
+ * of the runtime bundle to detect SVG components
+ */
+const lowercaseSVGElements = [
+    "animate",
+    "circle",
+    "defs",
+    "desc",
+    "ellipse",
+    "g",
+    "image",
+    "line",
+    "filter",
+    "marker",
+    "mask",
+    "metadata",
+    "path",
+    "pattern",
+    "polygon",
+    "polyline",
+    "rect",
+    "stop",
+    "switch",
+    "symbol",
+    "svg",
+    "text",
+    "tspan",
+    "use",
+    "view",
+];
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/is-svg-component.mjs
+
+
+function isSVGComponent(Component) {
+    if (
+    /**
+     * If it's not a string, it's a custom React component. Currently we only support
+     * HTML custom React components.
+     */
+    typeof Component !== "string" ||
+        /**
+         * If it contains a dash, the element is a custom HTML webcomponent.
+         */
+        Component.includes("-")) {
+        return false;
+    }
+    else if (
+    /**
+     * If it's in our list of lowercase SVG tags, it's an SVG component
+     */
+    lowercaseSVGElements.indexOf(Component) > -1 ||
+        /**
+         * If it contains a capital letter, it's an SVG component
+         */
+        /[A-Z]/u.test(Component)) {
+        return true;
+    }
+    return false;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/render.mjs
+function renderHTML(element, { style, vars }, styleProp, projection) {
+    Object.assign(element.style, style, projection && projection.getProjectionStyles(styleProp));
+    // Loop over any CSS variables and assign those.
+    for (const key in vars) {
+        element.style.setProperty(key, vars[key]);
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/camel-case-attrs.mjs
+/**
+ * A set of attribute names that are always read/written as camel case.
+ */
+const camelCaseAttributes = new Set([
+    "baseFrequency",
+    "diffuseConstant",
+    "kernelMatrix",
+    "kernelUnitLength",
+    "keySplines",
+    "keyTimes",
+    "limitingConeAngle",
+    "markerHeight",
+    "markerWidth",
+    "numOctaves",
+    "targetX",
+    "targetY",
+    "surfaceScale",
+    "specularConstant",
+    "specularExponent",
+    "stdDeviation",
+    "tableValues",
+    "viewBox",
+    "gradientTransform",
+    "pathLength",
+    "startOffset",
+    "textLength",
+    "lengthAdjust",
+]);
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/render.mjs
+
+
+
+
+function renderSVG(element, renderState, _styleProp, projection) {
+    renderHTML(element, renderState, undefined, projection);
+    for (const key in renderState.attrs) {
+        element.setAttribute(!camelCaseAttributes.has(key) ? camelToDash(key) : key, renderState.attrs[key]);
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/is-forced-motion-value.mjs
+
+
+
+function isForcedMotionValue(key, { layout, layoutId }) {
+    return (transformProps.has(key) ||
+        key.startsWith("origin") ||
+        ((layout || layoutId !== undefined) &&
+            (!!scaleCorrectors[key] || key === "opacity")));
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/scrape-motion-values.mjs
+
+
+
+function scrapeMotionValuesFromProps(props, prevProps, visualElement) {
+    var _a;
+    const { style } = props;
+    const newValues = {};
+    for (const key in style) {
+        if (isMotionValue(style[key]) ||
+            (prevProps.style &&
+                isMotionValue(prevProps.style[key])) ||
+            isForcedMotionValue(key, props) ||
+            ((_a = visualElement === null || visualElement === void 0 ? void 0 : visualElement.getValue(key)) === null || _a === void 0 ? void 0 : _a.liveStyle) !== undefined) {
+            newValues[key] = style[key];
+        }
+    }
+    return newValues;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/scrape-motion-values.mjs
+
+
+
+
+function scrape_motion_values_scrapeMotionValuesFromProps(props, prevProps, visualElement) {
+    const newValues = scrapeMotionValuesFromProps(props, prevProps, visualElement);
+    for (const key in props) {
+        if (isMotionValue(props[key]) ||
+            isMotionValue(prevProps[key])) {
+            const targetKey = transformPropOrder.indexOf(key) !== -1
+                ? "attr" + key.charAt(0).toUpperCase() + key.substring(1)
+                : key;
+            newValues[targetKey] = props[key];
+        }
+    }
+    return newValues;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/use-constant.mjs
+
+
+/**
+ * Creates a constant value over the lifecycle of a component.
+ *
+ * Even if `useMemo` is provided an empty array as its final argument, it doesn't offer
+ * a guarantee that it won't re-run for performance reasons later on. By using `useConstant`
+ * you can ensure that initialisers don't execute twice or more.
+ */
+function useConstant(init) {
+    const ref = (0,external_React_.useRef)(null);
+    if (ref.current === null) {
+        ref.current = init();
+    }
+    return ref.current;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/use-visual-state.mjs
+
+
+
+
+
+
+
+
+
+function makeState({ scrapeMotionValuesFromProps, createRenderState, onMount, }, props, context, presenceContext) {
+    const state = {
+        latestValues: makeLatestValues(props, context, presenceContext, scrapeMotionValuesFromProps),
+        renderState: createRenderState(),
+    };
+    if (onMount) {
+        state.mount = (instance) => onMount(props, instance, state);
+    }
+    return state;
+}
+const makeUseVisualState = (config) => (props, isStatic) => {
+    const context = (0,external_React_.useContext)(MotionContext);
+    const presenceContext = (0,external_React_.useContext)(PresenceContext_PresenceContext);
+    const make = () => makeState(config, props, context, presenceContext);
+    return isStatic ? make() : useConstant(make);
+};
+function makeLatestValues(props, context, presenceContext, scrapeMotionValues) {
+    const values = {};
+    const motionValues = scrapeMotionValues(props, {});
+    for (const key in motionValues) {
+        values[key] = resolveMotionValue(motionValues[key]);
+    }
+    let { initial, animate } = props;
+    const isControllingVariants$1 = isControllingVariants(props);
+    const isVariantNode$1 = isVariantNode(props);
+    if (context &&
+        isVariantNode$1 &&
+        !isControllingVariants$1 &&
+        props.inherit !== false) {
+        if (initial === undefined)
+            initial = context.initial;
+        if (animate === undefined)
+            animate = context.animate;
+    }
+    let isInitialAnimationBlocked = presenceContext
+        ? presenceContext.initial === false
+        : false;
+    isInitialAnimationBlocked = isInitialAnimationBlocked || initial === false;
+    const variantToSet = isInitialAnimationBlocked ? animate : initial;
+    if (variantToSet &&
+        typeof variantToSet !== "boolean" &&
+        !isAnimationControls(variantToSet)) {
+        const list = Array.isArray(variantToSet) ? variantToSet : [variantToSet];
+        for (let i = 0; i < list.length; i++) {
+            const resolved = resolveVariantFromProps(props, list[i]);
+            if (resolved) {
+                const { transitionEnd, transition, ...target } = resolved;
+                for (const key in target) {
+                    let valueTarget = target[key];
+                    if (Array.isArray(valueTarget)) {
+                        /**
+                         * Take final keyframe if the initial animation is blocked because
+                         * we want to initialise at the end of that blocked animation.
+                         */
+                        const index = isInitialAnimationBlocked
+                            ? valueTarget.length - 1
+                            : 0;
+                        valueTarget = valueTarget[index];
+                    }
+                    if (valueTarget !== null) {
+                        values[key] = valueTarget;
+                    }
+                }
+                for (const key in transitionEnd) {
+                    values[key] = transitionEnd[key];
+                }
+            }
+        }
+    }
+    return values;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/create-render-state.mjs
+const createHtmlRenderState = () => ({
+    style: {},
+    transform: {},
+    transformOrigin: {},
+    vars: {},
+});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/create-render-state.mjs
+
+
+const createSvgRenderState = () => ({
+    ...createHtmlRenderState(),
+    attrs: {},
+});
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/get-as-type.mjs
+/**
+ * Provided a value and a ValueType, returns the value as that value type.
+ */
+const getValueAsType = (value, type) => {
+    return type && typeof value === "number"
+        ? type.transform(value)
+        : value;
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/build-transform.mjs
+
+
+
+
+const translateAlias = {
+    x: "translateX",
+    y: "translateY",
+    z: "translateZ",
+    transformPerspective: "perspective",
+};
+const numTransforms = transformPropOrder.length;
+/**
+ * Build a CSS transform style from individual x/y/scale etc properties.
+ *
+ * This outputs with a default order of transforms/scales/rotations, this can be customised by
+ * providing a transformTemplate function.
+ */
+function buildTransform(latestValues, transform, transformTemplate) {
+    // The transform string we're going to build into.
+    let transformString = "";
+    let transformIsDefault = true;
+    /**
+     * Loop over all possible transforms in order, adding the ones that
+     * are present to the transform string.
+     */
+    for (let i = 0; i < numTransforms; i++) {
+        const key = transformPropOrder[i];
+        const value = latestValues[key];
+        if (value === undefined)
+            continue;
+        let valueIsDefault = true;
+        if (typeof value === "number") {
+            valueIsDefault = value === (key.startsWith("scale") ? 1 : 0);
+        }
+        else {
+            valueIsDefault = parseFloat(value) === 0;
+        }
+        if (!valueIsDefault || transformTemplate) {
+            const valueAsType = getValueAsType(value, numberValueTypes[key]);
+            if (!valueIsDefault) {
+                transformIsDefault = false;
+                const transformName = translateAlias[key] || key;
+                transformString += `${transformName}(${valueAsType}) `;
+            }
+            if (transformTemplate) {
+                transform[key] = valueAsType;
+            }
+        }
+    }
+    transformString = transformString.trim();
+    // If we have a custom `transform` template, pass our transform values and
+    // generated transformString to that before returning
+    if (transformTemplate) {
+        transformString = transformTemplate(transform, transformIsDefault ? "" : transformString);
+    }
+    else if (transformIsDefault) {
+        transformString = "none";
+    }
+    return transformString;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/utils/build-styles.mjs
+
+
+
+
+
+
+function buildHTMLStyles(state, latestValues, transformTemplate) {
+    const { style, vars, transformOrigin } = state;
+    // Track whether we encounter any transform or transformOrigin values.
+    let hasTransform = false;
+    let hasTransformOrigin = false;
+    /**
+     * Loop over all our latest animated values and decide whether to handle them
+     * as a style or CSS variable.
+     *
+     * Transforms and transform origins are kept separately for further processing.
+     */
+    for (const key in latestValues) {
+        const value = latestValues[key];
+        if (transformProps.has(key)) {
+            // If this is a transform, flag to enable further transform processing
+            hasTransform = true;
+            continue;
+        }
+        else if (isCSSVariableName(key)) {
+            vars[key] = value;
+            continue;
+        }
+        else {
+            // Convert the value to its default value type, ie 0 -> "0px"
+            const valueAsType = getValueAsType(value, numberValueTypes[key]);
+            if (key.startsWith("origin")) {
+                // If this is a transform origin, flag and enable further transform-origin processing
+                hasTransformOrigin = true;
+                transformOrigin[key] =
+                    valueAsType;
+            }
+            else {
+                style[key] = valueAsType;
+            }
+        }
+    }
+    if (!latestValues.transform) {
+        if (hasTransform || transformTemplate) {
+            style.transform = buildTransform(latestValues, state.transform, transformTemplate);
+        }
+        else if (style.transform) {
+            /**
+             * If we have previously created a transform but currently don't have any,
+             * reset transform style to none.
+             */
+            style.transform = "none";
+        }
+    }
+    /**
+     * Build a transformOrigin style. Uses the same defaults as the browser for
+     * undefined origins.
+     */
+    if (hasTransformOrigin) {
+        const { originX = "50%", originY = "50%", originZ = 0, } = transformOrigin;
+        style.transformOrigin = `${originX} ${originY} ${originZ}`;
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/transform-origin.mjs
+
+
+function transform_origin_calcOrigin(origin, offset, size) {
+    return typeof origin === "string"
+        ? origin
+        : px.transform(offset + size * origin);
+}
+/**
+ * The SVG transform origin defaults are different to CSS and is less intuitive,
+ * so we use the measured dimensions of the SVG to reconcile these.
+ */
+function calcSVGTransformOrigin(dimensions, originX, originY) {
+    const pxOriginX = transform_origin_calcOrigin(originX, dimensions.x, dimensions.width);
+    const pxOriginY = transform_origin_calcOrigin(originY, dimensions.y, dimensions.height);
+    return `${pxOriginX} ${pxOriginY}`;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/path.mjs
+
+
+const dashKeys = {
+    offset: "stroke-dashoffset",
+    array: "stroke-dasharray",
+};
+const camelKeys = {
+    offset: "strokeDashoffset",
+    array: "strokeDasharray",
+};
+/**
+ * Build SVG path properties. Uses the path's measured length to convert
+ * our custom pathLength, pathSpacing and pathOffset into stroke-dashoffset
+ * and stroke-dasharray attributes.
+ *
+ * This function is mutative to reduce per-frame GC.
+ */
+function buildSVGPath(attrs, length, spacing = 1, offset = 0, useDashCase = true) {
+    // Normalise path length by setting SVG attribute pathLength to 1
+    attrs.pathLength = 1;
+    // We use dash case when setting attributes directly to the DOM node and camel case
+    // when defining props on a React component.
+    const keys = useDashCase ? dashKeys : camelKeys;
+    // Build the dash offset
+    attrs[keys.offset] = px.transform(-offset);
+    // Build the dash array
+    const pathLength = px.transform(length);
+    const pathSpacing = px.transform(spacing);
+    attrs[keys.array] = `${pathLength} ${pathSpacing}`;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/build-attrs.mjs
+
+
+
+
+/**
+ * Build SVG visual attrbutes, like cx and style.transform
+ */
+function buildSVGAttrs(state, { attrX, attrY, attrScale, originX, originY, pathLength, pathSpacing = 1, pathOffset = 0, 
+// This is object creation, which we try to avoid per-frame.
+...latest }, isSVGTag, transformTemplate) {
+    buildHTMLStyles(state, latest, transformTemplate);
+    /**
+     * For svg tags we just want to make sure viewBox is animatable and treat all the styles
+     * as normal HTML tags.
+     */
+    if (isSVGTag) {
+        if (state.style.viewBox) {
+            state.attrs.viewBox = state.style.viewBox;
+        }
+        return;
+    }
+    state.attrs = state.style;
+    state.style = {};
+    const { attrs, style, dimensions } = state;
+    /**
+     * However, we apply transforms as CSS transforms. So if we detect a transform we take it from attrs
+     * and copy it into style.
+     */
+    if (attrs.transform) {
+        if (dimensions)
+            style.transform = attrs.transform;
+        delete attrs.transform;
+    }
+    // Parse transformOrigin
+    if (dimensions &&
+        (originX !== undefined || originY !== undefined || style.transform)) {
+        style.transformOrigin = calcSVGTransformOrigin(dimensions, originX !== undefined ? originX : 0.5, originY !== undefined ? originY : 0.5);
+    }
+    // Render attrX/attrY/attrScale as attributes
+    if (attrX !== undefined)
+        attrs.x = attrX;
+    if (attrY !== undefined)
+        attrs.y = attrY;
+    if (attrScale !== undefined)
+        attrs.scale = attrScale;
+    // Build SVG path if one has been defined
+    if (pathLength !== undefined) {
+        buildSVGPath(attrs, pathLength, pathSpacing, pathOffset, false);
+    }
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/utils/is-svg-tag.mjs
+const isSVGTag = (tag) => typeof tag === "string" && tag.toLowerCase() === "svg";
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/config-motion.mjs
+
+
+
+
+
+
+
+
+const svgMotionConfig = {
+    useVisualState: makeUseVisualState({
+        scrapeMotionValuesFromProps: scrape_motion_values_scrapeMotionValuesFromProps,
+        createRenderState: createSvgRenderState,
+        onMount: (props, instance, { renderState, latestValues }) => {
+            frame_frame.read(() => {
+                try {
+                    renderState.dimensions =
+                        typeof instance.getBBox ===
+                            "function"
+                            ? instance.getBBox()
+                            : instance.getBoundingClientRect();
+                }
+                catch (e) {
+                    // Most likely trying to measure an unrendered element under Firefox
+                    renderState.dimensions = {
+                        x: 0,
+                        y: 0,
+                        width: 0,
+                        height: 0,
+                    };
+                }
+            });
+            frame_frame.render(() => {
+                buildSVGAttrs(renderState, latestValues, isSVGTag(instance.tagName), props.transformTemplate);
+                renderSVG(instance, renderState);
+            });
+        },
+    }),
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/config-motion.mjs
+
+
+
+
+const htmlMotionConfig = {
+    useVisualState: makeUseVisualState({
+        scrapeMotionValuesFromProps: scrapeMotionValuesFromProps,
+        createRenderState: createHtmlRenderState,
+    }),
+};
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/use-props.mjs
+
+
+
+
+
+
+function copyRawValuesOnly(target, source, props) {
+    for (const key in source) {
+        if (!isMotionValue(source[key]) && !isForcedMotionValue(key, props)) {
+            target[key] = source[key];
+        }
+    }
+}
+function useInitialMotionValues({ transformTemplate }, visualState) {
+    return (0,external_React_.useMemo)(() => {
+        const state = createHtmlRenderState();
+        buildHTMLStyles(state, visualState, transformTemplate);
+        return Object.assign({}, state.vars, state.style);
+    }, [visualState]);
+}
+function useStyle(props, visualState) {
+    const styleProp = props.style || {};
+    const style = {};
+    /**
+     * Copy non-Motion Values straight into style
+     */
+    copyRawValuesOnly(style, styleProp, props);
+    Object.assign(style, useInitialMotionValues(props, visualState));
+    return style;
+}
+function useHTMLProps(props, visualState) {
+    // The `any` isn't ideal but it is the type of createElement props argument
+    const htmlProps = {};
+    const style = useStyle(props, visualState);
+    if (props.drag && props.dragListener !== false) {
+        // Disable the ghost element when a user drags
+        htmlProps.draggable = false;
+        // Disable text selection
+        style.userSelect =
+            style.WebkitUserSelect =
+                style.WebkitTouchCallout =
+                    "none";
+        // Disable scrolling on the draggable direction
+        style.touchAction =
+            props.drag === true
+                ? "none"
+                : `pan-${props.drag === "x" ? "y" : "x"}`;
+    }
+    if (props.tabIndex === undefined &&
+        (props.onTap || props.onTapStart || props.whileTap)) {
+        htmlProps.tabIndex = 0;
+    }
+    htmlProps.style = style;
+    return htmlProps;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/motion/utils/valid-prop.mjs
+/**
+ * A list of all valid MotionProps.
+ *
+ * @privateRemarks
+ * This doesn't throw if a `MotionProp` name is missing - it should.
+ */
+const validMotionProps = new Set([
+    "animate",
+    "exit",
+    "variants",
+    "initial",
+    "style",
+    "values",
+    "variants",
+    "transition",
+    "transformTemplate",
+    "custom",
+    "inherit",
+    "onBeforeLayoutMeasure",
+    "onAnimationStart",
+    "onAnimationComplete",
+    "onUpdate",
+    "onDragStart",
+    "onDrag",
+    "onDragEnd",
+    "onMeasureDragConstraints",
+    "onDirectionLock",
+    "onDragTransitionEnd",
+    "_dragX",
+    "_dragY",
+    "onHoverStart",
+    "onHoverEnd",
+    "onViewportEnter",
+    "onViewportLeave",
+    "globalTapTarget",
+    "ignoreStrict",
+    "viewport",
+]);
+/**
+ * Check whether a prop name is a valid `MotionProp` key.
+ *
+ * @param key - Name of the property to check
+ * @returns `true` is key is a valid `MotionProp`.
+ *
+ * @public
+ */
+function isValidMotionProp(key) {
+    return (key.startsWith("while") ||
+        (key.startsWith("drag") && key !== "draggable") ||
+        key.startsWith("layout") ||
+        key.startsWith("onTap") ||
+        key.startsWith("onPan") ||
+        key.startsWith("onLayout") ||
+        validMotionProps.has(key));
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/utils/filter-props.mjs
+
+
+let shouldForward = (key) => !isValidMotionProp(key);
+function loadExternalIsValidProp(isValidProp) {
+    if (!isValidProp)
+        return;
+    // Explicitly filter our events
+    shouldForward = (key) => key.startsWith("on") ? !isValidMotionProp(key) : isValidProp(key);
+}
+/**
+ * Emotion and Styled Components both allow users to pass through arbitrary props to their components
+ * to dynamically generate CSS. They both use the `@emotion/is-prop-valid` package to determine which
+ * of these should be passed to the underlying DOM node.
+ *
+ * However, when styling a Motion component `styled(motion.div)`, both packages pass through *all* props
+ * as it's seen as an arbitrary component rather than a DOM node. Motion only allows arbitrary props
+ * passed through the `custom` prop so it doesn't *need* the payload or computational overhead of
+ * `@emotion/is-prop-valid`, however to fix this problem we need to use it.
+ *
+ * By making it an optionalDependency we can offer this functionality only in the situations where it's
+ * actually required.
+ */
+try {
+    /**
+     * We attempt to import this package but require won't be defined in esm environments, in that case
+     * isPropValid will have to be provided via `MotionContext`. In a 6.0.0 this should probably be removed
+     * in favour of explicit injection.
+     */
+    loadExternalIsValidProp(require("@emotion/is-prop-valid").default);
+}
+catch (_a) {
+    // We don't need to actually do anything here - the fallback is the existing `isPropValid`.
+}
+function filterProps(props, isDom, forwardMotionProps) {
+    const filteredProps = {};
+    for (const key in props) {
+        /**
+         * values is considered a valid prop by Emotion, so if it's present
+         * this will be rendered out to the DOM unless explicitly filtered.
+         *
+         * We check the type as it could be used with the `feColorMatrix`
+         * element, which we support.
+         */
+        if (key === "values" && typeof props.values === "object")
+            continue;
+        if (shouldForward(key) ||
+            (forwardMotionProps === true && isValidMotionProp(key)) ||
+            (!isDom && !isValidMotionProp(key)) ||
+            // If trying to use native HTML drag events, forward drag listeners
+            (props["draggable"] &&
+                key.startsWith("onDrag"))) {
+            filteredProps[key] =
+                props[key];
+        }
+    }
+    return filteredProps;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/use-props.mjs
+
+
+
+
+
+
+function useSVGProps(props, visualState, _isStatic, Component) {
+    const visualProps = (0,external_React_.useMemo)(() => {
+        const state = createSvgRenderState();
+        buildSVGAttrs(state, visualState, isSVGTag(Component), props.transformTemplate);
+        return {
+            ...state.attrs,
+            style: { ...state.style },
+        };
+    }, [visualState]);
+    if (props.style) {
+        const rawStyles = {};
+        copyRawValuesOnly(rawStyles, props.style, props);
+        visualProps.style = { ...rawStyles, ...visualProps.style };
+    }
+    return visualProps;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/use-render.mjs
+
+
+
+
+
+
+
+function createUseRender(forwardMotionProps = false) {
+    const useRender = (Component, props, ref, { latestValues }, isStatic) => {
+        const useVisualProps = isSVGComponent(Component)
+            ? useSVGProps
+            : useHTMLProps;
+        const visualProps = useVisualProps(props, latestValues, isStatic, Component);
+        const filteredProps = filterProps(props, typeof Component === "string", forwardMotionProps);
+        const elementProps = Component !== external_React_.Fragment
+            ? { ...filteredProps, ...visualProps, ref }
+            : {};
+        /**
+         * If component has been handed a motion value as its child,
+         * memoise its initial value and render that. Subsequent updates
+         * will be handled by the onChange handler
+         */
+        const { children } = props;
+        const renderedChildren = (0,external_React_.useMemo)(() => (isMotionValue(children) ? children.get() : children), [children]);
+        return (0,external_React_.createElement)(Component, {
+            ...elementProps,
+            children: renderedChildren,
+        });
+    };
+    return useRender;
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/render/components/create-factory.mjs
+
+
+
+
+
+
+function createMotionComponentFactory(preloadedFeatures, createVisualElement) {
+    return function createMotionComponent(Component, { forwardMotionProps } = { forwardMotionProps: false }) {
+        const baseConfig = isSVGComponent(Component)
+            ? svgMotionConfig
+            : htmlMotionConfig;
+        const config = {
+            ...baseConfig,
+            preloadedFeatures,
+            useRender: createUseRender(forwardMotionProps),
+            createVisualElement,
+            Component,
+        };
+        return createRendererMotionComponent(config);
+    };
+}
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/reduced-motion/state.mjs
 // Does this device prefer reduced motion? Returns `null` server-side.
 const prefersReducedMotion = { current: null };
 const hasReducedMotionListener = { current: false };
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/reduced-motion/index.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/utils/reduced-motion/index.mjs
 
 
 
@@ -26440,14 +27186,12 @@ function initPrefersReducedMotion() {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/utils/motion-values.mjs
-
+;// ./packages/components/node_modules/framer-motion/dist/es/render/utils/motion-values.mjs
 
 
 
 
 function updateMotionValuesFromProps(element, next, prev) {
-    const { willChange } = next;
     for (const key in next) {
         const nextValue = next[key];
         const prevValue = prev[key];
@@ -26457,9 +27201,6 @@ function updateMotionValuesFromProps(element, next, prev) {
              * to our visual element's motion value map.
              */
             element.addValue(key, nextValue);
-            if (isWillChangeMotionValue(willChange)) {
-                willChange.add(key);
-            }
             /**
              * Check the version of the incoming motion value with this version
              * and warn against mismatches.
@@ -26472,9 +27213,6 @@ function updateMotionValuesFromProps(element, next, prev) {
              * create a new motion value from that
              */
             element.addValue(key, motionValue(nextValue, { owner: element }));
-            if (isWillChangeMotionValue(willChange)) {
-                willChange.remove(key);
-            }
         }
         else if (prevValue !== nextValue) {
             /**
@@ -26507,12 +27245,12 @@ function updateMotionValuesFromProps(element, next, prev) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/store.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/store.mjs
 const visualElementStore = new WeakMap();
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/value-types/find.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/value-types/find.mjs
 
 
 
@@ -26529,7 +27267,7 @@ const findValueType = (v) => valueTypes.find(testValueType(v));
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/VisualElement.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/VisualElement.mjs
 
 
 
@@ -26552,12 +27290,6 @@ const findValueType = (v) => valueTypes.find(testValueType(v));
 
 
 
-
-
-
-
-const featureNames = Object.keys(featureDefinitions);
-const numFeatures = featureNames.length;
 const propEventHandlers = [
     "AnimationStart",
     "AnimationComplete",
@@ -26567,14 +27299,6 @@ const propEventHandlers = [
     "LayoutAnimationStart",
     "LayoutAnimationComplete",
 ];
-const numVariantProps = variantProps.length;
-function getClosestProjectingNode(visualElement) {
-    if (!visualElement)
-        return undefined;
-    return visualElement.options.allowProjection !== false
-        ? visualElement.projection
-        : getClosestProjectingNode(visualElement.parent);
-}
 /**
  * A VisualElement is an imperative abstraction around UI elements such as
  * HTMLElement, SVGElement, Three.Object3D etc.
@@ -26591,13 +27315,6 @@ class VisualElement {
         return {};
     }
     constructor({ parent, props, presenceContext, reducedMotionConfig, blockInitialAnimation, visualState, }, options = {}) {
-        this.resolveKeyframes = (keyframes, 
-        // We use an onComplete callback here rather than a Promise as a Promise
-        // resolution is a microtask and we want to retain the ability to force
-        // the resolution of keyframes synchronously.
-        onComplete, name, value) => {
-            return new this.KeyframeResolver(keyframes, onComplete, name, value, this);
-        };
         /**
          * A reference to the current underlying Instance, e.g. a HTMLElement
          * or Three.Mesh etc.
@@ -26659,7 +27376,14 @@ class VisualElement {
             this.triggerBuild();
             this.renderInstance(this.current, this.renderState, this.props.style, this.projection);
         };
-        this.scheduleRender = () => frame_frame.render(this.render, false, true);
+        this.renderScheduledAt = 0.0;
+        this.scheduleRender = () => {
+            const now = time.now();
+            if (this.renderScheduledAt < now) {
+                this.renderScheduledAt = now;
+                frame_frame.render(this.render, false, true);
+            }
+        };
         const { latestValues, renderState } = visualState;
         this.latestValues = latestValues;
         this.baseTarget = { ...latestValues };
@@ -26685,7 +27409,7 @@ class VisualElement {
          * initial values for this component.
          *
          * TODO: This is impure and we should look at changing this to run on mount.
-         * Doing so will break some tests but this isn't neccessarily a breaking change,
+         * Doing so will break some tests but this isn't necessarily a breaking change,
          * more a reflection of the test.
          */
         const { willChange, ...initialMotionValues } = this.scrapeMotionValuesFromProps(props, {}, this);
@@ -26693,9 +27417,6 @@ class VisualElement {
             const value = initialMotionValues[key];
             if (latestValues[key] !== undefined && isMotionValue(value)) {
                 value.set(latestValues[key], false);
-                if (isWillChangeMotionValue(willChange)) {
-                    willChange.add(key);
-                }
             }
         }
     }
@@ -26724,23 +27445,30 @@ class VisualElement {
         this.update(this.props, this.presenceContext);
     }
     unmount() {
-        var _a;
         visualElementStore.delete(this.current);
         this.projection && this.projection.unmount();
         cancelFrame(this.notifyUpdate);
         cancelFrame(this.render);
         this.valueSubscriptions.forEach((remove) => remove());
+        this.valueSubscriptions.clear();
         this.removeFromVariantTree && this.removeFromVariantTree();
         this.parent && this.parent.children.delete(this);
         for (const key in this.events) {
             this.events[key].clear();
         }
         for (const key in this.features) {
-            (_a = this.features[key]) === null || _a === void 0 ? void 0 : _a.unmount();
+            const feature = this.features[key];
+            if (feature) {
+                feature.unmount();
+                feature.isMounted = false;
+            }
         }
         this.current = null;
     }
     bindToMotionValue(key, value) {
+        if (this.valueSubscriptions.has(key)) {
+            this.valueSubscriptions.get(key)();
+        }
         const valueIsTransform = transformProps.has(key);
         const removeOnChange = value.on("change", (latestValue) => {
             this.latestValues[key] = latestValue;
@@ -26750,9 +27478,15 @@ class VisualElement {
             }
         });
         const removeOnRenderRequest = value.on("renderRequest", this.scheduleRender);
+        let removeSyncCheck;
+        if (window.MotionCheckAppearSync) {
+            removeSyncCheck = window.MotionCheckAppearSync(this, key, value);
+        }
         this.valueSubscriptions.set(key, () => {
             removeOnChange();
             removeOnRenderRequest();
+            if (removeSyncCheck)
+                removeSyncCheck();
             if (value.owner)
                 value.stop();
         });
@@ -26768,69 +27502,38 @@ class VisualElement {
         }
         return this.sortInstanceNodePosition(this.current, other.current);
     }
-    loadFeatures({ children, ...renderedProps }, isStrict, preloadedFeatures, initialLayoutGroupConfig) {
-        let ProjectionNodeConstructor;
-        let MeasureLayout;
-        /**
-         * If we're in development mode, check to make sure we're not rendering a motion component
-         * as a child of LazyMotion, as this will break the file-size benefits of using it.
-         */
-        if (false) {}
-        for (let i = 0; i < numFeatures; i++) {
-            const name = featureNames[i];
-            const { isEnabled, Feature: FeatureConstructor, ProjectionNode, MeasureLayout: MeasureLayoutComponent, } = featureDefinitions[name];
-            if (ProjectionNode)
-                ProjectionNodeConstructor = ProjectionNode;
-            if (isEnabled(renderedProps)) {
-                if (!this.features[name] && FeatureConstructor) {
-                    this.features[name] = new FeatureConstructor(this);
-                }
-                if (MeasureLayoutComponent) {
-                    MeasureLayout = MeasureLayoutComponent;
-                }
-            }
-        }
-        if ((this.type === "html" || this.type === "svg") &&
-            !this.projection &&
-            ProjectionNodeConstructor) {
-            this.projection = new ProjectionNodeConstructor(this.latestValues, getClosestProjectingNode(this.parent));
-            const { layoutId, layout, drag, dragConstraints, layoutScroll, layoutRoot, } = renderedProps;
-            this.projection.setOptions({
-                layoutId,
-                layout,
-                alwaysMeasureLayout: Boolean(drag) ||
-                    (dragConstraints && isRefObject(dragConstraints)),
-                visualElement: this,
-                scheduleRender: () => this.scheduleRender(),
-                /**
-                 * TODO: Update options in an effect. This could be tricky as it'll be too late
-                 * to update by the time layout animations run.
-                 * We also need to fix this safeToRemove by linking it up to the one returned by usePresence,
-                 * ensuring it gets called if there's no potential layout animations.
-                 *
-                 */
-                animationType: typeof layout === "string" ? layout : "both",
-                initialPromotionConfig: initialLayoutGroupConfig,
-                layoutScroll,
-                layoutRoot,
-            });
-        }
-        return MeasureLayout;
-    }
     updateFeatures() {
-        for (const key in this.features) {
-            const feature = this.features[key];
-            if (feature.isMounted) {
-                feature.update();
+        let key = "animation";
+        for (key in featureDefinitions) {
+            const featureDefinition = featureDefinitions[key];
+            if (!featureDefinition)
+                continue;
+            const { isEnabled, Feature: FeatureConstructor } = featureDefinition;
+            /**
+             * If this feature is enabled but not active, make a new instance.
+             */
+            if (!this.features[key] &&
+                FeatureConstructor &&
+                isEnabled(this.props)) {
+                this.features[key] = new FeatureConstructor(this);
             }
-            else {
-                feature.mount();
-                feature.isMounted = true;
+            /**
+             * If we have a feature, mount or update it.
+             */
+            if (this.features[key]) {
+                const feature = this.features[key];
+                if (feature.isMounted) {
+                    feature.update();
+                }
+                else {
+                    feature.mount();
+                    feature.isMounted = true;
+                }
             }
         }
     }
     triggerBuild() {
-        this.build(this.renderState, this.latestValues, this.options, this.props);
+        this.build(this.renderState, this.latestValues, this.props);
     }
     /**
      * Measure the current viewport box with or without transforms.
@@ -26904,29 +27607,6 @@ class VisualElement {
             : this.parent
                 ? this.parent.getClosestVariantNode()
                 : undefined;
-    }
-    getVariantContext(startAtParent = false) {
-        if (startAtParent) {
-            return this.parent ? this.parent.getVariantContext() : undefined;
-        }
-        if (!this.isControllingVariants) {
-            const context = this.parent
-                ? this.parent.getVariantContext() || {}
-                : {};
-            if (this.props.initial !== undefined) {
-                context.initial = this.props.initial;
-            }
-            return context;
-        }
-        const context = {};
-        for (let i = 0; i < numVariantProps; i++) {
-            const name = variantProps[i];
-            const prop = this.props[name];
-            if (isVariantLabel(prop) || prop === false) {
-                context[name] = prop;
-            }
-        }
-        return context;
     }
     /**
      * Add a child visual element to our set of children.
@@ -27064,7 +27744,8 @@ class VisualElement {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/DOMVisualElement.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/DOMVisualElement.mjs
+
 
 
 
@@ -27090,12 +27771,25 @@ class DOMVisualElement extends VisualElement {
         delete vars[key];
         delete style[key];
     }
+    handleChildMotionValue() {
+        if (this.childSubscription) {
+            this.childSubscription();
+            delete this.childSubscription;
+        }
+        const { children } = this.props;
+        if (isMotionValue(children)) {
+            this.childSubscription = children.on("change", (latest) => {
+                if (this.current) {
+                    this.current.textContent = `${latest}`;
+                }
+            });
+        }
+    }
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/html/HTMLVisualElement.mjs
-
+;// ./packages/components/node_modules/framer-motion/dist/es/render/html/HTMLVisualElement.mjs
 
 
 
@@ -27112,6 +27806,7 @@ class HTMLVisualElement extends DOMVisualElement {
     constructor() {
         super(...arguments);
         this.type = "html";
+        this.renderInstance = renderHTML;
     }
     readValueFromInstance(instance, key) {
         if (transformProps.has(key)) {
@@ -27129,33 +27824,17 @@ class HTMLVisualElement extends DOMVisualElement {
     measureInstanceViewportBox(instance, { transformPagePoint }) {
         return measureViewportBox(instance, transformPagePoint);
     }
-    build(renderState, latestValues, options, props) {
-        buildHTMLStyles(renderState, latestValues, options, props.transformTemplate);
+    build(renderState, latestValues, props) {
+        buildHTMLStyles(renderState, latestValues, props.transformTemplate);
     }
     scrapeMotionValuesFromProps(props, prevProps, visualElement) {
         return scrapeMotionValuesFromProps(props, prevProps, visualElement);
-    }
-    handleChildMotionValue() {
-        if (this.childSubscription) {
-            this.childSubscription();
-            delete this.childSubscription;
-        }
-        const { children } = this.props;
-        if (isMotionValue(children)) {
-            this.childSubscription = children.on("change", (latest) => {
-                if (this.current)
-                    this.current.textContent = `${latest}`;
-            });
-        }
-    }
-    renderInstance(instance, renderState, styleProp, projection) {
-        renderHTML(instance, renderState, styleProp, projection);
     }
 }
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/svg/SVGVisualElement.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/svg/SVGVisualElement.mjs
 
 
 
@@ -27172,6 +27851,7 @@ class SVGVisualElement extends DOMVisualElement {
         super(...arguments);
         this.type = "svg";
         this.isSVGTag = false;
+        this.measureInstanceViewportBox = createBox;
     }
     getBaseTargetFromProps(props, key) {
         return props[key];
@@ -27184,14 +27864,11 @@ class SVGVisualElement extends DOMVisualElement {
         key = !camelCaseAttributes.has(key) ? camelToDash(key) : key;
         return instance.getAttribute(key);
     }
-    measureInstanceViewportBox() {
-        return createBox();
-    }
     scrapeMotionValuesFromProps(props, prevProps, visualElement) {
         return scrape_motion_values_scrapeMotionValuesFromProps(props, prevProps, visualElement);
     }
-    build(renderState, latestValues, options, props) {
-        buildSVGAttrs(renderState, latestValues, options, this.isSVGTag, props.transformTemplate);
+    build(renderState, latestValues, props) {
+        buildSVGAttrs(renderState, latestValues, this.isSVGTag, props.transformTemplate);
     }
     renderInstance(instance, renderState, styleProp, projection) {
         renderSVG(instance, renderState, styleProp, projection);
@@ -27204,37 +27881,23 @@ class SVGVisualElement extends DOMVisualElement {
 
 
 
-;// ./node_modules/framer-motion/dist/es/render/dom/create-visual-element.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/dom/create-visual-element.mjs
 
 
 
 
 
-const create_visual_element_createDomVisualElement = (Component, options) => {
+const createDomVisualElement = (Component, options) => {
     return isSVGComponent(Component)
-        ? new SVGVisualElement(options, { enableHardwareAcceleration: false })
+        ? new SVGVisualElement(options)
         : new HTMLVisualElement(options, {
             allowProjection: Component !== external_React_.Fragment,
-            enableHardwareAcceleration: true,
         });
 };
 
 
 
-;// ./node_modules/framer-motion/dist/es/motion/features/layout.mjs
-
-
-
-const layout = {
-    layout: {
-        ProjectionNode: HTMLProjectionNode,
-        MeasureLayout: MeasureLayout,
-    },
-};
-
-
-
-;// ./node_modules/framer-motion/dist/es/render/dom/motion.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/components/motion/create.mjs
 
 
 
@@ -27242,81 +27905,25 @@ const layout = {
 
 
 
-
-
-const preloadedFeatures = {
+const createMotionComponent = /*@__PURE__*/ createMotionComponentFactory({
     ...animations,
     ...gestureAnimations,
     ...drag,
     ...layout,
-};
-/**
- * HTML & SVG components, optimised for use with gestures and animation. These can be used as
- * drop-in replacements for any HTML & SVG component, all CSS & SVG properties are supported.
- *
- * @public
- */
-const motion = /*@__PURE__*/ createMotionProxy((Component, config) => create_config_createDomMotionConfig(Component, config, preloadedFeatures, create_visual_element_createDomVisualElement));
-/**
- * Create a DOM `motion` component with the provided string. This is primarily intended
- * as a full alternative to `motion` for consumers who have to support environments that don't
- * support `Proxy`.
- *
- * ```javascript
- * import { createDomMotionComponent } from "framer-motion"
- *
- * const motion = {
- *   div: createDomMotionComponent('div')
- * }
- * ```
- *
- * @public
- */
-function createDomMotionComponent(key) {
-    return createMotionComponent(createDomMotionConfig(key, { forwardMotionProps: false }, preloadedFeatures, createDomVisualElement));
-}
+}, createDomVisualElement);
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/use-is-mounted.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/render/components/motion/proxy.mjs
 
 
 
-function useIsMounted() {
-    const isMounted = (0,external_React_.useRef)(false);
-    useIsomorphicLayoutEffect(() => {
-        isMounted.current = true;
-        return () => {
-            isMounted.current = false;
-        };
-    }, []);
-    return isMounted;
-}
+const motion = /*@__PURE__*/ createDOMMotionComponentProxy(createMotionComponent);
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/use-force-update.mjs
-
-
-
-
-function use_force_update_useForceUpdate() {
-    const isMounted = useIsMounted();
-    const [forcedRenderCount, setForcedRenderCount] = (0,external_React_.useState)(0);
-    const forceRender = (0,external_React_.useCallback)(() => {
-        isMounted.current && setForcedRenderCount(forcedRenderCount + 1);
-    }, [forcedRenderCount]);
-    /**
-     * Defer this to the end of the next animation frame in case there are multiple
-     * synchronous calls.
-     */
-    const deferredForceRender = (0,external_React_.useCallback)(() => frame_frame.postRender(forceRender), [forceRender]);
-    return [deferredForceRender, forcedRenderCount];
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/components/AnimatePresence/PopChild.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/components/AnimatePresence/PopChild.mjs
+"use client";
 
 
 
@@ -27394,7 +28001,8 @@ function PopChild({ children, isPresent }) {
 
 
 
-;// ./node_modules/framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs
+;// ./packages/components/node_modules/framer-motion/dist/es/components/AnimatePresence/PresenceChild.mjs
+"use client";
 
 
 
@@ -27405,19 +28013,20 @@ function PopChild({ children, isPresent }) {
 const PresenceChild = ({ children, initial, isPresent, onExitComplete, custom, presenceAffectsLayout, mode, }) => {
     const presenceChildren = useConstant(newChildrenMap);
     const id = (0,external_React_.useId)();
+    const memoizedOnExitComplete = (0,external_React_.useCallback)((childId) => {
+        presenceChildren.set(childId, true);
+        for (const isComplete of presenceChildren.values()) {
+            if (!isComplete)
+                return; // can stop searching when any is incomplete
+        }
+        onExitComplete && onExitComplete();
+    }, [presenceChildren, onExitComplete]);
     const context = (0,external_React_.useMemo)(() => ({
         id,
         initial,
         isPresent,
         custom,
-        onExitComplete: (childId) => {
-            presenceChildren.set(childId, true);
-            for (const isComplete of presenceChildren.values()) {
-                if (!isComplete)
-                    return; // can stop searching when any is incomplete
-            }
-            onExitComplete && onExitComplete();
-        },
+        onExitComplete: memoizedOnExitComplete,
         register: (childId) => {
             presenceChildren.set(childId, false);
             return () => presenceChildren.delete(childId);
@@ -27428,7 +28037,9 @@ const PresenceChild = ({ children, initial, isPresent, onExitComplete, custom, p
      * we want to make a new context value to ensure they get re-rendered
      * so they can detect that layout change.
      */
-    presenceAffectsLayout ? [Math.random()] : [isPresent]);
+    presenceAffectsLayout
+        ? [Math.random(), memoizedOnExitComplete]
+        : [isPresent, memoizedOnExitComplete]);
     (0,external_React_.useMemo)(() => {
         presenceChildren.forEach((_, key) => presenceChildren.set(key, false));
     }, [isPresent]);
@@ -27453,33 +28064,10 @@ function newChildrenMap() {
 
 
 
-;// ./node_modules/framer-motion/dist/es/utils/use-unmount-effect.mjs
-
-
-function useUnmountEffect(callback) {
-    return (0,external_React_.useEffect)(() => () => callback(), []);
-}
-
-
-
-;// ./node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs
-
-
-
-
-
-
-
-
+;// ./packages/components/node_modules/framer-motion/dist/es/components/AnimatePresence/utils.mjs
 
 
 const getChildKey = (child) => child.key || "";
-function updateChildLookup(children, allChildren) {
-    children.forEach((child) => {
-        const key = getChildKey(child);
-        allChildren.set(key, child);
-    });
-}
 function onlyElements(children) {
     const filtered = [];
     // We use forEach here instead of map as map mutates the component key by preprending `.$`
@@ -27489,6 +28077,20 @@ function onlyElements(children) {
     });
     return filtered;
 }
+
+
+
+;// ./packages/components/node_modules/framer-motion/dist/es/components/AnimatePresence/index.mjs
+"use client";
+
+
+
+
+
+
+
+
+
 /**
  * `AnimatePresence` enables the animation of components that have been removed from the tree.
  *
@@ -27522,109 +28124,119 @@ function onlyElements(children) {
  *
  * @public
  */
-const AnimatePresence = ({ children, custom, initial = true, onExitComplete, exitBeforeEnter, presenceAffectsLayout = true, mode = "sync", }) => {
+const AnimatePresence = ({ children, exitBeforeEnter, custom, initial = true, onExitComplete, presenceAffectsLayout = true, mode = "sync", }) => {
     errors_invariant(!exitBeforeEnter, "Replace exitBeforeEnter with mode='wait'");
-    // We want to force a re-render once all exiting animations have finished. We
-    // either use a local forceRender function, or one from a parent context if it exists.
-    const forceRender = (0,external_React_.useContext)(LayoutGroupContext).forceRender || use_force_update_useForceUpdate()[0];
-    const isMounted = useIsMounted();
-    // Filter out any children that aren't ReactElements. We can only track ReactElements with a props.key
-    const filteredChildren = onlyElements(children);
-    let childrenToRender = filteredChildren;
-    const exitingChildren = (0,external_React_.useRef)(new Map()).current;
-    // Keep a living record of the children we're actually rendering so we
-    // can diff to figure out which are entering and exiting
-    const presentChildren = (0,external_React_.useRef)(childrenToRender);
-    // A lookup table to quickly reference components by key
-    const allChildren = (0,external_React_.useRef)(new Map()).current;
-    // If this is the initial component render, just deal with logic surrounding whether
-    // we play onMount animations or not.
+    /**
+     * Filter any children that aren't ReactElements. We can only track components
+     * between renders with a props.key.
+     */
+    const presentChildren = (0,external_React_.useMemo)(() => onlyElements(children), [children]);
+    /**
+     * Track the keys of the currently rendered children. This is used to
+     * determine which children are exiting.
+     */
+    const presentKeys = presentChildren.map(getChildKey);
+    /**
+     * If `initial={false}` we only want to pass this to components in the first render.
+     */
     const isInitialRender = (0,external_React_.useRef)(true);
+    /**
+     * A ref containing the currently present children. When all exit animations
+     * are complete, we use this to re-render the component with the latest children
+     * *committed* rather than the latest children *rendered*.
+     */
+    const pendingPresentChildren = (0,external_React_.useRef)(presentChildren);
+    /**
+     * Track which exiting children have finished animating out.
+     */
+    const exitComplete = useConstant(() => new Map());
+    /**
+     * Save children to render as React state. To ensure this component is concurrent-safe,
+     * we check for exiting children via an effect.
+     */
+    const [diffedChildren, setDiffedChildren] = (0,external_React_.useState)(presentChildren);
+    const [renderedChildren, setRenderedChildren] = (0,external_React_.useState)(presentChildren);
     useIsomorphicLayoutEffect(() => {
         isInitialRender.current = false;
-        updateChildLookup(filteredChildren, allChildren);
-        presentChildren.current = childrenToRender;
-    });
-    useUnmountEffect(() => {
-        isInitialRender.current = true;
-        allChildren.clear();
-        exitingChildren.clear();
-    });
-    if (isInitialRender.current) {
-        return ((0,external_ReactJSXRuntime_namespaceObject.jsx)(external_ReactJSXRuntime_namespaceObject.Fragment, { children: childrenToRender.map((child) => ((0,external_ReactJSXRuntime_namespaceObject.jsx)(PresenceChild, { isPresent: true, initial: initial ? undefined : false, presenceAffectsLayout: presenceAffectsLayout, mode: mode, children: child }, getChildKey(child)))) }));
-    }
-    // If this is a subsequent render, deal with entering and exiting children
-    childrenToRender = [...childrenToRender];
-    // Diff the keys of the currently-present and target children to update our
-    // exiting list.
-    const presentKeys = presentChildren.current.map(getChildKey);
-    const targetKeys = filteredChildren.map(getChildKey);
-    // Diff the present children with our target children and mark those that are exiting
-    const numPresent = presentKeys.length;
-    for (let i = 0; i < numPresent; i++) {
-        const key = presentKeys[i];
-        if (targetKeys.indexOf(key) === -1 && !exitingChildren.has(key)) {
-            exitingChildren.set(key, undefined);
+        pendingPresentChildren.current = presentChildren;
+        /**
+         * Update complete status of exiting children.
+         */
+        for (let i = 0; i < renderedChildren.length; i++) {
+            const key = getChildKey(renderedChildren[i]);
+            if (!presentKeys.includes(key)) {
+                if (exitComplete.get(key) !== true) {
+                    exitComplete.set(key, false);
+                }
+            }
+            else {
+                exitComplete.delete(key);
+            }
         }
+    }, [renderedChildren, presentKeys.length, presentKeys.join("-")]);
+    const exitingChildren = [];
+    if (presentChildren !== diffedChildren) {
+        let nextChildren = [...presentChildren];
+        /**
+         * Loop through all the currently rendered components and decide which
+         * are exiting.
+         */
+        for (let i = 0; i < renderedChildren.length; i++) {
+            const child = renderedChildren[i];
+            const key = getChildKey(child);
+            if (!presentKeys.includes(key)) {
+                nextChildren.splice(i, 0, child);
+                exitingChildren.push(child);
+            }
+        }
+        /**
+         * If we're in "wait" mode, and we have exiting children, we want to
+         * only render these until they've all exited.
+         */
+        if (mode === "wait" && exitingChildren.length) {
+            nextChildren = exitingChildren;
+        }
+        setRenderedChildren(onlyElements(nextChildren));
+        setDiffedChildren(presentChildren);
+        /**
+         * Early return to ensure once we've set state with the latest diffed
+         * children, we can immediately re-render.
+         */
+        return;
     }
-    // If we currently have exiting children, and we're deferring rendering incoming children
-    // until after all current children have exiting, empty the childrenToRender array
-    if (mode === "wait" && exitingChildren.size) {
-        childrenToRender = [];
-    }
-    // Loop through all currently exiting components and clone them to overwrite `animate`
-    // with any `exit` prop they might have defined.
-    exitingChildren.forEach((component, key) => {
-        // If this component is actually entering again, early return
-        if (targetKeys.indexOf(key) !== -1)
-            return;
-        const child = allChildren.get(key);
-        if (!child)
-            return;
-        const insertionIndex = presentKeys.indexOf(key);
-        let exitingComponent = component;
-        if (!exitingComponent) {
+    if (false) {}
+    /**
+     * If we've been provided a forceRender function by the LayoutGroupContext,
+     * we can use it to force a re-render amongst all surrounding components once
+     * all components have finished animating out.
+     */
+    const { forceRender } = (0,external_React_.useContext)(LayoutGroupContext);
+    return ((0,external_ReactJSXRuntime_namespaceObject.jsx)(external_ReactJSXRuntime_namespaceObject.Fragment, { children: renderedChildren.map((child) => {
+            const key = getChildKey(child);
+            const isPresent = presentChildren === renderedChildren ||
+                presentKeys.includes(key);
             const onExit = () => {
-                // clean up the exiting children map
-                exitingChildren.delete(key);
-                // compute the keys of children that were rendered once but are no longer present
-                // this could happen in case of too many fast consequent renderings
-                // @link https://github.com/framer/motion/issues/2023
-                const leftOverKeys = Array.from(allChildren.keys()).filter((childKey) => !targetKeys.includes(childKey));
-                // clean up the all children map
-                leftOverKeys.forEach((leftOverKey) => allChildren.delete(leftOverKey));
-                // make sure to render only the children that are actually visible
-                presentChildren.current = filteredChildren.filter((presentChild) => {
-                    const presentChildKey = getChildKey(presentChild);
-                    return (
-                    // filter out the node exiting
-                    presentChildKey === key ||
-                        // filter out the leftover children
-                        leftOverKeys.includes(presentChildKey));
+                if (exitComplete.has(key)) {
+                    exitComplete.set(key, true);
+                }
+                else {
+                    return;
+                }
+                let isEveryExitComplete = true;
+                exitComplete.forEach((isExitComplete) => {
+                    if (!isExitComplete)
+                        isEveryExitComplete = false;
                 });
-                // Defer re-rendering until all exiting children have indeed left
-                if (!exitingChildren.size) {
-                    if (isMounted.current === false)
-                        return;
-                    forceRender();
+                if (isEveryExitComplete) {
+                    forceRender === null || forceRender === void 0 ? void 0 : forceRender();
+                    setRenderedChildren(pendingPresentChildren.current);
                     onExitComplete && onExitComplete();
                 }
             };
-            exitingComponent = ((0,external_ReactJSXRuntime_namespaceObject.jsx)(PresenceChild, { isPresent: false, onExitComplete: onExit, custom: custom, presenceAffectsLayout: presenceAffectsLayout, mode: mode, children: child }, getChildKey(child)));
-            exitingChildren.set(key, exitingComponent);
-        }
-        childrenToRender.splice(insertionIndex, 0, exitingComponent);
-    });
-    // Add `MotionContext` even to children that don't need it to ensure we're rendering
-    // the same tree between renders
-    childrenToRender = childrenToRender.map((child) => {
-        const key = child.key;
-        return exitingChildren.has(key) ? (child) : ((0,external_ReactJSXRuntime_namespaceObject.jsx)(PresenceChild, { isPresent: true, presenceAffectsLayout: presenceAffectsLayout, mode: mode, children: child }, getChildKey(child)));
-    });
-    if (false) {}
-    return ((0,external_ReactJSXRuntime_namespaceObject.jsx)(external_ReactJSXRuntime_namespaceObject.Fragment, { children: exitingChildren.size
-            ? childrenToRender
-            : childrenToRender.map((child) => (0,external_React_.cloneElement)(child)) }));
+            return ((0,external_ReactJSXRuntime_namespaceObject.jsx)(PresenceChild, { isPresent: isPresent, initial: !isInitialRender.current || initial
+                    ? undefined
+                    : false, custom: isPresent ? undefined : custom, presenceAffectsLayout: presenceAffectsLayout, mode: mode, onExitComplete: isPresent ? undefined : onExit, children: child }, key));
+        }) }));
 };
 
 
@@ -31083,18 +31695,18 @@ class Controller {
     }
   }
 }
-function setupGesture(ctrl, gestureKey) {
+function use_gesture_core_esm_setupGesture(ctrl, gestureKey) {
   ctrl.gestures.add(gestureKey);
   ctrl.gestureEventStores[gestureKey] = new EventStore(ctrl, gestureKey);
   ctrl.gestureTimeoutStores[gestureKey] = new TimeoutStore();
 }
 function resolveGestures(ctrl, internalHandlers) {
-  if (internalHandlers.drag) setupGesture(ctrl, 'drag');
-  if (internalHandlers.wheel) setupGesture(ctrl, 'wheel');
-  if (internalHandlers.scroll) setupGesture(ctrl, 'scroll');
-  if (internalHandlers.move) setupGesture(ctrl, 'move');
-  if (internalHandlers.pinch) setupGesture(ctrl, 'pinch');
-  if (internalHandlers.hover) setupGesture(ctrl, 'hover');
+  if (internalHandlers.drag) use_gesture_core_esm_setupGesture(ctrl, 'drag');
+  if (internalHandlers.wheel) use_gesture_core_esm_setupGesture(ctrl, 'wheel');
+  if (internalHandlers.scroll) use_gesture_core_esm_setupGesture(ctrl, 'scroll');
+  if (internalHandlers.move) use_gesture_core_esm_setupGesture(ctrl, 'move');
+  if (internalHandlers.pinch) use_gesture_core_esm_setupGesture(ctrl, 'pinch');
+  if (internalHandlers.hover) use_gesture_core_esm_setupGesture(ctrl, 'hover');
 }
 const bindToProps = (props, eventOptions, withPassiveOption) => (device, action, handler, options = {}, isNative = false) => {
   var _options$capture, _options$passive;
@@ -33921,6 +34533,7 @@ const initialContextValue = {
   isDefault: true
 };
 const SlotFillContext = (0,external_wp_element_namespaceObject.createContext)(initialContextValue);
+SlotFillContext.displayName = 'SlotFillContext';
 /* harmony default export */ const slot_fill_context = (SlotFillContext);
 
 ;// ./packages/components/build-module/slot-fill/bubbles-virtually/use-slot.js
@@ -33963,6 +34576,7 @@ const initialValue = {
   updateFill: () => {}
 };
 const context_SlotFillContext = (0,external_wp_element_namespaceObject.createContext)(initialValue);
+context_SlotFillContext.displayName = 'SlotFillContext';
 /* harmony default export */ const context = (context_SlotFillContext);
 
 ;// ./packages/components/build-module/slot-fill/fill.js
@@ -34669,6 +35283,7 @@ const ArrowTriangle = () => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceOb
   })]
 });
 const slotNameContext = (0,external_wp_element_namespaceObject.createContext)(undefined);
+slotNameContext.displayName = '__unstableSlotNameContext';
 const fallbackContainerClassname = 'components-popover__fallback-container';
 const getPopoverFallbackContainer = () => {
   let container = document.body.querySelector('.' + fallbackContainerClassname);
@@ -35994,6 +36609,7 @@ var RadioGroup = forwardRef2(function RadioGroup2(props) {
  */
 
 const ToggleGroupControlContext = (0,external_wp_element_namespaceObject.createContext)({});
+ToggleGroupControlContext.displayName = 'ToggleGroupControlContext';
 const useToggleGroupControlContext = () => (0,external_wp_element_namespaceObject.useContext)(ToggleGroupControlContext);
 /* harmony default export */ const toggle_group_control_context = (ToggleGroupControlContext);
 
@@ -39347,6 +39963,7 @@ const LegacyAdapter = props => {
  */
 
 const CircularOptionPickerContext = (0,external_wp_element_namespaceObject.createContext)({});
+CircularOptionPickerContext.displayName = 'CircularOptionPickerContext';
 
 ;// ./packages/components/build-module/circular-option-picker/circular-option-picker-option.js
 /**
@@ -44805,6 +45422,7 @@ const itemSizes = {
 const ItemGroupContext = (0,external_wp_element_namespaceObject.createContext)({
   size: 'medium'
 });
+ItemGroupContext.displayName = 'ItemGroupContext';
 const useItemGroupContext = () => (0,external_wp_element_namespaceObject.useContext)(ItemGroupContext);
 
 ;// ./packages/components/build-module/item-group/item/hook.js
@@ -48209,6 +48827,7 @@ function useModalExitAnimation() {
 // Used to track and dismiss the prior modal when another opens unless nested.
 
 const ModalContext = (0,external_wp_element_namespaceObject.createContext)(new Set());
+ModalContext.displayName = 'ModalContext';
 
 // Used to track body class names applied while modals are open.
 const bodyOpenClasses = new Map();
@@ -50099,6 +50718,7 @@ const SelectedItemCheck = /*#__PURE__*/emotion_styled_base_browser_esm(SelectIte
 
 
 const CustomSelectContext = (0,external_wp_element_namespaceObject.createContext)(undefined);
+CustomSelectContext.displayName = 'CustomSelectContext';
 function defaultRenderSelectedValue(value) {
   const isValueEmpty = Array.isArray(value) ? value.length === 0 : value === undefined || value === null;
   if (isValueEmpty) {
@@ -56023,6 +56643,7 @@ const disabled_styles_disabledStyles =  true ? {
 
 
 const Context = (0,external_wp_element_namespaceObject.createContext)(false);
+Context.displayName = 'DisabledContext';
 const {
   Consumer,
   Provider: disabled_Provider
@@ -59555,6 +60176,7 @@ const NavigationContext = (0,external_wp_element_namespaceObject.createContext)(
     isMenuEmpty: defaultIsEmpty
   }
 });
+NavigationContext.displayName = 'NavigationContext';
 const useNavigationContext = () => (0,external_wp_element_namespaceObject.useContext)(NavigationContext);
 
 ;// ./packages/components/build-module/navigation/styles/navigation-styles.js
@@ -59988,6 +60610,7 @@ const NavigationBackButton = (0,external_wp_element_namespaceObject.forwardRef)(
 const NavigationGroupContext = (0,external_wp_element_namespaceObject.createContext)({
   group: undefined
 });
+NavigationGroupContext.displayName = 'NavigationGroupContext';
 const useNavigationGroupContext = () => (0,external_wp_element_namespaceObject.useContext)(NavigationGroupContext);
 
 ;// ./packages/components/build-module/navigation/group/index.js
@@ -60093,6 +60716,7 @@ const NavigationMenuContext = (0,external_wp_element_namespaceObject.createConte
   menu: undefined,
   search: ''
 });
+NavigationMenuContext.displayName = 'NavigationMenuContext';
 const useNavigationMenuContext = () => (0,external_wp_element_namespaceObject.useContext)(NavigationMenuContext);
 
 ;// ./packages/components/build-module/navigation/utils.js
@@ -61293,6 +61917,7 @@ const context_initialContextValue = {
   params: {}
 };
 const NavigatorContext = (0,external_wp_element_namespaceObject.createContext)(context_initialContextValue);
+NavigatorContext.displayName = 'NavigatorContext';
 
 ;// ./packages/components/build-module/navigator/styles.js
 function navigator_styles_EMOTION_STRINGIFIED_CSS_ERROR_() { return "You have tried to stringify object returned from `css` function. It isn't supposed to be used directly (e.g. as value of the `className` prop), but rather handed to emotion so it can handle it (e.g. as value of `css` prop)."; }
@@ -63407,6 +64032,7 @@ const RadioGroupContext = (0,external_wp_element_namespaceObject.createContext)(
   store: undefined,
   disabled: undefined
 });
+RadioGroupContext.displayName = 'RadioGroupContext';
 
 ;// ./packages/components/build-module/radio-group/radio.js
 /**
@@ -66814,6 +67440,7 @@ var ToolbarItem = memo2(
  */
 
 const ToolbarContext = (0,external_wp_element_namespaceObject.createContext)(undefined);
+ToolbarContext.displayName = 'ToolbarContext';
 /* harmony default export */ const toolbar_context = (ToolbarContext);
 
 ;// ./packages/components/build-module/toolbar/toolbar-item/index.js
@@ -67526,6 +68153,7 @@ const ToolsPanelContext = (0,external_wp_element_namespaceObject.createContext)(
   deregisterResetAllFilter: tools_panel_context_noop,
   areAllOptionalControlsHidden: true
 });
+ToolsPanelContext.displayName = 'ToolsPanelContext';
 const useToolsPanelContext = () => (0,external_wp_element_namespaceObject.useContext)(ToolsPanelContext);
 
 ;// ./packages/components/build-module/tools-panel/tools-panel-header/hook.js
@@ -68378,6 +69006,7 @@ const component_ToolsPanelItem = contextConnect(UnconnectedToolsPanelItem, 'Tool
  */
 
 const RovingTabIndexContext = (0,external_wp_element_namespaceObject.createContext)(undefined);
+RovingTabIndexContext.displayName = 'RovingTabIndexContext';
 const useRovingTabIndexContext = () => (0,external_wp_element_namespaceObject.useContext)(RovingTabIndexContext);
 const RovingTabIndexProvider = RovingTabIndexContext.Provider;
 
@@ -69775,6 +70404,7 @@ function useMenuStore(props = {}) {
  */
 
 const context_Context = (0,external_wp_element_namespaceObject.createContext)(undefined);
+context_Context.displayName = 'MenuContext';
 
 ;// ./node_modules/@ariakit/react-core/esm/__chunks/MVIULMNR.js
 "use client";
@@ -72018,6 +72648,7 @@ function Theme({
  */
 
 const TabsContext = (0,external_wp_element_namespaceObject.createContext)(undefined);
+TabsContext.displayName = 'TabsContext';
 const useTabsContext = () => (0,external_wp_element_namespaceObject.useContext)(TabsContext);
 
 ;// ./packages/components/build-module/tabs/styles.js
@@ -72040,7 +72671,7 @@ const StyledTabList = /*#__PURE__*/emotion_styled_base_browser_esm(TabList,  tru
 } : 0)("display:flex;align-items:stretch;overflow-x:auto;&[aria-orientation='vertical']{flex-direction:column;}:where( [aria-orientation='horizontal'] ){width:fit-content;}--direction-factor:1;--direction-start:left;--direction-end:right;--selected-start:var( --selected-left, 0 );&:dir( rtl ){--direction-factor:-1;--direction-start:right;--direction-end:left;--selected-start:var( --selected-right, 0 );}@media not ( prefers-reduced-motion ){&[data-indicator-animated]::before{transition-property:transform,border-radius,border-block;transition-duration:0.2s;transition-timing-function:ease-out;}}position:relative;&::before{content:'';position:absolute;pointer-events:none;transform-origin:var( --direction-start ) top;outline:2px solid transparent;outline-offset:-1px;}--antialiasing-factor:100;&[aria-orientation='horizontal']{--fade-width:4rem;--fade-gradient-base:transparent 0%,black var( --fade-width );--fade-gradient-composed:var( --fade-gradient-base ),black 60%,transparent 50%;&.is-overflowing-first{mask-image:linear-gradient(\n\t\t\t\tto var( --direction-end ),\n\t\t\t\tvar( --fade-gradient-base )\n\t\t\t);}&.is-overflowing-last{mask-image:linear-gradient(\n\t\t\t\tto var( --direction-start ),\n\t\t\t\tvar( --fade-gradient-base )\n\t\t\t);}&.is-overflowing-first.is-overflowing-last{mask-image:linear-gradient(\n\t\t\t\t\tto right,\n\t\t\t\t\tvar( --fade-gradient-composed )\n\t\t\t\t),linear-gradient( to left, var( --fade-gradient-composed ) );}&::before{bottom:0;height:0;width:calc( var( --antialiasing-factor ) * 1px );transform:translateX(\n\t\t\t\t\tcalc(\n\t\t\t\t\t\tvar( --selected-start ) * var( --direction-factor ) *\n\t\t\t\t\t\t\t1px\n\t\t\t\t\t)\n\t\t\t\t) scaleX(\n\t\t\t\t\tcalc(\n\t\t\t\t\t\tvar( --selected-width, 0 ) /\n\t\t\t\t\t\t\tvar( --antialiasing-factor )\n\t\t\t\t\t)\n\t\t\t\t);border-bottom:var( --wp-admin-border-width-focus ) solid ", COLORS.theme.accent, ";}}&[aria-orientation='vertical']{&::before{border-radius:", config_values.radiusSmall, "/calc(\n\t\t\t\t\t", config_values.radiusSmall, " /\n\t\t\t\t\t\t(\n\t\t\t\t\t\t\tvar( --selected-height, 0 ) /\n\t\t\t\t\t\t\t\tvar( --antialiasing-factor )\n\t\t\t\t\t\t)\n\t\t\t\t);top:0;left:0;width:100%;height:calc( var( --antialiasing-factor ) * 1px );transform:translateY( calc( var( --selected-top, 0 ) * 1px ) ) scaleY(\n\t\t\t\t\tcalc(\n\t\t\t\t\t\tvar( --selected-height, 0 ) /\n\t\t\t\t\t\t\tvar( --antialiasing-factor )\n\t\t\t\t\t)\n\t\t\t\t);background-color:color-mix(\n\t\t\t\tin srgb,\n\t\t\t\t", COLORS.theme.accent, ",\n\t\t\t\ttransparent 96%\n\t\t\t);}&[data-select-on-move='true']:has(\n\t\t\t\t:is( :focus-visible, [data-focus-visible] )\n\t\t\t)::before{box-sizing:border-box;border:var( --wp-admin-border-width-focus ) solid ", COLORS.theme.accent, ";border-block-width:calc(\n\t\t\t\tvar( --wp-admin-border-width-focus, 1px ) /\n\t\t\t\t\t(\n\t\t\t\t\t\tvar( --selected-height, 0 ) /\n\t\t\t\t\t\t\tvar( --antialiasing-factor )\n\t\t\t\t\t)\n\t\t\t);}}" + ( true ? "" : 0));
 const styles_Tab = /*#__PURE__*/emotion_styled_base_browser_esm(Tab,  true ? {
   target: "enfox0g3"
-} : 0)("&{border-radius:0;background:transparent;border:none;box-shadow:none;flex:1 0 auto;white-space:nowrap;display:flex;align-items:center;cursor:pointer;line-height:1.2;font-weight:400;color:", COLORS.theme.foreground, ";position:relative;&[aria-disabled='true']{cursor:default;color:", COLORS.ui.textDisabled, ";}&:not( [aria-disabled='true'] ):is( :hover, [data-focus-visible] ){color:", COLORS.theme.accent, ";}&:focus:not( :disabled ){box-shadow:none;outline:none;}&::after{position:absolute;pointer-events:none;outline:var( --wp-admin-border-width-focus ) solid ", COLORS.theme.accent, ";border-radius:", config_values.radiusSmall, ";opacity:0;@media not ( prefers-reduced-motion ){transition:opacity 0.1s linear;}}&[data-focus-visible]::after{opacity:1;}}[aria-orientation='horizontal'] &{padding-inline:", space(4), ";height:", space(12), ";scroll-margin:24px;&::after{content:'';inset:", space(3), ";}}[aria-orientation='vertical'] &{padding:", space(2), " ", space(3), ";min-height:", space(10), ";&[aria-selected='true']{color:", COLORS.theme.accent, ";fill:currentColor;}}[aria-orientation='vertical'][data-select-on-move='false'] &::after{content:'';inset:var( --wp-admin-border-width-focus );}" + ( true ? "" : 0));
+} : 0)("&{border-radius:0;background:transparent;border:none;box-shadow:none;flex:1 0 auto;white-space:nowrap;display:flex;align-items:center;cursor:pointer;line-height:1.2;font-weight:400;font-size:", font('default.fontSize'), ";color:", COLORS.theme.foreground, ";position:relative;&[aria-disabled='true']{cursor:default;color:", COLORS.ui.textDisabled, ";}&:not( [aria-disabled='true'] ):is( :hover, [data-focus-visible] ){color:", COLORS.theme.accent, ";}&:focus:not( :disabled ){box-shadow:none;outline:none;}&::after{position:absolute;pointer-events:none;outline:var( --wp-admin-border-width-focus ) solid ", COLORS.theme.accent, ";border-radius:", config_values.radiusSmall, ";opacity:0;@media not ( prefers-reduced-motion ){transition:opacity 0.1s linear;}}&[data-focus-visible]::after{opacity:1;}}[aria-orientation='horizontal'] &{padding-inline:", space(4), ";height:", space(12), ";scroll-margin:24px;&::after{content:'';inset:", space(3), ";}}[aria-orientation='vertical'] &{padding:", space(2), " ", space(3), ";min-height:", space(10), ";&[aria-selected='true']{color:", COLORS.theme.accent, ";fill:currentColor;}}[aria-orientation='vertical'][data-select-on-move='false'] &::after{content:'';inset:var( --wp-admin-border-width-focus );}" + ( true ? "" : 0));
 const TabChildren = /*#__PURE__*/emotion_styled_base_browser_esm("span",  true ? {
   target: "enfox0g2"
 } : 0)( true ? {
@@ -81394,9 +82025,6 @@ function ValidityIndicator({
  */
 
 
-/**
- * External dependencies
- */
 
 
 /**
@@ -81439,6 +82067,7 @@ function UnforwardedControlWithError({
   const [errorMessage, setErrorMessage] = (0,external_wp_element_namespaceObject.useState)();
   const [statusMessage, setStatusMessage] = (0,external_wp_element_namespaceObject.useState)();
   const [isTouched, setIsTouched] = (0,external_wp_element_namespaceObject.useState)(false);
+  const previousCustomValidityType = (0,external_wp_compose_namespaceObject.usePrevious)(customValidity?.type);
 
   // Ensure that error messages are visible after user attemps to submit a form
   // with multiple invalid fields.
@@ -81466,6 +82095,8 @@ function UnforwardedControlWithError({
         {
           // Wait before showing a validating state.
           const timer = setTimeout(() => {
+            validityTarget?.setCustomValidity('');
+            setErrorMessage(undefined);
             setStatusMessage({
               type: 'validating',
               message: customValidity.message
@@ -81475,13 +82106,18 @@ function UnforwardedControlWithError({
         }
       case 'valid':
         {
+          // Ensures that we wait for any async responses before showing
+          // a synchronously valid state.
+          if (previousCustomValidityType === 'valid') {
+            break;
+          }
           validityTarget?.setCustomValidity('');
           setErrorMessage(validityTarget?.validationMessage);
           setStatusMessage({
             type: 'valid',
             message: customValidity.message
           });
-          return;
+          break;
         }
       case 'invalid':
         {
@@ -81489,24 +82125,19 @@ function UnforwardedControlWithError({
           validityTarget?.setCustomValidity((_customValidity$messa = customValidity.message) !== null && _customValidity$messa !== void 0 ? _customValidity$messa : '');
           setErrorMessage(validityTarget?.validationMessage);
           setStatusMessage(undefined);
-          return undefined;
+          break;
         }
     }
-  }, [isTouched, customValidity?.type, customValidity?.message, getValidityTarget]);
+  }, [isTouched, customValidity?.type, customValidity?.message, getValidityTarget, previousCustomValidityType]);
   const onBlur = event => {
+    if (isTouched) {
+      return;
+    }
+
     // Only consider "blurred from the component" if focus has fully left the wrapping div.
     // This prevents unnecessary blurs from components with multiple focusable elements.
     if (!event.relatedTarget || !event.currentTarget.contains(event.relatedTarget)) {
       setIsTouched(true);
-      const validityTarget = getValidityTarget();
-
-      // Prevents a double flash of the native error tooltip when the control is already showing one.
-      if (!validityTarget?.validity.valid) {
-        if (!errorMessage) {
-          setErrorMessage(validityTarget?.validationMessage);
-        }
-        return;
-      }
       onValidate?.();
     }
   };
@@ -81553,6 +82184,98 @@ function UnforwardedControlWithError({
   );
 }
 const ControlWithError = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedControlWithError);
+
+;// ./packages/components/build-module/validated-form-controls/components/input-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+const UnforwardedValidatedInputControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const mergedRefs = (0,external_wp_compose_namespaceObject.useMergeRefs)([forwardedRef, validityTargetRef]);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.value);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+    required: required,
+    markWhenOptional: markWhenOptional,
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
+    },
+    customValidity: customValidity,
+    getValidityTarget: () => validityTargetRef.current,
+    children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(input_control, {
+      __next40pxDefaultSize: true,
+      ref: mergedRefs,
+      onChange: (value, ...args) => {
+        valueRef.current = value;
+        onChange?.(value, ...args);
+      },
+      ...restProps
+    })
+  });
+};
+const ValidatedInputControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedInputControl);
+
+;// ./packages/components/build-module/validated-form-controls/components/checkbox-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+const UnforwardedValidatedCheckboxControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const mergedRefs = (0,external_wp_compose_namespaceObject.useMergeRefs)([forwardedRef, validityTargetRef]);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.checked);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+    required: required,
+    markWhenOptional: markWhenOptional,
+    ref: mergedRefs,
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
+    },
+    customValidity: customValidity,
+    getValidityTarget: () => validityTargetRef.current?.querySelector('input[type="checkbox"]'),
+    children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(checkbox_control, {
+      __nextHasNoMarginBottom: true,
+      onChange: value => {
+        valueRef.current = value;
+        onChange?.(value);
+      }
+      // TODO: Upstream limitation - CheckboxControl doesn't support uncontrolled mode, visually.
+      ,
+      ...restProps
+    })
+  });
+};
+const ValidatedCheckboxControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedCheckboxControl);
 
 ;// ./packages/components/build-module/validated-form-controls/components/number-control.js
 /**
@@ -81602,6 +82325,100 @@ const UnforwardedValidatedNumberControl = ({
 };
 const ValidatedNumberControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedNumberControl);
 
+;// ./packages/components/build-module/validated-form-controls/components/select-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+// Only support single value selection
+
+const UnforwardedValidatedSelectControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const mergedRefs = (0,external_wp_compose_namespaceObject.useMergeRefs)([forwardedRef, validityTargetRef]);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.value);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+    required: required,
+    markWhenOptional: markWhenOptional,
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
+    },
+    customValidity: customValidity,
+    getValidityTarget: () => validityTargetRef.current,
+    children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(select_control, {
+      __nextHasNoMarginBottom: true,
+      __next40pxDefaultSize: true,
+      ref: mergedRefs,
+      onChange: value => {
+        valueRef.current = value;
+        onChange?.(value);
+      },
+      ...restProps
+    })
+  });
+};
+const ValidatedSelectControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedSelectControl);
+
+;// ./packages/components/build-module/validated-form-controls/components/radio-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+const UnforwardedValidatedRadioControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const mergedRefs = (0,external_wp_compose_namespaceObject.useMergeRefs)([forwardedRef, validityTargetRef]);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.selected);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+    required: required,
+    markWhenOptional: markWhenOptional
+    // TODO: Upstream limitation - RadioControl does not accept a ref.
+    ,
+    ref: mergedRefs,
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
+    },
+    customValidity: customValidity,
+    getValidityTarget: () => validityTargetRef.current?.querySelector('input[type="radio"]'),
+    children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(radio_control, {
+      onChange: value => {
+        valueRef.current = value;
+        onChange?.(value);
+      },
+      ...restProps
+    })
+  });
+};
+const ValidatedRadioControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedRadioControl);
+
 ;// ./packages/components/build-module/validated-form-controls/components/text-control.js
 /**
  * WordPress dependencies
@@ -81647,6 +82464,51 @@ const UnforwardedValidatedTextControl = ({
   });
 };
 const ValidatedTextControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedTextControl);
+
+;// ./packages/components/build-module/validated-form-controls/components/textarea-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+const UnforwardedValidatedTextareaControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const mergedRefs = (0,external_wp_compose_namespaceObject.useMergeRefs)([forwardedRef, validityTargetRef]);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.value);
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+    required: required,
+    markWhenOptional: markWhenOptional,
+    onValidate: () => {
+      return onValidate?.(valueRef.current);
+    },
+    customValidity: customValidity,
+    getValidityTarget: () => validityTargetRef.current,
+    children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(textarea_control, {
+      __nextHasNoMarginBottom: true,
+      ref: mergedRefs,
+      onChange: value => {
+        valueRef.current = value;
+        onChange?.(value);
+      },
+      ...restProps
+    })
+  });
+};
+const ValidatedTextareaControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedTextareaControl);
 
 ;// ./packages/components/build-module/validated-form-controls/components/toggle-control.js
 /**
@@ -81703,10 +82565,73 @@ const UnforwardedValidatedToggleControl = ({
 };
 const ValidatedToggleControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedToggleControl);
 
+;// ./packages/components/build-module/validated-form-controls/components/toggle-group-control.js
+/**
+ * WordPress dependencies
+ */
+
+
+/**
+ * Internal dependencies
+ */
+
+
+
+const UnforwardedValidatedToggleGroupControl = ({
+  required,
+  onValidate,
+  customValidity,
+  onChange,
+  markWhenOptional,
+  ...restProps
+}, forwardedRef) => {
+  const validityTargetRef = (0,external_wp_element_namespaceObject.useRef)(null);
+  const valueRef = (0,external_wp_element_namespaceObject.useRef)(restProps.value);
+  const nameAttr = (0,external_wp_element_namespaceObject.useId)();
+  return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)("div", {
+    className: "components-validated-control__wrapper-with-error-delegate",
+    children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(ControlWithError, {
+      required: required,
+      markWhenOptional: markWhenOptional,
+      onValidate: () => {
+        return onValidate?.(valueRef.current);
+      },
+      customValidity: customValidity,
+      getValidityTarget: () => validityTargetRef.current,
+      children: /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(toggle_group_control_component, {
+        __nextHasNoMarginBottom: true,
+        __next40pxDefaultSize: true,
+        ref: forwardedRef,
+        onChange: value => {
+          valueRef.current = value;
+          onChange?.(value);
+        },
+        ...restProps
+      })
+    }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("input", {
+      className: "components-validated-control__error-delegate",
+      type: "radio",
+      ref: validityTargetRef,
+      required: required,
+      checked: restProps.value !== undefined,
+      tabIndex: -1
+      // A name attribute is needed for the `required` behavior to work.
+      ,
+      name: nameAttr,
+      onChange: () => {},
+      onFocus: e => {
+        e.target.previousElementSibling?.querySelector('[data-active-item="true"]')?.focus();
+      }
+    })]
+  });
+};
+const ValidatedToggleGroupControl = (0,external_wp_element_namespaceObject.forwardRef)(UnforwardedValidatedToggleGroupControl);
+
 ;// ./packages/components/build-module/private-apis.js
 /**
  * Internal dependencies
  */
+
 
 
 
@@ -81732,9 +82657,16 @@ lock(privateApis, {
   DateCalendar: DateCalendar,
   DateRangeCalendar: DateRangeCalendar,
   TZDate: date_TZDate,
+  Picker: Picker,
+  ValidatedInputControl: ValidatedInputControl,
+  ValidatedCheckboxControl: ValidatedCheckboxControl,
   ValidatedNumberControl: ValidatedNumberControl,
+  ValidatedSelectControl: ValidatedSelectControl,
+  ValidatedRadioControl: ValidatedRadioControl,
   ValidatedTextControl: ValidatedTextControl,
-  ValidatedToggleControl: ValidatedToggleControl
+  ValidatedTextareaControl: ValidatedTextareaControl,
+  ValidatedToggleControl: ValidatedToggleControl,
+  ValidatedToggleGroupControl: ValidatedToggleGroupControl
 });
 
 ;// ./packages/components/build-module/index.js

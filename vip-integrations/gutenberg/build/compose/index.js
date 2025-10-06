@@ -4001,11 +4001,6 @@ function useFocusOutside(onFocusOutside) {
     clearTimeout(blurCheckTimeoutIdRef.current);
   }, []);
 
-  // Cancel blur checks on unmount.
-  (0,external_wp_element_namespaceObject.useEffect)(() => {
-    return () => cancelBlurCheck();
-  }, []);
-
   // Cancel a blur check if the callback or ref is no longer provided.
   (0,external_wp_element_namespaceObject.useEffect)(() => {
     if (!onFocusOutside) {
@@ -5000,6 +4995,7 @@ const OPERATOR_EVALUATORS = {
   '<': (breakpointValue, width) => width < breakpointValue
 };
 const ViewportMatchWidthContext = (0,external_wp_element_namespaceObject.createContext)(/** @type {null | number} */null);
+ViewportMatchWidthContext.displayName = 'ViewportMatchWidthContext';
 
 /**
  * Returns true if the viewport matches the given query, or false otherwise.

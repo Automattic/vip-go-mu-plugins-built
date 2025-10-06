@@ -818,9 +818,6 @@ const store = (0,external_wp_data_namespaceObject.createReduxStore)(STORE_NAME, 
   actions: actions_namespaceObject,
   selectors: selectors_namespaceObject
 });
-
-// Once we build a more generic persistence plugin that works across types of stores
-// we'd be able to replace this with a register call.
 (0,external_wp_data_namespaceObject.register)(store);
 
 ;// ./packages/interface/build-module/components/complementary-area-toggle/index.js

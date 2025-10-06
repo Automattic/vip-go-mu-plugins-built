@@ -24,7 +24,6 @@ use WP_Error;
  * }
  *
  * @phpstan-type Endpoint_Suggest_Linked_Reference_Options = array{
- *     performance_blending_weight?: float,
  *     max_items?: int,
  *     max_link_words?: int,
  *     traffic_sources?: array<int, Traffic_Source>,

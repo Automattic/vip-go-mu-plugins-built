@@ -27,7 +27,6 @@ use WP_Error;
  * }
  *
  * @phpstan-type Endpoint_Suggest_Inbound_Link_Positions_Options = array{
- *     performance_blending_weight?: float,
  *     keyword_exclusion_list?: array<string>
  * }
  */
@@ -79,9 +78,6 @@ class Endpoint_Suggest_Inbound_Link_Positions extends Suggestions_API_Base_Endpo
 			'source_url'    => array( $source_post_url ),
 			'title'         => $destination_post->post_title,
 			'text'          => wp_strip_all_tags( $destination_post->post_content ),
-			'output_config' => array(
-				'performance_blending_weight' => $options['performance_blending_weight'] ?? 0.5,
-			),
 		);
 
 		if ( isset( $options['keyword_exclusion_list'] ) && count( $options['keyword_exclusion_list'] ) > 0 ) {

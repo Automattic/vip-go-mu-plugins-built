@@ -1331,6 +1331,7 @@ function useSidebarBlockEditor(sidebar) {
 
 
 const FocusControlContext = (0,external_wp_element_namespaceObject.createContext)();
+FocusControlContext.displayName = 'FocusControlContext';
 function FocusControl({
   api,
   sidebarControls,
@@ -1776,6 +1777,7 @@ function SidebarBlockEditor({
 
 
 const SidebarControlsContext = (0,external_wp_element_namespaceObject.createContext)();
+SidebarControlsContext.displayName = 'SidebarControlsContext';
 function SidebarControls({
   sidebarControls,
   activeSidebarControl,

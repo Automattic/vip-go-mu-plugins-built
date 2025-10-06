@@ -908,7 +908,8 @@ function PatternConvertButton({
     createSuccessNotice
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_notices_namespaceObject.store);
   const {
-    replaceBlocks
+    replaceBlocks,
+    updateBlockAttributes
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_blockEditor_namespaceObject.store);
   // Ignore reason: false positive of the lint rule.
   // eslint-disable-next-line @wordpress/no-unused-vars-before-return
@@ -916,6 +917,9 @@ function PatternConvertButton({
     setEditingPattern
   } = unlock((0,external_wp_data_namespaceObject.useDispatch)(store));
   const [isModalOpen, setIsModalOpen] = (0,external_wp_element_namespaceObject.useState)(false);
+  const {
+    getBlockAttributes
+  } = (0,external_wp_data_namespaceObject.useSelect)(external_wp_blockEditor_namespaceObject.store);
   const canConvert = (0,external_wp_data_namespaceObject.useSelect)(select => {
     var _getBlocksByClientId;
     const {
@@ -937,10 +941,11 @@ function PatternConvertButton({
       // If the block has a parent, check with false as default, otherwise with true.
       return (0,external_wp_blocks_namespaceObject.hasBlockSupport)(blockName, 'reusable', !hasParent);
     };
-    const isReusable = blocks.length === 1 && blocks[0] && (0,external_wp_blocks_namespaceObject.isReusableBlock)(blocks[0]) && !!select(external_wp_coreData_namespaceObject.store).getEntityRecord('postType', 'wp_block', blocks[0].attributes.ref);
+    const isSyncedPattern = blocks.length === 1 && blocks[0] && (0,external_wp_blocks_namespaceObject.isReusableBlock)(blocks[0]) && !!select(external_wp_coreData_namespaceObject.store).getEntityRecord('postType', 'wp_block', blocks[0].attributes.ref);
+    const isUnsyncedPattern = window?.__experimentalContentOnlyPatternInsertion && blocks.length === 1 && blocks?.[0]?.attributes?.metadata?.patternName;
     const _canConvert =
-    // Hide when this is already a synced pattern.
-    !isReusable &&
+    // Hide when this is already a pattern.
+    !isUnsyncedPattern && !isSyncedPattern &&
     // Hide when patterns are disabled.
     canInsertBlockType('core/block', rootId) && blocks.every(block =>
     // Guard against the case where a regular block has *just* been converted.
@@ -967,7 +972,18 @@ function PatternConvertButton({
   const handleSuccess = ({
     pattern
   }) => {
-    if (pattern.wp_pattern_sync_status !== PATTERN_SYNC_TYPES.unsynced) {
+    if (pattern.wp_pattern_sync_status === PATTERN_SYNC_TYPES.unsynced) {
+      if (clientIds?.length === 1) {
+        const existingAttributes = getBlockAttributes(clientIds[0]);
+        updateBlockAttributes(clientIds[0], {
+          metadata: {
+            ...(existingAttributes?.metadata ? existingAttributes.metadata : {}),
+            patternName: `core/block/${pattern.id}`,
+            name: pattern.title.raw
+          }
+        });
+      }
+    } else {
       const newBlock = (0,external_wp_blocks_namespaceObject.createBlock)('core/block', {
         ref: pattern.id
       });
@@ -1031,25 +1047,36 @@ function PatternsManageButton({
   clientId
 }) {
   const {
-    canRemove,
+    attributes,
+    canDetach,
     isVisible,
-    managePatternsUrl
+    managePatternsUrl,
+    isSyncedPattern,
+    isUnsyncedPattern
   } = (0,external_wp_data_namespaceObject.useSelect)(select => {
     const {
-      getBlock,
-      canRemoveBlock
+      canRemoveBlock,
+      getBlock
     } = select(external_wp_blockEditor_namespaceObject.store);
     const {
       canUser
     } = select(external_wp_coreData_namespaceObject.store);
-    const reusableBlock = getBlock(clientId);
+    const block = getBlock(clientId);
+    const _isUnsyncedPattern = window?.__experimentalContentOnlyPatternInsertion && !!block?.attributes?.metadata?.patternName;
+    const _isSyncedPattern = !!block && (0,external_wp_blocks_namespaceObject.isReusableBlock)(block) && !!canUser('update', {
+      kind: 'postType',
+      name: 'wp_block',
+      id: block.attributes.ref
+    });
     return {
-      canRemove: canRemoveBlock(clientId),
-      isVisible: !!reusableBlock && (0,external_wp_blocks_namespaceObject.isReusableBlock)(reusableBlock) && !!canUser('update', {
-        kind: 'postType',
-        name: 'wp_block',
-        id: reusableBlock.attributes.ref
-      }),
+      attributes: block.attributes,
+      // For unsynced patterns, detaching is simply removing the `patternName` attribute.
+      // For synced patterns, the `core:block` block is replaced with its inner blocks,
+      // so checking whether `canRemoveBlock` is possible is required.
+      canDetach: _isUnsyncedPattern || _isSyncedPattern && canRemoveBlock(clientId),
+      isUnsyncedPattern: _isUnsyncedPattern,
+      isSyncedPattern: _isSyncedPattern,
+      isVisible: _isUnsyncedPattern || _isSyncedPattern,
       // The site editor and templates both check whether the user
       // has edit_theme_options capabilities. We can leverage that here
       // and omit the manage patterns link if the user can't access it.
@@ -1063,6 +1090,9 @@ function PatternsManageButton({
       })
     };
   }, [clientId]);
+  const {
+    updateBlockAttributes
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_blockEditor_namespaceObject.store);
 
   // Ignore reason: false positive of the lint rule.
   // eslint-disable-next-line @wordpress/no-unused-vars-before-return
@@ -1073,8 +1103,22 @@ function PatternsManageButton({
     return null;
   }
   return /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsxs)(external_ReactJSXRuntime_namespaceObject.Fragment, {
-    children: [canRemove && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.MenuItem, {
-      onClick: () => convertSyncedPatternToStatic(clientId),
+    children: [canDetach && /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.MenuItem, {
+      onClick: () => {
+        if (isSyncedPattern) {
+          convertSyncedPatternToStatic(clientId);
+        }
+        if (isUnsyncedPattern) {
+          var _attributes$metadata;
+          const {
+            patternName,
+            ...attributesWithoutPatternName
+          } = (_attributes$metadata = attributes?.metadata) !== null && _attributes$metadata !== void 0 ? _attributes$metadata : {};
+          updateBlockAttributes(clientId, {
+            metadata: attributesWithoutPatternName
+          });
+        }
+      },
       children: (0,external_wp_i18n_namespaceObject.__)('Detach')
     }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(external_wp_components_namespaceObject.MenuItem, {
       href: managePatternsUrl,

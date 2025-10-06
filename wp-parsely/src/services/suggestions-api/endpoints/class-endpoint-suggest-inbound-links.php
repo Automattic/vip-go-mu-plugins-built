@@ -21,7 +21,6 @@ use WP_Error;
  * @phpstan-type Endpoint_Suggest_Inbound_Links_Options = array{
  *     max_items?: int,
  *     url_exclusion_list?: array<string>,
- *     performance_blending_weight?: float
  * }
  */
 class Endpoint_Suggest_Inbound_Links extends Suggestions_API_Base_Endpoint {
@@ -61,8 +60,7 @@ class Endpoint_Suggest_Inbound_Links extends Suggestions_API_Base_Endpoint {
 		$request_body = array(
 			'canonical_url' => $post_url,
 			'output_config' => array(
-				'performance_blending_weight' => $options['performance_blending_weight'] ?? 0.5,
-				'max_items'                   => $options['max_items'] ?? 10,
+				'max_items' => $options['max_items'] ?? 10,
 			),
 			'title'         => $post->post_title,
 			'text'          => wp_strip_all_tags( $post->post_content ),

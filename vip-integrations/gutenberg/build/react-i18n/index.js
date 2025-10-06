@@ -77,6 +77,7 @@ function makeContextValue(i18n) {
   };
 }
 const I18nContext = (0,external_wp_element_namespaceObject.createContext)(makeContextValue(external_wp_i18n_namespaceObject.defaultI18n));
+I18nContext.displayName = 'I18nContext';
 /**
  * The `I18nProvider` should be mounted above any localized components:
  *

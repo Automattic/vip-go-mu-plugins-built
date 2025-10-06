@@ -546,6 +546,7 @@ __webpack_require__.d(build_module_selectors_namespaceObject, {
   getUserPatternCategories: () => (getUserPatternCategories),
   getUserQueryResults: () => (getUserQueryResults),
   hasEditsForEntityRecord: () => (hasEditsForEntityRecord),
+  hasEntityRecord: () => (hasEntityRecord),
   hasEntityRecords: () => (hasEntityRecords),
   hasFetchedAutosaves: () => (hasFetchedAutosaves),
   hasRedo: () => (hasRedo),
@@ -621,6 +622,8 @@ __webpack_require__.d(resolvers_namespaceObject, {
   getEntitiesConfig: () => (resolvers_getEntitiesConfig),
   getEntityRecord: () => (resolvers_getEntityRecord),
   getEntityRecords: () => (resolvers_getEntityRecords),
+  getEntityRecordsTotalItems: () => (resolvers_getEntityRecordsTotalItems),
+  getEntityRecordsTotalPages: () => (resolvers_getEntityRecordsTotalPages),
   getNavigationFallbackId: () => (resolvers_getNavigationFallbackId),
   getRawEntityRecord: () => (resolvers_getRawEntityRecord),
   getRegisteredPostMeta: () => (resolvers_getRegisteredPostMeta),
@@ -2920,7 +2923,8 @@ const rootEntitiesConfig = [{
   baseURLParams: {
     context: 'edit'
   },
-  plural: 'users'
+  plural: 'users',
+  supportsPagination: true
 }, {
   name: 'comment',
   kind: 'root',
@@ -2929,7 +2933,8 @@ const rootEntitiesConfig = [{
     context: 'edit'
   },
   plural: 'comments',
-  label: (0,external_wp_i18n_namespaceObject.__)('Comment')
+  label: (0,external_wp_i18n_namespaceObject.__)('Comment'),
+  supportsPagination: true
 }, {
   name: 'menu',
   kind: 'root',
@@ -2938,7 +2943,8 @@ const rootEntitiesConfig = [{
     context: 'edit'
   },
   plural: 'menus',
-  label: (0,external_wp_i18n_namespaceObject.__)('Menu')
+  label: (0,external_wp_i18n_namespaceObject.__)('Menu'),
+  supportsPagination: true
 }, {
   name: 'menuItem',
   kind: 'root',
@@ -2948,7 +2954,8 @@ const rootEntitiesConfig = [{
   },
   plural: 'menuItems',
   label: (0,external_wp_i18n_namespaceObject.__)('Menu Item'),
-  rawAttributes: ['title']
+  rawAttributes: ['title'],
+  supportsPagination: true
 }, {
   name: 'menuLocation',
   kind: 'root',
@@ -3186,7 +3193,8 @@ async function loadTaxonomyEntities() {
       },
       name,
       label: taxonomy.name,
-      getTitle: record => record?.name
+      getTitle: record => record?.name,
+      supportsPagination: true
     };
   });
 }
@@ -3664,28 +3672,6 @@ const queries = (state = {}, action) => {
 /** @typedef {import('./types').AnyFunction} AnyFunction */
 
 /**
- * Reducer managing terms state. Keyed by taxonomy slug, the value is either
- * undefined (if no request has been made for given taxonomy), null (if a
- * request is in-flight for given taxonomy), or the array of terms for the
- * taxonomy.
- *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- *
- * @return {Object} Updated state.
- */
-function terms(state = {}, action) {
-  switch (action.type) {
-    case 'RECEIVE_TERMS':
-      return {
-        ...state,
-        [action.taxonomy]: action.terms
-      };
-  }
-  return state;
-}
-
-/**
  * Reducer managing authors state. Keyed by id.
  *
  * @param {Object} state  Current state.
@@ -3729,22 +3715,6 @@ function currentUser(state = {}, action) {
   switch (action.type) {
     case 'RECEIVE_CURRENT_USER':
       return action.currentUser;
-  }
-  return state;
-}
-
-/**
- * Reducer managing taxonomies.
- *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- *
- * @return {Object} Updated state.
- */
-function taxonomies(state = [], action) {
-  switch (action.type) {
-    case 'RECEIVE_TAXONOMIES':
-      return action.taxonomies;
   }
   return state;
 }
@@ -4014,7 +3984,29 @@ function entitiesConfig(state = rootEntitiesConfig, action) {
 const entities = (state = {}, action) => {
   const newConfig = entitiesConfig(state.config, action);
 
-  // Generates a dynamic reducer for the entities.
+  // Generates a reducer for the entities nested by `kind` and `name`.
+  // A config array with shape:
+  // ```
+  // [
+  //   { kind: 'taxonomy', name: 'category' },
+  //   { kind: 'taxonomy', name: 'post_tag' },
+  //   { kind: 'postType', name: 'post' },
+  //   { kind: 'postType', name: 'page' },
+  // ]
+  // ```
+  // generates a reducer for state tree with shape:
+  // ```
+  // {
+  //   taxonomy: {
+  //     category,
+  //     post_tag,
+  //   },
+  //   postType: {
+  //     post,
+  //     page,
+  //   },
+  // }
+  // ```
   let entitiesDataReducer = state.reducer;
   if (!entitiesDataReducer || newConfig !== state.config) {
     const entitiesByKind = newConfig.reduce((acc, record) => {
@@ -4027,14 +4019,10 @@ const entities = (state = {}, action) => {
       acc[kind].push(record);
       return acc;
     }, {});
-    entitiesDataReducer = (0,external_wp_data_namespaceObject.combineReducers)(Object.entries(entitiesByKind).reduce((memo, [kind, subEntities]) => {
-      const kindReducer = (0,external_wp_data_namespaceObject.combineReducers)(subEntities.reduce((kindMemo, entityConfig) => ({
-        ...kindMemo,
-        [entityConfig.name]: entity(entityConfig)
-      }), {}));
-      memo[kind] = kindReducer;
-      return memo;
-    }, {}));
+    entitiesDataReducer = (0,external_wp_data_namespaceObject.combineReducers)(Object.fromEntries(Object.entries(entitiesByKind).map(([kind, subEntities]) => {
+      const kindReducer = (0,external_wp_data_namespaceObject.combineReducers)(Object.fromEntries(subEntities.map(entityConfig => [entityConfig.name, entity(entityConfig)])));
+      return [kind, kindReducer];
+    })));
   }
   const newData = entitiesDataReducer(state.records, action);
   if (newData === state.records && newConfig === state.config && entitiesDataReducer === state.reducer) {
@@ -4219,7 +4207,6 @@ function registeredPostMeta(state = {}, action) {
   return state;
 }
 /* harmony default export */ const build_module_reducer = ((0,external_wp_data_namespaceObject.combineReducers)({
-  terms,
   users,
   currentTheme,
   currentGlobalStylesId,
@@ -4227,7 +4214,6 @@ function registeredPostMeta(state = {}, action) {
   themeGlobalStyleVariations,
   themeBaseGlobalStyles,
   themeGlobalStyleRevisions,
-  taxonomies,
   entities,
   editsReference,
   undoManager,
@@ -4980,14 +4966,14 @@ function getEntityConfig(state, kind, name) {
  * @return Record.
  */
 const getEntityRecord = (0,external_wp_data_namespaceObject.createSelector)((state, kind, name, key, query) => {
-  var _query$context;
+  var _query$context, _getNormalizedCommaSe;
   logEntityDeprecation(kind, name, 'getEntityRecord');
   const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
   if (!queriedState) {
     return undefined;
   }
   const context = (_query$context = query?.context) !== null && _query$context !== void 0 ? _query$context : 'default';
-  if (query === undefined) {
+  if (!query || !query._fields) {
     // If expecting a complete item, validate that completeness.
     if (!queriedState.itemIsComplete[context]?.[key]) {
       return undefined;
@@ -4995,25 +4981,25 @@ const getEntityRecord = (0,external_wp_data_namespaceObject.createSelector)((sta
     return queriedState.items[context][key];
   }
   const item = queriedState.items[context]?.[key];
-  if (item && query._fields) {
-    var _getNormalizedCommaSe;
-    const filteredItem = {};
-    const fields = (_getNormalizedCommaSe = get_normalized_comma_separable(query._fields)) !== null && _getNormalizedCommaSe !== void 0 ? _getNormalizedCommaSe : [];
-    for (let f = 0; f < fields.length; f++) {
-      const field = fields[f].split('.');
-      let value = item;
-      field.forEach(fieldName => {
-        value = value?.[fieldName];
-      });
-      setNestedValue(filteredItem, field, value);
-    }
-    return filteredItem;
+  if (!item) {
+    return item;
   }
-  return item;
+  const filteredItem = {};
+  const fields = (_getNormalizedCommaSe = get_normalized_comma_separable(query._fields)) !== null && _getNormalizedCommaSe !== void 0 ? _getNormalizedCommaSe : [];
+  for (let f = 0; f < fields.length; f++) {
+    const field = fields[f].split('.');
+    let value = item;
+    field.forEach(fieldName => {
+      value = value?.[fieldName];
+    });
+    setNestedValue(filteredItem, field, value);
+  }
+  return filteredItem;
 }, (state, kind, name, recordId, query) => {
   var _query$context2;
   const context = (_query$context2 = query?.context) !== null && _query$context2 !== void 0 ? _query$context2 : 'default';
-  return [state.entities.records?.[kind]?.[name]?.queriedData?.items[context]?.[recordId], state.entities.records?.[kind]?.[name]?.queriedData?.itemIsComplete[context]?.[recordId]];
+  const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
+  return [queriedState?.items[context]?.[recordId], queriedState?.itemIsComplete[context]?.[recordId]];
 });
 
 /**
@@ -5030,6 +5016,54 @@ getEntityRecord.__unstableNormalizeArgs = args => {
   newArgs[2] = isNumericID(recordKey) ? Number(recordKey) : recordKey;
   return newArgs;
 };
+
+/**
+ * Returns true if a record has been received for the given set of parameters, or false otherwise.
+ *
+ * Note: This action does not trigger a request for the entity record from the API
+ * if it's not available in the local state.
+ *
+ * @param state State tree
+ * @param kind  Entity kind.
+ * @param name  Entity name.
+ * @param key   Record's key.
+ * @param query Optional query.
+ *
+ * @return Whether an entity record has been received.
+ */
+function hasEntityRecord(state, kind, name, key, query) {
+  var _query$context3, _getNormalizedCommaSe2;
+  const queriedState = state.entities.records?.[kind]?.[name]?.queriedData;
+  if (!queriedState) {
+    return false;
+  }
+  const context = (_query$context3 = query?.context) !== null && _query$context3 !== void 0 ? _query$context3 : 'default';
+
+  // If expecting a complete item, validate that completeness.
+  if (!query || !query._fields) {
+    return !!queriedState.itemIsComplete[context]?.[key];
+  }
+  const item = queriedState.items[context]?.[key];
+  if (!item) {
+    return false;
+  }
+
+  // When `query._fields` is provided, check that each requested field exists,
+  // including any nested paths, on the item; return false if any part is missing.
+  const fields = (_getNormalizedCommaSe2 = get_normalized_comma_separable(query._fields)) !== null && _getNormalizedCommaSe2 !== void 0 ? _getNormalizedCommaSe2 : [];
+  for (let i = 0; i < fields.length; i++) {
+    const path = fields[i].split('.');
+    let value = item;
+    for (let p = 0; p < path.length; p++) {
+      const part = path[p];
+      if (!value || !Object.hasOwn(value, part)) {
+        return false;
+      }
+      value = value[part];
+    }
+  }
+  return true;
+}
 
 /**
  * Returns the Entity's record object by key. Doesn't trigger a resolver nor requests the entity records from the API if the entity record isn't available in the local state.
@@ -5071,8 +5105,8 @@ const getRawEntityRecord = (0,external_wp_data_namespaceObject.createSelector)((
     return accumulator;
   }, {});
 }, (state, kind, name, recordId, query) => {
-  var _query$context3;
-  const context = (_query$context3 = query?.context) !== null && _query$context3 !== void 0 ? _query$context3 : 'default';
+  var _query$context4;
+  const context = (_query$context4 = query?.context) !== null && _query$context4 !== void 0 ? _query$context4 : 'default';
   return [state.entities.config, state.entities.records?.[kind]?.[name]?.queriedData?.items[context]?.[recordId], state.entities.records?.[kind]?.[name]?.queriedData?.itemIsComplete[context]?.[recordId]];
 });
 
@@ -5167,7 +5201,7 @@ const getEntityRecordsTotalPages = (state, kind, name, query) => {
   if (!queriedState) {
     return null;
   }
-  if (query.per_page === -1) {
+  if (query?.per_page === -1) {
     return 1;
   }
   const totalItems = getQueriedTotalItems(queriedState, query);
@@ -5176,7 +5210,7 @@ const getEntityRecordsTotalPages = (state, kind, name, query) => {
   }
   // If `per_page` is not set and the query relies on the defaults of the
   // REST endpoint, get the info from query's meta.
-  if (!query.per_page) {
+  if (!query?.per_page) {
     return getQueriedTotalPages(queriedState, query);
   }
   return Math.ceil(totalItems / query.per_page);
@@ -5344,8 +5378,8 @@ const getEditedEntityRecord = (0,external_wp_data_namespaceObject.createSelector
     ...edited
   };
 }, (state, kind, name, recordId, query) => {
-  var _query$context4;
-  const context = (_query$context4 = query?.context) !== null && _query$context4 !== void 0 ? _query$context4 : 'default';
+  var _query$context5;
+  const context = (_query$context5 = query?.context) !== null && _query$context5 !== void 0 ? _query$context5 : 'default';
   return [state.entities.config, state.entities.records?.[kind]?.[name]?.queriedData.items[context]?.[recordId], state.entities.records?.[kind]?.[name]?.queriedData.itemIsComplete[context]?.[recordId], state.entities.records?.[kind]?.[name]?.edits?.[recordId]];
 });
 
@@ -5821,14 +5855,14 @@ const getRevisions = (state, kind, name, recordKey, query) => {
  * @return Record.
  */
 const getRevision = (0,external_wp_data_namespaceObject.createSelector)((state, kind, name, recordKey, revisionKey, query) => {
-  var _query$context5;
+  var _query$context6, _getNormalizedCommaSe3;
   logEntityDeprecation(kind, name, 'getRevision');
   const queriedState = state.entities.records?.[kind]?.[name]?.revisions?.[recordKey];
   if (!queriedState) {
     return undefined;
   }
-  const context = (_query$context5 = query?.context) !== null && _query$context5 !== void 0 ? _query$context5 : 'default';
-  if (query === undefined) {
+  const context = (_query$context6 = query?.context) !== null && _query$context6 !== void 0 ? _query$context6 : 'default';
+  if (!query || !query._fields) {
     // If expecting a complete item, validate that completeness.
     if (!queriedState.itemIsComplete[context]?.[revisionKey]) {
       return undefined;
@@ -5836,25 +5870,25 @@ const getRevision = (0,external_wp_data_namespaceObject.createSelector)((state, 
     return queriedState.items[context][revisionKey];
   }
   const item = queriedState.items[context]?.[revisionKey];
-  if (item && query._fields) {
-    var _getNormalizedCommaSe2;
-    const filteredItem = {};
-    const fields = (_getNormalizedCommaSe2 = get_normalized_comma_separable(query._fields)) !== null && _getNormalizedCommaSe2 !== void 0 ? _getNormalizedCommaSe2 : [];
-    for (let f = 0; f < fields.length; f++) {
-      const field = fields[f].split('.');
-      let value = item;
-      field.forEach(fieldName => {
-        value = value?.[fieldName];
-      });
-      setNestedValue(filteredItem, field, value);
-    }
-    return filteredItem;
+  if (!item) {
+    return item;
   }
-  return item;
+  const filteredItem = {};
+  const fields = (_getNormalizedCommaSe3 = get_normalized_comma_separable(query._fields)) !== null && _getNormalizedCommaSe3 !== void 0 ? _getNormalizedCommaSe3 : [];
+  for (let f = 0; f < fields.length; f++) {
+    const field = fields[f].split('.');
+    let value = item;
+    field.forEach(fieldName => {
+      value = value?.[fieldName];
+    });
+    setNestedValue(filteredItem, field, value);
+  }
+  return filteredItem;
 }, (state, kind, name, recordKey, revisionKey, query) => {
-  var _query$context6;
-  const context = (_query$context6 = query?.context) !== null && _query$context6 !== void 0 ? _query$context6 : 'default';
-  return [state.entities.records?.[kind]?.[name]?.revisions?.[recordKey]?.items?.[context]?.[revisionKey], state.entities.records?.[kind]?.[name]?.revisions?.[recordKey]?.itemIsComplete?.[context]?.[revisionKey]];
+  var _query$context7;
+  const context = (_query$context7 = query?.context) !== null && _query$context7 !== void 0 ? _query$context7 : 'default';
+  const queriedState = state.entities.records?.[kind]?.[name]?.revisions?.[recordKey];
+  return [queriedState?.items?.[context]?.[revisionKey], queriedState?.itemIsComplete?.[context]?.[revisionKey]];
 });
 
 ;// ./packages/core-data/build-module/utils/get-nested-value.js
@@ -7688,9 +7722,20 @@ const resolvers_getEntityRecords = (kind, name, query = {}) => async ({
   const lock = await dispatch.__unstableAcquireStoreLock(STORE_NAME, ['entities', 'records', kind, name], {
     exclusive: false
   });
+
+  // Keep a copy of the original query for later use in getResolutionsArgs.
+  // The query object may be modified below (for example, when _fields is
+  // specified), but we want to use the original query when marking
+  // resolutions as finished.
+  const rawQuery = {
+    ...query
+  };
   const key = entityConfig.key || DEFAULT_ENTITY_KEY;
-  function getResolutionsArgs(records) {
-    return records.filter(record => record?.[key]).map(record => [kind, name, record[key]]);
+  function getResolutionsArgs(records, recordsQuery) {
+    const queryArgs = Object.fromEntries(Object.entries(recordsQuery).filter(([k, v]) => {
+      return ['context', '_fields'].includes(k) && !!v;
+    }));
+    return records.filter(record => record?.[key]).map(record => [kind, name, record[key], Object.keys(queryArgs).length > 0 ? queryArgs : undefined]);
   }
   try {
     if (query._fields) {
@@ -7699,7 +7744,7 @@ const resolvers_getEntityRecords = (kind, name, query = {}) => async ({
       // the ID.
       query = {
         ...query,
-        _fields: [...new Set([...(get_normalized_comma_separable(query._fields) || []), entityConfig.key || DEFAULT_ENTITY_KEY])].join()
+        _fields: [...new Set([...(get_normalized_comma_separable(query._fields) || []), key])].join()
       };
     }
     const path = (0,external_wp_url_namespaceObject.addQueryArgs)(entityConfig.baseURL, {
@@ -7731,17 +7776,19 @@ const resolvers_getEntityRecords = (kind, name, query = {}) => async ({
         });
         const pageRecords = Object.values(await response.json());
         totalPages = parseInt(response.headers.get('X-WP-TotalPages'));
+        if (!meta) {
+          meta = {
+            totalItems: parseInt(response.headers.get('X-WP-Total')),
+            totalPages: 1
+          };
+        }
         records.push(...pageRecords);
         registry.batch(() => {
-          dispatch.receiveEntityRecords(kind, name, records, query);
-          dispatch.finishResolutions('getEntityRecord', getResolutionsArgs(pageRecords));
+          dispatch.receiveEntityRecords(kind, name, records, query, false, undefined, meta);
+          dispatch.finishResolutions('getEntityRecord', getResolutionsArgs(pageRecords, rawQuery));
         });
         page++;
       } while (page <= totalPages);
-      meta = {
-        totalItems: records.length,
-        totalPages: 1
-      };
     } else {
       records = Object.values(await external_wp_apiFetch_default()({
         path
@@ -7767,41 +7814,31 @@ const resolvers_getEntityRecords = (kind, name, query = {}) => async ({
     }
     registry.batch(() => {
       dispatch.receiveEntityRecords(kind, name, records, query, false, undefined, meta);
-
-      // When requesting all fields, the list of results can be used to resolve
-      // the `getEntityRecord` and `canUser` selectors in addition to `getEntityRecords`.
-      // See https://github.com/WordPress/gutenberg/pull/26575
-      // See https://github.com/WordPress/gutenberg/pull/64504
-      // See https://github.com/WordPress/gutenberg/pull/70738
-      if (!query.context) {
-        const targetHints = records.filter(record => !!record?.[key] && !!record?._links?.self?.[0]?.targetHints?.allow).map(record => ({
-          id: record[key],
-          permissions: getUserPermissionsFromAllowHeader(record._links.self[0].targetHints.allow)
-        }));
-        const canUserResolutionsArgs = [];
-        const receiveUserPermissionArgs = {};
-        for (const targetHint of targetHints) {
-          for (const action of ALLOWED_RESOURCE_ACTIONS) {
-            canUserResolutionsArgs.push([action, {
-              kind,
-              name,
-              id: targetHint.id
-            }]);
-            receiveUserPermissionArgs[getUserPermissionCacheKey(action, {
-              kind,
-              name,
-              id: targetHint.id
-            })] = targetHint.permissions[action];
-          }
-        }
-        if (targetHints.length > 0) {
-          dispatch.receiveUserPermissions(receiveUserPermissionArgs);
-          dispatch.finishResolutions('canUser', canUserResolutionsArgs);
-        }
-        if (!query?._fields) {
-          dispatch.finishResolutions('getEntityRecord', getResolutionsArgs(records));
+      const targetHints = records.filter(record => !!record?.[key] && !!record?._links?.self?.[0]?.targetHints?.allow).map(record => ({
+        id: record[key],
+        permissions: getUserPermissionsFromAllowHeader(record._links.self[0].targetHints.allow)
+      }));
+      const canUserResolutionsArgs = [];
+      const receiveUserPermissionArgs = {};
+      for (const targetHint of targetHints) {
+        for (const action of ALLOWED_RESOURCE_ACTIONS) {
+          canUserResolutionsArgs.push([action, {
+            kind,
+            name,
+            id: targetHint.id
+          }]);
+          receiveUserPermissionArgs[getUserPermissionCacheKey(action, {
+            kind,
+            name,
+            id: targetHint.id
+          })] = targetHint.permissions[action];
         }
       }
+      if (targetHints.length > 0) {
+        dispatch.receiveUserPermissions(receiveUserPermissionArgs);
+        dispatch.finishResolutions('canUser', canUserResolutionsArgs);
+      }
+      dispatch.finishResolutions('getEntityRecord', getResolutionsArgs(records, rawQuery));
       dispatch.__unstableReleaseStoreLock(lock);
     });
   } catch (e) {
@@ -7811,6 +7848,16 @@ const resolvers_getEntityRecords = (kind, name, query = {}) => async ({
 resolvers_getEntityRecords.shouldInvalidate = (action, kind, name) => {
   return (action.type === 'RECEIVE_ITEMS' || action.type === 'REMOVE_ITEMS') && action.invalidateCache && kind === action.kind && name === action.name;
 };
+
+/**
+ * Requests the total number of entity records.
+ */
+const resolvers_getEntityRecordsTotalItems = forward_resolver('getEntityRecords');
+
+/**
+ * Requests the number of available pages for the given query.
+ */
+const resolvers_getEntityRecordsTotalPages = forward_resolver('getEntityRecords');
 
 /**
  * Requests the current theme.
@@ -8607,6 +8654,7 @@ const external_wp_element_namespaceObject = window["wp"]["element"];
  */
 
 const EntityContext = (0,external_wp_element_namespaceObject.createContext)({});
+EntityContext.displayName = 'EntityContext';
 
 ;// external "ReactJSXRuntime"
 const external_ReactJSXRuntime_namespaceObject = window["ReactJSXRuntime"];
@@ -9813,6 +9861,14 @@ function useEntityProp(kind, name, prop, _id) {
 }
 
 ;// ./packages/core-data/build-module/hooks/index.js
+/**
+ * Internal dependencies
+ */
+
+/**
+ * Utility type that adds permissions to any record type.
+ */
+
 
 
 

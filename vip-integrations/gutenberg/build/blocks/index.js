@@ -6787,7 +6787,9 @@ const __EXPERIMENTAL_ELEMENTS = {
   h6: 'h6',
   button: '.wp-element-button, .wp-block-button__link',
   caption: '.wp-element-caption, .wp-block-audio figcaption, .wp-block-embed figcaption, .wp-block-gallery figcaption, .wp-block-image figcaption, .wp-block-table figcaption, .wp-block-video figcaption',
-  cite: 'cite'
+  cite: 'cite',
+  select: 'select',
+  textInput: 'textarea, input:where([type=email],[type=number],[type=password],[type=search],[type=tel],[type=text],[type=url])'
 };
 
 // These paths may have three origins, custom, theme, and default,
@@ -8048,7 +8050,13 @@ const __experimentalGetBlockAttributesNamesByRole = (...args) => {
  * @return {boolean}    Whether the block is a content block.
  */
 function isContentBlock(name) {
-  const attributes = getBlockType(name)?.attributes;
+  const blockType = getBlockType(name);
+  const attributes = blockType?.attributes;
+  // Not all blocks have attributes but they may support contentRole instead.
+  const supportsContentRole = blockType?.supports?.contentRole;
+  if (supportsContentRole) {
+    return true;
+  }
   if (!attributes) {
     return false;
   }
@@ -8944,6 +8952,14 @@ function getActiveBlockVariation(state, blockName, attributes, scope) {
       // and simply return the best match we have found.
       return match || variation;
     }
+  }
+
+  // If no variation matches the isActive condition, we return the default variation,
+  // but only if it doesn't have an isActive condition that wasn't matched.
+  // This fallback is only applied for the 'block' and 'transform' scopes but not to
+  // the 'inserter', to avoid affecting block name display there.
+  if (!match && ['block', 'transform'].includes(scope)) {
+    match = variations.find(variation => variation?.isDefault && !Object.hasOwn(variation, 'isActive'));
   }
   return match;
 }
@@ -10942,17 +10958,19 @@ function getCommentAttributes(blockType, attributes) {
  */
 function serializeAttributes(attributes) {
   return JSON.stringify(attributes)
+  // Replace escaped `\` characters with the unicode escape sequence.
+  .replaceAll('\\\\', '\\u005c')
+
   // Don't break HTML comments.
-  .replace(/--/g, '\\u002d\\u002d')
+  .replaceAll('--', '\\u002d\\u002d')
 
   // Don't break non-standard-compliant tools.
-  .replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026')
+  .replaceAll('<', '\\u003c').replaceAll('>', '\\u003e').replaceAll('&', '\\u0026')
 
-  // Bypass server stripslashes behavior which would unescape stringify's
-  // escaping of quotation mark.
-  //
-  // See: https://developer.wordpress.org/reference/functions/wp_kses_stripslashes/
-  .replace(/\\"/g, '\\u0022');
+  // Replace escaped quotes (`\"`) to prevent problems with wp_kses_stripsplashes.
+  // This simple replacement is safe because `\\` has already been replaced.
+  // `\"` is not a JSON string quote like `"\\"`.
+  .replaceAll('\\"', '\\u0022');
 }
 
 /**

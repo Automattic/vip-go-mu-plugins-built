@@ -148,7 +148,7 @@ __webpack_require__.d(yjs_namespaceObject, {
   Snapshot: () => (Snapshot),
   Text: () => (YText),
   Transaction: () => (Transaction),
-  UndoManager: () => (yjs_UndoManager),
+  UndoManager: () => (UndoManager),
   UpdateDecoderV1: () => (UpdateDecoderV1),
   UpdateDecoderV2: () => (UpdateDecoderV2),
   UpdateEncoderV1: () => (UpdateEncoderV1),
@@ -8249,7 +8249,7 @@ const popStackItem = (undoManager, stack, eventType) => {
  *
  * @extends {ObservableV2<{'stack-item-added':function(StackItemEvent, UndoManager):void, 'stack-item-popped': function(StackItemEvent, UndoManager):void, 'stack-cleared': function({ undoStackCleared: boolean, redoStackCleared: boolean }):void, 'stack-item-updated': function(StackItemEvent, UndoManager):void }>}
  */
-class yjs_UndoManager extends ObservableV2 {
+class UndoManager extends ObservableV2 {
   /**
    * @param {Doc|AbstractType<any>|Array<AbstractType<any>>} typeScope Limits the scope of the UndoManager. If this is set to a ydoc instance, all changes on that ydoc will be undone. If set to a specific type, only changes on that type or its children will be undone. Also accepts an array of types.
    * @param {UndoManagerOptions} options
@@ -17365,11 +17365,215 @@ const CRDT_STATE_VERSION_KEY = 'version';
 const LOCAL_EDITOR_ORIGIN = 'gutenberg';
 const LOCAL_SYNC_PROVIDER_ORIGIN = 'syncProvider';
 
+;// ./packages/sync/build-module/y-utilities/y-multidoc-undomanager.js
+// File copied as is from the y-utilities package.
+/* eslint-disable eslint-comments/disable-enable-pair */
+/* eslint-disable eslint-comments/no-unlimited-disable */
+/* eslint-disable */
+// @ts-nocheck
+/* eslint-env browser */
+
+
+
+
+
+
+/**
+ * @param {YMultiDocUndoManager} mum
+ * @param {'undo' | 'redo'} type
+ */
+const y_multidoc_undomanager_popStackItem = (mum, type) => {
+  const stack = type === 'undo' ? mum.undoStack : mum.redoStack;
+  while (stack.length > 0) {
+    const um = /** @type {Y.UndoManager} */stack.pop();
+    const prevUmStack = type === 'undo' ? um.undoStack : um.redoStack;
+    const stackItem = /** @type {any} */prevUmStack.pop();
+    let actionPerformed = false;
+    if (type === 'undo') {
+      um.undoStack = [stackItem];
+      actionPerformed = um.undo() !== null;
+      um.undoStack = prevUmStack;
+    } else {
+      um.redoStack = [stackItem];
+      actionPerformed = um.redo() !== null;
+      um.redoStack = prevUmStack;
+    }
+    if (actionPerformed) {
+      return stackItem;
+    }
+  }
+  return null;
+};
+
+/**
+ * @extends Observable<any>
+ */
+class YMultiDocUndoManager extends Observable {
+  /**
+   * @param {Y.AbstractType<any>|Array<Y.AbstractType<any>>} typeScope Accepts either a single type, or an array of types
+   * @param {ConstructorParameters<typeof Y.UndoManager>[1]} opts
+   */
+  constructor(typeScope = [], opts = {}) {
+    super();
+    /**
+     * @type {Map<Y.Doc, Y.UndoManager>}
+     */
+    this.docs = new Map();
+    this.trackedOrigins = opts.trackedOrigins || new Set([null]);
+    opts.trackedOrigins = this.trackedOrigins;
+    this._defaultOpts = opts;
+    /**
+     * @type {Array<Y.UndoManager>}
+     */
+    this.undoStack = [];
+    /**
+     * @type {Array<Y.UndoManager>}
+     */
+    this.redoStack = [];
+    this.addToScope(typeScope);
+  }
+
+  /**
+   * @param {Array<Y.AbstractType<any>> | Y.AbstractType<any>} ytypes
+   */
+  addToScope(ytypes) {
+    ytypes = isArray(ytypes) ? ytypes : [ytypes];
+    ytypes.forEach(ytype => {
+      const ydoc = /** @type {Y.Doc} */ytype.doc;
+      const um = setIfUndefined(this.docs, ydoc, () => {
+        const um = new UndoManager([ytype], this._defaultOpts);
+        um.on('stack-cleared', /** @param {any} opts */({
+          undoStackCleared,
+          redoStackCleared
+        }) => {
+          this.clear(undoStackCleared, redoStackCleared);
+        });
+        ydoc.on('destroy', () => {
+          this.docs.delete(ydoc);
+          this.undoStack = this.undoStack.filter(um => um.doc !== ydoc);
+          this.redoStack = this.redoStack.filter(um => um.doc !== ydoc);
+        });
+        um.on('stack-item-added', /** @param {any} change */change => {
+          const stack = change.type === 'undo' ? this.undoStack : this.redoStack;
+          stack.push(um);
+          this.emit('stack-item-added', [{
+            ...change,
+            ydoc: ydoc
+          }, this]);
+        });
+        um.on('stack-item-updated', /** @param {any} change */change => {
+          this.emit('stack-item-updated', [{
+            ...change,
+            ydoc
+          }, this]);
+        });
+        um.on('stack-item-popped', /** @param {any} change */change => {
+          this.emit('stack-item-popped', [{
+            ...change,
+            ydoc
+          }, this]);
+        });
+        // if doc is destroyed
+        // emit events from um to multium
+        return um;
+      });
+      /* c8 ignore next 4 */
+      if (um.scope.every(yt => yt !== ytype)) {
+        um.scope.push(ytype);
+      }
+    });
+  }
+
+  /**
+   * @param {any} origin
+   */
+  /* c8 ignore next 3 */
+  addTrackedOrigin(origin) {
+    this.trackedOrigins.add(origin);
+  }
+
+  /**
+   * @param {any} origin
+   */
+  /* c8 ignore next 3 */
+  removeTrackedOrigin(origin) {
+    this.trackedOrigins.delete(origin);
+  }
+
+  /**
+   * Undo last changes on type.
+   *
+   * @return {any?} Returns StackItem if a change was applied
+   */
+  undo() {
+    return y_multidoc_undomanager_popStackItem(this, 'undo');
+  }
+
+  /**
+   * Redo last undo operation.
+   *
+   * @return {any?} Returns StackItem if a change was applied
+   */
+  redo() {
+    return y_multidoc_undomanager_popStackItem(this, 'redo');
+  }
+  clear(clearUndoStack = true, clearRedoStack = true) {
+    /* c8 ignore next */
+    if (clearUndoStack && this.canUndo() || clearRedoStack && this.canRedo()) {
+      this.docs.forEach(um => {
+        /* c8 ignore next */
+        clearUndoStack && (this.undoStack = []);
+        /* c8 ignore next */
+        clearRedoStack && (this.redoStack = []);
+        um.clear(clearUndoStack, clearRedoStack);
+      });
+      this.emit('stack-cleared', [{
+        undoStackCleared: clearUndoStack,
+        redoStackCleared: clearRedoStack
+      }]);
+    }
+  }
+
+  /* c8 ignore next 5 */
+  stopCapturing() {
+    this.docs.forEach(um => {
+      um.stopCapturing();
+    });
+  }
+
+  /**
+   * Are undo steps available?
+   *
+   * @return {boolean} `true` if undo is possible
+   */
+  canUndo() {
+    return this.undoStack.length > 0;
+  }
+
+  /**
+   * Are redo steps available?
+   *
+   * @return {boolean} `true` if redo is possible
+   */
+  canRedo() {
+    return this.redoStack.length > 0;
+  }
+  destroy() {
+    this.docs.forEach(um => um.destroy());
+    super.destroy();
+  }
+}
+
+/**
+ * @todo remove
+ * @deprecated Use YMultiDocUndoManager instead
+ */
+const MultiDocUndoManager = (/* unused pure expression or super */ null && (YMultiDocUndoManager));
+
 ;// ./packages/sync/build-module/undo-manager.js
 /**
  * External dependencies
  */
-
 
 /**
  * WordPress dependencies
@@ -17379,22 +17583,28 @@ const LOCAL_SYNC_PROVIDER_ORIGIN = 'syncProvider';
  * Internal dependencies
  */
 
+
 /**
- * Wrapper class that provides the WordPress UndoManager interface while using Y.UndoManager internally.
- * This allows seamless integration between Yjs collaborative editing and WordPress undo/redo functionality.
+ * Wrapper class that implements the WordPress UndoManager interface while using
+ * YMultiDocUndoManager internally. This allows undo/redo operations to be
+ * transacted against multiple CRDT documents (one per entity) and giving each
+ * peer their own undo/redo stack without conflicts.
  */
-class UndoManager {
-  constructor(ydoc) {
-    this.undoManager = new yjs_UndoManager(ydoc.getMap('document'), {
-      // Ensure we undo and redo one character at a time.
-      captureTimeout: 0,
-      // Ensure that we only scope the undo/redo to the current client, and Gutenberg origins.
-      // ToDo: Keep an eye on this, as it needs to be battle tested.
-      trackedOrigins: new Set(['gutenberg', ydoc.clientID]),
-      // This ensures that are able to improve the client specific undo/redo experience.
-      // This reduces the bugs we see, but it doesn't eliminate them entirely.
-      ignoreRemoteMapChanges: true
+class undo_manager_UndoManager {
+  constructor() {
+    this.undoManager = new YMultiDocUndoManager([], {
+      // Throttle undo/redo captures. (default: 500ms)
+      captureTimeout: 200,
+      // Ensure that we only scope the undo/redo to the current editor.
+      // The yjs document's clientID is added once it's available.
+      trackedOrigins: new Set([LOCAL_EDITOR_ORIGIN])
     });
+  }
+  static create() {
+    if (!undo_manager_UndoManager.instance) {
+      undo_manager_UndoManager.instance = new undo_manager_UndoManager();
+    }
+    return undo_manager_UndoManager.instance;
   }
 
   /**
@@ -17412,9 +17622,17 @@ class UndoManager {
   }
 
   /**
+   * Add a Yjs map to the scope of the undo manager.
+   *
+   * @param {Y.Map< any >} ymap The Yjs map to add to the scope.
+   */
+  addToScope(ymap) {
+    this.undoManager.addToScope(ymap);
+  }
+
+  /**
    * Undo the last recorded changes.
    *
-   * @return The undone record or undefined if nothing to undo.
    */
   undo() {
     if (!this.hasUndo()) {
@@ -17424,14 +17642,13 @@ class UndoManager {
     // Perform the undo operation
     this.undoManager.undo();
 
-    // @TODO See if the undo operation can return a record from Yjs.
+    // Intentionally return an empty array, because the SyncProvider will update
+    // the entity record based on the Yjs document changes.
     return [];
   }
 
   /**
    * Redo the last undone changes.
-   *
-   * @return The redone record or undefined if nothing to redo.
    */
   redo() {
     if (!this.hasRedo()) {
@@ -17441,7 +17658,8 @@ class UndoManager {
     // Perform the redo operation
     this.undoManager.redo();
 
-    // @TODO See if the redo operation can return a record from Yjs.
+    // Intentionally return an empty array, because the SyncProvider will update
+    // the entity record based on the Yjs document changes.
     return [];
   }
 
@@ -17501,19 +17719,6 @@ function createYjsDoc(documentMeta) {
 
 
 class SyncProvider {
-  /**
-   * CAUTION: We currently store a single UndoManager instance under these
-   * assumptions:
-   *
-   * 1. Only entities loaded by the block editor support an undo manager.
-   * 2. Only one such entity is loaded at a time.
-   * 3. The entity's SyncConfig has `supports.undo` set to true.
-   *
-   * If these assumptions fail, we will need to refactor the selectors provided
-   * by `@wordpress/core-data` (e.g., `getUndoManager`) to support multiple
-   * UndoManager instances by requiring the entity type and ID as parameters.
-   */
-
   entityStates = new Map();
 
   /**
@@ -17523,6 +17728,7 @@ class SyncProvider {
    */
   constructor(connectionCreators = []) {
     this.connectionCreators = connectionCreators;
+    this.undoManager = undo_manager_UndoManager.create();
   }
 
   /**
@@ -17555,7 +17761,7 @@ class SyncProvider {
     // When the CRDT document is updated by the UndoManager or a connection (not
     // a local origin), update the local store.
     const onRecordUpdate = (_events, transaction) => {
-      if (transaction.local && !(transaction.origin instanceof yjs_UndoManager)) {
+      if (transaction.local && !(transaction.origin instanceof UndoManager)) {
         return;
       }
       void this.updateEntityRecord(objectType, objectId);
@@ -17583,8 +17789,7 @@ class SyncProvider {
       entityState.awareness = new Awareness(ydoc);
     }
     if (syncConfig.supports?.undo) {
-      entityState.undoManager = new UndoManager(ydoc);
-      this.undoManager = entityState.undoManager;
+      this.undoManager.addToScope(recordMap);
     }
     this.entityStates.set(entityId, entityState);
     const connections = await this.connect(entityState);

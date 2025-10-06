@@ -1558,9 +1558,11 @@ const external_ReactJSXRuntime_namespaceObject = window["ReactJSXRuntime"];
 
 const router_history = createBrowserHistory();
 const RoutesContext = (0,external_wp_element_namespaceObject.createContext)(null);
+RoutesContext.displayName = 'RoutesContext';
 const ConfigContext = (0,external_wp_element_namespaceObject.createContext)({
   pathArg: 'p'
 });
+ConfigContext.displayName = 'ConfigContext';
 const locationMemo = new WeakMap();
 function getLocationWithQuery() {
   const location = router_history.location;

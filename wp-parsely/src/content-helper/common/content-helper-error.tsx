@@ -38,10 +38,13 @@ export enum ContentHelperErrorCode {
 	ParselySuggestionsApiNoAuthentication = 'NO_AUTHENTICATION', // HTTP Code 401.
 	ParselySuggestionsApiNoAuthorization = 'NO_AUTHORIZATION', // HTTP Code 403.
 	ParselySuggestionsApiNoData = 'NO_DATA', // HTTP Code 507.
+	ParselySuggestionsApiNoDataManualLinking = 'NO_DATA_MANUAL_LINKING', // HTTP Code 507.
 	ParselySuggestionsApiOpenAiError = 'OPENAI_ERROR', // HTTP Code 500.
 	ParselySuggestionsApiOpenAiSchema = 'OPENAI_SCHEMA', // HTTP Code 507.
 	ParselySuggestionsApiOpenAiUnavailable = 'OPENAI_UNAVAILABLE', // HTTP Code 500.
+	ParselySuggestionsApiResponseValidationError = 'RESPONSE_VALIDATION_ERROR', // HTTP Code 500.
 	ParselySuggestionsApiSchemaError = 'SCHEMA_ERROR', // HTTP Code 422.
+	ParselySuggestionsInvalidRequest = 'INVALID_REQUEST', // HTTP Code 400.
 }
 
 /**
@@ -95,6 +98,18 @@ export class ContentHelperError extends Error {
 		// Set the prototype explicitly.
 		Object.setPrototypeOf( this, ContentHelperError.prototype );
 
+		this.CustomizeErrorMessaging();
+	}
+
+	/**
+	 * Customizes error messages and hints for clarity, or to provide tailored
+	 * messages when specific errors occur.
+	 *
+	 * This also allows for the internationalization of errors/hints.
+	 *
+	 * @since 3.20.8
+	 */
+	protected CustomizeErrorMessaging(): void {
 		// Errors that need rephrasing.
 		if ( this.code === ContentHelperErrorCode.AccessToFeatureDisabled ) {
 			this.message = __(
@@ -119,19 +134,25 @@ export class ContentHelperError extends Error {
 				'The Parse.ly API did not respond in a timely manner. Please try again later.',
 				'wp-parsely'
 			);
-		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiSchemaError ) {
+		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiSchemaError ||
+			this.code === ContentHelperErrorCode.ParselySuggestionsInvalidRequest
+		) {
 			this.message = __(
 				'The Parse.ly API returned a validation error. Please try again with different parameters.',
 				'wp-parsely'
 			);
-		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiNoData ) {
+		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiNoData ||
+			this.code === ContentHelperErrorCode.ParselySuggestionsApiNoDataManualLinking
+		) {
 			this.message = __(
-				'The Parse.ly API couldn\'t find any relevant data to fulfill the request. Please retry with a different input.',
+				'The Parse.ly API couldn\'t find any relevant data to fulfill the request.',
 				'wp-parsely'
 			);
-		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiOpenAiSchema ) {
+		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiOpenAiSchema ||
+			this.code === ContentHelperErrorCode.ParselySuggestionsApiResponseValidationError
+		) {
 			this.message = __(
-				'The Parse.ly API returned an incorrect response. Please try again later.',
+				'The Parse.ly API returned an incorrect response.',
 				'wp-parsely'
 			);
 		} else if ( this.code === ContentHelperErrorCode.ParselySuggestionsApiAuthUnavailable ) {
@@ -139,25 +160,6 @@ export class ContentHelperError extends Error {
 				'The Parse.ly API is currently unavailable. Please try again later.',
 				'wp-parsely'
 			);
-		}
-	}
-
-	/**
-	 * Renders the error's message.
-	 *
-	 * @param {ContentHelperErrorMessageProps|null} props The props needed for the function.
-	 *
-	 * @return {import('react').JSX.Element} The resulting JSX Element.
-	 */
-	public Message( props: ContentHelperErrorMessageProps|null = null ): React.JSX.Element {
-		// Handle cases where credentials are not set.
-		const CredentialsNotSetErrorCodes = [
-			ContentHelperErrorCode.PluginCredentialsNotSetMessageDetected,
-			ContentHelperErrorCode.PluginSettingsSiteIdNotSet,
-			ContentHelperErrorCode.PluginSettingsApiSecretNotSet,
-		];
-		if ( CredentialsNotSetErrorCodes.includes( this.code ) ) {
-			return EmptyCredentialsMessage( props );
 		}
 
 		// Errors that need a hint.
@@ -180,14 +182,6 @@ export class ContentHelperError extends Error {
 				'wp-parsely'
 			) );
 		}
-
-		return (
-			<ContentHelperErrorMessage
-				className={ props?.className }
-				testId="error">
-				{ `<p>${ this.message }</p>${ this.hint ? this.hint : '' }` }
-			</ContentHelperErrorMessage>
-		);
 	}
 
 	/**
@@ -197,6 +191,33 @@ export class ContentHelperError extends Error {
 	 */
 	protected Hint( hint: string ): string {
 		return `<p className="content-helper-error-message-hint" data-testid="content-helper-error-message-hint"><strong>${ __( 'Hint:', 'wp-parsely' ) }</strong> ${ hint }</p>`;
+	}
+
+	/**
+	 * Renders the error's message.
+	 *
+	 * @param {ContentHelperErrorMessageProps|null} props The props needed for the function.
+	 *
+	 * @return {import('react').JSX.Element} The resulting JSX Element.
+	 */
+	public Message( props: ContentHelperErrorMessageProps|null = null ): React.JSX.Element {
+		// Handle cases where credentials are not set.
+		const CredentialsNotSetErrorCodes = [
+			ContentHelperErrorCode.PluginCredentialsNotSetMessageDetected,
+			ContentHelperErrorCode.PluginSettingsSiteIdNotSet,
+			ContentHelperErrorCode.PluginSettingsApiSecretNotSet,
+		];
+		if ( CredentialsNotSetErrorCodes.includes( this.code ) ) {
+			return EmptyCredentialsMessage( props );
+		}
+
+		return (
+			<ContentHelperErrorMessage
+				className={ props?.className }
+				testId="error">
+				{ `<p>${ this.message }</p>${ this.hint ? this.hint : '' }` }
+			</ContentHelperErrorMessage>
+		);
 	}
 
 	/**

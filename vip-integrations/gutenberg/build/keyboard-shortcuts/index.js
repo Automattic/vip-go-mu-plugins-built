@@ -691,6 +691,7 @@ const context = (0,external_wp_element_namespaceObject.createContext)({
     }
   }
 });
+context.displayName = 'KeyboardShortcutsContext';
 
 ;// ./packages/keyboard-shortcuts/build-module/hooks/use-shortcut.js
 /**

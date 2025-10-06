@@ -139,14 +139,10 @@ const external_React_namespaceObject = window["React"];
  * Internal dependencies
  */
 
-
-/**
- * Object containing a React element.
- *
- * @typedef {import('react').ReactElement} Element
- */
-
-let indoc, offset, output, stack;
+let indoc;
+let offset;
+let output;
+let stack;
 
 /**
  * Matches tags in the localized string
@@ -160,29 +156,8 @@ let indoc, offset, output, stack;
  * isClosing: The closing slash, if it exists.
  * name: The name portion of the tag (strong, br) (if )
  * isSelfClosed: The slash on a self closing tag, if it exists.
- *
- * @type {RegExp}
  */
 const tokenizer = /<(\/)?(\w+)\s*(\/)?>/g;
-
-/**
- * The stack frame tracking parse progress.
- *
- * @typedef Frame
- *
- * @property {Element}   element            A parent element which may still have
- * @property {number}    tokenStart         Offset at which parent element first
- *                                          appears.
- * @property {number}    tokenLength        Length of string marking start of parent
- *                                          element.
- * @property {number}    [prevOffset]       Running offset at which parsing should
- *                                          continue.
- * @property {number}    [leadingTextStart] Offset at which last closing element
- *                                          finished, used for finding text between
- *                                          elements.
- * @property {Element[]} children           Children.
- */
-
 /**
  * Tracks recursive-descent parse state.
  *
@@ -190,19 +165,19 @@ const tokenizer = /<(\/)?(\w+)\s*(\/)?>/g;
  * parsed.
  *
  * @private
- * @param {Element} element            A parent element which may still have
- *                                     nested children not yet parsed.
- * @param {number}  tokenStart         Offset at which parent element first
- *                                     appears.
- * @param {number}  tokenLength        Length of string marking start of parent
- *                                     element.
- * @param {number}  [prevOffset]       Running offset at which parsing should
- *                                     continue.
- * @param {number}  [leadingTextStart] Offset at which last closing element
- *                                     finished, used for finding text between
- *                                     elements.
+ * @param element          A parent element which may still have
+ *                         nested children not yet parsed.
+ * @param tokenStart       Offset at which parent element first
+ *                         appears.
+ * @param tokenLength      Length of string marking start of parent
+ *                         element.
+ * @param prevOffset       Running offset at which parsing should
+ *                         continue.
+ * @param leadingTextStart Offset at which last closing element
+ *                         finished, used for finding text between
+ *                         elements.
  *
- * @return {Frame} The stack frame tracking parse progress.
+ * @return The stack frame tracking parse progress.
  */
 function createFrame(element, tokenStart, tokenLength, prevOffset, leadingTextStart) {
   return {
@@ -236,11 +211,11 @@ function createFrame(element, tokenStart, tokenLength, prevOffset, leadingTextSt
  * }
  * ```
  *
- * @param {string}                  interpolatedString The interpolation string to be parsed.
- * @param {Record<string, Element>} conversionMap      The map used to convert the string to
- *                                                     a react element.
+ * @param  interpolatedString The interpolation string to be parsed.
+ * @param  conversionMap      The map used to convert the string to
+ *                            a react element.
  * @throws {TypeError}
- * @return {Element}  A wp element.
+ * @return A wp element.
  */
 const createInterpolateElement = (interpolatedString, conversionMap) => {
   indoc = interpolatedString;
@@ -265,31 +240,30 @@ const createInterpolateElement = (interpolatedString, conversionMap) => {
  *
  * @private
  *
- * @param {Object} conversionMap The map being validated.
+ * @param conversionMap The map being validated.
  *
- * @return {boolean}  True means the map is valid.
+ * @return True means the map is valid.
  */
 const isValidConversionMap = conversionMap => {
-  const isObject = typeof conversionMap === 'object';
+  const isObject = typeof conversionMap === 'object' && conversionMap !== null;
   const values = isObject && Object.values(conversionMap);
-  return isObject && values.length && values.every(element => (0,external_React_namespaceObject.isValidElement)(element));
+  return isObject && values.length > 0 && values.every(element => (0,external_React_namespaceObject.isValidElement)(element));
 };
-
 /**
  * This is the iterator over the matches in the string.
  *
  * @private
  *
- * @param {Object} conversionMap The conversion map for the string.
+ * @param conversionMap The conversion map for the string.
  *
- * @return {boolean} true for continuing to iterate, false for finished.
+ * @return true for continuing to iterate, false for finished.
  */
 function proceed(conversionMap) {
   const next = nextToken();
   const [tokenType, name, startOffset, tokenLength] = next;
   const stackDepth = stack.length;
   const leadingTextStart = startOffset > offset ? offset : null;
-  if (!conversionMap[name]) {
+  if (name && !conversionMap[name]) {
     addText();
     return false;
   }
@@ -352,7 +326,7 @@ function proceed(conversionMap) {
  *
  * @private
  *
- * @return {Array}  An array of details for the token matched.
+ * @return An array of details for the token matched.
  */
 function nextToken() {
   const matches = tokenizer.exec(indoc);
@@ -453,41 +427,26 @@ function closeOuterElement(endOffset) {
 
 /**
  * Object containing a React element.
- *
- * @typedef {import('react').ReactElement} Element
  */
 
 /**
  * Object containing a React component.
- *
- * @typedef {import('react').ComponentType} ComponentType
  */
 
 /**
  * Object containing a React synthetic event.
- *
- * @typedef {import('react').SyntheticEvent} SyntheticEvent
  */
 
 /**
  * Object containing a React ref object.
- *
- * @template T
- * @typedef {import('react').RefObject<T>} RefObject<T>
  */
 
 /**
  * Object containing a React ref callback.
- *
- * @template T
- * @typedef {import('react').RefCallback<T>} RefCallback<T>
  */
 
 /**
  * Object containing a React ref.
- *
- * @template T
- * @typedef {import('react').Ref<T>} Ref<T>
  */
 
 /**
@@ -677,14 +636,13 @@ function closeOuterElement(endOffset) {
 /**
  * Concatenate two or more React children objects.
  *
- * @param {...?Object} childrenArguments Array of children arguments (array of arrays/strings/objects) to concatenate.
- *
- * @return {Array} The concatenated value.
+ * @param childrenArguments - Array of children arguments (array of arrays/strings/objects) to concatenate.
+ * @return The concatenated value.
  */
 function concatChildren(...childrenArguments) {
   return childrenArguments.reduce((accumulator, children, i) => {
     external_React_namespaceObject.Children.forEach(children, (child, j) => {
-      if (child && 'string' !== typeof child) {
+      if ((0,external_React_namespaceObject.isValidElement)(child) && typeof child !== 'string') {
         child = (0,external_React_namespaceObject.cloneElement)(child, {
           key: [i, j].join()
         });
@@ -698,10 +656,10 @@ function concatChildren(...childrenArguments) {
 /**
  * Switches the nodeName of all the elements in the children object.
  *
- * @param {?Object} children Children object.
- * @param {string}  nodeName Node name.
+ * @param children Children object.
+ * @param nodeName Node name.
  *
- * @return {?Object} The updated children object.
+ * @return  The updated children object.
  */
 function switchChildrenNodeName(children, nodeName) {
   return children && external_React_namespaceObject.Children.map(children, (elt, index) => {
@@ -709,6 +667,9 @@ function switchChildrenNodeName(children, nodeName) {
       return (0,external_React_namespaceObject.createElement)(nodeName, {
         key: index
       }, elt);
+    }
+    if (!(0,external_React_namespaceObject.isValidElement)(elt)) {
+      return elt;
     }
     const {
       children: childrenProp,
@@ -801,8 +762,8 @@ var client = __webpack_require__(4140);
 /**
  * Checks if the provided WP element is empty.
  *
- * @param {*} element WP element to check.
- * @return {boolean} True when an element is considered empty.
+ * @param element WP element to check.
+ * @return True when an element is considered empty.
  */
 const isEmptyElement = element => {
   if (typeof element === 'number') {
@@ -823,11 +784,11 @@ const isEmptyElement = element => {
  * Copyright (c) 2015-present, Facebook, Inc.
  *
  */
-const Platform = {
-  OS: 'web',
-  select: spec => 'web' in spec ? spec.web : spec.default,
-  isWeb: true
-};
+
+/**
+ * Specification for platform-specific value selection.
+ */
+
 /**
  * Component used to detect the current Platform being used.
  * Use Platform.OS === 'web' to detect if running on web environment.
@@ -847,6 +808,22 @@ const Platform = {
  * } );
  * ```
  */
+const Platform = {
+  /** Platform identifier. Will always be `'web'` in this module. */
+  OS: 'web',
+  /**
+   * Select a value based on the platform.
+   *
+   * @template T
+   * @param    spec - Object with optional platform-specific values.
+   * @return The selected value.
+   */
+  select(spec) {
+    return 'web' in spec ? spec.web : spec.default;
+  },
+  /** Whether the platform is web */
+  isWeb: true
+};
 /* harmony default export */ const platform = (Platform);
 
 ;// ./node_modules/is-plain-object/dist/is-plain-object.mjs
@@ -1384,7 +1361,9 @@ const external_wp_escapeHtml_namespaceObject = window["wp"]["escapeHtml"];
  */
 
 
-/** @typedef {{children: string} & import('react').ComponentPropsWithoutRef<'div'>} RawHTMLProps */
+/**
+ * Props for the RawHTML component.
+ */
 
 /**
  * Component used to render unescaped HTML.
@@ -1405,7 +1384,7 @@ const external_wp_escapeHtml_namespaceObject = window["wp"]["escapeHtml"];
  *                             of strings. Other props will be passed through
  *                             to the div wrapper.
  *
- * @return {JSX.Element} Dangerously-rendering component.
+ * @return Dangerously-rendering component.
  */
 function RawHTML({
   children,
@@ -1477,25 +1456,23 @@ function RawHTML({
 
 /** @typedef {import('react').ReactElement} ReactElement */
 
+const Context = (0,external_React_namespaceObject.createContext)(undefined);
+Context.displayName = 'ElementContext';
 const {
   Provider,
   Consumer
-} = (0,external_React_namespaceObject.createContext)(undefined);
+} = Context;
 const ForwardRef = (0,external_React_namespaceObject.forwardRef)(() => {
   return null;
 });
 
 /**
  * Valid attribute types.
- *
- * @type {Set<string>}
  */
 const ATTRIBUTES_TYPES = new Set(['string', 'boolean', 'number']);
 
 /**
  * Element tags which can be self-closing.
- *
- * @type {Set<string>}
  */
 const SELF_CLOSING_TAGS = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
@@ -1511,8 +1488,6 @@ const SELF_CLOSING_TAGS = new Set(['area', 'base', 'br', 'col', 'command', 'embe
  *     .reduce( ( result, tr ) => Object.assign( result, {
  *         [ tr.firstChild.textContent.trim() ]: true
  *     } ), {} ) ).sort();
- *
- * @type {Set<string>}
  */
 const BOOLEAN_ATTRIBUTES = new Set(['allowfullscreen', 'allowpaymentrequest', 'allowusermedia', 'async', 'autofocus', 'autoplay', 'checked', 'controls', 'default', 'defer', 'disabled', 'download', 'formnovalidate', 'hidden', 'ismap', 'itemscope', 'loop', 'multiple', 'muted', 'nomodule', 'novalidate', 'open', 'playsinline', 'readonly', 'required', 'reversed', 'selected', 'typemustmatch']);
 
@@ -1533,8 +1508,6 @@ const BOOLEAN_ATTRIBUTES = new Set(['allowfullscreen', 'allowpaymentrequest', 'a
  * Some notable omissions:
  *
  *  - `alt`: https://blog.whatwg.org/omit-alt
- *
- * @type {Set<string>}
  */
 const ENUMERATED_ATTRIBUTES = new Set(['autocapitalize', 'autocomplete', 'charset', 'contenteditable', 'crossorigin', 'decoding', 'dir', 'draggable', 'enctype', 'formenctype', 'formmethod', 'http-equiv', 'inputmode', 'kind', 'method', 'preload', 'scope', 'shape', 'spellcheck', 'translate', 'type', 'wrap']);
 
@@ -1553,19 +1526,14 @@ const ENUMERATED_ATTRIBUTES = new Set(['autocapitalize', 'autocomplete', 'charse
  *     ) )
  *     .map( ( [ key ] ) => key )
  *     .sort();
- *
- * @type {Set<string>}
  */
 const CSS_PROPERTIES_SUPPORTS_UNITLESS = new Set(['animation', 'animationIterationCount', 'baselineShift', 'borderImageOutset', 'borderImageSlice', 'borderImageWidth', 'columnCount', 'cx', 'cy', 'fillOpacity', 'flexGrow', 'flexShrink', 'floodOpacity', 'fontWeight', 'gridColumnEnd', 'gridColumnStart', 'gridRowEnd', 'gridRowStart', 'lineHeight', 'opacity', 'order', 'orphans', 'r', 'rx', 'ry', 'shapeImageThreshold', 'stopOpacity', 'strokeDasharray', 'strokeDashoffset', 'strokeMiterlimit', 'strokeOpacity', 'strokeWidth', 'tabSize', 'widows', 'x', 'y', 'zIndex', 'zoom']);
 
 /**
  * Returns true if the specified string is prefixed by one of an array of
  * possible prefixes.
- *
- * @param {string}   string   String to check.
- * @param {string[]} prefixes Possible prefixes.
- *
- * @return {boolean} Whether string has prefix.
+ * @param string
+ * @param prefixes
  */
 function hasPrefix(string, prefixes) {
   return prefixes.some(prefix => string.indexOf(prefix) === 0);
@@ -1574,10 +1542,7 @@ function hasPrefix(string, prefixes) {
 /**
  * Returns true if the given prop name should be ignored in attributes
  * serialization, or false otherwise.
- *
- * @param {string} attribute Attribute to check.
- *
- * @return {boolean} Whether attribute should be ignored.
+ * @param attribute
  */
 function isInternalAttribute(attribute) {
   return 'key' === attribute || 'children' === attribute;
@@ -1585,11 +1550,8 @@ function isInternalAttribute(attribute) {
 
 /**
  * Returns the normal form of the element's attribute value for HTML.
- *
- * @param {string} attribute Attribute name.
- * @param {*}      value     Non-normalized attribute value.
- *
- * @return {*} Normalized attribute value.
+ * @param attribute
+ * @param value
  */
 function getNormalAttributeValue(attribute, value) {
   switch (attribute) {
@@ -1598,6 +1560,7 @@ function getNormalAttributeValue(attribute, value) {
   }
   return value;
 }
+
 /**
  * This is a map of all SVG attributes that have dashes. Map(lower case prop => dashed lower case attribute).
  * We need this to render e.g strokeWidth as stroke-width.
@@ -1633,10 +1596,7 @@ const SVG_ATTRIBUTES_WITH_COLONS = ['xlink:actuate', 'xlink:arcrole', 'xlink:hre
 
 /**
  * Returns the normal form of the element's attribute name for HTML.
- *
- * @param {string} attribute Non-normalized attribute name.
- *
- * @return {string} Normalized attribute name.
+ * @param attribute
  */
 function getNormalAttributeName(attribute) {
   switch (attribute) {
@@ -1662,10 +1622,7 @@ function getNormalAttributeName(attribute) {
  * - Converts property names to kebab-case, e.g. 'backgroundColor' → 'background-color'
  * - Leaves custom attributes alone, e.g. '--myBackgroundColor' → '--myBackgroundColor'
  * - Converts vendor-prefixed property names to -kebab-case, e.g. 'MozTransform' → '-moz-transform'
- *
- * @param {string} property Property name.
- *
- * @return {string} Normalized property name.
+ * @param property
  */
 function getNormalStylePropertyName(property) {
   if (property.startsWith('--')) {
@@ -1680,11 +1637,8 @@ function getNormalStylePropertyName(property) {
 /**
  * Returns the normal form of the style property value for HTML. Appends a
  * default pixel unit if numeric, not a unitless property, and not zero.
- *
- * @param {string} property Property name.
- * @param {*}      value    Non-normalized property value.
- *
- * @return {*} Normalized property value.
+ * @param property
+ * @param value
  */
 function getNormalStylePropertyValue(property, value) {
   if (typeof value === 'number' && 0 !== value && !hasPrefix(property, ['--']) && !CSS_PROPERTIES_SUPPORTS_UNITLESS.has(property)) {
@@ -1695,12 +1649,9 @@ function getNormalStylePropertyValue(property, value) {
 
 /**
  * Serializes a React element to string.
- *
- * @param {import('react').ReactNode} element         Element to serialize.
- * @param {Object}                    [context]       Context object.
- * @param {Object}                    [legacyContext] Legacy context object.
- *
- * @return {string} Serialized element.
+ * @param element
+ * @param context
+ * @param legacyContext
  */
 function renderElement(element, context, legacyContext = {}) {
   if (null === element || undefined === element || false === element) {
@@ -1718,8 +1669,7 @@ function renderElement(element, context, legacyContext = {}) {
   const {
     type,
     props
-  } = /** @type {{type?: any, props?: any}} */
-  element;
+  } = element;
   switch (type) {
     case external_React_namespaceObject.StrictMode:
     case external_React_namespaceObject.Fragment:
@@ -1758,14 +1708,10 @@ function renderElement(element, context, legacyContext = {}) {
 
 /**
  * Serializes a native component type to string.
- *
- * @param {?string} type            Native component type to serialize, or null if
- *                                  rendering as fragment of children content.
- * @param {Object}  props           Props object.
- * @param {Object}  [context]       Context object.
- * @param {Object}  [legacyContext] Legacy context object.
- *
- * @return {string} Serialized element.
+ * @param type
+ * @param props
+ * @param context
+ * @param legacyContext
  */
 function renderNativeComponent(type, props, context, legacyContext = {}) {
   let content = '';
@@ -1795,27 +1741,17 @@ function renderNativeComponent(type, props, context, legacyContext = {}) {
   return '<' + type + attributes + '>' + content + '</' + type + '>';
 }
 
-/** @typedef {import('react').ComponentType} ComponentType */
-
 /**
  * Serializes a non-native component type to string.
- *
- * @param {ComponentType} Component       Component type to serialize.
- * @param {Object}        props           Props object.
- * @param {Object}        [context]       Context object.
- * @param {Object}        [legacyContext] Legacy context object.
- *
- * @return {string} Serialized element
+ * @param Component
+ * @param props
+ * @param context
+ * @param legacyContext
  */
 function renderComponent(Component, props, context, legacyContext = {}) {
-  const instance = new (/** @type {import('react').ComponentClass} */
-  Component)(props, legacyContext);
-  if (typeof
-  // Ignore reason: Current prettier reformats parens and mangles type assertion
-  // prettier-ignore
-  /** @type {{getChildContext?: () => unknown}} */
-  instance.getChildContext === 'function') {
-    Object.assign(legacyContext, /** @type {{getChildContext?: () => unknown}} */instance.getChildContext());
+  const instance = new Component(props, legacyContext);
+  if (typeof instance.getChildContext === 'function') {
+    Object.assign(legacyContext, instance.getChildContext());
   }
   const html = renderElement(instance.render(), context, legacyContext);
   return html;
@@ -1823,18 +1759,15 @@ function renderComponent(Component, props, context, legacyContext = {}) {
 
 /**
  * Serializes an array of children to string.
- *
- * @param {import('react').ReactNodeArray} children        Children to serialize.
- * @param {Object}                         [context]       Context object.
- * @param {Object}                         [legacyContext] Legacy context object.
- *
- * @return {string} Serialized children.
+ * @param children
+ * @param context
+ * @param legacyContext
  */
 function renderChildren(children, context, legacyContext = {}) {
   let result = '';
-  children = Array.isArray(children) ? children : [children];
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i];
+  const childrenArray = Array.isArray(children) ? children : [children];
+  for (let i = 0; i < childrenArray.length; i++) {
+    const child = childrenArray[i];
     result += renderElement(child, context, legacyContext);
   }
   return result;
@@ -1842,10 +1775,7 @@ function renderChildren(children, context, legacyContext = {}) {
 
 /**
  * Renders a props object as a string of HTML attributes.
- *
- * @param {Object} props Props object.
- *
- * @return {string} Attributes string.
+ * @param props
  */
 function renderAttributes(props) {
   let result = '';
@@ -1894,10 +1824,7 @@ function renderAttributes(props) {
 
 /**
  * Renders a style object as a string attribute value.
- *
- * @param {Object} style Style object.
- *
- * @return {string} Style attribute value.
+ * @param style
  */
 function renderStyle(style) {
   // Only generate from object, e.g. tolerate string value.
@@ -1905,8 +1832,9 @@ function renderStyle(style) {
     return style;
   }
   let result;
-  for (const property in style) {
-    const value = style[property];
+  const styleObj = style;
+  for (const property in styleObj) {
+    const value = styleObj[property];
     if (null === value || undefined === value) {
       continue;
     }

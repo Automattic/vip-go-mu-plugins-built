@@ -33,13 +33,15 @@ __webpack_require__.d(__webpack_exports__, {
 const external_wp_i18n_namespaceObject = window["wp"]["i18n"];
 ;// ./packages/api-fetch/build-module/middlewares/nonce.js
 /**
- * @param {string} nonce
- * @return {import('../types').APIFetchMiddleware & { nonce: string }} A middleware to enhance a request with a nonce.
+ * Internal dependencies
+ */
+
+/**
+ * @param nonce
+ *
+ * @return  A middleware to enhance a request with a nonce.
  */
 function createNonceMiddleware(nonce) {
-  /**
-   * @type {import('../types').APIFetchMiddleware & { nonce: string }}
-   */
   const middleware = (options, next) => {
     const {
       headers = {}
@@ -67,8 +69,9 @@ function createNonceMiddleware(nonce) {
 
 ;// ./packages/api-fetch/build-module/middlewares/namespace-endpoint.js
 /**
- * @type {import('../types').APIFetchMiddleware}
+ * Internal dependencies
  */
+
 const namespaceAndEndpointMiddleware = (options, next) => {
   let path = options.path;
   let namespaceTrimmed, endpointTrimmed;
@@ -96,9 +99,10 @@ const namespaceAndEndpointMiddleware = (options, next) => {
  */
 
 
+
 /**
- * @param {string} rootURL
- * @return {import('../types').APIFetchMiddleware} Root URL middleware.
+ * @param rootURL
+ * @return  Root URL middleware.
  */
 const createRootURLMiddleware = rootURL => (options, next) => {
   return namespace_endpoint(options, optionsWithPath => {
@@ -136,8 +140,12 @@ const external_wp_url_namespaceObject = window["wp"]["url"];
 
 
 /**
- * @param {Record<string, any>} preloadedData
- * @return {import('../types').APIFetchMiddleware} Preloading middleware.
+ * Internal dependencies
+ */
+
+/**
+ * @param preloadedData
+ * @return Preloading middleware.
  */
 function createPreloadingMiddleware(preloadedData) {
   const cache = Object.fromEntries(Object.entries(preloadedData).map(([path, data]) => [(0,external_wp_url_namespaceObject.normalizePath)(path), data]));
@@ -145,7 +153,6 @@ function createPreloadingMiddleware(preloadedData) {
     const {
       parse = true
     } = options;
-    /** @type {string | void} */
     let rawPath = options.path;
     if (!rawPath && options.url) {
       const {
@@ -181,9 +188,9 @@ function createPreloadingMiddleware(preloadedData) {
 /**
  * This is a helper function that sends a success response.
  *
- * @param {Record<string, any>} responseData
- * @param {boolean}             parse
- * @return {Promise<any>} Promise with the response.
+ * @param responseData
+ * @param parse
+ * @return Promise with the response.
  */
 function prepareResponse(responseData, parse) {
   if (parse) {
@@ -199,7 +206,7 @@ function prepareResponse(responseData, parse) {
     // See: https://github.com/WordPress/gutenberg/issues/67358#issuecomment-2621163926.
     Object.entries(responseData.headers).forEach(([key, value]) => {
       if (key.toLowerCase() === 'link') {
-        responseData.headers[key] = value.replace(/<([^>]+)>/, (/** @type {any} */_, /** @type {string} */url) => `<${encodeURI(url)}>`);
+        responseData.headers[key] = value.replace(/<([^>]+)>/, (_, url) => `<${encodeURI(url)}>`);
       }
     });
     return Promise.resolve(parse ? responseData.body : new window.Response(JSON.stringify(responseData.body), {
@@ -221,13 +228,12 @@ function prepareResponse(responseData, parse) {
  * Internal dependencies
  */
 
-
 /**
  * Apply query arguments to both URL and Path, whichever is present.
  *
- * @param {import('../types').APIFetchOptions} props
- * @param {Record<string, string | number>}    queryArgs
- * @return {import('../types').APIFetchOptions} The request with the modified query args
+ * @param {APIFetchOptions}                   props     The request options
+ * @param {Record< string, string | number >} queryArgs
+ * @return  The request with the modified query args
  */
 const modifyQuery = ({
   path,
@@ -242,14 +248,14 @@ const modifyQuery = ({
 /**
  * Duplicates parsing functionality from apiFetch.
  *
- * @param {Response} response
- * @return {Promise<any>} Parsed response json.
+ * @param response
+ * @return Parsed response json.
  */
 const parseResponse = response => response.json ? response.json() : Promise.reject(response);
 
 /**
- * @param {string | null} linkHeader
- * @return {{ next?: string }} The parsed link header.
+ * @param linkHeader
+ * @return The parsed link header.
  */
 const parseLinkHeader = linkHeader => {
   if (!linkHeader) {
@@ -262,8 +268,8 @@ const parseLinkHeader = linkHeader => {
 };
 
 /**
- * @param {Response} response
- * @return {string | undefined} The next page URL.
+ * @param response
+ * @return  The next page URL.
  */
 const getNextPageUrl = response => {
   const {
@@ -273,8 +279,8 @@ const getNextPageUrl = response => {
 };
 
 /**
- * @param {import('../types').APIFetchOptions} options
- * @return {boolean} True if the request contains an unbounded query.
+ * @param options
+ * @return True if the request contains an unbounded query.
  */
 const requestContainsUnboundedQuery = options => {
   const pathIsUnbounded = !!options.path && options.path.indexOf('per_page=-1') !== -1;
@@ -286,8 +292,8 @@ const requestContainsUnboundedQuery = options => {
  * The REST API enforces an upper limit on the per_page option. To handle large
  * collections, apiFetch consumers can pass `per_page=-1`; this middleware will
  * then recursively assemble a full response array from all available pages.
- *
- * @type {import('../types').APIFetchMiddleware}
+ * @param options
+ * @param next
  */
 const fetchAllMiddleware = async (options, next) => {
   if (options.parse === false) {
@@ -319,7 +325,7 @@ const fetchAllMiddleware = async (options, next) => {
   }
 
   // Iteratively fetch all remaining pages until no "next" header is found.
-  let mergedResults = /** @type {any[]} */[].concat(results);
+  let mergedResults = [].concat(results);
   while (nextPage) {
     const nextResponse = await build_module({
       ...options,
@@ -339,9 +345,11 @@ const fetchAllMiddleware = async (options, next) => {
 
 ;// ./packages/api-fetch/build-module/middlewares/http-v1.js
 /**
+ * Internal dependencies
+ */
+
+/**
  * Set of HTTP methods which are eligible to be overridden.
- *
- * @type {Set<string>}
  */
 const OVERRIDE_METHODS = new Set(['PATCH', 'PUT', 'DELETE']);
 
@@ -352,8 +360,6 @@ const OVERRIDE_METHODS = new Set(['PATCH', 'PUT', 'DELETE']);
  * is `GET`."
  *
  * @see  https://fetch.spec.whatwg.org/#requests
- *
- * @type {string}
  */
 const DEFAULT_METHOD = 'GET';
 
@@ -361,7 +367,8 @@ const DEFAULT_METHOD = 'GET';
  * API Fetch middleware which overrides the request method for HTTP v1
  * compatibility leveraging the REST API X-HTTP-Method-Override header.
  *
- * @type {import('../types').APIFetchMiddleware}
+ * @param options
+ * @param next
  */
 const httpV1Middleware = (options, next) => {
   const {
@@ -389,8 +396,9 @@ const httpV1Middleware = (options, next) => {
 
 
 /**
- * @type {import('../types').APIFetchMiddleware}
+ * Internal dependencies
  */
+
 const userLocaleMiddleware = (options, next) => {
   if (typeof options.url === 'string' && !(0,external_wp_url_namespaceObject.hasQueryArg)(options.url, '_locale')) {
     options.url = (0,external_wp_url_namespaceObject.addQueryArgs)(options.url, {
@@ -413,73 +421,55 @@ const userLocaleMiddleware = (options, next) => {
 
 
 /**
- * Parses the apiFetch response.
- *
- * @param {Response} response
- * @param {boolean}  shouldParseResponse
- *
- * @return {Promise<any> | null | Response} Parsed response.
- */
-const response_parseResponse = (response, shouldParseResponse = true) => {
-  if (shouldParseResponse) {
-    if (response.status === 204) {
-      return null;
-    }
-    return response.json ? response.json() : Promise.reject(response);
-  }
-  return response;
-};
-
-/**
  * Calls the `json` function on the Response, throwing an error if the response
  * doesn't have a json function or if parsing the json itself fails.
  *
- * @param {Response} response
- * @return {Promise<any>} Parsed response.
+ * @param response
+ * @return Parsed response.
  */
-const parseJsonAndNormalizeError = response => {
-  const invalidJsonError = {
-    code: 'invalid_json',
-    message: (0,external_wp_i18n_namespaceObject.__)('The response is not a valid JSON response.')
-  };
-  if (!response || !response.json) {
-    throw invalidJsonError;
+async function parseJsonAndNormalizeError(response) {
+  try {
+    return await response.json();
+  } catch {
+    throw {
+      code: 'invalid_json',
+      message: (0,external_wp_i18n_namespaceObject.__)('The response is not a valid JSON response.')
+    };
   }
-  return response.json().catch(() => {
-    throw invalidJsonError;
-  });
-};
+}
 
 /**
  * Parses the apiFetch response properly and normalize response errors.
  *
- * @param {Response} response
- * @param {boolean}  shouldParseResponse
+ * @param response
+ * @param shouldParseResponse
  *
- * @return {Promise<any>} Parsed response.
+ * @return Parsed response.
  */
-const parseResponseAndNormalizeError = (response, shouldParseResponse = true) => {
-  return Promise.resolve(response_parseResponse(response, shouldParseResponse)).catch(res => parseAndThrowError(res, shouldParseResponse));
-};
+async function parseResponseAndNormalizeError(response, shouldParseResponse = true) {
+  if (!shouldParseResponse) {
+    return response;
+  }
+  if (response.status === 204) {
+    return null;
+  }
+  return await parseJsonAndNormalizeError(response);
+}
 
 /**
  * Parses a response, throwing an error if parsing the response fails.
  *
- * @param {Response} response
- * @param {boolean}  shouldParseResponse
- * @return {Promise<any>} Parsed response.
+ * @param response
+ * @param shouldParseResponse
+ * @return Never returns, always throws.
  */
-function parseAndThrowError(response, shouldParseResponse = true) {
+async function parseAndThrowError(response, shouldParseResponse = true) {
   if (!shouldParseResponse) {
     throw response;
   }
-  return parseJsonAndNormalizeError(response).then(error => {
-    const unknownError = {
-      code: 'unknown_error',
-      message: (0,external_wp_i18n_namespaceObject.__)('An unknown error occurred.')
-    };
-    throw error || unknownError;
-  });
+
+  // Parse the response JSON and throw it as an error.
+  throw await parseJsonAndNormalizeError(response);
 }
 
 ;// ./packages/api-fetch/build-module/middlewares/media-upload.js
@@ -492,10 +482,9 @@ function parseAndThrowError(response, shouldParseResponse = true) {
  * Internal dependencies
  */
 
-
 /**
- * @param {import('../types').APIFetchOptions} options
- * @return {boolean} True if the request is for media upload.
+ * @param options
+ * @return True if the request is for media upload.
  */
 function isMediaUploadRequest(options) {
   const isCreateMethod = !!options.method && options.method === 'POST';
@@ -505,8 +494,8 @@ function isMediaUploadRequest(options) {
 
 /**
  * Middleware handling media upload failures and retries.
- *
- * @type {import('../types').APIFetchMiddleware}
+ * @param options
+ * @param next
  */
 const mediaUploadMiddleware = (options, next) => {
   if (!isMediaUploadRequest(options)) {
@@ -516,8 +505,8 @@ const mediaUploadMiddleware = (options, next) => {
   const maxRetries = 5;
 
   /**
-   * @param {string} attachmentId
-   * @return {Promise<any>} Processed post response.
+   * @param attachmentId
+   * @return Processed post response.
    */
   const postProcess = attachmentId => {
     retries++;
@@ -544,7 +533,7 @@ const mediaUploadMiddleware = (options, next) => {
     parse: false
   }).catch(response => {
     // `response` could actually be an error thrown by `defaultFetchHandler`.
-    if (!response.headers) {
+    if (!(response instanceof globalThis.Response)) {
       return Promise.reject(response);
     }
     const attachmentId = response.headers.get('x-wp-upload-attachment-id');
@@ -569,6 +558,9 @@ const mediaUploadMiddleware = (options, next) => {
  * WordPress dependencies
  */
 
+/**
+ * Internal dependencies
+ */
 
 /**
  * This appends a `wp_theme_preview` parameter to the REST API request URL if
@@ -577,8 +569,8 @@ const mediaUploadMiddleware = (options, next) => {
  * If the REST API request URL has contained the `wp_theme_preview` parameter as `''`,
  * then bypass this middleware.
  *
- * @param {Record<string, any>} themePath
- * @return {import('../types').APIFetchMiddleware} Preloading middleware.
+ * @param themePath
+ * @return  Preloading middleware.
  */
 const createThemePreviewMiddleware = themePath => (options, next) => {
   if (typeof options.url === 'string') {
@@ -624,12 +616,9 @@ const createThemePreviewMiddleware = themePath => (options, next) => {
 
 
 
-
 /**
  * Default set of header values which should be sent with every request unless
  * explicitly provided through apiFetch options.
- *
- * @type {Record<string, string>}
  */
 const DEFAULT_HEADERS = {
   // The backend uses the Accept header as a condition for considering an
@@ -642,49 +631,20 @@ const DEFAULT_HEADERS = {
 /**
  * Default set of fetch option values which should be sent with every request
  * unless explicitly provided through apiFetch options.
- *
- * @type {Object}
  */
 const DEFAULT_OPTIONS = {
   credentials: 'include'
 };
-
-/** @typedef {import('./types').APIFetchMiddleware} APIFetchMiddleware */
-/** @typedef {import('./types').APIFetchOptions} APIFetchOptions */
-
-/**
- * @type {import('./types').APIFetchMiddleware[]}
- */
 const middlewares = [user_locale, namespace_endpoint, http_v1, fetch_all_middleware];
 
 /**
  * Register a middleware
  *
- * @param {import('./types').APIFetchMiddleware} middleware
+ * @param middleware
  */
 function registerMiddleware(middleware) {
   middlewares.unshift(middleware);
 }
-
-/**
- * Checks the status of a response, throwing the Response as an error if
- * it is outside the 200 range.
- *
- * @param {Response} response
- * @return {Response} The response if the status is in the 200 range.
- */
-const checkStatus = response => {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  }
-  throw response;
-};
-
-/** @typedef {(options: import('./types').APIFetchOptions) => Promise<any>} FetchHandler*/
-
-/**
- * @type {FetchHandler}
- */
 const defaultFetchHandler = nextOptions => {
   const {
     url,
@@ -709,7 +669,7 @@ const defaultFetchHandler = nextOptions => {
     body = JSON.stringify(data);
     headers['Content-Type'] = 'application/json';
   }
-  const responsePromise = window.fetch(
+  const responsePromise = globalThis.fetch(
   // Fall back to explicitly passing `window.location` which is the behavior if `undefined` is passed.
   url || path || window.location.href, {
     ...DEFAULT_OPTIONS,
@@ -717,46 +677,59 @@ const defaultFetchHandler = nextOptions => {
     body,
     headers
   });
-  return responsePromise.then(value => Promise.resolve(value).then(checkStatus).catch(response => parseAndThrowError(response, parse)).then(response => parseResponseAndNormalizeError(response, parse)), err => {
+  return responsePromise.then(response => {
+    // If the response is not 2xx, still parse the response body as JSON
+    // but throw the JSON as error.
+    if (!response.ok) {
+      return parseAndThrowError(response, parse);
+    }
+    return parseResponseAndNormalizeError(response, parse);
+  }, err => {
     // Re-throw AbortError for the users to handle it themselves.
     if (err && err.name === 'AbortError') {
       throw err;
     }
 
-    // Otherwise, there is most likely no network connection.
-    // Unfortunately the message might depend on the browser.
+    // If the browser reports being offline, we'll just assume that
+    // this is why the request failed.
+    if (!globalThis.navigator.onLine) {
+      throw {
+        code: 'offline_error',
+        message: (0,external_wp_i18n_namespaceObject.__)('Unable to connect. Please check your Internet connection.')
+      };
+    }
+
+    // Hard to diagnose further due to how Window.fetch reports errors.
     throw {
       code: 'fetch_error',
-      message: (0,external_wp_i18n_namespaceObject.__)('You are probably offline.')
+      message: (0,external_wp_i18n_namespaceObject.__)('Could not get a valid response from the server.')
     };
   });
 };
-
-/** @type {FetchHandler} */
 let fetchHandler = defaultFetchHandler;
 
 /**
  * Defines a custom fetch handler for making the requests that will override
  * the default one using window.fetch
  *
- * @param {FetchHandler} newFetchHandler The new fetch handler
+ * @param newFetchHandler The new fetch handler
  */
 function setFetchHandler(newFetchHandler) {
   fetchHandler = newFetchHandler;
 }
-
 /**
- * @template T
- * @param {import('./types').APIFetchOptions} options
- * @return {Promise<T>} A promise representing the request processed via the registered middlewares.
+ * Fetch
+ *
+ * @param options The options for the fetch.
+ * @return A promise representing the request processed via the registered middlewares.
  */
-function apiFetch(options) {
+const apiFetch = options => {
   // creates a nested function chain that calls all middlewares and finally the `fetchHandler`,
   // converting `middlewares = [ m1, m2, m3 ]` into:
   // ```
   // opts1 => m1( opts1, opts2 => m2( opts2, opts3 => m3( opts3, fetchHandler ) ) );
   // ```
-  const enhancedHandler = middlewares.reduceRight((/** @type {FetchHandler} */next, middleware) => {
+  const enhancedHandler = middlewares.reduceRight((next, middleware) => {
     return workingOptions => middleware(workingOptions, next);
   }, fetchHandler);
   return enhancedHandler(options).catch(error => {
@@ -765,15 +738,19 @@ function apiFetch(options) {
     }
 
     // If the nonce is invalid, refresh it and try again.
-    return window
-    // @ts-ignore
-    .fetch(apiFetch.nonceEndpoint).then(checkStatus).then(data => data.text()).then(text => {
-      // @ts-ignore
+    return globalThis.fetch(apiFetch.nonceEndpoint).then(response => {
+      // If the nonce refresh fails, it means we failed to recover from the original
+      // `rest_cookie_invalid_nonce` error and that it's time to finally re-throw it.
+      if (!response.ok) {
+        return Promise.reject(error);
+      }
+      return response.text();
+    }).then(text => {
       apiFetch.nonceMiddleware.nonce = text;
       return apiFetch(options);
     });
   });
-}
+};
 apiFetch.use = registerMiddleware;
 apiFetch.setFetchHandler = setFetchHandler;
 apiFetch.createNonceMiddleware = nonce;
@@ -783,6 +760,7 @@ apiFetch.fetchAllMiddleware = fetch_all_middleware;
 apiFetch.mediaUploadMiddleware = media_upload;
 apiFetch.createThemePreviewMiddleware = theme_preview;
 /* harmony default export */ const build_module = (apiFetch);
+
 
 (window.wp = window.wp || {}).apiFetch = __webpack_exports__["default"];
 /******/ })()
