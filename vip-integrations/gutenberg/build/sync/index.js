@@ -17345,24 +17345,78 @@ function createWebRTCConnection({
 }
 
 ;// ./packages/sync/build-module/config.js
-// This version number should be incremented whenever there are breaking changes
-// to Yjs doc schema or in how it is interpreted by code in the SyncConfig. This
-// allows implementors to invalidate persisted CRDT docs, if any.
+/**
+ * The version number for the CRDT Document.
+ *
+ * This version number should be incremented whenever there are breaking changes
+ * to Yjs doc schema or in how it is interpreted by code in the SyncConfig. This
+ * allows implementors to invalidate persisted CRDT docs, if any.
+ *
+ * @type {number}
+ */
 const CRDT_DOC_VERSION = 1;
 
 // Map keys in the root Yjs document.
+
+/**
+ * The key used to store the Y.Map containing the document content.
+ *
+ * @type {string}
+ */
 const CRDT_RECORD_MAP_KEY = 'document';
+/**
+ * The key used to store the Y.Map containing the document state (metadata).
+ *
+ * @type {string}
+ */
 const CRDT_STATE_MAP_KEY = 'state';
 
 // Sub-keys.
+
+/**
+ * The key used to store the last persisted date in the state map.
+ *
+ * @type {string}
+ */
 const CRDT_STATE_PERSISTED_AT_KEY = 'persistedAt';
+/**
+ * The key used to store the user ID of the last user who persisted the document.
+ *
+ * @type {string}
+ */
 const CRDT_STATE_PERSISTED_BY_KEY = 'persistedBy';
+/**
+ * The key used to store the date when the document was last restored.
+ *
+ * @type {string}
+ */
 const CRDT_STATE_RESTORED_AT_KEY = 'restoredAt';
+/**
+ * The key used to store the user ID of the last user who restored the document.
+ *
+ * @type {string}
+ */
 const CRDT_STATE_RESTORED_BY_KEY = 'restoredBy';
+/**
+ * The key used to store the version of the document.
+ *
+ * @type {string}
+ */
 const CRDT_STATE_VERSION_KEY = 'version';
 
 // Origin strings.
+
+/**
+ * The origin string used to identify changes made by the editor.
+ *
+ * @type {string}
+ */
 const LOCAL_EDITOR_ORIGIN = 'gutenberg';
+/**
+ * The origin string used to identify changes made by the sync provider.
+ *
+ * @type {string}
+ */
 const LOCAL_SYNC_PROVIDER_ORIGIN = 'syncProvider';
 
 ;// ./packages/sync/build-module/y-utilities/y-multidoc-undomanager.js
@@ -17718,6 +17772,11 @@ function createYjsDoc(documentMeta) {
 
 
 
+/**
+ * The SyncProvider manages access to CRDT documents for multiple entities,
+ * including their lifecycle, connections, and syncing changes between the CRDT
+ * document and the local store.
+ */
 class SyncProvider {
   entityStates = new Map();
 
@@ -17804,7 +17863,7 @@ class SyncProvider {
     // Apply the initial document to the current document as a singular update.
     if (initialDoc) {
       ydoc.transact(() => {
-        applyUpdate(ydoc, encodeStateAsUpdate(initialDoc));
+        applyUpdateV2(ydoc, encodeStateAsUpdateV2(initialDoc));
       }, LOCAL_SYNC_PROVIDER_ORIGIN);
     }
     if (!initialDoc || true === initialDoc?.meta?.get('invalidated')) {
@@ -17946,11 +18005,10 @@ class SyncProvider {
   /**
    * Get the undo manager.
    *
-   * @return {UndoManager | null} The undo manager, or null if unsupported.
+   * @return {UndoManager} The undo manager.
    */
   getUndoManager() {
-    var _this$undoManager;
-    return (_this$undoManager = this.undoManager) !== null && _this$undoManager !== void 0 ? _this$undoManager : null;
+    return this.undoManager;
   }
 
   /**
@@ -18037,6 +18095,10 @@ class SyncProvider {
 
 
 
+
+/**
+ * Exported instance of Yjs to prevent double instantiation issues.
+ */
 
 
 

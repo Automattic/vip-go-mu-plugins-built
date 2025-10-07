@@ -7360,6 +7360,7 @@ __webpack_require__.d(__webpack_exports__, {
   BlockAlignmentToolbar: () => (/* reexport */ BlockAlignmentToolbar),
   BlockBreadcrumb: () => (/* reexport */ block_breadcrumb),
   BlockCanvas: () => (/* reexport */ block_canvas),
+  BlockCanvasCover: () => (/* reexport */ BlockCanvasCover),
   BlockColorsStyleSelector: () => (/* reexport */ color_style_selector),
   BlockContextProvider: () => (/* reexport */ BlockContextProvider),
   BlockControls: () => (/* reexport */ block_controls),
@@ -66194,6 +66195,7 @@ const useBlockCommands = () => {
 
 
 
+
 /**
  * Internal dependencies
  */
@@ -66208,9 +66210,10 @@ const useBlockCommands = () => {
 
 
 
+const BlockCanvasCover = (0,external_wp_components_namespaceObject.createSlotFill)('BlockCanvasCover');
+
 // EditorStyles is a memoized component, so avoid passing a new
 // object reference on each render.
-
 const EDITOR_STYLE_TRANSFORM_OPTIONS = {
   // Don't transform selectors that already specify `.editor-styles-wrapper`.
   ignoredSelectors: [/\.editor-styles-wrapper/gi]
@@ -66254,6 +66257,22 @@ function ExperimentalBlockCanvas({
           width: '100%'
         },
         children: children
+      }), /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(BlockCanvasCover.Slot, {
+        fillProps: {
+          containerRef: localRef
+        },
+        children: covers => covers.map((cover, index) => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
+          className: "block-canvas-cover",
+          style: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none'
+          },
+          children: cover
+        }, index))
       })]
     });
   }
@@ -66274,7 +66293,23 @@ function ExperimentalBlockCanvas({
       name: "editor-canvas",
       children: [/*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(editor_styles, {
         styles: styles
-      }), children]
+      }), children, /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)(BlockCanvasCover.Slot, {
+        fillProps: {
+          containerRef: localRef
+        },
+        children: covers => covers.map((cover, index) => /*#__PURE__*/(0,external_ReactJSXRuntime_namespaceObject.jsx)("div", {
+          className: "block-canvas-cover",
+          style: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none'
+          },
+          children: cover
+        }, index))
+      })]
     })
   });
 }
@@ -81599,6 +81634,7 @@ lock(privateApis, {
 /**
  * Internal dependencies
  */
+
 
 
 

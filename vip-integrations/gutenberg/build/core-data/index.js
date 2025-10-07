@@ -7591,7 +7591,6 @@ const resolvers_getEntityRecord = (kind, name, key = '', query) => async ({
   try {
     // Entity supports configs,
     if (query !== undefined && query._fields) {
-      // @todo how does this work? What is happening here?
       // If requesting specific fields, items and query association to said
       // records are stored by ID reference. Thus, fields must always include
       // the ID.
@@ -7600,32 +7599,19 @@ const resolvers_getEntityRecord = (kind, name, key = '', query) => async ({
         _fields: [...new Set([...(get_normalized_comma_separable(query._fields) || []), entityConfig.key || DEFAULT_ENTITY_KEY])].join()
       };
     }
-
-    // Disable reason: While true that an early return could leave `path`
-    // unused, it's important that path is derived using the query prior to
-    // additional query modifications in the condition below, since those
-    // modifications are relevant to how the data is tracked in state, and not
-    // for how the request is made to the REST API.
-
-    // eslint-disable-next-line @wordpress/no-unused-vars-before-return
+    if (query !== undefined && query._fields) {
+      // The resolution cache won't consider query as reusable based on the
+      // fields, so it's tested here, prior to initiating the REST request,
+      // and without causing `getEntityRecord` resolution to occur.
+      const hasRecord = select.hasEntityRecord(kind, name, key, query);
+      if (hasRecord) {
+        return;
+      }
+    }
     const path = (0,external_wp_url_namespaceObject.addQueryArgs)(entityConfig.baseURL + (key ? '/' + key : ''), {
       ...entityConfig.baseURLParams,
       ...query
     });
-    if (query !== undefined && query._fields) {
-      query = {
-        ...query,
-        include: [key]
-      };
-
-      // The resolution cache won't consider query as reusable based on the
-      // fields, so it's tested here, prior to initiating the REST request,
-      // and without causing `getEntityRecords` resolution to occur.
-      const hasRecords = select.hasEntityRecords(kind, name, query);
-      if (hasRecords) {
-        return;
-      }
-    }
     const response = await external_wp_apiFetch_default()({
       path,
       parse: false

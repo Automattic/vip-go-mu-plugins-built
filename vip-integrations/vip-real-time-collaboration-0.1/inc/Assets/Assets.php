@@ -60,7 +60,7 @@ final class Assets {
 			'rtcPostMetaKey' => CrdtPersistence::POST_META_KEY,
 			'wsUrl' => $vip_rtc_ws_url,
 			'blogId' => get_current_blog_id(),
-		] );
+		], JSON_HEX_TAG | JSON_UNESCAPED_SLASHES );
 
 		/** @psalm-suppress DocblockTypeContradiction */ // wp_json_encode() can return an empty string.
 		if ( ! is_string( $script_data ) || '' === $script_data ) {
