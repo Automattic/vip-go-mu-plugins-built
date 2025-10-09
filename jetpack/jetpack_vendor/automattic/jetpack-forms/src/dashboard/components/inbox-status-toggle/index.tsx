@@ -3,13 +3,14 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router';
 /**
@@ -25,16 +26,20 @@ import useInboxData from '../../hooks/use-inbox-data';
  * @return {string} The formatted label.
  */
 function getTabLabel( label: string, count: number ): string {
-	/* translators: 1: Tab label, 2: Count */
-	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), label, count || 0 );
+	return `${ label } (${ formatNumber( count || 0 ) })`;
 }
+
+type InboxStatusToggleProps = {
+	onChange: ( status: string ) => void;
+};
 
 /**
  * Renders the status toggle for the inbox view.
  *
+ * @param {Function} onChange - The function to call when the status changes.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle(): JSX.Element {
+export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -64,8 +69,10 @@ export default function InboxStatusToggle(): JSX.Element {
 
 				return params;
 			} );
+
+			onChange( newStatus );
 		},
-		[ setSearchParams, status, isSm ]
+		[ isSm, status, setSearchParams, onChange ]
 	);
 
 	return (

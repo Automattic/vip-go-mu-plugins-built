@@ -1450,6 +1450,37 @@ To start using the **Jetpack AI Assistant**, type `/AI` in the block editor.',
     ),
     'editorScript' => 'jetpack-blocks-editor',
   ),
+  'latex' => 
+  array (
+    '$schema' => 'https://schemas.wp.org/trunk/block.json',
+    'apiVersion' => 3,
+    'name' => 'jetpack/latex',
+    'version' => '0.1.0',
+    'title' => 'LaTeX',
+    'category' => 'formatting',
+    'description' => 'Create and display LaTeX with live preview and easy editing.',
+    'example' => 
+    array (
+      'attributes' => 
+      array (
+        'latex' => '\\frac{a}{b}',
+      ),
+    ),
+    'attributes' => 
+    array (
+      'latex' => 
+      array (
+        'type' => 'string',
+        'default' => '',
+      ),
+    ),
+    'supports' => 
+    array (
+      'html' => false,
+    ),
+    'textdomain' => 'jetpack',
+    'editorScript' => 'jetpack-blocks-editor',
+  ),
   'like' => 
   array (
     '$schema' => 'https://schemas.wp.org/trunk/block.json',

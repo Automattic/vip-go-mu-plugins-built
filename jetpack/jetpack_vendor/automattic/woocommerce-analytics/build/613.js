@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_automattic_woocommerce_analytics=self.webpackChunk_automattic_woocommerce_analytics||[]).push([[613],{358:(c,o,t)=>{function n(c){jQuery(".woocommerce-MyAccount-navigation-link--customer-logout").on("click",function(){c("my_account_tab_click",{tab:"logout"})})}t.r(o),t.d(o,{initListeners:()=>n})}}]);

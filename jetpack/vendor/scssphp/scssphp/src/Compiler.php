@@ -140,13 +140,28 @@ class Compiler
     /** @deprecated */
     public static $Infinity     = [Type::T_KEYWORD, 'Infinity'];
     public static $null         = [Type::T_NULL];
+    /**
+     * @internal
+     */
     public static $nullString   = [Type::T_STRING, '', []];
+    /**
+     * @internal
+     */
     public static $defaultValue = [Type::T_KEYWORD, ''];
+    /**
+     * @internal
+     */
     public static $selfSelector = [Type::T_SELF];
     public static $emptyList    = [Type::T_LIST, '', []];
     public static $emptyMap     = [Type::T_MAP, [], []];
     public static $emptyString  = [Type::T_STRING, '"', []];
+    /**
+     * @internal
+     */
     public static $with         = [Type::T_KEYWORD, 'with'];
+    /**
+     * @internal
+     */
     public static $without      = [Type::T_KEYWORD, 'without'];
     private static $emptyArgumentList = [Type::T_LIST, '', [], []];
 
@@ -571,7 +586,7 @@ class Compiler
 
             $sourceMap = null;
 
-            if (! empty($out) && $this->sourceMap && $this->sourceMap !== self::SOURCE_MAP_NONE) {
+            if (! empty($out) && $this->sourceMap !== self::SOURCE_MAP_NONE && $this->sourceMap) {
                 assert($sourceMapGenerator !== null);
                 $sourceMap = $sourceMapGenerator->generateJson($prefix);
                 $sourceMapUrl = null;
@@ -1656,6 +1671,7 @@ class Compiler
                 $parser = $this->parserFactory(__METHOD__);
 
                 if ($parser->parseValue($buffer, $reParsedWith)) {
+                    \assert(\is_array($reParsedWith));
                     $withCondition = $reParsedWith;
                 }
             }
@@ -5702,7 +5718,33 @@ EOL;
             @trigger_error('Omitting the argument declaration when registering custom function is deprecated and won\'t be supported in ScssPhp 2.0 anymore.', E_USER_DEPRECATED);
         }
 
+        if ($this->reflectCallable($callback)->getNumberOfRequiredParameters() > 1) {
+            @trigger_error('The second argument passed to the callback of custom functions is deprecated and won\'t be supported in ScssPhp 2.0 anymore. Register a callback accepting only 1 parameter instead.', E_USER_DEPRECATED);
+        }
+
         $this->userFunctions[$this->normalizeName($name)] = [$callback, $argumentDeclaration];
+    }
+
+    /**
+     * @return \ReflectionFunctionAbstract
+     */
+    private function reflectCallable(callable $c)
+    {
+        if (\is_object($c) && !$c instanceof \Closure) {
+            $c = [$c, '__invoke'];
+        }
+
+        if (\is_string($c) && false !== strpos($c, '::')) {
+            $c = explode('::', $c, 2);
+        }
+
+        if (\is_array($c)) {
+            return new \ReflectionMethod($c[0], $c[1]);
+        }
+
+        \assert(\is_string($c) || $c instanceof \Closure);
+
+        return new \ReflectionFunction($c);
     }
 
     /**
@@ -5841,13 +5883,13 @@ EOL;
 
                     if (! \is_null($file)) {
                         if (\is_array($dir)) {
-                            $callableDescription = (\is_object($dir[0]) ? \get_class($dir[0]) : $dir[0]).'::'.$dir[1];
+                            $callableDescription = (\is_object($dir[0]) ? \get_class($dir[0]) : $dir[0]) . '::' . $dir[1];
                         } elseif ($dir instanceof \Closure) {
                             $r = new \ReflectionFunction($dir);
                             if (false !== strpos($r->name, '{closure}')) {
                                 $callableDescription = sprintf('closure{%s:%s}', $r->getFileName(), $r->getStartLine());
                             } elseif ($class = $r->getClosureScopeClass()) {
-                                $callableDescription = $class->name.'::'.$r->name;
+                                $callableDescription = $class->name . '::' . $r->name;
                             } else {
                                 $callableDescription = $r->name;
                             }
@@ -5960,15 +6002,15 @@ EOL;
     private function tryImportPathWithExtensions($path)
     {
         $result = array_merge(
-            $this->tryImportPath($path.'.sass'),
-            $this->tryImportPath($path.'.scss')
+            $this->tryImportPath($path . '.sass'),
+            $this->tryImportPath($path . '.scss')
         );
 
         if ($result) {
             return $result;
         }
 
-        return $this->tryImportPath($path.'.css');
+        return $this->tryImportPath($path . '.css');
     }
 
     /**
@@ -5978,7 +6020,7 @@ EOL;
      */
     private function tryImportPath($path)
     {
-        $partial = dirname($path).'/_'.basename($path);
+        $partial = dirname($path) . '/_' . basename($path);
 
         $candidates = [];
 
@@ -6004,7 +6046,7 @@ EOL;
             return null;
         }
 
-        return $this->checkImportPathConflicts($this->tryImportPathWithExtensions($path.'/index'));
+        return $this->checkImportPathConflicts($this->tryImportPathWithExtensions($path . '/index'));
     }
 
     /**
@@ -6019,7 +6061,7 @@ EOL;
         }
 
         $normalizedPath = $path;
-        $normalizedRootDirectory = $this->rootDirectory.'/';
+        $normalizedRootDirectory = $this->rootDirectory . '/';
 
         if (\DIRECTORY_SEPARATOR === '\\') {
             $normalizedRootDirectory = str_replace('\\', '/', $normalizedRootDirectory);
@@ -6406,8 +6448,6 @@ EOL;
      */
     protected function sortNativeFunctionArgs($functionName, $prototypes, $args)
     {
-        static $parser = null;
-
         if (! isset($prototypes)) {
             $keyArgs = [];
             $posArgs = [];
@@ -6561,7 +6601,7 @@ EOL;
      *
      * @return array
      *
-     * @phpstan-param non-empty-list<array{arguments: list<array{0: string, 1: string, 2: array|Number|null}>, rest_argument: string|null}> $prototypes
+     * @phpstan-param non-empty-array<array{arguments: list<array{0: string, 1: string, 2: array|Number|null}>, rest_argument: string|null}> $prototypes
      * @phpstan-return array{arguments: list<array{0: string, 1: string, 2: array|Number|null}>, rest_argument: string|null}
      */
     private function selectFunctionPrototype(array $prototypes, $positional, array $names)
@@ -7714,9 +7754,9 @@ EOL;
         $b = min(1.0 - $w, $b);
 
         $rgb = $this->toRGB($hue, 100, 50);
-        for($i = 1; $i < 4; $i++) {
-          $rgb[$i] *= (1.0 - $w - $b);
-          $rgb[$i] = round($rgb[$i] + 255 * $w + 0.0001);
+        for ($i = 1; $i < 4; $i++) {
+            $rgb[$i] *= (1.0 - $w - $b);
+            $rgb[$i] = round($rgb[$i] + 255 * $w + 0.0001);
         }
 
         return $rgb;
@@ -7743,7 +7783,6 @@ EOL;
         if ((int) $d === 0) {
             $h = 0;
         } else {
-
             if ($red == $max) {
                 $h = 60 * ($green - $blue) / $d;
             } elseif ($green == $max) {
@@ -7753,7 +7792,7 @@ EOL;
             }
         }
 
-        return [Type::T_HWB, fmod($h, 360), $min / 255 * 100, 100 - $max / 255 *100];
+        return [Type::T_HWB, fmod($h, 360), $min / 255 * 100, 100 - $max / 255 * 100];
     }
 
 
@@ -7962,7 +8001,13 @@ EOL;
         $scale = $operation === 'scale';
         $change = $operation === 'change';
 
-        /** @phpstan-var callable(string, float|int, bool=, bool=): (float|int|null) $getParam */
+        /**
+         * @param string $name
+         * @param float|int $max
+         * @param bool $checkPercent
+         * @param bool $assertPercent
+         * @return float|int|null
+         */
         $getParam = function ($name, $max, $checkPercent = false, $assertPercent = false) use (&$kwargs, $scale, $change) {
             if (!isset($kwargs[$name])) {
                 return null;
@@ -8104,7 +8149,7 @@ EOL;
     protected static $libChangeColor = ['color', 'kwargs...'];
     protected function libChangeColor($args)
     {
-        return $this->alterColor($args,'change', function ($base, $alter, $max) {
+        return $this->alterColor($args, 'change', function ($base, $alter, $max) {
             if ($alter === null) {
                 return $base;
             }

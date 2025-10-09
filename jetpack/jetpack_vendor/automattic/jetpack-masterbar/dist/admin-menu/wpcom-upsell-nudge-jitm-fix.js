@@ -1,1 +1,1 @@
-document.addEventListener("DOMContentLoaded",(()=>{new MutationObserver((e=>{e.forEach((e=>{e.addedNodes.forEach((e=>{"toplevel_page_site-notices"===e.id&&window.dispatchEvent(new Event("resize"))}))}))})).observe(document.querySelector("#adminmenu"),{childList:!0})}));
+document.addEventListener("DOMContentLoaded",()=>{new MutationObserver(e=>{e.forEach(e=>{e.addedNodes.forEach(e=>{"toplevel_page_site-notices"===e.id&&window.dispatchEvent(new Event("resize"))})})}).observe(document.querySelector("#adminmenu"),{childList:!0})});

@@ -3,6 +3,7 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
+import { formatNumber } from '@automattic/number-formatters';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
@@ -45,7 +46,7 @@ export default function useExportResponses(): ExportHookReturn {
 	const isSpam = currentStatus.includes( 'spam' );
 	const isTrash = currentStatus.includes( 'trash' );
 
-	let statusLabel = __( 'Export', 'jetpack-forms' );
+	let statusLabel: string = __( 'Export', 'jetpack-forms' );
 
 	if ( isSpam ) {
 		statusLabel = __( 'Export spam', 'jetpack-forms' );
@@ -54,7 +55,9 @@ export default function useExportResponses(): ExportHookReturn {
 	}
 
 	const exportLabel =
-		selectedResponsesCount > 0 ? `${ statusLabel } (${ selectedResponsesCount })` : statusLabel;
+		selectedResponsesCount > 0
+			? `${ statusLabel } (${ formatNumber( selectedResponsesCount ) })`
+			: statusLabel;
 
 	const openModal = useCallback( () => {
 		setShowExportModal( true );

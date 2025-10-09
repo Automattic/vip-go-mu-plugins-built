@@ -2,45 +2,39 @@
  * External dependencies
  */
 import { useConnection } from '@automattic/jetpack-connection';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import requestExternalAccess from '@automattic/request-external-access';
 import { Button, Path, Spinner, SVG } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useCallback, useRef, useState } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 /**
  * Internal dependencies
  */
 import { config } from '../..';
 import { useIntegrationStatus } from '../../../blocks/contact-form/components/jetpack-integrations-modal/hooks/use-integration-status';
-import { PARTIAL_RESPONSES_PATH, PREFERRED_VIEW } from '../../../util/get-preferred-responses-view';
+import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
+	const [ isExporting, setIsExporting ] = useState( false );
 	const { integration, refreshStatus } = useIntegrationStatus( 'google-drive' );
 	const isConnectedToGoogleDrive = !! integration?.isConnected;
 	const { tracks } = useAnalytics();
 	const autoConnectOpened = useRef( false );
+	const [ isTogglingConnection, setIsTogglingConnection ] = useState( false );
 
 	const { isUserConnected, handleConnectUser, userIsConnecting, isOfflineMode } = useConnection( {
-		redirectUri:
-			PARTIAL_RESPONSES_PATH + ( PREFERRED_VIEW === 'classic' ? '' : '&connect-gdrive=true' ),
+		redirectUri: PARTIAL_RESPONSES_PATH + '&connect-gdrive=true',
 	} );
 
-	const pollForConnection = useCallback( () => {
-		const interval = setInterval( async () => {
-			if ( isConnectedToGoogleDrive ) {
-				clearInterval( interval );
-				return;
-			}
-
-			try {
-				await refreshStatus();
-			} catch {
-				clearInterval( interval );
-			}
-		}, 5000 );
-	}, [ isConnectedToGoogleDrive, refreshStatus ] );
+	const needsUserConnection = ! isSimpleSite() && ! isUserConnected;
 
 	const exportToGoogleDrive = useCallback( () => {
+		if ( isExporting ) {
+			return;
+		}
+		setIsExporting( true );
 		tracks.recordEvent( 'jetpack_forms_export_click', {
 			destination: 'google-drive',
 			screen: 'form-responses-inbox',
@@ -50,16 +44,26 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 			.then( ( response: Response ) => response.json() )
 			.then( ( { data } ) => {
 				window.open( data.sheet_link, '_blank' );
+			} )
+			.finally( () => {
+				setIsExporting( false );
 			} );
-	}, [ tracks, onExport ] );
+	}, [ tracks, onExport, isExporting ] );
 
 	const handleConnectClick = useCallback( () => {
-		pollForConnection();
-
+		if ( ! integration?.settingsUrl ) return;
 		tracks.recordEvent( 'jetpack_forms_upsell_googledrive_click', {
 			screen: 'form-responses-inbox',
 		} );
-	}, [ tracks, pollForConnection ] );
+		setIsTogglingConnection( true );
+		requestExternalAccess( integration?.settingsUrl, ( { keyring_id: keyringId } ) => {
+			if ( keyringId ) {
+				refreshStatus();
+			} else {
+				setIsTogglingConnection( false );
+			}
+		} );
+	}, [ tracks, integration?.settingsUrl, refreshStatus ] );
 
 	if ( isOfflineMode ) {
 		return null;
@@ -116,12 +120,13 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 									className={ buttonClasses }
 									variant="primary"
 									onClick={ exportToGoogleDrive }
+									isBusy={ isExporting }
 								>
 									{ __( 'Export', 'jetpack-forms' ) }
 								</Button>
 							) }
 
-							{ ! isConnectedToGoogleDrive && ! isUserConnected && (
+							{ ! isConnectedToGoogleDrive && needsUserConnection && (
 								<Button
 									className={ buttonClasses }
 									variant="primary"
@@ -134,14 +139,14 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 								</Button>
 							) }
 
-							{ ! isConnectedToGoogleDrive && isUserConnected && (
+							{ ! isConnectedToGoogleDrive && ! needsUserConnection && (
 								<Button
-									href={ integration?.settingsUrl }
 									className={ buttonClasses }
 									variant="primary"
 									rel="noopener noreferrer"
 									target="_blank"
 									onClick={ handleConnectClick }
+									disabled={ ! integration?.settingsUrl || isTogglingConnection }
 									ref={ el => {
 										if ( autoConnect && ! autoConnectOpened.current ) {
 											el?.click();
@@ -149,7 +154,13 @@ const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 										}
 									} }
 								>
-									{ __( 'Connect to Google Drive', 'jetpack-forms' ) }
+									{ isTogglingConnection
+										? __( 'Connecting…', 'jetpack-forms' )
+										: _x(
+												'Connect to Google Drive',
+												'', // Dummy context to avoid bad minification. See https://github.com/Automattic/jetpack/tree/e3f007ec7ac80715f3d82db33c9ed8098a7b45b4/projects/js-packages/i18n-check-webpack-plugin#conditional-function-call-compaction
+												'jetpack-forms'
+										  ) }
 								</Button>
 							) }
 						</>

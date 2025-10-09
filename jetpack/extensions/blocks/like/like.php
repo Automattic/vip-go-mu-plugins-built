@@ -14,6 +14,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -83,7 +87,16 @@ function render_block( $attr, $content, $block ) {
 			'modules/likes/queuehandler.js'
 		);
 	}
-	wp_enqueue_script( 'jetpack_likes_queuehandler', $script_url, array(), JETPACK__VERSION, true );
+	wp_enqueue_script(
+		'jetpack_likes_queuehandler',
+		$script_url,
+		array(),
+		JETPACK__VERSION,
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
 	wp_enqueue_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
 
 	$show_reblog_button = $attr['showReblogButton'] ?? false;

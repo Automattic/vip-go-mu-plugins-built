@@ -726,7 +726,7 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
-					sleep( $delay );
+					sleep( (int) $delay );
 				}
 			}
 
@@ -852,6 +852,23 @@ class Actions {
 	 */
 	public static function add_woocommerce_hpos_order_sync_module( $sync_modules ) {
 		$sync_modules[] = WooCommerce_HPOS_Orders::class;
+		return $sync_modules;
+	}
+
+	/**
+	 * Adds Woo's Products sync module to existing modules for sending.
+	 *
+	 * Note: This module is currently used for WooCommerce Analytics only.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's Products module.
+	 */
+	public static function add_woocommerce_products_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Products';
 		return $sync_modules;
 	}
 

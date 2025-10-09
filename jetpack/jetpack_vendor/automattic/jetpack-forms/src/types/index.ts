@@ -1,3 +1,4 @@
+import type { ILanguage } from '../contact-form/libs/date-picker/interfaces';
 import type { ReactNode } from 'react';
 
 /**
@@ -10,6 +11,12 @@ export interface Integration {
 	slug: string;
 	/** The unique identifier for the integration. */
 	id: string;
+	/** Default title for displaying the integration (server-provided, filterable). */
+	title?: string;
+	/** Default subtitle/description for the integration (server-provided, filterable). */
+	subtitle?: string;
+	/** Whether this integration should be enabled by default for new forms. */
+	enabledByDefault?: boolean;
 	/** The plugin file path, if applicable. */
 	pluginFile?: string | null;
 	/** Whether the integration is installed. */
@@ -103,6 +110,10 @@ export interface JPFormsBlocksDefaults {
 	formsResponsesSpamUrl?: string;
 	/** Whether MailPoet integration is enabled. */
 	isMailPoetEnabled?: boolean;
+	/** The default subject for the form. */
+	subject?: string;
+	/** The default recipient email address for the form. */
+	to?: string;
 }
 
 /**
@@ -120,6 +131,14 @@ declare global {
 			};
 		};
 		MSStream?: unknown;
+		ajaxurl?: string;
+		jpDatePicker?: {
+			lang: ILanguage;
+			offset: string;
+		};
+		jetpackForms?: {
+			generateStyleVariables: ( formNode: HTMLElement ) => Record< string, string >;
+		};
 	}
 }
 
@@ -151,3 +170,72 @@ export type IntegrationCardData = Partial< Integration > & {
 	/** Whether the card is in a loading state. */
 	isLoading?: boolean;
 };
+
+/**
+ * Represents a Gutenberg block
+ */
+export type Block = {
+	attributes?: {
+		[ key: string ]: unknown;
+	};
+	clientId?: string;
+	innerBlocks?: Block[];
+	isValid?: boolean;
+	name?: string;
+	originalContent?: string;
+};
+
+/**
+ * Dispatch actions for the block editor store.
+ */
+export type BlockEditorStoreDispatch = {
+	insertBlock: ( block: Block, index: number, parentClientId: string ) => void;
+	removeBlock: ( clientId: string, isInnerBlock?: boolean ) => void;
+};
+
+/**
+ * Select actions for the block editor store.
+ */
+export type BlockEditorStoreSelect = {
+	getBlock: ( clientId: string ) => Block;
+	getBlocks: ( clientId: string ) => Block[];
+	hasSelectedInnerBlock: ( clientId: string, isInnerBlock: boolean ) => boolean;
+	getBlockRootClientId: ( clientId: string ) => string;
+	getSelectedBlock: () => Block;
+	getBlockIndex: ( clientId: string ) => number;
+	getBlockParentsByBlockName: ( clientId: string, blockName: string ) => string[];
+};
+
+/**
+ * Forms script data exposed via JetpackScriptData.forms
+ */
+export interface FormsConfigData {
+	/** Whether MailPoet integration is enabled across contexts. */
+	isMailPoetEnabled?: boolean;
+	/** Whether integrations UI is enabled (feature-flagged). */
+	isIntegrationsEnabled?: boolean;
+	/** Whether the current user can install plugins (install_plugins). */
+	canInstallPlugins?: boolean;
+	/** Whether the current user can activate plugins (activate_plugins). */
+	canActivatePlugins?: boolean;
+	/** Whether there are any feedback (form response) posts on the site. */
+	hasFeedback?: boolean;
+	/** Whether AI Assist features are available for the site/user. */
+	hasAI?: boolean;
+	/** The URL of the Forms responses list in wp-admin. */
+	formsResponsesUrl?: string;
+	/** Current site blog ID. */
+	blogId?: number;
+	/** Support URL for Google Drive connect guidance. */
+	gdriveConnectSupportURL?: string;
+	/** Base URL to static/assets for the Forms package. */
+	pluginAssetsURL?: string;
+	/** The site suffix/fragment for building admin links. */
+	siteURL?: string;
+	/** The dashboard URL with migration acknowledgement parameter. */
+	dashboardURL?: string;
+	/** Nonce for exporting feedback responses (dashboard-only). */
+	exportNonce?: string;
+	/** Nonce for creating a new form (dashboard-only). */
+	newFormNonce?: string;
+}

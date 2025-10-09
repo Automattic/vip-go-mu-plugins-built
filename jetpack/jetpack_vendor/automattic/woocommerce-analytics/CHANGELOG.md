@@ -5,9 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2025-10-02
+### Added
+- Implement WP Consent API Integration [#45323]
+
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.9.2] - 2025-09-30
+### Fixed
+- Prevent PHP error when WC_Tracks class is not available. [#45330]
+- Prevent PHP warnings when array key is undefined. [#45330]
+
+## [0.9.1] - 2025-09-29
+### Changed
+- Internal updates.
+
+## [0.9.0] - 2025-09-25
+### Added
+- Add experimental API-based event tracking. [#45279]
+- Add IP-based visitor tracking as fallback when proxy tracking is enabled and cookies are unavailable. [#45279]
+- Add proxy speed module to enhance proxy API performance. [#45243]
+- Implement client-side analytics tracking. [#45268]
+
+### Changed
+- Update build scripts for production. [#45296]
+
+## [0.8.0] - 2025-09-22
+### Added
+- Implement on-site pixel API endpoint with POST support. [#45227]
+
+## [0.7.0] - 2025-09-19
+### Added
+- Add server-side tracking. [#45208]
+
+### Changed
+- Implement server-side direct event delivery. [#45209]
+
+## [0.6.2] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [0.6.1] - 2025-09-01
+### Fixed
+- Fix duplicate product purchase events on order confirmation page. [#44973]
+
+## [0.6.0] - 2025-08-18
+### Changed
+- Replace URL-based landing page tracking with breadcrumb-based hierarchical page tracking. [#44789]
+
+### Fixed
+- Fix PHP warnings for `undefined` array keys and `null` object properties. [#44808]
+
+## [0.5.0] - 2025-08-13
+### Added
+- Add session engagement tracking. [#44729]
+- Track page views. [#44729]
+
+### Changed
+- Add clickhouse param to record events. [#44729]
+- Set expiration time for session cookie to 30 mins or midnight UTC. [#44729]
+
+### Fixed
+- Ensure update cart is triggered. [#44729]
+- Set woocommerceanalytics_session. [#44729]
+
 ## [0.4.9] - 2025-08-04
 ### Changed
-- Performance: improve processing of blocks during Analytics gathering. [#44544]
+- Performance: Improve processing of blocks during Analytics gathering. [#44544]
 
 ## [0.4.8] - 2025-06-16
 ### Fixed
@@ -119,6 +184,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix namespace issue with WooCommerce class reference. [#35857]
 - General: bail early when WooCommerce is not active. [#36278]
 
+[0.10.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.9.2...v0.10.0
+[0.9.2]: https://github.com/Automattic/woocommerce-analytics/compare/v0.9.1...v0.9.2
+[0.9.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.8.0...v0.9.0
+[0.8.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.7.0...v0.8.0
+[0.7.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.6.2...v0.7.0
+[0.6.2]: https://github.com/Automattic/woocommerce-analytics/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.9...v0.5.0
 [0.4.9]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.8...v0.4.9
 [0.4.8]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.7...v0.4.8
 [0.4.7]: https://github.com/Automattic/woocommerce-analytics/compare/v0.4.6...v0.4.7

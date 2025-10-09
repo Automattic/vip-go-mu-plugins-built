@@ -11,6 +11,10 @@ use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Build the Jetpack admin menu as a whole.
  */
@@ -296,7 +300,7 @@ class Jetpack_Admin {
 				 *
 				 * @since 3.5.0
 				 *
-				 * @param string The search terms (comma separated).
+				 * @param string The search terms (comma-separated).
 				 */
 				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$module_array['search_terms'] = ob_get_clean();

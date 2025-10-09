@@ -23,6 +23,10 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for Jetpack Search.
  */
@@ -802,6 +806,7 @@ class Search extends Module {
 		'pa_colour',
 		'pa_compactor',
 		'pa_condition',
+		'pa_conditions-options',
 		'pa_cor',
 		'pa_couleur',
 		'pa_country',
@@ -870,6 +875,7 @@ class Search extends Module {
 		'pa_high-blow-tank',
 		'pa_hoehe',
 		'pa_inhoud',
+		'pa_interchange-part-number',
 		'pa_isadultproduct',
 		'pa_isbn',
 		'pa_iseligiblefortradein',

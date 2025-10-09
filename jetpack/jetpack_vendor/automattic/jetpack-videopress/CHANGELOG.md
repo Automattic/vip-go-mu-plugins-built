@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.32.9] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [0.32.8] - 2025-09-29
+### Changed
+- Update dependencies. [#44736]
+
+## [0.32.7] - 2025-09-22
+### Changed
+- Update dependencies. [#44736]
+
+## [0.32.6] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.32.5] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+## [0.32.4] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [0.32.3] - 2025-09-01
+### Changed
+- Update dependencies. [#44736]
+
+## [0.32.2] - 2025-08-25
+### Changed
+- Update package dependencies. [#44899]
+
+## [0.32.1] - 2025-08-18
+### Added
+- Add `typecheck` placeholder script (to be implemented). [#44795]
+
+## [0.32.0] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+- VideoPress: Include VideoPress editor state in REST API requests. [#44616]
+
+## [0.31.2] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [0.31.1] - 2025-08-05
+### Fixed
+- Prevent PHP fatal if URL is not a string. [#44619]
+
 ## [0.31.0] - 2025-08-04
 ### Changed
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]
@@ -1703,6 +1756,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.32.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.8...v0.32.9
+[0.32.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.7...v0.32.8
+[0.32.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.6...v0.32.7
+[0.32.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.5...v0.32.6
+[0.32.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.4...v0.32.5
+[0.32.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.3...v0.32.4
+[0.32.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.2...v0.32.3
+[0.32.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.1...v0.32.2
+[0.32.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.0...v0.32.1
+[0.32.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.2...v0.32.0
+[0.31.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.1...v0.31.2
+[0.31.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.31.0...v0.31.1
 [0.31.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.6...v0.31.0
 [0.30.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.5...v0.30.6
 [0.30.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.30.4...v0.30.5

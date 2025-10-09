@@ -1,9 +1,13 @@
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	ExternalLink,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	SelectControl,
+	ToggleControl,
 } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../icons/mailpoet';
@@ -12,12 +16,12 @@ import type { SingleIntegrationCardProps, IntegrationCardData } from '../../../.
 
 interface MailPoetCardProps extends SingleIntegrationCardProps {
 	mailpoet: {
-		enabledForForm: boolean;
+		enabledForForm?: boolean;
 		listId?: string | null;
 		listName?: string | null;
 	};
 	setAttributes: ( attrs: {
-		mailpoet: { enabledForForm: boolean; listId?: string | null; listName?: string | null };
+		mailpoet: { enabledForForm?: boolean; listId?: string | null; listName?: string | null };
 	} ) => void;
 }
 
@@ -41,6 +45,26 @@ const MailPoetCard = ( {
 		() => ( Array.isArray( data?.details?.lists ) ? ( data.details.lists as MailPoetList[] ) : [] ),
 		[ data?.details?.lists ]
 	);
+
+	const selectedBlock = useSelect( select => select( blockEditorStore ).getSelectedBlock(), [] );
+	const { insertBlock, removeBlock } = useDispatch( blockEditorStore );
+	const hasEmailBlock = selectedBlock?.innerBlocks?.some(
+		( { name }: { name: string } ) => name === 'jetpack/field-email'
+	);
+	const consentBlock = selectedBlock?.innerBlocks?.find(
+		( { name }: { name: string } ) => name === 'jetpack/field-consent'
+	);
+	const toggleConsent = async () => {
+		if ( consentBlock ) {
+			await removeBlock( consentBlock.clientId, false );
+		} else {
+			const buttonBlockIndex = selectedBlock.innerBlocks.findIndex(
+				( { name }: { name: string } ) => name === 'jetpack/button'
+			);
+			const newConsentBlock = await createBlock( 'jetpack/field-consent' );
+			await insertBlock( newConsentBlock, buttonBlockIndex, selectedBlock.clientId, false );
+		}
+	};
 
 	useEffect( () => {
 		if ( ! mailpoet.enabledForForm ) {
@@ -78,8 +102,8 @@ const MailPoetCard = ( {
 	const cardData: IntegrationCardData = {
 		...data,
 		showHeaderToggle: true,
-		headerToggleValue: mailpoet?.enabledForForm ?? false,
-		isHeaderToggleEnabled: true,
+		headerToggleValue: !! mailpoet?.enabledForForm,
+		isHeaderToggleEnabled: mailpoetActiveWithKey,
 		onHeaderToggleChange: ( value: boolean ) =>
 			setAttributes( { mailpoet: { ...mailpoet, enabledForForm: value } } ),
 		isLoading: ! data || typeof data.isInstalled === 'undefined',
@@ -101,11 +125,8 @@ const MailPoetCard = ( {
 	};
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet email marketing', 'jetpack-forms' ) }
-			description={ __(
-				'Send newsletters and marketing emails directly from your site.',
-				'jetpack-forms'
-			) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <MailPoetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -117,7 +138,7 @@ const MailPoetCard = ( {
 					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
-								'MailPoet is active. There is one step left. Please add your <a>MailPoet key</a>.',
+								'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 								'jetpack-forms'
 							),
 							{
@@ -133,7 +154,7 @@ const MailPoetCard = ( {
 							rel="noopener noreferrer"
 							__next40pxDefaultSize={ true }
 						>
-							{ __( 'Add MailPoet key', 'jetpack-forms' ) }
+							{ __( 'Complete MailPoet setup', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
 							{ __( 'Refresh status', 'jetpack-forms' ) }
@@ -143,25 +164,23 @@ const MailPoetCard = ( {
 			) : (
 				<div>
 					{ mailpoetLists?.length ? (
-						<p className="integration-card__description">
-							<SelectControl
-								label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
-								value={ mailpoet.listId }
-								options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
-								onChange={ value => {
-									const selected = mailpoetLists.find( l => l.id === value );
-									setAttributes( {
-										mailpoet: {
-											...mailpoet,
-											listId: selected?.id ?? null,
-											listName: selected?.name ?? null,
-										},
-									} );
-								} }
-								__next40pxDefaultSize={ true }
-								__nextHasNoMarginBottom={ true }
-							/>
-						</p>
+						<SelectControl
+							label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+							value={ mailpoet.listId }
+							options={ mailpoetLists.map( list => ( { label: list.name, value: list.id } ) ) }
+							onChange={ value => {
+								const selected = mailpoetLists.find( l => l.id === value );
+								setAttributes( {
+									mailpoet: {
+										...mailpoet,
+										listId: selected?.id ?? null,
+										listName: selected?.name ?? null,
+									},
+								} );
+							} }
+							__next40pxDefaultSize={ true }
+							__nextHasNoMarginBottom={ true }
+						/>
 					) : (
 						<p className="integration-card__description">
 							{ __(
@@ -169,6 +188,16 @@ const MailPoetCard = ( {
 								'jetpack-forms'
 							) }
 						</p>
+					) }
+					{ hasEmailBlock && (
+						<div className="integration-card__section">
+							<ToggleControl
+								label={ __( 'Add email permission request before submit button', 'jetpack-forms' ) }
+								checked={ !! consentBlock }
+								onChange={ toggleConsent }
+								__nextHasNoMarginBottom
+							/>
+						</div>
 					) }
 					<p className="integration-card__description">
 						<ExternalLink href={ settingsUrl }>

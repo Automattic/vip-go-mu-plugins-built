@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.22] - 2025-10-07
+### Fixed
+- Testimonials: Prevent warning when custom post type is not registered.
+
+## [0.13.21] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.13.20] - 2025-09-22
+### Changed
+- Update dependencies. [#44300]
+
+## [0.13.19] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.13.18] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+### Fixed
+- Featured images: Fix disabling featured images in post preview [#45036]
+
+## [0.13.17] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.13.16] - 2025-08-25
+### Changed
+- Internal updates.
+
+## [0.13.15] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.13.14] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- Prevent PHP errors when directly accessing various files. [#44646]
+
 ## [0.13.13] - 2025-08-04
 ### Changed
 - Internal updates.
@@ -349,6 +391,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add wordpress folder on gitignore. [#37177]
 
+[0.13.22]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.21...v0.13.22
+[0.13.21]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.20...v0.13.21
+[0.13.20]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.19...v0.13.20
+[0.13.19]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.18...v0.13.19
+[0.13.18]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.17...v0.13.18
+[0.13.17]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.16...v0.13.17
+[0.13.16]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.15...v0.13.16
+[0.13.15]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.14...v0.13.15
+[0.13.14]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.13...v0.13.14
 [0.13.13]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.12...v0.13.13
 [0.13.12]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.11...v0.13.12
 [0.13.11]: https://github.com/Automattic/jetpack-classic-theme-helper/compare/v0.13.10...v0.13.11

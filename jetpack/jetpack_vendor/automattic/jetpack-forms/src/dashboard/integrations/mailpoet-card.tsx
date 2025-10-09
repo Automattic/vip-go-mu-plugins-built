@@ -40,11 +40,8 @@ const MailPoetDashboardCard = ( {
 
 	return (
 		<IntegrationCard
-			title={ __( 'MailPoet Email Marketing', 'jetpack-forms' ) }
-			description={ __(
-				'Send newsletters and marketing emails directly from your site.',
-				'jetpack-forms'
-			) }
+			title={ data?.title }
+			description={ data?.subtitle }
 			icon={ <MailPoetIcon width={ 28 } height={ 28 } /> }
 			isExpanded={ isExpanded }
 			onToggle={ onToggle }
@@ -56,7 +53,7 @@ const MailPoetDashboardCard = ( {
 					<p className="integration-card__description">
 						{ createInterpolateElement(
 							__(
-								'MailPoet is active. There is one step left. Please add your <a>MailPoet key</a>.',
+								'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 								'jetpack-forms'
 							),
 							{
@@ -72,7 +69,7 @@ const MailPoetDashboardCard = ( {
 							rel="noopener noreferrer"
 							__next40pxDefaultSize={ true }
 						>
-							{ __( 'Add MailPoet key', 'jetpack-forms' ) }
+							{ __( 'Complete MailPoet setup', 'jetpack-forms' ) }
 						</Button>
 						<Button variant="tertiary" onClick={ refreshStatus } __next40pxDefaultSize={ true }>
 							{ __( 'Refresh status', 'jetpack-forms' ) }
