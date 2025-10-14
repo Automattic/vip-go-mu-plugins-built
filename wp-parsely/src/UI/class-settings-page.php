@@ -62,6 +62,7 @@ use const Parsely\PARSELY_FILE;
  *   custom_taxonomy_section?: string,
  *   cats_as_tags?: bool|string,
  *   content_helper: Parsely_Settings_Options_Content_Helper,
+ *   headline_testing?: Parsely_Options_Headline_Testing,
  *   lowercase_tags?: bool,
  *   force_https_canonicals?: bool,
  *   disable_autotrack?: bool|string,
@@ -81,6 +82,7 @@ use const Parsely\PARSELY_FILE;
  * }
  *
  * @phpstan-import-type Parsely_Options from Parsely
+ * @phpstan-import-type Parsely_Options_Headline_Testing from Parsely
  */
 final class Settings_Page {
 	/**
@@ -262,6 +264,7 @@ final class Settings_Page {
 
 		$this->initialize_basic_section();
 		$this->initialize_content_helper_section();
+		$this->initialize_headline_testing_section();
 		$this->initialize_recrawl_section();
 		$this->initialize_advanced_section();
 	}
@@ -430,7 +433,7 @@ final class Settings_Page {
 	}
 
 	/**
-	 * Registers the Content Intelligence section and its settings.
+	 * Registers section and settings for Content Intelligence section.
 	 *
 	 * @since 3.16.0
 	 */
@@ -522,6 +525,138 @@ final class Settings_Page {
 			$field_id,
 			__( 'Engagement Boost (beta)', 'wp-parsely' ),
 			array( $this, 'print_content_helper_ai_feature_section' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+	}
+
+	/**
+	 * Registers section and settings for Headline Testing section.
+	 *
+	 * @since 3.21.0
+	 */
+	private function initialize_headline_testing_section(): void {
+		$section_key = 'headline-testing-section';
+
+		add_settings_section(
+			$section_key,
+			__( 'Headline Testing', 'wp-parsely' ),
+			function (): void {
+				echo '<p>' . esc_html__( 'Configure Parse.ly Headline Testing to automatically test different headline variations and optimize for engagement.', 'wp-parsely' ) . '</p>';
+				echo '<p><a href="https://docs.parse.ly/dashboard/optimization-menu/headline-testing-tab/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'Learn more about Headline Testing', 'wp-parsely' ) . '</a></p>';
+			},
+			Parsely::MENU_SLUG
+		);
+
+		// Enable Headline Testing.
+		$field_id   = 'headline_testing[enabled]';
+		$field_args = array(
+			'option_key'   => $field_id,
+			'label_for'    => $field_id,
+			'yes_text'     => __( 'Enabled', 'wp-parsely' ),
+			'add_fieldset' => true,
+			'legend'       => __( 'Headline Testing', 'wp-parsely' ),
+			'help_text'    => __( 'Enable Parse.ly Headline Testing to automatically test different headline variations.', 'wp-parsely' ),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Headline Testing', 'wp-parsely' ),
+			array( $this, 'print_checkbox_tag' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+
+		// Installation Method.
+		$field_id   = 'headline_testing[installation_method]';
+		$field_args = array(
+			'option_key'    => $field_id,
+			'label_for'     => $field_id,
+			'help_text'     => __( 'Choose how you want to install the Headline Testing script. One-line snippet is recommended for most sites.', 'wp-parsely' ),
+			'radio_options' => array(
+				'one_line' => __( 'One-line Snippet (Recommended)', 'wp-parsely' ),
+				'advanced' => __( 'Advanced Installation', 'wp-parsely' ),
+			),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Installation Method', 'wp-parsely' ),
+			array( $this, 'print_radio_tags' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+
+		// Enable Flicker Control (Advanced only).
+		$field_id   = 'headline_testing[enable_flicker_control]';
+		$field_args = array(
+			'option_key' => $field_id,
+			'label_for'  => $field_id,
+			'yes_text'   => __( 'Enabled', 'wp-parsely' ),
+			'help_text'  => __( 'Hide page body for up to 500ms to prevent flickering when headlines are replaced. Only available with Advanced installation.', 'wp-parsely' ),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Enable Flicker Control', 'wp-parsely' ),
+			array( $this, 'print_checkbox_tag' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+
+		// Enable Live Updates.
+		$field_id   = 'headline_testing[enable_live_updates]';
+		$field_args = array(
+			'option_key' => $field_id,
+			'label_for'  => $field_id,
+			'yes_text'   => __( 'Enabled', 'wp-parsely' ),
+			'help_text'  => __( 'Watch for new content and automatically update headlines for newly added anchors.', 'wp-parsely' ),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Enable Live Updates', 'wp-parsely' ),
+			array( $this, 'print_checkbox_tag' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+
+		// Live Update Timeout.
+		$field_id   = 'headline_testing[live_update_timeout]';
+		$field_args = array(
+			'option_key'    => $field_id,
+			'label_for'     => $field_id,
+			'help_text'     => __( 'How long to watch for new content (in milliseconds). Default: 30000 (30 seconds).', 'wp-parsely' ),
+			'optional_args' => array(
+				'type'        => 'number',
+				'placeholder' => '30000',
+				'min'         => '1000',
+				'max'         => '60000',
+				'step'        => '1000',
+			),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Live Update Timeout (ms)', 'wp-parsely' ),
+			array( $this, 'print_text_tag' ),
+			Parsely::MENU_SLUG,
+			$section_key,
+			$field_args
+		);
+
+		// Allow After Content Load.
+		$field_id   = 'headline_testing[allow_after_content_load]';
+		$field_args = array(
+			'option_key' => $field_id,
+			'label_for'  => $field_id,
+			'yes_text'   => __( 'Enabled', 'wp-parsely' ),
+			'help_text'  => __( 'Allow headline swapping even after the main content has loaded. May cause flickering. Highly recommended if you are loading your script asynchronously.', 'wp-parsely' ),
+		);
+		add_settings_field(
+			$field_id,
+			__( 'Allow After Content Load', 'wp-parsely' ),
+			array( $this, 'print_checkbox_tag' ),
 			Parsely::MENU_SLUG,
 			$section_key,
 			$field_args
@@ -836,25 +971,25 @@ final class Settings_Page {
 	 * @param Setting_Arguments $args The arguments for text tag.
 	 */
 	public function print_text_tag( $args ): void {
-		$options = $this->parsely->get_options();
-		$name    = $args['option_key'];
-		/**
-		 * Variable.
-		 *
-		 * @var string
-		 */
-		$value               = $options[ $name ] ?? '';
+		$options             = $this->parsely->get_options();
+		$name                = $args['option_key'];
+		$raw_value           = $this->get_option_value( $name, $options );
+		$value_as_string     = is_scalar( $raw_value ) ? (string) $raw_value : '';
 		$optional_args       = $args['optional_args'] ?? array();
 		$id                  = esc_attr( $name );
-		$name                = Parsely::OPTIONS_KEY . "[$id]";
+		$html_name           = $this->get_html_name_attribute( $name );
 		$is_obfuscated_value = $optional_args['is_obfuscated_value'] ?? false;
-		$value               = $is_obfuscated_value ? $this->get_obfuscated_value( $value ) : esc_attr( $value );
-		$accepted_args       = array( 'placeholder', 'required', 'disabled' );
+		$value               = $is_obfuscated_value ? $this->get_obfuscated_value( $value_as_string ) : esc_attr( $value_as_string );
 		$type                = $optional_args['type'] ?? 'text';
+		$accepted_args       = array( 'placeholder', 'required', 'disabled' );
+
+		if ( 'number' === $type ) {
+			$accepted_args = array_merge( $accepted_args, array( 'min', 'max', 'step' ) );
+		}
 
 		$is_managed = key_exists( $id, $this->parsely->managed_options );
 		echo '<fieldset', $is_managed ? ' disabled>' : '>';
-		printf( "<input type='%s' name='%s' id='%s' value='%s'", esc_attr( $type ), esc_attr( $name ), esc_attr( $id ), esc_attr( $value ) );
+		printf( "<input type='%s' name='%s' id='%s' value='%s'", esc_attr( $type ), esc_attr( $html_name ), esc_attr( $id ), esc_attr( $value ) );
 
 		if ( isset( $args['help_text'] ) ) {
 			echo ' aria-describedby="' . esc_attr( $id ) . '-description"';
@@ -892,19 +1027,9 @@ final class Settings_Page {
 		$name         = $args['option_key'];
 		$has_fieldset = isset( $args['add_fieldset'] ) && true === $args['add_fieldset'];
 		$html_id      = rtrim( str_replace( array( '[', ']', '__' ), '_', $name ), '_' );
-		$html_name    = str_replace(
-			'content_helper',
-			'[content_helper]',
-			Parsely::OPTIONS_KEY . esc_attr( $name )
-		);
+		$html_name    = $this->get_html_name_attribute( $name );
 		$yes_text     = $args['yes_text'] ?? '';
-
-		// Get option value.
-		if ( false === strpos( $name, '[' ) ) {
-			$value = $options[ $name ];
-		} else {
-			$value = Parsely::get_nested_option_value( $name, $options );
-		}
+		$value        = $this->get_option_value( $name, $options );
 
 		// Fieldset start.
 		if ( $has_fieldset ) {
@@ -1039,9 +1164,11 @@ final class Settings_Page {
 	 * @param Setting_Arguments $args The arguments for the radio buttons.
 	 */
 	public function print_radio_tags( $args ): void {
+		$options       = $this->parsely->get_options();
 		$name          = $args['option_key'];
 		$id            = esc_attr( $name );
-		$selected      = $this->parsely->get_options()[ $name ];
+		$selected      = $this->get_option_value( $name, $options );
+		$html_name     = $this->get_html_name_attribute( $name );
 		$title         = $args['title'] ?? '';
 		$radio_options = $args['radio_options'] ?? array();
 
@@ -1059,7 +1186,7 @@ final class Settings_Page {
 				<label for="<?php echo esc_attr( "{$id}_{$value}" ); ?>">
 					<input
 						type="radio"
-						name="<?php echo esc_attr( Parsely::OPTIONS_KEY . "[$id]" ); ?>"
+						name="<?php echo esc_attr( $html_name ); ?>"
 						id="<?php echo esc_attr( "{$id}_{$value}" ); ?>"
 						value="<?php echo esc_attr( $value ); ?>"
 					<?php checked( $selected, $value ); ?>
@@ -1104,6 +1231,53 @@ final class Settings_Page {
 
 		<?php
 		$this->print_description_text( $args );
+	}
+
+	/**
+	 * Generates the HTML name attribute for a form field.
+	 *
+	 * Handles nested options (content_helper, headline_testing) and regular
+	 * options, properly escaping and formatting the attribute value.
+	 *
+	 * @since 3.21.0
+	 *
+	 * @param string $name The option key/name.
+	 * @return string The properly formatted and escaped HTML name attribute value.
+	 */
+	private function get_html_name_attribute( string $name ): string {
+		if ( strpos( $name, 'content_helper' ) === 0 ) {
+			return Parsely::OPTIONS_KEY . str_replace(
+				'content_helper',
+				'[content_helper]',
+				esc_attr( $name )
+			);
+		} elseif ( strpos( $name, 'headline_testing' ) === 0 ) {
+			return Parsely::OPTIONS_KEY . str_replace(
+				'headline_testing',
+				'[headline_testing]',
+				esc_attr( $name )
+			);
+		} else {
+			return Parsely::OPTIONS_KEY . '[' . esc_attr( $name ) . ']';
+		}
+	}
+
+	/**
+	 * Gets the value of an option, handling both flat and nested option keys.
+	 *
+	 * @since 3.21.0
+	 *
+	 * @param string          $name    The option key name (may contain brackets for nested options).
+	 * @param Parsely_Options $options The options array to retrieve from.
+	 * @return mixed The option value, or null if not found.
+	 */
+	private function get_option_value( string $name, $options ) {
+		// Get raw value based on whether it's a nested option or not.
+		if ( false === strpos( $name, '[' ) ) {
+			return $options[ $name ] ?? null;
+		} else {
+			return Parsely::get_nested_option_value( $name, $options ) ?? null;
+		}
 	}
 
 	/**
@@ -1205,6 +1379,7 @@ final class Settings_Page {
 	public function validate_options( $input ) {
 		$input = $this->validate_basic_section( $input );
 		$input = $this->validate_content_helper_section( $input );
+		$input = $this->validate_headline_testing_section( $input );
 		$input = $this->validate_recrawl_section( $input );
 		$input = $this->validate_advanced_section( $input );
 
@@ -1388,6 +1563,80 @@ final class Settings_Page {
 		$input['content_helper'] = $sanitize( $merged );
 
 		return $input;
+	}
+
+	/**
+	 * Validates fields of Headline Testing Section.
+	 *
+	 * @since 3.21.0
+	 *
+	 * @param ParselySettingOptions $input Options from the settings page.
+	 * @return ParselySettingOptions Validated inputs.
+	 */
+	private function validate_headline_testing_section( $input ) {
+		/**
+		 * Sanitizes the Headline Testing data.
+		 *
+		 * @since 3.21.0
+		 */
+		$sanitize = function ( $input ) use ( &$sanitize ) {
+			foreach ( $input as $key => $value ) {
+				if ( is_array( $value ) ) {
+					// Recurse for nested arrays.
+					$input[ $key ] = $sanitize( $value );
+				} else {
+					$input[ $key ] = $this->sanitize_headline_testing_field( $key, $value );
+				}
+			}
+
+			return $input;
+		};
+
+		// Initialize headline_testing array if it doesn't exist.
+		if ( ! isset( $input['headline_testing'] ) ) {
+			$input['headline_testing'] = array();
+		}
+
+		// Ensure all required keys exist with defaults.
+		$input['headline_testing'] = array_merge(
+			$this->parsely->get_default_options()['headline_testing'],
+			$input['headline_testing']
+		);
+
+		// Produce the final array.
+		$options = $this->parsely->get_options()['headline_testing'];
+		$merged  = array_merge( $options, $input['headline_testing'] );
+
+		$input['headline_testing'] = $sanitize( $merged );
+
+		return $input;
+	}
+
+	/**
+	 * Sanitizes headline testing field values.
+	 *
+	 * @since 3.21.0
+	 *
+	 * @param string $key The field key.
+	 * @param mixed  $value The field value.
+	 * @return mixed The sanitized value.
+	 */
+	private function sanitize_headline_testing_field( string $key, $value ) {
+		switch ( $key ) {
+			case 'enabled':
+			case 'enable_flicker_control':
+			case 'enable_live_updates':
+			case 'allow_after_content_load':
+				return 'true' === $value || true === $value;
+			case 'installation_method':
+				$valid_methods = array( 'one_line', 'advanced' );
+				return in_array( $value, $valid_methods, true ) ? $value : 'one_line';
+			case 'live_update_timeout':
+				$timeout = intval( is_scalar( $value ) ? (string) $value : '0' );
+				return ( $timeout >= 1000 && $timeout <= 60000 ) ? $timeout : 30000;
+			default:
+				return sanitize_text_field( is_scalar( $value ) ? (string) $value : '' );
+		}
 	}
 
 	/**

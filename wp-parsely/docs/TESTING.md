@@ -54,6 +54,10 @@ composer testwp -- --filter SettingsPageTest
 
 # Run all multisite integration tests.
 composer testwp-ms
+
+# Run with coverage.
+composer coveragewp
+composer coveragewp -- --filter SettingsPageTest
 ```
 
 ### Troubleshooting

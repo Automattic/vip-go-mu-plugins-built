@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.21.1](https://github.com/Parsely/wp-parsely/compare/3.21.0...3.21.1) - 2025-10-13
+
+### Fixed
+
+- Settings page: Fix Headline Testing documentation link ([#3753](https://github.com/Parsely/wp-parsely/pull/3753))
+
+## [3.21.0](https://github.com/Parsely/wp-parsely/compare/3.20.8...3.21.0) - 2025-10-13
+
+### Added
+
+- Settings: Add Headline Testing configuration ([#3601](https://github.com/Parsely/wp-parsely/pull/3601))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.21.0+label%3ADeps).
+
 ## [3.20.8](https://github.com/Parsely/wp-parsely/compare/3.20.7...3.20.8) - 2025-10-06
 
 ### Fixed

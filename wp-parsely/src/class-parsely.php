@@ -32,6 +32,7 @@ use WP_Post;
  *   custom_taxonomy_section: string,
  *   cats_as_tags: bool,
  *   content_helper: Parsely_Options_Content_Helper,
+ *   headline_testing: Parsely_Options_Headline_Testing,
  *   track_authenticated_users: bool,
  *   lowercase_tags: bool,
  *   force_https_canonicals: bool,
@@ -59,6 +60,15 @@ use WP_Post;
  * @phpstan-type Parsely_Options_Content_Helper_Feature array{
  *   enabled: bool,
  *   allowed_user_roles: string[],
+ * }
+ *
+ * @phpstan-type Parsely_Options_Headline_Testing array{
+ *   enabled: bool,
+ *   installation_method: string,
+ *   enable_flicker_control: bool,
+ *   enable_live_updates: bool,
+ *   live_update_timeout: int,
+ *   allow_after_content_load: bool,
  * }
  *
  * @phpstan-type WP_HTTP_Request_Args array{
@@ -135,6 +145,14 @@ class Parsely {
 				'enabled'            => true,
 				'allowed_user_roles' => array( 'administrator' ),
 			),
+		),
+		'headline_testing'           => array(
+			'enabled'                  => false,
+			'installation_method'      => 'one_line',
+			'enable_flicker_control'   => false,
+			'enable_live_updates'      => false,
+			'live_update_timeout'      => 30000,
+			'allow_after_content_load' => false,
 		),
 		'track_authenticated_users'  => false,
 		'lowercase_tags'             => true,
