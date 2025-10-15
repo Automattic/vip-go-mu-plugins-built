@@ -21,7 +21,7 @@ final class Overrides {
 	 * Constructor to initialize the overrides.
 	 */
 	public function __construct() {
-		// Allow multiple users to see the edit post screen. There is a bug with this however, when autosave kicks in, see: https://core.trac.wordpress.org/ticket/63598.
+		// Allow multiple users to see the edit post screen.
 		add_filter( 'show_post_locked_dialog', '__return_false' );
 
 		// Ensure that the _edit_lock meta key is never returned, effectively disabling the post lock functionality just for revisions.php.

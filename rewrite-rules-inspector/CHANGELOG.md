@@ -4,17 +4,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2025-10-14
+
+### Fixed
+
+- fix: implicitly marking parameter as nullable is deprecated by @sjinks in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/55
+
+### Changed
+
+- refactor: Update UI to use tabs navigation by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/56
+
+## [1.5.0] - 2025-10-14
+
+### Added
+
+- feat: Add permastructs table with descriptions and structures by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/48
+- feat: Implement URL testing feature by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/51
+
+### Fixed
+
+- fix: undefined $match_path variable by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/47
+
+### Maintenance
+
+- CI: Refresh deploy.yml by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/43
+- Composer: Update composer/installers by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/44
+- Add Rector by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/45
+- Update GitHub action to install SVN before deploy to WordPress.org by @raamdev in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/46
+- refactor: Extract inline CSS and improve admin interface styling by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/49
+- refactor: Restructure plugin architecture and enhance service organization by @GaryJones in https://github.com/Automattic/Rewrite-Rules-Inspector/pull/50
+
 ## [1.4.0] - 2024-05-21
+
 - Increase minimum PHP version to 7.4.
 - Increase minimum WordPress version to 5.9.
 - Forcibly delete rules cache on flush.
 - Fix escaping of URL for the Reset button.
 
 ## [1.3.1] - 2021-05-18
+
 - Fix WordPress.org banner image filename.
 - Load text domain, to allow translations.
 
 ## [1.3.0] - 2021-05-18
+
 - Add the count of missing rules.
 - Add license file, changelog, .editorconfig file, PHPCS config file, and GitHub Action to deploy to WordPress.org.
 - Add Composer support.
@@ -28,22 +61,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove call to deprecated `screen_icon()` function.
 
 ## [1.2.1] - 2013-09-19
+
 - Fix for strict standards error in declaration of `Rewrite_Rules_Inspector_List_Table::single_row()`. Props [simonhampel](https://github.com/simonhampel).
 
 ## [1.2] - 2013-01-16
+
 - Modify the rewrite rule source with a filter. Props [jeremyfelt](https://github.com/jeremyfelt).
 
 ## [1.1] - 2012-09-25
+
 - Add support for route matching when WordPress lives in a subdirectory. Props [dbernar1](https://github.com/dbernar1).
 - Display a success message after flushing the rewrite rules.
 
 ## [1.0] - 2012-05-09
+
 - Initial public release!
 - View a list of all the rewrite rules.
 - See which rewrite rules match a given URL, and the priorities they match in.
 - Filter by different sources of rewrite rules.
 - An error message appears if rewrite rules are missing in the database.
 
+[1.5.1]: https://github.com/Automattic/Rewrite-Rules-Inspector/compare/1.5.0...1.5.1
+[1.5.0]: https://github.com/Automattic/Rewrite-Rules-Inspector/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/Automattic/Rewrite-Rules-Inspector/compare/1.3.1...1.4.0
 [1.3.1]: https://github.com/Automattic/Rewrite-Rules-Inspector/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/Automattic/Rewrite-Rules-Inspector/compare/1.2.1...1.3.0

@@ -1,0 +1,469 @@
+/**
+ * Rewrite Rules Inspector Admin Styles
+ *
+ * @package automattic\rewrite-rules-inspector
+ * @since 1.5.0
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (Variables)
+   ========================================================================== */
+
+:root {
+	--rri-primary-color: #0073aa;
+	--rri-border-color: #c3c4c7;
+	--rri-background-light: #f6f7f7;
+	--rri-text-color: #1d2327;
+	--rri-border-radius: 4px;
+	--rri-spacing-xs: 4px;
+	--rri-spacing-sm: 8px;
+	--rri-spacing-md: 16px;
+	--rri-spacing-xl: 32px;
+}
+
+/* ==========================================================================
+   Layout and Structure
+   ========================================================================== */
+
+.rri-admin-page {
+	max-width: 100%;
+}
+
+.rri-section {
+	margin-bottom: var(--rri-spacing-xl);
+}
+
+/* ==========================================================================
+   Tabs
+   ========================================================================== */
+/* WordPress provides base styles for .nav-tab-wrapper and .nav-tab */
+.nav-tab-wrapper {
+	margin-bottom: 12px;
+}
+
+/* ==========================================================================
+   Rewrite Rules Table Styles
+   ========================================================================== */
+
+#the-list tr.type-sunrise,
+#the-list tr.type-custom {
+	background-color: #eec7f0;
+	transition: background-color 0.2s ease;
+}
+
+#the-list tr.type-sunrise:hover,
+#the-list tr.type-custom:hover {
+	background-color: #e6b8e8;
+}
+
+#the-list tr.type-sunrise td,
+#the-list tr.type-custom td {
+	border-top-color: #f4e6f5;
+	border-bottom-color: #efbbf2;
+}
+
+#the-list tr.source-missing {
+	background-color: #f7a8a9;
+	transition: background-color 0.2s ease;
+}
+
+#the-list tr.source-missing:hover {
+	background-color: #f48a8c;
+}
+
+#the-list tr.type-missing td {
+	border-top-color: #fecfd0;
+	border-bottom-color: #f99b9d;
+}
+
+/* ==========================================================================
+   Permastructs Section Styles
+   ========================================================================== */
+
+#permastructs-section {
+	margin-top: var(--rri-spacing-xl);
+}
+
+.permastructs-table-wrapper {
+	overflow-x: auto;
+	margin-top: var(--rri-spacing-md);
+}
+
+.permastructs-table {
+	margin-top: 0;
+}
+
+.permastruct-structure {
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	background: var(--rri-background-light);
+	padding: var(--rri-spacing-xs) var(--rri-spacing-sm);
+	border-radius: var(--rri-border-radius);
+	font-size: 13px;
+	border: 1px solid var(--rri-border-color);
+	display: inline-block;
+	max-width: 100%;
+	word-break: break-all;
+	transition: all 0.2s ease;
+}
+
+.permastruct-structure:hover {
+	background: #e8e9ea;
+	border-color: var(--rri-primary-color);
+}
+
+/* ==========================================================================
+   List Table Navigation Styles
+   ========================================================================== */
+
+.custom-tablenav-top {
+	padding: var(--rri-spacing-sm) 0;
+}
+
+.custom-tablenav-top .tablenav-actions {
+	float: right;
+	display: flex;
+	align-items: center;
+	gap: var(--rri-spacing-sm);
+}
+
+.rri-rules-count {
+	color: #666;
+	font-size: 13px;
+	margin-right: var(--rri-spacing-sm);
+}
+
+/* Priority column should be narrow */
+.column-priority {
+	width: 60px;
+	text-align: center;
+}
+
+.custom-tablenav-top form {
+	display: inline-block;
+	margin-right: var(--rri-spacing-md);
+	vertical-align: middle;
+}
+
+.custom-tablenav-top form > * {
+	margin-right: var(--rri-spacing-xs);
+}
+
+.custom-tablenav-top form > *:last-child {
+	margin-right: 0;
+}
+
+.custom-tablenav-top label {
+	font-weight: 600;
+	color: var(--rri-text-color);
+	vertical-align: middle;
+}
+
+.custom-tablenav-top input[type="text"],
+.custom-tablenav-top select,
+.custom-tablenav-top .button {
+	height: 28px;
+	padding: 0 8px;
+	border: 1px solid var(--rri-border-color);
+	border-radius: var(--rri-border-radius);
+	font-size: 13px;
+	line-height: 26px;
+	vertical-align: middle;
+	box-sizing: border-box;
+}
+
+.custom-tablenav-top select {
+	min-width: 120px;
+}
+
+.custom-tablenav-top input[type="text"]:focus,
+.custom-tablenav-top select:focus {
+	border-color: var(--rri-primary-color);
+	outline: none;
+	box-shadow: 0 0 0 1px var(--rri-primary-color);
+}
+
+.custom-tablenav-top .button {
+	display: inline-block;
+	text-decoration: none;
+	text-align: center;
+	cursor: pointer;
+	background: #f6f7f7;
+	color: var(--rri-text-color);
+}
+
+.custom-tablenav-top .button:hover {
+	background: #f0f0f1;
+	border-color: #8c8f94;
+}
+
+.custom-tablenav-top .button-primary {
+	background: var(--rri-primary-color);
+	color: #fff;
+	border-color: var(--rri-primary-color);
+}
+
+.custom-tablenav-top .button-primary:hover {
+	background: #005a87;
+	border-color: #005a87;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+@media (max-width: 782px) {
+	.custom-tablenav-top .tablenav-actions {
+		float: none;
+		display: block;
+		margin-top: var(--rri-spacing-sm);
+	}
+	
+	.custom-tablenav-top form {
+		display: block;
+		margin-right: 0;
+		margin-bottom: var(--rri-spacing-sm);
+	}
+	
+	.custom-tablenav-top form > * {
+		margin-right: var(--rri-spacing-xs);
+		margin-bottom: var(--rri-spacing-xs);
+	}
+	
+	.permastructs-table-wrapper {
+		font-size: 14px;
+	}
+	
+	.permastruct-structure {
+		font-size: 12px;
+		padding: 2px 4px;
+	}
+	
+}
+
+@media (max-width: 600px) {
+	.custom-tablenav-top input[type="text"] {
+		width: 100%;
+	}
+}
+
+/* ==========================================================================
+   Accessibility Improvements
+   ========================================================================== */
+
+/* Focus indicators */
+.rri-admin-page *:focus {
+	outline: 2px solid var(--rri-primary-color);
+	outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	:root {
+		--rri-border-color: #000;
+		--rri-background-light: #fff;
+		--rri-text-muted: #000;
+	}
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+		animation: none !important;
+	}
+}
+
+/* ==========================================================================
+   JavaScript Enhancement Styles
+   ========================================================================== */
+
+/* Highlight effect for smooth scrolling targets */
+.rri-highlight {
+	animation: rri-highlight 2s ease-in-out;
+}
+
+@keyframes rri-highlight {
+	0% { background-color: transparent; }
+	50% { background-color: rgba(0, 115, 170, 0.1); }
+	100% { background-color: transparent; }
+}
+
+/* Active state for jump links */
+.jump-link.rri-active {
+	color: var(--rri-primary-color);
+	text-decoration: none;
+}
+
+/* Screen reader text utility */
+.screen-reader-text {
+	border: 0;
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	padding: 0;
+	position: absolute !important;
+	width: 1px;
+	word-wrap: normal !important;
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+	.jump-link,
+	.custom-tablenav-top {
+		display: none;
+	}
+	
+	.permastruct-structure {
+		background: transparent;
+		border: 1px solid #000;
+	}
+	
+	.rri-highlight {
+		animation: none;
+		background: transparent !important;
+	}
+}
+
+/* URL Test Results Styling */
+.rri-url-test-results {
+	margin: 20px 0;
+	padding: 20px;
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+/* Notices kept inside the tab content to avoid core relocation */
+.rri-notice {
+    /* Match core .notice spacing */
+    margin: 5px 0 15px;
+    padding: 12px;
+    background: #fff;
+    border-left: 4px solid #72aee6; /* info color default */
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    color: #1d2327;
+}
+
+.rri-notice p {
+    margin: .5em 0;
+}
+
+.rri-notice-success {
+    border-left-color: #46b450; /* core success */
+}
+
+.rri-notice-error {
+    border-left-color: #dc3232; /* core error */
+}
+
+.rri-url-test-results h3 {
+	margin-top: 0;
+	color: #23282d;
+}
+
+.rri-test-summary p {
+	margin: 8px 0;
+}
+
+.rri-test-summary code {
+	background: #fff;
+	padding: 2px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-family: Consolas, Monaco, monospace;
+}
+
+.rri-first-match {
+	margin: 20px 0;
+}
+
+.rri-first-match h4 {
+	margin-bottom: 10px;
+	color: #23282d;
+}
+
+.rri-first-match table {
+	margin: 0;
+}
+
+.rri-first-match th {
+	width: 150px;
+	text-align: left;
+	vertical-align: top;
+	padding: 8px 12px;
+	background: #f1f1f1;
+	border-bottom: 1px solid #ddd;
+}
+
+.rri-first-match td {
+	padding: 8px 12px;
+	border-bottom: 1px solid #ddd;
+}
+
+.rri-first-match code {
+	background: #fff;
+	padding: 2px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-family: Consolas, Monaco, monospace;
+	display: inline-block;
+	margin: 2px 0;
+}
+
+.rri-all-matches {
+	margin: 20px 0;
+}
+
+.rri-all-matches h4 {
+	margin-bottom: 10px;
+	color: #23282d;
+}
+
+.rri-all-matches ol {
+	margin: 0;
+	padding-left: 20px;
+}
+
+.rri-all-matches li {
+	margin: 8px 0;
+}
+
+.rri-all-matches code {
+	background: #fff;
+	padding: 2px 6px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-family: Consolas, Monaco, monospace;
+}
+
+.rri-match-source {
+	color: #666;
+	font-style: italic;
+	margin-left: 8px;
+}
+
+/* Filter form improvements */
+.rri-filter-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.rri-filter-row label {
+	font-weight: 600;
+	margin-right: 5px;
+}
+
+.rri-filter-row input[type="text"] {
+	min-width: 300px;
+}
+
+.rri-filter-row select {
+	min-width: 120px;
+}

@@ -40,18 +40,18 @@ final class Compatibility {
 	 *
 	 * @psalm-suppress PossiblyUnusedReturnValue Psalm does not detect usage via add_filter.
 	 */
-	public function enable_sync_collaboration_experiment( array|false $experiments ): array|false {
+	public function enable_sync_collaboration_experiment( mixed $experiments ): array {
 		global $pagenow;
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = [];
+		}
+
+		unset( $experiments['gutenberg-sync-collaboration'] );
 
 		// Do not enable on Site Editor.
 		if ( 'site-editor.php' === $pagenow ) {
 			return $experiments;
-		}
-
-		if ( ! is_array( $experiments ) ) {
-			return [
-				'gutenberg-sync-collaboration' => true,
-			];
 		}
 
 		$experiments['gutenberg-sync-collaboration'] = true;
