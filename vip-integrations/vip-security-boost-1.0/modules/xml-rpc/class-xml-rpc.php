@@ -15,6 +15,11 @@ class Xml_Rpc {
 			return;
 		}
 
+		if ( is_proxied_request() ) {
+			// Requests via the Automattic proxy are allowed to use XML-RPC.
+			return;
+		}
+
 		switch ( self::$mode ) {
 			case 'DISABLE':
 				// Completely disable XML-RPC.
