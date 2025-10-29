@@ -26,6 +26,8 @@ final class Overrides {
 
 		// Ensure that the _edit_lock meta key is never returned, effectively disabling the post lock functionality just for revisions.php.
 		add_filter( 'get_post_metadata', [ $this, 'filter_post_meta' ], 10, 3 );
+
+		add_action( 'admin_init', [ $this, 'remove_sync_setttings_field' ], 999 );
 	}
 
 	/**
@@ -57,5 +59,19 @@ final class Overrides {
 
 		// Otherwise, return the original value.
 		return $value;
+	}
+
+	/**
+	 * Remove the sync collaboration settings field from the Gutenberg experiments page.
+	 *
+	 * This is to prevent users from disabling the collaborative editing feature,
+	 * which is controlled within the plugin.
+	 * @psalm-suppress MixedArrayAccess
+	 */
+	public function remove_sync_setttings_field(): void {
+		global $wp_settings_fields;
+		if ( isset( $wp_settings_fields['gutenberg-experiments']['gutenberg_experiments_section']['gutenberg-sync-collaboration'] ) ) {
+			unset( $wp_settings_fields['gutenberg-experiments']['gutenberg_experiments_section']['gutenberg-sync-collaboration'] );
+		}
 	}
 }

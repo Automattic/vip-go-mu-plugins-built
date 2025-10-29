@@ -39,7 +39,6 @@ class ComposerStaticInit0c259ad047b224ddf37b84f36f049c74
         'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => __DIR__ . '/../..' . '/inc/Auth/SyncPermissions.php',
         'VIPRealTimeCollaboration\\Auth\\WebSocketAuth' => __DIR__ . '/../..' . '/inc/Auth/WebSocketAuth.php',
         'VIPRealTimeCollaboration\\Compatibility\\Compatibility' => __DIR__ . '/../..' . '/inc/Compatibility/Compatibility.php',
-        'VIPRealTimeCollaboration\\Editor\\CrdtPersistence' => __DIR__ . '/../..' . '/inc/Editor/CrdtPersistence.php',
         'VIPRealTimeCollaboration\\Overrides\\Overrides' => __DIR__ . '/../..' . '/inc/Overrides/Overrides.php',
         'VIPRealTimeCollaboration\\Telemetry\\Telemetry' => __DIR__ . '/../..' . '/inc/Telemetry/Telemetry.php',
     );

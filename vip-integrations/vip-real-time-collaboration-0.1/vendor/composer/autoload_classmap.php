@@ -16,7 +16,6 @@ return array(
     'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => $baseDir . '/inc/Auth/SyncPermissions.php',
     'VIPRealTimeCollaboration\\Auth\\WebSocketAuth' => $baseDir . '/inc/Auth/WebSocketAuth.php',
     'VIPRealTimeCollaboration\\Compatibility\\Compatibility' => $baseDir . '/inc/Compatibility/Compatibility.php',
-    'VIPRealTimeCollaboration\\Editor\\CrdtPersistence' => $baseDir . '/inc/Editor/CrdtPersistence.php',
     'VIPRealTimeCollaboration\\Overrides\\Overrides' => $baseDir . '/inc/Overrides/Overrides.php',
     'VIPRealTimeCollaboration\\Telemetry\\Telemetry' => $baseDir . '/inc/Telemetry/Telemetry.php',
 );

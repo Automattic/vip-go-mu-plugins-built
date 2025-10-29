@@ -4,7 +4,6 @@ namespace VIPRealTimeCollaboration\Assets;
 
 defined( 'ABSPATH' ) || exit();
 
-use VIPRealTimeCollaboration\Editor\CrdtPersistence;
 use function add_action;
 use function plugins_url;
 use function wp_add_inline_script;
@@ -57,7 +56,6 @@ final class Assets {
 
 		$script_data = wp_json_encode( [
 			'debug' => [],
-			'rtcPostMetaKey' => CrdtPersistence::POST_META_KEY,
 			'wsUrl' => $vip_rtc_ws_url,
 			'blogId' => get_current_blog_id(),
 		], JSON_HEX_TAG | JSON_UNESCAPED_SLASHES );
