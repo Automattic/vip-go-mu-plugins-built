@@ -28846,7 +28846,7 @@ var wp;
   var import_jsx_runtime268 = __toESM(require_jsx_runtime());
   var import_components140 = __toESM(require_components());
   var import_element114 = __toESM(require_element());
-  var import_compose24 = __toESM(require_compose());
+  var import_compose25 = __toESM(require_compose());
 
   // packages/dataviews/build-module/components/dataviews-context/index.js
   var import_element70 = __toESM(require_element());
@@ -29345,6 +29345,7 @@ var wp;
   var import_i18n95 = __toESM(require_i18n());
   var import_element72 = __toESM(require_element());
   var import_data70 = __toESM(require_data());
+  var import_compose16 = __toESM(require_compose());
   function ActionWithModal({
     action,
     items,
@@ -29431,6 +29432,21 @@ var wp;
     items
   }) {
     const label = typeof action.label === "string" ? action.label : action.label(items);
+    const isMobile = (0, import_compose16.useViewportMatch)("medium", "<");
+    if (isMobile) {
+      return /* @__PURE__ */ (0, import_jsx_runtime201.jsx)(
+        import_components101.Button,
+        {
+          disabled: isBusy,
+          accessibleWhenDisabled: true,
+          label,
+          icon: action.icon,
+          size: "compact",
+          onClick,
+          isBusy
+        }
+      );
+    }
     return /* @__PURE__ */ (0, import_jsx_runtime201.jsx)(
       import_components101.Button,
       {
@@ -29568,6 +29584,7 @@ var wp;
       null
     );
     const footerContentRef = (0, import_element72.useRef)(null);
+    const isMobile = (0, import_compose16.useViewportMatch)("medium", "<");
     const bulkActions = (0, import_element72.useMemo)(
       () => actions.filter((action) => action.supportsBulk),
       [actions]
@@ -29586,11 +29603,11 @@ var wp;
     }, [selection, data, getItemId2, selectableItems]);
     const actionsToShow = (0, import_element72.useMemo)(
       () => actions.filter((action) => {
-        return action.supportsBulk && selectedItems.some(
+        return action.supportsBulk && (!isMobile || action.icon) && selectedItems.some(
           (item) => !action.isEligible || action.isEligible(item)
         );
       }),
-      [actions, selectedItems]
+      [actions, selectedItems, isMobile]
     );
     if (!actionInProgress) {
       if (footerContentRef.current) {
@@ -29974,7 +29991,7 @@ var wp;
   var column_primary_default = ColumnPrimary;
 
   // packages/dataviews/build-module/dataviews-layouts/table/use-is-horizontal-scroll-end.js
-  var import_compose16 = __toESM(require_compose());
+  var import_compose17 = __toESM(require_compose());
   var import_element75 = __toESM(require_element());
   var import_i18n98 = __toESM(require_i18n());
   var isScrolledToEnd = (element) => {
@@ -29989,7 +30006,7 @@ var wp;
     enabled = false
   }) {
     const [isHorizontalScrollEnd, setIsHorizontalScrollEnd] = (0, import_element75.useState)(false);
-    const handleIsHorizontalScrollEnd = (0, import_compose16.useDebounce)(
+    const handleIsHorizontalScrollEnd = (0, import_compose17.useDebounce)(
       (0, import_element75.useCallback)(() => {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
@@ -30438,7 +30455,7 @@ var wp;
   var import_jsx_runtime207 = __toESM(require_jsx_runtime());
   var import_components105 = __toESM(require_components());
   var import_i18n100 = __toESM(require_i18n());
-  var import_compose17 = __toESM(require_compose());
+  var import_compose18 = __toESM(require_compose());
   var import_keycodes9 = __toESM(require_keycodes());
   var import_element78 = __toESM(require_element());
 
@@ -30488,7 +30505,7 @@ var wp;
     } = view;
     const hasBulkAction = useHasAPossibleBulkAction(actions, item);
     const id = getItemId2(item);
-    const instanceId = (0, import_compose17.useInstanceId)(GridItem);
+    const instanceId = (0, import_compose18.useInstanceId)(GridItem);
     const isSelected2 = selection.includes(id);
     const renderedMediaField = mediaField?.render ? /* @__PURE__ */ (0, import_jsx_runtime207.jsx)(
       mediaField.render,
@@ -30824,7 +30841,7 @@ var wp;
 
   // packages/dataviews/build-module/dataviews-layouts/list/index.js
   var import_jsx_runtime208 = __toESM(require_jsx_runtime());
-  var import_compose18 = __toESM(require_compose());
+  var import_compose19 = __toESM(require_compose());
   var import_components106 = __toESM(require_components());
   var import_element79 = __toESM(require_element());
   var import_i18n101 = __toESM(require_i18n());
@@ -30860,10 +30877,10 @@ var wp;
           {
             disabled: !!primaryAction.disabled,
             accessibleWhenDisabled: true,
+            text: label,
             size: "small",
             onClick: () => setIsModalOpen(true),
-            variant: "link",
-            children: label
+            variant: "link"
           }
         ),
         children: isModalOpen && /* @__PURE__ */ (0, import_jsx_runtime208.jsx)(
@@ -31128,7 +31145,7 @@ var wp;
       className,
       empty
     } = props;
-    const baseId = (0, import_compose18.useInstanceId)(ViewList, "view-list");
+    const baseId = (0, import_compose19.useInstanceId)(ViewList, "view-list");
     const selectedItem = data?.findLast(
       (item) => selection.includes(getItemId2(item))
     );
@@ -31164,7 +31181,7 @@ var wp;
     const activeItemIndex = data.findIndex(
       (item) => isActiveCompositeItem(item, activeCompositeId ?? "")
     );
-    const previousActiveItemIndex = (0, import_compose18.usePrevious)(activeItemIndex);
+    const previousActiveItemIndex = (0, import_compose19.usePrevious)(activeItemIndex);
     const isActiveIdInList = activeItemIndex !== -1;
     const selectCompositeItem = (0, import_element79.useCallback)(
       (targetIndex, generateCompositeId) => {
@@ -31318,7 +31335,7 @@ var wp;
   var import_jsx_runtime211 = __toESM(require_jsx_runtime());
   var import_components109 = __toESM(require_components());
   var import_i18n104 = __toESM(require_i18n());
-  var import_compose19 = __toESM(require_compose());
+  var import_compose20 = __toESM(require_compose());
   var import_element82 = __toESM(require_element());
 
   // packages/dataviews/build-module/components/dataviews-picker/footer.js
@@ -31608,7 +31625,7 @@ var wp;
     groupField,
     children
   }) {
-    const headerId = (0, import_compose19.useInstanceId)(
+    const headerId = (0, import_compose20.useInstanceId)(
       GridGroup,
       "dataviews-view-picker-grid-group__header"
     );
@@ -36059,7 +36076,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataviews-filters/search-widget.js
   var import_remove_accents = __toESM(require_remove_accents());
-  var import_compose20 = __toESM(require_compose());
+  var import_compose21 = __toESM(require_compose());
   var import_i18n108 = __toESM(require_i18n());
   var import_element86 = __toESM(require_element());
   var import_components112 = __toESM(require_components());
@@ -36160,7 +36177,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
   };
   function ListBox({ view, filter, onChangeView }) {
-    const baseId = (0, import_compose20.useInstanceId)(ListBox, "dataviews-filter-list-box");
+    const baseId = (0, import_compose21.useInstanceId)(ListBox, "dataviews-filter-list-box");
     const [activeCompositeId, setActiveCompositeId] = (0, import_element86.useState)(
       // When there are one or less operators, the first item is set as active
       // (by setting the initial `activeId` to `undefined`).
@@ -36411,7 +36428,7 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/dataviews/build-module/components/dataviews-filters/input-widget.js
   var import_jsx_runtime223 = __toESM(require_jsx_runtime());
   var import_es6 = __toESM(require_es6());
-  var import_compose21 = __toESM(require_compose());
+  var import_compose22 = __toESM(require_compose());
   var import_element87 = __toESM(require_element());
   var import_components113 = __toESM(require_components());
   function InputWidget({
@@ -36452,7 +36469,7 @@ If there's a particular need for this, please submit a feature request at https:
         {}
       );
     }, [view.filters]);
-    const handleChange = (0, import_compose21.useEvent)((updatedData) => {
+    const handleChange = (0, import_compose22.useEvent)((updatedData) => {
       if (!field || !currentFilter) {
         return;
       }
@@ -37397,10 +37414,10 @@ If there's a particular need for this, please submit a feature request at https:
   var import_i18n114 = __toESM(require_i18n());
   var import_element96 = __toESM(require_element());
   var import_components120 = __toESM(require_components());
-  var import_compose22 = __toESM(require_compose());
+  var import_compose23 = __toESM(require_compose());
   var DataViewsSearch = (0, import_element96.memo)(function Search({ label }) {
     const { view, onChangeView } = (0, import_element96.useContext)(dataviews_context_default);
-    const [search, setSearch, debouncedSearch] = (0, import_compose22.useDebouncedInput)(
+    const [search, setSearch, debouncedSearch] = (0, import_compose23.useDebouncedInput)(
       view.search
     );
     (0, import_element96.useEffect)(() => {
@@ -37443,7 +37460,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_i18n116 = __toESM(require_i18n());
   var import_element98 = __toESM(require_element());
   var import_warning = __toESM(require_warning());
-  var import_compose23 = __toESM(require_compose());
+  var import_compose24 = __toESM(require_compose());
 
   // packages/dataviews/build-module/components/dataviews-view-config/infinite-scroll-toggle.js
   var import_jsx_runtime233 = __toESM(require_jsx_runtime());
@@ -38086,7 +38103,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function DataviewsViewConfigDropdown() {
     const { view } = (0, import_element98.useContext)(dataviews_context_default);
-    const popoverId = (0, import_compose23.useInstanceId)(
+    const popoverId = (0, import_compose24.useInstanceId)(
       _DataViewsViewConfig,
       "dataviews-view-config-dropdown"
     );
@@ -42277,7 +42294,7 @@ If there's a particular need for this, please submit a feature request at https:
     const { infiniteScrollHandler } = paginationInfo;
     const containerRef = (0, import_element114.useRef)(null);
     const [containerWidth, setContainerWidth] = (0, import_element114.useState)(0);
-    const resizeObserverRef = (0, import_compose24.useResizeObserver)(
+    const resizeObserverRef = (0, import_compose25.useResizeObserver)(
       (resizeObserverEntries) => {
         setContainerWidth(
           resizeObserverEntries[0].borderBoxSize[0].inlineSize
@@ -42323,7 +42340,7 @@ If there's a particular need for this, please submit a feature request at https:
       if (!view.infiniteScrollEnabled || !containerRef.current) {
         return;
       }
-      const handleScroll = (0, import_compose24.throttle)((event) => {
+      const handleScroll = (0, import_compose25.throttle)((event) => {
         const target = event.target;
         const scrollTop = target.scrollTop;
         const scrollHeight = target.scrollHeight;
@@ -44696,7 +44713,7 @@ If there's a particular need for this, please submit a feature request at https:
           if (typeof item.id !== "number") {
             return item._isActive === false;
           }
-          return !item._isCustom;
+          return true;
         },
         async callback(items) {
           const deactivate = items.some((item) => item._isActive);
@@ -45195,7 +45212,12 @@ If there's a particular need for this, please submit a feature request at https:
     const {
       query: { activeView = "active" }
     } = useLocation26();
-    const { records } = (0, import_core_data51.useEntityRecords)("root", "registeredTemplate");
+    const { records } = (0, import_core_data51.useEntityRecords)("root", "registeredTemplate", {
+      // This should not be needed, the endpoint returns all registered
+      // templates, but it's not possible right now to turn off pagination for
+      // entity configs.
+      per_page: -1
+    });
     const firstItemPerAuthorText = (0, import_element133.useMemo)(() => {
       const firstItemPerAuthor = records?.reduce((acc, template) => {
         const author = template.author_text;
@@ -45211,7 +45233,7 @@ If there's a particular need for this, please submit a feature request at https:
         SidebarNavigationItem,
         {
           to: "/template",
-          icon: layout_default,
+          icon: published_default,
           "aria-current": activeView === "active",
           children: (0, import_i18n139.__)("Active templates")
         }
@@ -45220,7 +45242,7 @@ If there's a particular need for this, please submit a feature request at https:
         SidebarNavigationItem,
         {
           to: (0, import_url15.addQueryArgs)("/template", { activeView: "user" }),
-          icon: layout_default,
+          icon: comment_author_avatar_default,
           "aria-current": activeView === "user",
           // Let's avoid calling them "custom templates" to avoid
           // confusion. "Created" is closest to meaning database
@@ -45267,7 +45289,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_editor35 = __toESM(require_editor());
   var import_url18 = __toESM(require_url());
   var import_data84 = __toESM(require_data());
-  var import_compose27 = __toESM(require_compose());
+  var import_compose28 = __toESM(require_compose());
   var import_components161 = __toESM(require_components());
   var import_notices9 = __toESM(require_notices());
 
@@ -45278,7 +45300,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_element137 = __toESM(require_element());
   var import_data82 = __toESM(require_data());
   var import_core_data54 = __toESM(require_core_data());
-  var import_compose26 = __toESM(require_compose());
+  var import_compose27 = __toESM(require_compose());
   var import_i18n144 = __toESM(require_i18n());
   var import_notices8 = __toESM(require_notices());
   var import_router33 = __toESM(require_router());
@@ -45291,7 +45313,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_components157 = __toESM(require_components());
   var import_core_data53 = __toESM(require_core_data());
   var import_html_entities11 = __toESM(require_html_entities());
-  var import_compose25 = __toESM(require_compose());
+  var import_compose26 = __toESM(require_compose());
   var import_dom12 = __toESM(require_dom());
   var import_url17 = __toESM(require_url());
 
@@ -45890,7 +45912,7 @@ If there's a particular need for this, please submit a feature request at https:
     return suggestions;
   }
   function SuggestionList({ entityForSuggestions, onSelect }) {
-    const [search, setSearch, debouncedSearch] = (0, import_compose25.useDebouncedInput)();
+    const [search, setSearch, debouncedSearch] = (0, import_compose26.useDebouncedInput)();
     const suggestions = useSearchSuggestions(
       entityForSuggestions,
       debouncedSearch
@@ -46339,7 +46361,7 @@ If there's a particular need for this, please submit a feature request at https:
     const { saveEntityRecord } = (0, import_data82.useDispatch)(import_core_data54.store);
     const { createErrorNotice, createSuccessNotice } = (0, import_data82.useDispatch)(import_notices8.store);
     const containerRef = (0, import_element137.useRef)(null);
-    const isMobile = (0, import_compose26.useViewportMatch)("medium", "<");
+    const isMobile = (0, import_compose27.useViewportMatch)("medium", "<");
     const homeUrl = (0, import_data82.useSelect)((select2) => {
       return select2(import_core_data54.store).getEntityRecord("root", "__unstableBase")?.home;
     }, []);
@@ -46674,37 +46696,30 @@ If there's a particular need for this, please submit a feature request at https:
     type: "boolean",
     getValue: ({ item }) => item._isActive,
     render: function Render({ item }) {
-      if (item._isCustom) {
-        return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
-          Badge3,
-          {
-            intent: "info",
-            title: (0, import_i18n145.__)(
-              "Custom templates cannot be active nor inactive."
-            ),
-            children: (0, import_i18n145.__)("N/A")
-          }
-        );
-      }
+      const activeLabel = item._isCustom ? (0, import_i18n145.__)("Active when used") : (0, import_i18n145.__)("Active");
+      const activeIntent = item._isCustom ? "info" : "success";
       const isActive = item._isActive;
-      return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: isActive ? "success" : "default", children: isActive ? (0, import_i18n145.__)("Active") : (0, import_i18n145.__)("Inactive") });
+      return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: isActive ? activeIntent : "default", children: isActive ? activeLabel : (0, import_i18n145.__)("Inactive") });
     }
   };
   var useThemeField = () => {
     const activeTheme = (0, import_data83.useSelect)(
       (select2) => select2(import_core_data55.store).getCurrentTheme()
     );
-    return {
-      label: (0, import_i18n145.__)("Compatible Theme"),
-      id: "theme",
-      getValue: ({ item }) => item.theme,
-      render: function Render3({ item }) {
-        if (item.theme === activeTheme.stylesheet) {
-          return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "success", children: item.theme });
+    return (0, import_element138.useMemo)(
+      () => ({
+        label: (0, import_i18n145.__)("Compatible Theme"),
+        id: "theme",
+        getValue: ({ item }) => item.theme,
+        render: function Render3({ item }) {
+          if (item.theme === activeTheme.stylesheet) {
+            return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "success", children: item.theme });
+          }
+          return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "error", children: item.theme });
         }
-        return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "error", children: item.theme });
-      }
-    };
+      }),
+      [activeTheme]
+    );
   };
   var slugField = {
     label: (0, import_i18n145.__)("Template Type"),
@@ -46748,6 +46763,10 @@ If there's a particular need for this, please submit a feature request at https:
   function getDefaultView(activeView) {
     return {
       ...DEFAULT_VIEW2,
+      sort: activeView === "user" ? {
+        field: "date",
+        direction: "desc"
+      } : DEFAULT_VIEW2.sort,
       filters: !["active", "user"].includes(activeView) ? [
         {
           field: "author",
@@ -46759,7 +46778,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-templates/index.js
-  var { usePostActions: usePostActions2, templateTitleField } = unlock(import_editor35.privateApis);
+  var { usePostActions: usePostActions2, usePostFields, templateTitleField } = unlock(import_editor35.privateApis);
   var { useHistory: useHistory21, useLocation: useLocation27 } = unlock(import_router34.privateApis);
   var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions2 } = unlock(import_core_data56.privateApis);
   function PageTemplates() {
@@ -46801,11 +46820,14 @@ If there's a particular need for this, please submit a feature request at https:
       per_page: -1,
       combinedTemplates: false
     });
-    const { records: staticRecords, isResolving: isLoadingStaticData } = useEntityRecordsWithPermissions2("root", "registeredTemplate");
+    const { records: staticRecords, isResolving: isLoadingStaticData } = useEntityRecordsWithPermissions2("root", "registeredTemplate", {
+      // This should not be needed, the endpoint returns all registered
+      // templates, but it's not possible right now to turn off pagination
+      // for entity configs.
+      per_page: -1
+    });
     const activeTemplates = (0, import_element139.useMemo)(() => {
-      const _active = [...staticRecords].filter(
-        (record) => !record.is_custom
-      );
+      const _active = [...staticRecords];
       if (activeTemplatesOption) {
         for (const activeSlug in activeTemplatesOption) {
           const activeId = activeTemplatesOption[activeSlug];
@@ -46826,35 +46848,47 @@ If there's a particular need for this, please submit a feature request at https:
       }
       return _active;
     }, [userRecords, staticRecords, activeTemplatesOption, activeTheme]);
-    let _records;
     let isLoadingData;
     if (activeView === "active") {
-      _records = activeTemplates;
       isLoadingData = isLoadingUserRecords || isLoadingStaticData;
     } else if (activeView === "user") {
-      _records = userRecords;
       isLoadingData = isLoadingUserRecords;
     } else {
-      _records = staticRecords;
       isLoadingData = isLoadingStaticData;
     }
     const records = (0, import_element139.useMemo)(() => {
+      function isCustom(record) {
+        return record.is_custom ?? // For user templates it's custom if the is_wp_suggestion meta
+        // field is not set and the slug is not found in the default
+        // template types.
+        (!record.meta?.is_wp_suggestion && !defaultTemplateTypes.some(
+          (type) => type.slug === record.slug
+        ));
+      }
+      let _records;
+      if (activeView === "active") {
+        _records = activeTemplates.filter(
+          (record) => !isCustom(record)
+        );
+      } else if (activeView === "user") {
+        _records = userRecords;
+      } else {
+        _records = staticRecords;
+      }
       return _records.map((record) => ({
         ...record,
-        _isActive: !!activeTemplates.find(
+        _isActive: activeTemplates.some(
           (template) => template.id === record.id
         ),
-        _isCustom: (
-          // For registered templates, the is_custom field is defined.
-          record.is_custom ?? // For user templates it's custom if the is_wp_suggestion meta
-          // field is not set and the slug is not found in the default
-          // template types.
-          (!record.meta?.is_wp_suggestion && !defaultTemplateTypes.find(
-            (type) => type.slug === record.slug
-          ))
-        )
+        _isCustom: isCustom(record)
       }));
-    }, [_records, activeTemplates, defaultTemplateTypes]);
+    }, [
+      activeTemplates,
+      defaultTemplateTypes,
+      userRecords,
+      staticRecords,
+      activeView
+    ]);
     const users = (0, import_data84.useSelect)(
       (select2) => {
         const { getUser } = select2(import_core_data56.store);
@@ -46887,6 +46921,10 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [history, path, view?.type]
     );
+    const postTypeFields = usePostFields({
+      postType: TEMPLATE_POST_TYPE
+    });
+    const dateField = postTypeFields.find((field) => field.id === "date");
     const themeField = useThemeField();
     const fields = (0, import_element139.useMemo)(() => {
       const _fields = [
@@ -46898,6 +46936,9 @@ If there's a particular need for this, please submit a feature request at https:
       ];
       if (activeView === "user") {
         _fields.push(themeField);
+        if (dateField) {
+          _fields.push(dateField);
+        }
       }
       const elements2 = [];
       for (const author in users) {
@@ -46911,7 +46952,7 @@ If there's a particular need for this, please submit a feature request at https:
         elements: elements2
       });
       return _fields;
-    }, [users, activeView, themeField]);
+    }, [users, activeView, themeField, dateField]);
     const { data, paginationInfo } = (0, import_element139.useMemo)(() => {
       return filterSortAndPaginate(records, view, fields);
     }, [records, view, fields]);
@@ -46923,6 +46964,7 @@ If there's a particular need for this, please submit a feature request at https:
             {
               const newItem = items[0];
               const _title = typeof newItem.title === "string" ? newItem.title : newItem.title?.rendered;
+              history.navigate(`/template?activeView=user`);
               createSuccessNotice(
                 (0, import_i18n146.sprintf)(
                   // translators: %s: Title of the created post or template, e.g: "Hello world".
@@ -46961,7 +47003,7 @@ If there's a particular need for this, please submit a feature request at https:
       () => activeView === "user" ? [setActiveTemplateAction, editAction, ...postTypeActions] : [setActiveTemplateAction, ...postTypeActions],
       [postTypeActions, setActiveTemplateAction, editAction, activeView]
     );
-    const onChangeView = (0, import_compose27.useEvent)((newView) => {
+    const onChangeView = (0, import_compose28.useEvent)((newView) => {
       if (newView.type !== view.type) {
         history.invalidate();
       }
@@ -47026,12 +47068,7 @@ If there's a particular need for this, please submit a feature request at https:
                 duplicateAction.RenderModal,
                 {
                   items: [selectedRegisteredTemplate],
-                  closeModal: () => setSelectedRegisteredTemplate(),
-                  onActionPerformed: ([item]) => {
-                    history.navigate(
-                      `/${item.type}/${item.id}?canvas=edit`
-                    );
-                  }
+                  closeModal: () => setSelectedRegisteredTemplate()
                 }
               )
             }
@@ -47345,7 +47382,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_data87 = __toESM(require_data());
   var import_editor38 = __toESM(require_editor());
   var import_i18n149 = __toESM(require_i18n());
-  var import_compose28 = __toESM(require_compose());
+  var import_compose29 = __toESM(require_compose());
   var import_url20 = __toESM(require_url());
 
   // packages/edit-site/build-module/components/add-new-post/index.js
@@ -47460,7 +47497,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/index.js
-  var { usePostActions: usePostActions3, usePostFields } = unlock(import_editor38.privateApis);
+  var { usePostActions: usePostActions3, usePostFields: usePostFields2 } = unlock(import_editor38.privateApis);
   var { useLocation: useLocation30, useHistory: useHistory22 } = unlock(import_router37.privateApis);
   var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions3 } = unlock(import_core_data59.privateApis);
   var EMPTY_ARRAY13 = [];
@@ -47501,7 +47538,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       defaultView: getDefaultView2(postTypeObject, activeView)
     });
-    const onChangeView = (0, import_compose28.useEvent)((newView) => {
+    const onChangeView = (0, import_compose29.useEvent)((newView) => {
       if (newView.type !== view.type) {
         history.invalidate();
       }
@@ -47519,7 +47556,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [path, history]
     );
-    const fields = usePostFields({
+    const fields = usePostFields2({
       postType: postType2
     });
     const queryArgs = (0, import_element142.useMemo)(() => {
@@ -47565,7 +47602,7 @@ If there's a particular need for this, please submit a feature request at https:
       return records;
     }, [records, fields, view?.sort]);
     const ids = data?.map((record) => getItemId(record)) ?? [];
-    const prevIds = (0, import_compose28.usePrevious)(ids) ?? [];
+    const prevIds = (0, import_compose29.usePrevious)(ids) ?? [];
     const deletedIds = prevIds.filter((id) => !ids.includes(id));
     const postIdWasDeleted = deletedIds.includes(postId);
     (0, import_element142.useEffect)(() => {
@@ -47700,7 +47737,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_element143 = __toESM(require_element());
   var import_editor39 = __toESM(require_editor());
   var import_block_editor58 = __toESM(require_block_editor());
-  var { usePostFields: usePostFields2, PostCardPanel } = unlock(import_editor39.privateApis);
+  var { usePostFields: usePostFields3, PostCardPanel } = unlock(import_editor39.privateApis);
   var fieldsWithBulkEditSupport = [
     "title",
     "status",
@@ -47729,7 +47766,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
     const [multiEdits, setMultiEdits] = (0, import_element143.useState)({});
     const { editEntityRecord } = (0, import_data88.useDispatch)(import_core_data60.store);
-    const _fields = usePostFields2({ postType: postType2 });
+    const _fields = usePostFields3({ postType: postType2 });
     const fields = (0, import_element143.useMemo)(
       () => _fields?.map((field) => {
         if (field.id === "status") {

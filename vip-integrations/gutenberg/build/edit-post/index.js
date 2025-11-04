@@ -1918,9 +1918,9 @@ var wp;
           }
         }
         const { ownerDocument } = node;
-        ownerDocument.addEventListener("mousedown", onMouseDown);
+        ownerDocument.addEventListener("pointerdown", onMouseDown);
         return () => {
-          ownerDocument.removeEventListener("mousedown", onMouseDown);
+          ownerDocument.removeEventListener("pointerdown", onMouseDown);
         };
       },
       [registry]

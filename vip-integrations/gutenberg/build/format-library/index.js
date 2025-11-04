@@ -1869,7 +1869,8 @@ var wp;
               value: latex,
               onChange: handleLatexChange,
               placeholder: (0, import_i18n17.__)("e.g., x^2, \\frac{a}{b}"),
-              autoComplete: "off"
+              autoComplete: "off",
+              className: "block-editor-format-toolbar__math-input"
             }
           ),
           error && /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, { children: [

@@ -866,7 +866,7 @@ var wp;
   // packages/core-data/build-module/utils/crdt.js
   var import_es63 = __toESM(require_es6());
   var import_blocks2 = __toESM(require_blocks());
-  var import_sync3 = __toESM(require_sync());
+  var import_sync4 = __toESM(require_sync());
 
   // node_modules/uuid/dist/esm-browser/rng.js
   var getRandomValues;
@@ -920,7 +920,21 @@ var wp;
   var import_es62 = __toESM(require_es6());
   var import_blocks = __toESM(require_blocks());
   var import_rich_text = __toESM(require_rich_text());
+  var import_sync3 = __toESM(require_sync());
+
+  // packages/core-data/build-module/utils/crdt-utils.js
   var import_sync2 = __toESM(require_sync());
+  function getRootMap(doc, key) {
+    return doc.getMap(key);
+  }
+  function createYMap(partial = {}) {
+    return new import_sync2.Y.Map(Object.entries(partial));
+  }
+  function isYMap(value) {
+    return value instanceof import_sync2.Y.Map;
+  }
+
+  // packages/core-data/build-module/utils/crdt-blocks.js
   var serializableBlocksCache = /* @__PURE__ */ new WeakMap();
   function makeBlockAttributesSerializable(attributes) {
     const newAttributes = { ...attributes };
@@ -933,10 +947,8 @@ var wp;
   }
   function makeBlocksSerializable(blocks) {
     return blocks.map((block) => {
-      const blockAsJson = block instanceof import_sync2.Y.Map ? block.toJSON() : block;
-      const { name, innerBlocks, attributes, ...rest } = blockAsJson;
+      const { name, innerBlocks, attributes, ...rest } = block;
       delete rest.validationIssues;
-      delete rest.originalContent;
       return {
         ...rest,
         name,
@@ -957,12 +969,12 @@ var wp;
     );
     const inners = gblock.innerBlocks || [];
     const yinners = yblock.get("innerBlocks");
-    return res && inners.length === yinners.length && inners.every(
+    return res && inners.length === yinners?.length && inners.every(
       (block, i) => areBlocksEqual(block, yinners.get(i))
     );
   }
   function createNewYAttributeMap(blockName, attributes) {
-    return new import_sync2.Y.Map(
+    return new import_sync3.Y.Map(
       Object.entries(attributes).map(
         ([attributeName, attributeValue]) => {
           return [
@@ -980,34 +992,39 @@ var wp;
   function createNewYAttributeValue(blockName, attributeName, attributeValue) {
     const isRichText = isRichTextAttribute(blockName, attributeName);
     if (isRichText) {
-      return new import_sync2.Y.Text(attributeValue?.toString() ?? "");
+      return new import_sync3.Y.Text(attributeValue?.toString() ?? "");
     }
     return attributeValue;
   }
   function createNewYBlock(block) {
-    return new import_sync2.Y.Map(
-      Object.entries(block).map(([key, value]) => {
-        switch (key) {
-          case "attributes": {
-            return [key, createNewYAttributeMap(block.name, value)];
-          }
-          case "innerBlocks": {
-            const innerBlocks = new import_sync2.Y.Array();
-            if (!Array.isArray(value)) {
+    return createYMap(
+      Object.fromEntries(
+        Object.entries(block).map(([key, value]) => {
+          switch (key) {
+            case "attributes": {
+              return [
+                key,
+                createNewYAttributeMap(block.name, value)
+              ];
+            }
+            case "innerBlocks": {
+              const innerBlocks = new import_sync3.Y.Array();
+              if (!Array.isArray(value)) {
+                return [key, innerBlocks];
+              }
+              innerBlocks.insert(
+                0,
+                value.map(
+                  (innerBlock) => createNewYBlock(innerBlock)
+                )
+              );
               return [key, innerBlocks];
             }
-            innerBlocks.insert(
-              0,
-              value.map(
-                (innerBlock) => createNewYBlock(innerBlock)
-              )
-            );
-            return [key, innerBlocks];
+            default:
+              return [key, value];
           }
-          default:
-            return [key, value];
-        }
-      })
+        })
+      )
     );
   }
   function mergeCrdtBlocks(yblocks, incomingBlocks, cursorPosition) {
@@ -1049,9 +1066,7 @@ var wp;
       Object.entries(block).forEach(([key, value]) => {
         switch (key) {
           case "attributes": {
-            const currentAttributes = yblock.get(
-              key
-            );
+            const currentAttributes = yblock.get(key);
             if (!currentAttributes) {
               yblock.set(
                 key,
@@ -1067,17 +1082,14 @@ var wp;
                 )) {
                   return;
                 }
+                const currentAttribute = currentAttributes.get(attributeName);
                 const isRichText = isRichTextAttribute(
                   block.name,
                   attributeName
                 );
-                if (isRichText && "string" === typeof attributeValue && currentAttributes.has(attributeName) && currentAttributes.get(
-                  attributeName
-                ) instanceof import_sync2.Y.Text) {
+                if (isRichText && "string" === typeof attributeValue && currentAttributes.has(attributeName) && currentAttribute instanceof import_sync3.Y.Text) {
                   mergeRichTextUpdate(
-                    currentAttributes.get(
-                      attributeName
-                    ),
+                    currentAttribute,
                     attributeValue,
                     cursorPosition
                   );
@@ -1103,7 +1115,11 @@ var wp;
             break;
           }
           case "innerBlocks": {
-            const yInnerBlocks = yblock.get(key);
+            let yInnerBlocks = yblock.get(key);
+            if (!(yInnerBlocks instanceof import_sync3.Y.Array)) {
+              yInnerBlocks = new import_sync3.Y.Array();
+              yblock.set(key, yInnerBlocks);
+            }
             mergeCrdtBlocks(
               yInnerBlocks,
               value ?? [],
@@ -1132,6 +1148,9 @@ var wp;
     for (let j = 0; j < yblocks.length; j++) {
       const yblock = yblocks.get(j);
       let clientId = yblock.get("clientId");
+      if (!clientId) {
+        continue;
+      }
       if (knownClientIds.has(clientId)) {
         clientId = v4_default();
         yblock.set("clientId", clientId);
@@ -1176,13 +1195,13 @@ var wp;
   var localDoc;
   function mergeRichTextUpdate(blockYText, updatedValue, cursorPosition) {
     if (!localDoc) {
-      localDoc = new import_sync2.Y.Doc();
+      localDoc = new import_sync3.Y.Doc();
     }
     const localYText = localDoc.getText("temporary-text");
     localYText.delete(0, localYText.length);
     localYText.insert(0, updatedValue);
-    const currentValueAsDelta = new import_sync2.Delta(blockYText.toDelta());
-    const updatedValueAsDelta = new import_sync2.Delta(localYText.toDelta());
+    const currentValueAsDelta = new import_sync3.Delta(blockYText.toDelta());
+    const updatedValueAsDelta = new import_sync3.Delta(localYText.toDelta());
     const deltaDiff = currentValueAsDelta.diffWithCursor(
       updatedValueAsDelta,
       cursorPosition
@@ -1199,8 +1218,8 @@ var wp;
     "excerpt",
     "featured_media",
     "format",
-    "ping_status",
     "meta",
+    "ping_status",
     "slug",
     "status",
     "sticky",
@@ -1212,41 +1231,36 @@ var wp;
     import_sync.WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
   ]);
   function defaultApplyChangesToCRDTDoc(ydoc, changes) {
-    const ymap = ydoc.getMap(import_sync.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, import_sync.CRDT_RECORD_MAP_KEY);
     Object.entries(changes).forEach(([key, newValue]) => {
       if ("function" === typeof newValue) {
         return;
-      }
-      function setValue(updatedValue) {
-        ymap.set(key, updatedValue);
       }
       switch (key) {
         // Add support for additional data types here.
         default: {
           const currentValue = ymap.get(key);
-          mergeValue(currentValue, newValue, setValue);
+          updateMapValue(ymap, key, currentValue, newValue);
         }
       }
     });
   }
   function applyPostChangesToCRDTDoc(ydoc, changes, _postType) {
-    const ymap = ydoc.getMap(import_sync.CRDT_RECORD_MAP_KEY);
-    Object.entries(changes).forEach(([key, newValue]) => {
+    const ymap = getRootMap(ydoc, import_sync.CRDT_RECORD_MAP_KEY);
+    Object.keys(changes).forEach((key) => {
       if (!allowedPostProperties.has(key)) {
         return;
       }
+      const newValue = changes[key];
       if ("function" === typeof newValue) {
         return;
       }
-      function setValue(updatedValue) {
-        ymap.set(key, updatedValue);
-      }
       switch (key) {
         case "blocks": {
-          let currentBlocks = ymap.get("blocks");
-          if (!(currentBlocks instanceof import_sync3.Y.Array)) {
-            currentBlocks = new import_sync3.Y.Array();
-            setValue(currentBlocks);
+          let currentBlocks = ymap.get(key);
+          if (!(currentBlocks instanceof import_sync4.Y.Array)) {
+            currentBlocks = new import_sync4.Y.Array();
+            ymap.set(key, currentBlocks);
           }
           const newBlocks = newValue ?? [];
           const cursorPosition = changes.selection?.selectionStart?.offset ?? null;
@@ -1256,29 +1270,28 @@ var wp;
         case "excerpt": {
           const currentValue = ymap.get("excerpt");
           const rawNewValue = getRawValue(newValue);
-          mergeValue(currentValue, rawNewValue, setValue);
+          updateMapValue(ymap, key, currentValue, rawNewValue);
           break;
         }
         // "Meta" is overloaded term; here, it refers to post meta.
         case "meta": {
           let metaMap = ymap.get("meta");
-          if (!(metaMap instanceof import_sync3.Y.Map)) {
-            metaMap = new import_sync3.Y.Map();
-            setValue(metaMap);
+          if (!isYMap(metaMap)) {
+            metaMap = createYMap();
+            ymap.set("meta", metaMap);
           }
           Object.entries(newValue ?? {}).forEach(
             ([metaKey, metaValue]) => {
               if (disallowedPostMetaKeys.has(metaKey)) {
                 return;
               }
-              mergeValue(
+              updateMapValue(
+                metaMap,
+                metaKey,
                 metaMap.get(metaKey),
                 // current value in CRDT
-                metaValue,
+                metaValue
                 // new value from changes
-                (updatedMetaValue) => {
-                  metaMap.set(metaKey, updatedMetaValue);
-                }
               );
             }
           );
@@ -1288,32 +1301,32 @@ var wp;
           if (!newValue) {
             break;
           }
-          const currentValue = ymap.get("slug");
-          mergeValue(currentValue, newValue, setValue);
+          const currentValue = ymap.get(key);
+          updateMapValue(ymap, key, currentValue, newValue);
           break;
         }
         case "title": {
-          const currentValue = ymap.get("title");
+          const currentValue = ymap.get(key);
           let rawNewValue = getRawValue(newValue);
           if (!currentValue && "Auto Draft" === rawNewValue) {
             rawNewValue = "";
           }
-          mergeValue(currentValue, rawNewValue, setValue);
+          updateMapValue(ymap, key, currentValue, rawNewValue);
           break;
         }
-        // Add support for additional data types here.
+        // Add support for additional properties here.
         default: {
           const currentValue = ymap.get(key);
-          mergeValue(currentValue, newValue, setValue);
+          updateMapValue(ymap, key, currentValue, newValue);
         }
       }
     });
   }
   function defaultGetChangesFromCRDTDoc(crdtDoc) {
-    return crdtDoc.getMap(import_sync.CRDT_RECORD_MAP_KEY).toJSON();
+    return getRootMap(crdtDoc, import_sync.CRDT_RECORD_MAP_KEY).toJSON();
   }
   function getPostChangesFromCRDTDoc(ydoc, editedRecord, _postType) {
-    const ymap = ydoc.getMap(import_sync.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, import_sync.CRDT_RECORD_MAP_KEY);
     let allowedMetaChanges = {};
     const changes = Object.fromEntries(
       Object.entries(ymap.toJSON()).filter(([key, newValue]) => {
@@ -1335,7 +1348,7 @@ var wp;
             const currentDateIsFloating = ["draft", "auto-draft", "pending"].includes(
               ymap.get("status")
             ) && (null === currentValue || editedRecord.modified === currentValue);
-            if (!newValue && currentDateIsFloating) {
+            if (currentDateIsFloating) {
               return false;
             }
             return haveValuesChanged(currentValue, newValue);
@@ -1392,9 +1405,13 @@ var wp;
   function haveValuesChanged(currentValue, newValue) {
     return !(0, import_es63.default)(currentValue, newValue);
   }
-  function mergeValue(currentValue, newValue, setValue) {
+  function updateMapValue(map, key, currentValue, newValue) {
+    if (void 0 === newValue) {
+      map.delete(key);
+      return;
+    }
     if (haveValuesChanged(currentValue, newValue)) {
-      setValue(newValue);
+      map.set(key, newValue);
     }
   }
 
@@ -3713,6 +3730,18 @@ var wp;
             true,
             edits
           );
+          if (window.__experimentalEnableSync && entityConfig.syncConfig) {
+            if (true) {
+              getSyncManager()?.update(
+                `${kind}/${name}`,
+                recordId,
+                updatedRecord,
+                import_sync.LOCAL_EDITOR_ORIGIN,
+                true
+                // isSave
+              );
+            }
+          }
         }
       } catch (_error) {
         hasError = true;
@@ -4315,6 +4344,15 @@ var wp;
                 name,
                 key
               ),
+              // Refect the current entity record from the database.
+              refetchRecord: async () => {
+                dispatch.receiveEntityRecords(
+                  kind,
+                  name,
+                  await (0, import_api_fetch8.default)({ path, parse: true }),
+                  query
+                );
+              },
               // Save the current entity record's unsaved edits.
               saveRecord: () => {
                 dispatch.saveEditedEntityRecord(

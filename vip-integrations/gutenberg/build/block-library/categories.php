@@ -104,14 +104,32 @@ function gutenberg_build_dropdown_script_block_core_categories( $dropdown_id ) {
 	?>
 	<script>
 	( ( [ dropdownId, homeUrl ] ) => {
-		document.getElementById( dropdownId ).addEventListener( 'change', ( event ) => {
-			const dropdown = /** @type {HTMLSelectElement} */ ( event.target );
-			if ( dropdown.value && dropdown.value !== '-1' ) {
-				const url = new URL( homeUrl );
-				url.searchParams.set( dropdown.name, dropdown.value );
-				location.href = url.href;
+		const dropdown = document.getElementById( dropdownId );
+		function gutenberg_onSelectChange() {
+			setTimeout( () => {
+				if ( 'escape' === dropdown.dataset.lastkey ) {
+					return;
+				}
+				if ( dropdown.value && dropdown instanceof HTMLSelectElement ) {
+					const url = new URL( homeUrl );
+					url.searchParams.set( dropdown.name, dropdown.value );
+					location.href = url.href;
+				}
+			}, 250 );
+		}
+		function gutenberg_onKeyUp( event ) {
+			if ( 'Escape' === event.key ) {
+				dropdown.dataset.lastkey = 'escape';
+			} else {
+				delete dropdown.dataset.lastkey;
 			}
-		} );
+		}
+		function gutenberg_onClick() {
+			delete dropdown.dataset.lastkey;
+		}
+		dropdown.addEventListener( 'keyup', gutenberg_onKeyUp );
+		dropdown.addEventListener( 'click', gutenberg_onClick );
+		dropdown.addEventListener( 'change', gutenberg_onSelectChange );
 	} )( <?php echo wp_json_encode( $exports, JSON_HEX_TAG | JSON_UNESCAPED_SLASHES ); ?> );
 	</script>
 	<?php
