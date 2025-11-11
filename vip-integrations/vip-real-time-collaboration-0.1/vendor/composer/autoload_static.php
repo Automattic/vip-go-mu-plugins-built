@@ -40,6 +40,7 @@ class ComposerStaticInit0c259ad047b224ddf37b84f36f049c74
         'VIPRealTimeCollaboration\\Auth\\WebSocketAuth' => __DIR__ . '/../..' . '/inc/Auth/WebSocketAuth.php',
         'VIPRealTimeCollaboration\\Compatibility\\Compatibility' => __DIR__ . '/../..' . '/inc/Compatibility/Compatibility.php',
         'VIPRealTimeCollaboration\\Overrides\\Overrides' => __DIR__ . '/../..' . '/inc/Overrides/Overrides.php',
+        'VIPRealTimeCollaboration\\Settings\\Settings' => __DIR__ . '/../..' . '/inc/Settings/Settings.php',
         'VIPRealTimeCollaboration\\Telemetry\\Telemetry' => __DIR__ . '/../..' . '/inc/Telemetry/Telemetry.php',
     );
 

@@ -46,8 +46,8 @@ final class SyncPermissions {
 		// Extract Gutenberg entity kind and name from sync object type
 		[ $entity_kind, $entity_name ] = $parts;
 
-		// Handle post type entities
-		if ( 'postType' === $entity_kind ) {
+		// Handle post type entities (not collections)
+		if ( 'postType' === $entity_kind && 'collection' !== $sync_object_id ) {
 			/**
 			 * For post entities, we only need the sync object ID (post ID) for permission checking.
 			 * The entity_name is Gutenberg's entity name which maps to post type name instead of

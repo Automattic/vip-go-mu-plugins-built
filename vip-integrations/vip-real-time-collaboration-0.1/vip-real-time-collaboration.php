@@ -6,7 +6,7 @@
  * Author: WPVIP
  * Author URI: https://wpvip.com
  * Text Domain: vip-real-time-collaboration
- * Version: 0.1.7
+ * Version: 0.1.8
  * Requires at least: 6.7
  * Requires PHP: 8.2
  */
@@ -17,6 +17,7 @@ use VIPRealTimeCollaboration\Api\RestApi;
 use VIPRealTimeCollaboration\Assets\Assets;
 use VIPRealTimeCollaboration\Auth\SyncPermissions;
 use VIPRealTimeCollaboration\Compatibility\Compatibility;
+use VIPRealTimeCollaboration\Settings\Settings;
 use VIPRealTimeCollaboration\Overrides\Overrides;
 
 defined( 'ABSPATH' ) || exit();
@@ -33,7 +34,7 @@ if ( ! vip_real_time_collaboration_pre_init() ) {
 define( 'VIP_REAL_TIME_COLLABORATION__LOADED', true );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_ROOT', __FILE__ );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.1.7' );
+define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.1.8' );
 
 // Autoloader
 require_once __DIR__ . '/vendor/autoload.php';
@@ -51,11 +52,26 @@ add_action( 'plugins_loaded', static function (): void {
 		return;
 	}
 
+	// Initialize the core classes needed to manage the Gutenberg experiment.
+	new Settings();
+	// This is to account for the case where:
+	// - The plugin is activated
+	// - The RTC setting is disabled
+	// - The experiment is manually activated
+	// We want to ensure that we override the experimental features, to disable RTC functionality.
+	new Compatibility();
+
+	// If RTC is disabled, return early.
+	if ( ! Settings::is_vip_rtc_enabled() ) {
+		return;
+	}
+
+	// Load the rest of the plugin, that actually provides RTC functionality.
+
 	// Initialize permission system
 	SyncPermissions::init();
 
 	new Assets();
-	new Compatibility();
 	new Overrides();
 	new RestApi();
 

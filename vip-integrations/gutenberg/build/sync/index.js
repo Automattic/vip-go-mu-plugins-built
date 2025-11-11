@@ -5440,8 +5440,8 @@ var wp;
      *
      * @public
      */
-    transact(f, origin = null) {
-      return transact(this, f, origin);
+    transact(f, origin2 = null) {
+      return transact(this, f, origin2);
     }
     /**
      * Define a shared data type.
@@ -6987,7 +6987,7 @@ var wp;
      * @param {any} origin
      * @param {boolean} local
      */
-    constructor(doc2, origin, local) {
+    constructor(doc2, origin2, local) {
       this.doc = doc2;
       this.deleteSet = new DeleteSet();
       this.beforeState = getStateVector(doc2.store);
@@ -6995,7 +6995,7 @@ var wp;
       this.changed = /* @__PURE__ */ new Map();
       this.changedParentTypes = /* @__PURE__ */ new Map();
       this._mergeStructs = [];
-      this.origin = origin;
+      this.origin = origin2;
       this.meta = /* @__PURE__ */ new Map();
       this.local = local;
       this.subdocsAdded = /* @__PURE__ */ new Set();
@@ -7199,13 +7199,13 @@ var wp;
       }
     }
   };
-  var transact = (doc2, f, origin = null, local = true) => {
+  var transact = (doc2, f, origin2 = null, local = true) => {
     const transactionCleanups = doc2._transactionCleanups;
     let initialCall = false;
     let result = null;
     if (doc2._transaction === null) {
       initialCall = true;
-      doc2._transaction = new Transaction(doc2, origin, local);
+      doc2._transaction = new Transaction(doc2, origin2, local);
       transactionCleanups.push(doc2._transaction);
       if (transactionCleanups.length === 1) {
         doc2.emit("beforeAllTransactions", [doc2]);
@@ -7407,14 +7407,14 @@ var wp;
     /**
      * @param {any} origin
      */
-    addTrackedOrigin(origin) {
-      this.trackedOrigins.add(origin);
+    addTrackedOrigin(origin2) {
+      this.trackedOrigins.add(origin2);
     }
     /**
      * @param {any} origin
      */
-    removeTrackedOrigin(origin) {
-      this.trackedOrigins.delete(origin);
+    removeTrackedOrigin(origin2) {
+      this.trackedOrigins.delete(origin2);
     }
     clear(clearUndoStack = true, clearRedoStack = true) {
       if (clearUndoStack && this.canUndo() || clearRedoStack && this.canRedo()) {
@@ -12105,9 +12105,9 @@ var wp;
      * @param {string | null} parentSub
      * @param {AbstractContent} content
      */
-    constructor(id2, left, origin, right, rightOrigin, parent, parentSub, content) {
+    constructor(id2, left, origin2, right, rightOrigin, parent, parentSub, content) {
       super(id2, content.getLength());
-      this.origin = origin;
+      this.origin = origin2;
       this.left = left;
       this.right = right;
       this.rightOrigin = rightOrigin;
@@ -12413,20 +12413,20 @@ var wp;
      * @param {number} offset
      */
     write(encoder, offset) {
-      const origin = offset > 0 ? createID(this.id.client, this.id.clock + offset - 1) : this.origin;
+      const origin2 = offset > 0 ? createID(this.id.client, this.id.clock + offset - 1) : this.origin;
       const rightOrigin = this.rightOrigin;
       const parentSub = this.parentSub;
-      const info = this.content.getRef() & BITS5 | (origin === null ? 0 : BIT8) | // origin is defined
+      const info = this.content.getRef() & BITS5 | (origin2 === null ? 0 : BIT8) | // origin is defined
       (rightOrigin === null ? 0 : BIT7) | // right origin is defined
       (parentSub === null ? 0 : BIT6);
       encoder.writeInfo(info);
-      if (origin !== null) {
-        encoder.writeLeftID(origin);
+      if (origin2 !== null) {
+        encoder.writeLeftID(origin2);
       }
       if (rightOrigin !== null) {
         encoder.writeRightID(rightOrigin);
       }
-      if (origin === null && rightOrigin === null) {
+      if (origin2 === null && rightOrigin === null) {
         const parent = (
           /** @type {AbstractType<any>} */
           this.parent
@@ -13418,6 +13418,11 @@ var wp;
     stateMap.set(CRDT_STATE_VERSION_KEY, CRDT_DOC_VERSION);
     return ydoc;
   }
+  function markEntityAsSaved(ydoc) {
+    const recordMeta = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+    recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
+    recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
+  }
   function serializeCrdtDoc(crdtDoc) {
     return JSON.stringify({
       document: toBase64(encodeStateAsUpdateV2(crdtDoc))
@@ -13583,8 +13588,8 @@ var wp;
       });
       this._storeTimeout = 1e3;
       this._storeTimeoutId = null;
-      this._storeUpdate = (update, origin) => {
-        if (this.db && origin !== this) {
+      this._storeUpdate = (update, origin2) => {
+        if (this.db && origin2 !== this) {
           const [updatesStore] = transact2(
             /** @type {IDBDatabase} */
             this.db,
@@ -13662,7 +13667,7 @@ var wp;
 
   // packages/sync/build-module/providers/indexeddb-provider.js
   function createIndexedDbProvider(objectType, objectId, doc2) {
-    const roomName = `${objectType}-${objectId}`;
+    const roomName = objectId ? `${objectType}-${objectId}` : objectType;
     const provider = new IndexeddbPersistence(roomName, doc2);
     return Promise.resolve({
       destroy: () => provider.destroy()
@@ -13822,10 +13827,10 @@ var wp;
     }
     return unsubscribed;
   };
-  var publish = (room, data, origin = null) => {
+  var publish = (room, data, origin2 = null) => {
     const c = getChannel(room);
     c.bc.postMessage(data);
-    c.subs.forEach((sub) => sub(data, origin));
+    c.subs.forEach((sub) => sub(data, origin2));
   };
 
   // node_modules/lib0/mutex.js
@@ -13996,7 +14001,7 @@ var wp;
       return this.states;
     }
   };
-  var removeAwarenessStates = (awareness, clients, origin) => {
+  var removeAwarenessStates = (awareness, clients, origin2) => {
     const removed = [];
     for (let i = 0; i < clients.length; i++) {
       const clientID = clients[i];
@@ -14016,8 +14021,8 @@ var wp;
       }
     }
     if (removed.length > 0) {
-      awareness.emit("change", [{ added: [], updated: [], removed }, origin]);
-      awareness.emit("update", [{ added: [], updated: [], removed }, origin]);
+      awareness.emit("change", [{ added: [], updated: [], removed }, origin2]);
+      awareness.emit("update", [{ added: [], updated: [], removed }, origin2]);
     }
   };
   var encodeAwarenessUpdate = (awareness, clients, states = awareness.states) => {
@@ -14037,7 +14042,7 @@ var wp;
     }
     return toUint8Array(encoder);
   };
-  var applyAwarenessUpdate = (awareness, update, origin) => {
+  var applyAwarenessUpdate = (awareness, update, origin2) => {
     const decoder = createDecoder(update);
     const timestamp = getUnixTime();
     const added = [];
@@ -14083,14 +14088,14 @@ var wp;
         added,
         updated: filteredUpdated,
         removed
-      }, origin]);
+      }, origin2]);
     }
     if (added.length > 0 || updated.length > 0 || removed.length > 0) {
       awareness.emit("update", [{
         added,
         updated,
         removed
-      }, origin]);
+      }, origin2]);
     }
   };
 
@@ -14487,13 +14492,13 @@ var wp;
           }
         })
       );
-      this._docUpdateHandler = (update, origin) => {
+      this._docUpdateHandler = (update, origin2) => {
         const encoder = createEncoder();
         writeVarUint(encoder, messageSync);
         writeUpdate(encoder, update);
         broadcastRoomMessage(this, toUint8Array(encoder));
       };
-      this._awarenessUpdateHandler = ({ added, updated, removed }, origin) => {
+      this._awarenessUpdateHandler = ({ added, updated, removed }, origin2) => {
         const changedClients = added.concat(updated).concat(removed);
         const encoderAwareness = createEncoder();
         writeVarUint(encoderAwareness, messageAwareness);
@@ -15114,7 +15119,7 @@ var wp;
   // packages/sync/build-module/providers/webrtc-provider.js
   function createWebRTCProvider({ signaling, password }) {
     return function(objectType, objectId, doc2) {
-      const roomName = `${objectType}-${objectId}`;
+      const roomName = objectId ? `${objectType}-${objectId}` : objectType;
       const provider = new WebrtcProviderWithHttpSignaling(roomName, doc2, {
         signaling,
         password
@@ -15277,15 +15282,15 @@ var wp;
      * @param {any} origin
      */
     /* c8 ignore next 3 */
-    addTrackedOrigin(origin) {
-      this.trackedOrigins.add(origin);
+    addTrackedOrigin(origin2) {
+      this.trackedOrigins.add(origin2);
     }
     /**
      * @param {any} origin
      */
     /* c8 ignore next 3 */
-    removeTrackedOrigin(origin) {
-      this.trackedOrigins.delete(origin);
+    removeTrackedOrigin(origin2) {
+      this.trackedOrigins.delete(origin2);
     }
     /**
      * Undo last changes on type.
@@ -15416,6 +15421,7 @@ var wp;
 
   // packages/sync/build-module/manager.js
   function createSyncManager() {
+    const collectionStates = /* @__PURE__ */ new Map();
     const entityStates = /* @__PURE__ */ new Map();
     const undoManager = createUndoManager();
     async function loadEntity(syncConfig, objectType, objectId, record, handlers) {
@@ -15434,6 +15440,7 @@ var wp;
       const unload = () => {
         providerResults.forEach((result) => result.destroy());
         recordMap.unobserveDeep(onRecordUpdate);
+        recordMetaMap.unobserve(onRecordMetaUpdate);
         ydoc.destroy();
         entityStates.delete(entityId);
       };
@@ -15489,8 +15496,63 @@ var wp;
         handlers.saveRecord();
       }
     }
+    async function loadCollection(syncConfig, objectType, handlers) {
+      const providerCreators2 = getProviderCreators();
+      if (0 === providerCreators2.length) {
+        return;
+      }
+      if (collectionStates.has(objectType)) {
+        return;
+      }
+      const ydoc = createYjsDoc({ collection: true, objectType });
+      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+      const now = Date.now();
+      const unload = () => {
+        providerResults.forEach((result) => result.destroy());
+        recordMetaMap.unobserve(onRecordMetaUpdate);
+        ydoc.destroy();
+        collectionStates.delete(objectType);
+      };
+      const onRecordMetaUpdate = (event, transaction) => {
+        if (transaction.local) {
+          return;
+        }
+        event.keysChanged.forEach((key) => {
+          switch (key) {
+            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
+              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
+              if ("number" === typeof newValue && newValue > now) {
+                void handlers.refetchRecords().catch(() => {
+                });
+              }
+              break;
+          }
+        });
+      };
+      const collectionState = {
+        handlers,
+        syncConfig,
+        unload,
+        ydoc
+      };
+      collectionStates.set(objectType, collectionState);
+      const providerResults = await Promise.all(
+        providerCreators2.map((create7) => {
+          return create7(objectType, null, ydoc);
+        })
+      );
+      recordMetaMap.observe(onRecordMetaUpdate);
+    }
     function unloadEntity(objectType, objectId) {
       entityStates.get(getEntityId(objectType, objectId))?.unload();
+      updateCRDTDoc(
+        objectType,
+        null,
+        {},
+        origin,
+        true
+        /* isSave */
+      );
     }
     function getEntityId(objectType, objectId) {
       return `${objectType}_${objectId}`;
@@ -15511,21 +15573,24 @@ var wp;
       tempDoc.destroy();
       return Object.keys(changes).length > 0;
     }
-    function updateCRDTDoc(objectType, objectId, changes, origin, isSave = false) {
+    function updateCRDTDoc(objectType, objectId, changes, origin2, isSave = false) {
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
-      if (!entityState) {
-        return;
+      const collectionState = collectionStates.get(objectType);
+      if (entityState) {
+        const { syncConfig, ydoc } = entityState;
+        ydoc.transact(() => {
+          syncConfig.applyChangesToCRDTDoc(ydoc, changes);
+          if (isSave) {
+            markEntityAsSaved(ydoc);
+          }
+        }, origin2);
       }
-      const { syncConfig, ydoc } = entityState;
-      ydoc.transact(() => {
-        syncConfig.applyChangesToCRDTDoc(ydoc, changes);
-        if (isSave) {
-          const recordMeta = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
-          recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
-          recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
-        }
-      }, origin);
+      if (collectionState && isSave) {
+        collectionState.ydoc.transact(() => {
+          markEntityAsSaved(collectionState.ydoc);
+        }, origin2);
+      }
     }
     async function updateEntityRecord(objectType, objectId) {
       const entityId = getEntityId(objectType, objectId);
@@ -15554,6 +15619,7 @@ var wp;
     return {
       createMeta: createEntityMeta,
       load: loadEntity,
+      loadCollection,
       undoManager,
       unload: unloadEntity,
       update: updateCRDTDoc

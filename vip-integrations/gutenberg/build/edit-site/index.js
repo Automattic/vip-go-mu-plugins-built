@@ -3037,8 +3037,8 @@ var wp;
                       meta_block_remaining_len -= len;
                       if (copy_dst >= ringbuffer_end) {
                         output.write(ringbuffer, ringbuffer_size);
-                        for (var _x24 = 0; _x24 < copy_dst - ringbuffer_end; _x24++)
-                          ringbuffer[_x24] = ringbuffer[ringbuffer_end + _x24];
+                        for (var _x23 = 0; _x23 < copy_dst - ringbuffer_end; _x23++)
+                          ringbuffer[_x23] = ringbuffer[ringbuffer_end + _x23];
                       }
                     } else {
                       throw new Error("Invalid backward reference. pos: " + pos + " distance: " + distance + " len: " + copy_length + " bytes left: " + meta_block_remaining_len);
@@ -6850,7 +6850,7 @@ var wp;
   var import_jsx_runtime313 = __toESM(require_jsx_runtime());
   var import_blocks19 = __toESM(require_blocks());
   var import_block_library3 = __toESM(require_block_library());
-  var import_data96 = __toESM(require_data());
+  var import_data93 = __toESM(require_data());
   var import_deprecated5 = __toESM(require_deprecated());
   var import_element148 = __toESM(require_element());
   var import_editor45 = __toESM(require_editor());
@@ -8080,10 +8080,10 @@ var wp;
 
   // packages/edit-site/build-module/components/app/index.js
   var import_jsx_runtime307 = __toESM(require_jsx_runtime());
-  var import_data91 = __toESM(require_data());
+  var import_data88 = __toESM(require_data());
   var import_router39 = __toESM(require_router());
   var import_element145 = __toESM(require_element());
-  var import_core_data62 = __toESM(require_core_data());
+  var import_core_data60 = __toESM(require_core_data());
 
   // packages/edit-site/build-module/components/layout/index.js
   var import_jsx_runtime87 = __toESM(require_jsx_runtime());
@@ -12736,7 +12736,7 @@ var wp;
   var { useLocation: useLocation6 } = unlock(import_router6.privateApis);
   var ANIMATION_DURATION2 = 0.3;
   function Layout() {
-    const { query, name: routeKey, areas: areas2, widths } = useLocation6();
+    const { query, name: routeKey, areas, widths } = useLocation6();
     const { canvas = "view" } = query;
     const isMobileViewport = (0, import_compose3.useViewportMatch)("medium", "<");
     const toggleRef = (0, import_element13.useRef)();
@@ -12781,7 +12781,7 @@ var wp;
             }
           ),
           children: /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)("div", { className: "edit-site-layout__content", children: [
-            (!isMobileViewport || !areas2.mobile) && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
+            (!isMobileViewport || !areas.mobile) && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
               navigable_region_default,
               {
                 ariaLabel: (0, import_i18n9.__)("Navigation"),
@@ -12814,7 +12814,7 @@ var wp;
                         {
                           shouldAnimate: routeKey !== "styles",
                           routeKey,
-                          children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas2.sidebar })
+                          children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas.sidebar })
                         }
                       ) }),
                       /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SaveHub, {}),
@@ -12825,7 +12825,7 @@ var wp;
               }
             ),
             /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.EditorSnackbars, {}),
-            isMobileViewport && areas2.mobile && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("div", { className: "edit-site-layout__mobile", children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SidebarNavigationProvider, { children: canvas !== "edit" ? /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)(import_jsx_runtime87.Fragment, { children: [
+            isMobileViewport && areas.mobile && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)("div", { className: "edit-site-layout__mobile", children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SidebarNavigationProvider, { children: canvas !== "edit" ? /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)(import_jsx_runtime87.Fragment, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
                 SiteHubMobile,
                 {
@@ -12833,31 +12833,31 @@ var wp;
                   isTransparent: isResizableFrameOversized
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SidebarContent, { routeKey, children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas2.mobile }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SidebarContent, { routeKey, children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas.mobile }) }),
               /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SaveHub, {}),
               /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(SavePanel, {})
-            ] }) : /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas2.mobile }) }) }),
-            !isMobileViewport && areas2.content && canvas !== "edit" && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
+            ] }) : /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas.mobile }) }) }),
+            !isMobileViewport && areas.content && canvas !== "edit" && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
               "div",
               {
                 className: "edit-site-layout__area",
                 style: {
                   maxWidth: widths?.content
                 },
-                children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas2.content })
+                children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas.content })
               }
             ),
-            !isMobileViewport && areas2.edit && canvas !== "edit" && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
+            !isMobileViewport && areas.edit && canvas !== "edit" && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
               "div",
               {
                 className: "edit-site-layout__area",
                 style: {
                   maxWidth: widths?.edit
                 },
-                children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas2.edit })
+                children: /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(import_editor6.ErrorBoundary, { children: areas.edit })
               }
             ),
-            !isMobileViewport && areas2.preview && /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)("div", { className: "edit-site-layout__canvas-container", children: [
+            !isMobileViewport && areas.preview && /* @__PURE__ */ (0, import_jsx_runtime87.jsxs)("div", { className: "edit-site-layout__canvas-container", children: [
               canvasResizer,
               !!canvasSize.width && /* @__PURE__ */ (0, import_jsx_runtime87.jsx)(
                 "div",
@@ -12883,7 +12883,7 @@ var wp;
                       innerContentStyle: {
                         background: gradientValue ?? backgroundColor
                       },
-                      children: areas2.preview
+                      children: areas.preview
                     }
                   ) })
                 }
@@ -13186,7 +13186,7 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/site-editor-routes/index.js
-  var import_data90 = __toESM(require_data());
+  var import_data87 = __toESM(require_data());
   var import_element144 = __toESM(require_element());
 
   // packages/edit-site/build-module/components/site-editor-routes/home.js
@@ -26840,7 +26840,9 @@ var wp;
     PATTERN_TYPES.user
   ];
   var authorizedPostTypes = ["page", "post"];
-  function getPostType(name2) {
+  function useResolveEditedEntity() {
+    const { name: name2, params = {}, query } = useLocation16();
+    const { postId = query?.postId } = params;
     let postType2;
     if (name2 === "navigation-item") {
       postType2 = NAVIGATION_POST_TYPE;
@@ -26848,21 +26850,13 @@ var wp;
       postType2 = PATTERN_TYPES.user;
     } else if (name2 === "template-part-item") {
       postType2 = TEMPLATE_PART_POST_TYPE;
-    } else if (name2 === "templates") {
-      postType2 = TEMPLATE_POST_TYPE;
-    } else if (name2 === "template-item") {
+    } else if (name2 === "template-item" || name2 === "templates") {
       postType2 = TEMPLATE_POST_TYPE;
     } else if (name2 === "page-item" || name2 === "pages") {
       postType2 = "page";
     } else if (name2 === "post-item" || name2 === "posts") {
       postType2 = "post";
     }
-    return postType2;
-  }
-  function useResolveEditedEntity() {
-    const { name: name2, params = {}, query } = useLocation16();
-    const { postId = query?.postId } = params;
-    const postType2 = getPostType(name2, postId) ?? query?.postType;
     const homePage = (0, import_data56.useSelect)((select2) => {
       const { getHomePage } = unlock(select2(import_core_data34.store));
       return getHomePage();
@@ -26922,7 +26916,7 @@ var wp;
     const { setEditedEntity: setEditedEntity2 } = (0, import_data56.useDispatch)(store);
     (0, import_element60.useEffect)(() => {
       if (isReady) {
-        setEditedEntity2(postType2, String(postId), context);
+        setEditedEntity2(postType2, postId, context);
       }
     }, [isReady, postType2, postId, context, setEditedEntity2]);
   }
@@ -27017,7 +27011,6 @@ var wp;
       "template-part-item",
       "page-item",
       "template-item",
-      "static-template-item",
       "post-item"
     ].includes(name2)) {
       return getListPathForPostType(postType2);
@@ -30879,8 +30872,7 @@ var wp;
             accessibleWhenDisabled: true,
             text: label,
             size: "small",
-            onClick: () => setIsModalOpen(true),
-            variant: "link"
+            onClick: () => setIsModalOpen(true)
           }
         ),
         children: isModalOpen && /* @__PURE__ */ (0, import_jsx_runtime208.jsx)(
@@ -30905,7 +30897,6 @@ var wp;
             onClick: () => {
               primaryAction.callback([item], { registry });
             },
-            variant: "link",
             children: label
           }
         )
@@ -44116,7 +44107,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/index.js
-  var import_core_data50 = __toESM(require_core_data());
+  var import_core_data49 = __toESM(require_core_data());
   var import_editor31 = __toESM(require_editor());
   var import_router31 = __toESM(require_router());
 
@@ -44296,7 +44287,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/index.js
-  var import_data80 = __toESM(require_data());
+  var import_data79 = __toESM(require_data());
 
   // packages/edit-site/build-module/components/page-patterns/use-pattern-settings.js
   var import_core_data45 = __toESM(require_core_data());
@@ -44367,11 +44358,11 @@ If there's a particular need for this, please submit a feature request at https:
       canCreatePattern,
       canCreateTemplatePart
     } = (0, import_data76.useSelect)((select2) => {
-      const { getCurrentTheme, getPostType: getPostType2, canUser } = select2(import_core_data46.store);
+      const { getCurrentTheme, getPostType, canUser } = select2(import_core_data46.store);
       return {
         isBlockBasedTheme: getCurrentTheme()?.is_block_theme,
-        addNewPatternLabel: getPostType2(PATTERN_TYPES.user)?.labels?.add_new_item,
-        addNewTemplatePartLabel: getPostType2(TEMPLATE_PART_POST_TYPE)?.labels?.add_new_item,
+        addNewPatternLabel: getPostType(PATTERN_TYPES.user)?.labels?.add_new_item,
+        addNewTemplatePartLabel: getPostType(TEMPLATE_PART_POST_TYPE)?.labels?.add_new_item,
         // Blocks refers to the wp_block post type, this checks the ability to create a post of that type.
         canCreatePattern: canUser("create", {
           kind: "postType",
@@ -44689,58 +44680,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_i18n136 = __toESM(require_i18n());
   var import_element130 = __toESM(require_element());
   var import_router30 = __toESM(require_router());
-  var import_data78 = __toESM(require_data());
-  var import_core_data48 = __toESM(require_core_data());
   var { useHistory: useHistory18 } = unlock(import_router30.privateApis);
-  var useSetActiveTemplateAction = () => {
-    const activeTheme = (0, import_data78.useSelect)(
-      (select2) => select2(import_core_data48.store).getCurrentTheme()
-    );
-    const { getEntityRecord } = (0, import_data78.useSelect)(import_core_data48.store);
-    const { editEntityRecord, saveEditedEntityRecord } = (0, import_data78.useDispatch)(import_core_data48.store);
-    return (0, import_element130.useMemo)(
-      () => ({
-        id: "set-active-template",
-        label(items) {
-          return items.some((item) => item._isActive) ? (0, import_i18n136.__)("Deactivate") : (0, import_i18n136.__)("Activate");
-        },
-        isPrimary: true,
-        icon: pencil_default,
-        isEligible(item) {
-          if (item.theme !== activeTheme.stylesheet) {
-            return false;
-          }
-          if (typeof item.id !== "number") {
-            return item._isActive === false;
-          }
-          return true;
-        },
-        async callback(items) {
-          const deactivate = items.some((item) => item._isActive);
-          const activeTemplates = {
-            ...await getEntityRecord("root", "site").active_templates ?? {}
-          };
-          for (const item of items) {
-            if (deactivate) {
-              delete activeTemplates[item.slug];
-            } else {
-              activeTemplates[item.slug] = item.id;
-            }
-          }
-          await editEntityRecord("root", "site", void 0, {
-            active_templates: activeTemplates
-          });
-          await saveEditedEntityRecord("root", "site");
-        }
-      }),
-      [
-        editEntityRecord,
-        saveEditedEntityRecord,
-        getEntityRecord,
-        activeTheme
-      ]
-    );
-  };
   var useEditPostAction = () => {
     const history = useHistory18();
     return (0, import_element130.useMemo)(
@@ -44773,12 +44713,12 @@ If there's a particular need for this, please submit a feature request at https:
   var import_blocks15 = __toESM(require_blocks());
 
   // packages/edit-site/build-module/components/page-templates/hooks.js
-  var import_core_data49 = __toESM(require_core_data());
-  var import_data79 = __toESM(require_data());
+  var import_core_data48 = __toESM(require_core_data());
+  var import_data78 = __toESM(require_data());
   function useAddedBy(postType2, postId) {
-    return (0, import_data79.useSelect)(
+    return (0, import_data78.useSelect)(
       (select2) => {
-        const { getEntityRecord, getUser, getEditedEntityRecord } = select2(import_core_data49.store);
+        const { getEntityRecord, getUser, getEditedEntityRecord } = select2(import_core_data48.store);
         const template = getEditedEntityRecord(
           "postType",
           postType2,
@@ -44826,7 +44766,7 @@ If there's a particular need for this, please submit a feature request at https:
               type: "user",
               icon: comment_author_avatar_default,
               imageUrl: user?.avatar_urls?.[48],
-              text: authorText ?? user?.name,
+              text: authorText,
               isCustomized: false
             };
           }
@@ -44978,8 +44918,8 @@ If there's a particular need for this, please submit a feature request at https:
   };
   function usePagePatternsHeader(type, categoryId) {
     const { patternCategories } = usePatternCategories();
-    const templatePartAreas = (0, import_data80.useSelect)(
-      (select2) => select2(import_core_data50.store).getCurrentTheme()?.default_template_part_areas || [],
+    const templatePartAreas = (0, import_data79.useSelect)(
+      (select2) => select2(import_core_data49.store).getCurrentTheme()?.default_template_part_areas || [],
       []
     );
     let title, description, patternCategory;
@@ -45029,7 +44969,7 @@ If there's a particular need for this, please submit a feature request at https:
       search: view.search,
       syncStatus: viewSyncStatus
     });
-    const { records } = (0, import_core_data50.useEntityRecords)("postType", TEMPLATE_PART_POST_TYPE, {
+    const { records } = (0, import_core_data49.useEntityRecords)("postType", TEMPLATE_PART_POST_TYPE, {
       per_page: -1
     });
     const authors = (0, import_element132.useMemo)(() => {
@@ -45188,7 +45128,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-templates-browse/content.js
   var import_jsx_runtime289 = __toESM(require_jsx_runtime());
-  var import_core_data51 = __toESM(require_core_data());
+  var import_core_data50 = __toESM(require_core_data());
   var import_element133 = __toESM(require_element());
   var import_components156 = __toESM(require_components());
   var import_i18n139 = __toESM(require_i18n());
@@ -45210,12 +45150,9 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function DataviewsTemplatesSidebarContent() {
     const {
-      query: { activeView = "active" }
+      query: { activeView = "all" }
     } = useLocation26();
-    const { records } = (0, import_core_data51.useEntityRecords)("root", "registeredTemplate", {
-      // This should not be needed, the endpoint returns all registered
-      // templates, but it's not possible right now to turn off pagination for
-      // entity configs.
+    const { records } = (0, import_core_data50.useEntityRecords)("postType", TEMPLATE_POST_TYPE, {
       per_page: -1
     });
     const firstItemPerAuthorText = (0, import_element133.useMemo)(() => {
@@ -45233,22 +45170,9 @@ If there's a particular need for this, please submit a feature request at https:
         SidebarNavigationItem,
         {
           to: "/template",
-          icon: published_default,
-          "aria-current": activeView === "active",
-          children: (0, import_i18n139.__)("Active templates")
-        }
-      ),
-      /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(
-        SidebarNavigationItem,
-        {
-          to: (0, import_url15.addQueryArgs)("/template", { activeView: "user" }),
-          icon: comment_author_avatar_default,
-          "aria-current": activeView === "user",
-          // Let's avoid calling them "custom templates" to avoid
-          // confusion. "Created" is closest to meaning database
-          // templates, created by users.
-          // https://developer.wordpress.org/themes/classic-themes/templates/page-template-files/#creating-custom-page-templates-for-global-use
-          children: (0, import_i18n139.__)("Created templates")
+          icon: layout_default,
+          "aria-current": activeView === "all",
+          children: (0, import_i18n139.__)("All templates")
         }
       ),
       firstItemPerAuthorText.map((template) => {
@@ -45282,24 +45206,21 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/edit-site/build-module/components/page-templates/index.js
   var import_jsx_runtime295 = __toESM(require_jsx_runtime());
   var import_i18n146 = __toESM(require_i18n());
-  var import_html_entities14 = __toESM(require_html_entities());
   var import_element139 = __toESM(require_element());
-  var import_core_data56 = __toESM(require_core_data());
+  var import_core_data54 = __toESM(require_core_data());
   var import_router34 = __toESM(require_router());
   var import_editor35 = __toESM(require_editor());
   var import_url18 = __toESM(require_url());
-  var import_data84 = __toESM(require_data());
   var import_compose28 = __toESM(require_compose());
   var import_components161 = __toESM(require_components());
-  var import_notices9 = __toESM(require_notices());
 
   // packages/edit-site/build-module/components/add-new-template/index.js
   var import_jsx_runtime293 = __toESM(require_jsx_runtime());
   var import_components159 = __toESM(require_components());
   var import_html_entities12 = __toESM(require_html_entities());
   var import_element137 = __toESM(require_element());
-  var import_data82 = __toESM(require_data());
-  var import_core_data54 = __toESM(require_core_data());
+  var import_data81 = __toESM(require_data());
+  var import_core_data53 = __toESM(require_core_data());
   var import_compose27 = __toESM(require_compose());
   var import_i18n144 = __toESM(require_i18n());
   var import_notices8 = __toESM(require_notices());
@@ -45311,15 +45232,15 @@ If there's a particular need for this, please submit a feature request at https:
   var import_element135 = __toESM(require_element());
   var import_i18n142 = __toESM(require_i18n());
   var import_components157 = __toESM(require_components());
-  var import_core_data53 = __toESM(require_core_data());
+  var import_core_data52 = __toESM(require_core_data());
   var import_html_entities11 = __toESM(require_html_entities());
   var import_compose26 = __toESM(require_compose());
   var import_dom12 = __toESM(require_dom());
   var import_url17 = __toESM(require_url());
 
   // packages/edit-site/build-module/components/add-new-template/utils.js
-  var import_data81 = __toESM(require_data());
-  var import_core_data52 = __toESM(require_core_data());
+  var import_data80 = __toESM(require_data());
+  var import_core_data51 = __toESM(require_core_data());
   var import_html_entities10 = __toESM(require_html_entities());
   var import_element134 = __toESM(require_element());
   var import_i18n141 = __toESM(require_i18n());
@@ -45342,8 +45263,8 @@ If there's a particular need for this, please submit a feature request at https:
     }));
   };
   var useExistingTemplates = () => {
-    return (0, import_data81.useSelect)(
-      (select2) => select2(import_core_data52.store).getEntityRecords(
+    return (0, import_data80.useSelect)(
+      (select2) => select2(import_core_data51.store).getEntityRecords(
         "postType",
         TEMPLATE_POST_TYPE,
         {
@@ -45354,14 +45275,14 @@ If there's a particular need for this, please submit a feature request at https:
     );
   };
   var useDefaultTemplateTypes = () => {
-    return (0, import_data81.useSelect)(
-      (select2) => select2(import_core_data52.store).getCurrentTheme()?.default_template_types || [],
+    return (0, import_data80.useSelect)(
+      (select2) => select2(import_core_data51.store).getCurrentTheme()?.default_template_types || [],
       []
     );
   };
   var usePublicPostTypes = () => {
-    const postTypes = (0, import_data81.useSelect)(
-      (select2) => select2(import_core_data52.store).getPostTypes({ per_page: -1 }),
+    const postTypes = (0, import_data80.useSelect)(
+      (select2) => select2(import_core_data51.store).getPostTypes({ per_page: -1 }),
       []
     );
     return (0, import_element134.useMemo)(() => {
@@ -45377,8 +45298,8 @@ If there's a particular need for this, please submit a feature request at https:
     }, [postTypes]);
   };
   var usePublicTaxonomies = () => {
-    const taxonomies = (0, import_data81.useSelect)(
-      (select2) => select2(import_core_data52.store).getTaxonomies({ per_page: -1 }),
+    const taxonomies = (0, import_data80.useSelect)(
+      (select2) => select2(import_core_data51.store).getTaxonomies({ per_page: -1 }),
       []
     );
     return (0, import_element134.useMemo)(() => {
@@ -45452,6 +45373,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
   var usePostTypeMenuItems = (onClickMenuItem) => {
     const publicPostTypes = usePublicPostTypes();
+    const existingTemplates = useExistingTemplates();
     const defaultTemplateTypes = useDefaultTemplateTypes();
     const templateLabels = (0, import_element134.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { labels }) => {
@@ -45480,6 +45402,9 @@ If there's a particular need for this, please submit a feature request at https:
       [publicPostTypes]
     );
     const postTypesInfo = useEntitiesInfo("postType", templatePrefixes);
+    const existingTemplateSlugs = (existingTemplates || []).map(
+      ({ slug }) => slug
+    );
     const menuItems = (publicPostTypes || []).reduce(
       (accumulator, postType2) => {
         const { slug, labels, icon } = postType2;
@@ -45487,6 +45412,7 @@ If there's a particular need for this, please submit a feature request at https:
         const defaultTemplateType = defaultTemplateTypes?.find(
           ({ slug: _slug }) => _slug === generalTemplateSlug
         );
+        const hasGeneralTemplate = existingTemplateSlugs?.includes(generalTemplateSlug);
         const _needsUniqueIdentifier = needsUniqueIdentifier(postType2);
         let menuItemTitle = labels.template_name || (0, import_i18n141.sprintf)(
           // translators: %s: Name of the post type e.g: "Post".
@@ -45554,11 +45480,12 @@ If there's a particular need for this, please submit a feature request at https:
                 }
               },
               labels,
+              hasGeneralTemplate,
               template
             });
           };
         }
-        if (hasEntities) {
+        if (!hasGeneralTemplate || hasEntities) {
           accumulator.push(menuItem);
         }
         return accumulator;
@@ -45761,11 +45688,7 @@ If there's a particular need for this, please submit a feature request at https:
                 suggestion.slug
               );
               return {
-                title: (0, import_i18n141.sprintf)(
-                  // translators: %s: Name of the author e.g: "Admin".
-                  (0, import_i18n141.__)("Author: %s"),
-                  suggestion.name
-                ),
+                title: templateSlug,
                 slug: templateSlug,
                 templatePrefix: "author"
               };
@@ -45786,17 +45709,81 @@ If there's a particular need for this, please submit a feature request at https:
       return authorMenuItem;
     }
   }
+  var useExistingTemplateSlugs = (templatePrefixes) => {
+    const existingTemplates = useExistingTemplates();
+    const existingSlugs = (0, import_element134.useMemo)(() => {
+      return Object.entries(templatePrefixes || {}).reduce(
+        (accumulator, [slug, prefix2]) => {
+          const slugsWithTemplates = (existingTemplates || []).reduce(
+            (_accumulator, existingTemplate) => {
+              const _prefix = `${prefix2}-`;
+              if (existingTemplate.slug.startsWith(_prefix)) {
+                _accumulator.push(
+                  existingTemplate.slug.substring(
+                    _prefix.length
+                  )
+                );
+              }
+              return _accumulator;
+            },
+            []
+          );
+          if (slugsWithTemplates.length) {
+            accumulator[slug] = slugsWithTemplates;
+          }
+          return accumulator;
+        },
+        {}
+      );
+    }, [templatePrefixes, existingTemplates]);
+    return existingSlugs;
+  };
+  var useTemplatesToExclude = (entityName, templatePrefixes, additionalQueryParameters = {}) => {
+    const slugsToExcludePerEntity = useExistingTemplateSlugs(templatePrefixes);
+    const recordsToExcludePerEntity = (0, import_data80.useSelect)(
+      (select2) => {
+        return Object.entries(slugsToExcludePerEntity || {}).reduce(
+          (accumulator, [slug, slugsWithTemplates]) => {
+            const entitiesWithTemplates = select2(
+              import_core_data51.store
+            ).getEntityRecords(entityName, slug, {
+              _fields: "id",
+              context: "view",
+              slug: slugsWithTemplates,
+              ...additionalQueryParameters[slug]
+            });
+            if (entitiesWithTemplates?.length) {
+              accumulator[slug] = entitiesWithTemplates;
+            }
+            return accumulator;
+          },
+          {}
+        );
+      },
+      [slugsToExcludePerEntity]
+    );
+    return recordsToExcludePerEntity;
+  };
   var useEntitiesInfo = (entityName, templatePrefixes, additionalQueryParameters = EMPTY_OBJECT) => {
-    const entitiesHasRecords = (0, import_data81.useSelect)(
+    const recordsToExcludePerEntity = useTemplatesToExclude(
+      entityName,
+      templatePrefixes,
+      additionalQueryParameters
+    );
+    const entitiesHasRecords = (0, import_data80.useSelect)(
       (select2) => {
         return Object.keys(templatePrefixes || {}).reduce(
           (accumulator, slug) => {
+            const existingEntitiesIds = recordsToExcludePerEntity?.[slug]?.map(
+              ({ id }) => id
+            ) || [];
             accumulator[slug] = !!select2(
-              import_core_data52.store
+              import_core_data51.store
             ).getEntityRecords(entityName, slug, {
               per_page: 1,
               _fields: "id",
               context: "view",
+              exclude: existingEntitiesIds,
               ...additionalQueryParameters[slug]
             })?.length;
             return accumulator;
@@ -45804,19 +45791,28 @@ If there's a particular need for this, please submit a feature request at https:
           {}
         );
       },
-      [templatePrefixes, entityName, additionalQueryParameters]
+      [
+        templatePrefixes,
+        recordsToExcludePerEntity,
+        entityName,
+        additionalQueryParameters
+      ]
     );
     const entitiesInfo = (0, import_element134.useMemo)(() => {
       return Object.keys(templatePrefixes || {}).reduce(
         (accumulator, slug) => {
+          const existingEntitiesIds = recordsToExcludePerEntity?.[slug]?.map(
+            ({ id }) => id
+          ) || [];
           accumulator[slug] = {
-            hasEntities: entitiesHasRecords[slug]
+            hasEntities: entitiesHasRecords[slug],
+            existingEntitiesIds
           };
           return accumulator;
         },
         {}
       );
-    }, [templatePrefixes, entitiesHasRecords]);
+    }, [templatePrefixes, recordsToExcludePerEntity, entitiesHasRecords]);
     return entitiesInfo;
   };
 
@@ -45887,7 +45883,7 @@ If there's a particular need for this, please submit a feature request at https:
       }),
       [search, config2]
     );
-    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data53.useEntityRecords)(
+    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data52.useEntityRecords)(
       entityForSuggestions.type,
       entityForSuggestions.slug,
       query
@@ -45968,7 +45964,9 @@ If there's a particular need for this, please submit a feature request at https:
     onBack,
     containerRef
   }) {
-    const [showSearchEntities, setShowSearchEntities] = (0, import_element135.useState)();
+    const [showSearchEntities, setShowSearchEntities] = (0, import_element135.useState)(
+      entityForSuggestions.hasGeneralTemplate
+    );
     (0, import_element135.useEffect)(() => {
       if (containerRef.current) {
         const [firstFocusable] = import_dom12.focus.focusable.find(
@@ -46358,12 +46356,12 @@ If there's a particular need for this, please submit a feature request at https:
       () => setModalContent(modalContentMap.customTemplate)
     );
     const history = useHistory20();
-    const { saveEntityRecord } = (0, import_data82.useDispatch)(import_core_data54.store);
-    const { createErrorNotice, createSuccessNotice } = (0, import_data82.useDispatch)(import_notices8.store);
+    const { saveEntityRecord } = (0, import_data81.useDispatch)(import_core_data53.store);
+    const { createErrorNotice, createSuccessNotice } = (0, import_data81.useDispatch)(import_notices8.store);
     const containerRef = (0, import_element137.useRef)(null);
     const isMobile = (0, import_compose27.useViewportMatch)("medium", "<");
-    const homeUrl = (0, import_data82.useSelect)((select2) => {
-      return select2(import_core_data54.store).getEntityRecord("root", "__unstableBase")?.home;
+    const homeUrl = (0, import_data81.useSelect)((select2) => {
+      return select2(import_core_data53.store).getEntityRecord("root", "__unstableBase")?.home;
     }, []);
     const TEMPLATE_SHORT_DESCRIPTIONS = {
       "front-page": homeUrl,
@@ -46398,9 +46396,7 @@ If there's a particular need for this, please submit a feature request at https:
             status: "publish",
             title,
             // This adds a post meta field in template that is part of `is_custom` value calculation.
-            meta: {
-              is_wp_suggestion: isWPSuggestion
-            }
+            is_wp_suggestion: isWPSuggestion
           },
           { throwOnError: true }
         );
@@ -46525,10 +46521,10 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function NewTemplate() {
     const [showModal, setShowModal] = (0, import_element137.useState)(false);
-    const { postType: postType2 } = (0, import_data82.useSelect)((select2) => {
-      const { getPostType: getPostType2 } = select2(import_core_data54.store);
+    const { postType: postType2 } = (0, import_data81.useSelect)((select2) => {
+      const { getPostType } = select2(import_core_data53.store);
       return {
-        postType: getPostType2(TEMPLATE_POST_TYPE)
+        postType: getPostType(TEMPLATE_POST_TYPE)
       };
     }, []);
     if (!postType2) {
@@ -46549,9 +46545,13 @@ If there's a particular need for this, please submit a feature request at https:
     ] });
   }
   function useMissingTemplates(setEntityForSuggestions, onClick) {
+    const existingTemplates = useExistingTemplates();
     const defaultTemplateTypes = useDefaultTemplateTypes();
+    const existingTemplateSlugs = (existingTemplates || []).map(
+      ({ slug }) => slug
+    );
     const missingDefaultTemplates = (defaultTemplateTypes || []).filter(
-      (template) => DEFAULT_TEMPLATE_SLUGS.includes(template.slug)
+      (template) => DEFAULT_TEMPLATE_SLUGS.includes(template.slug) && !existingTemplateSlugs.includes(template.slug)
     );
     const onClickMenuItem = (_entityForSuggestions) => {
       onClick?.();
@@ -46600,28 +46600,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_blocks16 = __toESM(require_blocks());
   var import_block_editor57 = __toESM(require_block_editor());
   var import_editor34 = __toESM(require_editor());
-  var import_core_data55 = __toESM(require_core_data());
-  var import_data83 = __toESM(require_data());
   var { useGlobalStyle: useGlobalStyle19 } = unlock(import_block_editor57.privateApis);
-  var { Badge: Badge3 } = unlock(import_components160.privateApis);
-  var { useEntityRecordsWithPermissions } = unlock(import_core_data55.privateApis);
-  function useAllDefaultTemplateTypes() {
-    const defaultTemplateTypes = useDefaultTemplateTypes();
-    const { records: staticRecords } = useEntityRecordsWithPermissions(
-      "root",
-      "registeredTemplate"
-    );
-    return [
-      ...defaultTemplateTypes,
-      ...staticRecords?.filter((record) => !record.is_custom).map((record) => {
-        return {
-          slug: record.slug,
-          title: record.title.rendered,
-          description: record.description
-        };
-      })
-    ];
-  }
   function PreviewField2({ item }) {
     const settings2 = usePatternSettings();
     const [backgroundColor = "white"] = useGlobalStyle19("color.background");
@@ -46650,12 +46629,8 @@ If there's a particular need for this, please submit a feature request at https:
   var descriptionField = {
     label: (0, import_i18n145.__)("Description"),
     id: "description",
-    render: function RenderDescription({ item }) {
-      const defaultTemplateTypes = useAllDefaultTemplateTypes();
-      const defaultTemplateType = defaultTemplateTypes.find(
-        (type) => type.slug === item.slug
-      );
-      return item.description ? (0, import_html_entities13.decodeEntities)(item.description) : defaultTemplateType?.description;
+    render: ({ item }) => {
+      return item.description && (0, import_html_entities13.decodeEntities)(item.description);
     },
     enableSorting: false,
     enableGlobalSearch: true
@@ -46687,51 +46662,8 @@ If there's a particular need for this, please submit a feature request at https:
   var authorField = {
     label: (0, import_i18n145.__)("Author"),
     id: "author",
-    getValue: ({ item }) => item.author_text ?? item.author,
+    getValue: ({ item }) => item.author_text,
     render: AuthorField2
-  };
-  var activeField = {
-    label: (0, import_i18n145.__)("Status"),
-    id: "active",
-    type: "boolean",
-    getValue: ({ item }) => item._isActive,
-    render: function Render({ item }) {
-      const activeLabel = item._isCustom ? (0, import_i18n145.__)("Active when used") : (0, import_i18n145.__)("Active");
-      const activeIntent = item._isCustom ? "info" : "success";
-      const isActive = item._isActive;
-      return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: isActive ? activeIntent : "default", children: isActive ? activeLabel : (0, import_i18n145.__)("Inactive") });
-    }
-  };
-  var useThemeField = () => {
-    const activeTheme = (0, import_data83.useSelect)(
-      (select2) => select2(import_core_data55.store).getCurrentTheme()
-    );
-    return (0, import_element138.useMemo)(
-      () => ({
-        label: (0, import_i18n145.__)("Compatible Theme"),
-        id: "theme",
-        getValue: ({ item }) => item.theme,
-        render: function Render3({ item }) {
-          if (item.theme === activeTheme.stylesheet) {
-            return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "success", children: item.theme });
-          }
-          return /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(Badge3, { intent: "error", children: item.theme });
-        }
-      }),
-      [activeTheme]
-    );
-  };
-  var slugField = {
-    label: (0, import_i18n145.__)("Template Type"),
-    id: "slug",
-    getValue: ({ item }) => item.slug,
-    render: function Render2({ item }) {
-      const defaultTemplateTypes = useAllDefaultTemplateTypes();
-      const defaultTemplateType = defaultTemplateTypes.find(
-        (type) => type.slug === item.slug
-      );
-      return defaultTemplateType?.title || (0, import_i18n145._x)("Custom", "template type");
-    }
   };
 
   // packages/edit-site/build-module/components/page-templates/view-utils.js
@@ -46756,17 +46688,13 @@ If there's a particular need for this, please submit a feature request at https:
     titleField: "title",
     descriptionField: "description",
     mediaField: "preview",
-    fields: ["author", "active", "slug", "theme"],
+    fields: ["author", "active", "slug"],
     filters: [],
     ...defaultLayouts2.grid
   };
   function getDefaultView(activeView) {
     return {
       ...DEFAULT_VIEW2,
-      sort: activeView === "user" ? {
-        field: "date",
-        direction: "desc"
-      } : DEFAULT_VIEW2.sort,
       filters: !["active", "user"].includes(activeView) ? [
         {
           field: "author",
@@ -46778,14 +46706,13 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-templates/index.js
-  var { usePostActions: usePostActions2, usePostFields, templateTitleField } = unlock(import_editor35.privateApis);
+  var { usePostActions: usePostActions2, templateTitleField } = unlock(import_editor35.privateApis);
   var { useHistory: useHistory21, useLocation: useLocation27 } = unlock(import_router34.privateApis);
-  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions2 } = unlock(import_core_data56.privateApis);
+  var { useEntityRecordsWithPermissions } = unlock(import_core_data54.privateApis);
   function PageTemplates() {
     const { path, query } = useLocation27();
     const { activeView = "active", postId } = query;
     const [selection, setSelection] = (0, import_element139.useState)([postId]);
-    const [selectedRegisteredTemplate, setSelectedRegisteredTemplate] = (0, import_element139.useState)(false);
     const defaultView = (0, import_element139.useMemo)(() => {
       return getDefaultView(activeView);
     }, [activeView]);
@@ -46808,105 +46735,9 @@ If there's a particular need for this, please submit a feature request at https:
         );
       }
     });
-    const { activeTemplatesOption, activeTheme, defaultTemplateTypes } = (0, import_data84.useSelect)((select2) => {
-      const { getEntityRecord, getCurrentTheme } = select2(import_core_data56.store);
-      return {
-        activeTemplatesOption: getEntityRecord("root", "site")?.active_templates,
-        activeTheme: getCurrentTheme(),
-        defaultTemplateTypes: select2(import_core_data56.store).getCurrentTheme()?.default_template_types
-      };
-    });
-    const { records: userRecords, isResolving: isLoadingUserRecords } = useEntityRecordsWithPermissions2("postType", TEMPLATE_POST_TYPE, {
-      per_page: -1,
-      combinedTemplates: false
-    });
-    const { records: staticRecords, isResolving: isLoadingStaticData } = useEntityRecordsWithPermissions2("root", "registeredTemplate", {
-      // This should not be needed, the endpoint returns all registered
-      // templates, but it's not possible right now to turn off pagination
-      // for entity configs.
+    const { records, isResolving: isLoadingData } = useEntityRecordsWithPermissions("postType", TEMPLATE_POST_TYPE, {
       per_page: -1
     });
-    const activeTemplates = (0, import_element139.useMemo)(() => {
-      const _active = [...staticRecords];
-      if (activeTemplatesOption) {
-        for (const activeSlug in activeTemplatesOption) {
-          const activeId = activeTemplatesOption[activeSlug];
-          const template = userRecords.find(
-            (userRecord) => userRecord.id === activeId && userRecord.theme === activeTheme.stylesheet
-          );
-          if (template) {
-            const index = _active.findIndex(
-              ({ slug }) => slug === template.slug
-            );
-            if (index !== -1) {
-              _active[index] = template;
-            } else {
-              _active.push(template);
-            }
-          }
-        }
-      }
-      return _active;
-    }, [userRecords, staticRecords, activeTemplatesOption, activeTheme]);
-    let isLoadingData;
-    if (activeView === "active") {
-      isLoadingData = isLoadingUserRecords || isLoadingStaticData;
-    } else if (activeView === "user") {
-      isLoadingData = isLoadingUserRecords;
-    } else {
-      isLoadingData = isLoadingStaticData;
-    }
-    const records = (0, import_element139.useMemo)(() => {
-      function isCustom(record) {
-        return record.is_custom ?? // For user templates it's custom if the is_wp_suggestion meta
-        // field is not set and the slug is not found in the default
-        // template types.
-        (!record.meta?.is_wp_suggestion && !defaultTemplateTypes.some(
-          (type) => type.slug === record.slug
-        ));
-      }
-      let _records;
-      if (activeView === "active") {
-        _records = activeTemplates.filter(
-          (record) => !isCustom(record)
-        );
-      } else if (activeView === "user") {
-        _records = userRecords;
-      } else {
-        _records = staticRecords;
-      }
-      return _records.map((record) => ({
-        ...record,
-        _isActive: activeTemplates.some(
-          (template) => template.id === record.id
-        ),
-        _isCustom: isCustom(record)
-      }));
-    }, [
-      activeTemplates,
-      defaultTemplateTypes,
-      userRecords,
-      staticRecords,
-      activeView
-    ]);
-    const users = (0, import_data84.useSelect)(
-      (select2) => {
-        const { getUser } = select2(import_core_data56.store);
-        return records.reduce((acc, record) => {
-          if (record.author_text) {
-            if (!acc[record.author_text]) {
-              acc[record.author_text] = record.author_text;
-            }
-          } else if (record.author) {
-            if (!acc[record.author]) {
-              acc[record.author] = getUser(record.author);
-            }
-          }
-          return acc;
-        }, {});
-      },
-      [records]
-    );
     const history = useHistory21();
     const onChangeSelection = (0, import_element139.useCallback)(
       (items) => {
@@ -46921,87 +46752,42 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [history, path, view?.type]
     );
-    const postTypeFields = usePostFields({
-      postType: TEMPLATE_POST_TYPE
-    });
-    const dateField = postTypeFields.find((field) => field.id === "date");
-    const themeField = useThemeField();
-    const fields = (0, import_element139.useMemo)(() => {
-      const _fields = [
+    const authors = (0, import_element139.useMemo)(() => {
+      if (!records) {
+        return [];
+      }
+      const authorsSet = /* @__PURE__ */ new Set();
+      records.forEach((template) => {
+        authorsSet.add(template.author_text);
+      });
+      return Array.from(authorsSet).map((author) => ({
+        value: author,
+        label: author
+      }));
+    }, [records]);
+    const fields = (0, import_element139.useMemo)(
+      () => [
         previewField2,
         templateTitleField,
         descriptionField,
-        activeField,
-        slugField
-      ];
-      if (activeView === "user") {
-        _fields.push(themeField);
-        if (dateField) {
-          _fields.push(dateField);
+        {
+          ...authorField,
+          elements: authors
         }
-      }
-      const elements2 = [];
-      for (const author in users) {
-        elements2.push({
-          value: users[author]?.id ?? author,
-          label: users[author]?.name ?? author
-        });
-      }
-      _fields.push({
-        ...authorField,
-        elements: elements2
-      });
-      return _fields;
-    }, [users, activeView, themeField, dateField]);
+      ],
+      [authors]
+    );
     const { data, paginationInfo } = (0, import_element139.useMemo)(() => {
       return filterSortAndPaginate(records, view, fields);
     }, [records, view, fields]);
-    const { createSuccessNotice } = (0, import_data84.useDispatch)(import_notices9.store);
-    const onActionPerformed = (0, import_element139.useCallback)(
-      (actionId, items) => {
-        switch (actionId) {
-          case "duplicate-post":
-            {
-              const newItem = items[0];
-              const _title = typeof newItem.title === "string" ? newItem.title : newItem.title?.rendered;
-              history.navigate(`/template?activeView=user`);
-              createSuccessNotice(
-                (0, import_i18n146.sprintf)(
-                  // translators: %s: Title of the created post or template, e.g: "Hello world".
-                  (0, import_i18n146.__)('"%s" successfully created.'),
-                  (0, import_html_entities14.decodeEntities)(_title) || (0, import_i18n146.__)("(no title)")
-                ),
-                {
-                  type: "snackbar",
-                  id: "duplicate-post-action",
-                  actions: [
-                    {
-                      label: (0, import_i18n146.__)("Edit"),
-                      onClick: () => {
-                        history.navigate(
-                          `/${newItem.type}/${newItem.id}?canvas=edit`
-                        );
-                      }
-                    }
-                  ]
-                }
-              );
-            }
-            break;
-        }
-      },
-      [history, createSuccessNotice]
-    );
     const postTypeActions = usePostActions2({
       postType: TEMPLATE_POST_TYPE,
-      context: "list",
-      onActionPerformed
+      context: "list"
     });
     const editAction = useEditPostAction();
-    const setActiveTemplateAction = useSetActiveTemplateAction();
     const actions = (0, import_element139.useMemo)(
-      () => activeView === "user" ? [setActiveTemplateAction, editAction, ...postTypeActions] : [setActiveTemplateAction, ...postTypeActions],
-      [postTypeActions, setActiveTemplateAction, editAction, activeView]
+      () => [editAction, ...postTypeActions],
+      [postTypeActions, editAction]
     );
     const onChangeView = (0, import_compose28.useEvent)((newView) => {
       if (newView.type !== view.type) {
@@ -47009,10 +46795,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       updateView(newView);
     });
-    const duplicateAction = actions.find(
-      (action) => action.id === "duplicate-post"
-    );
-    return /* @__PURE__ */ (0, import_jsx_runtime295.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
       page_default,
       {
         className: "edit-site-page-templates",
@@ -47031,49 +46814,26 @@ If there's a particular need for this, please submit a feature request at https:
           ),
           /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(add_new_template_default, {})
         ] }),
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
-            dataviews_default,
-            {
-              paginationInfo,
-              fields,
-              actions,
-              data,
-              isLoading: isLoadingData,
-              view,
-              onChangeView,
-              onChangeSelection,
-              isItemClickable: () => true,
-              onClickItem: (item) => {
-                if (typeof item.id === "string") {
-                  setSelectedRegisteredTemplate(item);
-                } else {
-                  history.navigate(
-                    `/${item.type}/${item.id}?canvas=edit`
-                  );
-                }
-              },
-              selection,
-              defaultLayouts: defaultLayouts2
+        children: /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
+          dataviews_default,
+          {
+            paginationInfo,
+            fields,
+            actions,
+            data,
+            isLoading: isLoadingData,
+            view,
+            onChangeView,
+            onChangeSelection,
+            isItemClickable: () => true,
+            onClickItem: ({ id }) => {
+              history.navigate(`/wp_template/${id}?canvas=edit`);
             },
-            activeView
-          ),
-          selectedRegisteredTemplate && duplicateAction && /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
-            import_components161.Modal,
-            {
-              title: (0, import_i18n146.__)("Duplicate"),
-              onRequestClose: () => setSelectedRegisteredTemplate(),
-              size: "small",
-              children: /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
-                duplicateAction.RenderModal,
-                {
-                  items: [selectedRegisteredTemplate],
-                  closeModal: () => setSelectedRegisteredTemplate()
-                }
-              )
-            }
-          )
-        ]
+            selection,
+            defaultLayouts: defaultLayouts2
+          },
+          activeView
+        )
       }
     );
   }
@@ -47124,39 +46884,38 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/site-editor-routes/template-item.js
   var import_jsx_runtime297 = __toESM(require_jsx_runtime());
-  var areas = {
-    sidebar({ siteData }) {
-      const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
-    },
-    mobile({ siteData }) {
-      const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
-    },
-    preview({ siteData }) {
-      const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
-    }
-  };
   var templateItemRoute = {
     name: "template-item",
     path: "/wp_template/*postId",
-    areas
+    areas: {
+      sidebar({ siteData }) {
+        const isBlockTheme = siteData.currentTheme?.is_block_theme;
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
+      },
+      mobile({ siteData }) {
+        const isBlockTheme = siteData.currentTheme?.is_block_theme;
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
+      },
+      preview({ siteData }) {
+        const isBlockTheme = siteData.currentTheme?.is_block_theme;
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
+      }
+    }
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/pages.js
   var import_jsx_runtime303 = __toESM(require_jsx_runtime());
   var import_router38 = __toESM(require_router());
   var import_i18n151 = __toESM(require_i18n());
-  var import_data89 = __toESM(require_data());
-  var import_core_data61 = __toESM(require_core_data());
+  var import_data86 = __toESM(require_data());
+  var import_core_data59 = __toESM(require_core_data());
 
   // packages/edit-site/build-module/components/sidebar-dataviews/index.js
   var import_jsx_runtime299 = __toESM(require_jsx_runtime());
   var import_components163 = __toESM(require_components());
   var import_router36 = __toESM(require_router());
-  var import_data85 = __toESM(require_data());
-  var import_core_data57 = __toESM(require_core_data());
+  var import_data82 = __toESM(require_data());
+  var import_core_data55 = __toESM(require_core_data());
   var import_element140 = __toESM(require_element());
 
   // packages/edit-site/build-module/components/sidebar-dataviews/dataview-item.js
@@ -47344,10 +47103,10 @@ If there's a particular need for this, please submit a feature request at https:
     const {
       query: { activeView = "all" }
     } = useLocation29();
-    const postTypeObject = (0, import_data85.useSelect)(
+    const postTypeObject = (0, import_data82.useSelect)(
       (select2) => {
-        const { getPostType: getPostType2 } = select2(import_core_data57.store);
-        return getPostType2(postType2);
+        const { getPostType } = select2(import_core_data55.store);
+        return getPostType(postType2);
       },
       [postType2]
     );
@@ -47376,10 +47135,10 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/edit-site/build-module/components/post-list/index.js
   var import_jsx_runtime301 = __toESM(require_jsx_runtime());
   var import_components165 = __toESM(require_components());
-  var import_core_data59 = __toESM(require_core_data());
+  var import_core_data57 = __toESM(require_core_data());
   var import_element142 = __toESM(require_element());
   var import_router37 = __toESM(require_router());
-  var import_data87 = __toESM(require_data());
+  var import_data84 = __toESM(require_data());
   var import_editor38 = __toESM(require_editor());
   var import_i18n149 = __toESM(require_i18n());
   var import_compose29 = __toESM(require_compose());
@@ -47389,22 +47148,22 @@ If there's a particular need for this, please submit a feature request at https:
   var import_jsx_runtime300 = __toESM(require_jsx_runtime());
   var import_components164 = __toESM(require_components());
   var import_i18n148 = __toESM(require_i18n());
-  var import_data86 = __toESM(require_data());
+  var import_data83 = __toESM(require_data());
   var import_element141 = __toESM(require_element());
-  var import_core_data58 = __toESM(require_core_data());
-  var import_notices10 = __toESM(require_notices());
-  var import_html_entities15 = __toESM(require_html_entities());
+  var import_core_data56 = __toESM(require_core_data());
+  var import_notices9 = __toESM(require_notices());
+  var import_html_entities14 = __toESM(require_html_entities());
   var import_blocks17 = __toESM(require_blocks());
   function AddNewPostModal({ postType: postType2, onSave, onClose }) {
-    const labels = (0, import_data86.useSelect)(
-      (select2) => select2(import_core_data58.store).getPostType(postType2)?.labels,
+    const labels = (0, import_data83.useSelect)(
+      (select2) => select2(import_core_data56.store).getPostType(postType2)?.labels,
       [postType2]
     );
     const [isCreatingPost, setIsCreatingPost] = (0, import_element141.useState)(false);
     const [title, setTitle] = (0, import_element141.useState)("");
-    const { saveEntityRecord } = (0, import_data86.useDispatch)(import_core_data58.store);
-    const { createErrorNotice, createSuccessNotice } = (0, import_data86.useDispatch)(import_notices10.store);
-    const { resolveSelect: resolveSelect3 } = (0, import_data86.useRegistry)();
+    const { saveEntityRecord } = (0, import_data83.useDispatch)(import_core_data56.store);
+    const { createErrorNotice, createSuccessNotice } = (0, import_data83.useDispatch)(import_notices9.store);
+    const { resolveSelect: resolveSelect3 } = (0, import_data83.useRegistry)();
     async function createPost(event) {
       event.preventDefault();
       if (isCreatingPost) {
@@ -47412,7 +47171,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       setIsCreatingPost(true);
       try {
-        const postTypeObject = await resolveSelect3(import_core_data58.store).getPostType(postType2);
+        const postTypeObject = await resolveSelect3(import_core_data56.store).getPostType(postType2);
         const newPage = await saveEntityRecord(
           "postType",
           postType2,
@@ -47434,7 +47193,7 @@ If there's a particular need for this, please submit a feature request at https:
           (0, import_i18n148.sprintf)(
             // translators: %s: Title of the created post or template, e.g: "Hello world".
             (0, import_i18n148.__)('"%s" successfully created.'),
-            (0, import_html_entities15.decodeEntities)(newPage.title?.rendered || title) || (0, import_i18n148.__)("(no title)")
+            (0, import_html_entities14.decodeEntities)(newPage.title?.rendered || title) || (0, import_i18n148.__)("(no title)")
           ),
           { type: "snackbar" }
         );
@@ -47497,9 +47256,9 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/index.js
-  var { usePostActions: usePostActions3, usePostFields: usePostFields2 } = unlock(import_editor38.privateApis);
+  var { usePostActions: usePostActions3, usePostFields } = unlock(import_editor38.privateApis);
   var { useLocation: useLocation30, useHistory: useHistory22 } = unlock(import_router37.privateApis);
-  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions3 } = unlock(import_core_data59.privateApis);
+  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions2 } = unlock(import_core_data57.privateApis);
   var EMPTY_ARRAY13 = [];
   var DEFAULT_STATUSES = "draft,future,pending,private,publish";
   function getItemId(item) {
@@ -47512,10 +47271,10 @@ If there's a particular need for this, please submit a feature request at https:
     const { path, query } = useLocation30();
     const { activeView = "all", postId, quickEdit = false } = query;
     const history = useHistory22();
-    const postTypeObject = (0, import_data87.useSelect)(
+    const postTypeObject = (0, import_data84.useSelect)(
       (select2) => {
-        const { getPostType: getPostType2 } = select2(import_core_data59.store);
-        return getPostType2(postType2);
+        const { getPostType } = select2(import_core_data57.store);
+        return getPostType(postType2);
       },
       [postType2]
     );
@@ -47556,7 +47315,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [path, history]
     );
-    const fields = usePostFields2({
+    const fields = usePostFields({
       postType: postType2
     });
     const queryArgs = (0, import_element142.useMemo)(() => {
@@ -47590,7 +47349,7 @@ If there's a particular need for this, please submit a feature request at https:
       isResolving: isLoadingData,
       totalItems,
       totalPages
-    } = useEntityRecordsWithPermissions3("postType", postType2, queryArgs);
+    } = useEntityRecordsWithPermissions2("postType", postType2, queryArgs);
     const data = (0, import_element142.useMemo)(() => {
       if (view?.sort?.field === "author") {
         return filterSortAndPaginate(
@@ -47621,11 +47380,11 @@ If there's a particular need for this, please submit a feature request at https:
       }),
       [totalItems, totalPages]
     );
-    const { labels, canCreateRecord } = (0, import_data87.useSelect)(
+    const { labels, canCreateRecord } = (0, import_data84.useSelect)(
       (select2) => {
-        const { getPostType: getPostType2, canUser } = select2(import_core_data59.store);
+        const { getPostType, canUser } = select2(import_core_data57.store);
         return {
-          labels: getPostType2(postType2)?.labels,
+          labels: getPostType(postType2)?.labels,
           canCreateRecord: canUser("create", {
             kind: "postType",
             name: postType2
@@ -47731,13 +47490,13 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/edit-site/build-module/components/post-edit/index.js
   var import_jsx_runtime302 = __toESM(require_jsx_runtime());
   var import_i18n150 = __toESM(require_i18n());
-  var import_data88 = __toESM(require_data());
-  var import_core_data60 = __toESM(require_core_data());
+  var import_data85 = __toESM(require_data());
+  var import_core_data58 = __toESM(require_core_data());
   var import_components166 = __toESM(require_components());
   var import_element143 = __toESM(require_element());
   var import_editor39 = __toESM(require_editor());
   var import_block_editor58 = __toESM(require_block_editor());
-  var { usePostFields: usePostFields3, PostCardPanel } = unlock(import_editor39.privateApis);
+  var { usePostFields: usePostFields2, PostCardPanel } = unlock(import_editor39.privateApis);
   var fieldsWithBulkEditSupport = [
     "title",
     "status",
@@ -47747,13 +47506,13 @@ If there's a particular need for this, please submit a feature request at https:
   ];
   function PostEditForm({ postType: postType2, postId }) {
     const ids = (0, import_element143.useMemo)(() => postId.split(","), [postId]);
-    const { record, hasFinishedResolution } = (0, import_data88.useSelect)(
+    const { record, hasFinishedResolution } = (0, import_data85.useSelect)(
       (select2) => {
         const args = ["postType", postType2, ids[0]];
         const {
           getEditedEntityRecord,
           hasFinishedResolution: hasFinished
-        } = select2(import_core_data60.store);
+        } = select2(import_core_data58.store);
         return {
           record: ids.length === 1 ? getEditedEntityRecord(...args) : null,
           hasFinishedResolution: hasFinished(
@@ -47765,8 +47524,8 @@ If there's a particular need for this, please submit a feature request at https:
       [postType2, ids]
     );
     const [multiEdits, setMultiEdits] = (0, import_element143.useState)({});
-    const { editEntityRecord } = (0, import_data88.useDispatch)(import_core_data60.store);
-    const _fields = usePostFields3({ postType: postType2 });
+    const { editEntityRecord } = (0, import_data85.useDispatch)(import_core_data58.store);
+    const _fields = usePostFields2({ postType: postType2 });
     const fields = (0, import_element143.useMemo)(
       () => _fields?.map((field) => {
         if (field.id === "status") {
@@ -47891,7 +47650,7 @@ If there's a particular need for this, please submit a feature request at https:
   var { useLocation: useLocation31 } = unlock(import_router38.privateApis);
   async function isListView(query) {
     const { activeView = "all" } = query;
-    const postTypeObject = await (0, import_data89.resolveSelect)(import_core_data61.store).getPostType("page");
+    const postTypeObject = await (0, import_data86.resolveSelect)(import_core_data59.store).getPostType("page");
     const view = await loadView({
       kind: "postType",
       name: "page",
@@ -48053,8 +47812,8 @@ If there's a particular need for this, please submit a feature request at https:
     notFoundRoute
   ];
   function useRegisterSiteEditorRoutes() {
-    const registry = (0, import_data90.useRegistry)();
-    const { registerRoute: registerRoute2 } = unlock((0, import_data90.useDispatch)(store));
+    const registry = (0, import_data87.useRegistry)();
+    const { registerRoute: registerRoute2 } = unlock((0, import_data87.useDispatch)(store));
     (0, import_element144.useEffect)(() => {
       registry.batch(() => {
         routes2.forEach(registerRoute2);
@@ -48071,10 +47830,10 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function App() {
     useRegisterSiteEditorRoutes();
-    const { routes: routes4, currentTheme, editorSettings } = (0, import_data91.useSelect)((select2) => {
+    const { routes: routes4, currentTheme, editorSettings } = (0, import_data88.useSelect)((select2) => {
       return {
         routes: unlock(select2(store)).getRoutes(),
-        currentTheme: select2(import_core_data62.store).getCurrentTheme(),
+        currentTheme: select2(import_core_data60.store).getCurrentTheme(),
         // This is a temp solution until the has_theme_json value is available for the current theme.
         editorSettings: select2(store).getSettings()
       };
@@ -48149,7 +47908,7 @@ If there's a particular need for this, please submit a feature request at https:
   var import_jsx_runtime312 = __toESM(require_jsx_runtime());
   var import_blocks18 = __toESM(require_blocks());
   var import_block_library2 = __toESM(require_block_library());
-  var import_data95 = __toESM(require_data());
+  var import_data92 = __toESM(require_data());
   var import_element147 = __toESM(require_element());
   var import_preferences17 = __toESM(require_preferences());
   var import_widgets = __toESM(require_widgets());
@@ -48157,22 +47916,22 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/edit-site/build-module/components/posts-app/index.js
   var import_jsx_runtime311 = __toESM(require_jsx_runtime());
   var import_router41 = __toESM(require_router());
-  var import_data94 = __toESM(require_data());
+  var import_data91 = __toESM(require_data());
 
   // packages/edit-site/build-module/components/posts-app-routes/index.js
-  var import_data93 = __toESM(require_data());
+  var import_data90 = __toESM(require_data());
   var import_element146 = __toESM(require_element());
 
   // packages/edit-site/build-module/components/posts-app-routes/posts.js
   var import_jsx_runtime309 = __toESM(require_jsx_runtime());
   var import_router40 = __toESM(require_router());
   var import_i18n155 = __toESM(require_i18n());
-  var import_data92 = __toESM(require_data());
-  var import_core_data63 = __toESM(require_core_data());
+  var import_data89 = __toESM(require_data());
+  var import_core_data61 = __toESM(require_core_data());
   var { useLocation: useLocation32 } = unlock(import_router40.privateApis);
   async function isListView2(query) {
     const { activeView = "all" } = query;
-    const postTypeObject = await (0, import_data92.resolveSelect)(import_core_data63.store).getPostType("post");
+    const postTypeObject = await (0, import_data89.resolveSelect)(import_core_data61.store).getPostType("post");
     const view = await loadView({
       kind: "postType",
       name: "post",
@@ -48246,8 +48005,8 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/edit-site/build-module/components/posts-app-routes/index.js
   var routes3 = [postItemRoute, postsRoute];
   function useRegisterPostsAppRoutes() {
-    const registry = (0, import_data93.useRegistry)();
-    const { registerRoute: registerRoute2 } = unlock((0, import_data93.useDispatch)(store));
+    const registry = (0, import_data90.useRegistry)();
+    const { registerRoute: registerRoute2 } = unlock((0, import_data90.useDispatch)(store));
     (0, import_element146.useEffect)(() => {
       registry.batch(() => {
         routes3.forEach(registerRoute2);
@@ -48259,7 +48018,7 @@ If there's a particular need for this, please submit a feature request at https:
   var { RouterProvider: RouterProvider2 } = unlock(import_router41.privateApis);
   function PostsApp() {
     useRegisterPostsAppRoutes();
-    const routes4 = (0, import_data94.useSelect)((select2) => {
+    const routes4 = (0, import_data91.useSelect)((select2) => {
       return unlock(select2(store)).getRoutes();
     }, []);
     return /* @__PURE__ */ (0, import_jsx_runtime311.jsx)(RouterProvider2, { routes: routes4, pathArg: "p", children: /* @__PURE__ */ (0, import_jsx_runtime311.jsx)(LayoutWithGlobalStylesProvider, {}) });
@@ -48272,12 +48031,12 @@ If there's a particular need for this, please submit a feature request at https:
     }
     const target = document.getElementById(id);
     const root = (0, import_element147.createRoot)(target);
-    (0, import_data95.dispatch)(import_blocks18.store).reapplyBlockTypeFilters();
+    (0, import_data92.dispatch)(import_blocks18.store).reapplyBlockTypeFilters();
     const coreBlocks = (0, import_block_library2.__experimentalGetCoreBlocks)().filter(
       ({ name: name2 }) => name2 !== "core/freeform"
     );
     (0, import_block_library2.registerCoreBlocks)(coreBlocks);
-    (0, import_data95.dispatch)(import_blocks18.store).setFreeformFallbackBlockName("core/html");
+    (0, import_data92.dispatch)(import_blocks18.store).setFreeformFallbackBlockName("core/html");
     (0, import_widgets.registerLegacyWidgetBlock)({ inserter: false });
     (0, import_widgets.registerWidgetGroupBlock)({ inserter: false });
     if (true) {
@@ -48285,13 +48044,13 @@ If there's a particular need for this, please submit a feature request at https:
         enableFSEBlocks: true
       });
     }
-    (0, import_data95.dispatch)(import_preferences17.store).setDefaults("core/edit-site", {
+    (0, import_data92.dispatch)(import_preferences17.store).setDefaults("core/edit-site", {
       welcomeGuide: true,
       welcomeGuideStyles: true,
       welcomeGuidePage: true,
       welcomeGuideTemplate: true
     });
-    (0, import_data95.dispatch)(import_preferences17.store).setDefaults("core", {
+    (0, import_data92.dispatch)(import_preferences17.store).setDefaults("core", {
       allowRightClickOverrides: true,
       distractionFree: false,
       editorMode: "visual",
@@ -48305,7 +48064,7 @@ If there's a particular need for this, please submit a feature request at https:
       showListViewByDefault: false,
       enableChoosePatternModal: true
     });
-    (0, import_data95.dispatch)(store).updateSettings(settings2);
+    (0, import_data92.dispatch)(store).updateSettings(settings2);
     window.addEventListener("dragover", (e2) => e2.preventDefault(), false);
     window.addEventListener("drop", (e2) => e2.preventDefault(), false);
     root.render(
@@ -48319,13 +48078,13 @@ If there's a particular need for this, please submit a feature request at https:
   function initializeEditor(id, settings2) {
     const target = document.getElementById(id);
     const root = (0, import_element148.createRoot)(target);
-    (0, import_data96.dispatch)(import_blocks19.store).reapplyBlockTypeFilters();
+    (0, import_data93.dispatch)(import_blocks19.store).reapplyBlockTypeFilters();
     const coreBlocks = (0, import_block_library3.__experimentalGetCoreBlocks)().filter(
       ({ name: name2 }) => name2 !== "core/freeform"
     );
     (0, import_block_library3.registerCoreBlocks)(coreBlocks);
     registerCoreBlockBindingsSources();
-    (0, import_data96.dispatch)(import_blocks19.store).setFreeformFallbackBlockName("core/html");
+    (0, import_data93.dispatch)(import_blocks19.store).setFreeformFallbackBlockName("core/html");
     (0, import_widgets2.registerLegacyWidgetBlock)({ inserter: false });
     (0, import_widgets2.registerWidgetGroupBlock)({ inserter: false });
     if (true) {
@@ -48333,13 +48092,13 @@ If there's a particular need for this, please submit a feature request at https:
         enableFSEBlocks: true
       });
     }
-    (0, import_data96.dispatch)(import_preferences18.store).setDefaults("core/edit-site", {
+    (0, import_data93.dispatch)(import_preferences18.store).setDefaults("core/edit-site", {
       welcomeGuide: true,
       welcomeGuideStyles: true,
       welcomeGuidePage: true,
       welcomeGuideTemplate: true
     });
-    (0, import_data96.dispatch)(import_preferences18.store).setDefaults("core", {
+    (0, import_data93.dispatch)(import_preferences18.store).setDefaults("core", {
       allowRightClickOverrides: true,
       distractionFree: false,
       editorMode: "visual",
@@ -48354,12 +48113,12 @@ If there's a particular need for this, please submit a feature request at https:
       enableChoosePatternModal: true
     });
     if (window.__experimentalMediaProcessing) {
-      (0, import_data96.dispatch)(import_preferences18.store).setDefaults("core/media", {
+      (0, import_data93.dispatch)(import_preferences18.store).setDefaults("core/media", {
         requireApproval: true,
         optimizeOnUpload: true
       });
     }
-    (0, import_data96.dispatch)(store).updateSettings(settings2);
+    (0, import_data93.dispatch)(store).updateSettings(settings2);
     window.addEventListener("dragover", (e2) => e2.preventDefault(), false);
     window.addEventListener("drop", (e2) => e2.preventDefault(), false);
     root.render(

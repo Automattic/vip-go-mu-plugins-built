@@ -2,6 +2,8 @@
 
 namespace VIPRealTimeCollaboration\Compatibility;
 
+use VIPRealTimeCollaboration\Settings\Settings;
+
 defined( 'ABSPATH' ) || exit();
 
 /**
@@ -49,8 +51,11 @@ final class Compatibility {
 
 		unset( $experiments['gutenberg-sync-collaboration'] );
 
-		// Do not enable on Site Editor.
-		if ( 'site-editor.php' === $pagenow ) {
+		// Check if RTC is enabled in settings.
+		$is_vip_rtc_enabled = Settings::is_vip_rtc_enabled();
+
+		// Do not enable on Site Editor, or if RTC is not enabled.
+		if ( 'site-editor.php' === $pagenow || ! $is_vip_rtc_enabled ) {
 			return $experiments;
 		}
 
