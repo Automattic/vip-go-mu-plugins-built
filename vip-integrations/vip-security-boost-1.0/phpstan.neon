@@ -10,6 +10,8 @@ parameters:
     - email
     - class-loader.php
     - vip-security-boost.php
+  excludePaths:
+    - %rootDir%/../../../tests/e2e
   scanDirectories:
     - mu-plugins
   scanFiles:
