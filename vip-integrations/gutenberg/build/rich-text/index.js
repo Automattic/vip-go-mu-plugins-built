@@ -582,34 +582,36 @@ var wp;
             )
           });
         } else if (formatType?.contentEditable === false) {
-          pointer = getParent3(pointer);
-          if (isEditableTree) {
-            const attrs = {
-              contenteditable: "false",
-              "data-rich-text-bogus": true
-            };
-            if (start === i2 && end === i2 + 1) {
-              attrs["data-rich-text-format-boundary"] = true;
+          if (innerHTML || isEditableTree) {
+            pointer = getParent3(pointer);
+            if (isEditableTree) {
+              const attrs = {
+                contenteditable: "false",
+                "data-rich-text-bogus": true
+              };
+              if (start === i2 && end === i2 + 1) {
+                attrs["data-rich-text-format-boundary"] = true;
+              }
+              pointer = append3(pointer, {
+                type: "span",
+                attributes: attrs
+              });
+              if (isEditableTree && i2 + 1 === text.length) {
+                append3(getParent3(pointer), ZWNBSP);
+              }
             }
-            pointer = append3(pointer, {
-              type: "span",
-              attributes: attrs
-            });
-            if (isEditableTree && i2 + 1 === text.length) {
-              append3(getParent3(pointer), ZWNBSP);
+            pointer = append3(
+              pointer,
+              fromFormat({
+                ...replacement,
+                isEditableTree
+              })
+            );
+            if (innerHTML) {
+              append3(pointer, {
+                html: innerHTML
+              });
             }
-          }
-          pointer = append3(
-            pointer,
-            fromFormat({
-              ...replacement,
-              isEditableTree
-            })
-          );
-          if (innerHTML) {
-            append3(pointer, {
-              html: innerHTML
-            });
           }
         } else {
           pointer = append3(

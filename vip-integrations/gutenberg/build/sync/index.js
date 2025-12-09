@@ -15466,9 +15466,7 @@ var wp;
           }
         });
       };
-      if (syncConfig.supports?.undo) {
-        undoManager.addToScope(recordMap);
-      }
+      undoManager.addToScope(recordMap);
       const entityState = {
         handlers,
         objectId,
@@ -15479,10 +15477,9 @@ var wp;
       };
       entityStates.set(entityId, entityState);
       const providerResults = await Promise.all(
-        providerCreators2.map((create7) => {
-          const awareness = syncConfig.supports?.awareness ? new Awareness(ydoc) : void 0;
-          return create7(objectType, objectId, ydoc, awareness);
-        })
+        providerCreators2.map(
+          (create7) => create7(objectType, objectId, ydoc, new Awareness(ydoc))
+        )
       );
       recordMap.observeDeep(onRecordUpdate);
       recordMetaMap.observe(onRecordMetaUpdate);
@@ -15491,9 +15488,9 @@ var wp;
         ydoc.transact(() => {
           syncConfig.applyChangesToCRDTDoc(ydoc, record);
         }, LOCAL_SYNC_MANAGER_ORIGIN);
-        const meta = createEntityMeta(objectType, objectId);
-        handlers.editRecord({ meta });
-        handlers.saveRecord();
+        if (syncConfig.supports?.crdtPersistence) {
+          handlers.saveRecord();
+        }
       }
     }
     async function loadCollection(syncConfig, objectType, handlers) {
@@ -15611,7 +15608,7 @@ var wp;
     function createEntityMeta(objectType, objectId) {
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
-      if (!entityState?.syncConfig.supports?.crdtPersistence) {
+      if (!entityState) {
         return {};
       }
       return createPersistedCRDTDoc(entityState.ydoc);

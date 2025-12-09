@@ -30282,6 +30282,18 @@ var wp;
           "aria-describedby": tableNoticeId,
           role: isInfiniteScroll ? "feed" : void 0,
           children: [
+            /* @__PURE__ */ (0, import_jsx_runtime205.jsxs)("colgroup", { children: [
+              hasBulkActions && /* @__PURE__ */ (0, import_jsx_runtime205.jsx)("col", { className: "dataviews-view-table__col-checkbox" }),
+              hasPrimaryColumn && /* @__PURE__ */ (0, import_jsx_runtime205.jsx)("col", { className: "dataviews-view-table__col-primary" }),
+              columns.map((column) => /* @__PURE__ */ (0, import_jsx_runtime205.jsx)(
+                "col",
+                {
+                  className: `dataviews-view-table__col-${column}`
+                },
+                `col-${column}`
+              )),
+              !!actions?.length && /* @__PURE__ */ (0, import_jsx_runtime205.jsx)("col", { className: "dataviews-view-table__col-actions" })
+            ] }),
             /* @__PURE__ */ (0, import_jsx_runtime205.jsx)("thead", { children: /* @__PURE__ */ (0, import_jsx_runtime205.jsxs)("tr", { className: "dataviews-view-table__row", children: [
               hasBulkActions && /* @__PURE__ */ (0, import_jsx_runtime205.jsx)(
                 "th",
@@ -44217,7 +44229,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
     const { set } = (0, import_data73.useDispatch)(import_preferences15.store);
     const baseView = persistedView ?? defaultView;
-    const page = queryParams?.page ?? baseView.page ?? 1;
+    const page = Number(queryParams?.page ?? baseView.page ?? 1);
     const search = queryParams?.search ?? baseView.search ?? "";
     const view = (0, import_element125.useMemo)(() => {
       return {
@@ -44949,7 +44961,7 @@ If there's a particular need for this, please submit a feature request at https:
       slug: categoryId,
       defaultView: DEFAULT_VIEW,
       queryParams: {
-        page: Number(query.pageNumber ?? 1),
+        page: query.pageNumber,
         search: query.search
       },
       onChangeQueryParams: (params) => {
