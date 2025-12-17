@@ -15,32 +15,32 @@ class ComposerStaticInitbd4f201ffe6aa6030261fc1130f59b3c
     );
 
     public static $prefixLengthsPsr4 = array (
-        'U' => 
+        'U' =>
         array (
             'Utilities\\' => 10,
         ),
-        'S' => 
+        'S' =>
         array (
             'Symfony\\Component\\VarExporter\\' => 30,
         ),
-        'R' => 
+        'R' =>
         array (
             'RemoteDataBlocks\\' => 17,
         ),
-        'P' => 
+        'P' =>
         array (
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
         ),
-        'K' => 
+        'K' =>
         array (
             'Kevinrob\\GuzzleCache\\' => 21,
         ),
-        'J' => 
+        'J' =>
         array (
             'JsonPath\\' => 9,
         ),
-        'G' => 
+        'G' =>
         array (
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
@@ -49,53 +49,53 @@ class ComposerStaticInitbd4f201ffe6aa6030261fc1130f59b3c
     );
 
     public static $prefixDirsPsr4 = array (
-        'Utilities\\' => 
+        'Utilities\\' =>
         array (
             0 => __DIR__ . '/..' . '/galbar/jsonpath/src/Galbar/Utilities',
         ),
-        'Symfony\\Component\\VarExporter\\' => 
+        'Symfony\\Component\\VarExporter\\' =>
         array (
             0 => __DIR__ . '/..' . '/symfony/var-exporter',
         ),
-        'RemoteDataBlocks\\' => 
+        'RemoteDataBlocks\\' =>
         array (
             0 => __DIR__ . '/../..' . '/inc',
         ),
-        'Psr\\Http\\Message\\' => 
+        'Psr\\Http\\Message\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
             1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
-        'Psr\\Http\\Client\\' => 
+        'Psr\\Http\\Client\\' =>
         array (
             0 => __DIR__ . '/..' . '/psr/http-client/src',
         ),
-        'Kevinrob\\GuzzleCache\\' => 
+        'Kevinrob\\GuzzleCache\\' =>
         array (
             0 => __DIR__ . '/..' . '/kevinrob/guzzle-cache-middleware/src',
         ),
-        'JsonPath\\' => 
+        'JsonPath\\' =>
         array (
             0 => __DIR__ . '/..' . '/galbar/jsonpath/src/Galbar/JsonPath',
         ),
-        'GuzzleHttp\\Psr7\\' => 
+        'GuzzleHttp\\Psr7\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/psr7/src',
         ),
-        'GuzzleHttp\\Promise\\' => 
+        'GuzzleHttp\\Promise\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/promises/src',
         ),
-        'GuzzleHttp\\' => 
+        'GuzzleHttp\\' =>
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
         ),
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
+        'P' =>
         array (
-            'Parsedown' => 
+            'Parsedown' =>
             array (
                 0 => __DIR__ . '/..' . '/erusev/parsedown',
             ),
