@@ -5,6 +5,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2025-12-22
+### Changed
+- Update package dependencies. [#46362] [#46363]
+- Make Gutenberg block depend on Jetpack site connection instead of user connection. [#46274]
+
+## [0.32.19] - 2025-12-15
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+- Update package dependencies. [#46244]
+
+## [0.32.18] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.32.17] - 2025-12-01
+### Changed
+- Update package dependencies. [#46072] [#46143]
+
+## [0.32.16] - 2025-11-21
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.32.15] - 2025-11-18
+### Changed
+- Update dependencies. [#45553]
+
+## [0.32.14] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.32.13] - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737] [#45756]
+
+## [0.32.12] - 2025-11-03
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.32.11] - 2025-10-27
+### Changed
+- Internal updates.
+
+## [0.32.10] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
 ## [0.32.9] - 2025-10-06
 ### Changed
 - Update package dependencies. [#45334] [#45335]
@@ -1162,7 +1212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: add Cancel button to uploading file component when replacing file [#28188]
 - VideoPress: add Replace control to video block [#28162]
 - VideoPress: minor TS enhancement in the useSearchParams() hook [#28250]
-- VideoPress: re-implemnt useResumableUploader(). 
+- VideoPress: re-implemnt useResumableUploader().
   VideoPress: Iterate over resumable file uploader
     * Re implement useResumableUploader() hook with TS
     * Update VideoPress uploader to use this hook
@@ -1756,6 +1806,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.33.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.19...v0.33.0
+[0.32.19]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.18...v0.32.19
+[0.32.18]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.17...v0.32.18
+[0.32.17]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.16...v0.32.17
+[0.32.16]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.15...v0.32.16
+[0.32.15]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.14...v0.32.15
+[0.32.14]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.13...v0.32.14
+[0.32.13]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.12...v0.32.13
+[0.32.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.11...v0.32.12
+[0.32.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.10...v0.32.11
+[0.32.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.9...v0.32.10
 [0.32.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.8...v0.32.9
 [0.32.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.7...v0.32.8
 [0.32.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.32.6...v0.32.7

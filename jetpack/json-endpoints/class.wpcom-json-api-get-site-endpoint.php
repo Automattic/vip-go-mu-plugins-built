@@ -99,6 +99,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_name'                 => '(string) The name of the Garden site.',
 		'garden_partner'              => '(string) The partner of the Garden site.',
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
+		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 	);
 
 	/**
@@ -133,6 +134,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic',
 		'is_wpcom_staging_site',
 		'is_deleted',
+		'is_wpcom_flex',
 		'is_a4a_client',
 		'is_a4a_dev_site',
 	);
@@ -217,6 +219,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'videopress_storage_used',
 		'is_difm_lite_in_progress',
 		'is_summer_special_2025',
+		'is_gating_business_q1',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -255,6 +258,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_name',
 		'garden_partner',
 		'garden_is_provisioned',
+		'is_wpcom_flex',
 	);
 
 	/**
@@ -315,7 +319,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	);
 
 	/**
-	 * Site
+	 * Site.
 	 *
 	 * @var SAL_Site $site.
 	 */
@@ -655,6 +659,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'garden_is_provisioned':
 				$response[ $key ] = $this->site->garden_is_provisioned();
 				break;
+			case 'is_wpcom_flex':
+				$response[ $key ] = $this->site->is_wpcom_flex();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
@@ -914,6 +921,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_summer_special_2025':
 					$options[ $key ] = $site->is_summer_special_2025();
+					break;
+				case 'is_gating_business_q1':
+					$options[ $key ] = $site->is_gating_business_q1();
 					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();

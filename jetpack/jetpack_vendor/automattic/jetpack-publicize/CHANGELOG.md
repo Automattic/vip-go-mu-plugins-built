@@ -5,6 +5,77 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.69.1] - 2026-01-06
+### Removed
+- Remove the unused Dismissed_Notices class. [#46398]
+- Remove unused feature flag logic. [#46386]
+
+## [0.69.0] - 2025-12-22
+### Added
+- Added Share post action to the post list screen. Shows automatically for plans with republicize support, and supports the `jetpack_post_list_display_share_action` filter for custom overrides. [#46323]
+
+### Changed
+- Update dependencies. [#46381]
+
+## [0.68.1] - 2025-12-15
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+
+### Removed
+- Social: Remove the usage of useAdminUiV1 feature flag. [#46280]
+
+## [0.68.0] - 2025-12-08
+### Added
+- Added new media selector UI. [#46085]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.67.7] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.67.6] - 2025-11-24
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.5] - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.67.4] - 2025-11-19
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.3] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.2] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## [0.67.1] - 2025-11-10
+### Changed
+- Update package dependencies. [#45756]
+
+## [0.67.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+- Update dependencies. [#45664]
+
+## [0.66.19] - 2025-10-27
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.18] - 2025-10-20
+### Fixed
+- Sharing: Prevent PHP fatals when passed malformed data. [#45418]
+
+## [0.66.17] - 2025-10-10
+### Changed
+- Update dependencies. [#44736]
+
 ## [0.66.16] - 2025-10-06
 ### Changed
 - Update package dependencies. [#45334]
@@ -1122,6 +1193,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.69.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.0...v0.69.1
+[0.69.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.1...v0.69.0
+[0.68.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.0...v0.68.1
+[0.68.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.7...v0.68.0
+[0.67.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.6...v0.67.7
+[0.67.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.5...v0.67.6
+[0.67.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.4...v0.67.5
+[0.67.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.3...v0.67.4
+[0.67.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.2...v0.67.3
+[0.67.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.1...v0.67.2
+[0.67.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.0...v0.67.1
+[0.67.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.19...v0.67.0
+[0.66.19]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.18...v0.66.19
+[0.66.18]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.17...v0.66.18
+[0.66.17]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.16...v0.66.17
 [0.66.16]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.15...v0.66.16
 [0.66.15]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.14...v0.66.15
 [0.66.14]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.13...v0.66.14
