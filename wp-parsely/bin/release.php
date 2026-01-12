@@ -23,6 +23,11 @@ if ( null === shell_exec( 'gh --version' ) ) {
 	);
 }
 
+// Ensure $argv is available (CLI context).
+if ( ! isset( $argv ) ) {
+	exit( 'This script must be run from the command line.' );
+}
+
 // Examine and assign arguments passed to the script.
 if ( count( $argv ) < 3 ) {
 	exit(
