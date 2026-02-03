@@ -66,6 +66,20 @@ abstract class Publicize_Base {
 	 */
 	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
 
+	/**
+	 * Post meta key for per-connection customization overrides.
+	 *
+	 * @var string
+	 */
+	const POST_CONNECTION_OVERRIDES = '_wpas_connection_overrides';
+
+	/**
+	 * Post meta key for enabling per-network customization.
+	 *
+	 * @var string
+	 */
+	const POST_CUSTOMIZE_PER_NETWORK = '_wpas_customize_per_network';
+
 	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
 	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
 	// will be appended with the connection_id.
@@ -1216,6 +1230,23 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$connection_overrides_args = array(
+			'type'          => 'object',
+			'description'   => __( 'Per-connection customizations for message and media.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => array(),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
+		$customize_per_network_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether to enable per-network customization.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => $this->has_paid_features(),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
 				continue;
@@ -1225,11 +1256,15 @@ abstract class Publicize_Base {
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
 			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
+			$connection_overrides_args['object_subtype']     = $post_type;
+			$customize_per_network_args['object_subtype']    = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
+			register_meta( 'post', self::POST_CONNECTION_OVERRIDES, $connection_overrides_args );
+			register_meta( 'post', self::POST_CUSTOMIZE_PER_NETWORK, $customize_per_network_args );
 		}
 	}
 
@@ -1861,24 +1896,6 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Get the Publicize shares info.
-	 *
-	 * This function is overwritten in class-publicize-wpcom.php
-	 *
-	 * @param int $blog_id The WPCOM blog_id for the current blog.
-	 * @return ?array
-	 */
-	public function get_publicize_shares_info( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$shares_info = get_transient( 'jetpack_publicize_shares_info' );
-
-		if ( ! empty( $shares_info ) ) {
-			return $shares_info;
-		}
-
-		return null;
-	}
-
-	/**
 	 * Check if enhanced publishing is enabled.
 	 *
 	 * @deprecated $$next-version use Automattic\Jetpack\Publicize\Publicize_Base\has_enhanced_publishing_feature instead.
@@ -1964,26 +1981,6 @@ abstract class Publicize_Base {
 		}
 
 		return $additional_connections;
-	}
-
-	/**
-	 * Call the WPCOM REST API to calculate the scheduled shares.
-	 *
-	 * @param string $blog_id The blog_id.
-	 */
-	public function calculate_scheduled_shares( $blog_id ) {
-		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/jetpack-social/count-scheduled-shares', absint( $blog_id ) ),
-			'2',
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'GET',
-			),
-			null,
-			'wpcom'
-		);
-		$rest_controller = new REST_Controller();
-		return $rest_controller->make_proper_response( $response );
 	}
 
 	/**

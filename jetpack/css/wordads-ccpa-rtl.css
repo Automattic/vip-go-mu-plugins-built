@@ -265,7 +265,7 @@
   background: lightgrey !important; /* Old browsers */
   background: rgb(255, 255, 255); /* Old browsers */ /* FF3.6+ */ /* Chrome,Safari4+ */ /* Chrome10+,Safari5.1+ */ /* Opera 11.10+ */ /* IE10+ */
   background: linear-gradient(to bottom, rgb(255, 255, 255) 0%, rgb(221, 221, 221) 100%, rgb(209, 209, 209) 100%, rgb(221, 221, 221) 100%) !important; /* W3C */
-  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#ffffff", endColorstr="#dddddd",GradientType=0 ) !important; /* IE6-9 */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#dddddd',GradientType=0 ) !important; /* IE6-9 */
   -o-box-shadow: -1px 1px 0px #eee !important;
   box-shadow: -1px 1px 0px #eee !important;
   outline: initial !important;
@@ -457,7 +457,6 @@
 
 .cleanslate {
   /* Modal */
-  /* Form Toggle */
 }
 .cleanslate .components-modal__screen-overlay,
 .cleanslate .ccpa__loading-overlay {
@@ -610,6 +609,9 @@
 .cleanslate .components-icon-button[aria-disabled=true]:focus,
 .cleanslate .components-icon-button:disabled:focus {
   box-shadow: none !important;
+}
+.cleanslate {
+  /* Form Toggle */
 }
 .cleanslate .components-form-toggle {
   position: relative !important;

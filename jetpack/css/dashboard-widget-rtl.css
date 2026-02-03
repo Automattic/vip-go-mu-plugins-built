@@ -74,9 +74,6 @@
   --jp-highlight: #3858e9;
 }
 
-#jetpack_summary_widget {
-  /* Widget settings */
-}
 #jetpack_summary_widget * {
   box-sizing: border-box;
 }
@@ -93,6 +90,9 @@
 }
 #jetpack_summary_widget pre.stats-widget-error {
   overflow: scroll;
+}
+#jetpack_summary_widget {
+  /* Widget settings */
 }
 #jetpack_summary_widget .js-toggle-stats_dashboard_widget_control .toggle-indicator::before {
   content: "\f111";
@@ -115,7 +115,6 @@
   box-sizing: border-box;
   width: 100%;
   padding: 0 10px;
-  /* Widget graph contents */
 }
 #jetpack_summary_widget .inside #dashboard_stats.is-loading {
   display: none;
@@ -125,6 +124,9 @@
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-graph {
   margin: 0;
+}
+#jetpack_summary_widget .inside #dashboard_stats {
+  /* Widget graph contents */
 }
 #jetpack_summary_widget .inside #dashboard_stats #stat-chart {
   background: none !important;

@@ -5,7 +5,7 @@
  * Description: WordPress integration for Salesforce Agentforce on VIP
  * Author: WordPress VIP
  * Text Domain: vip-agentforce
- * Version: 0.1.1
+ * Version: 0.1.2
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
