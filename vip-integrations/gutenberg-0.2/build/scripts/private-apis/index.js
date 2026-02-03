@@ -53,7 +53,6 @@ var wp;
     "@wordpress/routes",
     "@wordpress/sync",
     "@wordpress/theme",
-    "@wordpress/ui",
     "@wordpress/dataviews",
     "@wordpress/fields",
     "@wordpress/lazy-editor",

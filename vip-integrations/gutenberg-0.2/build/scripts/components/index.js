@@ -7932,8 +7932,8 @@ If there's a particular need for this, please submit a feature request at https:
   var containValues = ["paint", "layout", "strict", "content"];
   function isContainingBlock(elementOrCss) {
     const webkit = isWebKit();
-    const css6 = isElement(elementOrCss) ? getComputedStyle2(elementOrCss) : elementOrCss;
-    return transformProperties.some((value) => css6[value] ? css6[value] !== "none" : false) || (css6.containerType ? css6.containerType !== "normal" : false) || !webkit && (css6.backdropFilter ? css6.backdropFilter !== "none" : false) || !webkit && (css6.filter ? css6.filter !== "none" : false) || willChangeValues.some((value) => (css6.willChange || "").includes(value)) || containValues.some((value) => (css6.contain || "").includes(value));
+    const css3 = isElement(elementOrCss) ? getComputedStyle2(elementOrCss) : elementOrCss;
+    return transformProperties.some((value) => css3[value] ? css3[value] !== "none" : false) || (css3.containerType ? css3.containerType !== "normal" : false) || !webkit && (css3.backdropFilter ? css3.backdropFilter !== "none" : false) || !webkit && (css3.filter ? css3.filter !== "none" : false) || willChangeValues.some((value) => (css3.willChange || "").includes(value)) || containValues.some((value) => (css3.contain || "").includes(value));
   }
   function getContainingBlock(element) {
     let currentNode = getParentNode(element);
@@ -8016,9 +8016,9 @@ If there's a particular need for this, please submit a feature request at https:
 
   // node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
   function getCssDimensions(element) {
-    const css6 = getComputedStyle2(element);
-    let width = parseFloat(css6.width) || 0;
-    let height = parseFloat(css6.height) || 0;
+    const css3 = getComputedStyle2(element);
+    let width = parseFloat(css3.width) || 0;
+    let height = parseFloat(css3.height) || 0;
     const hasOffset = isHTMLElement(element);
     const offsetWidth = hasOffset ? element.offsetWidth : width;
     const offsetHeight = hasOffset ? element.offsetHeight : height;
@@ -8112,9 +8112,9 @@ If there's a particular need for this, please submit a feature request at https:
       while (currentIFrame && offsetParent && offsetWin !== currentWin) {
         const iframeScale = getScale(currentIFrame);
         const iframeRect = currentIFrame.getBoundingClientRect();
-        const css6 = getComputedStyle2(currentIFrame);
-        const left = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css6.paddingLeft)) * iframeScale.x;
-        const top = iframeRect.top + (currentIFrame.clientTop + parseFloat(css6.paddingTop)) * iframeScale.y;
+        const css3 = getComputedStyle2(currentIFrame);
+        const left = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css3.paddingLeft)) * iframeScale.x;
+        const top = iframeRect.top + (currentIFrame.clientTop + parseFloat(css3.paddingTop)) * iframeScale.y;
         x2 *= iframeScale.x;
         y3 *= iframeScale.y;
         width *= iframeScale.x;
@@ -22316,20 +22316,20 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
     }
     return cls;
   };
-  function merge(registered, css6, className2) {
+  function merge(registered, css3, className2) {
     var registeredStyles = [];
     var rawClassName = getRegisteredStyles(registered, registeredStyles, className2);
     if (registeredStyles.length < 2) {
       return className2;
     }
-    return rawClassName + css6(registeredStyles);
+    return rawClassName + css3(registeredStyles);
   }
   var Noop3 = function Noop4() {
     return null;
   };
   var ClassNames = /* @__PURE__ */ withEmotionCache(function(props, cache2) {
     var hasRendered = false;
-    var css6 = function css7() {
+    var css3 = function css4() {
       if (hasRendered && true) {
         throw new Error("css can only be used during render");
       }
@@ -22349,10 +22349,10 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
       for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
         args[_key2] = arguments[_key2];
       }
-      return merge(cache2.registered, css6, classnames(args));
+      return merge(cache2.registered, css3, classnames(args));
     };
     var content = {
-      css: css6,
+      css: css3,
       cx: cx3,
       theme: (0, import_react81.useContext)(ThemeContext)
     };
@@ -22388,13 +22388,13 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
       return cache2.insert("", serialized, cache2.sheet, true);
     }
   }
-  function merge2(registered, css6, className2) {
+  function merge2(registered, css3, className2) {
     var registeredStyles = [];
     var rawClassName = getRegisteredStyles(registered, registeredStyles, className2);
     if (registeredStyles.length < 2) {
       return className2;
     }
-    return rawClassName + css6(registeredStyles);
+    return rawClassName + css3(registeredStyles);
   }
   var createEmotion = function createEmotion2(options2) {
     var cache2 = emotion_cache_browser_esm_default(options2);
@@ -22405,7 +22405,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
       this.isSpeedy = value;
     };
     cache2.compat = true;
-    var css6 = function css7() {
+    var css3 = function css4() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
@@ -22436,10 +22436,10 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
       for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
         args[_key4] = arguments[_key4];
       }
-      return merge2(cache2.registered, css6, classnames3(args));
+      return merge2(cache2.registered, css3, classnames3(args));
     };
     return {
-      css: css6,
+      css: css3,
       cx: cx3,
       injectGlobal: injectGlobal2,
       keyframes: keyframes5,
@@ -22457,7 +22457,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
       sheet: cache2.sheet,
       cache: cache2,
       getRegisteredStyles: getRegisteredStyles.bind(null, cache2.registered),
-      merge: merge2.bind(null, cache2.registered, css6)
+      merge: merge2.bind(null, cache2.registered, css3)
     };
   };
   var classnames3 = function classnames4(args) {
@@ -23867,128 +23867,13 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
 
   // packages/components/build-module/alignment-matrix-control/cell.mjs
   var import_jsx_runtime48 = __toESM(require_jsx_runtime(), 1);
-  var css3 = `/**
- * SCSS Variables.
- *
- * Please use variables from this sheet to ensure consistency across the UI.
- * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
- * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
- */
-/**
- * Colors
- */
-/**
- * Fonts & basic variables.
- */
-/**
- * Typography
- */
-/**
- * Grid System.
- * https://make.wordpress.org/design/2019/10/31/proposal-a-consistent-spacing-system-for-wordpress/
- */
-/**
- * Radius scale.
- */
-/**
- * Elevation scale.
- */
-/**
- * Dimensions.
- */
-/**
- * Mobile specific styles
- */
-/**
- * Editor styles.
- */
-/**
- * Block & Editor UI.
- */
-/**
- * Block paddings.
- */
-/**
- * React Native specific.
- * These variables do not appear to be used anywhere else.
- */
-.style-module__grid-container__AuKvW {
-  direction: ltr;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  box-sizing: border-box;
-  aspect-ratio: 1;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-}
-
-.style-module__grid-row__xCH47 {
-  grid-column: 1/-1;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.style-module__cell__Ovdp9 {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  border: none;
-  outline: none;
-}
-
-.style-module__point__N-8S1 {
-  display: block;
-  contain: strict;
-  box-sizing: border-box;
-  width: 6px;
-  aspect-ratio: 1;
-  margin: auto;
-  color: var(--wp-components-color-gray-400, #ccc);
-  /* Use border instead of background color so that the point shows
-  in Windows High Contrast Mode */
-  border: 3px solid currentColor;
-  /* Highlight active item */
-}
-.style-module__cell__Ovdp9[data-active-item] .style-module__point__N-8S1 {
-  color: var(--wp-components-color-foreground, #1e1e1e);
-  transform: scale(1.6666666667);
-}
-.style-module__point__N-8S1 {
-  /* Hover styles for non-active items */
-}
-.style-module__cell__Ovdp9:not([data-active-item]):hover .style-module__point__N-8S1 {
-  color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-}
-.style-module__point__N-8S1 {
-  /* Show an outline only when interacting with keyboard */
-}
-.style-module__cell__Ovdp9[data-focus-visible] .style-module__point__N-8S1 {
-  outline: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-  outline-offset: 1px;
-}
-@media not (prefers-reduced-motion) {
-  .style-module__point__N-8S1 {
-    transition-property: color, transform;
-    transition-duration: 120ms;
-    transition-timing-function: linear;
+  if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='d31a46c181']")) {
+    const style2 = document.createElement("style");
+    style2.setAttribute("data-wp-hash", "d31a46c181");
+    style2.appendChild(document.createTextNode("._02e2af5803bf5bda__grid-container{aspect-ratio:1;border:1px solid #0000;border-radius:4px;box-sizing:border-box;cursor:pointer;direction:ltr;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);outline:none}.c421f8ed08c23077__grid-row{box-sizing:border-box;display:grid;grid-column:1/-1;grid-template-columns:repeat(3,1fr)}._3af769f755097fdb__cell{align-items:center;appearance:none;border:none;box-sizing:border-box;display:flex;justify-content:center;margin:0;outline:none;padding:0;position:relative}._37ef12d4fb6d6131__point{aspect-ratio:1;border:3px solid;box-sizing:border-box;color:var(--wp-components-color-gray-400,#ccc);contain:strict;display:block;margin:auto;width:6px}._3af769f755097fdb__cell[data-active-item] ._37ef12d4fb6d6131__point{color:var(--wp-components-color-foreground,#1e1e1e);transform:scale(1.6666666667)}._3af769f755097fdb__cell:not([data-active-item]):hover ._37ef12d4fb6d6131__point{color:var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9))}._3af769f755097fdb__cell[data-focus-visible] ._37ef12d4fb6d6131__point{outline:1px solid var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9));outline-offset:1px}@media not (prefers-reduced-motion){._37ef12d4fb6d6131__point{transition-duration:.12s;transition-property:color,transform;transition-timing-function:linear}}"));
+    document.head.appendChild(style2);
   }
-}`;
-  document.head.appendChild(document.createElement("style")).appendChild(document.createTextNode(css3));
-  var style_module_default = {
-    "grid-container": "style-module__grid-container__AuKvW",
-    "grid-row": "style-module__grid-row__xCH47",
-    "cell": "style-module__cell__Ovdp9",
-    "point": "style-module__point__N-8S1"
-  };
+  var style_module_default = { "grid-container": "_02e2af5803bf5bda__grid-container", "grid-row": "c421f8ed08c23077__grid-row", "cell": "_3af769f755097fdb__cell", "point": "_37ef12d4fb6d6131__point" };
   function Cell({
     id: id3,
     value,
@@ -24059,128 +23944,13 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
 
   // packages/components/build-module/alignment-matrix-control/index.mjs
   var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
-  var css4 = `/**
- * SCSS Variables.
- *
- * Please use variables from this sheet to ensure consistency across the UI.
- * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
- * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
- */
-/**
- * Colors
- */
-/**
- * Fonts & basic variables.
- */
-/**
- * Typography
- */
-/**
- * Grid System.
- * https://make.wordpress.org/design/2019/10/31/proposal-a-consistent-spacing-system-for-wordpress/
- */
-/**
- * Radius scale.
- */
-/**
- * Elevation scale.
- */
-/**
- * Dimensions.
- */
-/**
- * Mobile specific styles
- */
-/**
- * Editor styles.
- */
-/**
- * Block & Editor UI.
- */
-/**
- * Block paddings.
- */
-/**
- * React Native specific.
- * These variables do not appear to be used anywhere else.
- */
-.style-module__grid-container__AuKvW {
-  direction: ltr;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  box-sizing: border-box;
-  aspect-ratio: 1;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  outline: none;
-  cursor: pointer;
-}
-
-.style-module__grid-row__xCH47 {
-  grid-column: 1/-1;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.style-module__cell__Ovdp9 {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  appearance: none;
-  border: none;
-  outline: none;
-}
-
-.style-module__point__N-8S1 {
-  display: block;
-  contain: strict;
-  box-sizing: border-box;
-  width: 6px;
-  aspect-ratio: 1;
-  margin: auto;
-  color: var(--wp-components-color-gray-400, #ccc);
-  /* Use border instead of background color so that the point shows
-  in Windows High Contrast Mode */
-  border: 3px solid currentColor;
-  /* Highlight active item */
-}
-.style-module__cell__Ovdp9[data-active-item] .style-module__point__N-8S1 {
-  color: var(--wp-components-color-foreground, #1e1e1e);
-  transform: scale(1.6666666667);
-}
-.style-module__point__N-8S1 {
-  /* Hover styles for non-active items */
-}
-.style-module__cell__Ovdp9:not([data-active-item]):hover .style-module__point__N-8S1 {
-  color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-}
-.style-module__point__N-8S1 {
-  /* Show an outline only when interacting with keyboard */
-}
-.style-module__cell__Ovdp9[data-focus-visible] .style-module__point__N-8S1 {
-  outline: 1px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-  outline-offset: 1px;
-}
-@media not (prefers-reduced-motion) {
-  .style-module__point__N-8S1 {
-    transition-property: color, transform;
-    transition-duration: 120ms;
-    transition-timing-function: linear;
+  if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='d31a46c181']")) {
+    const style2 = document.createElement("style");
+    style2.setAttribute("data-wp-hash", "d31a46c181");
+    style2.appendChild(document.createTextNode("._02e2af5803bf5bda__grid-container{aspect-ratio:1;border:1px solid #0000;border-radius:4px;box-sizing:border-box;cursor:pointer;direction:ltr;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);outline:none}.c421f8ed08c23077__grid-row{box-sizing:border-box;display:grid;grid-column:1/-1;grid-template-columns:repeat(3,1fr)}._3af769f755097fdb__cell{align-items:center;appearance:none;border:none;box-sizing:border-box;display:flex;justify-content:center;margin:0;outline:none;padding:0;position:relative}._37ef12d4fb6d6131__point{aspect-ratio:1;border:3px solid;box-sizing:border-box;color:var(--wp-components-color-gray-400,#ccc);contain:strict;display:block;margin:auto;width:6px}._3af769f755097fdb__cell[data-active-item] ._37ef12d4fb6d6131__point{color:var(--wp-components-color-foreground,#1e1e1e);transform:scale(1.6666666667)}._3af769f755097fdb__cell:not([data-active-item]):hover ._37ef12d4fb6d6131__point{color:var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9))}._3af769f755097fdb__cell[data-focus-visible] ._37ef12d4fb6d6131__point{outline:1px solid var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9));outline-offset:1px}@media not (prefers-reduced-motion){._37ef12d4fb6d6131__point{transition-duration:.12s;transition-property:color,transform;transition-timing-function:linear}}"));
+    document.head.appendChild(style2);
   }
-}`;
-  document.head.appendChild(document.createElement("style")).appendChild(document.createTextNode(css4));
-  var style_module_default2 = {
-    "grid-container": "style-module__grid-container__AuKvW",
-    "grid-row": "style-module__grid-row__xCH47",
-    "cell": "style-module__cell__Ovdp9",
-    "point": "style-module__point__N-8S1"
-  };
+  var style_module_default2 = { "grid-container": "_02e2af5803bf5bda__grid-container", "grid-row": "c421f8ed08c23077__grid-row", "cell": "_3af769f755097fdb__cell", "point": "_37ef12d4fb6d6131__point" };
   function UnforwardedAlignmentMatrixControl({
     className: className2,
     id: id3,
@@ -28416,92 +28186,13 @@ This message will only show in development mode. It won't appear in production. 
   var import_element36 = __toESM(require_element(), 1);
   var import_compose8 = __toESM(require_compose(), 1);
   var import_jsx_runtime101 = __toESM(require_jsx_runtime(), 1);
-  var css5 = `/**
- * SCSS Variables.
- *
- * Please use variables from this sheet to ensure consistency across the UI.
- * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
- * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
- */
-/**
- * Colors
- */
-/**
- * Fonts & basic variables.
- */
-/**
- * Typography
- */
-/**
- * Grid System.
- * https://make.wordpress.org/design/2019/10/31/proposal-a-consistent-spacing-system-for-wordpress/
- */
-/**
- * Radius scale.
- */
-/**
- * Elevation scale.
- */
-/**
- * Dimensions.
- */
-/**
- * Mobile specific styles
- */
-/**
- * Editor styles.
- */
-/**
- * Block & Editor UI.
- */
-/**
- * Block paddings.
- */
-/**
- * React Native specific.
- * These variables do not appear to be used anywhere else.
- */
-.style-module__circle-root__j1e41 {
-  border-radius: 50%;
-  border: 1px solid var(--wp-components-color-gray-600, #949494);
-  box-sizing: border-box;
-  cursor: grab;
-  height: 32px;
-  overflow: hidden;
-  width: 32px;
-}
-.style-module__circle-root__j1e41:active {
-  cursor: grabbing;
-}
-
-.style-module__circle-indicator-wrapper__sbrph {
-  box-sizing: border-box;
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.style-module__circle-indicator-wrapper__sbrph:focus-visible {
-  outline: none;
-}
-
-.style-module__circle-indicator__bS-go {
-  background: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
-  border-radius: 50%;
-  box-sizing: border-box;
-  display: block;
-  left: 50%;
-  top: 4px;
-  transform: translateX(-50%);
-  position: absolute;
-  width: 6px;
-  height: 6px;
-}`;
-  document.head.appendChild(document.createElement("style")).appendChild(document.createTextNode(css5));
-  var style_module_default3 = {
-    "circle-root": "style-module__circle-root__j1e41",
-    "circle-indicator-wrapper": "style-module__circle-indicator-wrapper__sbrph",
-    "circle-indicator": "style-module__circle-indicator__bS-go"
-  };
+  if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='b99968e605']")) {
+    const style2 = document.createElement("style");
+    style2.setAttribute("data-wp-hash", "b99968e605");
+    style2.appendChild(document.createTextNode("._8f57b8d483c51fbe__circle-root{border:1px solid var(--wp-components-color-gray-600,#949494);border-radius:50%;box-sizing:border-box;cursor:grab;height:32px;overflow:hidden;width:32px}._8f57b8d483c51fbe__circle-root:active{cursor:grabbing}.b1bae984ac10fcc3__circle-indicator-wrapper{box-sizing:border-box;height:100%;position:relative;width:100%}.b1bae984ac10fcc3__circle-indicator-wrapper:focus-visible{outline:none}._6d2fe0a2cbb31bf0__circle-indicator{background:var(--wp-components-color-accent,var(--wp-admin-theme-color,#3858e9));border-radius:50%;box-sizing:border-box;display:block;height:6px;left:50%;position:absolute;top:4px;transform:translateX(-50%);width:6px}"));
+    document.head.appendChild(style2);
+  }
+  var style_module_default3 = { "circle-root": "_8f57b8d483c51fbe__circle-root", "circle-indicator-wrapper": "b1bae984ac10fcc3__circle-indicator-wrapper", "circle-indicator": "_6d2fe0a2cbb31bf0__circle-indicator" };
   function AngleCircle({
     value,
     onChange,
@@ -57121,6 +56812,7 @@ The screen with id ${screen.id} will not be added.`) : void 0;
     DateRangeCalendar,
     TZDate,
     Picker,
+    useDrag,
     ValidatedInputControl,
     ValidatedCheckboxControl,
     ValidatedComboboxControl,

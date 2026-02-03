@@ -213,66 +213,12 @@ var seen_default = /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitive
 var import_element2 = __toESM(require_element());
 
 // routes/styles/style.scss
-var css = `/**
- * Colors
- */
-/**
- * SCSS Variables.
- *
- * Please use variables from this sheet to ensure consistency across the UI.
- * Don't add to this sheet unless you're pretty sure the value will be reused in many places.
- * For example, don't add rules to this sheet that affect block visuals. It's purely for UI.
- */
-/**
- * Fonts & basic variables.
- */
-/**
- * Typography
- */
-/**
- * Grid System.
- * https://make.wordpress.org/design/2019/10/31/proposal-a-consistent-spacing-system-for-wordpress/
- */
-/**
- * Radius scale.
- */
-/**
- * Elevation scale.
- */
-/**
- * Dimensions.
- */
-/**
- * Mobile specific styles
- */
-/**
- * Editor styles.
- */
-/**
- * Block & Editor UI.
- */
-/**
- * Block paddings.
- */
-/**
- * React Native specific.
- * These variables do not appear to be used anywhere else.
- */
-.routes-styles__page .global-styles-ui-screen-root {
-  box-shadow: none;
+if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='7be460f5dc']")) {
+  const style = document.createElement("style");
+  style.setAttribute("data-wp-hash", "7be460f5dc");
+  style.appendChild(document.createTextNode(".routes-styles__page .global-styles-ui-screen-root{box-shadow:none}.routes-styles__page .global-styles-ui-screen-root>div>hr{display:none}.routes-styles__page .global-styles-ui-sidebar__navigator-provider .components-tools-panel{border-top:none}.routes-styles__page .global-styles-ui-sidebar__navigator-provider{overflow-y:auto;padding-left:0;padding-right:0}"));
+  document.head.appendChild(style);
 }
-.routes-styles__page .global-styles-ui-screen-root > div > hr {
-  display: none;
-}
-.routes-styles__page .global-styles-ui-sidebar__navigator-provider .components-tools-panel {
-  border-top: none;
-}
-.routes-styles__page .global-styles-ui-sidebar__navigator-provider {
-  overflow-y: auto;
-  padding-left: 0;
-  padding-right: 0;
-}`;
-document.head.appendChild(document.createElement("style")).appendChild(document.createTextNode(css));
 
 // routes/lock-unlock.ts
 var import_private_apis = __toESM(require_private_apis());

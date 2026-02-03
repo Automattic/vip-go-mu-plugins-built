@@ -57,21 +57,36 @@ var import_data4 = __toESM(require_data());
 var import_core_data2 = __toESM(require_core_data());
 import { notFound } from "@wordpress/route";
 
-// packages/views/build-module/preference-keys.mjs
-function generatePreferenceKey(kind, name, slug) {
-  return `dataviews-${kind}-${name}-${slug}`;
-}
-
 // packages/views/build-module/use-view.mjs
 var import_element = __toESM(require_element(), 1);
 var import_data = __toESM(require_data(), 1);
 var import_preferences = __toESM(require_preferences(), 1);
 
+// packages/views/build-module/preference-keys.mjs
+function generatePreferenceKey(kind, name, slug) {
+  return `dataviews-${kind}-${name}-${slug}`;
+}
+
+// packages/views/build-module/filter-utils.mjs
+function mergeActiveFilters(view, activeFilters) {
+  if (!activeFilters || activeFilters.length === 0) {
+    return view;
+  }
+  const activeFields = new Set(activeFilters.map((f) => f.field));
+  const preserved = (view.filters ?? []).filter(
+    (f) => !activeFields.has(f.field)
+  );
+  return {
+    ...view,
+    filters: [...preserved, ...activeFilters]
+  };
+}
+
 // packages/views/build-module/load-view.mjs
 var import_data2 = __toESM(require_data(), 1);
 var import_preferences2 = __toESM(require_preferences(), 1);
 async function loadView(config) {
-  const { kind, name, slug, defaultView, queryParams } = config;
+  const { kind, name, slug, defaultView, activeFilters, queryParams } = config;
   const preferenceKey = generatePreferenceKey(kind, name, slug);
   const persistedView = (0, import_data2.select)(import_preferences2.store).get(
     "core/views",
@@ -80,11 +95,14 @@ async function loadView(config) {
   const baseView = persistedView ?? defaultView;
   const page = queryParams?.page ?? 1;
   const search = queryParams?.search ?? "";
-  return {
-    ...baseView,
-    page,
-    search
-  };
+  return mergeActiveFilters(
+    {
+      ...baseView,
+      page,
+      search
+    },
+    activeFilters
+  );
 }
 
 // routes/post-list/view-utils.ts
@@ -101,101 +119,33 @@ var DEFAULT_VIEW = {
   mediaField: "featured_media",
   descriptionField: "excerpt"
 };
-var DEFAULT_VIEWS = [
-  {
-    slug: "all",
-    label: "All",
-    view: {
-      ...DEFAULT_VIEW
-    }
-  },
-  {
-    slug: "publish",
-    label: "Published",
-    view: {
-      ...DEFAULT_VIEW,
-      filters: [
-        {
-          field: "status",
-          operator: "is",
-          value: "publish"
-        }
-      ]
-    }
-  },
-  {
-    slug: "draft",
-    label: "Draft",
-    view: {
-      ...DEFAULT_VIEW,
-      filters: [
-        {
-          field: "status",
-          operator: "is",
-          value: "draft"
-        }
-      ]
-    }
-  },
-  {
-    slug: "pending",
-    label: "Pending",
-    view: {
-      ...DEFAULT_VIEW,
-      filters: [
-        {
-          field: "status",
-          operator: "is",
-          value: "pending"
-        }
-      ]
-    }
-  },
-  {
-    slug: "private",
-    label: "Private",
-    view: {
-      ...DEFAULT_VIEW,
-      filters: [
-        {
-          field: "status",
-          operator: "is",
-          value: "private"
-        }
-      ]
-    }
-  },
-  {
-    slug: "trash",
-    label: "Trash",
-    view: {
-      ...DEFAULT_VIEW,
-      filters: [
-        {
-          field: "status",
-          operator: "is",
-          value: "trash"
-        }
-      ]
-    }
+function getActiveFiltersForTab(slug) {
+  if (slug === "all") {
+    return [];
   }
-];
-function getDefaultView(postType, slug) {
-  const viewConfig = DEFAULT_VIEWS.find((v) => v.slug === slug);
-  const baseView = viewConfig?.view || DEFAULT_VIEW;
+  return [
+    {
+      field: "status",
+      operator: "is",
+      value: slug
+    }
+  ];
+}
+function getDefaultView(postType) {
   return {
-    ...baseView,
+    ...DEFAULT_VIEW,
     showLevels: postType?.hierarchical
   };
 }
 async function ensureView(type, slug, search) {
   const postTypeObject = await (0, import_data3.resolveSelect)(import_core_data.store).getPostType(type);
-  const defaultView = getDefaultView(postTypeObject, slug);
+  const defaultView = getDefaultView(postTypeObject);
   return loadView({
     kind: "postType",
     name: type,
-    slug: slug ?? "all",
+    slug: "default-new",
     defaultView,
+    activeFilters: getActiveFiltersForTab(slug ?? "all"),
     queryParams: search
   });
 }

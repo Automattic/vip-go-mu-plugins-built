@@ -1234,6 +1234,7 @@ var wp;
     ContentAny: () => ContentAny,
     ContentBinary: () => ContentBinary,
     ContentDeleted: () => ContentDeleted,
+    ContentDoc: () => ContentDoc,
     ContentEmbed: () => ContentEmbed,
     ContentFormat: () => ContentFormat,
     ContentJSON: () => ContentJSON,
@@ -1246,11 +1247,15 @@ var wp;
     Map: () => YMap,
     PermanentUserData: () => PermanentUserData,
     RelativePosition: () => RelativePosition,
+    Skip: () => Skip,
     Snapshot: () => Snapshot,
     Text: () => YText,
     Transaction: () => Transaction,
     UndoManager: () => UndoManager,
+    UpdateDecoderV1: () => UpdateDecoderV1,
+    UpdateDecoderV2: () => UpdateDecoderV2,
     UpdateEncoderV1: () => UpdateEncoderV1,
+    UpdateEncoderV2: () => UpdateEncoderV2,
     XmlElement: () => YXmlElement,
     XmlFragment: () => YXmlFragment,
     XmlHook: () => YXmlHook,
@@ -1297,6 +1302,8 @@ var wp;
     findIndexSS: () => findIndexSS,
     findRootTypeKey: () => findRootTypeKey,
     getItem: () => getItem,
+    getItemCleanEnd: () => getItemCleanEnd,
+    getItemCleanStart: () => getItemCleanStart,
     getState: () => getState,
     getTypeChildren: () => getTypeChildren,
     isDeleted: () => isDeleted,
@@ -1305,6 +1312,7 @@ var wp;
     logType: () => logType,
     logUpdate: () => logUpdate,
     logUpdateV2: () => logUpdateV2,
+    mergeDeleteSets: () => mergeDeleteSets,
     mergeUpdates: () => mergeUpdates,
     mergeUpdatesV2: () => mergeUpdatesV2,
     obfuscateUpdate: () => obfuscateUpdate,
@@ -1319,6 +1327,7 @@ var wp;
     transact: () => transact,
     tryGc: () => tryGc,
     typeListToArraySnapshot: () => typeListToArraySnapshot,
+    typeMapGetAllSnapshot: () => typeMapGetAllSnapshot,
     typeMapGetSnapshot: () => typeMapGetSnapshot
   });
 
@@ -1383,6 +1392,75 @@ var wp;
   var isArray = Array.isArray;
 
   // node_modules/lib0/observable.js
+  var ObservableV2 = class {
+    constructor() {
+      this._observers = create();
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    on(name, f) {
+      setIfUndefined(
+        this._observers,
+        /** @type {string} */
+        name,
+        create2
+      ).add(f);
+      return f;
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    once(name, f) {
+      const _f = (...args2) => {
+        this.off(
+          name,
+          /** @type {any} */
+          _f
+        );
+        f(...args2);
+      };
+      this.on(
+        name,
+        /** @type {any} */
+        _f
+      );
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    off(name, f) {
+      const observers = this._observers.get(name);
+      if (observers !== void 0) {
+        observers.delete(f);
+        if (observers.size === 0) {
+          this._observers.delete(name);
+        }
+      }
+    }
+    /**
+     * Emit a named event. All registered event listeners that listen to the
+     * specified name will receive the event.
+     *
+     * @todo This should catch exceptions
+     *
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name The event name.
+     * @param {Parameters<EVENTS[NAME]>} args The arguments that are applied to the event listener.
+     */
+    emit(name, args2) {
+      return from((this._observers.get(name) || create()).values()).forEach((f) => f(...args2));
+    }
+    destroy() {
+      this._observers = create();
+    }
+  };
   var Observable = class {
     constructor() {
       this._observers = create();
@@ -1443,238 +1521,6 @@ var wp;
   var isNaN = Number.isNaN;
   var isNegativeZero = (n) => n !== 0 ? n < 0 : 1 / n < 0;
 
-  // node_modules/lib0/string.js
-  var fromCharCode = String.fromCharCode;
-  var fromCodePoint = String.fromCodePoint;
-  var MAX_UTF16_CHARACTER = fromCharCode(65535);
-  var toLowerCase = (s) => s.toLowerCase();
-  var trimLeftRegex = /^\s*/g;
-  var trimLeft = (s) => s.replace(trimLeftRegex, "");
-  var fromCamelCaseRegex = /([A-Z])/g;
-  var fromCamelCase = (s, separator) => trimLeft(s.replace(fromCamelCaseRegex, (match) => `${separator}${toLowerCase(match)}`));
-  var _encodeUtf8Polyfill = (str) => {
-    const encodedString = unescape(encodeURIComponent(str));
-    const len = encodedString.length;
-    const buf = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      buf[i] = /** @type {number} */
-      encodedString.codePointAt(i);
-    }
-    return buf;
-  };
-  var utf8TextEncoder = (
-    /** @type {TextEncoder} */
-    typeof TextEncoder !== "undefined" ? new TextEncoder() : null
-  );
-  var _encodeUtf8Native = (str) => utf8TextEncoder.encode(str);
-  var encodeUtf8 = utf8TextEncoder ? _encodeUtf8Native : _encodeUtf8Polyfill;
-  var utf8TextDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
-  if (utf8TextDecoder && utf8TextDecoder.decode(new Uint8Array()).length === 1) {
-    utf8TextDecoder = null;
-  }
-  var repeat = (source, n) => unfold(n, () => source).join("");
-
-  // node_modules/lib0/conditions.js
-  var undefinedToNull = (v) => v === void 0 ? null : v;
-
-  // node_modules/lib0/storage.js
-  var VarStoragePolyfill = class {
-    constructor() {
-      this.map = /* @__PURE__ */ new Map();
-    }
-    /**
-     * @param {string} key
-     * @param {any} newValue
-     */
-    setItem(key, newValue) {
-      this.map.set(key, newValue);
-    }
-    /**
-     * @param {string} key
-     */
-    getItem(key) {
-      return this.map.get(key);
-    }
-  };
-  var _localStorage = new VarStoragePolyfill();
-  var usePolyfill = true;
-  try {
-    if (typeof localStorage !== "undefined") {
-      _localStorage = localStorage;
-      usePolyfill = false;
-    }
-  } catch (e) {
-  }
-  var varStorage = _localStorage;
-
-  // node_modules/lib0/object.js
-  var assign = Object.assign;
-  var keys = Object.keys;
-  var forEach = (obj, f) => {
-    for (const key in obj) {
-      f(obj[key], key);
-    }
-  };
-  var length = (obj) => keys(obj).length;
-  var isEmpty = (obj) => {
-    for (const _k in obj) {
-      return false;
-    }
-    return true;
-  };
-  var every = (obj, f) => {
-    for (const key in obj) {
-      if (!f(obj[key], key)) {
-        return false;
-      }
-    }
-    return true;
-  };
-  var hasProperty = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
-  var equalFlat = (a, b) => a === b || length(a) === length(b) && every(a, (val, key) => (val !== void 0 || hasProperty(b, key)) && b[key] === val);
-
-  // node_modules/lib0/function.js
-  var callAll = (fs, args2, i = 0) => {
-    try {
-      for (; i < fs.length; i++) {
-        fs[i](...args2);
-      }
-    } finally {
-      if (i < fs.length) {
-        callAll(fs, args2, i + 1);
-      }
-    }
-  };
-  var id = (a) => a;
-  var equalityStrict = (a, b) => a === b;
-  var equalityDeep = (a, b) => {
-    if (a == null || b == null) {
-      return equalityStrict(a, b);
-    }
-    if (a.constructor !== b.constructor) {
-      return false;
-    }
-    if (a === b) {
-      return true;
-    }
-    switch (a.constructor) {
-      case ArrayBuffer:
-        a = new Uint8Array(a);
-        b = new Uint8Array(b);
-      // eslint-disable-next-line no-fallthrough
-      case Uint8Array: {
-        if (a.byteLength !== b.byteLength) {
-          return false;
-        }
-        for (let i = 0; i < a.length; i++) {
-          if (a[i] !== b[i]) {
-            return false;
-          }
-        }
-        break;
-      }
-      case Set: {
-        if (a.size !== b.size) {
-          return false;
-        }
-        for (const value of a) {
-          if (!b.has(value)) {
-            return false;
-          }
-        }
-        break;
-      }
-      case Map: {
-        if (a.size !== b.size) {
-          return false;
-        }
-        for (const key of a.keys()) {
-          if (!b.has(key) || !equalityDeep(a.get(key), b.get(key))) {
-            return false;
-          }
-        }
-        break;
-      }
-      case Object:
-        if (length(a) !== length(b)) {
-          return false;
-        }
-        for (const key in a) {
-          if (!hasProperty(a, key) || !equalityDeep(a[key], b[key])) {
-            return false;
-          }
-        }
-        break;
-      case Array:
-        if (a.length !== b.length) {
-          return false;
-        }
-        for (let i = 0; i < a.length; i++) {
-          if (!equalityDeep(a[i], b[i])) {
-            return false;
-          }
-        }
-        break;
-      default:
-        return false;
-    }
-    return true;
-  };
-  var isOneOf = (value, options) => options.includes(value);
-
-  // node_modules/lib0/environment.js
-  var isNode = typeof process !== "undefined" && process.release && /node|io\.js/.test(process.release.name);
-  var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && !isNode;
-  var isMac = typeof navigator !== "undefined" ? /Mac/.test(navigator.platform) : false;
-  var params;
-  var args = [];
-  var computeParams = () => {
-    if (params === void 0) {
-      if (isNode) {
-        params = create();
-        const pargs = process.argv;
-        let currParamName = null;
-        for (let i = 0; i < pargs.length; i++) {
-          const parg = pargs[i];
-          if (parg[0] === "-") {
-            if (currParamName !== null) {
-              params.set(currParamName, "");
-            }
-            currParamName = parg;
-          } else {
-            if (currParamName !== null) {
-              params.set(currParamName, parg);
-              currParamName = null;
-            } else {
-              args.push(parg);
-            }
-          }
-        }
-        if (currParamName !== null) {
-          params.set(currParamName, "");
-        }
-      } else if (typeof location === "object") {
-        params = create();
-        (location.search || "?").slice(1).split("&").forEach((kv) => {
-          if (kv.length !== 0) {
-            const [key, value] = kv.split("=");
-            params.set(`--${fromCamelCase(key, "-")}`, value);
-            params.set(`-${fromCamelCase(key, "-")}`, value);
-          }
-        });
-      } else {
-        params = create();
-      }
-    }
-    return params;
-  };
-  var hasParam = (name) => computeParams().has(name);
-  var getVariable = (name) => isNode ? undefinedToNull(process.env[name.toUpperCase()]) : undefinedToNull(varStorage.getItem(name));
-  var hasConf = (name) => hasParam("--" + name) || getVariable(name) !== null;
-  var production = hasConf("production");
-  var forceColor = isNode && isOneOf(process.env.FORCE_COLOR, ["true", "1", "2"]);
-  var supportsColor = !hasParam("no-colors") && (!isNode || process.stdout.isTTY || forceColor) && (!isNode || hasParam("color") || forceColor || getVariable("COLORTERM") !== null || (getVariable("TERM") || "").includes("color"));
-
   // node_modules/lib0/binary.js
   var BIT1 = 1;
   var BIT2 = 2;
@@ -1725,6 +1571,345 @@ var wp;
   var isNaN2 = Number.isNaN;
   var parseInt = Number.parseInt;
 
+  // node_modules/lib0/string.js
+  var fromCharCode = String.fromCharCode;
+  var fromCodePoint = String.fromCodePoint;
+  var MAX_UTF16_CHARACTER = fromCharCode(65535);
+  var toLowerCase = (s) => s.toLowerCase();
+  var trimLeftRegex = /^\s*/g;
+  var trimLeft = (s) => s.replace(trimLeftRegex, "");
+  var fromCamelCaseRegex = /([A-Z])/g;
+  var fromCamelCase = (s, separator) => trimLeft(s.replace(fromCamelCaseRegex, (match) => `${separator}${toLowerCase(match)}`));
+  var _encodeUtf8Polyfill = (str) => {
+    const encodedString = unescape(encodeURIComponent(str));
+    const len = encodedString.length;
+    const buf = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      buf[i] = /** @type {number} */
+      encodedString.codePointAt(i);
+    }
+    return buf;
+  };
+  var utf8TextEncoder = (
+    /** @type {TextEncoder} */
+    typeof TextEncoder !== "undefined" ? new TextEncoder() : null
+  );
+  var _encodeUtf8Native = (str) => utf8TextEncoder.encode(str);
+  var encodeUtf8 = utf8TextEncoder ? _encodeUtf8Native : _encodeUtf8Polyfill;
+  var utf8TextDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+  if (utf8TextDecoder && utf8TextDecoder.decode(new Uint8Array()).length === 1) {
+    utf8TextDecoder = null;
+  }
+  var repeat = (source, n) => unfold(n, () => source).join("");
+
+  // node_modules/lib0/encoding.js
+  var Encoder = class {
+    constructor() {
+      this.cpos = 0;
+      this.cbuf = new Uint8Array(100);
+      this.bufs = [];
+    }
+  };
+  var createEncoder = () => new Encoder();
+  var length = (encoder) => {
+    let len = encoder.cpos;
+    for (let i = 0; i < encoder.bufs.length; i++) {
+      len += encoder.bufs[i].length;
+    }
+    return len;
+  };
+  var toUint8Array = (encoder) => {
+    const uint8arr = new Uint8Array(length(encoder));
+    let curPos = 0;
+    for (let i = 0; i < encoder.bufs.length; i++) {
+      const d = encoder.bufs[i];
+      uint8arr.set(d, curPos);
+      curPos += d.length;
+    }
+    uint8arr.set(new Uint8Array(encoder.cbuf.buffer, 0, encoder.cpos), curPos);
+    return uint8arr;
+  };
+  var verifyLen = (encoder, len) => {
+    const bufferLen = encoder.cbuf.length;
+    if (bufferLen - encoder.cpos < len) {
+      encoder.bufs.push(new Uint8Array(encoder.cbuf.buffer, 0, encoder.cpos));
+      encoder.cbuf = new Uint8Array(max(bufferLen, len) * 2);
+      encoder.cpos = 0;
+    }
+  };
+  var write = (encoder, num) => {
+    const bufferLen = encoder.cbuf.length;
+    if (encoder.cpos === bufferLen) {
+      encoder.bufs.push(encoder.cbuf);
+      encoder.cbuf = new Uint8Array(bufferLen * 2);
+      encoder.cpos = 0;
+    }
+    encoder.cbuf[encoder.cpos++] = num;
+  };
+  var writeUint8 = write;
+  var writeVarUint = (encoder, num) => {
+    while (num > BITS7) {
+      write(encoder, BIT8 | BITS7 & num);
+      num = floor(num / 128);
+    }
+    write(encoder, BITS7 & num);
+  };
+  var writeVarInt = (encoder, num) => {
+    const isNegative = isNegativeZero(num);
+    if (isNegative) {
+      num = -num;
+    }
+    write(encoder, (num > BITS6 ? BIT8 : 0) | (isNegative ? BIT7 : 0) | BITS6 & num);
+    num = floor(num / 64);
+    while (num > 0) {
+      write(encoder, (num > BITS7 ? BIT8 : 0) | BITS7 & num);
+      num = floor(num / 128);
+    }
+  };
+  var _strBuffer = new Uint8Array(3e4);
+  var _maxStrBSize = _strBuffer.length / 3;
+  var _writeVarStringNative = (encoder, str) => {
+    if (str.length < _maxStrBSize) {
+      const written = utf8TextEncoder.encodeInto(str, _strBuffer).written || 0;
+      writeVarUint(encoder, written);
+      for (let i = 0; i < written; i++) {
+        write(encoder, _strBuffer[i]);
+      }
+    } else {
+      writeVarUint8Array(encoder, encodeUtf8(str));
+    }
+  };
+  var _writeVarStringPolyfill = (encoder, str) => {
+    const encodedString = unescape(encodeURIComponent(str));
+    const len = encodedString.length;
+    writeVarUint(encoder, len);
+    for (let i = 0; i < len; i++) {
+      write(
+        encoder,
+        /** @type {number} */
+        encodedString.codePointAt(i)
+      );
+    }
+  };
+  var writeVarString = utf8TextEncoder && /** @type {any} */
+  utf8TextEncoder.encodeInto ? _writeVarStringNative : _writeVarStringPolyfill;
+  var writeBinaryEncoder = (encoder, append2) => writeUint8Array(encoder, toUint8Array(append2));
+  var writeUint8Array = (encoder, uint8Array) => {
+    const bufferLen = encoder.cbuf.length;
+    const cpos = encoder.cpos;
+    const leftCopyLen = min(bufferLen - cpos, uint8Array.length);
+    const rightCopyLen = uint8Array.length - leftCopyLen;
+    encoder.cbuf.set(uint8Array.subarray(0, leftCopyLen), cpos);
+    encoder.cpos += leftCopyLen;
+    if (rightCopyLen > 0) {
+      encoder.bufs.push(encoder.cbuf);
+      encoder.cbuf = new Uint8Array(max(bufferLen * 2, rightCopyLen));
+      encoder.cbuf.set(uint8Array.subarray(leftCopyLen));
+      encoder.cpos = rightCopyLen;
+    }
+  };
+  var writeVarUint8Array = (encoder, uint8Array) => {
+    writeVarUint(encoder, uint8Array.byteLength);
+    writeUint8Array(encoder, uint8Array);
+  };
+  var writeOnDataView = (encoder, len) => {
+    verifyLen(encoder, len);
+    const dview = new DataView(encoder.cbuf.buffer, encoder.cpos, len);
+    encoder.cpos += len;
+    return dview;
+  };
+  var writeFloat32 = (encoder, num) => writeOnDataView(encoder, 4).setFloat32(0, num, false);
+  var writeFloat64 = (encoder, num) => writeOnDataView(encoder, 8).setFloat64(0, num, false);
+  var writeBigInt64 = (encoder, num) => (
+    /** @type {any} */
+    writeOnDataView(encoder, 8).setBigInt64(0, num, false)
+  );
+  var floatTestBed = new DataView(new ArrayBuffer(4));
+  var isFloat32 = (num) => {
+    floatTestBed.setFloat32(0, num);
+    return floatTestBed.getFloat32(0) === num;
+  };
+  var writeAny = (encoder, data) => {
+    switch (typeof data) {
+      case "string":
+        write(encoder, 119);
+        writeVarString(encoder, data);
+        break;
+      case "number":
+        if (isInteger(data) && abs(data) <= BITS31) {
+          write(encoder, 125);
+          writeVarInt(encoder, data);
+        } else if (isFloat32(data)) {
+          write(encoder, 124);
+          writeFloat32(encoder, data);
+        } else {
+          write(encoder, 123);
+          writeFloat64(encoder, data);
+        }
+        break;
+      case "bigint":
+        write(encoder, 122);
+        writeBigInt64(encoder, data);
+        break;
+      case "object":
+        if (data === null) {
+          write(encoder, 126);
+        } else if (isArray(data)) {
+          write(encoder, 117);
+          writeVarUint(encoder, data.length);
+          for (let i = 0; i < data.length; i++) {
+            writeAny(encoder, data[i]);
+          }
+        } else if (data instanceof Uint8Array) {
+          write(encoder, 116);
+          writeVarUint8Array(encoder, data);
+        } else {
+          write(encoder, 118);
+          const keys2 = Object.keys(data);
+          writeVarUint(encoder, keys2.length);
+          for (let i = 0; i < keys2.length; i++) {
+            const key = keys2[i];
+            writeVarString(encoder, key);
+            writeAny(encoder, data[key]);
+          }
+        }
+        break;
+      case "boolean":
+        write(encoder, data ? 120 : 121);
+        break;
+      default:
+        write(encoder, 127);
+    }
+  };
+  var RleEncoder = class extends Encoder {
+    /**
+     * @param {function(Encoder, T):void} writer
+     */
+    constructor(writer) {
+      super();
+      this.w = writer;
+      this.s = null;
+      this.count = 0;
+    }
+    /**
+     * @param {T} v
+     */
+    write(v) {
+      if (this.s === v) {
+        this.count++;
+      } else {
+        if (this.count > 0) {
+          writeVarUint(this, this.count - 1);
+        }
+        this.count = 1;
+        this.w(this, v);
+        this.s = v;
+      }
+    }
+  };
+  var flushUintOptRleEncoder = (encoder) => {
+    if (encoder.count > 0) {
+      writeVarInt(encoder.encoder, encoder.count === 1 ? encoder.s : -encoder.s);
+      if (encoder.count > 1) {
+        writeVarUint(encoder.encoder, encoder.count - 2);
+      }
+    }
+  };
+  var UintOptRleEncoder = class {
+    constructor() {
+      this.encoder = new Encoder();
+      this.s = 0;
+      this.count = 0;
+    }
+    /**
+     * @param {number} v
+     */
+    write(v) {
+      if (this.s === v) {
+        this.count++;
+      } else {
+        flushUintOptRleEncoder(this);
+        this.count = 1;
+        this.s = v;
+      }
+    }
+    /**
+     * Flush the encoded state and transform this to a Uint8Array.
+     *
+     * Note that this should only be called once.
+     */
+    toUint8Array() {
+      flushUintOptRleEncoder(this);
+      return toUint8Array(this.encoder);
+    }
+  };
+  var flushIntDiffOptRleEncoder = (encoder) => {
+    if (encoder.count > 0) {
+      const encodedDiff = encoder.diff * 2 + (encoder.count === 1 ? 0 : 1);
+      writeVarInt(encoder.encoder, encodedDiff);
+      if (encoder.count > 1) {
+        writeVarUint(encoder.encoder, encoder.count - 2);
+      }
+    }
+  };
+  var IntDiffOptRleEncoder = class {
+    constructor() {
+      this.encoder = new Encoder();
+      this.s = 0;
+      this.count = 0;
+      this.diff = 0;
+    }
+    /**
+     * @param {number} v
+     */
+    write(v) {
+      if (this.diff === v - this.s) {
+        this.s = v;
+        this.count++;
+      } else {
+        flushIntDiffOptRleEncoder(this);
+        this.count = 1;
+        this.diff = v - this.s;
+        this.s = v;
+      }
+    }
+    /**
+     * Flush the encoded state and transform this to a Uint8Array.
+     *
+     * Note that this should only be called once.
+     */
+    toUint8Array() {
+      flushIntDiffOptRleEncoder(this);
+      return toUint8Array(this.encoder);
+    }
+  };
+  var StringEncoder = class {
+    constructor() {
+      this.sarr = [];
+      this.s = "";
+      this.lensE = new UintOptRleEncoder();
+    }
+    /**
+     * @param {string} string
+     */
+    write(string) {
+      this.s += string;
+      if (this.s.length > 19) {
+        this.sarr.push(this.s);
+        this.s = "";
+      }
+      this.lensE.write(string.length);
+    }
+    toUint8Array() {
+      const encoder = new Encoder();
+      this.sarr.push(this.s);
+      this.s = "";
+      writeVarString(encoder, this.sarr.join(""));
+      writeUint8Array(encoder, this.lensE.toUint8Array());
+      return toUint8Array(encoder);
+    }
+  };
+
   // node_modules/lib0/error.js
   var create3 = (s) => new Error(s);
   var methodUnimplemented = () => {
@@ -1749,7 +1934,7 @@ var wp;
   var createDecoder = (uint8Array) => new Decoder(uint8Array);
   var hasContent = (decoder) => decoder.pos !== decoder.arr.length;
   var readUint8Array = (decoder, len) => {
-    const view = createUint8ArrayViewFromArrayBuffer(decoder.arr.buffer, decoder.pos + decoder.arr.byteOffset, len);
+    const view = new Uint8Array(decoder.arr.buffer, decoder.pos + decoder.arr.byteOffset, len);
     decoder.pos += len;
     return view;
   };
@@ -1977,335 +2162,6 @@ var wp;
     }
   };
 
-  // node_modules/lib0/buffer.js
-  var createUint8ArrayFromLen = (len) => new Uint8Array(len);
-  var createUint8ArrayViewFromArrayBuffer = (buffer, byteOffset, length3) => new Uint8Array(buffer, byteOffset, length3);
-  var toBase64Browser = (bytes) => {
-    let s = "";
-    for (let i = 0; i < bytes.byteLength; i++) {
-      s += fromCharCode(bytes[i]);
-    }
-    return btoa(s);
-  };
-  var toBase64Node = (bytes) => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64");
-  var fromBase64Browser = (s) => {
-    const a = atob(s);
-    const bytes = createUint8ArrayFromLen(a.length);
-    for (let i = 0; i < a.length; i++) {
-      bytes[i] = a.charCodeAt(i);
-    }
-    return bytes;
-  };
-  var fromBase64Node = (s) => {
-    const buf = Buffer.from(s, "base64");
-    return new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
-  };
-  var toBase64 = isBrowser ? toBase64Browser : toBase64Node;
-  var fromBase64 = isBrowser ? fromBase64Browser : fromBase64Node;
-  var copyUint8Array = (uint8Array) => {
-    const newBuf = createUint8ArrayFromLen(uint8Array.byteLength);
-    newBuf.set(uint8Array);
-    return newBuf;
-  };
-
-  // node_modules/lib0/encoding.js
-  var Encoder = class {
-    constructor() {
-      this.cpos = 0;
-      this.cbuf = new Uint8Array(100);
-      this.bufs = [];
-    }
-  };
-  var createEncoder = () => new Encoder();
-  var length2 = (encoder) => {
-    let len = encoder.cpos;
-    for (let i = 0; i < encoder.bufs.length; i++) {
-      len += encoder.bufs[i].length;
-    }
-    return len;
-  };
-  var toUint8Array = (encoder) => {
-    const uint8arr = new Uint8Array(length2(encoder));
-    let curPos = 0;
-    for (let i = 0; i < encoder.bufs.length; i++) {
-      const d = encoder.bufs[i];
-      uint8arr.set(d, curPos);
-      curPos += d.length;
-    }
-    uint8arr.set(createUint8ArrayViewFromArrayBuffer(encoder.cbuf.buffer, 0, encoder.cpos), curPos);
-    return uint8arr;
-  };
-  var verifyLen = (encoder, len) => {
-    const bufferLen = encoder.cbuf.length;
-    if (bufferLen - encoder.cpos < len) {
-      encoder.bufs.push(createUint8ArrayViewFromArrayBuffer(encoder.cbuf.buffer, 0, encoder.cpos));
-      encoder.cbuf = new Uint8Array(max(bufferLen, len) * 2);
-      encoder.cpos = 0;
-    }
-  };
-  var write = (encoder, num) => {
-    const bufferLen = encoder.cbuf.length;
-    if (encoder.cpos === bufferLen) {
-      encoder.bufs.push(encoder.cbuf);
-      encoder.cbuf = new Uint8Array(bufferLen * 2);
-      encoder.cpos = 0;
-    }
-    encoder.cbuf[encoder.cpos++] = num;
-  };
-  var writeUint8 = write;
-  var writeVarUint = (encoder, num) => {
-    while (num > BITS7) {
-      write(encoder, BIT8 | BITS7 & num);
-      num = floor(num / 128);
-    }
-    write(encoder, BITS7 & num);
-  };
-  var writeVarInt = (encoder, num) => {
-    const isNegative = isNegativeZero(num);
-    if (isNegative) {
-      num = -num;
-    }
-    write(encoder, (num > BITS6 ? BIT8 : 0) | (isNegative ? BIT7 : 0) | BITS6 & num);
-    num = floor(num / 64);
-    while (num > 0) {
-      write(encoder, (num > BITS7 ? BIT8 : 0) | BITS7 & num);
-      num = floor(num / 128);
-    }
-  };
-  var _strBuffer = new Uint8Array(3e4);
-  var _maxStrBSize = _strBuffer.length / 3;
-  var _writeVarStringNative = (encoder, str) => {
-    if (str.length < _maxStrBSize) {
-      const written = utf8TextEncoder.encodeInto(str, _strBuffer).written || 0;
-      writeVarUint(encoder, written);
-      for (let i = 0; i < written; i++) {
-        write(encoder, _strBuffer[i]);
-      }
-    } else {
-      writeVarUint8Array(encoder, encodeUtf8(str));
-    }
-  };
-  var _writeVarStringPolyfill = (encoder, str) => {
-    const encodedString = unescape(encodeURIComponent(str));
-    const len = encodedString.length;
-    writeVarUint(encoder, len);
-    for (let i = 0; i < len; i++) {
-      write(
-        encoder,
-        /** @type {number} */
-        encodedString.codePointAt(i)
-      );
-    }
-  };
-  var writeVarString = utf8TextEncoder && /** @type {any} */
-  utf8TextEncoder.encodeInto ? _writeVarStringNative : _writeVarStringPolyfill;
-  var writeBinaryEncoder = (encoder, append2) => writeUint8Array(encoder, toUint8Array(append2));
-  var writeUint8Array = (encoder, uint8Array) => {
-    const bufferLen = encoder.cbuf.length;
-    const cpos = encoder.cpos;
-    const leftCopyLen = min(bufferLen - cpos, uint8Array.length);
-    const rightCopyLen = uint8Array.length - leftCopyLen;
-    encoder.cbuf.set(uint8Array.subarray(0, leftCopyLen), cpos);
-    encoder.cpos += leftCopyLen;
-    if (rightCopyLen > 0) {
-      encoder.bufs.push(encoder.cbuf);
-      encoder.cbuf = new Uint8Array(max(bufferLen * 2, rightCopyLen));
-      encoder.cbuf.set(uint8Array.subarray(leftCopyLen));
-      encoder.cpos = rightCopyLen;
-    }
-  };
-  var writeVarUint8Array = (encoder, uint8Array) => {
-    writeVarUint(encoder, uint8Array.byteLength);
-    writeUint8Array(encoder, uint8Array);
-  };
-  var writeOnDataView = (encoder, len) => {
-    verifyLen(encoder, len);
-    const dview = new DataView(encoder.cbuf.buffer, encoder.cpos, len);
-    encoder.cpos += len;
-    return dview;
-  };
-  var writeFloat32 = (encoder, num) => writeOnDataView(encoder, 4).setFloat32(0, num, false);
-  var writeFloat64 = (encoder, num) => writeOnDataView(encoder, 8).setFloat64(0, num, false);
-  var writeBigInt64 = (encoder, num) => (
-    /** @type {any} */
-    writeOnDataView(encoder, 8).setBigInt64(0, num, false)
-  );
-  var floatTestBed = new DataView(new ArrayBuffer(4));
-  var isFloat32 = (num) => {
-    floatTestBed.setFloat32(0, num);
-    return floatTestBed.getFloat32(0) === num;
-  };
-  var writeAny = (encoder, data) => {
-    switch (typeof data) {
-      case "string":
-        write(encoder, 119);
-        writeVarString(encoder, data);
-        break;
-      case "number":
-        if (isInteger(data) && abs(data) <= BITS31) {
-          write(encoder, 125);
-          writeVarInt(encoder, data);
-        } else if (isFloat32(data)) {
-          write(encoder, 124);
-          writeFloat32(encoder, data);
-        } else {
-          write(encoder, 123);
-          writeFloat64(encoder, data);
-        }
-        break;
-      case "bigint":
-        write(encoder, 122);
-        writeBigInt64(encoder, data);
-        break;
-      case "object":
-        if (data === null) {
-          write(encoder, 126);
-        } else if (isArray(data)) {
-          write(encoder, 117);
-          writeVarUint(encoder, data.length);
-          for (let i = 0; i < data.length; i++) {
-            writeAny(encoder, data[i]);
-          }
-        } else if (data instanceof Uint8Array) {
-          write(encoder, 116);
-          writeVarUint8Array(encoder, data);
-        } else {
-          write(encoder, 118);
-          const keys2 = Object.keys(data);
-          writeVarUint(encoder, keys2.length);
-          for (let i = 0; i < keys2.length; i++) {
-            const key = keys2[i];
-            writeVarString(encoder, key);
-            writeAny(encoder, data[key]);
-          }
-        }
-        break;
-      case "boolean":
-        write(encoder, data ? 120 : 121);
-        break;
-      default:
-        write(encoder, 127);
-    }
-  };
-  var RleEncoder = class extends Encoder {
-    /**
-     * @param {function(Encoder, T):void} writer
-     */
-    constructor(writer) {
-      super();
-      this.w = writer;
-      this.s = null;
-      this.count = 0;
-    }
-    /**
-     * @param {T} v
-     */
-    write(v) {
-      if (this.s === v) {
-        this.count++;
-      } else {
-        if (this.count > 0) {
-          writeVarUint(this, this.count - 1);
-        }
-        this.count = 1;
-        this.w(this, v);
-        this.s = v;
-      }
-    }
-  };
-  var flushUintOptRleEncoder = (encoder) => {
-    if (encoder.count > 0) {
-      writeVarInt(encoder.encoder, encoder.count === 1 ? encoder.s : -encoder.s);
-      if (encoder.count > 1) {
-        writeVarUint(encoder.encoder, encoder.count - 2);
-      }
-    }
-  };
-  var UintOptRleEncoder = class {
-    constructor() {
-      this.encoder = new Encoder();
-      this.s = 0;
-      this.count = 0;
-    }
-    /**
-     * @param {number} v
-     */
-    write(v) {
-      if (this.s === v) {
-        this.count++;
-      } else {
-        flushUintOptRleEncoder(this);
-        this.count = 1;
-        this.s = v;
-      }
-    }
-    toUint8Array() {
-      flushUintOptRleEncoder(this);
-      return toUint8Array(this.encoder);
-    }
-  };
-  var flushIntDiffOptRleEncoder = (encoder) => {
-    if (encoder.count > 0) {
-      const encodedDiff = encoder.diff * 2 + (encoder.count === 1 ? 0 : 1);
-      writeVarInt(encoder.encoder, encodedDiff);
-      if (encoder.count > 1) {
-        writeVarUint(encoder.encoder, encoder.count - 2);
-      }
-    }
-  };
-  var IntDiffOptRleEncoder = class {
-    constructor() {
-      this.encoder = new Encoder();
-      this.s = 0;
-      this.count = 0;
-      this.diff = 0;
-    }
-    /**
-     * @param {number} v
-     */
-    write(v) {
-      if (this.diff === v - this.s) {
-        this.s = v;
-        this.count++;
-      } else {
-        flushIntDiffOptRleEncoder(this);
-        this.count = 1;
-        this.diff = v - this.s;
-        this.s = v;
-      }
-    }
-    toUint8Array() {
-      flushIntDiffOptRleEncoder(this);
-      return toUint8Array(this.encoder);
-    }
-  };
-  var StringEncoder = class {
-    constructor() {
-      this.sarr = [];
-      this.s = "";
-      this.lensE = new UintOptRleEncoder();
-    }
-    /**
-     * @param {string} string
-     */
-    write(string) {
-      this.s += string;
-      if (this.s.length > 19) {
-        this.sarr.push(this.s);
-        this.s = "";
-      }
-      this.lensE.write(string.length);
-    }
-    toUint8Array() {
-      const encoder = new Encoder();
-      this.sarr.push(this.s);
-      this.s = "";
-      writeVarString(encoder, this.sarr.join(""));
-      writeUint8Array(encoder, this.lensE.toUint8Array());
-      return toUint8Array(encoder);
-    }
-  };
-
   // node_modules/lib0/webcrypto.js
   var subtle = crypto.subtle;
   var getRandomValues = crypto.getRandomValues.bind(crypto);
@@ -2328,6 +2184,250 @@ var wp;
     new Promise(f)
   );
   var all = Promise.all.bind(Promise);
+
+  // node_modules/lib0/conditions.js
+  var undefinedToNull = (v) => v === void 0 ? null : v;
+
+  // node_modules/lib0/storage.js
+  var VarStoragePolyfill = class {
+    constructor() {
+      this.map = /* @__PURE__ */ new Map();
+    }
+    /**
+     * @param {string} key
+     * @param {any} newValue
+     */
+    setItem(key, newValue) {
+      this.map.set(key, newValue);
+    }
+    /**
+     * @param {string} key
+     */
+    getItem(key) {
+      return this.map.get(key);
+    }
+  };
+  var _localStorage = new VarStoragePolyfill();
+  var usePolyfill = true;
+  try {
+    if (typeof localStorage !== "undefined" && localStorage) {
+      _localStorage = localStorage;
+      usePolyfill = false;
+    }
+  } catch (e) {
+  }
+  var varStorage = _localStorage;
+
+  // node_modules/lib0/object.js
+  var assign = Object.assign;
+  var keys = Object.keys;
+  var forEach = (obj, f) => {
+    for (const key in obj) {
+      f(obj[key], key);
+    }
+  };
+  var length2 = (obj) => keys(obj).length;
+  var size = (obj) => keys(obj).length;
+  var isEmpty = (obj) => {
+    for (const _k in obj) {
+      return false;
+    }
+    return true;
+  };
+  var every = (obj, f) => {
+    for (const key in obj) {
+      if (!f(obj[key], key)) {
+        return false;
+      }
+    }
+    return true;
+  };
+  var hasProperty = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+  var equalFlat = (a, b) => a === b || size(a) === size(b) && every(a, (val, key) => (val !== void 0 || hasProperty(b, key)) && b[key] === val);
+  var freeze = Object.freeze;
+  var deepFreeze = (o) => {
+    for (const key in o) {
+      const c = o[key];
+      if (typeof c === "object" || typeof c === "function") {
+        deepFreeze(o[key]);
+      }
+    }
+    return freeze(o);
+  };
+
+  // node_modules/lib0/function.js
+  var callAll = (fs, args2, i = 0) => {
+    try {
+      for (; i < fs.length; i++) {
+        fs[i](...args2);
+      }
+    } finally {
+      if (i < fs.length) {
+        callAll(fs, args2, i + 1);
+      }
+    }
+  };
+  var id = (a) => a;
+  var equalityStrict = (a, b) => a === b;
+  var equalityDeep = (a, b) => {
+    if (a == null || b == null) {
+      return equalityStrict(a, b);
+    }
+    if (a.constructor !== b.constructor) {
+      return false;
+    }
+    if (a === b) {
+      return true;
+    }
+    switch (a.constructor) {
+      case ArrayBuffer:
+        a = new Uint8Array(a);
+        b = new Uint8Array(b);
+      // eslint-disable-next-line no-fallthrough
+      case Uint8Array: {
+        if (a.byteLength !== b.byteLength) {
+          return false;
+        }
+        for (let i = 0; i < a.length; i++) {
+          if (a[i] !== b[i]) {
+            return false;
+          }
+        }
+        break;
+      }
+      case Set: {
+        if (a.size !== b.size) {
+          return false;
+        }
+        for (const value of a) {
+          if (!b.has(value)) {
+            return false;
+          }
+        }
+        break;
+      }
+      case Map: {
+        if (a.size !== b.size) {
+          return false;
+        }
+        for (const key of a.keys()) {
+          if (!b.has(key) || !equalityDeep(a.get(key), b.get(key))) {
+            return false;
+          }
+        }
+        break;
+      }
+      case Object:
+        if (length2(a) !== length2(b)) {
+          return false;
+        }
+        for (const key in a) {
+          if (!hasProperty(a, key) || !equalityDeep(a[key], b[key])) {
+            return false;
+          }
+        }
+        break;
+      case Array:
+        if (a.length !== b.length) {
+          return false;
+        }
+        for (let i = 0; i < a.length; i++) {
+          if (!equalityDeep(a[i], b[i])) {
+            return false;
+          }
+        }
+        break;
+      default:
+        return false;
+    }
+    return true;
+  };
+  var isOneOf = (value, options) => options.includes(value);
+
+  // node_modules/lib0/environment.js
+  var isNode = typeof process !== "undefined" && process.release && /node|io\.js/.test(process.release.name) && Object.prototype.toString.call(typeof process !== "undefined" ? process : 0) === "[object process]";
+  var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && !isNode;
+  var isMac = typeof navigator !== "undefined" ? /Mac/.test(navigator.platform) : false;
+  var params;
+  var args = [];
+  var computeParams = () => {
+    if (params === void 0) {
+      if (isNode) {
+        params = create();
+        const pargs = process.argv;
+        let currParamName = null;
+        for (let i = 0; i < pargs.length; i++) {
+          const parg = pargs[i];
+          if (parg[0] === "-") {
+            if (currParamName !== null) {
+              params.set(currParamName, "");
+            }
+            currParamName = parg;
+          } else {
+            if (currParamName !== null) {
+              params.set(currParamName, parg);
+              currParamName = null;
+            } else {
+              args.push(parg);
+            }
+          }
+        }
+        if (currParamName !== null) {
+          params.set(currParamName, "");
+        }
+      } else if (typeof location === "object") {
+        params = create();
+        (location.search || "?").slice(1).split("&").forEach((kv) => {
+          if (kv.length !== 0) {
+            const [key, value] = kv.split("=");
+            params.set(`--${fromCamelCase(key, "-")}`, value);
+            params.set(`-${fromCamelCase(key, "-")}`, value);
+          }
+        });
+      } else {
+        params = create();
+      }
+    }
+    return params;
+  };
+  var hasParam = (name) => computeParams().has(name);
+  var getVariable = (name) => isNode ? undefinedToNull(process.env[name.toUpperCase().replaceAll("-", "_")]) : undefinedToNull(varStorage.getItem(name));
+  var hasConf = (name) => hasParam("--" + name) || getVariable(name) !== null;
+  var production = hasConf("production");
+  var forceColor = isNode && isOneOf(process.env.FORCE_COLOR, ["true", "1", "2"]);
+  var supportsColor = forceColor || !hasParam("--no-colors") && // @todo deprecate --no-colors
+  !hasConf("no-color") && (!isNode || process.stdout.isTTY) && (!isNode || hasParam("--color") || getVariable("COLORTERM") !== null || (getVariable("TERM") || "").includes("color"));
+
+  // node_modules/lib0/buffer.js
+  var createUint8ArrayFromLen = (len) => new Uint8Array(len);
+  var createUint8ArrayViewFromArrayBuffer = (buffer, byteOffset, length3) => new Uint8Array(buffer, byteOffset, length3);
+  var toBase64Browser = (bytes) => {
+    let s = "";
+    for (let i = 0; i < bytes.byteLength; i++) {
+      s += fromCharCode(bytes[i]);
+    }
+    return btoa(s);
+  };
+  var toBase64Node = (bytes) => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64");
+  var fromBase64Browser = (s) => {
+    const a = atob(s);
+    const bytes = createUint8ArrayFromLen(a.length);
+    for (let i = 0; i < a.length; i++) {
+      bytes[i] = a.charCodeAt(i);
+    }
+    return bytes;
+  };
+  var fromBase64Node = (s) => {
+    const buf = Buffer.from(s, "base64");
+    return createUint8ArrayViewFromArrayBuffer(buf.buffer, buf.byteOffset, buf.byteLength);
+  };
+  var toBase64 = isBrowser ? toBase64Browser : toBase64Node;
+  var fromBase64 = isBrowser ? fromBase64Browser : fromBase64Node;
+  var copyUint8Array = (uint8Array) => {
+    const newBuf = createUint8ArrayFromLen(uint8Array.byteLength);
+    newBuf.set(uint8Array);
+    return newBuf;
+  };
 
   // node_modules/lib0/pair.js
   var Pair = class {
@@ -2374,15 +2474,31 @@ var wp;
   var ORANGE = create6();
   var UNCOLOR = create6();
   var computeNoColorLoggingArgs = (args2) => {
+    if (args2.length === 1 && args2[0]?.constructor === Function) {
+      args2 = /** @type {Array<string|Symbol|Object|number>} */
+      /** @type {[function]} */
+      args2[0]();
+    }
     const strBuilder = [];
     const logArgs = [];
     let i = 0;
     for (; i < args2.length; i++) {
       const arg = args2[i];
-      if (arg.constructor === String || arg.constructor === Number) {
+      if (arg === void 0) {
+        break;
+      } else if (arg.constructor === String || arg.constructor === Number) {
         strBuilder.push(arg);
       } else if (arg.constructor === Object) {
-        logArgs.push(JSON.stringify(arg));
+        break;
+      }
+    }
+    if (i > 0) {
+      logArgs.push(strBuilder.join(""));
+    }
+    for (; i < args2.length; i++) {
+      const arg = args2[i];
+      if (!(arg instanceof Symbol)) {
+        logArgs.push(arg);
       }
     }
     return logArgs;
@@ -2403,6 +2519,11 @@ var wp;
     [UNCOLOR]: create5("color", "black")
   };
   var computeBrowserLoggingArgs = (args2) => {
+    if (args2.length === 1 && args2[0]?.constructor === Function) {
+      args2 = /** @type {Array<string|Symbol|Object|number>} */
+      /** @type {[function]} */
+      args2[0]();
+    }
     const strBuilder = [];
     const styles = [];
     const currentStyle = create();
@@ -2414,6 +2535,9 @@ var wp;
       if (style !== void 0) {
         currentStyle.set(style.left, style.right);
       } else {
+        if (arg === void 0) {
+          break;
+        }
         if (arg.constructor === String || arg.constructor === Number) {
           const style2 = mapToStyleString(currentStyle);
           if (i > 0 || style2.length > 0) {
@@ -2444,6 +2568,11 @@ var wp;
     console.log(...computeLoggingArgs(args2));
     vconsoles.forEach((vc) => vc.print(args2));
   };
+  var warn = (...args2) => {
+    console.warn(...computeLoggingArgs(args2));
+    args2.unshift(ORANGE);
+    vconsoles.forEach((vc) => vc.print(args2));
+  };
   var vconsoles = create2();
 
   // node_modules/lib0/iterator.js
@@ -2470,7 +2599,7 @@ var wp;
   });
 
   // node_modules/yjs/dist/yjs.mjs
-  var AbstractConnector = class extends Observable {
+  var AbstractConnector = class extends ObservableV2 {
     /**
      * @param {Doc} ydoc
      * @param {any} awareness
@@ -2501,9 +2630,12 @@ var wp;
       /** @type {Array<GC|Item>} */
       transaction.doc.store.clients.get(clientid)
     );
-    for (let i = 0; i < deletes.length; i++) {
-      const del = deletes[i];
-      iterateStructs(transaction, structs, del.clock, del.len, f);
+    if (structs != null) {
+      const lastStruct = structs[structs.length - 1];
+      const clockState = lastStruct.id.clock + lastStruct.length;
+      for (let i = 0, del = deletes[i]; i < deletes.length && del.clock < clockState; del = deletes[++i]) {
+        iterateStructs(transaction, structs, del.clock, del.len, f);
+      }
     }
   });
   var findIndexDS = (dis, clock) => {
@@ -2693,7 +2825,7 @@ var wp;
     return true;
   };
   var generateNewClientId = uint32;
-  var Doc = class _Doc extends Observable {
+  var Doc = class _Doc extends ObservableV2 {
     /**
      * @param {DocOpts} opts configuration
      */
@@ -2715,6 +2847,7 @@ var wp;
       this.meta = meta;
       this.isLoaded = false;
       this.isSynced = false;
+      this.isDestroyed = false;
       this.whenLoaded = create4((resolve) => {
         this.on("load", () => {
           this.isLoaded = true;
@@ -2735,8 +2868,8 @@ var wp;
           this.whenSynced = provideSyncedPromise();
         }
         this.isSynced = isSynced === void 0 || isSynced === true;
-        if (!this.isLoaded) {
-          this.emit("load", []);
+        if (this.isSynced && !this.isLoaded) {
+          this.emit("load", [this]);
         }
       });
       this.whenSynced = provideSyncedPromise();
@@ -2788,30 +2921,34 @@ var wp;
     /**
      * Define a shared data type.
      *
-     * Multiple calls of `y.get(name, TypeConstructor)` yield the same result
+     * Multiple calls of `ydoc.get(name, TypeConstructor)` yield the same result
      * and do not overwrite each other. I.e.
-     * `y.define(name, Y.Array) === y.define(name, Y.Array)`
+     * `ydoc.get(name, Y.Array) === ydoc.get(name, Y.Array)`
      *
-     * After this method is called, the type is also available on `y.share.get(name)`.
+     * After this method is called, the type is also available on `ydoc.share.get(name)`.
      *
      * *Best Practices:*
-     * Define all types right after the Yjs instance is created and store them in a separate object.
+     * Define all types right after the Y.Doc instance is created and store them in a separate object.
      * Also use the typed methods `getText(name)`, `getArray(name)`, ..
      *
+     * @template {typeof AbstractType<any>} Type
      * @example
-     *   const y = new Y(..)
+     *   const ydoc = new Y.Doc(..)
      *   const appState = {
-     *     document: y.getText('document')
-     *     comments: y.getArray('comments')
+     *     document: ydoc.getText('document')
+     *     comments: ydoc.getArray('comments')
      *   }
      *
      * @param {string} name
-     * @param {Function} TypeConstructor The constructor of the type definition. E.g. Y.Text, Y.Array, Y.Map, ...
-     * @return {AbstractType<any>} The created type. Constructed with TypeConstructor
+     * @param {Type} TypeConstructor The constructor of the type definition. E.g. Y.Text, Y.Array, Y.Map, ...
+     * @return {InstanceType<Type>} The created type. Constructed with TypeConstructor
      *
      * @public
      */
-    get(name, TypeConstructor = AbstractType) {
+    get(name, TypeConstructor = (
+      /** @type {any} */
+      AbstractType
+    )) {
       const type = setIfUndefined(this.share, name, () => {
         const t = new TypeConstructor();
         t._integrate(this, null);
@@ -2837,12 +2974,18 @@ var wp;
           t._length = type._length;
           this.share.set(name, t);
           t._integrate(this, null);
-          return t;
+          return (
+            /** @type {InstanceType<Type>} */
+            t
+          );
         } else {
           throw new Error(`Type with the name ${name} has already been defined with a different constructor`);
         }
       }
-      return type;
+      return (
+        /** @type {InstanceType<Type>} */
+        type
+      );
     }
     /**
      * @template T
@@ -2852,7 +2995,10 @@ var wp;
      * @public
      */
     getArray(name = "") {
-      return this.get(name, YArray);
+      return (
+        /** @type {YArray<T>} */
+        this.get(name, YArray)
+      );
     }
     /**
      * @param {string} [name]
@@ -2871,7 +3017,22 @@ var wp;
      * @public
      */
     getMap(name = "") {
-      return this.get(name, YMap);
+      return (
+        /** @type {YMap<T>} */
+        this.get(name, YMap)
+      );
+    }
+    /**
+     * @param {string} [name]
+     * @return {YXmlElement}
+     *
+     * @public
+     */
+    getXmlElement(name = "") {
+      return (
+        /** @type {YXmlElement<{[key:string]:string}>} */
+        this.get(name, YXmlElement)
+      );
     }
     /**
      * @param {string} [name]
@@ -2901,6 +3062,7 @@ var wp;
      * Emit `destroy` event and unregister all event handlers.
      */
     destroy() {
+      this.isDestroyed = true;
       from(this.subdocs).forEach((subdoc) => subdoc.destroy());
       const item = this._item;
       if (item !== null) {
@@ -2928,20 +3090,6 @@ var wp;
       this.emit("destroyed", [true]);
       this.emit("destroy", [this]);
       super.destroy();
-    }
-    /**
-     * @param {string} eventName
-     * @param {function(...any):any} f
-     */
-    on(eventName, f) {
-      super.on(eventName, f);
-    }
-    /**
-     * @param {string} eventName
-     * @param {function} f
-     */
-    off(eventName, f) {
-      super.off(eventName, f);
     }
   };
   var DSDecoderV1 = class {
@@ -3497,7 +3645,7 @@ var wp;
             const struct = new Item(
               createID(client, clock),
               null,
-              // leftd
+              // left
               (info & BIT8) === BIT8 ? decoder.readLeftID() : null,
               // origin
               null,
@@ -3545,7 +3693,7 @@ var wp;
       return nextStructsTarget;
     };
     let curStructsTarget = getNextStructTarget();
-    if (curStructsTarget === null && stack.length === 0) {
+    if (curStructsTarget === null) {
       return null;
     }
     const restStructs = new StructStore();
@@ -3567,13 +3715,13 @@ var wp;
     const addStackToRestSS = () => {
       for (const item of stack) {
         const client = item.id.client;
-        const unapplicableItems = clientsStructRefs.get(client);
-        if (unapplicableItems) {
-          unapplicableItems.i--;
-          restStructs.clients.set(client, unapplicableItems.refs.slice(unapplicableItems.i));
+        const inapplicableItems = clientsStructRefs.get(client);
+        if (inapplicableItems) {
+          inapplicableItems.i--;
+          restStructs.clients.set(client, inapplicableItems.refs.slice(inapplicableItems.i));
           clientsStructRefs.delete(client);
-          unapplicableItems.i = 0;
-          unapplicableItems.refs = [];
+          inapplicableItems.i = 0;
+          inapplicableItems.refs = [];
         } else {
           restStructs.clients.set(client, [item]);
         }
@@ -3954,7 +4102,7 @@ var wp;
     }
     return json;
   };
-  var createRelativePositionFromJSON = (json) => new RelativePosition(json.type == null ? null : createID(json.type.client, json.type.clock), json.tname || null, json.item == null ? null : createID(json.item.client, json.item.clock), json.assoc == null ? 0 : json.assoc);
+  var createRelativePositionFromJSON = (json) => new RelativePosition(json.type == null ? null : createID(json.type.client, json.type.clock), json.tname ?? null, json.item == null ? null : createID(json.item.client, json.item.clock), json.assoc == null ? 0 : json.assoc);
   var AbsolutePosition = class {
     /**
      * @param {AbstractType<any>} type
@@ -4041,7 +4189,15 @@ var wp;
     return new RelativePosition(type, tname, itemID, assoc);
   };
   var decodeRelativePosition = (uint8Array) => readRelativePosition(createDecoder(uint8Array));
-  var createAbsolutePositionFromRelativePosition = (rpos, doc2) => {
+  var getItemWithOffset = (store, id2) => {
+    const item = getItem(store, id2);
+    const diff = id2.clock - item.id.clock;
+    return {
+      item,
+      diff
+    };
+  };
+  var createAbsolutePositionFromRelativePosition = (rpos, doc2, followUndoneDeletions = true) => {
     const store = doc2.store;
     const rightID = rpos.item;
     const typeID = rpos.type;
@@ -4053,7 +4209,7 @@ var wp;
       if (getState(store, rightID.client) <= rightID.clock) {
         return null;
       }
-      const res = followRedone(store, rightID);
+      const res = followUndoneDeletions ? followRedone(store, rightID) : getItemWithOffset(store, rightID);
       const right = res.item;
       if (!(right instanceof Item)) {
         return null;
@@ -4077,7 +4233,7 @@ var wp;
         if (getState(store, typeID.client) <= typeID.clock) {
           return null;
         }
-        const { item } = followRedone(store, typeID);
+        const { item } = followUndoneDeletions ? followRedone(store, typeID) : { item: getItem(store, typeID) };
         if (item instanceof Item && item.content instanceof ContentType) {
           type = item.content.type;
         } else {
@@ -4168,13 +4324,13 @@ var wp;
     const { sv, ds } = snapshot2;
     const encoder = new UpdateEncoderV2();
     originDoc.transact((transaction) => {
-      let size = 0;
+      let size2 = 0;
       sv.forEach((clock) => {
         if (clock > 0) {
-          size++;
+          size2++;
         }
       });
-      writeVarUint(encoder.restEncoder, size);
+      writeVarUint(encoder.restEncoder, size2);
       for (const [client, clock] of sv) {
         if (clock === 0) {
           continue;
@@ -4457,15 +4613,19 @@ var wp;
                 event._path = null;
               });
               events.sort((event1, event2) => event1.path.length - event2.path.length);
-              callEventHandlerListeners(type._dEH, events, transaction);
+              fs.push(() => {
+                callEventHandlerListeners(type._dEH, events, transaction);
+              });
+            }
+          });
+          fs.push(() => doc2.emit("afterTransaction", [transaction, doc2]));
+          fs.push(() => {
+            if (transaction._needFormattingCleanup) {
+              cleanupYTextAfterTransaction(transaction);
             }
           });
         });
-        fs.push(() => doc2.emit("afterTransaction", [transaction, doc2]));
         callAll(fs, []);
-        if (transaction._needFormattingCleanup) {
-          cleanupYTextAfterTransaction(transaction);
-        }
       } finally {
         if (doc2.gc) {
           tryGcDeleteSet(ds, store, doc2.gcFilter);
@@ -4580,18 +4740,21 @@ var wp;
   };
   var clearUndoManagerStackItem = (tr, um, stackItem) => {
     iterateDeletedStructs(tr, stackItem.deletions, (item) => {
-      if (item instanceof Item && um.scope.some((type) => isParentOf(type, item))) {
+      if (item instanceof Item && um.scope.some((type) => type === tr.doc || isParentOf(
+        /** @type {AbstractType<any>} */
+        type,
+        item
+      ))) {
         keepItem(item, false);
       }
     });
   };
   var popStackItem = (undoManager, stack, eventType) => {
-    let result = null;
     let _tr = null;
     const doc2 = undoManager.doc;
     const scope = undoManager.scope;
     transact(doc2, (transaction) => {
-      while (stack.length > 0 && result === null) {
+      while (stack.length > 0 && undoManager.currStackItem === null) {
         const store = doc2.store;
         const stackItem = (
           /** @type {StackItem} */
@@ -4609,7 +4772,8 @@ var wp;
               }
               struct = item;
             }
-            if (!struct.deleted && scope.some((type) => isParentOf(
+            if (!struct.deleted && scope.some((type) => type === transaction.doc || isParentOf(
+              /** @type {AbstractType<any>} */
               type,
               /** @type {Item} */
               struct
@@ -4619,7 +4783,11 @@ var wp;
           }
         });
         iterateDeletedStructs(transaction, stackItem.deletions, (struct) => {
-          if (struct instanceof Item && scope.some((type) => isParentOf(type, struct)) && // Never redo structs in stackItem.insertions because they were created and deleted in the same capture interval.
+          if (struct instanceof Item && scope.some((type) => type === transaction.doc || isParentOf(
+            /** @type {AbstractType<any>} */
+            type,
+            struct
+          )) && // Never redo structs in stackItem.insertions because they were created and deleted in the same capture interval.
           !isDeleted(stackItem.insertions, struct.id)) {
             itemsToRedo.add(struct);
           }
@@ -4634,7 +4802,7 @@ var wp;
             performedChange = true;
           }
         }
-        result = performedChange ? stackItem : null;
+        undoManager.currStackItem = performedChange ? stackItem : null;
       }
       transaction.changed.forEach((subProps, type) => {
         if (subProps.has(null) && type._searchMarker) {
@@ -4643,15 +4811,17 @@ var wp;
       });
       _tr = transaction;
     }, undoManager);
-    if (result != null) {
+    const res = undoManager.currStackItem;
+    if (res != null) {
       const changedParentTypes = _tr.changedParentTypes;
-      undoManager.emit("stack-item-popped", [{ stackItem: result, type: eventType, changedParentTypes }, undoManager]);
+      undoManager.emit("stack-item-popped", [{ stackItem: res, type: eventType, changedParentTypes, origin: undoManager }, undoManager]);
+      undoManager.currStackItem = null;
     }
-    return result;
+    return res;
   };
-  var UndoManager = class extends Observable {
+  var UndoManager = class extends ObservableV2 {
     /**
-     * @param {AbstractType<any>|Array<AbstractType<any>>} typeScope Accepts either a single type, or an array of types
+     * @param {Doc|AbstractType<any>|Array<AbstractType<any>>} typeScope Limits the scope of the UndoManager. If this is set to a ydoc instance, all changes on that ydoc will be undone. If set to a specific type, only changes on that type or its children will be undone. Also accepts an array of types.
      * @param {UndoManagerOptions} options
      */
     constructor(typeScope, {
@@ -4662,11 +4832,12 @@ var wp;
       ignoreRemoteMapChanges = false,
       doc: doc2 = (
         /** @type {Doc} */
-        isArray(typeScope) ? typeScope[0].doc : typeScope.doc
+        isArray(typeScope) ? typeScope[0].doc : typeScope instanceof Doc ? typeScope : typeScope.doc
       )
     } = {}) {
       super();
       this.scope = [];
+      this.doc = doc2;
       this.addToScope(typeScope);
       this.deleteFilter = deleteFilter;
       trackedOrigins.add(this);
@@ -4676,12 +4847,15 @@ var wp;
       this.redoStack = [];
       this.undoing = false;
       this.redoing = false;
-      this.doc = doc2;
+      this.currStackItem = null;
       this.lastChange = 0;
       this.ignoreRemoteMapChanges = ignoreRemoteMapChanges;
       this.captureTimeout = captureTimeout;
       this.afterTransactionHandler = (transaction) => {
-        if (!this.captureTransaction(transaction) || !this.scope.some((type) => transaction.changedParentTypes.has(type)) || !this.trackedOrigins.has(transaction.origin) && (!transaction.origin || !this.trackedOrigins.has(transaction.origin.constructor))) {
+        if (!this.captureTransaction(transaction) || !this.scope.some((type) => transaction.changedParentTypes.has(
+          /** @type {AbstractType<any>} */
+          type
+        ) || type === this.doc) || !this.trackedOrigins.has(transaction.origin) && (!transaction.origin || !this.trackedOrigins.has(transaction.origin.constructor))) {
           return;
         }
         const undoing = this.undoing;
@@ -4718,7 +4892,11 @@ var wp;
           transaction.deleteSet,
           /** @param {Item|GC} item */
           (item) => {
-            if (item instanceof Item && this.scope.some((type) => isParentOf(type, item))) {
+            if (item instanceof Item && this.scope.some((type) => type === transaction.doc || isParentOf(
+              /** @type {AbstractType<any>} */
+              type,
+              item
+            ))) {
               keepItem(item, true);
             }
           }
@@ -4736,12 +4914,17 @@ var wp;
       });
     }
     /**
-     * @param {Array<AbstractType<any>> | AbstractType<any>} ytypes
+     * Extend the scope.
+     *
+     * @param {Array<AbstractType<any> | Doc> | AbstractType<any> | Doc} ytypes
      */
     addToScope(ytypes) {
+      const tmpSet = new Set(this.scope);
       ytypes = isArray(ytypes) ? ytypes : [ytypes];
       ytypes.forEach((ytype) => {
-        if (this.scope.every((yt) => yt !== ytype)) {
+        if (!tmpSet.has(ytype)) {
+          tmpSet.add(ytype);
+          if (ytype instanceof AbstractType ? ytype.doc !== this.doc : ytype !== this.doc) warn("[yjs#509] Not same Y.Doc");
           this.scope.push(ytype);
         }
       });
@@ -4955,14 +5138,14 @@ var wp;
     const updateDecoder = new LazyStructReader(new YDecoder(createDecoder(update)), false);
     let curr = updateDecoder.curr;
     if (curr !== null) {
-      let size = 0;
+      let size2 = 0;
       let currClient = curr.id.client;
       let stopCounting = curr.id.clock !== 0;
       let currClock = stopCounting ? 0 : curr.id.clock + curr.length;
       for (; curr !== null; curr = updateDecoder.next()) {
         if (currClient !== curr.id.client) {
           if (currClock !== 0) {
-            size++;
+            size2++;
             writeVarUint(encoder.restEncoder, currClient);
             writeVarUint(encoder.restEncoder, currClock);
           }
@@ -4978,12 +5161,12 @@ var wp;
         }
       }
       if (currClock !== 0) {
-        size++;
+        size2++;
         writeVarUint(encoder.restEncoder, currClient);
         writeVarUint(encoder.restEncoder, currClock);
       }
       const enc = createEncoder();
-      writeVarUint(enc, size);
+      writeVarUint(enc, size2);
       writeBinaryEncoder(enc, encoder.restEncoder);
       encoder.restEncoder = enc;
       return encoder.toUint8Array();
@@ -5378,7 +5561,7 @@ var wp;
       return isDeleted(this.transaction.deleteSet, struct.id);
     }
     /**
-     * @type {Map<string, { action: 'add' | 'update' | 'delete', oldValue: any, newValue: any }>}
+     * @type {Map<string, { action: 'add' | 'update' | 'delete', oldValue: any }>}
      */
     get keys() {
       if (this._keys === null) {
@@ -5546,8 +5729,8 @@ var wp;
           child._item.parent._start
         );
         while (c !== child._item && c !== null) {
-          if (!c.deleted) {
-            i++;
+          if (!c.deleted && c.countable) {
+            i += c.length;
           }
           c = c.right;
         }
@@ -5557,6 +5740,9 @@ var wp;
       child._item.parent;
     }
     return path;
+  };
+  var warnPrematureAccess = () => {
+    warn("Invalid access: Add Yjs type to a document before reading data.");
   };
   var maxSearchMarker = 80;
   var globalSearchMarkerTimestamp = 0;
@@ -5659,6 +5845,7 @@ var wp;
     }
   };
   var getTypeChildren = (t) => {
+    t.doc ?? warnPrematureAccess();
     let s = t._start;
     const arr = [];
     while (s) {
@@ -5721,6 +5908,10 @@ var wp;
       throw methodUnimplemented();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {AbstractType<EventType>}
      */
     clone() {
@@ -5793,6 +5984,7 @@ var wp;
     }
   };
   var typeListSlice = (type, start, end) => {
+    type.doc ?? warnPrematureAccess();
     if (start < 0) {
       start = type._length + start;
     }
@@ -5820,6 +6012,7 @@ var wp;
     return cs;
   };
   var typeListToArray = (type) => {
+    type.doc ?? warnPrematureAccess();
     const cs = [];
     let n = type._start;
     while (n !== null) {
@@ -5850,6 +6043,7 @@ var wp;
   var typeListForEach = (type, f) => {
     let index = 0;
     let n = type._start;
+    type.doc ?? warnPrematureAccess();
     while (n !== null) {
       if (n.countable && !n.deleted) {
         const c = n.content.getContent();
@@ -5902,6 +6096,7 @@ var wp;
     };
   };
   var typeListGet = (type, index) => {
+    type.doc ?? warnPrematureAccess();
     const marker = findMarker(type, index);
     let n = type._start;
     if (marker !== null) {
@@ -5974,10 +6169,10 @@ var wp;
     });
     packJsonContent();
   };
-  var lengthExceeded = create3("Length exceeded!");
+  var lengthExceeded = () => create3("Length exceeded!");
   var typeListInsertGenerics = (transaction, parent, index, content) => {
     if (index > parent._length) {
-      throw lengthExceeded;
+      throw lengthExceeded();
     }
     if (index === 0) {
       if (parent._searchMarker) {
@@ -6053,7 +6248,7 @@ var wp;
       n = n.right;
     }
     if (length3 > 0) {
-      throw lengthExceeded;
+      throw lengthExceeded();
     }
     if (parent._searchMarker) {
       updateMarkerChanges(
@@ -6084,6 +6279,8 @@ var wp;
         case Boolean:
         case Array:
         case String:
+        case Date:
+        case BigInt:
           content = new ContentAny([value]);
           break;
         case Uint8Array:
@@ -6109,11 +6306,13 @@ var wp;
     new Item(createID(ownClientId, getState(doc2.store, ownClientId)), left, left && left.lastId, null, null, parent, key, content).integrate(transaction, 0);
   };
   var typeMapGet = (parent, key) => {
+    parent.doc ?? warnPrematureAccess();
     const val = parent._map.get(key);
     return val !== void 0 && !val.deleted ? val.content.getContent()[val.length - 1] : void 0;
   };
   var typeMapGetAll = (parent) => {
     const res = {};
+    parent.doc ?? warnPrematureAccess();
     parent._map.forEach((value, key) => {
       if (!value.deleted) {
         res[key] = value.content.getContent()[value.length - 1];
@@ -6122,6 +6321,7 @@ var wp;
     return res;
   };
   var typeMapHas = (parent, key) => {
+    parent.doc ?? warnPrematureAccess();
     const val = parent._map.get(key);
     return val !== void 0 && !val.deleted;
   };
@@ -6132,20 +6332,28 @@ var wp;
     }
     return v !== null && isVisible(v, snapshot2) ? v.content.getContent()[v.length - 1] : void 0;
   };
-  var createMapIterator = (map2) => iteratorFilter(
-    map2.entries(),
-    /** @param {any} entry */
-    (entry) => !entry[1].deleted
-  );
+  var typeMapGetAllSnapshot = (parent, snapshot2) => {
+    const res = {};
+    parent._map.forEach((value, key) => {
+      let v = value;
+      while (v !== null && (!snapshot2.sv.has(v.id.client) || v.id.clock >= (snapshot2.sv.get(v.id.client) || 0))) {
+        v = v.left;
+      }
+      if (v !== null && isVisible(v, snapshot2)) {
+        res[key] = v.content.getContent()[v.length - 1];
+      }
+    });
+    return res;
+  };
+  var createMapIterator = (type) => {
+    type.doc ?? warnPrematureAccess();
+    return iteratorFilter(
+      type._map.entries(),
+      /** @param {any} entry */
+      (entry) => !entry[1].deleted
+    );
+  };
   var YArrayEvent = class extends YEvent {
-    /**
-     * @param {YArray<T>} yarray The changed type
-     * @param {Transaction} transaction The transaction object
-     */
-    constructor(yarray, transaction) {
-      super(yarray, transaction);
-      this._transaction = transaction;
-    }
   };
   var YArray = class _YArray extends AbstractType {
     constructor() {
@@ -6190,6 +6398,10 @@ var wp;
       return new _YArray();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YArray<T>}
      */
     clone() {
@@ -6203,7 +6415,8 @@ var wp;
       return arr;
     }
     get length() {
-      return this._prelimContent === null ? this._length : this._prelimContent.length;
+      this.doc ?? warnPrematureAccess();
+      return this._length;
     }
     /**
      * Creates YArrayEvent and calls observers.
@@ -6268,9 +6481,9 @@ var wp;
       }
     }
     /**
-     * Preppends content to this YArray.
+     * Prepends content to this YArray.
      *
-     * @param {Array<T>} content Array of content to preppend.
+     * @param {Array<T>} content Array of content to prepend.
      */
     unshift(content) {
       this.insert(0, content);
@@ -6308,7 +6521,8 @@ var wp;
       return typeListToArray(this);
     }
     /**
-     * Transforms this YArray to a JavaScript Array.
+     * Returns a portion of this YArray into a JavaScript Array selected
+     * from start to end (end not included).
      *
      * @param {number} [start]
      * @param {number} [end]
@@ -6342,7 +6556,7 @@ var wp;
       );
     }
     /**
-     * Executes a provided function once on overy element of this YArray.
+     * Executes a provided function once on every element of this YArray.
      *
      * @param {function(T,number,YArray<T>):void} f A function to execute on every element of this YArray.
      */
@@ -6412,6 +6626,10 @@ var wp;
       return new _YMap();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YMap<MapType>}
      */
     clone() {
@@ -6439,6 +6657,7 @@ var wp;
      * @return {Object<string,any>}
      */
     toJSON() {
+      this.doc ?? warnPrematureAccess();
       const map2 = {};
       this._map.forEach((item, key) => {
         if (!item.deleted) {
@@ -6454,7 +6673,7 @@ var wp;
      * @return {number}
      */
     get size() {
-      return [...createMapIterator(this._map)].length;
+      return [...createMapIterator(this)].length;
     }
     /**
      * Returns the keys for each element in the YMap Type.
@@ -6463,7 +6682,7 @@ var wp;
      */
     keys() {
       return iteratorMap(
-        createMapIterator(this._map),
+        createMapIterator(this),
         /** @param {any} v */
         (v) => v[0]
       );
@@ -6471,11 +6690,11 @@ var wp;
     /**
      * Returns the values for each element in the YMap Type.
      *
-     * @return {IterableIterator<any>}
+     * @return {IterableIterator<MapType>}
      */
     values() {
       return iteratorMap(
-        createMapIterator(this._map),
+        createMapIterator(this),
         /** @param {any} v */
         (v) => v[1].content.getContent()[v[1].length - 1]
       );
@@ -6483,13 +6702,16 @@ var wp;
     /**
      * Returns an Iterator of [key, value] pairs
      *
-     * @return {IterableIterator<any>}
+     * @return {IterableIterator<[string, MapType]>}
      */
     entries() {
       return iteratorMap(
-        createMapIterator(this._map),
+        createMapIterator(this),
         /** @param {any} v */
-        (v) => [v[0], v[1].content.getContent()[v[1].length - 1]]
+        (v) => (
+          /** @type {any} */
+          [v[0], v[1].content.getContent()[v[1].length - 1]]
+        )
       );
     }
     /**
@@ -6498,6 +6720,7 @@ var wp;
      * @param {function(MapType,string,YMap<MapType>):void} f A function to execute on every element of this YArray.
      */
     forEach(f) {
+      this.doc ?? warnPrematureAccess();
       this._map.forEach((item, key) => {
         if (!item.deleted) {
           f(item.content.getContent()[item.length - 1], key, this);
@@ -6507,7 +6730,7 @@ var wp;
     /**
      * Returns an Iterator of [key, value] pairs
      *
-     * @return {IterableIterator<any>}
+     * @return {IterableIterator<[string, MapType]>}
      */
     [Symbol.iterator]() {
       return this.entries();
@@ -6661,9 +6884,9 @@ var wp;
     }
     return pos;
   };
-  var findPosition = (transaction, parent, index) => {
+  var findPosition = (transaction, parent, index, useSearchMarker) => {
     const currentAttributes = /* @__PURE__ */ new Map();
-    const marker = findMarker(parent, index);
+    const marker = useSearchMarker ? findMarker(parent, index) : null;
     if (marker) {
       const pos = new ItemTextListPosition(marker.p.left, marker.p, marker.index, currentAttributes);
       return findNextPosition(transaction, pos, index - marker.index);
@@ -6716,7 +6939,7 @@ var wp;
         attributes[
           /** @type {ContentFormat} */
           currPos.right.content.key
-        ] || null,
+        ] ?? null,
         /** @type {ContentFormat} */
         currPos.right.content.value
       )) ;
@@ -6732,7 +6955,7 @@ var wp;
     const negatedAttributes = /* @__PURE__ */ new Map();
     for (const key in attributes) {
       const val = attributes[key];
-      const currentVal = currPos.currentAttributes.get(key) || null;
+      const currentVal = currPos.currentAttributes.get(key) ?? null;
       if (!equalAttrs(currentVal, val)) {
         negatedAttributes.set(key, currentVal);
         const { left, right } = currPos;
@@ -6845,11 +7068,11 @@ var wp;
               /** @type {ContentFormat} */
               content
             );
-            const startAttrValue = startAttributes.get(key) || null;
+            const startAttrValue = startAttributes.get(key) ?? null;
             if (endFormats.get(key) !== content || startAttrValue === value) {
               start.delete(transaction);
               cleanups++;
-              if (!reachedCurr && (currAttributes.get(key) || null) === value && startAttrValue !== value) {
+              if (!reachedCurr && (currAttributes.get(key) ?? null) === value && startAttrValue !== value) {
                 if (startAttrValue === null) {
                   currAttributes.delete(key);
                 } else {
@@ -7165,12 +7388,12 @@ var wp;
                 );
                 if (this.adds(item)) {
                   if (!this.deletes(item)) {
-                    const curVal = currentAttributes.get(key) || null;
+                    const curVal = currentAttributes.get(key) ?? null;
                     if (!equalAttrs(curVal, value)) {
                       if (action === "retain") {
                         addOp();
                       }
-                      if (equalAttrs(value, oldAttributes.get(key) || null)) {
+                      if (equalAttrs(value, oldAttributes.get(key) ?? null)) {
                         delete attributes[key];
                       } else {
                         attributes[key] = value;
@@ -7181,7 +7404,7 @@ var wp;
                   }
                 } else if (this.deletes(item)) {
                   oldAttributes.set(key, value);
-                  const curVal = currentAttributes.get(key) || null;
+                  const curVal = currentAttributes.get(key) ?? null;
                   if (!equalAttrs(curVal, value)) {
                     if (action === "retain") {
                       addOp();
@@ -7255,6 +7478,7 @@ var wp;
      * @type {number}
      */
     get length() {
+      this.doc ?? warnPrematureAccess();
       return this._length;
     }
     /**
@@ -7274,6 +7498,10 @@ var wp;
       return new _YText();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YText}
      */
     clone() {
@@ -7301,6 +7529,7 @@ var wp;
      * @public
      */
     toString() {
+      this.doc ?? warnPrematureAccess();
       let str = "";
       let n = this._start;
       while (n !== null) {
@@ -7324,7 +7553,7 @@ var wp;
     /**
      * Apply a {@link Delta} on this shared YText type.
      *
-     * @param {any} delta The changes to apply on this element.
+     * @param {Array<any>} delta The changes to apply on this element.
      * @param {object}  opts
      * @param {boolean} [opts.sanitize] Sanitize input delta. Removes ending newlines if set to true.
      *
@@ -7364,6 +7593,7 @@ var wp;
      * @public
      */
     toDelta(snapshot2, prevSnapshot, computeYChange) {
+      this.doc ?? warnPrematureAccess();
       const ops = [];
       const currentAttributes = /* @__PURE__ */ new Map();
       const doc2 = (
@@ -7479,7 +7709,7 @@ var wp;
       const y = this.doc;
       if (y !== null) {
         transact(y, (transaction) => {
-          const pos = findPosition(transaction, this, index);
+          const pos = findPosition(transaction, this, index, !attributes);
           if (!attributes) {
             attributes = {};
             pos.currentAttributes.forEach((v, k) => {
@@ -7497,20 +7727,20 @@ var wp;
      *
      * @param {number} index The index to insert the embed at.
      * @param {Object | AbstractType<any>} embed The Object that represents the embed.
-     * @param {TextAttributes} attributes Attribute information to apply on the
+     * @param {TextAttributes} [attributes] Attribute information to apply on the
      *                                    embed
      *
      * @public
      */
-    insertEmbed(index, embed, attributes = {}) {
+    insertEmbed(index, embed, attributes) {
       const y = this.doc;
       if (y !== null) {
         transact(y, (transaction) => {
-          const pos = findPosition(transaction, this, index);
-          insertText(transaction, this, pos, embed, attributes);
+          const pos = findPosition(transaction, this, index, !attributes);
+          insertText(transaction, this, pos, embed, attributes || {});
         });
       } else {
-        this._pending.push(() => this.insertEmbed(index, embed, attributes));
+        this._pending.push(() => this.insertEmbed(index, embed, attributes || {}));
       }
     }
     /**
@@ -7528,7 +7758,7 @@ var wp;
       const y = this.doc;
       if (y !== null) {
         transact(y, (transaction) => {
-          deleteText(transaction, findPosition(transaction, this, index), length3);
+          deleteText(transaction, findPosition(transaction, this, index, true), length3);
         });
       } else {
         this._pending.push(() => this.delete(index, length3));
@@ -7551,7 +7781,7 @@ var wp;
       const y = this.doc;
       if (y !== null) {
         transact(y, (transaction) => {
-          const pos = findPosition(transaction, this, index);
+          const pos = findPosition(transaction, this, index, false);
           if (pos.right === null) {
             return;
           }
@@ -7646,6 +7876,7 @@ var wp;
       this._currentNode = /** @type {Item} */
       root._start;
       this._firstCall = true;
+      root.doc ?? warnPrematureAccess();
     }
     [Symbol.iterator]() {
       return this;
@@ -7669,8 +7900,9 @@ var wp;
             n = type._start;
           } else {
             while (n !== null) {
-              if (n.right !== null) {
-                n = n.right;
+              const nxt = n.next;
+              if (nxt !== null) {
+                n = nxt;
                 break;
               } else if (n.parent === this._root) {
                 n = null;
@@ -7731,6 +7963,10 @@ var wp;
       return new _YXmlFragment();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YXmlFragment}
      */
     clone() {
@@ -7739,6 +7975,7 @@ var wp;
       return el;
     }
     get length() {
+      this.doc ?? warnPrematureAccess();
       return this._prelimContent === null ? this._length : this._prelimContent.length;
     }
     /**
@@ -7928,9 +8165,9 @@ var wp;
       this.insert(this.length, content);
     }
     /**
-     * Preppends content to this YArray.
+     * Prepends content to this YArray.
      *
-     * @param {Array<YXmlElement|YXmlText>} content Array of content to preppend.
+     * @param {Array<YXmlElement|YXmlText>} content Array of content to prepend.
      */
     unshift(content) {
       this.insert(0, content);
@@ -7945,7 +8182,8 @@ var wp;
       return typeListGet(this, index);
     }
     /**
-     * Transforms this YArray to a JavaScript Array.
+     * Returns a portion of this YXmlFragment into a JavaScript Array selected
+     * from start to end (end not included).
      *
      * @param {number} [start]
      * @param {number} [end]
@@ -7955,7 +8193,7 @@ var wp;
       return typeListSlice(this, start, end);
     }
     /**
-     * Executes a provided function on once on overy child element.
+     * Executes a provided function on once on every child element.
      *
      * @param {function(YXmlElement|YXmlText,number, typeof self):void} f A function to execute on every element of this YArray.
      */
@@ -8030,17 +8268,23 @@ var wp;
       return new _YXmlElement(this.nodeName);
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YXmlElement<KV>}
      */
     clone() {
       const el = new _YXmlElement(this.nodeName);
       const attrs = this.getAttributes();
       forEach(attrs, (value, key) => {
-        if (typeof value === "string") {
-          el.setAttribute(key, value);
-        }
+        el.setAttribute(
+          key,
+          /** @type {any} */
+          value
+        );
       });
-      el.insert(0, this.toArray().map((item) => item instanceof AbstractType ? item.clone() : item));
+      el.insert(0, this.toArray().map((v) => v instanceof AbstractType ? v.clone() : v));
       return el;
     }
     /**
@@ -8138,14 +8382,15 @@ var wp;
     /**
      * Returns all attribute name/value pairs in a JSON Object.
      *
+     * @param {Snapshot} [snapshot]
      * @return {{ [Key in Extract<keyof KV,string>]?: KV[Key]}} A JSON Object that describes the attributes.
      *
      * @public
      */
-    getAttributes() {
+    getAttributes(snapshot2) {
       return (
         /** @type {any} */
-        typeMapGetAll(this)
+        snapshot2 ? typeMapGetAllSnapshot(this, snapshot2) : typeMapGetAll(this)
       );
     }
     /**
@@ -8199,7 +8444,7 @@ var wp;
      * @param {YXmlElement|YXmlText|YXmlFragment} target The target on which the event is created.
      * @param {Set<string|null>} subs The set of changed attributes. `null` is included if the
      *                   child list changed.
-     * @param {Transaction} transaction The transaction instance with wich the
+     * @param {Transaction} transaction The transaction instance with which the
      *                                  change was created.
      */
     constructor(target, subs, transaction) {
@@ -8230,6 +8475,10 @@ var wp;
       return new _YXmlHook(this.hookName);
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YXmlHook}
      */
     clone() {
@@ -8309,6 +8558,10 @@ var wp;
       return new _YXmlText();
     }
     /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
      * @return {YXmlText}
      */
     clone() {
@@ -8401,7 +8654,7 @@ var wp;
      * This method is already assuming that `this.id.clock + this.length === this.id.clock`.
      * Also this method does *not* remove right from StructStore!
      * @param {AbstractStruct} right
-     * @return {boolean} wether this merged with right
+     * @return {boolean} whether this merged with right
      */
     mergeWith(right) {
       return false;
@@ -8984,12 +9237,14 @@ var wp;
     }
     return new ContentJSON(cs);
   };
+  var isDevMode = getVariable("node_env") === "development";
   var ContentAny = class _ContentAny {
     /**
      * @param {Array<any>} arr
      */
     constructor(arr) {
       this.arr = arr;
+      isDevMode && deepFreeze(arr);
     }
     /**
      * @return {number}
@@ -9528,13 +9783,11 @@ var wp;
       }
       if (this.left && this.left.constructor === GC || this.right && this.right.constructor === GC) {
         this.parent = null;
-      }
-      if (!this.parent) {
+      } else if (!this.parent) {
         if (this.left && this.left.constructor === _Item) {
           this.parent = this.left.parent;
           this.parentSub = this.left.parentSub;
-        }
-        if (this.right && this.right.constructor === _Item) {
+        } else if (this.right && this.right.constructor === _Item) {
           this.parent = this.right.parent;
           this.parentSub = this.right.parentSub;
         }
@@ -10895,9 +11148,14 @@ var wp;
     recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
     recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
   }
+  function pseudoRandomID() {
+    return Math.floor(Math.random() * 1e9);
+  }
   function serializeCrdtDoc(crdtDoc) {
     return JSON.stringify({
-      document: toBase64(encodeStateAsUpdateV2(crdtDoc))
+      document: toBase64(encodeStateAsUpdateV2(crdtDoc)),
+      updateId: pseudoRandomID()
+      // helps with debugging
     });
   }
   function deserializeCrdtDoc(serializedCrdtDoc) {
@@ -10909,7 +11167,7 @@ var wp;
       const ydoc = createYjsDoc(docMeta);
       const yupdate = fromBase64(document2);
       applyUpdateV2(ydoc, yupdate);
-      ydoc.clientID = Math.floor(Math.random() * 1e9);
+      ydoc.clientID = pseudoRandomID();
       return ydoc;
     } catch (e) {
       return null;
@@ -11027,6 +11285,11 @@ var wp;
   var AwarenessState = class extends AwarenessWithEqualityChecks {
     /** CUSTOM PROPERTIES */
     /**
+     * Whether the setUp method has been called, to avoid running it multiple
+     * times.
+     */
+    hasSetupRun = false;
+    /**
      * We keep track of all seen states during the current session for two reasons:
      *
      * 1. So that we can represent recently disconnected users in our UI, even
@@ -11052,9 +11315,18 @@ var wp;
     throttleTimeouts = /* @__PURE__ */ new Map();
     /** CUSTOM METHODS */
     /**
-     * Set up the awareness state.
+     * Set up the awareness state. This method is idempotent and will only run
+     * once. Subclasses should override `onSetUp()` instead of this method to
+     * add their own setup logic.
+     *
+     * This is defined as a readonly arrow function property to prevent
+     * subclasses from overriding it.
      */
-    setUp() {
+    setUp = () => {
+      if (this.hasSetupRun) {
+        return;
+      }
+      this.hasSetupRun = true;
       this.on(
         "change",
         ({ added, removed, updated }) => {
@@ -11074,7 +11346,8 @@ var wp;
           this.updateSubscribers();
         }
       );
-    }
+      this.onSetUp();
+    };
     /**
      * Get the most recent state from the last processed change event.
      *
@@ -11203,9 +11476,6 @@ var wp;
   // packages/sync/build-module/providers/index.mjs
   var import_hooks = __toESM(require_hooks(), 1);
   var providerCreators = null;
-  function getDefaultProviderCreators() {
-    return [];
-  }
   function isProviderCreator(creator) {
     return "function" === typeof creator;
   }
@@ -11215,7 +11485,8 @@ var wp;
     }
     const filteredProviderCreators = (0, import_hooks.applyFilters)(
       "sync.providers",
-      getDefaultProviderCreators()
+      []
+      // Replace with `getDefaultProviderCreators()` to enable sync
     );
     if (!Array.isArray(filteredProviderCreators)) {
       providerCreators = [];
@@ -11492,6 +11763,13 @@ var wp;
        */
       hasRedo() {
         return yUndoManager.canRedo();
+      },
+      /**
+       * Stop capturing changes into the current undo item.
+       * The next change will create a new undo item.
+       */
+      stopCapturing() {
+        yUndoManager.stopCapturing();
       }
     };
   }
@@ -11570,7 +11848,7 @@ var wp;
             ydoc,
             awareness
           });
-          provider.on("status", handlers.onStateChange);
+          provider.on("sync-connection-status", handlers.onStateChange);
           return provider;
         })
       );
@@ -11629,7 +11907,7 @@ var wp;
             objectId: null,
             ydoc
           });
-          provider.on("status", handlers.onStateChange);
+          provider.on("sync-connection-status", handlers.onStateChange);
           return provider;
         })
       );
@@ -11637,14 +11915,7 @@ var wp;
     }
     function unloadEntity(objectType, objectId) {
       entityStates.get(getEntityId(objectType, objectId))?.unload();
-      updateCRDTDoc(
-        objectType,
-        null,
-        {},
-        origin,
-        true
-        /* isSave */
-      );
+      updateCRDTDoc(objectType, null, {}, origin, { isSave: true });
     }
     function getEntityId(objectType, objectId) {
       return `${objectType}_${objectId}`;
@@ -11705,12 +11976,16 @@ var wp;
         handlers.saveRecord();
       }, LOCAL_SYNC_MANAGER_ORIGIN);
     }
-    function updateCRDTDoc(objectType, objectId, changes, origin2, isSave = false) {
+    function updateCRDTDoc(objectType, objectId, changes, origin2, options = {}) {
+      const { isSave = false, isNewUndoLevel = false } = options;
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
       const collectionState = collectionStates.get(objectType);
       if (entityState) {
         const { syncConfig, ydoc } = entityState;
+        if (isNewUndoLevel && undoManager) {
+          undoManager.stopCapturing?.();
+        }
         ydoc.transact(() => {
           syncConfig.applyChangesToCRDTDoc(ydoc, changes);
           if (isSave) {

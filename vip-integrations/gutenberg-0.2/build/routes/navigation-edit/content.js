@@ -264,10 +264,12 @@ var import_components5 = __toESM(require_components());
 import { useEditorAssets } from "@wordpress/lazy-editor";
 
 // routes/navigation-edit/editor/style.scss
-var css = `.navigation-edit-editor__hidden-blocks {
-  display: none;
-}`;
-document.head.appendChild(document.createElement("style")).appendChild(document.createTextNode(css));
+if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='023c02af3d']")) {
+  const style = document.createElement("style");
+  style.setAttribute("data-wp-hash", "023c02af3d");
+  style.appendChild(document.createTextNode(".navigation-edit-editor__hidden-blocks{display:none}"));
+  document.head.appendChild(style);
+}
 
 // routes/navigation-edit/editor/content.tsx
 var import_block_editor2 = __toESM(require_block_editor());

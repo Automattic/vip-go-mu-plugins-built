@@ -2101,9 +2101,6 @@ return array(
 			'postType'
 		),
 		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'showPostTitle' => array(
 				'type' => 'boolean',
 				'default' => true
@@ -2144,6 +2141,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -4947,13 +4945,161 @@ return array(
 			)
 		)
 	),
+	'playlist' => array(
+		'$schema' => 'https://schemas.wp.org/trunk/block.json',
+		'apiVersion' => 3,
+		'__experimental' => true,
+		'name' => 'core/playlist',
+		'title' => 'Playlist',
+		'category' => 'media',
+		'description' => 'Embed a simple playlist.',
+		'keywords' => array(
+			'music',
+			'sound'
+		),
+		'textdomain' => 'default',
+		'allowedBlocks' => array(
+			'core/playlist-track'
+		),
+		'attributes' => array(
+			'currentTrack' => array(
+				'type' => 'string'
+			),
+			'type' => array(
+				'type' => 'string',
+				'default' => 'audio'
+			),
+			'order' => array(
+				'type' => 'string',
+				'default' => 'asc'
+			),
+			'showTracklist' => array(
+				'type' => 'boolean',
+				'default' => true
+			),
+			'showImages' => array(
+				'type' => 'boolean',
+				'default' => true
+			),
+			'showArtists' => array(
+				'type' => 'boolean',
+				'default' => true
+			),
+			'showNumbers' => array(
+				'type' => 'boolean',
+				'default' => true
+			),
+			'caption' => array(
+				'type' => 'string'
+			)
+		),
+		'providesContext' => array(
+			'showArtists' => 'showArtists',
+			'currentTrack' => 'currentTrack'
+		),
+		'supports' => array(
+			'anchor' => true,
+			'align' => true,
+			'color' => array(
+				'gradients' => true,
+				'link' => true,
+				'__experimentalDefaultControls' => array(
+					'background' => true,
+					'text' => true
+				)
+			),
+			'__experimentalBorder' => array(
+				'color' => true,
+				'radius' => true,
+				'style' => true,
+				'width' => true,
+				'__experimentalDefaultControls' => array(
+					'color' => true,
+					'radius' => true,
+					'style' => true,
+					'width' => true
+				)
+			),
+			'interactivity' => true,
+			'spacing' => array(
+				'margin' => true,
+				'padding' => true
+			)
+		),
+		'editorStyle' => 'wp-block-playlist-editor',
+		'style' => 'wp-block-playlist'
+	),
+	'playlist-track' => array(
+		'$schema' => 'https://schemas.wp.org/trunk/block.json',
+		'apiVersion' => 3,
+		'__experimental' => true,
+		'name' => 'core/playlist-track',
+		'title' => 'Playlist track',
+		'category' => 'media',
+		'parent' => array(
+			'core/playlist'
+		),
+		'description' => 'Playlist track.',
+		'keywords' => array(
+			'music',
+			'sound'
+		),
+		'textdomain' => 'default',
+		'usesContext' => array(
+			'showArtists',
+			'currentTrack'
+		),
+		'attributes' => array(
+			'blob' => array(
+				'type' => 'string',
+				'role' => 'local'
+			),
+			'id' => array(
+				'type' => 'number'
+			),
+			'uniqueId' => array(
+				'type' => 'string'
+			),
+			'src' => array(
+				'type' => 'string'
+			),
+			'type' => array(
+				'type' => 'string',
+				'default' => 'audio'
+			),
+			'album' => array(
+				'type' => 'string'
+			),
+			'artist' => array(
+				'type' => 'string'
+			),
+			'image' => array(
+				'type' => 'string'
+			),
+			'length' => array(
+				'type' => 'string'
+			),
+			'title' => array(
+				'type' => 'string'
+			)
+		),
+		'supports' => array(
+			'html' => false,
+			'interactivity' => array(
+				'clientNavigation' => true
+			),
+			'reusable' => false
+		),
+		'editorStyle' => 'wp-block-playlist-track-editor',
+		'style' => 'wp-block-playlist-track'
+	),
 	'post-author' => array(
 		'$schema' => 'https://schemas.wp.org/trunk/block.json',
 		'apiVersion' => 3,
 		'name' => 'core/post-author',
-		'title' => 'Author',
+		'title' => 'Author (deprecated)',
 		'category' => 'theme',
-		'description' => 'Display post author details such as name, avatar, and bio.',
+		'description' => 'This block is deprecated. Please use the Avatar block, the Author Name block, and the Author Biography block instead.',
 		'textdomain' => 'default',
 		'attributes' => array(
 			'textAlign' => array(
@@ -4990,6 +5136,7 @@ return array(
 			'queryId'
 		),
 		'supports' => array(
+			'inserter' => false,
 			'anchor' => true,
 			'html' => false,
 			'spacing' => array(
@@ -5052,11 +5199,6 @@ return array(
 		'category' => 'theme',
 		'description' => 'The author biography.',
 		'textdomain' => 'default',
-		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			)
-		),
 		'usesContext' => array(
 			'postType',
 			'postId'
@@ -5081,6 +5223,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,

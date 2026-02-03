@@ -64,21 +64,36 @@ var import_data3 = __toESM(require_data());
 var import_core_data = __toESM(require_core_data());
 var import_i18n = __toESM(require_i18n());
 
-// packages/views/build-module/preference-keys.mjs
-function generatePreferenceKey(kind, name, slug) {
-  return `dataviews-${kind}-${name}-${slug}`;
-}
-
 // packages/views/build-module/use-view.mjs
 var import_element = __toESM(require_element(), 1);
 var import_data = __toESM(require_data(), 1);
 var import_preferences = __toESM(require_preferences(), 1);
 
+// packages/views/build-module/preference-keys.mjs
+function generatePreferenceKey(kind, name, slug) {
+  return `dataviews-${kind}-${name}-${slug}`;
+}
+
+// packages/views/build-module/filter-utils.mjs
+function mergeActiveFilters(view, activeFilters) {
+  if (!activeFilters || activeFilters.length === 0) {
+    return view;
+  }
+  const activeFields = new Set(activeFilters.map((f) => f.field));
+  const preserved = (view.filters ?? []).filter(
+    (f) => !activeFields.has(f.field)
+  );
+  return {
+    ...view,
+    filters: [...preserved, ...activeFilters]
+  };
+}
+
 // packages/views/build-module/load-view.mjs
 var import_data2 = __toESM(require_data(), 1);
 var import_preferences2 = __toESM(require_preferences(), 1);
 async function loadView(config) {
-  const { kind, name, slug, defaultView, queryParams } = config;
+  const { kind, name, slug, defaultView, activeFilters, queryParams } = config;
   const preferenceKey = generatePreferenceKey(kind, name, slug);
   const persistedView = (0, import_data2.select)(import_preferences2.store).get(
     "core/views",
@@ -87,11 +102,14 @@ async function loadView(config) {
   const baseView = persistedView ?? defaultView;
   const page = queryParams?.page ?? 1;
   const search = queryParams?.search ?? "";
-  return {
-    ...baseView,
-    page,
-    search
-  };
+  return mergeActiveFilters(
+    {
+      ...baseView,
+      page,
+      search
+    },
+    activeFilters
+  );
 }
 
 // routes/template-list/view-utils.ts
@@ -108,40 +126,29 @@ var DEFAULT_VIEW = {
   mediaField: "preview",
   filters: []
 };
-function getDefaultView(activeView) {
-  if (activeView === "user") {
-    return {
-      ...DEFAULT_VIEW,
-      sort: {
-        field: "date",
-        direction: "desc"
-      },
-      fields: ["author", "active", "slug", "theme"]
-    };
+var DEFAULT_VIEW_LEGACY = {
+  ...DEFAULT_VIEW,
+  fields: ["author"]
+};
+function getActiveFiltersForTab(activeView) {
+  if (activeView === "active" || activeView === "user") {
+    return [];
   }
-  if (activeView === "active" || !activeView) {
-    return {
-      ...DEFAULT_VIEW
-    };
-  }
-  return {
-    ...DEFAULT_VIEW,
-    filters: [
-      {
-        field: "author",
-        operator: "isAny",
-        value: [activeView]
-      }
-    ]
-  };
+  return [
+    {
+      field: "author",
+      operator: "isAny",
+      value: [activeView]
+    }
+  ];
 }
 async function ensureView(activeView, search) {
-  const defaultView = getDefaultView(activeView);
   return loadView({
     kind: "postType",
     name: "wp_template",
-    slug: activeView ?? "active",
-    defaultView,
+    slug: "default-new",
+    defaultView: DEFAULT_VIEW,
+    activeFilters: getActiveFiltersForTab(activeView ?? "active"),
     queryParams: search
   });
 }

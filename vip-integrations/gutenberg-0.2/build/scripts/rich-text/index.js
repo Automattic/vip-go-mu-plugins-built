@@ -966,7 +966,7 @@ var wp;
     }
     return { startContainer, startOffset, endContainer, endOffset };
   }
-  function collapseWhiteSpace(element, isRoot = true) {
+  function collapseWhiteSpace(element, isRoot = true, hasPrecedingSpace = false, hasTrailingSpace = false) {
     const clone = element.cloneNode(true);
     clone.normalize();
     Array.from(clone.childNodes).forEach((node, i2, nodes) => {
@@ -978,14 +978,25 @@ var wp;
         if (newNodeValue.indexOf("  ") !== -1) {
           newNodeValue = newNodeValue.replace(/ {2,}/g, " ");
         }
-        if (i2 === 0 && newNodeValue.startsWith(" ")) {
+        if (i2 === 0 && newNodeValue.startsWith(" ") && (isRoot || hasPrecedingSpace)) {
           newNodeValue = newNodeValue.slice(1);
-        } else if (isRoot && i2 === nodes.length - 1 && newNodeValue.endsWith(" ")) {
+        }
+        if (i2 === nodes.length - 1 && newNodeValue.endsWith(" ") && (isRoot || hasTrailingSpace)) {
           newNodeValue = newNodeValue.slice(0, -1);
         }
         node.nodeValue = newNodeValue;
       } else if (node.nodeType === node.ELEMENT_NODE) {
-        node.replaceWith(collapseWhiteSpace(node, false));
+        const { previousSibling, nextSibling } = node;
+        const prevHasSpace = previousSibling?.textContent.endsWith(" ");
+        const nextHasSpace = nextSibling?.textContent.startsWith(" ");
+        node.replaceWith(
+          collapseWhiteSpace(
+            node,
+            false,
+            previousSibling ? prevHasSpace : isRoot || hasPrecedingSpace,
+            nextSibling ? nextHasSpace : isRoot || hasTrailingSpace
+          )
+        );
       }
     });
     return clone;

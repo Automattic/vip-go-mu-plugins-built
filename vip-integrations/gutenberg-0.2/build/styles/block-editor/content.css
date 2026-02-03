@@ -503,6 +503,16 @@ _::-webkit-full-page-media, _:future, :root [data-has-multi-selection=true] .blo
   cursor: grabbing;
 }
 
+.is-preview-mode {
+  pointer-events: none;
+}
+.is-preview-mode .block-editor-block-list__block {
+  pointer-events: auto;
+}
+.is-preview-mode .block-editor-block-list__block > *:not(.block-editor-block-list__block) {
+  pointer-events: none;
+}
+
 .is-vertical .block-list-appender {
   width: 24px;
   margin-right: auto;

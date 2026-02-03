@@ -838,7 +838,7 @@ var wp;
           "wp_block",
           blocks[0].attributes.ref
         );
-        const isUnsyncedPattern = window?.__experimentalContentOnlyPatternInsertion && blocks.length === 1 && blocks?.[0]?.attributes?.metadata?.patternName;
+        const isUnsyncedPattern = blocks.length === 1 && blocks?.[0]?.attributes?.metadata?.patternName;
         const _canConvert = (
           // Hide when this is already a pattern.
           !isUnsyncedPattern && !isSyncedPattern && // Hide when patterns are disabled.
@@ -956,7 +956,7 @@ var wp;
         const { canRemoveBlock, getBlock } = select(import_block_editor4.store);
         const { canUser } = select(import_core_data7.store);
         const block = getBlock(clientId);
-        const _isUnsyncedPattern = window?.__experimentalContentOnlyPatternInsertion && !!block?.attributes?.metadata?.patternName;
+        const _isUnsyncedPattern = !!block?.attributes?.metadata?.patternName;
         const _isSyncedPattern = !!block && (0, import_blocks3.isReusableBlock)(block) && !!canUser("update", {
           kind: "postType",
           name: "wp_block",

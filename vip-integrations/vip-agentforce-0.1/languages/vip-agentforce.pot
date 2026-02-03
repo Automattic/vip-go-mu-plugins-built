@@ -1,0 +1,227 @@
+# Copyright (C) 2025 WordPress VIP
+# This file is distributed under the GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+msgid ""
+msgstr ""
+"Project-Id-Version: VIP Agentforce 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vip-agentforce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-16T12:07:23+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vip-agentforce\n"
+
+#. Plugin Name of the plugin
+#: vip-agentforce.php
+msgid "VIP Agentforce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vip-agentforce.php
+msgid "https://github.com/Automattic/vip-agentforce"
+msgstr ""
+
+#. Description of the plugin
+#: vip-agentforce.php
+msgid "WordPress integration for Salesforce Agentforce on VIP"
+msgstr ""
+
+#. Author of the plugin
+#: vip-agentforce.php
+msgid "WordPress VIP"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:50
+msgid "Settings Saved"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:72
+msgid "iubenda Purpose ID cannot be empty."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:84
+msgid "iubenda Purpose ID must be between 1 and 5."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:135
+#: modules/cmp/class-settings-page.php:298
+#: modules/cmp/class-settings-page.php:483
+msgid "Enable log"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:142
+msgid "Bottom right"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:143
+msgid "Bottom left"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:165
+#: modules/cmp/class-settings-page.php:423
+msgid "Agentforce Settings"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:166
+msgid "Agentforce"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:221
+msgid "General Settings"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:228
+#: modules/cmp/class-settings-page.php:438
+msgid "Salesforce SDK URL"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:236
+#: modules/cmp/class-settings-page.php:444
+msgid "Consent Type"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:244
+#: modules/cmp/class-settings-page.php:450
+msgid "OneTrust Group ID"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:252
+#: modules/cmp/class-settings-page.php:454
+msgid "Cookiebot Category"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:260
+#: modules/cmp/class-settings-page.php:458
+msgid "iubenda Purpose ID"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:268
+#: modules/cmp/class-settings-page.php:465
+msgid "Agent UI"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:275
+#: modules/cmp/class-settings-page.php:469
+msgid "Alignment"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:283
+#: modules/cmp/class-settings-page.php:473
+msgid "Custom CSS (optional)"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:291
+#: modules/cmp/class-settings-page.php:480
+msgid "Debug"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:311
+msgid "Activated"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:311
+msgid "Not activated"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:334
+msgid "Not configured"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:347
+msgid "CookieYes"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:350
+msgid "CookieBot"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:353
+msgid "OneTrust"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:356
+msgid "iubenda"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:359
+msgid "Custom"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:388
+msgid "Enter the Cookiebot category (e.g., necessary, preferences, statistics, marketing)."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:389
+msgid "To see all available categories for your site, open browser console and run:"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:404
+msgid "Enter the iubenda Purpose ID (1-5)."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:405
+msgid "See the"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:406
+msgid "iubenda documentation"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:407
+msgid "To see all available purpose IDs for your site, open browser console and run:"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:419
+msgid "Enabled"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:419
+msgid "Disabled"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:431
+msgid "General"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:434
+msgid "SDK activation"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:440
+msgid "This is read-only and comes from the VIP integration configuration."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:466
+msgid "Alignment and custom styles for the launcher/widget."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:491
+msgid "Save Changes"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:493
+msgid "Changes apply on next page load."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:499
+msgid "Documentation"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:521
+msgid "Status"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:524
+msgid "PHP version"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:528
+msgid "Xdebug"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:532
+msgid "Site URL"
+msgstr ""

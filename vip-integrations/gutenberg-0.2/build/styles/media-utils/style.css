@@ -242,3 +242,10 @@
 .media-upload-modal .dataviews-footer {
   padding-bottom: 8px;
 }
+.media-upload-modal .media-upload-modal__snackbar {
+  position: absolute;
+  left: 0;
+  bottom: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}

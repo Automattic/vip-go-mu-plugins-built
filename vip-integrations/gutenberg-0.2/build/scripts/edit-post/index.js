@@ -2296,6 +2296,7 @@ var wp;
   // packages/edit-post/build-module/components/layout/index.mjs
   var import_jsx_runtime23 = __toESM(require_jsx_runtime(), 1);
   var { useCommandContext } = unlock(import_commands2.privateApis);
+  var { useDrag } = unlock(import_components9.privateApis);
   var { Editor, FullscreenMode } = unlock(import_editor18.privateApis);
   var { BlockKeyboardShortcuts } = unlock(import_block_library.privateApis);
   var DESIGN_POST_TYPES = [
@@ -2349,9 +2350,8 @@ var wp;
       ];
     }, []);
     const { set: setPreference } = (0, import_data25.useDispatch)(import_preferences10.store);
-    const metaBoxesMainRef = (0, import_element12.useRef)();
     const isShort = (0, import_compose3.useMediaQuery)("(max-height: 549px)");
-    const [{ min, max }, setHeightConstraints] = (0, import_element12.useState)(() => ({}));
+    const [{ min = 0, max }, setHeightConstraints] = (0, import_element12.useState)(() => ({}));
     const effectSizeConstraints = (0, import_compose3.useRefEffect)((node) => {
       const container = node.closest(
         ".interface-interface-skeleton__content"
@@ -2381,14 +2381,23 @@ var wp;
       }
       return () => observer.disconnect();
     }, []);
-    const resizeDataRef = (0, import_element12.useRef)({});
+    const metaBoxesMainRef = (0, import_element12.useRef)();
+    const setMainRefs = (0, import_compose3.useMergeRefs)([
+      metaBoxesMainRef,
+      effectSizeConstraints
+    ]);
     const separatorRef = (0, import_element12.useRef)();
     const separatorHelpId = (0, import_element12.useId)();
-    const applyHeight = (candidateHeight = "auto", isPersistent, isInstant) => {
+    const heightRef = (0, import_element12.useRef)();
+    const applyHeight = (candidateHeight = "auto", isPersistent) => {
+      let styleHeight;
       if (candidateHeight === "auto") {
         isPersistent = false;
+        styleHeight = candidateHeight;
       } else {
         candidateHeight = Math.min(max, Math.max(min, candidateHeight));
+        heightRef.current = candidateHeight;
+        styleHeight = `${candidateHeight}px`;
       }
       if (isPersistent) {
         setPreference(
@@ -2396,29 +2405,46 @@ var wp;
           "metaBoxesMainOpenHeight",
           candidateHeight
         );
-      } else if (!isShort) {
-        separatorRef.current.ariaValueNow = getAriaValueNow(candidateHeight);
-      }
-      if (isInstant) {
-        metaBoxesMainRef.current.updateSize({
-          height: candidateHeight,
-          // Oddly, when the event that triggered this was not from the mouse (e.g. keydown),
-          // if `width` is left unspecified a subsequent drag gesture applies a fixed
-          // width and the pane fails to widen/narrow with parent width changes from
-          // sidebars opening/closing or window resizes.
-          width: "auto"
-        });
+      } else {
+        metaBoxesMainRef.current.style.height = styleHeight;
+        if (!isShort) {
+          separatorRef.current.ariaValueNow = getAriaValueNow(candidateHeight);
+        }
       }
     };
-    const getRenderValues = (0, import_compose3.useEvent)(() => ({ isOpen, openHeight, min }));
-    (0, import_element12.useEffect)(() => {
-      const fresh = getRenderValues();
-      if (fresh.min !== void 0 && metaBoxesMainRef.current) {
-        const usedOpenHeight = isShort ? "auto" : fresh.openHeight;
-        const usedHeight = fresh.isOpen ? usedOpenHeight : fresh.min;
-        applyHeight(usedHeight, false, true);
-      }
-    }, [isShort]);
+    const bindDragGesture = useDrag(
+      ({ movement, first, last, memo, tap, args }) => {
+        const pane = metaBoxesMainRef.current;
+        const [, yMovement] = movement;
+        if (first) {
+          pane.classList.add("is-resizing");
+          let fromHeight = heightRef.current ?? pane.offsetHeight;
+          if (isOpen) {
+            if (fromHeight > max) {
+              fromHeight = max;
+            }
+          } else {
+            fromHeight = min;
+          }
+          applyHeight(fromHeight - yMovement);
+          return { fromHeight };
+        }
+        if (!first && !last && !tap) {
+          applyHeight(memo.fromHeight - yMovement);
+          return memo;
+        }
+        pane.classList.remove("is-resizing");
+        if (tap) {
+          const [onTap] = args;
+          onTap?.();
+          return;
+        }
+        const nextIsOpen = heightRef.current > min;
+        persistIsOpen(nextIsOpen);
+        applyHeight(heightRef.current, nextIsOpen);
+      },
+      { keyboardDisplacement: 20, filterTaps: true }
+    );
     if (!hasAnyVisible) {
       return;
     }
@@ -2437,38 +2463,22 @@ var wp;
       return contents;
     }
     const isAutoHeight = openHeight === void 0;
+    const usedOpenHeight = isShort ? "auto" : openHeight;
+    const usedHeight = isOpen ? usedOpenHeight : min;
     const getAriaValueNow = (height) => Math.round((height - min) / (max - min) * 100);
-    const usedAriaValueNow = max === void 0 || isAutoHeight ? 50 : getAriaValueNow(openHeight);
+    const usedAriaValueNow = max === void 0 || isAutoHeight ? 50 : getAriaValueNow(usedHeight);
     const persistIsOpen = (to = !isOpen) => setPreference("core/edit-post", "metaBoxesMainIsOpen", to);
-    const onSeparatorKeyDown = (event) => {
-      const delta = { ArrowUp: 20, ArrowDown: -20 }[event.key];
-      if (delta) {
-        const pane = metaBoxesMainRef.current.resizable;
-        const fromHeight = isAutoHeight ? pane.offsetHeight : openHeight;
-        const nextHeight = delta + fromHeight;
-        applyHeight(nextHeight, true, true);
-        persistIsOpen(nextHeight > min);
-        event.preventDefault();
-      }
-    };
     const paneLabel = (0, import_i18n14.__)("Meta Boxes");
     const toggle = /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(
       "button",
       {
         "aria-expanded": isOpen,
         onClick: ({ detail }) => {
-          const { isToggleInferred } = resizeDataRef.current;
-          if (isShort || !detail || isToggleInferred) {
+          if (isShort || !detail) {
             persistIsOpen();
-            const usedOpenHeight = isShort ? "auto" : openHeight;
-            const usedHeight = isOpen ? min : usedOpenHeight;
-            applyHeight(usedHeight, false, true);
           }
         },
-        ...isShort && {
-          onMouseDown: (event) => event.stopPropagation(),
-          onTouchStart: (event) => event.stopPropagation()
-        },
+        ...!isShort && bindDragGesture(persistIsOpen),
         children: [
           paneLabel,
           /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(import_components9.Icon, { icon: isOpen ? chevron_up_default : chevron_down_default })
@@ -2484,74 +2494,32 @@ var wp;
           "aria-valuenow": usedAriaValueNow,
           "aria-label": (0, import_i18n14.__)("Drag to resize"),
           "aria-describedby": separatorHelpId,
-          onKeyDown: onSeparatorKeyDown
+          ...bindDragGesture()
         }
       ) }),
       /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(import_components9.VisuallyHidden, { id: separatorHelpId, children: (0, import_i18n14.__)(
-        "Use up and down arrow keys to resize the meta box panel."
+        "Use up and down arrow keys to resize the meta box pane."
       ) })
     ] });
-    const paneProps = (
-      /** @type {Parameters<typeof ResizableBox>[0]} */
+    return /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(
+      navigable_region_default,
       {
-        as: navigable_region_default,
-        ref: metaBoxesMainRef,
-        className: "edit-post-meta-boxes-main",
-        defaultSize: { height: isOpen ? openHeight : 0 },
-        minHeight: min,
-        maxHeight: max,
-        enable: { top: true },
-        handleClasses: { top: "edit-post-meta-boxes-main__presenter" },
-        handleComponent: {
-          top: /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(import_jsx_runtime23.Fragment, { children: [
+        "aria-label": paneLabel,
+        ref: setMainRefs,
+        className: clsx_default(
+          "edit-post-meta-boxes-main",
+          !isShort && "is-resizable"
+        ),
+        style: { height: usedHeight },
+        children: [
+          /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)("div", { className: "edit-post-meta-boxes-main__presenter", children: [
             toggle,
             separator
-          ] })
-        },
-        // Avoids hiccups while dragging over objects like iframes and ensures that
-        // the event to end the drag is captured by the target (resize handle)
-        // whether or not it’s under the pointer.
-        onPointerDown: ({ pointerId, target }) => {
-          if (separatorRef.current?.parentElement.contains(target)) {
-            target.setPointerCapture(pointerId);
-          }
-        },
-        onResizeStart: ({ timeStamp }, direction, elementRef) => {
-          if (isAutoHeight) {
-            applyHeight(elementRef.offsetHeight, false, true);
-          }
-          elementRef.classList.add("is-resizing");
-          resizeDataRef.current = { timeStamp, maxDelta: 0 };
-        },
-        onResize: (event, direction, elementRef, delta) => {
-          const { maxDelta } = resizeDataRef.current;
-          const newDelta = Math.abs(delta.height);
-          resizeDataRef.current.maxDelta = Math.max(maxDelta, newDelta);
-          applyHeight(metaBoxesMainRef.current.state.height);
-        },
-        onResizeStop: (event, direction, elementRef) => {
-          elementRef.classList.remove("is-resizing");
-          const duration = event.timeStamp - resizeDataRef.current.timeStamp;
-          const wasSeparator = event.target === separatorRef.current;
-          const { maxDelta } = resizeDataRef.current;
-          const isToggleInferred = maxDelta < 1 || duration < 144 && maxDelta < 5;
-          if (isShort || !wasSeparator && isToggleInferred) {
-            resizeDataRef.current.isToggleInferred = true;
-          } else {
-            const { height } = metaBoxesMainRef.current.state;
-            const nextIsOpen = height > min;
-            persistIsOpen(nextIsOpen);
-            if (nextIsOpen) {
-              applyHeight(height, true);
-            }
-          }
-        }
+          ] }),
+          contents
+        ]
       }
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime23.jsxs)(import_components9.ResizableBox, { "aria-label": paneLabel, ...paneProps, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime23.jsx)("meta", { ref: effectSizeConstraints }),
-      contents
-    ] });
   }
   function Layout({
     postId: initialPostId,
