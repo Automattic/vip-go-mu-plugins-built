@@ -2314,11 +2314,12 @@ var wp;
       }
       const currentValue = createRecord();
       const { start, activeFormats: oldActiveFormats = [] } = record.current;
+      const clearFormats = !isCollapsed(record.current) && currentValue.start <= start;
       const change = updateFormats({
         value: currentValue,
         start,
         end: currentValue.start,
-        formats: oldActiveFormats
+        formats: clearFormats ? [] : oldActiveFormats
       });
       handleChange(change);
     }

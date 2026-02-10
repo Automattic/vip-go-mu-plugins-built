@@ -350,6 +350,13 @@ var wp;
     }
   });
 
+  // package-external:@wordpress/sync
+  var require_sync = __commonJS({
+    "package-external:@wordpress/sync"(exports, module) {
+      module.exports = window.wp.sync;
+    }
+  });
+
   // package-external:@wordpress/block-editor
   var require_block_editor = __commonJS({
     "package-external:@wordpress/block-editor"(exports, module) {
@@ -357,10 +364,10 @@ var wp;
     }
   });
 
-  // package-external:@wordpress/sync
-  var require_sync = __commonJS({
-    "package-external:@wordpress/sync"(exports, module) {
-      module.exports = window.wp.sync;
+  // package-external:@wordpress/private-apis
+  var require_private_apis = __commonJS({
+    "package-external:@wordpress/private-apis"(exports, module) {
+      module.exports = window.wp.privateApis;
     }
   });
 
@@ -375,13 +382,6 @@ var wp;
   var require_deprecated = __commonJS({
     "package-external:@wordpress/deprecated"(exports, module) {
       module.exports = window.wp.deprecated;
-    }
-  });
-
-  // package-external:@wordpress/private-apis
-  var require_private_apis = __commonJS({
-    "package-external:@wordpress/private-apis"(exports, module) {
-      module.exports = window.wp.privateApis;
     }
   });
 
@@ -426,13 +426,14 @@ var wp;
     fetchBlockPatterns: () => fetchBlockPatterns,
     privateApis: () => privateApis,
     store: () => store,
-    useActiveUsers: () => useActiveUsers,
+    useActiveCollaborators: () => useActiveCollaborators,
     useEntityBlockEditor: () => useEntityBlockEditor,
     useEntityId: () => useEntityId,
     useEntityProp: () => useEntityProp,
     useEntityRecord: () => useEntityRecord,
     useEntityRecords: () => useEntityRecords,
     useGetAbsolutePositionIndex: () => useGetAbsolutePositionIndex,
+    useGetDebugData: () => useGetDebugData,
     useIsDisconnected: () => useIsDisconnected,
     useResourcePermissions: () => use_resource_permissions_default
   });
@@ -858,15 +859,19 @@ var wp;
 
   // packages/core-data/build-module/awareness/post-editor-awareness.mjs
   var import_data3 = __toESM(require_data(), 1);
+  var import_sync7 = __toESM(require_sync(), 1);
   var import_block_editor = __toESM(require_block_editor(), 1);
-  var import_sync6 = __toESM(require_sync(), 1);
 
   // packages/core-data/build-module/awareness/base-awareness.mjs
   var import_data2 = __toESM(require_data(), 1);
-  var import_sync = __toESM(require_sync(), 1);
 
-  // packages/core-data/build-module/name.mjs
-  var STORE_NAME = "core";
+  // packages/core-data/build-module/awareness/config.mjs
+  var AWARENESS_CURSOR_UPDATE_THROTTLE_IN_MS = 100;
+  var LOCAL_CURSOR_UPDATE_DEBOUNCE_IN_MS = 5;
+  var REMOVAL_DELAY_IN_MS = 5e3;
+
+  // packages/core-data/build-module/awareness/typed-awareness.mjs
+  var import_sync = __toESM(require_sync(), 1);
 
   // packages/core-data/build-module/awareness/utils.mjs
   var COLOR_PALETTE = [
@@ -890,7 +895,7 @@ var wp;
   function generateRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-  function getNewUserColor(existingColors) {
+  function getNewCollaboratorColor(existingColors) {
     const availableColors = COLOR_PALETTE.filter(
       (color) => !existingColors.includes(color)
     );
@@ -934,73 +939,376 @@ var wp;
     }
     return browserName;
   }
-  function areUserInfosEqual(userInfo1, userInfo2) {
-    if (!userInfo1 || !userInfo2) {
-      return userInfo1 === userInfo2;
-    }
-    if (Object.keys(userInfo1).length !== Object.keys(userInfo2).length) {
+  function areMapsEqual(map1, map2, comparatorFn) {
+    if (map1.size !== map2.size) {
       return false;
     }
-    return Object.entries(userInfo1).every(([key, value]) => {
-      return value === userInfo2[key];
+    for (const [key, value1] of map1.entries()) {
+      if (!map2.has(key)) {
+        return false;
+      }
+      if (!comparatorFn(value1, map2.get(key))) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function areCollaboratorInfosEqual(collaboratorInfo1, collaboratorInfo2) {
+    if (!collaboratorInfo1 || !collaboratorInfo2) {
+      return collaboratorInfo1 === collaboratorInfo2;
+    }
+    if (Object.keys(collaboratorInfo1).length !== Object.keys(collaboratorInfo2).length) {
+      return false;
+    }
+    return Object.entries(collaboratorInfo1).every(([key, value]) => {
+      return value === collaboratorInfo2[key];
     });
   }
-  function generateUserInfo(currentUser2, existingColors) {
+  function generateCollaboratorInfo(currentCollaborator, existingColors) {
     return {
-      ...currentUser2,
+      ...currentCollaborator,
       browserType: getBrowserName(),
-      color: getNewUserColor(existingColors),
+      color: getNewCollaboratorColor(existingColors),
       enteredAt: Date.now()
     };
   }
+  function getRecordValue(obj, key) {
+    if ("object" === typeof obj && null !== obj && key in obj) {
+      return obj[key];
+    }
+    return null;
+  }
+  function getTypedKeys(obj) {
+    return Object.keys(obj);
+  }
 
-  // packages/core-data/build-module/awareness/base-awareness.mjs
-  var BaseAwarenessState = class extends import_sync.AwarenessState {
-    onSetUp() {
-      void this.setCurrentUserInfo();
+  // packages/core-data/build-module/awareness/typed-awareness.mjs
+  var TypedAwareness = class extends import_sync.Awareness {
+    /**
+     * Get the states from an awareness document.
+     */
+    getStates() {
+      return super.getStates();
     }
     /**
-     * Set the current user info in the local state.
+     * Get a local state field from an awareness document.
+     * @param field
      */
-    async setCurrentUserInfo() {
+    getLocalStateField(field) {
+      const state = this.getLocalState();
+      return getRecordValue(state, field);
+    }
+    /**
+     * Set a local state field on an awareness document.
+     * @param field
+     * @param value
+     */
+    setLocalStateField(field, value) {
+      super.setLocalStateField(field, value);
+    }
+  };
+
+  // packages/core-data/build-module/awareness/awareness-state.mjs
+  var AwarenessWithEqualityChecks = class extends TypedAwareness {
+    /** OVERRIDDEN METHODS */
+    /**
+     * Set a local state field on an awareness document. Calling this method may
+     * trigger rerenders of any subscribed components.
+     *
+     * Equality checks are provided by the abstract `equalityFieldChecks` property.
+     * @param field - The field to set.
+     * @param value - The value to set.
+     */
+    setLocalStateField(field, value) {
+      if (this.isFieldEqual(
+        field,
+        value,
+        this.getLocalStateField(field) ?? void 0
+      )) {
+        return;
+      }
+      super.setLocalStateField(field, value);
+    }
+    /** CUSTOM METHODS */
+    /**
+     * Determine if a field value has changed using the provided equality checks.
+     * @param field  - The field to check.
+     * @param value1 - The first value to compare.
+     * @param value2 - The second value to compare.
+     */
+    isFieldEqual(field, value1, value2) {
+      if (["clientId", "isConnected", "isMe"].includes(field)) {
+        return value1 === value2;
+      }
+      if (field in this.equalityFieldChecks) {
+        const fn = this.equalityFieldChecks[field];
+        return fn(value1, value2);
+      }
+      throw new Error(
+        `No equality check implemented for awareness state field "${field.toString()}".`
+      );
+    }
+    /**
+     * Determine if two states are equal by comparing each field using the
+     * provided equality checks.
+     * @param state1 - The first state to compare.
+     * @param state2 - The second state to compare.
+     */
+    isStateEqual(state1, state2) {
+      return [
+        .../* @__PURE__ */ new Set([
+          ...getTypedKeys(state1),
+          ...getTypedKeys(state2)
+        ])
+      ].every((field) => {
+        const value1 = state1[field];
+        const value2 = state2[field];
+        return this.isFieldEqual(field, value1, value2);
+      });
+    }
+  };
+  var AwarenessState = class extends AwarenessWithEqualityChecks {
+    /** CUSTOM PROPERTIES */
+    /**
+     * Whether the setUp method has been called, to avoid running it multiple
+     * times.
+     */
+    hasSetupRun = false;
+    /**
+     * We keep track of all seen states during the current session for two reasons:
+     *
+     * 1. So that we can represent recently disconnected collaborators in our UI, even
+     *    after they have been removed from the awareness document.
+     * 2. So that we can provide debug information about all collaborators seen during
+     *    the session.
+     */
+    disconnectedCollaborators = /* @__PURE__ */ new Set();
+    seenStates = /* @__PURE__ */ new Map();
+    /**
+     * Hold a snapshot of the previous awareness state allows us to compare the
+     * state values and avoid unnecessary updates to subscribers.
+     */
+    previousSnapshot = /* @__PURE__ */ new Map();
+    stateSubscriptions = [];
+    /**
+     * In some cases, we may want to throttle setting local state fields to avoid
+     * overwhelming the awareness document with rapid updates. At the same time, we
+     * want to ensure that when we read our own state locally, we get the latest
+     * value -- even if it hasn't yet been set on the awareness instance.
+     */
+    myThrottledState = {};
+    throttleTimeouts = /* @__PURE__ */ new Map();
+    /** CUSTOM METHODS */
+    /**
+     * Set up the awareness state. This method is idempotent and will only run
+     * once. Subclasses should override `onSetUp()` instead of this method to
+     * add their own setup logic.
+     *
+     * This is defined as a readonly arrow function property to prevent
+     * subclasses from overriding it.
+     */
+    setUp = () => {
+      if (this.hasSetupRun) {
+        return;
+      }
+      this.hasSetupRun = true;
+      this.onSetUp();
+      this.on(
+        "change",
+        ({ added, removed, updated }) => {
+          [...added, ...updated].forEach((id) => {
+            this.disconnectedCollaborators.delete(id);
+          });
+          removed.forEach((id) => {
+            this.disconnectedCollaborators.add(id);
+            setTimeout(() => {
+              this.disconnectedCollaborators.delete(id);
+              this.updateSubscribers(
+                true
+                /* force update */
+              );
+            }, REMOVAL_DELAY_IN_MS);
+          });
+          this.updateSubscribers();
+        }
+      );
+    };
+    /**
+     * Get the most recent state from the last processed change event.
+     *
+     * @return An array of EnhancedState< State >.
+     */
+    getCurrentState() {
+      return Array.from(this.previousSnapshot.values());
+    }
+    /**
+     * Get all seen states in this session to enable debug reporting.
+     */
+    getSeenStates() {
+      return this.seenStates;
+    }
+    /**
+     * Allow external code to subscribe to awareness state changes.
+     * @param callback - The callback to subscribe to.
+     */
+    onStateChange(callback) {
+      this.stateSubscriptions.push(callback);
+      return () => {
+        this.stateSubscriptions = this.stateSubscriptions.filter(
+          (cb) => cb !== callback
+        );
+      };
+    }
+    /**
+     * Set a local state field on an awareness document with throttle. See caveats
+     * of this.setLocalStateField.
+     * @param field - The field to set.
+     * @param value - The value to set.
+     * @param wait  - The wait time in milliseconds.
+     */
+    setThrottledLocalStateField(field, value, wait) {
+      this.setLocalStateField(field, value);
+      this.throttleTimeouts.set(
+        field,
+        setTimeout(() => {
+          this.throttleTimeouts.delete(field);
+          if (this.myThrottledState[field]) {
+            this.setLocalStateField(
+              field,
+              this.myThrottledState[field]
+            );
+            delete this.myThrottledState[field];
+          }
+        }, wait)
+      );
+    }
+    /**
+     * Set the current collaborator's connection status as awareness state.
+     * @param isConnected - The connection status.
+     */
+    setConnectionStatus(isConnected) {
+      if (isConnected) {
+        this.disconnectedCollaborators.delete(this.clientID);
+      } else {
+        this.disconnectedCollaborators.add(this.clientID);
+      }
+      this.updateSubscribers(
+        true
+        /* force update */
+      );
+    }
+    /**
+     * Update all subscribed listeners with the latest awareness state.
+     * @param forceUpdate - Whether to force an update.
+     */
+    updateSubscribers(forceUpdate = false) {
+      if (!this.stateSubscriptions.length) {
+        return;
+      }
       const states = this.getStates();
-      const otherUserColors = Array.from(states.entries()).filter(
-        ([clientId, state]) => state.userInfo && clientId !== this.clientID
-      ).map(([, state]) => state.userInfo.color).filter(Boolean);
+      this.seenStates = new Map([
+        ...this.seenStates.entries(),
+        ...states.entries()
+      ]);
+      const updatedStates = new Map(
+        [...this.disconnectedCollaborators, ...states.keys()].filter((clientId) => {
+          return Object.keys(this.seenStates.get(clientId) ?? {}).length > 0;
+        }).map((clientId) => {
+          const rawState = this.seenStates.get(clientId);
+          const isConnected = !this.disconnectedCollaborators.has(clientId);
+          const isMe = clientId === this.clientID;
+          const myState = isMe ? this.myThrottledState : {};
+          const state = {
+            ...rawState,
+            ...myState,
+            clientId,
+            isConnected,
+            isMe
+          };
+          return [clientId, state];
+        })
+      );
+      if (!forceUpdate) {
+        if (areMapsEqual(
+          this.previousSnapshot,
+          updatedStates,
+          this.isStateEqual.bind(this)
+        )) {
+          return;
+        }
+      }
+      this.previousSnapshot = updatedStates;
+      this.stateSubscriptions.forEach((callback) => {
+        callback(Array.from(updatedStates.values()));
+      });
+    }
+  };
+
+  // packages/core-data/build-module/name.mjs
+  var STORE_NAME = "core";
+
+  // packages/core-data/build-module/awareness/base-awareness.mjs
+  var BaseAwarenessState = class extends AwarenessState {
+    onSetUp() {
+      void this.setCurrentCollaboratorInfo();
+    }
+    /**
+     * Set the current collaborator info in the local state.
+     */
+    async setCurrentCollaboratorInfo() {
+      const states = this.getStates();
+      const otherCollaboratorColors = Array.from(states.entries()).filter(
+        ([clientId, state]) => state.collaboratorInfo && clientId !== this.clientID
+      ).map(([, state]) => state.collaboratorInfo.color).filter(Boolean);
       const currentUser2 = await (0, import_data2.resolveSelect)(STORE_NAME).getCurrentUser();
-      const userInfo = generateUserInfo(currentUser2, otherUserColors);
-      this.setLocalStateField("userInfo", userInfo);
+      const collaboratorInfo = generateCollaboratorInfo(
+        currentUser2,
+        otherCollaboratorColors
+      );
+      this.setLocalStateField("collaboratorInfo", collaboratorInfo);
     }
   };
   var baseEqualityFieldChecks = {
-    userInfo: areUserInfosEqual
+    collaboratorInfo: areCollaboratorInfosEqual
   };
   var BaseAwareness = class extends BaseAwarenessState {
     equalityFieldChecks = baseEqualityFieldChecks;
   };
 
-  // packages/core-data/build-module/awareness/config.mjs
-  var AWARENESS_CURSOR_UPDATE_THROTTLE_IN_MS = 100;
-  var LOCAL_CURSOR_UPDATE_DEBOUNCE_IN_MS = 5;
-
   // packages/core-data/build-module/utils/crdt-user-selections.mjs
   var import_sync5 = __toESM(require_sync(), 1);
 
-  // packages/core-data/build-module/utils/crdt-utils.mjs
-  var import_sync3 = __toESM(require_sync(), 1);
-
   // packages/core-data/build-module/sync.mjs
   var import_sync2 = __toESM(require_sync(), 1);
+
+  // packages/core-data/build-module/lock-unlock.mjs
+  var import_private_apis = __toESM(require_private_apis(), 1);
+  var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
+    "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
+    "@wordpress/core-data"
+  );
+
+  // packages/core-data/build-module/sync.mjs
+  var {
+    createSyncManager,
+    Delta,
+    CRDT_DOC_META_PERSISTENCE_KEY,
+    CRDT_RECORD_MAP_KEY,
+    LOCAL_EDITOR_ORIGIN,
+    LOCAL_SYNC_MANAGER_ORIGIN,
+    WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
+  } = unlock(import_sync2.privateApis);
   var syncManager;
   function getSyncManager() {
     if (syncManager) {
       return syncManager;
     }
-    syncManager = (0, import_sync2.createSyncManager)();
+    syncManager = createSyncManager();
     return syncManager;
   }
 
   // packages/core-data/build-module/utils/crdt-utils.mjs
+  var import_sync3 = __toESM(require_sync(), 1);
   function getRootMap(doc, key) {
     return doc.getMap(key);
   }
@@ -1011,7 +1319,7 @@ var wp;
     return value instanceof import_sync3.Y.Map;
   }
   function findBlockByClientIdInDoc(blockId, ydoc) {
-    const ymap = getRootMap(ydoc, import_sync2.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, CRDT_RECORD_MAP_KEY);
     const blocks = ymap.get("blocks");
     if (!(blocks instanceof import_sync3.Y.Array)) {
       return null;
@@ -1047,7 +1355,7 @@ var wp;
     return SelectionType2;
   })(SelectionType || {});
   function getSelectionState(selectionStart, selectionEnd, yDoc) {
-    const ymap = getRootMap(yDoc, import_sync5.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(yDoc, CRDT_RECORD_MAP_KEY);
     const yBlocks = ymap.get("blocks") ?? new import_sync5.Y.Array();
     const isSelectionEmpty = Object.keys(selectionStart).length === 0;
     const noSelection = {
@@ -1187,15 +1495,14 @@ var wp;
       ...baseEqualityFieldChecks,
       editorState: this.areEditorStatesEqual
     };
-    hasSetup = false;
     onSetUp() {
       super.onSetUp();
-      this.subscribeToUserSelectionChanges();
+      this.subscribeToCollaboratorSelectionChanges();
     }
     /**
-     * Subscribe to user selection changes and update the selection state.
+     * Subscribe to collaborator selection changes and update the selection state.
      */
-    subscribeToUserSelectionChanges() {
+    subscribeToCollaboratorSelectionChanges() {
       const {
         getSelectionStart,
         getSelectionEnd,
@@ -1236,7 +1543,7 @@ var wp;
       });
     }
     /**
-     * Update the entity record with the current user's selection.
+     * Update the entity record with the current collaborator's selection.
      *
      * @param selectionStart  - The start position of the selection.
      * @param selectionEnd    - The end position of the selection.
@@ -1277,7 +1584,7 @@ var wp;
      * @return The absolute position index, or null if not found.
      */
     getAbsolutePositionIndex(selection) {
-      return import_sync6.Y.createAbsolutePositionFromRelativePosition(
+      return import_sync7.Y.createAbsolutePositionFromRelativePosition(
         selection.cursorPosition.relativePosition,
         this.doc
       )?.index ?? null;
@@ -1303,13 +1610,13 @@ var wp;
           value.toJSON()
         ])
       );
-      const userMapData = new Map(
+      const collaboratorMapData = new Map(
         Array.from(this.getSeenStates().entries()).map(
-          ([clientId, userState]) => [
+          ([clientId, collaboratorState]) => [
             String(clientId),
             {
-              name: userState.userInfo.name,
-              wpUserId: userState.userInfo.id
+              name: collaboratorState.collaboratorInfo.name,
+              wpUserId: collaboratorState.collaboratorInfo.id
             }
           ]
         )
@@ -1339,7 +1646,7 @@ var wp;
       return {
         doc: docData,
         clients: serializableClientItems,
-        userMap: Object.fromEntries(userMapData)
+        collaboratorMap: Object.fromEntries(collaboratorMapData)
       };
     }
   };
@@ -1347,7 +1654,7 @@ var wp;
   // packages/core-data/build-module/utils/crdt.mjs
   var import_es63 = __toESM(require_es6(), 1);
   var import_blocks3 = __toESM(require_blocks(), 1);
-  var import_sync10 = __toESM(require_sync(), 1);
+  var import_sync12 = __toESM(require_sync(), 1);
 
   // node_modules/uuid/dist/esm-browser/rng.js
   var getRandomValues;
@@ -1401,7 +1708,7 @@ var wp;
   var import_es62 = __toESM(require_es6(), 1);
   var import_blocks = __toESM(require_blocks(), 1);
   var import_rich_text = __toESM(require_rich_text(), 1);
-  var import_sync7 = __toESM(require_sync(), 1);
+  var import_sync8 = __toESM(require_sync(), 1);
   var serializableBlocksCache = /* @__PURE__ */ new WeakMap();
   function makeBlockAttributesSerializable(attributes) {
     const newAttributes = { ...attributes };
@@ -1441,7 +1748,7 @@ var wp;
     );
   }
   function createNewYAttributeMap(blockName, attributes) {
-    return new import_sync7.Y.Map(
+    return new import_sync8.Y.Map(
       Object.entries(attributes).map(
         ([attributeName, attributeValue]) => {
           return [
@@ -1459,7 +1766,7 @@ var wp;
   function createNewYAttributeValue(blockName, attributeName, attributeValue) {
     const isRichText = isRichTextAttribute(blockName, attributeName);
     if (isRichText) {
-      return new import_sync7.Y.Text(attributeValue?.toString() ?? "");
+      return new import_sync8.Y.Text(attributeValue?.toString() ?? "");
     }
     return attributeValue;
   }
@@ -1475,7 +1782,7 @@ var wp;
               ];
             }
             case "innerBlocks": {
-              const innerBlocks = new import_sync7.Y.Array();
+              const innerBlocks = new import_sync8.Y.Array();
               if (!Array.isArray(value)) {
                 return [key, innerBlocks];
               }
@@ -1579,8 +1886,8 @@ var wp;
           }
           case "innerBlocks": {
             let yInnerBlocks = yblock.get(key);
-            if (!(yInnerBlocks instanceof import_sync7.Y.Array)) {
-              yInnerBlocks = new import_sync7.Y.Array();
+            if (!(yInnerBlocks instanceof import_sync8.Y.Array)) {
+              yInnerBlocks = new import_sync8.Y.Array();
               yblock.set(key, yInnerBlocks);
             }
             mergeCrdtBlocksInternal(
@@ -1620,7 +1927,7 @@ var wp;
         knownClientIds.add(clientId);
       }
       const yInnerBlocks = yblock.get("innerBlocks");
-      if (yInnerBlocks instanceof import_sync7.Y.Array) {
+      if (yInnerBlocks instanceof import_sync8.Y.Array) {
         removeDuplicateClientIds(yInnerBlocks, knownClientIds);
       }
     }
@@ -1641,7 +1948,7 @@ var wp;
   function updateYBlockAttribute(blockName, attributeName, attributeValue, currentAttributes, cursorPosition) {
     const isRichText = isRichTextAttribute(blockName, attributeName);
     const currentAttribute = currentAttributes.get(attributeName);
-    if (isRichText && "string" === typeof attributeValue && currentAttributes.has(attributeName) && currentAttribute instanceof import_sync7.Y.Text) {
+    if (isRichText && "string" === typeof attributeValue && currentAttributes.has(attributeName) && currentAttribute instanceof import_sync8.Y.Text) {
       mergeRichTextUpdate(currentAttribute, attributeValue, cursorPosition);
     } else {
       currentAttributes.set(
@@ -1677,7 +1984,7 @@ var wp;
       attributeName
     );
     if (expectedAttributeType === "rich-text") {
-      return attributeValue instanceof import_sync7.Y.Text;
+      return attributeValue instanceof import_sync8.Y.Text;
     } else if (expectedAttributeType === "string") {
       return typeof attributeValue === "string";
     }
@@ -1689,13 +1996,13 @@ var wp;
   var localDoc;
   function mergeRichTextUpdate(blockYText, updatedValue, cursorPosition) {
     if (!localDoc) {
-      localDoc = new import_sync7.Y.Doc();
+      localDoc = new import_sync8.Y.Doc();
     }
     const localYText = localDoc.getText("temporary-text");
     localYText.delete(0, localYText.length);
     localYText.insert(0, updatedValue);
-    const currentValueAsDelta = new import_sync7.Delta(blockYText.toDelta());
-    const updatedValueAsDelta = new import_sync7.Delta(localYText.toDelta());
+    const currentValueAsDelta = new Delta(blockYText.toDelta());
+    const updatedValueAsDelta = new Delta(localYText.toDelta());
     const deltaDiff = currentValueAsDelta.diffWithCursor(
       updatedValueAsDelta,
       cursorPosition
@@ -1707,10 +2014,10 @@ var wp;
   var import_data4 = __toESM(require_data(), 1);
   var import_block_editor2 = __toESM(require_block_editor(), 1);
   var import_blocks2 = __toESM(require_blocks(), 1);
-  var import_sync9 = __toESM(require_sync(), 1);
+  var import_sync11 = __toESM(require_sync(), 1);
 
   // packages/core-data/build-module/utils/block-selection-history.mjs
-  var import_sync8 = __toESM(require_sync(), 1);
+  var import_sync10 = __toESM(require_sync(), 1);
   var SELECTION_HISTORY_DEFAULT_SIZE = 5;
   var YSelectionType = /* @__PURE__ */ ((YSelectionType2) => {
     YSelectionType2["RelativeSelection"] = "RelativeSelection";
@@ -1757,7 +2064,7 @@ var wp;
     const attributes = block?.get("attributes");
     const attributeKey = selection.attributeKey;
     const changedYText = attributeKey ? attributes?.get(attributeKey) : void 0;
-    const isYText = changedYText instanceof import_sync8.Y.Text;
+    const isYText = changedYText instanceof import_sync10.Y.Text;
     const isFullyDefinedSelection = attributeKey && clientId;
     if (!isYText || !isFullyDefinedSelection) {
       return {
@@ -1766,7 +2073,7 @@ var wp;
       };
     }
     const offset = selection.offset ?? 0;
-    const relativePosition = import_sync8.Y.createRelativePositionFromTypeIndex(
+    const relativePosition = import_sync10.Y.createRelativePositionFromTypeIndex(
       changedYText,
       offset
     );
@@ -1798,7 +2105,7 @@ var wp;
   function convertYSelectionToBlockSelection(ySelection, ydoc) {
     if (ySelection.type === YSelectionType.RelativeSelection) {
       const { relativePosition, attributeKey, clientId } = ySelection;
-      const absolutePosition = import_sync9.Y.createAbsolutePositionFromRelativePosition(
+      const absolutePosition = import_sync11.Y.createAbsolutePositionFromRelativePosition(
         relativePosition,
         ydoc
       );
@@ -1900,10 +2207,10 @@ var wp;
     "title"
   ]);
   var disallowedPostMetaKeys = /* @__PURE__ */ new Set([
-    import_sync2.WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
+    WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
   ]);
   function defaultApplyChangesToCRDTDoc(ydoc, changes) {
-    const ymap = getRootMap(ydoc, import_sync2.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, CRDT_RECORD_MAP_KEY);
     Object.entries(changes).forEach(([key, newValue]) => {
       if ("function" === typeof newValue) {
         return;
@@ -1918,7 +2225,7 @@ var wp;
     });
   }
   function applyPostChangesToCRDTDoc(ydoc, changes, _postType) {
-    const ymap = getRootMap(ydoc, import_sync2.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, CRDT_RECORD_MAP_KEY);
     Object.keys(changes).forEach((key) => {
       if (!allowedPostProperties.has(key)) {
         return;
@@ -1930,8 +2237,8 @@ var wp;
       switch (key) {
         case "blocks": {
           let currentBlocks = ymap.get(key);
-          if (!(currentBlocks instanceof import_sync10.Y.Array)) {
-            currentBlocks = new import_sync10.Y.Array();
+          if (!(currentBlocks instanceof import_sync12.Y.Array)) {
+            currentBlocks = new import_sync12.Y.Array();
             ymap.set(key, currentBlocks);
           }
           const newBlocks = newValue ?? [];
@@ -2001,10 +2308,10 @@ var wp;
     }
   }
   function defaultGetChangesFromCRDTDoc(crdtDoc) {
-    return getRootMap(crdtDoc, import_sync2.CRDT_RECORD_MAP_KEY).toJSON();
+    return getRootMap(crdtDoc, CRDT_RECORD_MAP_KEY).toJSON();
   }
   function getPostChangesFromCRDTDoc(ydoc, editedRecord, _postType) {
-    const ymap = getRootMap(ydoc, import_sync2.CRDT_RECORD_MAP_KEY);
+    const ymap = getRootMap(ydoc, CRDT_RECORD_MAP_KEY);
     let allowedMetaChanges = {};
     const changes = Object.fromEntries(
       Object.entries(ymap.toJSON()).filter(([key, newValue]) => {
@@ -2014,7 +2321,7 @@ var wp;
         const currentValue = editedRecord[key];
         switch (key) {
           case "blocks": {
-            if (ydoc.meta?.get(import_sync2.CRDT_DOC_META_PERSISTENCE_KEY) && editedRecord.content) {
+            if (ydoc.meta?.get(CRDT_DOC_META_PERSISTENCE_KEY) && editedRecord.content) {
               const blocks = ymap.get("blocks");
               return (0, import_blocks3.__unstableSerializeAndClean)(
                 blocks.toJSON()
@@ -2391,7 +2698,7 @@ var wp;
            *
            * @param {import('@wordpress/sync').CRDTDoc}  ydoc
            * @param {import('@wordpress/sync').ObjectID} objectId
-           * @return {import('@wordpress/sync').AwarenessState} AwarenessState instance
+           * @return {import('@wordpress/sync').Awareness} Awareness instance
            */
           createAwareness: (ydoc, objectId) => {
             const kind = "postType";
@@ -3155,13 +3462,6 @@ var wp;
     getUndoManager: () => getUndoManager
   });
   var import_data7 = __toESM(require_data(), 1);
-
-  // packages/core-data/build-module/lock-unlock.mjs
-  var import_private_apis = __toESM(require_private_apis(), 1);
-  var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
-    "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
-    "@wordpress/core-data"
-  );
 
   // packages/core-data/build-module/utils/log-entity-deprecation.mjs
   var import_deprecated = __toESM(require_deprecated(), 1);
@@ -4302,7 +4602,7 @@ var wp;
           objectType,
           objectId,
           editsWithMerges,
-          import_sync2.LOCAL_EDITOR_ORIGIN,
+          LOCAL_EDITOR_ORIGIN,
           { isNewUndoLevel }
         );
       }
@@ -4421,17 +4721,6 @@ var wp;
             ...autosavePost,
             ...record
           };
-          if (true) {
-            if (entityConfig.__unstablePrePersist) {
-              data = {
-                ...data,
-                ...entityConfig.__unstablePrePersist(
-                  persistedRecord,
-                  data
-                )
-              };
-            }
-          }
           data = Object.keys(data).reduce(
             (acc, key) => {
               if ([
@@ -4521,7 +4810,7 @@ var wp;
                 `${kind}/${name}`,
                 recordId,
                 updatedRecord,
-                import_sync2.LOCAL_EDITOR_ORIGIN,
+                LOCAL_EDITOR_ORIGIN,
                 { isSave: true }
               );
             }
@@ -6711,19 +7000,25 @@ var wp;
     return [value, setValue, fullValue];
   }
 
-  // packages/core-data/build-module/hooks/use-post-awareness-state.mjs
+  // packages/core-data/build-module/hooks/use-post-editor-awareness-state.mjs
   var import_element8 = __toESM(require_element(), 1);
   var defaultState = {
-    activeUsers: [],
+    activeCollaborators: [],
     getAbsolutePositionIndex: () => null,
-    isCurrentUserDisconnected: false
+    getDebugData: () => ({
+      doc: {},
+      clients: {},
+      collaboratorMap: {}
+    }),
+    isCurrentCollaboratorDisconnected: false
   };
   function getAwarenessState(awareness, newState) {
-    const activeUsers = newState ?? awareness.getCurrentState();
+    const activeCollaborators = newState ?? awareness.getCurrentState();
     return {
-      activeUsers,
+      activeCollaborators,
       getAbsolutePositionIndex: (selection) => awareness.getAbsolutePositionIndex(selection),
-      isCurrentUserDisconnected: activeUsers.find((user) => user.isMe)?.isConnected === false
+      getDebugData: () => awareness.getDebugData(),
+      isCurrentCollaboratorDisconnected: activeCollaborators.find((collaborator) => collaborator.isMe)?.isConnected === false
     };
   }
   function usePostEditorAwarenessState(postId, postType) {
@@ -6754,21 +7049,25 @@ var wp;
     }, [postId, postType]);
     return state;
   }
-  function useActiveUsers(postId, postType) {
-    return usePostEditorAwarenessState(postId, postType).activeUsers;
+  function useActiveCollaborators(postId, postType) {
+    return usePostEditorAwarenessState(postId, postType).activeCollaborators;
   }
   function useGetAbsolutePositionIndex(postId, postType) {
     return usePostEditorAwarenessState(postId, postType).getAbsolutePositionIndex;
   }
+  function useGetDebugData(postId, postType) {
+    return usePostEditorAwarenessState(postId, postType).getDebugData();
+  }
   function useIsDisconnected(postId, postType) {
-    return usePostEditorAwarenessState(postId, postType).isCurrentUserDisconnected;
+    return usePostEditorAwarenessState(postId, postType).isCurrentCollaboratorDisconnected;
   }
 
   // packages/core-data/build-module/private-apis.mjs
   var privateApis = {};
   lock(privateApis, {
     useEntityRecordsWithPermissions,
-    RECEIVE_INTERMEDIATE_RESULTS
+    RECEIVE_INTERMEDIATE_RESULTS,
+    useActiveCollaborators
   });
 
   // packages/core-data/build-module/index.mjs

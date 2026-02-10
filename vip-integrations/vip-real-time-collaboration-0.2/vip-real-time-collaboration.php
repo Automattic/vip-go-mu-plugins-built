@@ -6,7 +6,7 @@
  * Author: WPVIP
  * Author URI: https://wpvip.com
  * Text Domain: vip-real-time-collaboration
- * Version: 0.2.1
+ * Version: 0.2.2
  * Requires at least: 6.7
  * Requires PHP: 8.2
  */
@@ -34,7 +34,7 @@ if ( ! vip_real_time_collaboration_pre_init() ) {
 define( 'VIP_REAL_TIME_COLLABORATION__LOADED', true );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_ROOT', __FILE__ );
 define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.2.1' );
+define( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_VERSION', '0.2.2' );
 
 // Autoloader
 require_once __DIR__ . '/vendor/autoload.php';

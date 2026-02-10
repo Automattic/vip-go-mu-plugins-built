@@ -75,25 +75,40 @@ function generatePreferenceKey(kind, name, slug) {
 }
 
 // packages/views/build-module/filter-utils.mjs
-function mergeActiveFilters(view, activeFilters) {
-  if (!activeFilters || activeFilters.length === 0) {
+function mergeActiveViewOverrides(view, activeViewOverrides, defaultView) {
+  if (!activeViewOverrides) {
     return view;
   }
-  const activeFields = new Set(activeFilters.map((f) => f.field));
-  const preserved = (view.filters ?? []).filter(
-    (f) => !activeFields.has(f.field)
-  );
-  return {
-    ...view,
-    filters: [...preserved, ...activeFilters]
-  };
+  let result = view;
+  if (activeViewOverrides.filters && activeViewOverrides.filters.length > 0) {
+    const activeFields = new Set(
+      activeViewOverrides.filters.map((f) => f.field)
+    );
+    const preserved = (view.filters ?? []).filter(
+      (f) => !activeFields.has(f.field)
+    );
+    result = {
+      ...result,
+      filters: [...preserved, ...activeViewOverrides.filters]
+    };
+  }
+  if (activeViewOverrides.sort) {
+    const isDefaultSort = defaultView && view.sort?.field === defaultView.sort?.field && view.sort?.direction === defaultView.sort?.direction;
+    if (isDefaultSort) {
+      result = {
+        ...result,
+        sort: activeViewOverrides.sort
+      };
+    }
+  }
+  return result;
 }
 
 // packages/views/build-module/load-view.mjs
 var import_data2 = __toESM(require_data(), 1);
 var import_preferences2 = __toESM(require_preferences(), 1);
 async function loadView(config) {
-  const { kind, name, slug, defaultView, activeFilters, queryParams } = config;
+  const { kind, name, slug, defaultView, activeViewOverrides, queryParams } = config;
   const preferenceKey = generatePreferenceKey(kind, name, slug);
   const persistedView = (0, import_data2.select)(import_preferences2.store).get(
     "core/views",
@@ -102,13 +117,14 @@ async function loadView(config) {
   const baseView = persistedView ?? defaultView;
   const page = queryParams?.page ?? 1;
   const search = queryParams?.search ?? "";
-  return mergeActiveFilters(
+  return mergeActiveViewOverrides(
     {
       ...baseView,
       page,
       search
     },
-    activeFilters
+    activeViewOverrides,
+    defaultView
   );
 }
 
@@ -123,17 +139,19 @@ var DEFAULT_VIEW = {
   titleField: "title",
   mediaField: "preview"
 };
-function getActiveFiltersForTab(area) {
+function getActiveViewOverridesForTab(area) {
   if (area === "all") {
-    return [];
+    return {};
   }
-  return [
-    {
-      field: "area",
-      operator: "is",
-      value: area
-    }
-  ];
+  return {
+    filters: [
+      {
+        field: "area",
+        operator: "is",
+        value: area
+      }
+    ]
+  };
 }
 async function ensureView(area, search) {
   return loadView({
@@ -141,7 +159,7 @@ async function ensureView(area, search) {
     name: "wp_template_part",
     slug: "default-new",
     defaultView: DEFAULT_VIEW,
-    activeFilters: getActiveFiltersForTab(area ?? "all"),
+    activeViewOverrides: getActiveViewOverridesForTab(area ?? "all"),
     queryParams: search
   });
 }

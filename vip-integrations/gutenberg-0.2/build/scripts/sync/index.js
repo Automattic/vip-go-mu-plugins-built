@@ -32,6 +32,27 @@ var wp;
   ));
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
+  // package-external:@wordpress/private-apis
+  var require_private_apis = __commonJS({
+    "package-external:@wordpress/private-apis"(exports, module) {
+      module.exports = window.wp.privateApis;
+    }
+  });
+
+  // package-external:@wordpress/hooks
+  var require_hooks = __commonJS({
+    "package-external:@wordpress/hooks"(exports, module) {
+      module.exports = window.wp.hooks;
+    }
+  });
+
+  // package-external:@wordpress/api-fetch
+  var require_api_fetch = __commonJS({
+    "package-external:@wordpress/api-fetch"(exports, module) {
+      module.exports = window.wp.apiFetch;
+    }
+  });
+
   // node_modules/diff/dist/diff.js
   var require_diff = __commonJS({
     "node_modules/diff/dist/diff.js"(exports, module) {
@@ -1199,28 +1220,13 @@ var wp;
     }
   });
 
-  // package-external:@wordpress/hooks
-  var require_hooks = __commonJS({
-    "package-external:@wordpress/hooks"(exports, module) {
-      module.exports = window.wp.hooks;
-    }
-  });
-
   // packages/sync/build-module/index.mjs
   var index_exports = {};
   __export(index_exports, {
-    AwarenessState: () => AwarenessState,
-    CRDT_DOC_META_PERSISTENCE_KEY: () => CRDT_DOC_META_PERSISTENCE_KEY,
-    CRDT_RECORD_MAP_KEY: () => CRDT_RECORD_MAP_KEY,
-    CRDT_RECORD_METADATA_MAP_KEY: () => CRDT_RECORD_METADATA_MAP_KEY,
-    CRDT_RECORD_METADATA_SAVED_AT_KEY: () => CRDT_RECORD_METADATA_SAVED_AT_KEY,
-    CRDT_RECORD_METADATA_SAVED_BY_KEY: () => CRDT_RECORD_METADATA_SAVED_BY_KEY,
-    Delta: () => Delta_default,
-    LOCAL_EDITOR_ORIGIN: () => LOCAL_EDITOR_ORIGIN,
-    LOCAL_SYNC_MANAGER_ORIGIN: () => LOCAL_SYNC_MANAGER_ORIGIN,
-    WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE: () => WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE,
+    Awareness: () => Awareness,
     Y: () => yjs_exports,
-    createSyncManager: () => createSyncManager
+    YJS_VERSION: () => YJS_VERSION,
+    privateApis: () => privateApis
   });
 
   // node_modules/yjs/dist/yjs.mjs
@@ -10133,6 +10139,1231 @@ var wp;
   }
   glo[importIdentifier] = true;
 
+  // node_modules/y-protocols/awareness.js
+  var outdatedTimeout = 3e4;
+  var Awareness = class extends Observable {
+    /**
+     * @param {Y.Doc} doc
+     */
+    constructor(doc2) {
+      super();
+      this.doc = doc2;
+      this.clientID = doc2.clientID;
+      this.states = /* @__PURE__ */ new Map();
+      this.meta = /* @__PURE__ */ new Map();
+      this._checkInterval = /** @type {any} */
+      setInterval(() => {
+        const now = getUnixTime();
+        if (this.getLocalState() !== null && outdatedTimeout / 2 <= now - /** @type {{lastUpdated:number}} */
+        this.meta.get(this.clientID).lastUpdated) {
+          this.setLocalState(this.getLocalState());
+        }
+        const remove = [];
+        this.meta.forEach((meta, clientid) => {
+          if (clientid !== this.clientID && outdatedTimeout <= now - meta.lastUpdated && this.states.has(clientid)) {
+            remove.push(clientid);
+          }
+        });
+        if (remove.length > 0) {
+          removeAwarenessStates(this, remove, "timeout");
+        }
+      }, floor(outdatedTimeout / 10));
+      doc2.on("destroy", () => {
+        this.destroy();
+      });
+      this.setLocalState({});
+    }
+    destroy() {
+      this.emit("destroy", [this]);
+      this.setLocalState(null);
+      super.destroy();
+      clearInterval(this._checkInterval);
+    }
+    /**
+     * @return {Object<string,any>|null}
+     */
+    getLocalState() {
+      return this.states.get(this.clientID) || null;
+    }
+    /**
+     * @param {Object<string,any>|null} state
+     */
+    setLocalState(state) {
+      const clientID = this.clientID;
+      const currLocalMeta = this.meta.get(clientID);
+      const clock = currLocalMeta === void 0 ? 0 : currLocalMeta.clock + 1;
+      const prevState = this.states.get(clientID);
+      if (state === null) {
+        this.states.delete(clientID);
+      } else {
+        this.states.set(clientID, state);
+      }
+      this.meta.set(clientID, {
+        clock,
+        lastUpdated: getUnixTime()
+      });
+      const added = [];
+      const updated = [];
+      const filteredUpdated = [];
+      const removed = [];
+      if (state === null) {
+        removed.push(clientID);
+      } else if (prevState == null) {
+        if (state != null) {
+          added.push(clientID);
+        }
+      } else {
+        updated.push(clientID);
+        if (!equalityDeep(prevState, state)) {
+          filteredUpdated.push(clientID);
+        }
+      }
+      if (added.length > 0 || filteredUpdated.length > 0 || removed.length > 0) {
+        this.emit("change", [{ added, updated: filteredUpdated, removed }, "local"]);
+      }
+      this.emit("update", [{ added, updated, removed }, "local"]);
+    }
+    /**
+     * @param {string} field
+     * @param {any} value
+     */
+    setLocalStateField(field, value) {
+      const state = this.getLocalState();
+      if (state !== null) {
+        this.setLocalState({
+          ...state,
+          [field]: value
+        });
+      }
+    }
+    /**
+     * @return {Map<number,Object<string,any>>}
+     */
+    getStates() {
+      return this.states;
+    }
+  };
+  var removeAwarenessStates = (awareness, clients, origin2) => {
+    const removed = [];
+    for (let i = 0; i < clients.length; i++) {
+      const clientID = clients[i];
+      if (awareness.states.has(clientID)) {
+        awareness.states.delete(clientID);
+        if (clientID === awareness.clientID) {
+          const curMeta = (
+            /** @type {MetaClientState} */
+            awareness.meta.get(clientID)
+          );
+          awareness.meta.set(clientID, {
+            clock: curMeta.clock + 1,
+            lastUpdated: getUnixTime()
+          });
+        }
+        removed.push(clientID);
+      }
+    }
+    if (removed.length > 0) {
+      awareness.emit("change", [{ added: [], updated: [], removed }, origin2]);
+      awareness.emit("update", [{ added: [], updated: [], removed }, origin2]);
+    }
+  };
+
+  // packages/sync/build-module/config.mjs
+  var CRDT_DOC_VERSION = 1;
+  var CRDT_DOC_META_PERSISTENCE_KEY = "fromPersistence";
+  var CRDT_RECORD_MAP_KEY = "document";
+  var CRDT_RECORD_METADATA_MAP_KEY = "documentMeta";
+  var CRDT_RECORD_METADATA_SAVED_AT_KEY = "savedAt";
+  var CRDT_RECORD_METADATA_SAVED_BY_KEY = "savedBy";
+  var CRDT_STATE_MAP_KEY = "state";
+  var CRDT_STATE_VERSION_KEY = "version";
+  var LOCAL_EDITOR_ORIGIN = "gutenberg";
+  var LOCAL_SYNC_MANAGER_ORIGIN = "syncManager";
+  var WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE = "_crdt_document";
+
+  // packages/sync/build-module/lock-unlock.mjs
+  var import_private_apis = __toESM(require_private_apis(), 1);
+  var { lock, unlock } = (0, import_private_apis.__dangerousOptInToUnstableAPIsOnlyForCoreModules)(
+    "I acknowledge private features are not for use in themes or plugins and doing so will break in the next version of WordPress.",
+    "@wordpress/sync"
+  );
+
+  // packages/sync/build-module/utils.mjs
+  function createYjsDoc(documentMeta = {}) {
+    const metaMap = new Map(
+      Object.entries(documentMeta)
+    );
+    const ydoc = new Doc({ meta: metaMap });
+    const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
+    stateMap.set(CRDT_STATE_VERSION_KEY, CRDT_DOC_VERSION);
+    return ydoc;
+  }
+  function markEntityAsSaved(ydoc) {
+    const recordMeta = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+    recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
+    recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
+  }
+  function pseudoRandomID() {
+    return Math.floor(Math.random() * 1e9);
+  }
+  function serializeCrdtDoc(crdtDoc) {
+    return JSON.stringify({
+      document: toBase64(encodeStateAsUpdateV2(crdtDoc)),
+      updateId: pseudoRandomID()
+      // helps with debugging
+    });
+  }
+  function deserializeCrdtDoc(serializedCrdtDoc) {
+    try {
+      const { document: document2 } = JSON.parse(serializedCrdtDoc);
+      const docMeta = {
+        [CRDT_DOC_META_PERSISTENCE_KEY]: true
+      };
+      const ydoc = createYjsDoc(docMeta);
+      const yupdate = fromBase64(document2);
+      applyUpdateV2(ydoc, yupdate);
+      ydoc.clientID = pseudoRandomID();
+      return ydoc;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // packages/sync/build-module/persistence.mjs
+  function getPersistedCrdtDoc(record) {
+    const serializedCrdtDoc = record.meta?.[WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE];
+    if (serializedCrdtDoc) {
+      return deserializeCrdtDoc(serializedCrdtDoc);
+    }
+    return null;
+  }
+  function createPersistedCRDTDoc(ydoc) {
+    return {
+      [WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE]: serializeCrdtDoc(ydoc)
+    };
+  }
+
+  // packages/sync/build-module/providers/index.mjs
+  var import_hooks = __toESM(require_hooks(), 1);
+
+  // node_modules/y-protocols/sync.js
+  var messageYjsSyncStep1 = 0;
+  var messageYjsSyncStep2 = 1;
+  var messageYjsUpdate = 2;
+  var writeSyncStep1 = (encoder, doc2) => {
+    writeVarUint(encoder, messageYjsSyncStep1);
+    const sv = encodeStateVector(doc2);
+    writeVarUint8Array(encoder, sv);
+  };
+  var writeSyncStep2 = (encoder, doc2, encodedStateVector) => {
+    writeVarUint(encoder, messageYjsSyncStep2);
+    writeVarUint8Array(encoder, encodeStateAsUpdate(doc2, encodedStateVector));
+  };
+  var readSyncStep1 = (decoder, encoder, doc2) => writeSyncStep2(encoder, doc2, readVarUint8Array(decoder));
+  var readSyncStep2 = (decoder, doc2, transactionOrigin) => {
+    try {
+      applyUpdate(doc2, readVarUint8Array(decoder), transactionOrigin);
+    } catch (error) {
+      console.error("Caught error while handling a Yjs update", error);
+    }
+  };
+  var readUpdate2 = readSyncStep2;
+  var readSyncMessage = (decoder, encoder, doc2, transactionOrigin) => {
+    const messageType = readVarUint(decoder);
+    switch (messageType) {
+      case messageYjsSyncStep1:
+        readSyncStep1(decoder, encoder, doc2);
+        break;
+      case messageYjsSyncStep2:
+        readSyncStep2(decoder, doc2, transactionOrigin);
+        break;
+      case messageYjsUpdate:
+        readUpdate2(decoder, doc2, transactionOrigin);
+        break;
+      default:
+        throw new Error("Unknown message type");
+    }
+    return messageType;
+  };
+
+  // packages/sync/build-module/providers/http-polling/types.mjs
+  var SyncUpdateType = /* @__PURE__ */ ((SyncUpdateType2) => {
+    SyncUpdateType2["COMPACTION"] = "compaction";
+    SyncUpdateType2["SYNC_STEP_1"] = "sync_step1";
+    SyncUpdateType2["SYNC_STEP_2"] = "sync_step2";
+    SyncUpdateType2["UPDATE"] = "update";
+    return SyncUpdateType2;
+  })(SyncUpdateType || {});
+
+  // packages/sync/build-module/providers/http-polling/utils.mjs
+  var import_api_fetch = __toESM(require_api_fetch(), 1);
+  var SYNC_API_PATH = "/wp/v2/sync/updates";
+  function uint8ArrayToBase64(data) {
+    let binary = "";
+    const len = data.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(data[i]);
+    }
+    return globalThis.btoa(binary);
+  }
+  function base64ToUint8Array(base64) {
+    const binaryString = globalThis.atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+  }
+  function createSyncUpdate(data, type) {
+    return {
+      data: uint8ArrayToBase64(data),
+      type
+    };
+  }
+  function createUpdateQueue(initial = [], paused = true) {
+    let isPaused = paused;
+    const updates = [...initial];
+    return {
+      add(update) {
+        updates.push(update);
+      },
+      addBulk(bulkUpdates) {
+        if (0 === bulkUpdates.length) {
+          return;
+        }
+        updates.push(...bulkUpdates);
+      },
+      clear() {
+        updates.splice(0, updates.length);
+      },
+      get() {
+        if (isPaused) {
+          return [];
+        }
+        return updates.splice(0, updates.length);
+      },
+      pause() {
+        isPaused = true;
+      },
+      restore(restoredUpdates) {
+        const filtered = restoredUpdates.filter(
+          (u) => u.type !== SyncUpdateType.COMPACTION
+        );
+        if (0 === filtered.length) {
+          return;
+        }
+        updates.unshift(...filtered);
+      },
+      resume() {
+        isPaused = false;
+      },
+      size() {
+        return updates.length;
+      }
+    };
+  }
+  async function postSyncUpdate(payload) {
+    const response = await (0, import_api_fetch.default)({
+      body: JSON.stringify(payload),
+      headers: {
+        "Content-Type": "application/json"
+      },
+      method: "POST",
+      parse: false,
+      path: SYNC_API_PATH
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Sync update failed with status ${response.status}`
+      );
+    }
+    return await response.json();
+  }
+
+  // packages/sync/build-module/providers/http-polling/polling-manager.mjs
+  var POLLING_INTERVAL_IN_MS = 1e3;
+  var POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS = 250;
+  var MAX_ERROR_BACKOFF_IN_MS = 30 * 1e3;
+  var POLLING_MANAGER_ORIGIN = "polling-manager";
+  var roomStates = /* @__PURE__ */ new Map();
+  function createCompactionUpdate(updates) {
+    const mergeable = updates.filter(
+      (u) => [SyncUpdateType.COMPACTION, SyncUpdateType.UPDATE].includes(
+        u.type
+      )
+    ).map((u) => base64ToUint8Array(u.data));
+    return createSyncUpdate(
+      mergeUpdates(mergeable),
+      SyncUpdateType.COMPACTION
+    );
+  }
+  function createSyncStep1Update(doc2) {
+    const encoder = createEncoder();
+    writeSyncStep1(encoder, doc2);
+    return createSyncUpdate(
+      toUint8Array(encoder),
+      SyncUpdateType.SYNC_STEP_1
+    );
+  }
+  function createSyncStep2Update(doc2, step1) {
+    const decoder = createDecoder(step1);
+    const encoder = createEncoder();
+    readSyncMessage(
+      decoder,
+      encoder,
+      doc2,
+      POLLING_MANAGER_ORIGIN
+    );
+    return createSyncUpdate(
+      toUint8Array(encoder),
+      SyncUpdateType.SYNC_STEP_2
+    );
+  }
+  function processAwarenessUpdate(state, awareness) {
+    const currentStates = awareness.getStates();
+    const added = /* @__PURE__ */ new Set();
+    const updated = /* @__PURE__ */ new Set();
+    const removed = new Set(
+      currentStates.keys().filter((clientId) => !state[clientId])
+    );
+    Object.entries(state).forEach(([clientIdString, awarenessState]) => {
+      const clientId = Number(clientIdString);
+      if (clientId === awareness.clientID) {
+        return;
+      }
+      if (null === awarenessState) {
+        currentStates.delete(clientId);
+        removed.add(clientId);
+        return;
+      }
+      if (!currentStates.has(clientId)) {
+        currentStates.set(clientId, awarenessState);
+        added.add(clientId);
+        return;
+      }
+      const currentState = currentStates.get(clientId);
+      if (JSON.stringify(currentState) !== JSON.stringify(awarenessState)) {
+        currentStates.set(clientId, awarenessState);
+        updated.add(clientId);
+      }
+    });
+    if (added.size + updated.size > 0) {
+      awareness.emit("change", [
+        {
+          added: Array.from(added),
+          updated: Array.from(updated),
+          // Left blank on purpose, as the removal of clients is handled in the if condition below.
+          removed: []
+        }
+      ]);
+    }
+    if (removed.size > 0) {
+      removeAwarenessStates(
+        awareness,
+        Array.from(removed),
+        POLLING_MANAGER_ORIGIN
+      );
+    }
+  }
+  function processDocUpdate(update, doc2, onSync) {
+    const data = base64ToUint8Array(update.data);
+    switch (update.type) {
+      case SyncUpdateType.SYNC_STEP_1: {
+        return createSyncStep2Update(doc2, data);
+      }
+      case SyncUpdateType.SYNC_STEP_2: {
+        const decoder = createDecoder(data);
+        const encoder = createEncoder();
+        readSyncMessage(
+          decoder,
+          encoder,
+          doc2,
+          POLLING_MANAGER_ORIGIN
+        );
+        onSync();
+        return;
+      }
+      case SyncUpdateType.COMPACTION:
+      case SyncUpdateType.UPDATE: {
+        applyUpdate(doc2, data, POLLING_MANAGER_ORIGIN);
+      }
+    }
+  }
+  var isPolling = false;
+  var pollInterval = POLLING_INTERVAL_IN_MS;
+  function poll() {
+    isPolling = true;
+    async function start() {
+      if (0 === roomStates.size) {
+        isPolling = false;
+        return;
+      }
+      const payload = {
+        rooms: Array.from(roomStates.entries()).map(
+          ([room, state]) => ({
+            after: state.endCursor ?? 0,
+            awareness: state.localAwarenessState,
+            client_id: state.clientId,
+            room,
+            updates: state.updateQueue.get()
+          })
+        )
+      };
+      try {
+        const { rooms } = await postSyncUpdate(payload);
+        pollInterval = POLLING_INTERVAL_IN_MS;
+        rooms.forEach((room) => {
+          if (!roomStates.has(room.room)) {
+            return;
+          }
+          const roomState = roomStates.get(room.room);
+          roomState.endCursor = room.end_cursor;
+          roomState.processAwarenessUpdate(room.awareness);
+          if (Object.keys(room.awareness).length > 1) {
+            pollInterval = POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS;
+            roomState.updateQueue.resume();
+          }
+          const responseUpdates = room.updates.map((update) => roomState.processDocUpdate(update)).filter(
+            (update) => Boolean(update)
+          );
+          roomState.updateQueue.addBulk(responseUpdates);
+          if (room.compaction_request) {
+            roomState.updateQueue.add(
+              createCompactionUpdate(room.compaction_request)
+            );
+          }
+        });
+      } catch (error) {
+        pollInterval = Math.min(
+          pollInterval * 2,
+          MAX_ERROR_BACKOFF_IN_MS
+        );
+        for (const room of payload.rooms) {
+          if (!roomStates.has(room.room)) {
+            continue;
+          }
+          const state = roomStates.get(room.room);
+          state.updateQueue.restore(room.updates);
+          state.log(
+            "Error posting sync update, will retry with backoff",
+            {
+              error,
+              nextPoll: pollInterval
+            }
+          );
+        }
+      }
+      setTimeout(poll, pollInterval);
+    }
+    void start();
+  }
+  function registerRoom(room, doc2, awareness, onSync, log) {
+    if (roomStates.has(room)) {
+      return;
+    }
+    const updateQueue = createUpdateQueue([createSyncStep1Update(doc2)]);
+    function onAwarenessUpdate() {
+      roomState.localAwarenessState = awareness.getLocalState() ?? {};
+    }
+    function onDocUpdate(update, origin2) {
+      if (POLLING_MANAGER_ORIGIN === origin2) {
+        return;
+      }
+      updateQueue.add(createSyncUpdate(update, SyncUpdateType.UPDATE));
+    }
+    function unregister() {
+      doc2.off("update", onDocUpdate);
+      awareness.off("change", onAwarenessUpdate);
+      updateQueue.clear();
+    }
+    const roomState = {
+      clientId: doc2.clientID,
+      endCursor: 0,
+      localAwarenessState: awareness.getLocalState() ?? {},
+      log,
+      processAwarenessUpdate: (state) => processAwarenessUpdate(state, awareness),
+      processDocUpdate: (update) => processDocUpdate(update, doc2, onSync),
+      unregister,
+      updateQueue
+    };
+    doc2.on("update", onDocUpdate);
+    awareness.on("change", onAwarenessUpdate);
+    roomStates.set(room, roomState);
+    if (!isPolling) {
+      poll();
+    }
+  }
+  function unregisterRoom(room) {
+    roomStates.get(room)?.unregister();
+    roomStates.delete(room);
+  }
+  var pollingManager = {
+    registerRoom,
+    unregisterRoom
+  };
+
+  // packages/sync/build-module/providers/http-polling/http-polling-provider.mjs
+  var HttpPollingProvider = class extends ObservableV2 {
+    constructor(options) {
+      super();
+      this.options = options;
+      this.log("Initializing", { room: options.room });
+      this.awareness = options.awareness ?? new Awareness(options.ydoc);
+      this.connect();
+    }
+    awareness;
+    synced = false;
+    /**
+     * Connect to the endpoint and initialize sync.
+     */
+    connect() {
+      this.log("Connecting");
+      pollingManager.registerRoom(
+        this.options.room,
+        this.options.ydoc,
+        this.awareness,
+        this.onSync,
+        this.log
+      );
+      this.emitStatus("connected");
+    }
+    /**
+     * Destroy the provider and cleanup resources.
+     */
+    destroy() {
+      this.disconnect();
+      super.destroy();
+    }
+    /**
+     * Disconnect the provider and allow reconnection later.
+     */
+    disconnect() {
+      this.log("Disconnecting");
+      pollingManager.unregisterRoom(this.options.room);
+      this.emitStatus("disconnected");
+    }
+    /**
+     * Emit connection status.
+     *
+     * @param status The connection status
+     */
+    emitStatus(status) {
+      this.emit("status", [{ status }]);
+    }
+    /**
+     * Log debug messages if debugging is enabled.
+     *
+     * @param message The debug message
+     * @param debug   Additional debug information
+     */
+    log = (message, debug = {}) => {
+      if (this.options.debug) {
+        console.log(`[${this.constructor.name}]: ${message}`, {
+          room: this.options.room,
+          ...debug
+        });
+      }
+    };
+    /**
+     * Handle synchronization events from the polling manager.
+     */
+    onSync = () => {
+      if (!this.synced) {
+        this.synced = true;
+        this.log("Synced");
+        this.emit("synced", [{ synced: true }]);
+      }
+    };
+  };
+  function createHttpPollingProvider() {
+    return async ({
+      awareness,
+      objectType,
+      objectId,
+      ydoc
+    }) => {
+      const room = objectId ? `${objectType}:${objectId}` : objectType;
+      const provider = new HttpPollingProvider({
+        awareness,
+        // debug: true,
+        room,
+        ydoc
+      });
+      return {
+        destroy: () => provider.destroy(),
+        on: provider.on.bind(provider)
+      };
+    };
+  }
+
+  // packages/sync/build-module/providers/index.mjs
+  var providerCreators = null;
+  function getDefaultProviderCreators() {
+    return [createHttpPollingProvider()];
+  }
+  function isProviderCreator(creator) {
+    return "function" === typeof creator;
+  }
+  function getProviderCreators() {
+    if (providerCreators) {
+      return providerCreators;
+    }
+    if (!window.__wpSyncEnabled) {
+      return [];
+    }
+    const filteredProviderCreators = (0, import_hooks.applyFilters)(
+      "sync.providers",
+      getDefaultProviderCreators()
+    );
+    if (!Array.isArray(filteredProviderCreators)) {
+      providerCreators = [];
+      return providerCreators;
+    }
+    providerCreators = filteredProviderCreators.filter(isProviderCreator);
+    return providerCreators;
+  }
+
+  // packages/sync/build-module/y-utilities/y-multidoc-undomanager.mjs
+  var popStackItem2 = (mum, type) => {
+    const stack = type === "undo" ? mum.undoStack : mum.redoStack;
+    while (stack.length > 0) {
+      const um = (
+        /** @type {Y.UndoManager} */
+        stack.pop()
+      );
+      const prevUmStack = type === "undo" ? um.undoStack : um.redoStack;
+      const stackItem = (
+        /** @type {any} */
+        prevUmStack.pop()
+      );
+      let actionPerformed = false;
+      if (type === "undo") {
+        um.undoStack = [stackItem];
+        actionPerformed = um.undo() !== null;
+        um.undoStack = prevUmStack;
+      } else {
+        um.redoStack = [stackItem];
+        actionPerformed = um.redo() !== null;
+        um.redoStack = prevUmStack;
+      }
+      if (actionPerformed) {
+        return stackItem;
+      }
+    }
+    return null;
+  };
+  var YMultiDocUndoManager = class extends Observable {
+    /**
+     * @param {Y.AbstractType<any>|Array<Y.AbstractType<any>>} typeScope Accepts either a single type, or an array of types
+     * @param {ConstructorParameters<typeof Y.UndoManager>[1]} opts
+     */
+    constructor(typeScope = [], opts = {}) {
+      super();
+      this.docs = /* @__PURE__ */ new Map();
+      this.trackedOrigins = opts.trackedOrigins || /* @__PURE__ */ new Set([null]);
+      opts.trackedOrigins = this.trackedOrigins;
+      this._defaultOpts = opts;
+      this.undoStack = [];
+      this.redoStack = [];
+      this.addToScope(typeScope);
+    }
+    /**
+     * @param {Array<Y.AbstractType<any>> | Y.AbstractType<any>} ytypes
+     */
+    addToScope(ytypes) {
+      ytypes = isArray(ytypes) ? ytypes : [ytypes];
+      ytypes.forEach((ytype) => {
+        const ydoc = (
+          /** @type {Y.Doc} */
+          ytype.doc
+        );
+        const um = setIfUndefined(this.docs, ydoc, () => {
+          const um2 = new UndoManager([ytype], this._defaultOpts);
+          um2.on(
+            "stack-cleared",
+            /** @param {any} opts */
+            ({
+              undoStackCleared,
+              redoStackCleared
+            }) => {
+              this.clear(undoStackCleared, redoStackCleared);
+            }
+          );
+          ydoc.on("destroy", () => {
+            this.docs.delete(ydoc);
+            this.undoStack = this.undoStack.filter(
+              (um3) => um3.doc !== ydoc
+            );
+            this.redoStack = this.redoStack.filter(
+              (um3) => um3.doc !== ydoc
+            );
+          });
+          um2.on(
+            "stack-item-added",
+            /** @param {any} change */
+            (change) => {
+              const stack = change.type === "undo" ? this.undoStack : this.redoStack;
+              stack.push(um2);
+              this.emit("stack-item-added", [
+                { ...change, ydoc },
+                this
+              ]);
+            }
+          );
+          um2.on(
+            "stack-item-updated",
+            /** @param {any} change */
+            (change) => {
+              this.emit("stack-item-updated", [
+                { ...change, ydoc },
+                this
+              ]);
+            }
+          );
+          um2.on(
+            "stack-item-popped",
+            /** @param {any} change */
+            (change) => {
+              this.emit("stack-item-popped", [
+                { ...change, ydoc },
+                this
+              ]);
+            }
+          );
+          return um2;
+        });
+        if (um.scope.every((yt) => yt !== ytype)) {
+          um.scope.push(ytype);
+        }
+      });
+    }
+    /**
+     * @param {any} origin
+     */
+    /* c8 ignore next 3 */
+    addTrackedOrigin(origin2) {
+      this.trackedOrigins.add(origin2);
+    }
+    /**
+     * @param {any} origin
+     */
+    /* c8 ignore next 3 */
+    removeTrackedOrigin(origin2) {
+      this.trackedOrigins.delete(origin2);
+    }
+    /**
+     * Undo last changes on type.
+     *
+     * @return {any?} Returns StackItem if a change was applied
+     */
+    undo() {
+      return popStackItem2(this, "undo");
+    }
+    /**
+     * Redo last undo operation.
+     *
+     * @return {any?} Returns StackItem if a change was applied
+     */
+    redo() {
+      return popStackItem2(this, "redo");
+    }
+    clear(clearUndoStack = true, clearRedoStack = true) {
+      if (clearUndoStack && this.canUndo() || clearRedoStack && this.canRedo()) {
+        this.docs.forEach((um) => {
+          clearUndoStack && (this.undoStack = []);
+          clearRedoStack && (this.redoStack = []);
+          um.clear(clearUndoStack, clearRedoStack);
+        });
+        this.emit("stack-cleared", [
+          {
+            undoStackCleared: clearUndoStack,
+            redoStackCleared: clearRedoStack
+          }
+        ]);
+      }
+    }
+    /* c8 ignore next 5 */
+    stopCapturing() {
+      this.docs.forEach((um) => {
+        um.stopCapturing();
+      });
+    }
+    /**
+     * Are undo steps available?
+     *
+     * @return {boolean} `true` if undo is possible
+     */
+    canUndo() {
+      return this.undoStack.length > 0;
+    }
+    /**
+     * Are redo steps available?
+     *
+     * @return {boolean} `true` if redo is possible
+     */
+    canRedo() {
+      return this.redoStack.length > 0;
+    }
+    destroy() {
+      this.docs.forEach((um) => um.destroy());
+      super.destroy();
+    }
+  };
+
+  // packages/sync/build-module/undo-manager.mjs
+  function createUndoManager() {
+    const yUndoManager = new YMultiDocUndoManager([], {
+      // Throttle undo/redo captures after 500ms of inactivity.
+      // 500 was selected from subjective local UX testing, shorter timeouts
+      // may cause mid-word undo stack items.
+      captureTimeout: 500,
+      // Ensure that we only scope the undo/redo to the current editor.
+      // The yjs document's clientID is added once it's available.
+      trackedOrigins: /* @__PURE__ */ new Set([LOCAL_EDITOR_ORIGIN])
+    });
+    return {
+      /**
+       * Record changes into the history.
+       * Since Yjs automatically tracks changes, this method translates the WordPress
+       * HistoryRecord format into Yjs operations.
+       *
+       * @param _record   A record of changes to record.
+       * @param _isStaged Whether to immediately create an undo point or not.
+       */
+      addRecord(_record, _isStaged = false) {
+      },
+      /**
+       * Add a Yjs map to the scope of the undo manager.
+       *
+       * @param {Y.Map< any >} ymap                     The Yjs map to add to the scope.
+       * @param                handlers
+       * @param                handlers.addUndoMeta
+       * @param                handlers.restoreUndoMeta
+       */
+      addToScope(ymap, handlers) {
+        if (ymap.doc === null) {
+          return;
+        }
+        const ydoc = ymap.doc;
+        yUndoManager.addToScope(ymap);
+        const { addUndoMeta, restoreUndoMeta } = handlers;
+        yUndoManager.on("stack-item-added", (event) => {
+          addUndoMeta(ydoc, event.stackItem.meta);
+        });
+        yUndoManager.on("stack-item-popped", (event) => {
+          restoreUndoMeta(ydoc, event.stackItem.meta);
+        });
+      },
+      /**
+       * Undo the last recorded changes.
+       *
+       */
+      undo() {
+        if (!yUndoManager.canUndo()) {
+          return;
+        }
+        yUndoManager.undo();
+        return [];
+      },
+      /**
+       * Redo the last undone changes.
+       */
+      redo() {
+        if (!yUndoManager.canRedo()) {
+          return;
+        }
+        yUndoManager.redo();
+        return [];
+      },
+      /**
+       * Check if there are changes that can be undone.
+       *
+       * @return {boolean} Whether there are changes to undo.
+       */
+      hasUndo() {
+        return yUndoManager.canUndo();
+      },
+      /**
+       * Check if there are changes that can be redone.
+       *
+       * @return {boolean} Whether there are changes to redo.
+       */
+      hasRedo() {
+        return yUndoManager.canRedo();
+      },
+      /**
+       * Stop capturing changes into the current undo item.
+       * The next change will create a new undo item.
+       */
+      stopCapturing() {
+        yUndoManager.stopCapturing();
+      }
+    };
+  }
+
+  // packages/sync/build-module/manager.mjs
+  function createSyncManager() {
+    const collectionStates = /* @__PURE__ */ new Map();
+    const entityStates = /* @__PURE__ */ new Map();
+    let undoManager;
+    async function loadEntity(syncConfig, objectType, objectId, record, handlers) {
+      const providerCreators2 = getProviderCreators();
+      if (0 === providerCreators2.length) {
+        return;
+      }
+      const entityId = getEntityId(objectType, objectId);
+      if (entityStates.has(entityId)) {
+        return;
+      }
+      const ydoc = createYjsDoc({ objectType });
+      const recordMap = ydoc.getMap(CRDT_RECORD_MAP_KEY);
+      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+      const now = Date.now();
+      const unload = () => {
+        providerResults.forEach((result) => result.destroy());
+        recordMap.unobserveDeep(onRecordUpdate);
+        recordMetaMap.unobserve(onRecordMetaUpdate);
+        ydoc.destroy();
+        entityStates.delete(entityId);
+      };
+      const awareness = syncConfig.createAwareness?.(ydoc, objectId);
+      const onRecordUpdate = (_events, transaction) => {
+        if (transaction.local && !(transaction.origin instanceof UndoManager)) {
+          return;
+        }
+        void updateEntityRecord(objectType, objectId);
+      };
+      const onRecordMetaUpdate = (event, transaction) => {
+        if (transaction.local) {
+          return;
+        }
+        event.keysChanged.forEach((key) => {
+          switch (key) {
+            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
+              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
+              if ("number" === typeof newValue && newValue > now) {
+                void handlers.refetchRecord().catch(() => {
+                });
+              }
+              break;
+          }
+        });
+      };
+      if (!undoManager) {
+        undoManager = createUndoManager();
+      }
+      const { addUndoMeta, restoreUndoMeta } = handlers;
+      undoManager.addToScope(recordMap, {
+        addUndoMeta,
+        restoreUndoMeta
+      });
+      const entityState = {
+        awareness,
+        handlers,
+        objectId,
+        objectType,
+        syncConfig,
+        unload,
+        ydoc
+      };
+      entityStates.set(entityId, entityState);
+      const providerResults = await Promise.all(
+        providerCreators2.map(async (create7) => {
+          const provider = await create7({
+            objectType,
+            objectId,
+            ydoc,
+            awareness
+          });
+          provider.on("sync-connection-status", handlers.onStateChange);
+          return provider;
+        })
+      );
+      recordMap.observeDeep(onRecordUpdate);
+      recordMetaMap.observe(onRecordMetaUpdate);
+      applyPersistedCrdtDoc(objectType, objectId, record);
+    }
+    async function loadCollection(syncConfig, objectType, handlers) {
+      const providerCreators2 = getProviderCreators();
+      if (0 === providerCreators2.length) {
+        return;
+      }
+      if (collectionStates.has(objectType)) {
+        return;
+      }
+      const ydoc = createYjsDoc({ collection: true, objectType });
+      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+      const now = Date.now();
+      const unload = () => {
+        providerResults.forEach((result) => result.destroy());
+        recordMetaMap.unobserve(onRecordMetaUpdate);
+        ydoc.destroy();
+        collectionStates.delete(objectType);
+      };
+      const onRecordMetaUpdate = (event, transaction) => {
+        if (transaction.local) {
+          return;
+        }
+        event.keysChanged.forEach((key) => {
+          switch (key) {
+            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
+              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
+              if ("number" === typeof newValue && newValue > now) {
+                void handlers.refetchRecords().catch(() => {
+                });
+              }
+              break;
+          }
+        });
+      };
+      const awareness = syncConfig.createAwareness?.(ydoc);
+      const collectionState = {
+        awareness,
+        handlers,
+        syncConfig,
+        unload,
+        ydoc
+      };
+      collectionStates.set(objectType, collectionState);
+      const providerResults = await Promise.all(
+        providerCreators2.map(async (create7) => {
+          const provider = await create7({
+            awareness,
+            objectType,
+            objectId: null,
+            ydoc
+          });
+          provider.on("sync-connection-status", handlers.onStateChange);
+          return provider;
+        })
+      );
+      recordMetaMap.observe(onRecordMetaUpdate);
+    }
+    function unloadEntity(objectType, objectId) {
+      entityStates.get(getEntityId(objectType, objectId))?.unload();
+      updateCRDTDoc(objectType, null, {}, origin, { isSave: true });
+    }
+    function getEntityId(objectType, objectId) {
+      return `${objectType}_${objectId}`;
+    }
+    function getAwareness(objectType, objectId) {
+      const entityId = getEntityId(objectType, objectId);
+      const entityState = entityStates.get(entityId);
+      if (!entityState || !entityState.awareness) {
+        return void 0;
+      }
+      return entityState.awareness;
+    }
+    function applyPersistedCrdtDoc(objectType, objectId, record) {
+      const entityId = getEntityId(objectType, objectId);
+      const entityState = entityStates.get(entityId);
+      if (!entityState) {
+        return;
+      }
+      const {
+        handlers,
+        syncConfig: {
+          applyChangesToCRDTDoc,
+          getChangesFromCRDTDoc,
+          supports
+        },
+        ydoc: targetDoc
+      } = entityState;
+      if (!supports?.crdtPersistence) {
+        targetDoc.transact(() => {
+          applyChangesToCRDTDoc(targetDoc, record);
+        }, LOCAL_SYNC_MANAGER_ORIGIN);
+        return;
+      }
+      const tempDoc = getPersistedCrdtDoc(record);
+      if (!tempDoc) {
+        targetDoc.transact(() => {
+          applyChangesToCRDTDoc(targetDoc, record);
+          handlers.saveRecord();
+        }, LOCAL_SYNC_MANAGER_ORIGIN);
+        return;
+      }
+      const update = encodeStateAsUpdateV2(tempDoc);
+      applyUpdateV2(targetDoc, update);
+      const invalidations = getChangesFromCRDTDoc(tempDoc, record);
+      const invalidatedKeys = Object.keys(invalidations);
+      tempDoc.destroy();
+      if (0 === invalidatedKeys.length) {
+        return;
+      }
+      const changes = invalidatedKeys.reduce(
+        (acc, key) => Object.assign(acc, {
+          [key]: record[key]
+        }),
+        {}
+      );
+      targetDoc.transact(() => {
+        applyChangesToCRDTDoc(targetDoc, changes);
+        handlers.saveRecord();
+      }, LOCAL_SYNC_MANAGER_ORIGIN);
+    }
+    function updateCRDTDoc(objectType, objectId, changes, origin2, options = {}) {
+      const { isSave = false, isNewUndoLevel = false } = options;
+      const entityId = getEntityId(objectType, objectId);
+      const entityState = entityStates.get(entityId);
+      const collectionState = collectionStates.get(objectType);
+      if (entityState) {
+        const { syncConfig, ydoc } = entityState;
+        if (isNewUndoLevel && undoManager) {
+          undoManager.stopCapturing?.();
+        }
+        ydoc.transact(() => {
+          syncConfig.applyChangesToCRDTDoc(ydoc, changes);
+          if (isSave) {
+            markEntityAsSaved(ydoc);
+          }
+        }, origin2);
+      }
+      if (collectionState && isSave) {
+        collectionState.ydoc.transact(() => {
+          markEntityAsSaved(collectionState.ydoc);
+        }, origin2);
+      }
+    }
+    async function updateEntityRecord(objectType, objectId) {
+      const entityId = getEntityId(objectType, objectId);
+      const entityState = entityStates.get(entityId);
+      if (!entityState) {
+        return;
+      }
+      const { handlers, syncConfig, ydoc } = entityState;
+      const changes = syncConfig.getChangesFromCRDTDoc(
+        ydoc,
+        await handlers.getEditedRecord()
+      );
+      if (0 === Object.keys(changes).length) {
+        return;
+      }
+      handlers.editRecord(changes);
+    }
+    function createEntityMeta(objectType, objectId) {
+      const entityId = getEntityId(objectType, objectId);
+      const entityState = entityStates.get(entityId);
+      if (!entityState?.syncConfig.supports?.crdtPersistence) {
+        return {};
+      }
+      return createPersistedCRDTDoc(entityState.ydoc);
+    }
+    return {
+      createMeta: createEntityMeta,
+      getAwareness,
+      load: loadEntity,
+      loadCollection,
+      // Use getter to ensure we always return the current value of `undoManager`.
+      get undoManager() {
+        return undoManager;
+      },
+      unload: unloadEntity,
+      update: updateCRDTDoc
+    };
+  }
+
   // packages/sync/build-module/quill-delta/Delta.mjs
   var import_diff = __toESM(require_diff(), 1);
   var import_es62 = __toESM(require_es6(), 1);
@@ -10990,1052 +12221,23 @@ var wp;
   };
   var Delta_default = Delta;
 
-  // node_modules/y-protocols/awareness.js
-  var outdatedTimeout = 3e4;
-  var Awareness = class extends Observable {
-    /**
-     * @param {Y.Doc} doc
-     */
-    constructor(doc2) {
-      super();
-      this.doc = doc2;
-      this.clientID = doc2.clientID;
-      this.states = /* @__PURE__ */ new Map();
-      this.meta = /* @__PURE__ */ new Map();
-      this._checkInterval = /** @type {any} */
-      setInterval(() => {
-        const now = getUnixTime();
-        if (this.getLocalState() !== null && outdatedTimeout / 2 <= now - /** @type {{lastUpdated:number}} */
-        this.meta.get(this.clientID).lastUpdated) {
-          this.setLocalState(this.getLocalState());
-        }
-        const remove = [];
-        this.meta.forEach((meta, clientid) => {
-          if (clientid !== this.clientID && outdatedTimeout <= now - meta.lastUpdated && this.states.has(clientid)) {
-            remove.push(clientid);
-          }
-        });
-        if (remove.length > 0) {
-          removeAwarenessStates(this, remove, "timeout");
-        }
-      }, floor(outdatedTimeout / 10));
-      doc2.on("destroy", () => {
-        this.destroy();
-      });
-      this.setLocalState({});
-    }
-    destroy() {
-      this.emit("destroy", [this]);
-      this.setLocalState(null);
-      super.destroy();
-      clearInterval(this._checkInterval);
-    }
-    /**
-     * @return {Object<string,any>|null}
-     */
-    getLocalState() {
-      return this.states.get(this.clientID) || null;
-    }
-    /**
-     * @param {Object<string,any>|null} state
-     */
-    setLocalState(state) {
-      const clientID = this.clientID;
-      const currLocalMeta = this.meta.get(clientID);
-      const clock = currLocalMeta === void 0 ? 0 : currLocalMeta.clock + 1;
-      const prevState = this.states.get(clientID);
-      if (state === null) {
-        this.states.delete(clientID);
-      } else {
-        this.states.set(clientID, state);
-      }
-      this.meta.set(clientID, {
-        clock,
-        lastUpdated: getUnixTime()
-      });
-      const added = [];
-      const updated = [];
-      const filteredUpdated = [];
-      const removed = [];
-      if (state === null) {
-        removed.push(clientID);
-      } else if (prevState == null) {
-        if (state != null) {
-          added.push(clientID);
-        }
-      } else {
-        updated.push(clientID);
-        if (!equalityDeep(prevState, state)) {
-          filteredUpdated.push(clientID);
-        }
-      }
-      if (added.length > 0 || filteredUpdated.length > 0 || removed.length > 0) {
-        this.emit("change", [{ added, updated: filteredUpdated, removed }, "local"]);
-      }
-      this.emit("update", [{ added, updated, removed }, "local"]);
-    }
-    /**
-     * @param {string} field
-     * @param {any} value
-     */
-    setLocalStateField(field, value) {
-      const state = this.getLocalState();
-      if (state !== null) {
-        this.setLocalState({
-          ...state,
-          [field]: value
-        });
-      }
-    }
-    /**
-     * @return {Map<number,Object<string,any>>}
-     */
-    getStates() {
-      return this.states;
-    }
-  };
-  var removeAwarenessStates = (awareness, clients, origin2) => {
-    const removed = [];
-    for (let i = 0; i < clients.length; i++) {
-      const clientID = clients[i];
-      if (awareness.states.has(clientID)) {
-        awareness.states.delete(clientID);
-        if (clientID === awareness.clientID) {
-          const curMeta = (
-            /** @type {MetaClientState} */
-            awareness.meta.get(clientID)
-          );
-          awareness.meta.set(clientID, {
-            clock: curMeta.clock + 1,
-            lastUpdated: getUnixTime()
-          });
-        }
-        removed.push(clientID);
-      }
-    }
-    if (removed.length > 0) {
-      awareness.emit("change", [{ added: [], updated: [], removed }, origin2]);
-      awareness.emit("update", [{ added: [], updated: [], removed }, origin2]);
-    }
-  };
+  // packages/sync/build-module/private-apis.mjs
+  var privateApis = {};
+  lock(privateApis, {
+    createSyncManager,
+    Delta: Delta_default,
+    CRDT_DOC_META_PERSISTENCE_KEY,
+    CRDT_RECORD_MAP_KEY,
+    CRDT_RECORD_METADATA_MAP_KEY,
+    CRDT_RECORD_METADATA_SAVED_AT_KEY,
+    CRDT_RECORD_METADATA_SAVED_BY_KEY,
+    LOCAL_EDITOR_ORIGIN,
+    LOCAL_SYNC_MANAGER_ORIGIN,
+    WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
+  });
 
-  // packages/sync/build-module/config.mjs
-  var CRDT_DOC_VERSION = 1;
-  var CRDT_DOC_META_PERSISTENCE_KEY = "fromPersistence";
-  var CRDT_RECORD_MAP_KEY = "document";
-  var CRDT_RECORD_METADATA_MAP_KEY = "documentMeta";
-  var CRDT_RECORD_METADATA_SAVED_AT_KEY = "savedAt";
-  var CRDT_RECORD_METADATA_SAVED_BY_KEY = "savedBy";
-  var CRDT_STATE_MAP_KEY = "state";
-  var CRDT_STATE_VERSION_KEY = "version";
-  var LOCAL_EDITOR_ORIGIN = "gutenberg";
-  var LOCAL_SYNC_MANAGER_ORIGIN = "syncManager";
-  var WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE = "_crdt_document";
-  var REMOVAL_DELAY_IN_MS = 5e3;
-
-  // packages/sync/build-module/utils.mjs
-  function createYjsDoc(documentMeta = {}) {
-    const metaMap = new Map(
-      Object.entries(documentMeta)
-    );
-    const ydoc = new Doc({ meta: metaMap });
-    const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
-    stateMap.set(CRDT_STATE_VERSION_KEY, CRDT_DOC_VERSION);
-    return ydoc;
-  }
-  function markEntityAsSaved(ydoc) {
-    const recordMeta = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
-    recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
-    recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
-  }
-  function pseudoRandomID() {
-    return Math.floor(Math.random() * 1e9);
-  }
-  function serializeCrdtDoc(crdtDoc) {
-    return JSON.stringify({
-      document: toBase64(encodeStateAsUpdateV2(crdtDoc)),
-      updateId: pseudoRandomID()
-      // helps with debugging
-    });
-  }
-  function deserializeCrdtDoc(serializedCrdtDoc) {
-    try {
-      const { document: document2 } = JSON.parse(serializedCrdtDoc);
-      const docMeta = {
-        [CRDT_DOC_META_PERSISTENCE_KEY]: true
-      };
-      const ydoc = createYjsDoc(docMeta);
-      const yupdate = fromBase64(document2);
-      applyUpdateV2(ydoc, yupdate);
-      ydoc.clientID = pseudoRandomID();
-      return ydoc;
-    } catch (e) {
-      return null;
-    }
-  }
-  function getRecordValue(obj, key) {
-    if ("object" === typeof obj && null !== obj && key in obj) {
-      return obj[key];
-    }
-    return null;
-  }
-  function getTypedKeys(obj) {
-    return Object.keys(obj);
-  }
-  function areMapsEqual(map1, map2, comparatorFn) {
-    if (map1.size !== map2.size) {
-      return false;
-    }
-    for (const [key, value1] of map1.entries()) {
-      if (!map2.has(key)) {
-        return false;
-      }
-      if (!comparatorFn(value1, map2.get(key))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  // packages/sync/build-module/awareness/awareness-types.mjs
-  var TypedAwareness = class extends Awareness {
-    /**
-     * Get the states from an awareness document.
-     */
-    getStates() {
-      return super.getStates();
-    }
-    /**
-     * Get a local state field from an awareness document.
-     * @param field
-     */
-    getLocalStateField(field) {
-      const state = this.getLocalState();
-      return getRecordValue(state, field);
-    }
-    /**
-     * Set a local state field on an awareness document.
-     * @param field
-     * @param value
-     */
-    setLocalStateField(field, value) {
-      super.setLocalStateField(field, value);
-    }
-  };
-
-  // packages/sync/build-module/awareness/awareness-state.mjs
-  var AwarenessWithEqualityChecks = class extends TypedAwareness {
-    /** OVERRIDDEN METHODS */
-    /**
-     * Set a local state field on an awareness document. Calling this method may
-     * trigger rerenders of any subscribed components.
-     *
-     * Equality checks are provided by the abstract `equalityFieldChecks` property.
-     * @param field - The field to set.
-     * @param value - The value to set.
-     */
-    setLocalStateField(field, value) {
-      if (this.isFieldEqual(
-        field,
-        value,
-        this.getLocalStateField(field) ?? void 0
-      )) {
-        return;
-      }
-      super.setLocalStateField(field, value);
-    }
-    /** CUSTOM METHODS */
-    /**
-     * Determine if a field value has changed using the provided equality checks.
-     * @param field  - The field to check.
-     * @param value1 - The first value to compare.
-     * @param value2 - The second value to compare.
-     */
-    isFieldEqual(field, value1, value2) {
-      if (["clientId", "isConnected", "isMe"].includes(field)) {
-        return value1 === value2;
-      }
-      if (field in this.equalityFieldChecks) {
-        const fn = this.equalityFieldChecks[field];
-        return fn(value1, value2);
-      }
-      throw new Error(
-        `No equality check implemented for awareness state field "${field.toString()}".`
-      );
-    }
-    /**
-     * Determine if two states are equal by comparing each field using the
-     * provided equality checks.
-     * @param state1 - The first state to compare.
-     * @param state2 - The second state to compare.
-     */
-    isStateEqual(state1, state2) {
-      return [
-        .../* @__PURE__ */ new Set([
-          ...getTypedKeys(state1),
-          ...getTypedKeys(state2)
-        ])
-      ].every((field) => {
-        const value1 = state1[field];
-        const value2 = state2[field];
-        return this.isFieldEqual(field, value1, value2);
-      });
-    }
-  };
-  var AwarenessState = class extends AwarenessWithEqualityChecks {
-    /** CUSTOM PROPERTIES */
-    /**
-     * Whether the setUp method has been called, to avoid running it multiple
-     * times.
-     */
-    hasSetupRun = false;
-    /**
-     * We keep track of all seen states during the current session for two reasons:
-     *
-     * 1. So that we can represent recently disconnected users in our UI, even
-     *    after they have been removed from the awareness document.
-     * 2. So that we can provide debug information about all users seen during
-     *    the session.
-     */
-    disconnectedUsers = /* @__PURE__ */ new Set();
-    seenStates = /* @__PURE__ */ new Map();
-    /**
-     * Hold a snapshot of the previous awareness state allows us to compare the
-     * state values and avoid unnecessary updates to subscribers.
-     */
-    previousSnapshot = /* @__PURE__ */ new Map();
-    stateSubscriptions = [];
-    /**
-     * In some cases, we may want to throttle setting local state fields to avoid
-     * overwhelming the awareness document with rapid updates. At the same time, we
-     * want to ensure that when we read our own state locally, we get the latest
-     * value -- even if it hasn't yet been set on the awareness instance.
-     */
-    myThrottledState = {};
-    throttleTimeouts = /* @__PURE__ */ new Map();
-    /** CUSTOM METHODS */
-    /**
-     * Set up the awareness state. This method is idempotent and will only run
-     * once. Subclasses should override `onSetUp()` instead of this method to
-     * add their own setup logic.
-     *
-     * This is defined as a readonly arrow function property to prevent
-     * subclasses from overriding it.
-     */
-    setUp = () => {
-      if (this.hasSetupRun) {
-        return;
-      }
-      this.hasSetupRun = true;
-      this.on(
-        "change",
-        ({ added, removed, updated }) => {
-          [...added, ...updated].forEach((id2) => {
-            this.disconnectedUsers.delete(id2);
-          });
-          removed.forEach((id2) => {
-            this.disconnectedUsers.add(id2);
-            setTimeout(() => {
-              this.disconnectedUsers.delete(id2);
-              this.updateSubscribers(
-                true
-                /* force update */
-              );
-            }, REMOVAL_DELAY_IN_MS);
-          });
-          this.updateSubscribers();
-        }
-      );
-      this.onSetUp();
-    };
-    /**
-     * Get the most recent state from the last processed change event.
-     *
-     * @return An array of EnhancedState< State >.
-     */
-    getCurrentState() {
-      return Array.from(this.previousSnapshot.values());
-    }
-    /**
-     * Get all seen states in this session to enable debug reporting.
-     */
-    getSeenStates() {
-      return this.seenStates;
-    }
-    /**
-     * Allow external code to subscribe to awareness state changes.
-     * @param callback - The callback to subscribe to.
-     */
-    onStateChange(callback) {
-      this.stateSubscriptions.push(callback);
-      return () => {
-        this.stateSubscriptions = this.stateSubscriptions.filter(
-          (cb) => cb !== callback
-        );
-      };
-    }
-    /**
-     * Set a local state field on an awareness document with throttle. See caveats
-     * of this.setLocalStateField.
-     * @param field - The field to set.
-     * @param value - The value to set.
-     * @param wait  - The wait time in milliseconds.
-     */
-    setThrottledLocalStateField(field, value, wait) {
-      this.setLocalStateField(field, value);
-      this.throttleTimeouts.set(
-        field,
-        setTimeout(() => {
-          this.throttleTimeouts.delete(field);
-          if (this.myThrottledState[field]) {
-            this.setLocalStateField(
-              field,
-              this.myThrottledState[field]
-            );
-            delete this.myThrottledState[field];
-          }
-        }, wait)
-      );
-    }
-    /**
-     * Set the current user's connection status as awareness state.
-     * @param isConnected - The connection status.
-     */
-    setConnectionStatus(isConnected) {
-      if (isConnected) {
-        this.disconnectedUsers.delete(this.clientID);
-      } else {
-        this.disconnectedUsers.add(this.clientID);
-      }
-      this.updateSubscribers(
-        true
-        /* force update */
-      );
-    }
-    /**
-     * Update all subscribed listeners with the latest awareness state.
-     * @param forceUpdate - Whether to force an update.
-     */
-    updateSubscribers(forceUpdate = false) {
-      if (!this.stateSubscriptions.length) {
-        return;
-      }
-      const states = this.getStates();
-      this.seenStates = new Map([
-        ...this.seenStates.entries(),
-        ...states.entries()
-      ]);
-      const updatedStates = new Map(
-        [...this.disconnectedUsers, ...states.keys()].filter((clientId) => {
-          return Object.keys(this.seenStates.get(clientId) ?? {}).length > 0;
-        }).map((clientId) => {
-          const rawState = this.seenStates.get(clientId);
-          const isConnected = !this.disconnectedUsers.has(clientId);
-          const isMe = clientId === this.clientID;
-          const myState = isMe ? this.myThrottledState : {};
-          const state = {
-            ...rawState,
-            ...myState,
-            clientId,
-            isConnected,
-            isMe
-          };
-          return [clientId, state];
-        })
-      );
-      if (!forceUpdate) {
-        if (areMapsEqual(
-          this.previousSnapshot,
-          updatedStates,
-          this.isStateEqual.bind(this)
-        )) {
-          return;
-        }
-      }
-      this.previousSnapshot = updatedStates;
-      this.stateSubscriptions.forEach((callback) => {
-        callback(Array.from(updatedStates.values()));
-      });
-    }
-  };
-
-  // packages/sync/build-module/persistence.mjs
-  function getPersistedCrdtDoc(record) {
-    const serializedCrdtDoc = record.meta?.[WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE];
-    if (serializedCrdtDoc) {
-      return deserializeCrdtDoc(serializedCrdtDoc);
-    }
-    return null;
-  }
-  function createPersistedCRDTDoc(ydoc) {
-    return {
-      [WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE]: serializeCrdtDoc(ydoc)
-    };
-  }
-
-  // packages/sync/build-module/providers/index.mjs
-  var import_hooks = __toESM(require_hooks(), 1);
-  var providerCreators = null;
-  function isProviderCreator(creator) {
-    return "function" === typeof creator;
-  }
-  function getProviderCreators() {
-    if (providerCreators) {
-      return providerCreators;
-    }
-    const filteredProviderCreators = (0, import_hooks.applyFilters)(
-      "sync.providers",
-      []
-      // Replace with `getDefaultProviderCreators()` to enable sync
-    );
-    if (!Array.isArray(filteredProviderCreators)) {
-      providerCreators = [];
-      return providerCreators;
-    }
-    providerCreators = filteredProviderCreators.filter(isProviderCreator);
-    return providerCreators;
-  }
-
-  // packages/sync/build-module/y-utilities/y-multidoc-undomanager.mjs
-  var popStackItem2 = (mum, type) => {
-    const stack = type === "undo" ? mum.undoStack : mum.redoStack;
-    while (stack.length > 0) {
-      const um = (
-        /** @type {Y.UndoManager} */
-        stack.pop()
-      );
-      const prevUmStack = type === "undo" ? um.undoStack : um.redoStack;
-      const stackItem = (
-        /** @type {any} */
-        prevUmStack.pop()
-      );
-      let actionPerformed = false;
-      if (type === "undo") {
-        um.undoStack = [stackItem];
-        actionPerformed = um.undo() !== null;
-        um.undoStack = prevUmStack;
-      } else {
-        um.redoStack = [stackItem];
-        actionPerformed = um.redo() !== null;
-        um.redoStack = prevUmStack;
-      }
-      if (actionPerformed) {
-        return stackItem;
-      }
-    }
-    return null;
-  };
-  var YMultiDocUndoManager = class extends Observable {
-    /**
-     * @param {Y.AbstractType<any>|Array<Y.AbstractType<any>>} typeScope Accepts either a single type, or an array of types
-     * @param {ConstructorParameters<typeof Y.UndoManager>[1]} opts
-     */
-    constructor(typeScope = [], opts = {}) {
-      super();
-      this.docs = /* @__PURE__ */ new Map();
-      this.trackedOrigins = opts.trackedOrigins || /* @__PURE__ */ new Set([null]);
-      opts.trackedOrigins = this.trackedOrigins;
-      this._defaultOpts = opts;
-      this.undoStack = [];
-      this.redoStack = [];
-      this.addToScope(typeScope);
-    }
-    /**
-     * @param {Array<Y.AbstractType<any>> | Y.AbstractType<any>} ytypes
-     */
-    addToScope(ytypes) {
-      ytypes = isArray(ytypes) ? ytypes : [ytypes];
-      ytypes.forEach((ytype) => {
-        const ydoc = (
-          /** @type {Y.Doc} */
-          ytype.doc
-        );
-        const um = setIfUndefined(this.docs, ydoc, () => {
-          const um2 = new UndoManager([ytype], this._defaultOpts);
-          um2.on(
-            "stack-cleared",
-            /** @param {any} opts */
-            ({
-              undoStackCleared,
-              redoStackCleared
-            }) => {
-              this.clear(undoStackCleared, redoStackCleared);
-            }
-          );
-          ydoc.on("destroy", () => {
-            this.docs.delete(ydoc);
-            this.undoStack = this.undoStack.filter(
-              (um3) => um3.doc !== ydoc
-            );
-            this.redoStack = this.redoStack.filter(
-              (um3) => um3.doc !== ydoc
-            );
-          });
-          um2.on(
-            "stack-item-added",
-            /** @param {any} change */
-            (change) => {
-              const stack = change.type === "undo" ? this.undoStack : this.redoStack;
-              stack.push(um2);
-              this.emit("stack-item-added", [
-                { ...change, ydoc },
-                this
-              ]);
-            }
-          );
-          um2.on(
-            "stack-item-updated",
-            /** @param {any} change */
-            (change) => {
-              this.emit("stack-item-updated", [
-                { ...change, ydoc },
-                this
-              ]);
-            }
-          );
-          um2.on(
-            "stack-item-popped",
-            /** @param {any} change */
-            (change) => {
-              this.emit("stack-item-popped", [
-                { ...change, ydoc },
-                this
-              ]);
-            }
-          );
-          return um2;
-        });
-        if (um.scope.every((yt) => yt !== ytype)) {
-          um.scope.push(ytype);
-        }
-      });
-    }
-    /**
-     * @param {any} origin
-     */
-    /* c8 ignore next 3 */
-    addTrackedOrigin(origin2) {
-      this.trackedOrigins.add(origin2);
-    }
-    /**
-     * @param {any} origin
-     */
-    /* c8 ignore next 3 */
-    removeTrackedOrigin(origin2) {
-      this.trackedOrigins.delete(origin2);
-    }
-    /**
-     * Undo last changes on type.
-     *
-     * @return {any?} Returns StackItem if a change was applied
-     */
-    undo() {
-      return popStackItem2(this, "undo");
-    }
-    /**
-     * Redo last undo operation.
-     *
-     * @return {any?} Returns StackItem if a change was applied
-     */
-    redo() {
-      return popStackItem2(this, "redo");
-    }
-    clear(clearUndoStack = true, clearRedoStack = true) {
-      if (clearUndoStack && this.canUndo() || clearRedoStack && this.canRedo()) {
-        this.docs.forEach((um) => {
-          clearUndoStack && (this.undoStack = []);
-          clearRedoStack && (this.redoStack = []);
-          um.clear(clearUndoStack, clearRedoStack);
-        });
-        this.emit("stack-cleared", [
-          {
-            undoStackCleared: clearUndoStack,
-            redoStackCleared: clearRedoStack
-          }
-        ]);
-      }
-    }
-    /* c8 ignore next 5 */
-    stopCapturing() {
-      this.docs.forEach((um) => {
-        um.stopCapturing();
-      });
-    }
-    /**
-     * Are undo steps available?
-     *
-     * @return {boolean} `true` if undo is possible
-     */
-    canUndo() {
-      return this.undoStack.length > 0;
-    }
-    /**
-     * Are redo steps available?
-     *
-     * @return {boolean} `true` if redo is possible
-     */
-    canRedo() {
-      return this.redoStack.length > 0;
-    }
-    destroy() {
-      this.docs.forEach((um) => um.destroy());
-      super.destroy();
-    }
-  };
-
-  // packages/sync/build-module/undo-manager.mjs
-  function createUndoManager() {
-    const yUndoManager = new YMultiDocUndoManager([], {
-      // Throttle undo/redo captures after 500ms of inactivity.
-      // 500 was selected from subjective local UX testing, shorter timeouts
-      // may cause mid-word undo stack items.
-      captureTimeout: 500,
-      // Ensure that we only scope the undo/redo to the current editor.
-      // The yjs document's clientID is added once it's available.
-      trackedOrigins: /* @__PURE__ */ new Set([LOCAL_EDITOR_ORIGIN])
-    });
-    return {
-      /**
-       * Record changes into the history.
-       * Since Yjs automatically tracks changes, this method translates the WordPress
-       * HistoryRecord format into Yjs operations.
-       *
-       * @param _record   A record of changes to record.
-       * @param _isStaged Whether to immediately create an undo point or not.
-       */
-      addRecord(_record, _isStaged = false) {
-      },
-      /**
-       * Add a Yjs map to the scope of the undo manager.
-       *
-       * @param {Y.Map< any >} ymap                     The Yjs map to add to the scope.
-       * @param                handlers
-       * @param                handlers.addUndoMeta
-       * @param                handlers.restoreUndoMeta
-       */
-      addToScope(ymap, handlers) {
-        if (ymap.doc === null) {
-          return;
-        }
-        const ydoc = ymap.doc;
-        yUndoManager.addToScope(ymap);
-        const { addUndoMeta, restoreUndoMeta } = handlers;
-        yUndoManager.on("stack-item-added", (event) => {
-          addUndoMeta(ydoc, event.stackItem.meta);
-        });
-        yUndoManager.on("stack-item-popped", (event) => {
-          restoreUndoMeta(ydoc, event.stackItem.meta);
-        });
-      },
-      /**
-       * Undo the last recorded changes.
-       *
-       */
-      undo() {
-        if (!yUndoManager.canUndo()) {
-          return;
-        }
-        yUndoManager.undo();
-        return [];
-      },
-      /**
-       * Redo the last undone changes.
-       */
-      redo() {
-        if (!yUndoManager.canRedo()) {
-          return;
-        }
-        yUndoManager.redo();
-        return [];
-      },
-      /**
-       * Check if there are changes that can be undone.
-       *
-       * @return {boolean} Whether there are changes to undo.
-       */
-      hasUndo() {
-        return yUndoManager.canUndo();
-      },
-      /**
-       * Check if there are changes that can be redone.
-       *
-       * @return {boolean} Whether there are changes to redo.
-       */
-      hasRedo() {
-        return yUndoManager.canRedo();
-      },
-      /**
-       * Stop capturing changes into the current undo item.
-       * The next change will create a new undo item.
-       */
-      stopCapturing() {
-        yUndoManager.stopCapturing();
-      }
-    };
-  }
-
-  // packages/sync/build-module/manager.mjs
-  function createSyncManager() {
-    const collectionStates = /* @__PURE__ */ new Map();
-    const entityStates = /* @__PURE__ */ new Map();
-    let undoManager;
-    async function loadEntity(syncConfig, objectType, objectId, record, handlers) {
-      const providerCreators2 = getProviderCreators();
-      if (0 === providerCreators2.length) {
-        return;
-      }
-      const entityId = getEntityId(objectType, objectId);
-      if (entityStates.has(entityId)) {
-        return;
-      }
-      const ydoc = createYjsDoc({ objectType });
-      const recordMap = ydoc.getMap(CRDT_RECORD_MAP_KEY);
-      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
-      const now = Date.now();
-      const unload = () => {
-        providerResults.forEach((result) => result.destroy());
-        recordMap.unobserveDeep(onRecordUpdate);
-        recordMetaMap.unobserve(onRecordMetaUpdate);
-        ydoc.destroy();
-        entityStates.delete(entityId);
-      };
-      const awareness = syncConfig.createAwareness?.(ydoc, objectId);
-      const onRecordUpdate = (_events, transaction) => {
-        if (transaction.local && !(transaction.origin instanceof UndoManager)) {
-          return;
-        }
-        void updateEntityRecord(objectType, objectId);
-      };
-      const onRecordMetaUpdate = (event, transaction) => {
-        if (transaction.local) {
-          return;
-        }
-        event.keysChanged.forEach((key) => {
-          switch (key) {
-            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
-              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
-              if ("number" === typeof newValue && newValue > now) {
-                void handlers.refetchRecord().catch(() => {
-                });
-              }
-              break;
-          }
-        });
-      };
-      if (!undoManager) {
-        undoManager = createUndoManager();
-      }
-      const { addUndoMeta, restoreUndoMeta } = handlers;
-      undoManager.addToScope(recordMap, {
-        addUndoMeta,
-        restoreUndoMeta
-      });
-      const entityState = {
-        awareness,
-        handlers,
-        objectId,
-        objectType,
-        syncConfig,
-        unload,
-        ydoc
-      };
-      entityStates.set(entityId, entityState);
-      const providerResults = await Promise.all(
-        providerCreators2.map(async (create7) => {
-          const provider = await create7({
-            objectType,
-            objectId,
-            ydoc,
-            awareness
-          });
-          provider.on("sync-connection-status", handlers.onStateChange);
-          return provider;
-        })
-      );
-      recordMap.observeDeep(onRecordUpdate);
-      recordMetaMap.observe(onRecordMetaUpdate);
-      applyPersistedCrdtDoc(objectType, objectId, record);
-    }
-    async function loadCollection(syncConfig, objectType, handlers) {
-      const providerCreators2 = getProviderCreators();
-      if (0 === providerCreators2.length) {
-        return;
-      }
-      if (collectionStates.has(objectType)) {
-        return;
-      }
-      const ydoc = createYjsDoc({ collection: true, objectType });
-      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
-      const now = Date.now();
-      const unload = () => {
-        providerResults.forEach((result) => result.destroy());
-        recordMetaMap.unobserve(onRecordMetaUpdate);
-        ydoc.destroy();
-        collectionStates.delete(objectType);
-      };
-      const onRecordMetaUpdate = (event, transaction) => {
-        if (transaction.local) {
-          return;
-        }
-        event.keysChanged.forEach((key) => {
-          switch (key) {
-            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
-              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
-              if ("number" === typeof newValue && newValue > now) {
-                void handlers.refetchRecords().catch(() => {
-                });
-              }
-              break;
-          }
-        });
-      };
-      const awareness = syncConfig.createAwareness?.(ydoc);
-      awareness?.setUp();
-      const collectionState = {
-        awareness,
-        handlers,
-        syncConfig,
-        unload,
-        ydoc
-      };
-      collectionStates.set(objectType, collectionState);
-      const providerResults = await Promise.all(
-        providerCreators2.map(async (create7) => {
-          const provider = await create7({
-            awareness,
-            objectType,
-            objectId: null,
-            ydoc
-          });
-          provider.on("sync-connection-status", handlers.onStateChange);
-          return provider;
-        })
-      );
-      recordMetaMap.observe(onRecordMetaUpdate);
-    }
-    function unloadEntity(objectType, objectId) {
-      entityStates.get(getEntityId(objectType, objectId))?.unload();
-      updateCRDTDoc(objectType, null, {}, origin, { isSave: true });
-    }
-    function getEntityId(objectType, objectId) {
-      return `${objectType}_${objectId}`;
-    }
-    function getAwareness(objectType, objectId) {
-      const entityId = getEntityId(objectType, objectId);
-      const entityState = entityStates.get(entityId);
-      if (!entityState || !entityState.awareness) {
-        return void 0;
-      }
-      return entityState.awareness;
-    }
-    function applyPersistedCrdtDoc(objectType, objectId, record) {
-      const entityId = getEntityId(objectType, objectId);
-      const entityState = entityStates.get(entityId);
-      if (!entityState) {
-        return;
-      }
-      const {
-        handlers,
-        syncConfig: {
-          applyChangesToCRDTDoc,
-          getChangesFromCRDTDoc,
-          supports
-        },
-        ydoc: targetDoc
-      } = entityState;
-      if (!supports?.crdtPersistence) {
-        targetDoc.transact(() => {
-          applyChangesToCRDTDoc(targetDoc, record);
-        }, LOCAL_SYNC_MANAGER_ORIGIN);
-        return;
-      }
-      const tempDoc = getPersistedCrdtDoc(record);
-      if (!tempDoc) {
-        targetDoc.transact(() => {
-          applyChangesToCRDTDoc(targetDoc, record);
-          handlers.saveRecord();
-        }, LOCAL_SYNC_MANAGER_ORIGIN);
-        return;
-      }
-      const update = encodeStateAsUpdateV2(tempDoc);
-      applyUpdateV2(targetDoc, update);
-      const invalidations = getChangesFromCRDTDoc(tempDoc, record);
-      const invalidatedKeys = Object.keys(invalidations);
-      tempDoc.destroy();
-      if (0 === invalidatedKeys.length) {
-        return;
-      }
-      const changes = invalidatedKeys.reduce(
-        (acc, key) => Object.assign(acc, {
-          [key]: record[key]
-        }),
-        {}
-      );
-      targetDoc.transact(() => {
-        applyChangesToCRDTDoc(targetDoc, changes);
-        handlers.saveRecord();
-      }, LOCAL_SYNC_MANAGER_ORIGIN);
-    }
-    function updateCRDTDoc(objectType, objectId, changes, origin2, options = {}) {
-      const { isSave = false, isNewUndoLevel = false } = options;
-      const entityId = getEntityId(objectType, objectId);
-      const entityState = entityStates.get(entityId);
-      const collectionState = collectionStates.get(objectType);
-      if (entityState) {
-        const { syncConfig, ydoc } = entityState;
-        if (isNewUndoLevel && undoManager) {
-          undoManager.stopCapturing?.();
-        }
-        ydoc.transact(() => {
-          syncConfig.applyChangesToCRDTDoc(ydoc, changes);
-          if (isSave) {
-            markEntityAsSaved(ydoc);
-          }
-        }, origin2);
-      }
-      if (collectionState && isSave) {
-        collectionState.ydoc.transact(() => {
-          markEntityAsSaved(collectionState.ydoc);
-        }, origin2);
-      }
-    }
-    async function updateEntityRecord(objectType, objectId) {
-      const entityId = getEntityId(objectType, objectId);
-      const entityState = entityStates.get(entityId);
-      if (!entityState) {
-        return;
-      }
-      const { handlers, syncConfig, ydoc } = entityState;
-      const changes = syncConfig.getChangesFromCRDTDoc(
-        ydoc,
-        await handlers.getEditedRecord()
-      );
-      if (0 === Object.keys(changes).length) {
-        return;
-      }
-      handlers.editRecord(changes);
-    }
-    function createEntityMeta(objectType, objectId) {
-      const entityId = getEntityId(objectType, objectId);
-      const entityState = entityStates.get(entityId);
-      if (!entityState?.syncConfig.supports?.crdtPersistence) {
-        return {};
-      }
-      return createPersistedCRDTDoc(entityState.ydoc);
-    }
-    return {
-      createMeta: createEntityMeta,
-      getAwareness,
-      load: loadEntity,
-      loadCollection,
-      // Use getter to ensure we always return the current value of `undoManager`.
-      get undoManager() {
-        return undoManager;
-      },
-      unload: unloadEntity,
-      update: updateCRDTDoc
-    };
-  }
+  // packages/sync/build-module/index.mjs
+  var YJS_VERSION = "13";
   return __toCommonJS(index_exports);
 })();
 /*! Bundled license information:

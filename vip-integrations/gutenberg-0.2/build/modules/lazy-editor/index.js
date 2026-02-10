@@ -216,6 +216,7 @@ var VALID_SETTINGS = [
   "typography.textAlign",
   "typography.textColumns",
   "typography.textDecoration",
+  "typography.textIndent",
   "typography.textTransform",
   "typography.writingMode"
 ];
@@ -1242,6 +1243,26 @@ function concatFeatureVariationSelectorString(featureSelector, styleVariationSel
   });
   return combinedSelectors.join(", ");
 }
+var updateParagraphTextIndentSelector = (featureDeclarations, settings, blockName) => {
+  if (blockName !== "core/paragraph") {
+    return featureDeclarations;
+  }
+  const blockSettings = settings?.blocks?.["core/paragraph"];
+  const textIndentSetting = blockSettings?.typography?.textIndent ?? settings?.typography?.textIndent ?? "subsequent";
+  if (textIndentSetting !== "all") {
+    return featureDeclarations;
+  }
+  const oldSelector = ".wp-block-paragraph + .wp-block-paragraph";
+  const newSelector = ".wp-block-paragraph";
+  if (oldSelector in featureDeclarations) {
+    const declarations = featureDeclarations[oldSelector];
+    const updated = { ...featureDeclarations };
+    delete updated[oldSelector];
+    updated[newSelector] = declarations;
+    return updated;
+  }
+  return featureDeclarations;
+};
 var getFeatureDeclarations = (selectors, styles) => {
   const declarations = {};
   Object.entries(selectors).forEach(([feature, selector]) => {
@@ -1593,7 +1614,8 @@ var getNodesWithStyles = (tree, blockSelectors) => {
           selector: blockSelectors[blockName].selector,
           styles: blockStyles,
           featureSelectors: blockSelectors[blockName].featureSelectors,
-          styleVariationSelectors: blockSelectors[blockName].styleVariationSelectors
+          styleVariationSelectors: blockSelectors[blockName].styleVariationSelectors,
+          name: blockName
         });
       }
       Object.entries(typedNode?.elements ?? {}).forEach(
@@ -1718,12 +1740,18 @@ var transformToStyles = (tree, blockSelectors, hasBlockGapSupport, hasFallbackGa
         hasLayoutSupport,
         featureSelectors,
         styleVariationSelectors,
-        skipSelectorWrapper
+        skipSelectorWrapper,
+        name
       }) => {
         if (featureSelectors) {
-          const featureDeclarations = getFeatureDeclarations(
+          let featureDeclarations = getFeatureDeclarations(
             featureSelectors,
             styles
+          );
+          featureDeclarations = updateParagraphTextIndentSelector(
+            featureDeclarations,
+            tree.settings,
+            name
           );
           Object.entries(featureDeclarations).forEach(
             ([cssSelector, declarations]) => {
@@ -1781,9 +1809,14 @@ var transformToStyles = (tree, blockSelectors, hasBlockGapSupport, hasFallbackGa
               const styleVariations = styles?.variations?.[styleVariationName];
               if (styleVariations) {
                 if (featureSelectors) {
-                  const featureDeclarations = getFeatureDeclarations(
+                  let featureDeclarations = getFeatureDeclarations(
                     featureSelectors,
                     styleVariations
+                  );
+                  featureDeclarations = updateParagraphTextIndentSelector(
+                    featureDeclarations,
+                    tree.settings,
+                    name
                   );
                   Object.entries(
                     featureDeclarations
@@ -2508,9 +2541,9 @@ var import_block_editor = __toESM(require_block_editor(), 1);
 var import_editor2 = __toESM(require_editor(), 1);
 var import_blocks2 = __toESM(require_blocks(), 1);
 var import_jsx_runtime2 = __toESM(require_jsx_runtime(), 1);
-if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='14775f3f8e']")) {
+if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='bfd491ce10']")) {
   const style = document.createElement("style");
-  style.setAttribute("data-wp-hash", "14775f3f8e");
+  style.setAttribute("data-wp-hash", "bfd491ce10");
   style.appendChild(document.createTextNode(".lazy-editor-block-preview__container{align-items:center;border-radius:4px;display:flex;flex-direction:column;height:100%;justify-content:center}.dataviews-view-grid .lazy-editor-block-preview__container .block-editor-block-preview__container{height:100%}.dataviews-view-table .lazy-editor-block-preview__container{text-wrap:balance;text-wrap:pretty;flex-grow:0;width:96px}"));
   document.head.appendChild(style);
 }
