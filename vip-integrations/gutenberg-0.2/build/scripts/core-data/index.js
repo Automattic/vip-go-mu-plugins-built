@@ -1615,8 +1615,8 @@ var wp;
           ([clientId, collaboratorState]) => [
             String(clientId),
             {
-              name: collaboratorState.collaboratorInfo.name,
-              wpUserId: collaboratorState.collaboratorInfo.id
+              name: collaboratorState?.collaboratorInfo?.name,
+              wpUserId: collaboratorState?.collaboratorInfo?.id
             }
           ]
         )
