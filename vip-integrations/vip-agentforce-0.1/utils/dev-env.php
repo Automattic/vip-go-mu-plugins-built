@@ -5,7 +5,10 @@ namespace Automattic\VIP\Salesforce\Agentforce\Utils;
 use Automattic\VIP\Salesforce\Agentforce\Utils\Logger;
 
 function load_integration_configs_from_url(): void {
-	$config_api_url = vip_get_env_var( 'VIP_CONFIG_API_URL', getenv( 'VIP_CONFIG_API_URL' ) );
+	// vip_get_env_var() is provided by VIP mu-plugins; fall back to getenv() if not available.
+	$config_api_url = function_exists( 'vip_get_env_var' )
+		? vip_get_env_var( 'VIP_CONFIG_API_URL', getenv( 'VIP_CONFIG_API_URL' ) )
+		: getenv( 'VIP_CONFIG_API_URL' );
 
 	if ( ! $config_api_url ) {
 		Logger::info(

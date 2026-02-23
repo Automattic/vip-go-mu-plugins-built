@@ -5,7 +5,7 @@
  * Description: WordPress integration for Salesforce Agentforce on VIP
  * Author: WordPress VIP
  * Text Domain: vip-agentforce
- * Version: 0.1.2
+ * Version: 0.1.5
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -74,6 +74,15 @@ require_once __DIR__ . '/modules/ingestion/class-ingestion.php';
 require_once __DIR__ . '/modules/ingestion/class-ingestion-failure.php';
 require_once __DIR__ . '/modules/ingestion/class-deletion-failure.php';
 require_once __DIR__ . '/modules/ingestion/class-ingestion-config-filters.php';
+require_once __DIR__ . '/modules/ingestion/class-ingestion-queue.php';
+require_once __DIR__ . '/modules/ingestion/class-ingestion-cron.php';
+require_once __DIR__ . '/modules/ingestion/class-ingestion-sync-progress.php';
+require_once __DIR__ . '/modules/ingestion/class-ingestion-rest.php';
+
+// Initialize ingestion queue and cron (async processing of Salesforce API calls).
+\Automattic\VIP\Salesforce\Agentforce\Ingestion\Ingestion_Queue::init();
+\Automattic\VIP\Salesforce\Agentforce\Ingestion\Ingestion_Cron::init();
+\Automattic\VIP\Salesforce\Agentforce\Ingestion\Ingestion_REST::init();
 
 // Load WP-CLI commands.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

@@ -44,6 +44,16 @@ class Configs {
 	}
 
 	/**
+	 * Returns the Agentforce embedding script snippet from integration config.
+	 */
+	public static function get_embedding_script(): string {
+		$config           = self::get_config();
+		$embedding_script = $config['agentforce_embedding_script'] ?? '';
+
+		return is_string( $embedding_script ) ? $embedding_script : '';
+	}
+
+	/**
 	 * Get the config
 	 * @return array{
 	 *     salesforce_instance_url?: string,
@@ -55,6 +65,7 @@ class Configs {
 	 *     ingestion_api_sync_all_posts?: bool,
 	 *     ingestion_api_categories?: array<string>,
 	 *     agentforce_js_sdk_url?: string,
+	 *     agentforce_embedding_script?: string,
 	 *     agentforce_js_sdk_activated?: bool
 	 * } The module configs. Returns an empty array if configs are not found, not defined, or if JSON parsing fails.
 	 *

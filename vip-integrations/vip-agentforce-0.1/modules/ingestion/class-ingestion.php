@@ -24,23 +24,17 @@ class Ingestion {
 
 	/**
 	 * Initialize the module.
+	 *
+	 * Note: Hook registration is now handled by Ingestion_Queue, which supports
+	 * both async (cron) and sync (immediate) modes via the
+	 * `vip_agentforce_use_async_ingestion` filter.
+	 *
+	 * - Async mode (default): Posts are queued, processed by Ingestion_Cron
+	 * - Sync mode: Posts are processed immediately via sync_post()
 	 */
 	public static function init(): void {
-		add_action( 'save_post', [ __CLASS__, 'handle_save_post' ], 10, 2 );
-		add_action( 'before_delete_post', [ __CLASS__, 'handle_before_delete_post' ], 10, 2 );
-	}
-
-	/**
-	 * Handle post save - ingest or delete from Salesforce as appropriate.
-	 *
-	 * If the post passes the filter, it will be ingested.
-	 * If it doesn't pass but was previously ingested, it will be deleted.
-	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post    Post object.
-	 */
-	public static function handle_save_post( int $post_id, \WP_Post $post ): void {
-		self::sync_post( $post );
+		// Hook registration is handled by Ingestion_Queue::init().
+		// This method is kept for backwards compatibility and future extensibility.
 	}
 
 	/**
@@ -326,7 +320,11 @@ class Ingestion {
 	 * Handle permanent post deletion.
 	 *
 	 * When a published post is permanently deleted, we delete it from Salesforce
-	 * if it was ingestible.
+	 * if it was previously ingested.
+	 *
+	 * Called by:
+	 * - Ingestion_Cron (async mode) via cron processing
+	 * - Ingestion_Queue (sync mode) directly on before_delete_post hook
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post    Post object.
@@ -501,4 +499,5 @@ class Ingestion {
 	}
 }
 
-Ingestion::init();
+// Note: Ingestion::init() is no longer called here.
+// Initialization is now handled by Ingestion_Queue and Ingestion_Cron.

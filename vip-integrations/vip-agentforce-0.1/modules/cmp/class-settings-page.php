@@ -231,9 +231,9 @@ class Settings_Page {
 		);
 
 		add_settings_field(
-			'agentforce_js_sdk_url',
-			__( 'Salesforce SDK URL', 'vip-agentforce' ),
-			array( $this, 'render_sdk_url_field' ),
+			'agentforce_embedding_script',
+			__( 'Salesforce JS Embed', 'vip-agentforce' ),
+			array( $this, 'render_embedding_script_field' ),
 			'vip-agentforce-settings',
 			'agentforce_settings_section'
 		);
@@ -333,22 +333,22 @@ class Settings_Page {
 	}
 
 	/**
-	 * Render the Salesforce SDK URL.
+	 * Render the embedding script read-only status.
 	 */
-	public function render_sdk_url_field(): void {
-		$value = Configs::get_js_sdk_url();
-		if ( ! empty( $value ) ) {
-			printf(
-				'<code id="agentforce-sdk-url" data-url="%s">%s</code>',
-				esc_attr( $value ),
-				esc_html( $value )
-			);
-		} else {
-			printf(
-				'<code id="agentforce-sdk-url" data-url="">%s</code>',
-				esc_html__( 'Not configured', 'vip-agentforce' )
-			);
-		}
+	public function render_embedding_script_field(): void {
+		$has_valid_script = Assets::get_instance()->has_valid_embedding_script();
+		$status           = $has_valid_script ? 'configured' : 'not-configured';
+		$label            = $has_valid_script ? __( 'Configured', 'vip-agentforce' ) : __( 'Not configured', 'vip-agentforce' );
+		$description      = $has_valid_script
+			? __( 'Salesforce JS Embed is available from the VIP integration configuration.', 'vip-agentforce' )
+			: __( 'A valid Salesforce JS Embed is not configured in the VIP integration configuration.', 'vip-agentforce' );
+
+		printf(
+			'<code id="agentforce-embedding-script-status" data-status="%s">%s</code><p class="description">%s</p>',
+			esc_attr( $status ),
+			esc_html( $label ),
+			esc_html( $description )
+		);
 	}
 
 	/**
@@ -450,9 +450,8 @@ class Settings_Page {
 									<td><?php $this->render_enable_sdk_field(); ?></td>
 								</tr>
 								<tr id="row_sdk">
-									<th scope="row"><?php esc_html_e( 'Salesforce SDK URL', 'vip-agentforce' ); ?></th>
-									<td><?php $this->render_sdk_url_field(); ?><p
-											class="description"><?php esc_html_e( 'This is read-only and comes from the VIP integration configuration.', 'vip-agentforce' ); ?></p>
+									<th scope="row"><?php esc_html_e( 'Salesforce JS Embed', 'vip-agentforce' ); ?></th>
+									<td><?php $this->render_embedding_script_field(); ?>
 									</td>
 								</tr>
 								<tr id="row_consent">
