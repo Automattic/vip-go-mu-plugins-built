@@ -6,97 +6,30 @@ defined( 'ABSPATH' ) || exit();
 
 final class Settings {
 	private const SETTINGS_PAGE_SLUG = 'vip-real-time-collaboration-settings';
-	public const OPTION_NAME = 'vip_real_time_collaboration_settings';
 
 	/**
 	 * We now have a separate option in WordPress Writing settings that we need to
 	 * target.
 	 */
-	public const GUTENBERG_OPTION_NAME = 'gutenberg_enable_real_time_collaboration';
+	public const GUTENBERG_OPTION_NAME = 'enable_real_time_collaboration';
 
 	public function __construct() {
-		add_action( 'admin_init', [ $this, 'register_settings' ] );
 		add_action( 'admin_menu', [ $this, 'add_options_page' ] );
-		add_filter( 'pre_option_' . self::GUTENBERG_OPTION_NAME, [ $this, 'filter_gutenberg_rtc_option' ], 10, 0 );
+		add_filter( 'default_option_' . self::GUTENBERG_OPTION_NAME, [ $this, 'filter_gutenberg_rtc_option' ], 99 );
 	}
 
 	public static function is_vip_rtc_enabled(): bool {
-		/** @var array<string, mixed> */
-		$options = get_option( self::OPTION_NAME, self::get_default_options() );
-
-		return ! empty( $options['enable-vip-rtc'] );
+		return (bool) get_option( self::GUTENBERG_OPTION_NAME );
 	}
 
 	/**
-	 * Filter the Gutenberg RTC option based on our plugin's setting.
+	 * Filter the Gutenberg RTC option to be enabled by defailt.
 	 *
 	 * @return int Whether RTC should be enabled in Gutenberg.
 	 * @psalm-suppress PossiblyUnusedReturnValue Psalm does not detect usage via add_filter.
 	 */
 	public function filter_gutenberg_rtc_option(): int {
-		return self::is_vip_rtc_enabled() ? 1 : 0;
-	}
-
-	/**
-	 * Get the default options for the plugin.
-	 *
-	 * @return array The default options.
-	 */
-	public static function get_default_options(): array {
-		return [ 'enable-vip-rtc' => true ];
-	}
-
-	/**
-	 * Sanitize settings before saving.
-	 *
-	 * Converts radio button values ('1' for enabled, '0' for disabled) to boolean.
-	 *
-	 * @param array $input The input values from the form.
-	 * @return array The sanitized settings.
-	 * @psalm-suppress PossiblyUnusedMethod Psalm does not detect usage via add_filter.
-	 */
-	public static function sanitize_settings( ?array $input = [] ): array {
-		return [
-			'enable-vip-rtc' => isset( $input['enable-vip-rtc'] ) && '1' === $input['enable-vip-rtc'],
-		];
-	}
-
-	/**
-	 * Register the settings for the settings page
-	 */
-	public static function register_settings(): void {
-		register_setting(
-			self::SETTINGS_PAGE_SLUG,
-			self::OPTION_NAME,
-			[
-				'type' => 'array',
-				'default' => self::get_default_options(),
-				'sanitize_callback' => [ __CLASS__, 'sanitize_settings' ],
-			]
-		);
-
-		// Add instructions section.
-		add_settings_section(
-			'plugin-settings',
-			'',
-			'__return_null',
-			self::SETTINGS_PAGE_SLUG
-		);
-
-		/** @psalm-suppress InvalidArgument */ // WordPress Settings API allows custom args.
-		add_settings_field(
-			'enable-vip-rtc',
-			__( 'Real-Time Collaboration', 'vip-real-time-collaboration' ),
-			[ __CLASS__, 'display_settings_radio' ],
-			self::SETTINGS_PAGE_SLUG,
-			'plugin-settings',
-			[
-				'field_id' => 'enable-vip-rtc',
-				'enabled_label' => __( 'Enable real-time collaboration', 'vip-real-time-collaboration' ),
-				'disabled_label' => __( 'Disable real-time collaboration', 'vip-real-time-collaboration' ),
-				'description' => __( 'Disable functionality in case of an emergency.', 'vip-real-time-collaboration' ),
-			]
-		);
+		return 1;
 	}
 
 	/**
@@ -120,15 +53,6 @@ final class Settings {
 		<div id="vip-real-time-collaboration-settings-wrapper" class="wrap">
 			<h1><?php esc_html_e( 'VIP Real-Time Collaboration', 'vip-real-time-collaboration' ); ?></h1>
 
-			<h2><?php esc_html_e( 'Plugin Settings', 'vip-real-time-collaboration' ); ?></h2>
-			<form action="options.php" method="post">
-				<?php
-				settings_fields( self::SETTINGS_PAGE_SLUG );
-				do_settings_sections( self::SETTINGS_PAGE_SLUG );
-				submit_button();
-				?>
-			</form>
-
 			<h2><?php esc_html_e( 'Debug Information', 'vip-real-time-collaboration' ); ?></h2>
 			<p>
 				<?php
@@ -148,47 +72,21 @@ final class Settings {
 				echo esc_html( sprintf( __( 'Gutenberg Commit Hash: %s', 'vip-real-time-collaboration' ), self::get_gutenberg_commit_hash() ) );
 				?>
 			</p>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Display radio button fields for enabling/disabling a setting.
-	 *
-	 * @param array{field_id: string, enabled_label: string, disabled_label: string, description: string} $args Field configuration.
-	 */
-	public static function display_settings_radio( array $args ): void {
-		/** @var array<string, mixed> */
-		$options = get_option( self::OPTION_NAME, self::get_default_options() );
-		$value = ! empty( $options[ $args['field_id'] ] );
-		$field_name = self::OPTION_NAME . '[' . $args['field_id'] . ']';
-		?>
-		<fieldset>
-			<label>
-				<input
-					type="radio"
-					name="<?php echo esc_attr( $field_name ); ?>"
-					id="<?php echo esc_attr( $args['field_id'] . '-enabled' ); ?>"
-					value="1"
-					<?php checked( $value ); ?>
-				/>
-				<?php echo esc_html( $args['enabled_label'] ); ?>
-			</label>
-			<br />
-			<label>
-				<input
-					type="radio"
-					name="<?php echo esc_attr( $field_name ); ?>"
-					id="<?php echo esc_attr( $args['field_id'] . '-disabled' ); ?>"
-					value="0"
-					<?php checked( $value, false ); ?>
-				/>
-				<?php echo esc_html( $args['disabled_label'] ); ?>
-			</label>
-			<p class="description">
-				<?php echo esc_html( $args['description'] ); ?>
+			<p>
+				<?php
+				// Add a link to the Writing settings page where real-time collaboration can be enabled or disabled.
+				$writing_settings_url = admin_url( 'options-writing.php' );
+				echo wp_kses(
+					sprintf(
+						/* translators: %s: URL to the Writing settings page */
+						__( 'Real-time collaboration can be enabled or disabled on the <a href="%s">Writing settings page</a>.', 'vip-real-time-collaboration' ),
+						esc_url( $writing_settings_url )
+					),
+					[ 'a' => [ 'href' => [] ] ]
+				);
+				?>
 			</p>
-		</fieldset>
+		</div>
 		<?php
 	}
 

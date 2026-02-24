@@ -2,19 +2,12 @@
 
 namespace VIPRealTimeCollaboration\Compatibility;
 
-use VIPRealTimeCollaboration\Settings\Settings;
-
 defined( 'ABSPATH' ) || exit();
 
 /**
  * Inspects and adjusts the environment to ensure the plugin can load.
  */
 final class Compatibility {
-	public function __construct() {
-		add_filter( 'option_gutenberg-experiments', [ $this, 'enable_sync_collaboration_experiment' ], 10, 1 );
-		add_filter( 'default_option_gutenberg-experiments', [ $this, 'enable_sync_collaboration_experiment' ], 10, 1 );
-	}
-
 	public static function admin_notices(): void {
 		if ( ! self::is_gutenberg_plugin_active() ) {
 			wp_admin_notice(
@@ -35,33 +28,6 @@ final class Compatibility {
 				[ 'type' => 'error' ]
 			);
 		}
-	}
-
-	/**
-	 * Force-enable sync collaboration experiment.
-	 *
-	 * @psalm-suppress PossiblyUnusedReturnValue Psalm does not detect usage via add_filter.
-	 */
-	public function enable_sync_collaboration_experiment( mixed $experiments ): array {
-		global $pagenow;
-
-		if ( ! is_array( $experiments ) ) {
-			$experiments = [];
-		}
-
-		unset( $experiments['gutenberg-sync-collaboration'] );
-
-		// Check if RTC is enabled in settings.
-		$is_vip_rtc_enabled = Settings::is_vip_rtc_enabled();
-
-		// Do not enable on Site Editor, or if RTC is not enabled.
-		if ( 'site-editor.php' === $pagenow || ! $is_vip_rtc_enabled ) {
-			return $experiments;
-		}
-
-		$experiments['gutenberg-sync-collaboration'] = true;
-
-		return $experiments;
 	}
 
 	/**
