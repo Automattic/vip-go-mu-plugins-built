@@ -3070,7 +3070,8 @@ return array(
 			),
 			'interactivity' => array(
 				'clientNavigation' => true
-			)
+			),
+			'listView' => true
 		),
 		'editorStyle' => 'wp-block-gallery-editor',
 		'style' => 'wp-block-gallery'
@@ -3353,6 +3354,96 @@ return array(
 			'customCSS' => false
 		),
 		'editorStyle' => 'wp-block-html-editor'
+	),
+	'icon' => array(
+		'apiVersion' => 3,
+		'$schema' => 'https://schemas.wp.org/trunk/block.json',
+		'name' => 'core/icon',
+		'title' => 'Icon',
+		'category' => 'media',
+		'description' => 'Insert an SVG icon.',
+		'keywords' => array(
+			'icon',
+			'svg'
+		),
+		'textdomain' => 'default',
+		'attributes' => array(
+			'icon' => array(
+				'type' => 'string',
+				'role' => 'content'
+			)
+		),
+		'supports' => array(
+			'anchor' => true,
+			'ariaLabel' => array(
+				'__experimentalSkipSerialization' => true
+			),
+			'align' => array(
+				'left',
+				'center',
+				'right'
+			),
+			'html' => false,
+			'color' => array(
+				'background' => true,
+				'text' => true,
+				'__experimentalSkipSerialization' => true
+			),
+			'interactivity' => array(
+				'clientNavigation' => true
+			),
+			'__experimentalBorder' => array(
+				'color' => true,
+				'radius' => true,
+				'style' => true,
+				'width' => true,
+				'__experimentalSkipSerialization' => true,
+				'__experimentalDefaultControls' => array(
+					'color' => false,
+					'radius' => false,
+					'style' => false,
+					'width' => false
+				)
+			),
+			'spacing' => array(
+				'padding' => true,
+				'margin' => true,
+				'__experimentalSkipSerialization' => array(
+					'padding'
+				),
+				'__experimentalDefaultControls' => array(
+					'margin' => false,
+					'padding' => false
+				)
+			),
+			'dimensions' => array(
+				'width' => true,
+				'__experimentalSkipSerialization' => array(
+					'width'
+				),
+				'__experimentalDefaultControls' => array(
+					'width' => true
+				)
+			)
+		),
+		'selectors' => array(
+			'root' => '.wp-block-icon',
+			'color' => array(
+				'root' => '.wp-block-icon svg'
+			),
+			'border' => array(
+				'root' => '.wp-block-icon svg'
+			),
+			'spacing' => array(
+				'padding' => '.wp-block-icon svg'
+			),
+			'dimensions' => array(
+				'root' => '.wp-block-icon svg',
+				'width' => '.wp-block-icon svg'
+			)
+		),
+		'style' => 'wp-block-icon',
+		'editorStyle' => 'wp-block-icon-editor'
 	),
 	'image' => array(
 		'$schema' => 'https://schemas.wp.org/trunk/block.json',
@@ -4267,6 +4358,7 @@ return array(
 			'core/page-list',
 			'core/spacer',
 			'core/home-link',
+			'core/icon',
 			'core/site-title',
 			'core/site-logo',
 			'core/navigation-submenu',
@@ -4375,6 +4467,7 @@ return array(
 			'customFontSize' => 'customFontSize',
 			'showSubmenuIcon' => 'showSubmenuIcon',
 			'submenuVisibility' => 'submenuVisibility',
+			'openSubmenusOnClick' => 'openSubmenusOnClick',
 			'style' => 'style',
 			'maxNestingLevel' => 'maxNestingLevel'
 		),
@@ -4641,6 +4734,7 @@ return array(
 			'customFontSize',
 			'showSubmenuIcon',
 			'maxNestingLevel',
+			'openSubmenusOnClick',
 			'submenuVisibility',
 			'style'
 		),
@@ -4734,7 +4828,8 @@ return array(
 			'customFontSize',
 			'showSubmenuIcon',
 			'style',
-			'openSubmenusOnClick'
+			'openSubmenusOnClick',
+			'submenuVisibility'
 		),
 		'supports' => array(
 			'anchor' => true,
@@ -4832,7 +4927,8 @@ return array(
 			'customFontSize',
 			'showSubmenuIcon',
 			'style',
-			'openSubmenusOnClick'
+			'openSubmenusOnClick',
+			'submenuVisibility'
 		),
 		'supports' => array(
 			'anchor' => true,
@@ -5516,11 +5612,6 @@ return array(
 			'postType',
 			'postId'
 		),
-		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			)
-		),
 		'example' => array(
 			'viewportWidth' => 350
 		),
@@ -5542,6 +5633,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -5791,6 +5883,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textColumns' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -5948,9 +6041,6 @@ return array(
 		'description' => 'Displays the next or previous post link that is adjacent to the current post.',
 		'textdomain' => 'default',
 		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'type' => array(
 				'type' => 'string',
 				'default' => 'next'
@@ -5989,6 +6079,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6093,9 +6184,6 @@ return array(
 			'term' => array(
 				'type' => 'string'
 			),
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'separator' => array(
 				'type' => 'string',
 				'default' => ', '
@@ -6137,6 +6225,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6178,9 +6267,6 @@ return array(
 			'postType'
 		),
 		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'displayAsRange' => array(
 				'type' => 'boolean',
 				'default' => true
@@ -6215,6 +6301,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6250,9 +6337,6 @@ return array(
 			'queryId'
 		),
 		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'level' => array(
 				'type' => 'number',
 				'default' => 2
@@ -6303,6 +6387,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6562,8 +6647,7 @@ return array(
 			),
 			'html' => false,
 			'layout' => true,
-			'interactivity' => true,
-			'contentRole' => true
+			'interactivity' => true
 		),
 		'editorStyle' => 'wp-block-query-editor'
 	),
@@ -6852,9 +6936,6 @@ return array(
 			'type' => array(
 				'type' => 'string'
 			),
-			'textAlign' => array(
-				'type' => 'string'
-			),
 			'level' => array(
 				'type' => 'number',
 				'default' => 1
@@ -6900,6 +6981,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontStyle' => true,
 				'__experimentalFontWeight' => true,
@@ -7974,14 +8056,7 @@ return array(
 					'text' => true
 				)
 			),
-			'layout' => array(
-				'allowSwitching' => true,
-				'allowInheriting' => false,
-				'allowVerticalAlignment' => true,
-				'allowJustification' => true,
-				'allowOrientation' => true,
-				'allowSizingOnChildren' => true
-			),
+			'layout' => true,
 			'spacing' => array(
 				'blockGap' => true,
 				'padding' => true,
@@ -8418,8 +8493,12 @@ return array(
 			'align' => true,
 			'anchor' => true,
 			'color' => array(
-				'text' => false,
-				'background' => false
+				'text' => true,
+				'background' => true,
+				'__experimentalDefaultControls' => array(
+					'text' => true,
+					'background' => true
+				)
 			),
 			'layout' => array(
 				'default' => array(
@@ -8447,61 +8526,6 @@ return array(
 				'__experimentalFontFamily' => true
 			),
 			'renaming' => true
-		),
-		'example' => array(
-			'attributes' => array(
-				'className' => 'is-example'
-			),
-			'innerBlocks' => array(
-				array(
-					'name' => 'core/tabs-menu',
-					'attributes' => array(
-						
-					),
-					'innerBlocks' => array(
-						array(
-							'name' => 'core/tabs-menu-item',
-							'attributes' => array(
-								
-							)
-						)
-					)
-				),
-				array(
-					'name' => 'core/tab-panel',
-					'attributes' => array(
-						
-					),
-					'innerBlocks' => array(
-						array(
-							'name' => 'core/tab',
-							'attributes' => array(
-								'label' => 'Tab 1'
-							),
-							'innerBlocks' => array(
-								array(
-									'name' => 'core/paragraph',
-									'attributes' => array(
-										'content' => 'Pariatur commodo sint mollit. Veniam Lorem labore voluptate fugiat. Ad nulla est labore cillum cillum qui nostrud do incididunt eiusmod.'
-									)
-								)
-							)
-						),
-						array(
-							'name' => 'core/tab',
-							'attributes' => array(
-								'label' => 'Tab 2'
-							)
-						),
-						array(
-							'name' => 'core/tab',
-							'attributes' => array(
-								'label' => 'Tab 3'
-							)
-						)
-					)
-				)
-			)
 		),
 		'providesContext' => array(
 			'core/tabs-activeTabIndex' => 'activeTabIndex',
@@ -8618,30 +8642,7 @@ return array(
 			'core/tabs-editorActiveTabIndex'
 		),
 		'attributes' => array(
-			'activeBackgroundColor' => array(
-				'type' => 'string'
-			),
-			'customActiveBackgroundColor' => array(
-				'type' => 'string'
-			),
-			'activeTextColor' => array(
-				'type' => 'string'
-			),
-			'customActiveTextColor' => array(
-				'type' => 'string'
-			),
-			'hoverBackgroundColor' => array(
-				'type' => 'string'
-			),
-			'customHoverBackgroundColor' => array(
-				'type' => 'string'
-			),
-			'hoverTextColor' => array(
-				'type' => 'string'
-			),
-			'customHoverTextColor' => array(
-				'type' => 'string'
-			)
+			
 		),
 		'supports' => array(
 			'html' => false,
@@ -8665,16 +8666,7 @@ return array(
 				)
 			),
 			'layout' => array(
-				'default' => array(
-					'type' => 'flex',
-					'orientation' => 'vertical',
-					'flexWrap' => 'nowrap'
-				),
-				'allowVerticalAlignment' => true,
-				'allowJustification' => true,
-				'allowSwitching' => false,
-				'allowOrientation' => false,
-				'allowWrap' => false
+				'allowEditing' => false
 			),
 			'spacing' => array(
 				'padding' => true,
@@ -8882,11 +8874,6 @@ return array(
 			'termId',
 			'taxonomy'
 		),
-		'attributes' => array(
-			'textAlign' => array(
-				'type' => 'string'
-			)
-		),
 		'supports' => array(
 			'anchor' => true,
 			'align' => array(
@@ -8908,6 +8895,7 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
+				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -9187,12 +9175,16 @@ return array(
 		'$schema' => 'https://schemas.wp.org/trunk/block.json',
 		'apiVersion' => 3,
 		'name' => 'core/verse',
-		'title' => 'Verse',
+		'title' => 'Poetry',
 		'category' => 'text',
 		'description' => 'Insert poetry. Use special spacing formats. Or quote song lyrics.',
 		'keywords' => array(
 			'poetry',
-			'poem'
+			'poem',
+			'verse',
+			'stanza',
+			'song',
+			'lyrics'
 		),
 		'textdomain' => 'default',
 		'attributes' => array(

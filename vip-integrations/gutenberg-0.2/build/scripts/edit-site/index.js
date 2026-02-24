@@ -459,7 +459,7 @@ var wp;
             },
             [subscribe2, value, getSnapshot]
           );
-          useEffect48(
+          useEffect49(
             function() {
               checkIfSnapshotChanged(inst) && forceUpdate({ inst });
               return subscribe2(function() {
@@ -485,7 +485,7 @@ var wp;
           return getSnapshot();
         }
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(Error());
-        var React10 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is2, useState69 = React10.useState, useEffect48 = React10.useEffect, useLayoutEffect7 = React10.useLayoutEffect, useDebugValue = React10.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
+        var React10 = require_react(), objectIs = "function" === typeof Object.is ? Object.is : is2, useState69 = React10.useState, useEffect49 = React10.useEffect, useLayoutEffect7 = React10.useLayoutEffect, useDebugValue = React10.useDebugValue, didWarnOld18Alpha = false, didWarnUncachedGetSnapshot = false, shim = "undefined" === typeof window || "undefined" === typeof window.document || "undefined" === typeof window.document.createElement ? useSyncExternalStore$1 : useSyncExternalStore$2;
         exports.useSyncExternalStore = void 0 !== React10.useSyncExternalStore ? React10.useSyncExternalStore : shim;
         "undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
       })();
@@ -1006,10 +1006,10 @@ var wp;
   });
   var import_blocks15 = __toESM(require_blocks(), 1);
   var import_block_library3 = __toESM(require_block_library(), 1);
-  var import_data82 = __toESM(require_data(), 1);
+  var import_data84 = __toESM(require_data(), 1);
   var import_deprecated6 = __toESM(require_deprecated(), 1);
-  var import_element158 = __toESM(require_element(), 1);
-  var import_editor45 = __toESM(require_editor(), 1);
+  var import_element160 = __toESM(require_element(), 1);
+  var import_editor46 = __toESM(require_editor(), 1);
   var import_preferences13 = __toESM(require_preferences(), 1);
   var import_widgets = __toESM(require_widgets(), 1);
 
@@ -1646,10 +1646,10 @@ var wp;
   unlock(store).registerPrivateActions(private_actions_exports);
 
   // packages/edit-site/build-module/components/app/index.mjs
-  var import_data81 = __toESM(require_data(), 1);
-  var import_router41 = __toESM(require_router(), 1);
-  var import_element157 = __toESM(require_element(), 1);
-  var import_core_data64 = __toESM(require_core_data(), 1);
+  var import_data83 = __toESM(require_data(), 1);
+  var import_router42 = __toESM(require_router(), 1);
+  var import_element159 = __toESM(require_element(), 1);
+  var import_core_data65 = __toESM(require_core_data(), 1);
 
   // node_modules/clsx/dist/clsx.mjs
   function r(e2) {
@@ -1802,14 +1802,7 @@ var wp;
   // packages/icons/build-module/library/archive.mjs
   var import_primitives = __toESM(require_primitives(), 1);
   var import_jsx_runtime4 = __toESM(require_jsx_runtime(), 1);
-  var archive_default = /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitives.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-    import_primitives.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M11.934 7.406a1 1 0 0 0 .914.594H19a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h5.764a.5.5 0 0 1 .447.276l.723 1.63Zm1.064-1.216a.5.5 0 0 0 .462.31H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.764a2 2 0 0 1 1.789 1.106l.445 1.084ZM8.5 10.5h7V12h-7v-1.5Zm7 3.5h-7v1.5h7V14Z"
-    }
-  ) });
+  var archive_default = /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitives.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(import_primitives.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M11.934 7.406a1 1 0 0 0 .914.594H19a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5h5.764a.5.5 0 0 1 .447.276l.723 1.63Zm1.064-1.216a.5.5 0 0 0 .462.31H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.764a2 2 0 0 1 1.789 1.106l.445 1.084ZM8.5 10.5h7V12h-7v-1.5Zm7 3.5h-7v1.5h7V14Z" }) });
 
   // packages/icons/build-module/library/arrow-down.mjs
   var import_primitives2 = __toESM(require_primitives(), 1);
@@ -1844,36 +1837,22 @@ var wp;
   // packages/icons/build-module/library/block-meta.mjs
   var import_primitives8 = __toESM(require_primitives(), 1);
   var import_jsx_runtime11 = __toESM(require_jsx_runtime(), 1);
-  var block_meta_default = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_primitives8.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(
-    import_primitives8.Path,
-    {
-      fillRule: "evenodd",
-      d: "M8.95 11.25H4v1.5h4.95v4.5H13V18c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2h-3c-1.1 0-2 .9-2 2v.75h-2.55v-7.5H13V9c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3c-1.1 0-2 .9-2 2v.75H8.95v4.5ZM14.5 15v3c0 .3.2.5.5.5h3c.3 0 .5-.2.5-.5v-3c0-.3-.2-.5-.5-.5h-3c-.3 0-.5.2-.5.5Zm0-6V6c0-.3.2-.5.5-.5h3c.3 0 .5.2.5.5v3c0 .3-.2.5-.5.5h-3c-.3 0-.5-.2-.5-.5Z",
-      clipRule: "evenodd"
-    }
-  ) });
+  var block_meta_default = /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_primitives8.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_primitives8.Path, { fillRule: "evenodd", d: "M8.95 11.25H4v1.5h4.95v4.5H13V18c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2h-3c-1.1 0-2 .9-2 2v.75h-2.55v-7.5H13V9c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3c-1.1 0-2 .9-2 2v.75H8.95v4.5ZM14.5 15v3c0 .3.2.5.5.5h3c.3 0 .5-.2.5-.5v-3c0-.3-.2-.5-.5-.5h-3c-.3 0-.5.2-.5.5Zm0-6V6c0-.3.2-.5.5-.5h3c.3 0 .5.2.5.5v3c0 .3-.2.5-.5.5h-3c-.3 0-.5-.2-.5-.5Z", clipRule: "evenodd" }) });
 
   // packages/icons/build-module/library/block-table.mjs
   var import_primitives9 = __toESM(require_primitives(), 1);
   var import_jsx_runtime12 = __toESM(require_jsx_runtime(), 1);
-  var block_table_default = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_primitives9.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_primitives9.Path, { d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 4.5h14c.3 0 .5.2.5.5v3.5h-15V5c0-.3.2-.5.5-.5zm8 5.5h6.5v3.5H13V10zm-1.5 3.5h-7V10h7v3.5zm-7 5.5v-4h7v4.5H5c-.3 0-.5-.2-.5-.5zm14.5.5h-6V15h6.5v4c0 .3-.2.5-.5.5z" }) });
+  var block_table_default = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_primitives9.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_primitives9.Path, { d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 4.5h14c.3 0 .5.2.5.5v3.5h-15V5c0-.3.2-.5.5-.5zm8 5.5h6.5v3.5H13V10zm-1.5 3.5h-7V10h7v3.5zm-7 5.5v-4h7v4.5H5c-.3 0-.5-.2-.5-.5zm14.5.5h-6V15h6.5v4c0 .3-.2.5-.5.5z" }) });
 
   // packages/icons/build-module/library/calendar.mjs
   var import_primitives10 = __toESM(require_primitives(), 1);
   var import_jsx_runtime13 = __toESM(require_jsx_runtime(), 1);
-  var calendar_default = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_primitives10.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_primitives10.Path, { d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm.5 16c0 .3-.2.5-.5.5H5c-.3 0-.5-.2-.5-.5V7h15v12zM9 10H7v2h2v-2zm0 4H7v2h2v-2zm4-4h-2v2h2v-2zm4 0h-2v2h2v-2zm-4 4h-2v2h2v-2zm4 0h-2v2h2v-2z" }) });
+  var calendar_default = /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_primitives10.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_primitives10.Path, { d: "M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm.5 16c0 .3-.2.5-.5.5H5c-.3 0-.5-.2-.5-.5V7h15v12zM9 10H7v2h2v-2zm0 4H7v2h2v-2zm4-4h-2v2h2v-2zm4 0h-2v2h2v-2zm-4 4h-2v2h2v-2zm4 0h-2v2h2v-2z" }) });
 
   // packages/icons/build-module/library/category.mjs
   var import_primitives11 = __toESM(require_primitives(), 1);
   var import_jsx_runtime14 = __toESM(require_jsx_runtime(), 1);
-  var category_default = /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_primitives11.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(
-    import_primitives11.Path,
-    {
-      d: "M6 5.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM4 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm11-.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM13 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2V6zm5 8.5h-3a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5zM15 13a2 2 0 00-2 2v3a2 2 0 002 2h3a2 2 0 002-2v-3a2 2 0 00-2-2h-3zm-9 1.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5zM4 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3z",
-      fillRule: "evenodd",
-      clipRule: "evenodd"
-    }
-  ) });
+  var category_default = /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_primitives11.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_primitives11.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M6 5.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM4 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm11-.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5V6a.5.5 0 01.5-.5zM13 6a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2h-3a2 2 0 01-2-2V6zm5 8.5h-3a.5.5 0 00-.5.5v3a.5.5 0 00.5.5h3a.5.5 0 00.5-.5v-3a.5.5 0 00-.5-.5zM15 13a2 2 0 00-2 2v3a2 2 0 002 2h3a2 2 0 002-2v-3a2 2 0 00-2-2h-3zm-9 1.5h3a.5.5 0 01.5.5v3a.5.5 0 01-.5.5H6a.5.5 0 01-.5-.5v-3a.5.5 0 01.5-.5zM4 15a2 2 0 012-2h3a2 2 0 012 2v3a2 2 0 01-2 2H6a2 2 0 01-2-2v-3z" }) });
 
   // packages/icons/build-module/library/check.mjs
   var import_primitives12 = __toESM(require_primitives(), 1);
@@ -1883,7 +1862,7 @@ var wp;
   // packages/icons/build-module/library/chevron-down.mjs
   var import_primitives13 = __toESM(require_primitives(), 1);
   var import_jsx_runtime16 = __toESM(require_jsx_runtime(), 1);
-  var chevron_down_default = /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_primitives13.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_primitives13.Path, { d: "M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z" }) });
+  var chevron_down_default = /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_primitives13.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_primitives13.Path, { d: "M17.5 11.6L12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z" }) });
 
   // packages/icons/build-module/library/chevron-left-small.mjs
   var import_primitives14 = __toESM(require_primitives(), 1);
@@ -1908,7 +1887,7 @@ var wp;
   // packages/icons/build-module/library/chevron-up.mjs
   var import_primitives18 = __toESM(require_primitives(), 1);
   var import_jsx_runtime21 = __toESM(require_jsx_runtime(), 1);
-  var chevron_up_default = /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_primitives18.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_primitives18.Path, { d: "M6.5 12.4L12 8l5.5 4.4-.9 1.2L12 10l-4.5 3.6-1-1.2z" }) });
+  var chevron_up_default = /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_primitives18.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_primitives18.Path, { d: "M6.5 12.4L12 8l5.5 4.4-.9 1.2L12 10l-4.5 3.6-1-1.2z" }) });
 
   // packages/icons/build-module/library/close-small.mjs
   var import_primitives19 = __toESM(require_primitives(), 1);
@@ -1918,26 +1897,12 @@ var wp;
   // packages/icons/build-module/library/cog.mjs
   var import_primitives20 = __toESM(require_primitives(), 1);
   var import_jsx_runtime23 = __toESM(require_jsx_runtime(), 1);
-  var cog_default = /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(import_primitives20.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(
-    import_primitives20.Path,
-    {
-      fillRule: "evenodd",
-      d: "M10.289 4.836A1 1 0 0111.275 4h1.306a1 1 0 01.987.836l.244 1.466c.787.26 1.503.679 2.108 1.218l1.393-.522a1 1 0 011.216.437l.653 1.13a1 1 0 01-.23 1.273l-1.148.944a6.025 6.025 0 010 2.435l1.149.946a1 1 0 01.23 1.272l-.653 1.13a1 1 0 01-1.216.437l-1.394-.522c-.605.54-1.32.958-2.108 1.218l-.244 1.466a1 1 0 01-.987.836h-1.306a1 1 0 01-.986-.836l-.244-1.466a5.995 5.995 0 01-2.108-1.218l-1.394.522a1 1 0 01-1.217-.436l-.653-1.131a1 1 0 01.23-1.272l1.149-.946a6.026 6.026 0 010-2.435l-1.148-.944a1 1 0 01-.23-1.272l.653-1.131a1 1 0 011.217-.437l1.393.522a5.994 5.994 0 012.108-1.218l.244-1.466zM14.929 12a3 3 0 11-6 0 3 3 0 016 0z",
-      clipRule: "evenodd"
-    }
-  ) });
+  var cog_default = /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(import_primitives20.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(import_primitives20.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M10.289 4.836A1 1 0 0111.275 4h1.306a1 1 0 01.987.836l.244 1.466c.787.26 1.503.679 2.108 1.218l1.393-.522a1 1 0 011.216.437l.653 1.13a1 1 0 01-.23 1.273l-1.148.944a6.025 6.025 0 010 2.435l1.149.946a1 1 0 01.23 1.272l-.653 1.13a1 1 0 01-1.216.437l-1.394-.522c-.605.54-1.32.958-2.108 1.218l-.244 1.466a1 1 0 01-.987.836h-1.306a1 1 0 01-.986-.836l-.244-1.466a5.995 5.995 0 01-2.108-1.218l-1.394.522a1 1 0 01-1.217-.436l-.653-1.131a1 1 0 01.23-1.272l1.149-.946a6.026 6.026 0 010-2.435l-1.148-.944a1 1 0 01-.23-1.272l.653-1.131a1 1 0 011.217-.437l1.393.522a5.994 5.994 0 012.108-1.218l.244-1.466zM14.929 12a3 3 0 11-6 0 3 3 0 016 0z" }) });
 
   // packages/icons/build-module/library/comment-author-avatar.mjs
   var import_primitives21 = __toESM(require_primitives(), 1);
   var import_jsx_runtime24 = __toESM(require_jsx_runtime(), 1);
-  var comment_author_avatar_default = /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(import_primitives21.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(
-    import_primitives21.Path,
-    {
-      fillRule: "evenodd",
-      d: "M7.25 16.437a6.5 6.5 0 1 1 9.5 0V16A2.75 2.75 0 0 0 14 13.25h-4A2.75 2.75 0 0 0 7.25 16v.437Zm1.5 1.193a6.47 6.47 0 0 0 3.25.87 6.47 6.47 0 0 0 3.25-.87V16c0-.69-.56-1.25-1.25-1.25h-4c-.69 0-1.25.56-1.25 1.25v1.63ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z",
-      clipRule: "evenodd"
-    }
-  ) });
+  var comment_author_avatar_default = /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(import_primitives21.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(import_primitives21.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M7.25 16.437a6.5 6.5 0 1 1 9.5 0V16A2.75 2.75 0 0 0 14 13.25h-4A2.75 2.75 0 0 0 7.25 16v.437Zm1.5 1.193a6.47 6.47 0 0 0 3.25.87 6.47 6.47 0 0 0 3.25-.87V16c0-.69-.56-1.25-1.25-1.25h-4c-.69 0-1.25.56-1.25 1.25v1.63ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm10-2a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" }) });
 
   // packages/icons/build-module/library/download.mjs
   var import_primitives22 = __toESM(require_primitives(), 1);
@@ -1947,62 +1912,27 @@ var wp;
   // packages/icons/build-module/library/drafts.mjs
   var import_primitives23 = __toESM(require_primitives(), 1);
   var import_jsx_runtime26 = __toESM(require_jsx_runtime(), 1);
-  var drafts_default = /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(import_primitives23.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(
-    import_primitives23.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8 4a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4Z"
-    }
-  ) });
+  var drafts_default = /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(import_primitives23.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(import_primitives23.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8 4a4 4 0 0 0 4-4H8a4 4 0 0 0 4 4Z" }) });
 
   // packages/icons/build-module/library/drawer-right.mjs
   var import_primitives24 = __toESM(require_primitives(), 1);
   var import_jsx_runtime27 = __toESM(require_jsx_runtime(), 1);
-  var drawer_right_default = /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(import_primitives24.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(
-    import_primitives24.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-4 14.5H6c-.3 0-.5-.2-.5-.5V6c0-.3.2-.5.5-.5h8v13zm4.5-.5c0 .3-.2.5-.5.5h-2.5v-13H18c.3 0 .5.2.5.5v12z"
-    }
-  ) });
+  var drawer_right_default = /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(import_primitives24.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(import_primitives24.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-4 14.5H6c-.3 0-.5-.2-.5-.5V6c0-.3.2-.5.5-.5h8v13zm4.5-.5c0 .3-.2.5-.5.5h-2.5v-13H18c.3 0 .5.2.5.5v12z" }) });
 
   // packages/icons/build-module/library/envelope.mjs
   var import_primitives25 = __toESM(require_primitives(), 1);
   var import_jsx_runtime28 = __toESM(require_jsx_runtime(), 1);
-  var envelope_default = /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(import_primitives25.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(
-    import_primitives25.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z"
-    }
-  ) });
+  var envelope_default = /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(import_primitives25.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(import_primitives25.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M3 7c0-1.1.9-2 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm2-.5h14c.3 0 .5.2.5.5v1L12 13.5 4.5 7.9V7c0-.3.2-.5.5-.5Zm-.5 3.3V17c0 .3.2.5.5.5h14c.3 0 .5-.2.5-.5V9.8L12 15.4 4.5 9.8Z" }) });
 
   // packages/icons/build-module/library/error.mjs
   var import_primitives26 = __toESM(require_primitives(), 1);
   var import_jsx_runtime29 = __toESM(require_jsx_runtime(), 1);
-  var error_default = /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(import_primitives26.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(
-    import_primitives26.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12.218 5.377a.25.25 0 0 0-.436 0l-7.29 12.96a.25.25 0 0 0 .218.373h14.58a.25.25 0 0 0 .218-.372l-7.29-12.96Zm-1.743-.735c.669-1.19 2.381-1.19 3.05 0l7.29 12.96a1.75 1.75 0 0 1-1.525 2.608H4.71a1.75 1.75 0 0 1-1.525-2.608l7.29-12.96ZM12.75 17.46h-1.5v-1.5h1.5v1.5Zm-1.5-3h1.5v-5h-1.5v5Z"
-    }
-  ) });
+  var error_default = /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(import_primitives26.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(import_primitives26.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12.218 5.377a.25.25 0 0 0-.436 0l-7.29 12.96a.25.25 0 0 0 .218.373h14.58a.25.25 0 0 0 .218-.372l-7.29-12.96Zm-1.743-.735c.669-1.19 2.381-1.19 3.05 0l7.29 12.96a1.75 1.75 0 0 1-1.525 2.608H4.71a1.75 1.75 0 0 1-1.525-2.608l7.29-12.96ZM12.75 17.46h-1.5v-1.5h1.5v1.5Zm-1.5-3h1.5v-5h-1.5v5Z" }) });
 
   // packages/icons/build-module/library/file.mjs
   var import_primitives27 = __toESM(require_primitives(), 1);
   var import_jsx_runtime30 = __toESM(require_jsx_runtime(), 1);
-  var file_default = /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_primitives27.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(
-    import_primitives27.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12.848 8a1 1 0 0 1-.914-.594l-.723-1.63a.5.5 0 0 0-.447-.276H5a.5.5 0 0 0-.5.5v11.5a.5.5 0 0 0 .5.5h14a.5.5 0 0 0 .5-.5v-9A.5.5 0 0 0 19 8h-6.152Zm.612-1.5a.5.5 0 0 1-.462-.31l-.445-1.084A2 2 0 0 0 10.763 4H5a2 2 0 0 0-2 2v11.5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-5.54Z"
-    }
-  ) });
+  var file_default = /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_primitives27.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_primitives27.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12.848 8a1 1 0 0 1-.914-.594l-.723-1.63a.5.5 0 0 0-.447-.276H5a.5.5 0 0 0-.5.5v11.5a.5.5 0 0 0 .5.5h14a.5.5 0 0 0 .5-.5v-9A.5.5 0 0 0 19 8h-6.152Zm.612-1.5a.5.5 0 0 1-.462-.31l-.445-1.084A2 2 0 0 0 10.763 4H5a2 2 0 0 0-2 2v11.5a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-9a2 2 0 0 0-2-2h-5.54Z" }) });
 
   // packages/icons/build-module/library/format-list-bullets-rtl.mjs
   var import_primitives28 = __toESM(require_primitives(), 1);
@@ -2017,7 +1947,7 @@ var wp;
   // packages/icons/build-module/library/funnel.mjs
   var import_primitives30 = __toESM(require_primitives(), 1);
   var import_jsx_runtime33 = __toESM(require_jsx_runtime(), 1);
-  var funnel_default = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_primitives30.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_primitives30.Path, { d: "M10 17.5H14V16H10V17.5ZM6 6V7.5H18V6H6ZM8 12.5H16V11H8V12.5Z" }) });
+  var funnel_default = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_primitives30.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_primitives30.Path, { d: "M10 17.5H14V16H10V17.5ZM6 6V7.5H18V6H6ZM8 12.5H16V11H8V12.5Z" }) });
 
   // packages/icons/build-module/library/globe.mjs
   var import_primitives31 = __toESM(require_primitives(), 1);
@@ -2047,21 +1977,14 @@ var wp;
   // packages/icons/build-module/library/list.mjs
   var import_primitives36 = __toESM(require_primitives(), 1);
   var import_jsx_runtime39 = __toESM(require_jsx_runtime(), 1);
-  var list_default = /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_primitives36.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_primitives36.Path, { d: "M4 4v1.5h16V4H4zm8 8.5h8V11h-8v1.5zM4 20h16v-1.5H4V20zm4-8c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z" }) });
+  var list_default = /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_primitives36.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_primitives36.Path, { d: "M4 4v1.5h16V4H4zm8 8.5h8V11h-8v1.5zM4 20h16v-1.5H4V20zm4-8c0-1.1-.9-2-2-2s-2 .9-2 2 .9 2 2 2 2-.9 2-2z" }) });
 
   // packages/icons/build-module/library/media.mjs
   var import_primitives37 = __toESM(require_primitives(), 1);
   var import_jsx_runtime40 = __toESM(require_jsx_runtime(), 1);
   var media_default = /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(import_primitives37.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: [
     /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(import_primitives37.Path, { d: "m7 6.5 4 2.5-4 2.5z" }),
-    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(
-      import_primitives37.Path,
-      {
-        fillRule: "evenodd",
-        clipRule: "evenodd",
-        d: "m5 3c-1.10457 0-2 .89543-2 2v14c0 1.1046.89543 2 2 2h14c1.1046 0 2-.8954 2-2v-14c0-1.10457-.8954-2-2-2zm14 1.5h-14c-.27614 0-.5.22386-.5.5v10.7072l3.62953-2.6465c.25108-.1831.58905-.1924.84981-.0234l2.92666 1.8969 3.5712-3.4719c.2911-.2831.7545-.2831 1.0456 0l2.9772 2.8945v-9.3568c0-.27614-.2239-.5-.5-.5zm-14.5 14.5v-1.4364l4.09643-2.987 2.99567 1.9417c.2936.1903.6798.1523.9307-.0917l3.4772-3.3806 3.4772 3.3806.0228-.0234v2.5968c0 .2761-.2239.5-.5.5h-14c-.27614 0-.5-.2239-.5-.5z"
-      }
-    )
+    /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(import_primitives37.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "m5 3c-1.10457 0-2 .89543-2 2v14c0 1.1046.89543 2 2 2h14c1.1046 0 2-.8954 2-2v-14c0-1.10457-.8954-2-2-2zm14 1.5h-14c-.27614 0-.5.22386-.5.5v10.7072l3.62953-2.6465c.25108-.1831.58905-.1924.84981-.0234l2.92666 1.8969 3.5712-3.4719c.2911-.2831.7545-.2831 1.0456 0l2.9772 2.8945v-9.3568c0-.27614-.2239-.5-.5-.5zm-14.5 14.5v-1.4364l4.09643-2.987 2.99567 1.9417c.2936.1903.6798.1523.9307-.0917l3.4772-3.3806 3.4772 3.3806.0228-.0234v2.5968c0 .2761-.2239.5-.5.5h-14c-.27614 0-.5-.2239-.5-.5z" })
   ] });
 
   // packages/icons/build-module/library/mobile.mjs
@@ -2077,7 +2000,7 @@ var wp;
   // packages/icons/build-module/library/navigation.mjs
   var import_primitives40 = __toESM(require_primitives(), 1);
   var import_jsx_runtime43 = __toESM(require_jsx_runtime(), 1);
-  var navigation_default = /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_primitives40.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_primitives40.Path, { d: "M12 4c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 14.5c-3.6 0-6.5-2.9-6.5-6.5S8.4 5.5 12 5.5s6.5 2.9 6.5 6.5-2.9 6.5-6.5 6.5zM9 16l4.5-3L15 8.4l-4.5 3L9 16z" }) });
+  var navigation_default = /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_primitives40.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_primitives40.Path, { d: "M12 4c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 14.5c-3.6 0-6.5-2.9-6.5-6.5S8.4 5.5 12 5.5s6.5 2.9 6.5 6.5-2.9 6.5-6.5 6.5zM9 16l4.5-3L15 8.4l-4.5 3L9 16z" }) });
 
   // packages/icons/build-module/library/next.mjs
   var import_primitives41 = __toESM(require_primitives(), 1);
@@ -2087,14 +2010,7 @@ var wp;
   // packages/icons/build-module/library/not-allowed.mjs
   var import_primitives42 = __toESM(require_primitives(), 1);
   var import_jsx_runtime45 = __toESM(require_jsx_runtime(), 1);
-  var not_allowed_default = /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_primitives42.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(
-    import_primitives42.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 18.5A6.5 6.5 0 0 1 6.93 7.931l9.139 9.138A6.473 6.473 0 0 1 12 18.5Zm5.123-2.498a6.5 6.5 0 0 0-9.124-9.124l9.124 9.124ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z"
-    }
-  ) });
+  var not_allowed_default = /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_primitives42.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_primitives42.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 18.5A6.5 6.5 0 0 1 6.93 7.931l9.139 9.138A6.473 6.473 0 0 1 12 18.5Zm5.123-2.498a6.5 6.5 0 0 0-9.124-9.124l9.124 9.124ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z" }) });
 
   // packages/icons/build-module/library/not-found.mjs
   var import_primitives43 = __toESM(require_primitives(), 1);
@@ -2126,14 +2042,7 @@ var wp;
   // packages/icons/build-module/library/pending.mjs
   var import_primitives47 = __toESM(require_primitives(), 1);
   var import_jsx_runtime50 = __toESM(require_jsx_runtime(), 1);
-  var pending_default = /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_primitives47.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(
-    import_primitives47.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8 4a4 4 0 0 1-4-4h4V8a4 4 0 0 1 0 8Z"
-    }
-  ) });
+  var pending_default = /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_primitives47.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_primitives47.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm8 4a4 4 0 0 1-4-4h4V8a4 4 0 0 1 0 8Z" }) });
 
   // packages/icons/build-module/library/pin.mjs
   var import_primitives48 = __toESM(require_primitives(), 1);
@@ -2158,14 +2067,7 @@ var wp;
   // packages/icons/build-module/library/published.mjs
   var import_primitives52 = __toESM(require_primitives(), 1);
   var import_jsx_runtime55 = __toESM(require_jsx_runtime(), 1);
-  var published_default = /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(import_primitives52.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(
-    import_primitives52.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm11.53-1.47-1.06-1.06L11 12.94l-1.47-1.47-1.06 1.06L11 15.06l4.53-4.53Z"
-    }
-  ) });
+  var published_default = /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(import_primitives52.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(import_primitives52.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm11.53-1.47-1.06-1.06L11 12.94l-1.47-1.47-1.06 1.06L11 15.06l4.53-4.53Z" }) });
 
   // packages/icons/build-module/library/rotate-left.mjs
   var import_primitives53 = __toESM(require_primitives(), 1);
@@ -2180,14 +2082,7 @@ var wp;
   // packages/icons/build-module/library/scheduled.mjs
   var import_primitives55 = __toESM(require_primitives(), 1);
   var import_jsx_runtime58 = __toESM(require_jsx_runtime(), 1);
-  var scheduled_default = /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(import_primitives55.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(
-    import_primitives55.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm9 1V8h-1.5v3.5h-2V13H13Z"
-    }
-  ) });
+  var scheduled_default = /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(import_primitives55.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(import_primitives55.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 18.5a6.5 6.5 0 1 1 0-13 6.5 6.5 0 0 1 0 13ZM4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Zm9 1V8h-1.5v3.5h-2V13H13Z" }) });
 
   // packages/icons/build-module/library/search.mjs
   var import_primitives56 = __toESM(require_primitives(), 1);
@@ -2197,19 +2092,12 @@ var wp;
   // packages/icons/build-module/library/seen.mjs
   var import_primitives57 = __toESM(require_primitives(), 1);
   var import_jsx_runtime60 = __toESM(require_jsx_runtime(), 1);
-  var seen_default = /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(import_primitives57.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(import_primitives57.Path, { d: "M3.99961 13C4.67043 13.3354 4.6703 13.3357 4.67017 13.3359L4.67298 13.3305C4.67621 13.3242 4.68184 13.3135 4.68988 13.2985C4.70595 13.2686 4.7316 13.2218 4.76695 13.1608C4.8377 13.0385 4.94692 12.8592 5.09541 12.6419C5.39312 12.2062 5.84436 11.624 6.45435 11.0431C7.67308 9.88241 9.49719 8.75 11.9996 8.75C14.502 8.75 16.3261 9.88241 17.5449 11.0431C18.1549 11.624 18.6061 12.2062 18.9038 12.6419C19.0523 12.8592 19.1615 13.0385 19.2323 13.1608C19.2676 13.2218 19.2933 13.2686 19.3093 13.2985C19.3174 13.3135 19.323 13.3242 19.3262 13.3305L19.3291 13.3359C19.3289 13.3357 19.3288 13.3354 19.9996 13C20.6704 12.6646 20.6703 12.6643 20.6701 12.664L20.6697 12.6632L20.6688 12.6614L20.6662 12.6563L20.6583 12.6408C20.6517 12.6282 20.6427 12.6108 20.631 12.5892C20.6078 12.5459 20.5744 12.4852 20.5306 12.4096C20.4432 12.2584 20.3141 12.0471 20.1423 11.7956C19.7994 11.2938 19.2819 10.626 18.5794 9.9569C17.1731 8.61759 14.9972 7.25 11.9996 7.25C9.00203 7.25 6.82614 8.61759 5.41987 9.9569C4.71736 10.626 4.19984 11.2938 3.85694 11.7956C3.68511 12.0471 3.55605 12.2584 3.4686 12.4096C3.42484 12.4852 3.39142 12.5459 3.36818 12.5892C3.35656 12.6108 3.34748 12.6282 3.34092 12.6408L3.33297 12.6563L3.33041 12.6614L3.32948 12.6632L3.32911 12.664C3.32894 12.6643 3.32879 12.6646 3.99961 13ZM11.9996 16C13.9326 16 15.4996 14.433 15.4996 12.5C15.4996 10.567 13.9326 9 11.9996 9C10.0666 9 8.49961 10.567 8.49961 12.5C8.49961 14.433 10.0666 16 11.9996 16Z" }) });
+  var seen_default = /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(import_primitives57.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(import_primitives57.Path, { d: "M3.99961 13C4.67043 13.3354 4.6703 13.3357 4.67017 13.3359L4.67298 13.3305C4.67621 13.3242 4.68184 13.3135 4.68988 13.2985C4.70595 13.2686 4.7316 13.2218 4.76695 13.1608C4.8377 13.0385 4.94692 12.8592 5.09541 12.6419C5.39312 12.2062 5.84436 11.624 6.45435 11.0431C7.67308 9.88241 9.49719 8.75 11.9996 8.75C14.502 8.75 16.3261 9.88241 17.5449 11.0431C18.1549 11.624 18.6061 12.2062 18.9038 12.6419C19.0523 12.8592 19.1615 13.0385 19.2323 13.1608C19.2676 13.2218 19.2933 13.2686 19.3093 13.2985C19.3174 13.3135 19.323 13.3242 19.3262 13.3305L19.3291 13.3359C19.3289 13.3357 19.3288 13.3354 19.9996 13C20.6704 12.6646 20.6703 12.6643 20.6701 12.664L20.6697 12.6632L20.6688 12.6614L20.6662 12.6563L20.6583 12.6408C20.6517 12.6282 20.6427 12.6108 20.631 12.5892C20.6078 12.5459 20.5744 12.4852 20.5306 12.4096C20.4432 12.2584 20.3141 12.0471 20.1423 11.7956C19.7994 11.2938 19.2819 10.626 18.5794 9.9569C17.1731 8.61759 14.9972 7.25 11.9996 7.25C9.00203 7.25 6.82614 8.61759 5.41987 9.9569C4.71736 10.626 4.19984 11.2938 3.85694 11.7956C3.68511 12.0471 3.55605 12.2584 3.4686 12.4096C3.42484 12.4852 3.39142 12.5459 3.36818 12.5892C3.35656 12.6108 3.34748 12.6282 3.34092 12.6408L3.33297 12.6563L3.33041 12.6614L3.32948 12.6632L3.32911 12.664C3.32894 12.6643 3.32879 12.6646 3.99961 13ZM11.9996 16C13.9326 16 15.4996 14.433 15.4996 12.5C15.4996 10.567 13.9326 9 11.9996 9C10.0666 9 8.49961 10.567 8.49961 12.5C8.49961 14.433 10.0666 16 11.9996 16Z" }) });
 
   // packages/icons/build-module/library/styles.mjs
   var import_primitives58 = __toESM(require_primitives(), 1);
   var import_jsx_runtime61 = __toESM(require_jsx_runtime(), 1);
-  var styles_default = /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(import_primitives58.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(
-    import_primitives58.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-1.5 0a6.5 6.5 0 0 1-6.5 6.5v-13a6.5 6.5 0 0 1 6.5 6.5Z"
-    }
-  ) });
+  var styles_default = /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(import_primitives58.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(import_primitives58.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M20 12a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-1.5 0a6.5 6.5 0 0 1-6.5 6.5v-13a6.5 6.5 0 0 1 6.5 6.5Z" }) });
 
   // packages/icons/build-module/library/symbol-filled.mjs
   var import_primitives59 = __toESM(require_primitives(), 1);
@@ -2229,19 +2117,12 @@ var wp;
   // packages/icons/build-module/library/trash.mjs
   var import_primitives62 = __toESM(require_primitives(), 1);
   var import_jsx_runtime65 = __toESM(require_jsx_runtime(), 1);
-  var trash_default = /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(import_primitives62.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(
-    import_primitives62.Path,
-    {
-      fillRule: "evenodd",
-      clipRule: "evenodd",
-      d: "M12 5.5A2.25 2.25 0 0 0 9.878 7h4.244A2.251 2.251 0 0 0 12 5.5ZM12 4a3.751 3.751 0 0 0-3.675 3H5v1.5h1.27l.818 8.997a2.75 2.75 0 0 0 2.739 2.501h4.347a2.75 2.75 0 0 0 2.738-2.5L17.73 8.5H19V7h-3.325A3.751 3.751 0 0 0 12 4Zm4.224 4.5H7.776l.806 8.861a1.25 1.25 0 0 0 1.245 1.137h4.347a1.25 1.25 0 0 0 1.245-1.137l.805-8.861Z"
-    }
-  ) });
+  var trash_default = /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(import_primitives62.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(import_primitives62.Path, { fillRule: "evenodd", clipRule: "evenodd", d: "M12 5.5A2.25 2.25 0 0 0 9.878 7h4.244A2.251 2.251 0 0 0 12 5.5ZM12 4a3.751 3.751 0 0 0-3.675 3H5v1.5h1.27l.818 8.997a2.75 2.75 0 0 0 2.739 2.501h4.347a2.75 2.75 0 0 0 2.738-2.5L17.73 8.5H19V7h-3.325A3.751 3.751 0 0 0 12 4Zm4.224 4.5H7.776l.806 8.861a1.25 1.25 0 0 0 1.245 1.137h4.347a1.25 1.25 0 0 0 1.245-1.137l.805-8.861Z" }) });
 
   // packages/icons/build-module/library/unseen.mjs
   var import_primitives63 = __toESM(require_primitives(), 1);
   var import_jsx_runtime66 = __toESM(require_jsx_runtime(), 1);
-  var unseen_default = /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(import_primitives63.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(import_primitives63.Path, { d: "M20.7 12.7s0-.1-.1-.2c0-.2-.2-.4-.4-.6-.3-.5-.9-1.2-1.6-1.8-.7-.6-1.5-1.3-2.6-1.8l-.6 1.4c.9.4 1.6 1 2.1 1.5.6.6 1.1 1.2 1.4 1.6.1.2.3.4.3.5v.1l.7-.3.7-.3Zm-5.2-9.3-1.8 4c-.5-.1-1.1-.2-1.7-.2-3 0-5.2 1.4-6.6 2.7-.7.7-1.2 1.3-1.6 1.8-.2.3-.3.5-.4.6 0 0 0 .1-.1.2s0 0 .7.3l.7.3V13c0-.1.2-.3.3-.5.3-.4.7-1 1.4-1.6 1.2-1.2 3-2.3 5.5-2.3H13v.3c-.4 0-.8-.1-1.1-.1-1.9 0-3.5 1.6-3.5 3.5s.6 2.3 1.6 2.9l-2 4.4.9.4 7.6-16.2-.9-.4Zm-3 12.6c1.7-.2 3-1.7 3-3.5s-.2-1.4-.6-1.9L12.4 16Z" }) });
+  var unseen_default = /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(import_primitives63.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(import_primitives63.Path, { d: "M20.7 12.7s0-.1-.1-.2c0-.2-.2-.4-.4-.6-.3-.5-.9-1.2-1.6-1.8-.7-.6-1.5-1.3-2.6-1.8l-.6 1.4c.9.4 1.6 1 2.1 1.5.6.6 1.1 1.2 1.4 1.6.1.2.3.4.3.5v.1l.7-.3.7-.3Zm-5.2-9.3-1.8 4c-.5-.1-1.1-.2-1.7-.2-3 0-5.2 1.4-6.6 2.7-.7.7-1.2 1.3-1.6 1.8-.2.3-.3.5-.4.6 0 0 0 .1-.1.2s0 0 .7.3l.7.3V13c0-.1.2-.3.3-.5.3-.4.7-1 1.4-1.6 1.2-1.2 3-2.3 5.5-2.3H13v.3c-.4 0-.8-.1-1.1-.1-1.9 0-3.5 1.6-3.5 3.5s.6 2.3 1.6 2.9l-2 4.4.9.4 7.6-16.2-.9-.4Zm-3 12.6c1.7-.2 3-1.7 3-3.5s-.2-1.4-.6-1.9L12.4 16Z" }) });
 
   // packages/icons/build-module/library/upload.mjs
   var import_primitives64 = __toESM(require_primitives(), 1);
@@ -2251,7 +2132,7 @@ var wp;
   // packages/icons/build-module/library/verse.mjs
   var import_primitives65 = __toESM(require_primitives(), 1);
   var import_jsx_runtime68 = __toESM(require_jsx_runtime(), 1);
-  var verse_default = /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(import_primitives65.SVG, { viewBox: "0 0 24 24", xmlns: "http://www.w3.org/2000/svg", children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(import_primitives65.Path, { d: "M17.8 2l-.9.3c-.1 0-3.6 1-5.2 2.1C10 5.5 9.3 6.5 8.9 7.1c-.6.9-1.7 4.7-1.7 6.3l-.9 2.3c-.2.4 0 .8.4 1 .1 0 .2.1.3.1.3 0 .6-.2.7-.5l.6-1.5c.3 0 .7-.1 1.2-.2.7-.1 1.4-.3 2.2-.5.8-.2 1.6-.5 2.4-.8.7-.3 1.4-.7 1.9-1.2s.8-1.2 1-1.9c.2-.7.3-1.6.4-2.4.1-.8.1-1.7.2-2.5 0-.8.1-1.5.2-2.1V2zm-1.9 5.6c-.1.8-.2 1.5-.3 2.1-.2.6-.4 1-.6 1.3-.3.3-.8.6-1.4.9-.7.3-1.4.5-2.2.8-.6.2-1.3.3-1.8.4L15 7.5c.3-.3.6-.7 1-1.1 0 .4 0 .8-.1 1.2zM6 20h8v-1.5H6V20z" }) });
+  var verse_default = /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(import_primitives65.SVG, { xmlns: "http://www.w3.org/2000/svg", viewBox: "0 0 24 24", children: /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(import_primitives65.Path, { d: "M17.8 2l-.9.3c-.1 0-3.6 1-5.2 2.1C10 5.5 9.3 6.5 8.9 7.1c-.6.9-1.7 4.7-1.7 6.3l-.9 2.3c-.2.4 0 .8.4 1 .1 0 .2.1.3.1.3 0 .6-.2.7-.5l.6-1.5c.3 0 .7-.1 1.2-.2.7-.1 1.4-.3 2.2-.5.8-.2 1.6-.5 2.4-.8.7-.3 1.4-.7 1.9-1.2s.8-1.2 1-1.9c.2-.7.3-1.6.4-2.4.1-.8.1-1.7.2-2.5 0-.8.1-1.5.2-2.1V2zm-1.9 5.6c-.1.8-.2 1.5-.3 2.1-.2.6-.4 1-.6 1.3-.3.3-.8.6-1.4.9-.7.3-1.4.5-2.2.8-.6.2-1.3.3-1.8.4L15 7.5c.3-.3.6-.7 1-1.1 0 .4 0 .8-.1 1.2zM6 20h8v-1.5H6V20z" }) });
 
   // packages/icons/build-module/library/wordpress.mjs
   var import_primitives66 = __toESM(require_primitives(), 1);
@@ -6117,11 +5998,13 @@ var wp;
     variant
   }) => {
     const isDirtyProps = (0, import_editor5.useEntitiesSavedStatesIsDirty)();
-    let activateSaveLabel;
+    let activateSaveLabel, successNoticeContent;
     if (isDirtyProps.isDirty) {
       activateSaveLabel = (0, import_i18n7.__)("Activate & Save");
+      successNoticeContent = (0, import_i18n7.__)("Theme activated and site updated.");
     } else {
       activateSaveLabel = (0, import_i18n7.__)("Activate");
+      successNoticeContent = (0, import_i18n7.__)("Theme activated.");
     }
     const currentTheme = useActualCurrentTheme();
     const previewingTheme = (0, import_data12.useSelect)(
@@ -6152,7 +6035,8 @@ var wp;
           saveEnabled: true,
           saveLabel: activateSaveLabel,
           renderDialog,
-          variant
+          variant,
+          successNoticeContent
         }
       }
     );
@@ -6345,7 +6229,7 @@ var wp;
                 ) })
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(import_editor6.EditorSnackbars, {}),
+            /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(import_notices.SnackbarNotices, { className: "edit-site-layout__snackbar" }),
             isMobileViewport && areas2.mobile && /* @__PURE__ */ (0, import_jsx_runtime77.jsx)("div", { className: "edit-site-layout__mobile", children: /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(SidebarNavigationProvider, { children: canvas !== "edit" ? /* @__PURE__ */ (0, import_jsx_runtime77.jsxs)(import_jsx_runtime77.Fragment, { children: [
               /* @__PURE__ */ (0, import_jsx_runtime77.jsx)(
                 SiteHubMobile,
@@ -6592,8 +6476,8 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/site-editor-routes/index.mjs
-  var import_data80 = __toESM(require_data(), 1);
-  var import_element156 = __toESM(require_element(), 1);
+  var import_data82 = __toESM(require_data(), 1);
+  var import_element158 = __toESM(require_element(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-main/index.mjs
   var import_components74 = __toESM(require_components(), 1);
@@ -14031,12 +13915,12 @@ var wp;
             var STR_APPLY_UIA_OK = true;
             try {
               String.fromCharCode.apply(null, [0]);
-            } catch (__148) {
+            } catch (__150) {
               STR_APPLY_OK = false;
             }
             try {
               String.fromCharCode.apply(null, new Uint8Array(1));
-            } catch (__148) {
+            } catch (__150) {
               STR_APPLY_UIA_OK = false;
             }
             var _utf8len = new utils.Buf8(256);
@@ -21107,16 +20991,16 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/editor/index.mjs
-  var import_data46 = __toESM(require_data(), 1);
+  var import_data48 = __toESM(require_data(), 1);
   var import_components83 = __toESM(require_components(), 1);
   var import_compose10 = __toESM(require_compose(), 1);
-  var import_editor19 = __toESM(require_editor(), 1);
+  var import_editor20 = __toESM(require_editor(), 1);
   var import_i18n70 = __toESM(require_i18n(), 1);
-  var import_core_data33 = __toESM(require_core_data(), 1);
+  var import_core_data34 = __toESM(require_core_data(), 1);
   var import_block_library = __toESM(require_block_library(), 1);
-  var import_element55 = __toESM(require_element(), 1);
+  var import_element56 = __toESM(require_element(), 1);
   var import_notices3 = __toESM(require_notices(), 1);
-  var import_router17 = __toESM(require_router(), 1);
+  var import_router18 = __toESM(require_router(), 1);
   var import_html_entities4 = __toESM(require_html_entities(), 1);
   var import_block_editor18 = __toESM(require_block_editor(), 1);
   var import_url11 = __toESM(require_url(), 1);
@@ -21360,71 +21244,111 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/block-editor/use-site-editor-settings.mjs
-  var import_data36 = __toESM(require_data(), 1);
-  var import_element50 = __toESM(require_element(), 1);
-  var import_router13 = __toESM(require_router(), 1);
+  var import_data38 = __toESM(require_data(), 1);
+  var import_element51 = __toESM(require_element(), 1);
+  var import_router14 = __toESM(require_router(), 1);
   var import_compose9 = __toESM(require_compose(), 1);
-  var import_editor13 = __toESM(require_editor(), 1);
+  var import_editor14 = __toESM(require_editor(), 1);
 
   // packages/edit-site/build-module/components/block-editor/use-navigate-to-entity-record.mjs
-  var import_router12 = __toESM(require_router(), 1);
-  var import_element49 = __toESM(require_element(), 1);
+  var import_data37 = __toESM(require_data(), 1);
+  var import_router13 = __toESM(require_router(), 1);
+  var import_element50 = __toESM(require_element(), 1);
   var import_url8 = __toESM(require_url(), 1);
+  var import_core_data28 = __toESM(require_core_data(), 1);
+  var import_editor13 = __toESM(require_editor(), 1);
+
+  // packages/edit-site/build-module/components/block-editor/use-viewport-sync.mjs
+  var import_element49 = __toESM(require_element(), 1);
+  var import_data36 = __toESM(require_data(), 1);
+  var import_router12 = __toESM(require_router(), 1);
   var import_editor12 = __toESM(require_editor(), 1);
-  var { useHistory: useHistory8, useLocation: useLocation11 } = unlock(import_router12.privateApis);
-  var { useGenerateBlockPath } = unlock(import_editor12.privateApis);
+  var { useLocation: useLocation11 } = unlock(import_router12.privateApis);
+  var DEFAULT_DEVICE_TYPE = "Desktop";
+  var VALID_DEVICE_TYPES = ["desktop", "tablet", "mobile"];
+  var capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+  function useViewportSync() {
+    const { query } = useLocation11();
+    const { setDeviceType } = (0, import_data36.useDispatch)(import_editor12.store);
+    (0, import_element49.useEffect)(() => {
+      const viewport = query?.viewport?.toLowerCase();
+      const isValid2 = VALID_DEVICE_TYPES.includes(viewport);
+      setDeviceType(isValid2 ? capitalize(viewport) : DEFAULT_DEVICE_TYPE);
+    }, [query?.viewport, setDeviceType]);
+  }
+  function ViewportSync() {
+    useViewportSync();
+    return null;
+  }
+
+  // packages/edit-site/build-module/components/block-editor/use-navigate-to-entity-record.mjs
+  var { useHistory: useHistory8, useLocation: useLocation12 } = unlock(import_router13.privateApis);
+  var VALID_VIEWPORTS = ["desktop", "tablet", "mobile"];
   function useNavigateToEntityRecord() {
     const history = useHistory8();
-    const { query, path } = useLocation11();
-    const generateBlockPath = useGenerateBlockPath();
-    let initialBlockSelection = null;
-    if (query.selectedBlock) {
-      try {
-        initialBlockSelection = JSON.parse(
-          decodeURIComponent(query.selectedBlock)
-        );
-      } catch (e2) {
-        initialBlockSelection = null;
-      }
-    }
-    const onNavigateToEntityRecord = (0, import_element49.useCallback)(
+    const location = useLocation12();
+    const { query, path } = location;
+    const registry = (0, import_data37.useRegistry)();
+    const currentDeviceType = (0, import_data37.useSelect)(
+      (select3) => select3(import_editor13.store).getDeviceType(),
+      []
+    );
+    const onNavigateToEntityRecord = (0, import_element50.useCallback)(
       (params) => {
-        if (params.selectedBlockClientId) {
-          const blockPath = generateBlockPath(
-            params.selectedBlockClientId
-          );
-          if (blockPath) {
-            const currentUrl = (0, import_url8.addQueryArgs)(path, {
-              ...query,
-              selectedBlock: encodeURIComponent(
-                JSON.stringify(blockPath)
-              )
-            });
-            history.navigate(currentUrl, { replace: true });
+        const currentPostType = registry.select(import_editor13.store).getCurrentPostType();
+        const currentPostId = registry.select(import_editor13.store).getCurrentPostId();
+        const entityEdits = registry.select(import_core_data28.store).getEntityRecordEdits(
+          "postType",
+          currentPostType,
+          currentPostId
+        );
+        const externalClientId = entityEdits?.selection?.selectionStart?.clientId;
+        const urlUpdates = { ...query };
+        if (externalClientId) {
+          urlUpdates.selectedBlock = externalClientId;
+        }
+        const requestedViewport = typeof params.viewport === "string" ? params.viewport.toLowerCase() : void 0;
+        const isValidRequestedViewport = VALID_VIEWPORTS.includes(requestedViewport);
+        if (isValidRequestedViewport) {
+          const currentViewportLower = (currentDeviceType || DEFAULT_DEVICE_TYPE).toLowerCase();
+          if (currentViewportLower === DEFAULT_DEVICE_TYPE.toLowerCase()) {
+            delete urlUpdates.viewport;
+          } else {
+            urlUpdates.viewport = currentViewportLower;
           }
+        }
+        const hasUpdatesToSave = externalClientId || isValidRequestedViewport;
+        if (hasUpdatesToSave) {
+          history.navigate((0, import_url8.addQueryArgs)(path, urlUpdates), {
+            replace: true
+          });
+        }
+        const queryArgs = {
+          canvas: "edit",
+          focusMode: true
+        };
+        if (isValidRequestedViewport) {
+          queryArgs.viewport = requestedViewport;
         }
         const url = (0, import_url8.addQueryArgs)(
           `/${params.postType}/${params.postId}`,
-          {
-            canvas: "edit",
-            focusMode: true
-          }
+          queryArgs
         );
         history.navigate(url);
       },
-      [history, path, query, generateBlockPath]
+      [history, path, query, registry, currentDeviceType]
     );
-    return [onNavigateToEntityRecord, initialBlockSelection];
+    return onNavigateToEntityRecord;
   }
 
   // packages/edit-site/build-module/components/block-editor/use-site-editor-settings.mjs
-  var { useLocation: useLocation12, useHistory: useHistory9 } = unlock(import_router13.privateApis);
-  var { useGlobalStyles: useGlobalStyles2 } = unlock(import_editor13.privateApis);
+  var { useLocation: useLocation13, useHistory: useHistory9 } = unlock(import_router14.privateApis);
+  var { useGlobalStyles: useGlobalStyles2 } = unlock(import_editor14.privateApis);
   function useNavigateToPreviousEntityRecord() {
-    const location = useLocation12();
+    const location = useLocation13();
     const previousCanvas = (0, import_compose9.usePrevious)(location.query.canvas);
     const history = useHistory9();
-    const goBack = (0, import_element50.useMemo)(() => {
+    const goBack = (0, import_element51.useMemo)(() => {
       const isFocusMode = location.query.focusMode || location?.params?.postId && FOCUSABLE_ENTITIES.includes(location?.params?.postType);
       const didComeFromEditorCanvas = previousCanvas === "edit";
       const showBackButton = isFocusMode && didComeFromEditorCanvas;
@@ -21433,25 +21357,25 @@ var wp;
     return goBack;
   }
   function useSpecificEditorSettings() {
-    const { query } = useLocation12();
+    const { query } = useLocation13();
     const { canvas = "view" } = query;
-    const [onNavigateToEntityRecord, initialBlockSelection] = useNavigateToEntityRecord();
+    const onNavigateToEntityRecord = useNavigateToEntityRecord();
     const { merged: mergedConfig } = useGlobalStyles2();
-    const { settings: settings2, currentPostIsTrashed } = (0, import_data36.useSelect)((select3) => {
+    const { settings: settings2, currentPostIsTrashed } = (0, import_data38.useSelect)((select3) => {
       const { getSettings: getSettings7 } = select3(store);
-      const { getCurrentPostAttribute } = select3(import_editor13.store);
+      const { getCurrentPostAttribute } = select3(import_editor14.store);
       return {
         settings: getSettings7(),
         currentPostIsTrashed: getCurrentPostAttribute("status") === "trash"
       };
     }, []);
     const onNavigateToPreviousEntityRecord = useNavigateToPreviousEntityRecord();
-    const [globalStyles, globalSettings] = (0, import_element50.useMemo)(() => {
+    const [globalStyles, globalSettings] = (0, import_element51.useMemo)(() => {
       return generateGlobalStyles(mergedConfig, [], {
         disableRootPadding: false
       });
     }, [mergedConfig]);
-    const defaultEditorSettings = (0, import_element50.useMemo)(() => {
+    const defaultEditorSettings = (0, import_element51.useMemo)(() => {
       const nonGlobalStyles = (settings2?.styles ?? []).filter(
         (style) => !style.isGlobalStyles
       );
@@ -21472,8 +21396,7 @@ var wp;
         focusMode: canvas !== "view",
         onNavigateToEntityRecord,
         onNavigateToPreviousEntityRecord,
-        isPreviewMode: canvas === "view",
-        initialBlockSelection
+        isPreviewMode: canvas === "view"
       };
     }, [
       settings2,
@@ -21482,15 +21405,14 @@ var wp;
       canvas,
       currentPostIsTrashed,
       onNavigateToEntityRecord,
-      onNavigateToPreviousEntityRecord,
-      initialBlockSelection
+      onNavigateToPreviousEntityRecord
     ]);
     return defaultEditorSettings;
   }
 
   // packages/edit-site/build-module/components/plugin-template-setting-panel/index.mjs
-  var import_editor14 = __toESM(require_editor(), 1);
-  var import_data37 = __toESM(require_data(), 1);
+  var import_editor15 = __toESM(require_editor(), 1);
+  var import_data39 = __toESM(require_data(), 1);
   var import_components80 = __toESM(require_components(), 1);
   var import_deprecated3 = __toESM(require_deprecated(), 1);
   var import_jsx_runtime162 = __toESM(require_jsx_runtime(), 1);
@@ -21501,8 +21423,8 @@ var wp;
       version: "6.8",
       alternative: "wp.editor.PluginDocumentSettingPanel"
     });
-    const isCurrentEntityTemplate = (0, import_data37.useSelect)(
-      (select3) => select3(import_editor14.store).getCurrentPostType() === "wp_template",
+    const isCurrentEntityTemplate = (0, import_data39.useSelect)(
+      (select3) => select3(import_editor15.store).getCurrentPostType() === "wp_template",
       []
     );
     if (!isCurrentEntityTemplate) {
@@ -21514,23 +21436,23 @@ var wp;
   var plugin_template_setting_panel_default = PluginTemplateSettingPanel;
 
   // packages/edit-site/build-module/components/more-menu/index.mjs
-  var import_editor15 = __toESM(require_editor(), 1);
+  var import_editor16 = __toESM(require_editor(), 1);
 
   // packages/edit-site/build-module/components/more-menu/site-export.mjs
   var import_i18n64 = __toESM(require_i18n(), 1);
   var import_components81 = __toESM(require_components(), 1);
   var import_api_fetch3 = __toESM(require_api_fetch(), 1);
-  var import_data38 = __toESM(require_data(), 1);
+  var import_data40 = __toESM(require_data(), 1);
   var import_blob = __toESM(require_blob(), 1);
-  var import_core_data28 = __toESM(require_core_data(), 1);
+  var import_core_data29 = __toESM(require_core_data(), 1);
   var import_notices2 = __toESM(require_notices(), 1);
   var import_jsx_runtime163 = __toESM(require_jsx_runtime(), 1);
   function SiteExport() {
-    const canExport = (0, import_data38.useSelect)((select3) => {
-      const targetHints = select3(import_core_data28.store).getCurrentTheme()?._links?.["wp:export-theme"]?.[0]?.targetHints ?? {};
+    const canExport = (0, import_data40.useSelect)((select3) => {
+      const targetHints = select3(import_core_data29.store).getCurrentTheme()?._links?.["wp:export-theme"]?.[0]?.targetHints ?? {};
       return !!targetHints.allow?.includes("GET");
     }, []);
-    const { createErrorNotice } = (0, import_data38.useDispatch)(import_notices2.store);
+    const { createErrorNotice } = (0, import_data40.useDispatch)(import_notices2.store);
     if (!canExport) {
       return null;
     }
@@ -21576,18 +21498,18 @@ var wp;
 
   // packages/edit-site/build-module/components/more-menu/welcome-guide-menu-item.mjs
   var import_i18n65 = __toESM(require_i18n(), 1);
-  var import_data39 = __toESM(require_data(), 1);
+  var import_data41 = __toESM(require_data(), 1);
   var import_components82 = __toESM(require_components(), 1);
   var import_preferences9 = __toESM(require_preferences(), 1);
   var import_jsx_runtime164 = __toESM(require_jsx_runtime(), 1);
   function WelcomeGuideMenuItem() {
-    const { toggle } = (0, import_data39.useDispatch)(import_preferences9.store);
+    const { toggle } = (0, import_data41.useDispatch)(import_preferences9.store);
     return /* @__PURE__ */ (0, import_jsx_runtime164.jsx)(import_components82.MenuItem, { onClick: () => toggle("core/edit-site", "welcomeGuide"), children: (0, import_i18n65.__)("Welcome Guide") });
   }
 
   // packages/edit-site/build-module/components/more-menu/index.mjs
   var import_jsx_runtime165 = __toESM(require_jsx_runtime(), 1);
-  var { ToolsMoreMenuGroup, PreferencesModal } = unlock(import_editor15.privateApis);
+  var { ToolsMoreMenuGroup, PreferencesModal } = unlock(import_editor16.privateApis);
   function MoreMenu() {
     return /* @__PURE__ */ (0, import_jsx_runtime165.jsxs)(import_jsx_runtime165.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime165.jsxs)(ToolsMoreMenuGroup, { children: [
@@ -21599,23 +21521,23 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/block-editor/use-editor-iframe-props.mjs
-  var import_data40 = __toESM(require_data(), 1);
+  var import_data42 = __toESM(require_data(), 1);
   var import_keycodes5 = __toESM(require_keycodes(), 1);
-  var import_element51 = __toESM(require_element(), 1);
+  var import_element52 = __toESM(require_element(), 1);
   var import_i18n66 = __toESM(require_i18n(), 1);
-  var import_editor16 = __toESM(require_editor(), 1);
-  var import_router14 = __toESM(require_router(), 1);
+  var import_editor17 = __toESM(require_editor(), 1);
+  var import_router15 = __toESM(require_router(), 1);
   var import_url9 = __toESM(require_url(), 1);
-  var { useLocation: useLocation13, useHistory: useHistory10 } = unlock(import_router14.privateApis);
+  var { useLocation: useLocation14, useHistory: useHistory10 } = unlock(import_router15.privateApis);
   function useEditorIframeProps() {
-    const { query, path } = useLocation13();
+    const { query, path } = useLocation14();
     const history = useHistory10();
     const { canvas = "view" } = query;
-    const currentPostIsTrashed = (0, import_data40.useSelect)((select3) => {
-      return select3(import_editor16.store).getCurrentPostAttribute("status") === "trash";
+    const currentPostIsTrashed = (0, import_data42.useSelect)((select3) => {
+      return select3(import_editor17.store).getCurrentPostAttribute("status") === "trash";
     }, []);
-    const [isFocused, setIsFocused] = (0, import_element51.useState)(false);
-    (0, import_element51.useEffect)(() => {
+    const [isFocused, setIsFocused] = (0, import_element52.useState)(false);
+    (0, import_element52.useEffect)(() => {
       if (canvas === "edit") {
         setIsFocused(false);
       }
@@ -21658,31 +21580,31 @@ var wp;
 
   // packages/edit-site/build-module/components/editor/use-editor-title.mjs
   var import_i18n68 = __toESM(require_i18n(), 1);
-  var import_data42 = __toESM(require_data(), 1);
-  var import_core_data30 = __toESM(require_core_data(), 1);
+  var import_data44 = __toESM(require_data(), 1);
+  var import_core_data31 = __toESM(require_core_data(), 1);
   var import_html_entities3 = __toESM(require_html_entities(), 1);
-  var import_editor17 = __toESM(require_editor(), 1);
+  var import_editor18 = __toESM(require_editor(), 1);
 
   // packages/edit-site/build-module/components/routes/use-title.mjs
-  var import_element52 = __toESM(require_element(), 1);
-  var import_data41 = __toESM(require_data(), 1);
-  var import_core_data29 = __toESM(require_core_data(), 1);
+  var import_element53 = __toESM(require_element(), 1);
+  var import_data43 = __toESM(require_data(), 1);
+  var import_core_data30 = __toESM(require_core_data(), 1);
   var import_i18n67 = __toESM(require_i18n(), 1);
   var import_a11y3 = __toESM(require_a11y(), 1);
   var import_html_entities2 = __toESM(require_html_entities(), 1);
-  var import_router15 = __toESM(require_router(), 1);
-  var { useLocation: useLocation14 } = unlock(import_router15.privateApis);
+  var import_router16 = __toESM(require_router(), 1);
+  var { useLocation: useLocation15 } = unlock(import_router16.privateApis);
   function useTitle(title) {
-    const location = useLocation14();
-    const siteTitle = (0, import_data41.useSelect)(
-      (select3) => select3(import_core_data29.store).getEntityRecord("root", "site")?.title,
+    const location = useLocation15();
+    const siteTitle = (0, import_data43.useSelect)(
+      (select3) => select3(import_core_data30.store).getEntityRecord("root", "site")?.title,
       []
     );
-    const isInitialLocationRef = (0, import_element52.useRef)(true);
-    (0, import_element52.useEffect)(() => {
+    const isInitialLocationRef = (0, import_element53.useRef)(true);
+    (0, import_element53.useEffect)(() => {
       isInitialLocationRef.current = false;
     }, [location]);
-    (0, import_element52.useEffect)(() => {
+    (0, import_element53.useEffect)(() => {
       if (isInitialLocationRef.current) {
         return;
       }
@@ -21700,15 +21622,15 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/editor/use-editor-title.mjs
-  var { getTemplateInfo } = unlock(import_editor17.privateApis);
+  var { getTemplateInfo } = unlock(import_editor18.privateApis);
   function useEditorTitle(postType2, postId) {
-    const { title, isLoaded } = (0, import_data42.useSelect)(
+    const { title, isLoaded } = (0, import_data44.useSelect)(
       (select3) => {
         const {
           getEditedEntityRecord,
           getCurrentTheme,
           hasFinishedResolution
-        } = select3(import_core_data30.store);
+        } = select3(import_core_data31.store);
         if (!postId) {
           return { isLoaded: false };
         }
@@ -21748,26 +21670,31 @@ var wp;
   var use_editor_title_default = useEditorTitle;
 
   // packages/edit-site/build-module/components/editor/use-adapt-editor-to-canvas.mjs
-  var import_data43 = __toESM(require_data(), 1);
+  var import_data45 = __toESM(require_data(), 1);
   var import_block_editor17 = __toESM(require_block_editor(), 1);
-  var import_editor18 = __toESM(require_editor(), 1);
-  var import_element53 = __toESM(require_element(), 1);
+  var import_editor19 = __toESM(require_editor(), 1);
+  var import_element54 = __toESM(require_element(), 1);
   var import_preferences10 = __toESM(require_preferences(), 1);
   function useAdaptEditorToCanvas(canvas) {
-    const { clearSelectedBlock } = (0, import_data43.useDispatch)(import_block_editor17.store);
+    const { clearSelectedBlock } = (0, import_data45.useDispatch)(import_block_editor17.store);
     const {
+      editPost,
       setDeviceType,
       closePublishSidebar,
       setIsListViewOpened: setIsListViewOpened2,
       setIsInserterOpened: setIsInserterOpened2
-    } = (0, import_data43.useDispatch)(import_editor18.store);
-    const { get: getPreference } = (0, import_data43.useSelect)(import_preferences10.store);
-    const registry = (0, import_data43.useRegistry)();
-    (0, import_element53.useLayoutEffect)(() => {
+    } = (0, import_data45.useDispatch)(import_editor19.store);
+    const { get: getPreference } = (0, import_data45.useSelect)(import_preferences10.store);
+    const { getCurrentPost } = (0, import_data45.useSelect)(import_editor19.store);
+    const registry = (0, import_data45.useRegistry)();
+    (0, import_element54.useLayoutEffect)(() => {
       const isMediumOrBigger = window.matchMedia("(min-width: 782px)").matches;
       registry.batch(() => {
         clearSelectedBlock();
-        setDeviceType("Desktop");
+        if (getCurrentPost()?.type) {
+          editPost({ selection: void 0 }, { undoIgnore: true });
+        }
+        setDeviceType(DEFAULT_DEVICE_TYPE);
         closePublishSidebar();
         setIsInserterOpened2(false);
         if (isMediumOrBigger && canvas === "edit" && getPreference("core", "showListViewByDefault") && !getPreference("core", "distractionFree")) {
@@ -21780,20 +21707,22 @@ var wp;
       canvas,
       registry,
       clearSelectedBlock,
+      editPost,
       setDeviceType,
       closePublishSidebar,
       setIsInserterOpened2,
       setIsListViewOpened2,
-      getPreference
+      getPreference,
+      getCurrentPost
     ]);
   }
 
   // packages/edit-site/build-module/components/editor/use-resolve-edited-entity.mjs
-  var import_element54 = __toESM(require_element(), 1);
-  var import_data44 = __toESM(require_data(), 1);
-  var import_core_data31 = __toESM(require_core_data(), 1);
-  var import_router16 = __toESM(require_router(), 1);
-  var { useLocation: useLocation15 } = unlock(import_router16.privateApis);
+  var import_element55 = __toESM(require_element(), 1);
+  var import_data46 = __toESM(require_data(), 1);
+  var import_core_data32 = __toESM(require_core_data(), 1);
+  var import_router17 = __toESM(require_router(), 1);
+  var { useLocation: useLocation16 } = unlock(import_router17.privateApis);
   var postTypesWithoutParentTemplate = [
     ATTACHMENT_POST_TYPE,
     TEMPLATE_POST_TYPE,
@@ -21824,14 +21753,18 @@ var wp;
     return postType2;
   }
   function useResolveEditedEntity() {
-    const { name: name2, params = {}, query } = useLocation15();
+    const { editEntityRecord } = (0, import_data46.useDispatch)(import_core_data32.store);
+    const { hasEntityRecord } = (0, import_data46.useSelect)(import_core_data32.store);
+    const { name: name2, params = {}, query } = useLocation16();
     const { postId = query?.postId } = params;
     const postType2 = getPostType(name2, postId) ?? query?.postType;
-    const homePage = (0, import_data44.useSelect)((select3) => {
-      const { getHomePage } = unlock(select3(import_core_data31.store));
+    const { selectedBlock } = query;
+    const appliedSelectionRef = (0, import_element55.useRef)(null);
+    const homePage = (0, import_data46.useSelect)((select3) => {
+      const { getHomePage } = unlock(select3(import_core_data32.store));
       return getHomePage();
     }, []);
-    const resolvedTemplateId = (0, import_data44.useSelect)(
+    const resolvedTemplateId = (0, import_data46.useSelect)(
       (select3) => {
         if (postTypesWithoutParentTemplate.includes(postType2) && postId) {
           return;
@@ -21839,7 +21772,7 @@ var wp;
         if (postId && postId.includes(",")) {
           return;
         }
-        const { getTemplateId } = unlock(select3(import_core_data31.store));
+        const { getTemplateId } = unlock(select3(import_core_data32.store));
         if (postType2 && postId && authorizedPostTypes.includes(postType2)) {
           return getTemplateId(postType2, postId);
         }
@@ -21852,7 +21785,7 @@ var wp;
       },
       [homePage, postId, postType2]
     );
-    const context = (0, import_element54.useMemo)(() => {
+    const context = (0, import_element55.useMemo)(() => {
       if (postTypesWithoutParentTemplate.includes(postType2) && postId) {
         return {};
       }
@@ -21864,18 +21797,39 @@ var wp;
       }
       return {};
     }, [homePage, postType2, postId]);
+    let entity;
     if (postTypesWithoutParentTemplate.includes(postType2) && postId) {
-      return { isReady: true, postType: postType2, postId, context };
-    }
-    if (!!homePage) {
-      return {
+      entity = { isReady: true, postType: postType2, postId, context };
+    } else if (!!homePage) {
+      entity = {
         isReady: resolvedTemplateId !== void 0,
         postType: TEMPLATE_POST_TYPE,
         postId: resolvedTemplateId,
         context
       };
+    } else {
+      entity = { isReady: false };
     }
-    return { isReady: false };
+    if (selectedBlock && entity.isReady && appliedSelectionRef.current !== selectedBlock) {
+      const selectionPostType = entity.context?.postId ? entity.context.postType : entity.postType;
+      const selectionPostId = entity.context?.postId ? entity.context.postId : entity.postId;
+      if (hasEntityRecord("postType", selectionPostType, selectionPostId)) {
+        editEntityRecord(
+          "postType",
+          selectionPostType,
+          selectionPostId,
+          {
+            selection: {
+              selectionStart: { clientId: selectedBlock },
+              selectionEnd: { clientId: selectedBlock }
+            }
+          },
+          { undoIgnore: true }
+        );
+        appliedSelectionRef.current = selectedBlock;
+      }
+    }
+    return entity;
   }
   function useSyncDeprecatedEntityIntoState({
     postType: postType2,
@@ -21883,8 +21837,8 @@ var wp;
     context,
     isReady
   }) {
-    const { setEditedEntity: setEditedEntity2 } = (0, import_data44.useDispatch)(store);
-    (0, import_element54.useEffect)(() => {
+    const { setEditedEntity: setEditedEntity2 } = (0, import_data46.useDispatch)(store);
+    (0, import_element55.useEffect)(() => {
       if (isReady) {
         setEditedEntity2(postType2, String(postId), context);
       }
@@ -21893,14 +21847,14 @@ var wp;
 
   // packages/edit-site/build-module/components/editor/site-preview.mjs
   var import_i18n69 = __toESM(require_i18n(), 1);
-  var import_data45 = __toESM(require_data(), 1);
-  var import_core_data32 = __toESM(require_core_data(), 1);
+  var import_data47 = __toESM(require_data(), 1);
+  var import_core_data33 = __toESM(require_core_data(), 1);
   var import_dom2 = __toESM(require_dom(), 1);
   var import_url10 = __toESM(require_url(), 1);
   var import_jsx_runtime166 = __toESM(require_jsx_runtime(), 1);
   function SitePreview() {
-    const siteUrl = (0, import_data45.useSelect)((select3) => {
-      const { getEntityRecord } = select3(import_core_data32.store);
+    const siteUrl = (0, import_data47.useSelect)((select3) => {
+      const { getEntityRecord } = select3(import_core_data33.store);
       const siteData = getEntityRecord("root", "__unstableBase");
       return siteData?.home;
     }, []);
@@ -21933,8 +21887,8 @@ var wp;
 
   // packages/edit-site/build-module/components/editor/index.mjs
   var import_jsx_runtime167 = __toESM(require_jsx_runtime(), 1);
-  var { Editor, BackButton } = unlock(import_editor19.privateApis);
-  var { useHistory: useHistory11, useLocation: useLocation16 } = unlock(import_router17.privateApis);
+  var { Editor, BackButton } = unlock(import_editor20.privateApis);
+  var { useHistory: useHistory11, useLocation: useLocation17 } = unlock(import_router18.privateApis);
   var { BlockKeyboardShortcuts } = unlock(import_block_library.privateApis);
   var toggleHomeIconVariants = {
     edit: {
@@ -21991,15 +21945,16 @@ var wp;
   }
   function EditSiteEditor({ isHomeRoute = false }) {
     const disableMotion = (0, import_compose10.useReducedMotion)();
-    const location = useLocation16();
+    const location = useLocation17();
+    const history = useHistory11();
     const { canvas = "view" } = location.query;
     const isLoading = useIsSiteEditorLoading();
     useAdaptEditorToCanvas(canvas);
     const entity = useResolveEditedEntity();
     useSyncDeprecatedEntityIntoState(entity);
     const { postType: postType2, postId, context } = entity;
-    const { isBlockBasedTheme, hasSiteIcon } = (0, import_data46.useSelect)((select3) => {
-      const { getCurrentTheme, getEntityRecord } = select3(import_core_data33.store);
+    const { isBlockBasedTheme, hasSiteIcon } = (0, import_data48.useSelect)((select3) => {
+      const { getCurrentTheme, getEntityRecord } = select3(import_core_data34.store);
       const siteData = getEntityRecord("root", "__unstableBase", void 0);
       return {
         isBlockBasedTheme: getCurrentTheme()?.is_block_theme,
@@ -22018,13 +21973,11 @@ var wp;
       CanvasLoader,
       "edit-site-editor__loading-progress"
     );
-    const settings2 = useSpecificEditorSettings();
-    const { initialBlockSelection, ...editorSettings } = settings2;
-    const { resetZoomLevel } = unlock((0, import_data46.useDispatch)(import_block_editor18.store));
-    const { setCurrentRevisionId } = unlock((0, import_data46.useDispatch)(import_editor19.store));
-    const { createSuccessNotice } = (0, import_data46.useDispatch)(import_notices3.store);
-    const history = useHistory11();
-    const onActionPerformed = (0, import_element55.useCallback)(
+    const editorSettings = useSpecificEditorSettings();
+    const { resetZoomLevel } = unlock((0, import_data48.useDispatch)(import_block_editor18.store));
+    const { setCurrentRevisionId } = unlock((0, import_data48.useDispatch)(import_editor20.store));
+    const { createSuccessNotice } = (0, import_data48.useDispatch)(import_notices3.store);
+    const onActionPerformed = (0, import_element56.useCallback)(
       (actionId, items) => {
         switch (actionId) {
           case "move-to-trash":
@@ -22079,7 +22032,7 @@ var wp;
       duration: disableMotion ? 0 : 0.2
     };
     return !isBlockBasedTheme && isHomeRoute ? /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(SitePreview, {}) : /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)(import_jsx_runtime167.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(import_editor19.EditorKeyboardShortcutsRegister, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(import_editor20.EditorKeyboardShortcutsRegister, {}),
       isEditMode && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(BlockKeyboardShortcuts, {}),
       !isReady ? /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(CanvasLoader, { id: loadingProgressId }) : null,
       isEditMode && isReady && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(
@@ -22095,7 +22048,6 @@ var wp;
           postId: postWithTemplate ? context.postId : postId,
           templateId: postWithTemplate ? postId : void 0,
           settings: editorSettings,
-          initialSelection: initialBlockSelection,
           className: "edit-site-editor__editor-interface",
           customSaveButton: _isPreviewingTheme && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(SaveButton, { size: "compact" }),
           customSavePanel: _isPreviewingTheme && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(SavePanel, {}),
@@ -22103,6 +22055,7 @@ var wp;
           onActionPerformed,
           extraSidebarPanels: !postWithTemplate && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(plugin_template_setting_panel_default.Slot, {}),
           children: [
+            isEditMode && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(ViewportSync, {}),
             isEditMode && /* @__PURE__ */ (0, import_jsx_runtime167.jsx)(BackButton, { children: ({ length }) => length <= 1 && /* @__PURE__ */ (0, import_jsx_runtime167.jsxs)(
               import_components83.__unstableMotion.div,
               {
@@ -22195,21 +22148,21 @@ var wp;
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/styles.mjs
-  var import_router19 = __toESM(require_router(), 1);
-  var import_editor22 = __toESM(require_editor(), 1);
+  var import_router20 = __toESM(require_router(), 1);
+  var import_editor23 = __toESM(require_editor(), 1);
   var import_url13 = __toESM(require_url(), 1);
 
   // packages/edit-site/build-module/components/sidebar-global-styles/index.mjs
   var import_i18n71 = __toESM(require_i18n(), 1);
-  var import_element56 = __toESM(require_element(), 1);
-  var import_router18 = __toESM(require_router(), 1);
-  var import_editor21 = __toESM(require_editor(), 1);
+  var import_element57 = __toESM(require_element(), 1);
+  var import_router19 = __toESM(require_router(), 1);
+  var import_editor22 = __toESM(require_editor(), 1);
   var import_compose11 = __toESM(require_compose(), 1);
   var import_components84 = __toESM(require_components(), 1);
   var import_url12 = __toESM(require_url(), 1);
   var import_jsx_runtime169 = __toESM(require_jsx_runtime(), 1);
-  var { GlobalStylesUIWrapper, GlobalStylesActionMenu } = unlock(import_editor21.privateApis);
-  var { useLocation: useLocation17, useHistory: useHistory12 } = unlock(import_router18.privateApis);
+  var { GlobalStylesUIWrapper, GlobalStylesActionMenu } = unlock(import_editor22.privateApis);
+  var { useLocation: useLocation18, useHistory: useHistory12 } = unlock(import_router19.privateApis);
   var GlobalStylesPageActions = ({
     isStyleBookOpened,
     setIsStyleBookOpened,
@@ -22242,9 +22195,9 @@ var wp;
     ] });
   };
   var useSection = () => {
-    const { path, query } = useLocation17();
+    const { path, query } = useLocation18();
     const history = useHistory12();
-    return (0, import_element56.useMemo)(() => {
+    return (0, import_element57.useMemo)(() => {
       return [
         query.section ?? "/",
         (updatedSection) => {
@@ -22258,8 +22211,8 @@ var wp;
     }, [path, query.section, history]);
   };
   function SidebarGlobalStyles() {
-    const { path } = useLocation17();
-    const [isStyleBookOpened, setIsStyleBookOpened] = (0, import_element56.useState)(
+    const { path } = useLocation18();
+    const [isStyleBookOpened, setIsStyleBookOpened] = (0, import_element57.useState)(
       path.includes("preview=stylebook")
     );
     const isMobileViewport = (0, import_compose11.useViewportMatch)("medium", "<");
@@ -22291,10 +22244,10 @@ var wp;
 
   // packages/edit-site/build-module/components/site-editor-routes/styles.mjs
   var import_jsx_runtime170 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation18, useHistory: useHistory13 } = unlock(import_router19.privateApis);
-  var { StyleBookPreview } = unlock(import_editor22.privateApis);
+  var { useLocation: useLocation19, useHistory: useHistory13 } = unlock(import_router20.privateApis);
+  var { StyleBookPreview } = unlock(import_editor23.privateApis);
   function MobileGlobalStylesUI() {
-    const { query = {} } = useLocation18();
+    const { query = {} } = useLocation19();
     const { canvas } = query;
     if (canvas === "edit") {
       return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(EditSiteEditor, {});
@@ -22302,7 +22255,7 @@ var wp;
     return /* @__PURE__ */ (0, import_jsx_runtime170.jsx)(SidebarGlobalStyles, {});
   }
   function StylesPreviewArea() {
-    const { path, query } = useLocation18();
+    const { path, query } = useLocation19();
     const history = useHistory13();
     const isStylebook = query.preview === "stylebook";
     const section = query.section ?? "/";
@@ -22339,12 +22292,12 @@ var wp;
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/navigation.mjs
-  var import_router24 = __toESM(require_router(), 1);
+  var import_router25 = __toESM(require_router(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menus/index.mjs
   var import_i18n80 = __toESM(require_i18n(), 1);
-  var import_core_data37 = __toESM(require_core_data(), 1);
-  var import_data52 = __toESM(require_data(), 1);
+  var import_core_data38 = __toESM(require_core_data(), 1);
+  var import_data54 = __toESM(require_data(), 1);
   var import_html_entities8 = __toESM(require_html_entities(), 1);
   var import_components90 = __toESM(require_components(), 1);
 
@@ -22363,17 +22316,17 @@ var wp;
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/more-menu.mjs
   var import_components87 = __toESM(require_components(), 1);
   var import_i18n74 = __toESM(require_i18n(), 1);
-  var import_element58 = __toESM(require_element(), 1);
-  var import_router20 = __toESM(require_router(), 1);
+  var import_element59 = __toESM(require_element(), 1);
+  var import_router21 = __toESM(require_router(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/rename-modal.mjs
   var import_components85 = __toESM(require_components(), 1);
   var import_i18n72 = __toESM(require_i18n(), 1);
-  var import_element57 = __toESM(require_element(), 1);
+  var import_element58 = __toESM(require_element(), 1);
   var import_jsx_runtime171 = __toESM(require_jsx_runtime(), 1);
   var notEmptyString = (testString) => testString?.trim()?.length > 0;
   function RenameModal({ menuTitle, onClose, onSave }) {
-    const [editedMenuTitle, setEditedMenuTitle] = (0, import_element57.useState)(menuTitle);
+    const [editedMenuTitle, setEditedMenuTitle] = (0, import_element58.useState)(menuTitle);
     const titleHasChanged = editedMenuTitle !== menuTitle;
     const isEditedMenuTitleValid = titleHasChanged && notEmptyString(editedMenuTitle);
     return /* @__PURE__ */ (0, import_jsx_runtime171.jsx)(
@@ -22452,14 +22405,14 @@ var wp;
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/more-menu.mjs
   var import_jsx_runtime173 = __toESM(require_jsx_runtime(), 1);
-  var { useHistory: useHistory14 } = unlock(import_router20.privateApis);
+  var { useHistory: useHistory14 } = unlock(import_router21.privateApis);
   var POPOVER_PROPS = {
     position: "bottom right"
   };
   function ScreenNavigationMoreMenu(props) {
     const { onDelete, onSave, onDuplicate, menuTitle, menuId } = props;
-    const [renameModalOpen, setRenameModalOpen] = (0, import_element58.useState)(false);
-    const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = (0, import_element58.useState)(false);
+    const [renameModalOpen, setRenameModalOpen] = (0, import_element59.useState)(false);
+    const [deleteConfirmDialogOpen, setDeleteConfirmDialogOpen] = (0, import_element59.useState)(false);
     const history = useHistory14();
     const closeModals = () => {
       setRenameModalOpen(false);
@@ -22540,37 +22493,37 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/navigation-menu-editor.mjs
-  var import_element61 = __toESM(require_element(), 1);
-  var import_data49 = __toESM(require_data(), 1);
+  var import_element62 = __toESM(require_element(), 1);
+  var import_data51 = __toESM(require_data(), 1);
   var import_block_editor21 = __toESM(require_block_editor(), 1);
   var import_blocks10 = __toESM(require_blocks(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menus/navigation-menu-content.mjs
   var import_block_editor20 = __toESM(require_block_editor(), 1);
-  var import_data48 = __toESM(require_data(), 1);
+  var import_data50 = __toESM(require_data(), 1);
   var import_blocks9 = __toESM(require_blocks(), 1);
-  var import_element60 = __toESM(require_element(), 1);
-  var import_core_data34 = __toESM(require_core_data(), 1);
+  var import_element61 = __toESM(require_element(), 1);
+  var import_core_data35 = __toESM(require_core_data(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menus/leaf-more-menu.mjs
   var import_components88 = __toESM(require_components(), 1);
-  var import_data47 = __toESM(require_data(), 1);
-  var import_element59 = __toESM(require_element(), 1);
+  var import_data49 = __toESM(require_data(), 1);
+  var import_element60 = __toESM(require_element(), 1);
   var import_i18n75 = __toESM(require_i18n(), 1);
   var import_block_editor19 = __toESM(require_block_editor(), 1);
-  var import_router21 = __toESM(require_router(), 1);
+  var import_router22 = __toESM(require_router(), 1);
   var import_jsx_runtime174 = __toESM(require_jsx_runtime(), 1);
   var POPOVER_PROPS2 = {
     className: "block-editor-block-settings-menu__popover",
     placement: "bottom-start"
   };
-  var { useHistory: useHistory15, useLocation: useLocation19 } = unlock(import_router21.privateApis);
+  var { useHistory: useHistory15, useLocation: useLocation20 } = unlock(import_router22.privateApis);
   function LeafMoreMenu(props) {
     const history = useHistory15();
-    const { path } = useLocation19();
+    const { path } = useLocation20();
     const { block } = props;
     const { clientId } = block;
-    const { moveBlocksDown, moveBlocksUp, removeBlocks } = (0, import_data47.useDispatch)(import_block_editor19.store);
+    const { moveBlocksDown, moveBlocksUp, removeBlocks } = (0, import_data49.useDispatch)(import_block_editor19.store);
     const removeLabel = (0, import_i18n75.sprintf)(
       /* translators: %s: block name */
       (0, import_i18n75.__)("Remove %s"),
@@ -22581,14 +22534,14 @@ var wp;
       (0, import_i18n75.__)("Go to %s"),
       (0, import_block_editor19.BlockTitle)({ clientId, maximumLength: 25 })
     );
-    const rootClientId = (0, import_data47.useSelect)(
+    const rootClientId = (0, import_data49.useSelect)(
       (select3) => {
         const { getBlockRootClientId } = select3(import_block_editor19.store);
         return getBlockRootClientId(clientId);
       },
       [clientId]
     );
-    const onGoToPage = (0, import_element59.useCallback)(
+    const onGoToPage = (0, import_element60.useCallback)(
       (selectedBlock) => {
         const { attributes, name: name2 } = selectedBlock;
         if (attributes.kind === "post-type" && attributes.id && attributes.type && history) {
@@ -22684,7 +22637,7 @@ var wp;
     }
   ];
   function NavigationMenuContent({ rootClientId }) {
-    const { listViewRootClientId, isLoading } = (0, import_data48.useSelect)(
+    const { listViewRootClientId, isLoading } = (0, import_data50.useSelect)(
       (select3) => {
         const {
           areInnerBlocksControlled,
@@ -22692,7 +22645,7 @@ var wp;
           getBlockCount,
           getBlockOrder
         } = select3(import_block_editor20.store);
-        const { isResolving } = select3(import_core_data34.store);
+        const { isResolving } = select3(import_core_data35.store);
         const blockClientIds = getBlockOrder(rootClientId);
         const hasOnlyPageListBlock = blockClientIds.length === 1 && getBlockName(blockClientIds[0]) === "core/page-list";
         const pageListHasBlocks = hasOnlyPageListBlock && getBlockCount(blockClientIds[0]) > 0;
@@ -22709,8 +22662,8 @@ var wp;
       },
       [rootClientId]
     );
-    const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = (0, import_data48.useDispatch)(import_block_editor20.store);
-    const offCanvasOnselect = (0, import_element60.useCallback)(
+    const { replaceBlock, __unstableMarkNextChangeAsNotPersistent } = (0, import_data50.useDispatch)(import_block_editor20.store);
+    const offCanvasOnselect = (0, import_element61.useCallback)(
       (block) => {
         if (block.name === "core/navigation-link" && !block.attributes.url) {
           __unstableMarkNextChangeAsNotPersistent();
@@ -22742,13 +22695,13 @@ var wp;
   var noop2 = () => {
   };
   function NavigationMenuEditor({ navigationMenuId }) {
-    const { storedSettings } = (0, import_data49.useSelect)((select3) => {
+    const { storedSettings } = (0, import_data51.useSelect)((select3) => {
       const { getSettings: getSettings7 } = unlock(select3(store));
       return {
         storedSettings: getSettings7()
       };
     }, []);
-    const blocks = (0, import_element61.useMemo)(() => {
+    const blocks = (0, import_element62.useMemo)(() => {
       if (!navigationMenuId) {
         return [];
       }
@@ -22825,34 +22778,34 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/use-navigation-menu-handlers.mjs
-  var import_core_data36 = __toESM(require_core_data(), 1);
+  var import_core_data37 = __toESM(require_core_data(), 1);
   var import_i18n79 = __toESM(require_i18n(), 1);
-  var import_data51 = __toESM(require_data(), 1);
+  var import_data53 = __toESM(require_data(), 1);
   var import_notices4 = __toESM(require_notices(), 1);
-  var import_router23 = __toESM(require_router(), 1);
+  var import_router24 = __toESM(require_router(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/index.mjs
-  var import_core_data35 = __toESM(require_core_data(), 1);
+  var import_core_data36 = __toESM(require_core_data(), 1);
   var import_components89 = __toESM(require_components(), 1);
   var import_i18n78 = __toESM(require_i18n(), 1);
-  var import_data50 = __toESM(require_data(), 1);
+  var import_data52 = __toESM(require_data(), 1);
   var import_html_entities7 = __toESM(require_html_entities(), 1);
-  var import_router22 = __toESM(require_router(), 1);
+  var import_router23 = __toESM(require_router(), 1);
   var import_jsx_runtime178 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation20 } = unlock(import_router22.privateApis);
+  var { useLocation: useLocation21 } = unlock(import_router23.privateApis);
   var postType = `wp_navigation`;
   function SidebarNavigationScreenNavigationMenu({ backPath }) {
     const {
       params: { postId }
-    } = useLocation20();
-    const { record: navigationMenu, isResolving } = (0, import_core_data35.useEntityRecord)(
+    } = useLocation21();
+    const { record: navigationMenu, isResolving } = (0, import_core_data36.useEntityRecord)(
       "postType",
       postType,
       postId
     );
-    const { isSaving, isDeleting } = (0, import_data50.useSelect)(
+    const { isSaving, isDeleting } = (0, import_data52.useSelect)(
       (select3) => {
-        const { isSavingEntityRecord, isDeletingEntityRecord } = select3(import_core_data35.store);
+        const { isSavingEntityRecord, isDeletingEntityRecord } = select3(import_core_data36.store);
         return {
           isSaving: isSavingEntityRecord("postType", postType, postId),
           isDeleting: isDeletingEntityRecord(
@@ -22928,10 +22881,10 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-navigation-menu/use-navigation-menu-handlers.mjs
-  var { useHistory: useHistory16 } = unlock(import_router23.privateApis);
+  var { useHistory: useHistory16 } = unlock(import_router24.privateApis);
   function useDeleteNavigationMenu() {
-    const { deleteEntityRecord } = (0, import_data51.useDispatch)(import_core_data36.store);
-    const { createSuccessNotice, createErrorNotice } = (0, import_data51.useDispatch)(import_notices4.store);
+    const { deleteEntityRecord } = (0, import_data53.useDispatch)(import_core_data37.store);
+    const { createSuccessNotice, createErrorNotice } = (0, import_data53.useDispatch)(import_notices4.store);
     const history = useHistory16();
     const handleDelete = async (navigationMenu) => {
       const postId = navigationMenu?.id;
@@ -22970,8 +22923,8 @@ var wp;
     return handleDelete;
   }
   function useSaveNavigationMenu() {
-    const { getEditedEntityRecord } = (0, import_data51.useSelect)((select3) => {
-      const { getEditedEntityRecord: getEditedEntityRecordSelector } = select3(import_core_data36.store);
+    const { getEditedEntityRecord } = (0, import_data53.useSelect)((select3) => {
+      const { getEditedEntityRecord: getEditedEntityRecordSelector } = select3(import_core_data37.store);
       return {
         getEditedEntityRecord: getEditedEntityRecordSelector
       };
@@ -22979,8 +22932,8 @@ var wp;
     const {
       editEntityRecord,
       __experimentalSaveSpecifiedEntityEdits: saveSpecifiedEntityEdits
-    } = (0, import_data51.useDispatch)(import_core_data36.store);
-    const { createSuccessNotice, createErrorNotice } = (0, import_data51.useDispatch)(import_notices4.store);
+    } = (0, import_data53.useDispatch)(import_core_data37.store);
+    const { createSuccessNotice, createErrorNotice } = (0, import_data53.useDispatch)(import_notices4.store);
     const handleSave = async (navigationMenu, edits) => {
       if (!edits) {
         return;
@@ -23024,8 +22977,8 @@ var wp;
   }
   function useDuplicateNavigationMenu() {
     const history = useHistory16();
-    const { saveEntityRecord } = (0, import_data51.useDispatch)(import_core_data36.store);
-    const { createSuccessNotice, createErrorNotice } = (0, import_data51.useDispatch)(import_notices4.store);
+    const { saveEntityRecord } = (0, import_data53.useDispatch)(import_core_data37.store);
+    const { createSuccessNotice, createErrorNotice } = (0, import_data53.useDispatch)(import_notices4.store);
     const handleDuplicate = async (navigationMenu) => {
       const menuTitle = navigationMenu?.title?.rendered || navigationMenu?.slug;
       try {
@@ -23095,15 +23048,15 @@ var wp;
       records: navigationMenus,
       isResolving: isResolvingNavigationMenus,
       hasResolved: hasResolvedNavigationMenus
-    } = (0, import_core_data37.useEntityRecords)(
+    } = (0, import_core_data38.useEntityRecords)(
       "postType",
       NAVIGATION_POST_TYPE,
       PRELOADED_NAVIGATION_MENUS_QUERY
     );
     const isLoading = isResolvingNavigationMenus && !hasResolvedNavigationMenus;
-    const { getNavigationFallbackId } = unlock((0, import_data52.useSelect)(import_core_data37.store));
-    const isCreatingNavigationFallback = (0, import_data52.useSelect)(
-      (select3) => select3(import_core_data37.store).isResolving("getNavigationFallbackId"),
+    const { getNavigationFallbackId } = unlock((0, import_data54.useSelect)(import_core_data38.store));
+    const isCreatingNavigationFallback = (0, import_data54.useSelect)(
+      (select3) => select3(import_core_data38.store).isResolving("getNavigationFallbackId"),
       []
     );
     const firstNavigationMenu = navigationMenus?.[0];
@@ -23178,9 +23131,9 @@ var wp;
 
   // packages/edit-site/build-module/components/site-editor-routes/navigation.mjs
   var import_jsx_runtime180 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation21 } = unlock(import_router24.privateApis);
+  var { useLocation: useLocation22 } = unlock(import_router25.privateApis);
   function MobileNavigationView() {
-    const { query = {} } = useLocation21();
+    const { query = {} } = useLocation22();
     const { canvas = "view" } = query;
     return canvas === "edit" ? /* @__PURE__ */ (0, import_jsx_runtime180.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime180.jsx)(SidebarNavigationScreenNavigationMenus, { backPath: "/" });
   }
@@ -23204,11 +23157,11 @@ var wp;
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/navigation-item.mjs
-  var import_router25 = __toESM(require_router(), 1);
+  var import_router26 = __toESM(require_router(), 1);
   var import_jsx_runtime181 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation22 } = unlock(import_router25.privateApis);
+  var { useLocation: useLocation23 } = unlock(import_router26.privateApis);
   function MobileNavigationItemView() {
-    const { query = {} } = useLocation22();
+    const { query = {} } = useLocation23();
     const { canvas = "view" } = query;
     return canvas === "edit" ? /* @__PURE__ */ (0, import_jsx_runtime181.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime181.jsx)(SidebarNavigationScreenNavigationMenu, { backPath: "/navigation" });
   }
@@ -23233,9 +23186,9 @@ var wp;
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/index.mjs
   var import_components91 = __toESM(require_components(), 1);
-  var import_editor26 = __toESM(require_editor(), 1);
+  var import_editor27 = __toESM(require_editor(), 1);
   var import_i18n82 = __toESM(require_i18n(), 1);
-  var import_router26 = __toESM(require_router(), 1);
+  var import_router27 = __toESM(require_router(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/category-item.mjs
   var import_jsx_runtime182 = __toESM(require_jsx_runtime(), 1);
@@ -23267,20 +23220,20 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/use-pattern-categories.mjs
-  var import_element64 = __toESM(require_element(), 1);
+  var import_element65 = __toESM(require_element(), 1);
   var import_i18n81 = __toESM(require_i18n(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/use-default-pattern-categories.mjs
-  var import_core_data38 = __toESM(require_core_data(), 1);
-  var import_data53 = __toESM(require_data(), 1);
+  var import_core_data39 = __toESM(require_core_data(), 1);
+  var import_data55 = __toESM(require_data(), 1);
   function useDefaultPatternCategories() {
-    const blockPatternCategories = (0, import_data53.useSelect)((select3) => {
+    const blockPatternCategories = (0, import_data55.useSelect)((select3) => {
       const { getSettings: getSettings7 } = unlock(select3(store));
       const settings2 = getSettings7();
       return settings2.__experimentalAdditionalBlockPatternCategories ?? settings2.__experimentalBlockPatternCategories;
     });
-    const restBlockPatternCategories = (0, import_data53.useSelect)(
-      (select3) => select3(import_core_data38.store).getBlockPatternCategories()
+    const restBlockPatternCategories = (0, import_data55.useSelect)(
+      (select3) => select3(import_core_data39.store).getBlockPatternCategories()
     );
     return [
       ...blockPatternCategories || [],
@@ -23289,23 +23242,23 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/use-theme-patterns.mjs
-  var import_core_data39 = __toESM(require_core_data(), 1);
-  var import_data54 = __toESM(require_data(), 1);
-  var import_element62 = __toESM(require_element(), 1);
+  var import_core_data40 = __toESM(require_core_data(), 1);
+  var import_data56 = __toESM(require_data(), 1);
+  var import_element63 = __toESM(require_element(), 1);
 
   // packages/edit-site/build-module/components/page-patterns/utils.mjs
   var filterOutDuplicatesByName = (currentItem, index, items) => index === items.findIndex((item) => currentItem.name === item.name);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/use-theme-patterns.mjs
   function useThemePatterns() {
-    const blockPatterns = (0, import_data54.useSelect)((select3) => {
+    const blockPatterns = (0, import_data56.useSelect)((select3) => {
       const { getSettings: getSettings7 } = unlock(select3(store));
       return getSettings7().__experimentalAdditionalBlockPatterns ?? getSettings7().__experimentalBlockPatterns;
     });
-    const restBlockPatterns = (0, import_data54.useSelect)(
-      (select3) => select3(import_core_data39.store).getBlockPatterns()
+    const restBlockPatterns = (0, import_data56.useSelect)(
+      (select3) => select3(import_core_data40.store).getBlockPatterns()
     );
-    const patterns = (0, import_element62.useMemo)(
+    const patterns = (0, import_element63.useMemo)(
       () => [...blockPatterns || [], ...restBlockPatterns || []].filter(
         (pattern) => !EXCLUDED_PATTERN_SOURCES.includes(pattern.source)
       ).filter(filterOutDuplicatesByName).filter((pattern) => pattern.inserter !== false),
@@ -23316,9 +23269,9 @@ var wp;
 
   // packages/edit-site/build-module/components/page-patterns/use-patterns.mjs
   var import_blocks11 = __toESM(require_blocks(), 1);
-  var import_data55 = __toESM(require_data(), 1);
-  var import_core_data40 = __toESM(require_core_data(), 1);
-  var import_element63 = __toESM(require_element(), 1);
+  var import_data57 = __toESM(require_data(), 1);
+  var import_core_data41 = __toESM(require_core_data(), 1);
+  var import_element64 = __toESM(require_element(), 1);
 
   // packages/edit-site/build-module/components/page-patterns/search-items.mjs
   var import_block_editor22 = __toESM(require_block_editor(), 1);
@@ -23418,13 +23371,13 @@ var wp;
 
   // packages/edit-site/build-module/components/page-patterns/use-patterns.mjs
   var EMPTY_PATTERN_LIST = [];
-  var selectTemplateParts = (0, import_data55.createSelector)(
+  var selectTemplateParts = (0, import_data57.createSelector)(
     (select3, categoryId, search = "") => {
       const {
         getEntityRecords,
         getCurrentTheme,
         isResolving: isResolvingSelector
-      } = select3(import_core_data40.store);
+      } = select3(import_core_data41.store);
       const query = { per_page: -1 };
       const templateParts = getEntityRecords("postType", TEMPLATE_PART_POST_TYPE, query) ?? EMPTY_PATTERN_LIST;
       const knownAreas = getCurrentTheme()?.default_template_part_areas || [];
@@ -23447,28 +23400,28 @@ var wp;
       return { patterns, isResolving };
     },
     (select3) => [
-      select3(import_core_data40.store).getEntityRecords(
+      select3(import_core_data41.store).getEntityRecords(
         "postType",
         TEMPLATE_PART_POST_TYPE,
         {
           per_page: -1
         }
       ),
-      select3(import_core_data40.store).isResolving("getEntityRecords", [
+      select3(import_core_data41.store).isResolving("getEntityRecords", [
         "postType",
         TEMPLATE_PART_POST_TYPE,
         { per_page: -1 }
       ]),
-      select3(import_core_data40.store).getCurrentTheme()?.default_template_part_areas
+      select3(import_core_data41.store).getCurrentTheme()?.default_template_part_areas
     ]
   );
-  var selectThemePatterns = (0, import_data55.createSelector)(
+  var selectThemePatterns = (0, import_data57.createSelector)(
     (select3) => {
       const { getSettings: getSettings7 } = unlock(select3(store));
-      const { isResolving: isResolvingSelector } = select3(import_core_data40.store);
+      const { isResolving: isResolvingSelector } = select3(import_core_data41.store);
       const settings2 = getSettings7();
       const blockPatterns = settings2.__experimentalAdditionalBlockPatterns ?? settings2.__experimentalBlockPatterns;
-      const restBlockPatterns = select3(import_core_data40.store).getBlockPatterns();
+      const restBlockPatterns = select3(import_core_data41.store).getBlockPatterns();
       const patterns = [
         ...blockPatterns || [],
         ...restBlockPatterns || []
@@ -23488,12 +23441,12 @@ var wp;
       };
     },
     (select3) => [
-      select3(import_core_data40.store).getBlockPatterns(),
-      select3(import_core_data40.store).isResolving("getBlockPatterns"),
+      select3(import_core_data41.store).getBlockPatterns(),
+      select3(import_core_data41.store).isResolving("getBlockPatterns"),
       unlock(select3(store)).getSettings()
     ]
   );
-  var selectPatterns = (0, import_data55.createSelector)(
+  var selectPatterns = (0, import_data57.createSelector)(
     (select3, categoryId, syncStatus, search = "") => {
       const {
         patterns: themePatterns,
@@ -23551,13 +23504,13 @@ var wp;
       selectUserPatterns(select3)
     ]
   );
-  var selectUserPatterns = (0, import_data55.createSelector)(
+  var selectUserPatterns = (0, import_data57.createSelector)(
     (select3, syncStatus, search = "") => {
       const {
         getEntityRecords,
         isResolving: isResolvingSelector,
         getUserPatternCategories
-      } = select3(import_core_data40.store);
+      } = select3(import_core_data41.store);
       const query = { per_page: -1 };
       const patternPosts = getEntityRecords(
         "postType",
@@ -23593,26 +23546,26 @@ var wp;
       };
     },
     (select3) => [
-      select3(import_core_data40.store).getEntityRecords("postType", PATTERN_TYPES.user, {
+      select3(import_core_data41.store).getEntityRecords("postType", PATTERN_TYPES.user, {
         per_page: -1
       }),
-      select3(import_core_data40.store).isResolving("getEntityRecords", [
+      select3(import_core_data41.store).isResolving("getEntityRecords", [
         "postType",
         PATTERN_TYPES.user,
         { per_page: -1 }
       ]),
-      select3(import_core_data40.store).getUserPatternCategories()
+      select3(import_core_data41.store).getUserPatternCategories()
     ]
   );
   function useAugmentPatternsWithPermissions(patterns) {
-    const idsAndTypes = (0, import_element63.useMemo)(
+    const idsAndTypes = (0, import_element64.useMemo)(
       () => patterns?.filter((record) => record.type !== PATTERN_TYPES.theme).map((record) => [record.type, record.id]) ?? [],
       [patterns]
     );
-    const permissions = (0, import_data55.useSelect)(
+    const permissions = (0, import_data57.useSelect)(
       (select3) => {
         const { getEntityRecordPermissions } = unlock(
-          select3(import_core_data40.store)
+          select3(import_core_data41.store)
         );
         return idsAndTypes.reduce((acc, [type, id]) => {
           acc[id] = getEntityRecordPermissions("postType", type, id);
@@ -23621,7 +23574,7 @@ var wp;
       },
       [idsAndTypes]
     );
-    return (0, import_element63.useMemo)(
+    return (0, import_element64.useMemo)(
       () => patterns?.map((record) => ({
         ...record,
         permissions: permissions?.[record.id] ?? {}
@@ -23630,7 +23583,7 @@ var wp;
     );
   }
   var usePatterns = (postType2, categoryId, { search = "", syncStatus } = {}) => {
-    return (0, import_data55.useSelect)(
+    return (0, import_data57.useSelect)(
       (select3) => {
         if (postType2 === TEMPLATE_PART_POST_TYPE) {
           return selectTemplateParts(select3, categoryId, search);
@@ -23664,7 +23617,7 @@ var wp;
     });
     const themePatterns = useThemePatterns();
     const { patterns: userPatterns, categories: userPatternCategories } = use_patterns_default(PATTERN_TYPES.user);
-    const patternCategories = (0, import_element64.useMemo)(() => {
+    const patternCategories = (0, import_element65.useMemo)(() => {
       const categoryMap = {};
       const categoriesWithCounts = [];
       defaultCategories.forEach((category) => {
@@ -23736,16 +23689,16 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/use-template-part-areas.mjs
-  var import_core_data41 = __toESM(require_core_data(), 1);
-  var import_data56 = __toESM(require_data(), 1);
+  var import_core_data42 = __toESM(require_core_data(), 1);
+  var import_data58 = __toESM(require_data(), 1);
   var import_block_library2 = __toESM(require_block_library(), 1);
   var { NAVIGATION_OVERLAY_TEMPLATE_PART_AREA } = unlock(
     import_block_library2.privateApis
   );
   var useTemplatePartsGroupedByArea = (items) => {
     const allItems = items || [];
-    const templatePartAreas = (0, import_data56.useSelect)(
-      (select3) => select3(import_core_data41.store).getCurrentTheme()?.default_template_part_areas || [],
+    const templatePartAreas = (0, import_data58.useSelect)(
+      (select3) => select3(import_core_data42.store).getCurrentTheme()?.default_template_part_areas || [],
       []
     );
     const knownAreas = {
@@ -23769,7 +23722,7 @@ var wp;
     return groupedByArea;
   };
   function useTemplatePartAreas() {
-    const { records: templateParts, isResolving: isLoading } = (0, import_core_data41.useEntityRecords)(
+    const { records: templateParts, isResolving: isLoading } = (0, import_core_data42.useEntityRecords)(
       "postType",
       TEMPLATE_PART_POST_TYPE,
       { per_page: -1 }
@@ -23783,7 +23736,7 @@ var wp;
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-patterns/index.mjs
   var import_jsx_runtime183 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation23 } = unlock(import_router26.privateApis);
+  var { useLocation: useLocation24 } = unlock(import_router27.privateApis);
   function CategoriesGroup({
     templatePartAreas,
     patternCategories,
@@ -23796,7 +23749,7 @@ var wp;
         CategoryItem,
         {
           count: Object.values(templatePartAreas).map(({ templateParts }) => templateParts?.length || 0).reduce((acc, val) => acc + val, 0),
-          icon: (0, import_editor26.getTemplatePartIcon)(),
+          icon: (0, import_editor27.getTemplatePartIcon)(),
           label: (0, import_i18n82.__)("All template parts"),
           id: TEMPLATE_PART_ALL_AREAS_CATEGORY,
           type: TEMPLATE_PART_POST_TYPE,
@@ -23809,7 +23762,7 @@ var wp;
           CategoryItem,
           {
             count: templateParts?.length,
-            icon: (0, import_editor26.getTemplatePartIcon)(icon),
+            icon: (0, import_editor27.getTemplatePartIcon)(icon),
             label,
             id: area,
             type: TEMPLATE_PART_POST_TYPE,
@@ -23848,7 +23801,7 @@ var wp;
   function SidebarNavigationScreenPatterns({ backPath }) {
     const {
       query: { postType: postType2 = "wp_block", categoryId }
-    } = useLocation23();
+    } = useLocation24();
     const currentCategory = categoryId || (postType2 === PATTERN_TYPES.user ? PATTERN_DEFAULT_CATEGORY : TEMPLATE_PART_ALL_AREAS_CATEGORY);
     const { templatePartAreas, hasTemplateParts, isLoading } = useTemplatePartAreas();
     const { patternCategories, hasPatterns } = usePatternCategories();
@@ -23881,12 +23834,12 @@ var wp;
   }
 
   // packages/edit-site/build-module/components/page-patterns/index.mjs
-  var import_i18n137 = __toESM(require_i18n(), 1);
-  var import_element137 = __toESM(require_element(), 1);
+  var import_i18n139 = __toESM(require_i18n(), 1);
+  var import_element139 = __toESM(require_element(), 1);
   var import_block_editor24 = __toESM(require_block_editor(), 1);
 
   // packages/dataviews/build-module/dataviews/index.mjs
-  var import_element118 = __toESM(require_element(), 1);
+  var import_element119 = __toESM(require_element(), 1);
   var import_compose23 = __toESM(require_compose(), 1);
 
   // node_modules/@base-ui/utils/esm/useRefWithInit.js
@@ -24235,6 +24188,7 @@ var wp;
     }
     return outProps;
   }
+  var REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
   function evaluateRenderProp(element, render4, props, state) {
     if (render4) {
       if (typeof render4 === "function") {
@@ -24242,7 +24196,17 @@ var wp;
       }
       const mergedProps = mergeProps(props, render4.props);
       mergedProps.ref = props.ref;
-      return /* @__PURE__ */ React6.cloneElement(render4, mergedProps);
+      let newElement = render4;
+      if (newElement?.$$typeof === REACT_LAZY_TYPE) {
+        const children = React6.Children.toArray(render4);
+        newElement = children[0];
+      }
+      if (true) {
+        if (!/* @__PURE__ */ React6.isValidElement(newElement)) {
+          throw new Error(["Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.", "A valid React element must be provided to the `render` prop because it is cloned with props to replace the default element.", "https://base-ui.com/r/invalid-render-prop"].join("\n"));
+        }
+      }
+      return /* @__PURE__ */ React6.cloneElement(newElement, mergedProps);
     }
     if (element) {
       if (typeof element === "string") {
@@ -24275,7 +24239,7 @@ var wp;
   }
 
   // packages/ui/build-module/badge/badge.mjs
-  var import_element65 = __toESM(require_element(), 1);
+  var import_element66 = __toESM(require_element(), 1);
   if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='244b5c59c0']")) {
     const style = document.createElement("style");
     style.setAttribute("data-wp-hash", "244b5c59c0");
@@ -24283,7 +24247,7 @@ var wp;
     document.head.appendChild(style);
   }
   var style_default = { "badge": "_96e6251aad1a6136__badge", "is-high-intent": "_99f7158cb520f750__is-high-intent", "is-medium-intent": "c20ebef2365bc8b7__is-medium-intent", "is-low-intent": "_365e1626c6202e52__is-low-intent", "is-stable-intent": "_33f8198127ddf4ef__is-stable-intent", "is-informational-intent": "_04c1aca8fc449412__is-informational-intent", "is-draft-intent": "_90726e69d495ec19__is-draft-intent", "is-none-intent": "_898f4a544993bd39__is-none-intent" };
-  var Badge = (0, import_element65.forwardRef)(function Badge2({ children, intent = "none", render: render4, className, ...props }, ref) {
+  var Badge = (0, import_element66.forwardRef)(function Badge2({ children, intent = "none", render: render4, className, ...props }, ref) {
     const element = useRender({
       render: render4,
       defaultTagName: "span",
@@ -24301,7 +24265,7 @@ var wp;
   });
 
   // packages/ui/build-module/stack/stack.mjs
-  var import_element66 = __toESM(require_element(), 1);
+  var import_element67 = __toESM(require_element(), 1);
   if (typeof document !== "undefined" && !document.head.querySelector("style[data-wp-hash='71d20935c2']")) {
     const style = document.createElement("style");
     style.setAttribute("data-wp-hash", "71d20935c2");
@@ -24309,7 +24273,7 @@ var wp;
     document.head.appendChild(style);
   }
   var style_default2 = { "stack": "_19ce0419607e1896__stack" };
-  var Stack = (0, import_element66.forwardRef)(function Stack2({ direction, gap, align, justify, wrap, render: render4, ...props }, ref) {
+  var Stack = (0, import_element67.forwardRef)(function Stack2({ direction, gap, align, justify, wrap, render: render4, ...props }, ref) {
     const style = {
       gap: gap && `var(--wpds-dimension-gap-${gap})`,
       alignItems: align,
@@ -24326,7 +24290,7 @@ var wp;
   });
 
   // packages/dataviews/build-module/components/dataviews-context/index.mjs
-  var import_element67 = __toESM(require_element(), 1);
+  var import_element68 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/constants.mjs
   var import_i18n83 = __toESM(require_i18n(), 1);
@@ -24371,7 +24335,7 @@ var wp;
   var LAYOUT_PICKER_TABLE = "pickerTable";
 
   // packages/dataviews/build-module/components/dataviews-context/index.mjs
-  var DataViewsContext = (0, import_element67.createContext)({
+  var DataViewsContext = (0, import_element68.createContext)({
     view: { type: LAYOUT_TABLE2 },
     onChangeView: () => {
     },
@@ -24391,7 +24355,7 @@ var wp;
     isItemClickable: () => true,
     renderItemLink: void 0,
     containerWidth: 0,
-    containerRef: (0, import_element67.createRef)(),
+    containerRef: (0, import_element68.createRef)(),
     resizeObserverRef: () => {
     },
     defaultLayouts: { list: {}, grid: {}, table: {} },
@@ -24413,7 +24377,7 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/table/index.mjs
   var import_i18n91 = __toESM(require_i18n(), 1);
   var import_components97 = __toESM(require_components(), 1);
-  var import_element74 = __toESM(require_element(), 1);
+  var import_element75 = __toESM(require_element(), 1);
   var import_keycodes6 = __toESM(require_keycodes(), 1);
 
   // packages/dataviews/build-module/components/dataviews-selection-checkbox/index.mjs
@@ -24455,8 +24419,8 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-item-actions/index.mjs
   var import_components93 = __toESM(require_components(), 1);
   var import_i18n85 = __toESM(require_i18n(), 1);
-  var import_element68 = __toESM(require_element(), 1);
-  var import_data57 = __toESM(require_data(), 1);
+  var import_element69 = __toESM(require_element(), 1);
+  var import_data59 = __toESM(require_data(), 1);
   var import_compose12 = __toESM(require_compose(), 1);
 
   // packages/dataviews/build-module/lock-unlock.mjs
@@ -24524,7 +24488,7 @@ var wp;
     registry,
     setActiveModalAction
   }) {
-    const { primaryActions, regularActions } = (0, import_element68.useMemo)(() => {
+    const { primaryActions, regularActions } = (0, import_element69.useMemo)(() => {
       return actions.reduce(
         (acc, action) => {
           (action.isPrimary ? acc.primaryActions : acc.regularActions).push(action);
@@ -24562,8 +24526,8 @@ var wp;
     actions,
     isCompact
   }) {
-    const registry = (0, import_data57.useRegistry)();
-    const { primaryActions, eligibleActions } = (0, import_element68.useMemo)(() => {
+    const registry = (0, import_data59.useRegistry)();
+    const { primaryActions, eligibleActions } = (0, import_element69.useMemo)(() => {
       const _eligibleActions = actions.filter(
         (action) => !action.isEligible || action.isEligible(item)
       );
@@ -24626,7 +24590,7 @@ var wp;
     isSmall,
     registry
   }) {
-    const [activeModalAction, setActiveModalAction] = (0, import_element68.useState)(
+    const [activeModalAction, setActiveModalAction] = (0, import_element69.useState)(
       null
     );
     return /* @__PURE__ */ (0, import_jsx_runtime185.jsxs)(import_jsx_runtime185.Fragment, { children: [
@@ -24673,7 +24637,7 @@ var wp;
     registry,
     buttonVariant
   }) {
-    const [activeModalAction, setActiveModalAction] = (0, import_element68.useState)(null);
+    const [activeModalAction, setActiveModalAction] = (0, import_element69.useState)(null);
     const isMobileViewport = (0, import_compose12.useViewportMatch)("medium", "<");
     if (isMobileViewport) {
       return null;
@@ -24712,8 +24676,8 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-bulk-actions/index.mjs
   var import_components94 = __toESM(require_components(), 1);
   var import_i18n87 = __toESM(require_i18n(), 1);
-  var import_element69 = __toESM(require_element(), 1);
-  var import_data58 = __toESM(require_data(), 1);
+  var import_element70 = __toESM(require_element(), 1);
+  var import_data60 = __toESM(require_data(), 1);
   var import_compose13 = __toESM(require_compose(), 1);
 
   // packages/dataviews/build-module/utils/get-footer-message.mjs
@@ -24748,7 +24712,7 @@ var wp;
     items,
     ActionTriggerComponent
   }) {
-    const [isModalOpen, setIsModalOpen] = (0, import_element69.useState)(false);
+    const [isModalOpen, setIsModalOpen] = (0, import_element70.useState)(false);
     const actionTriggerProps = {
       action,
       onClick: () => {
@@ -24769,14 +24733,14 @@ var wp;
     ] });
   }
   function useHasAPossibleBulkAction(actions, item) {
-    return (0, import_element69.useMemo)(() => {
+    return (0, import_element70.useMemo)(() => {
       return actions.some((action) => {
         return action.supportsBulk && (!action.isEligible || action.isEligible(item));
       });
     }, [actions, item]);
   }
   function useSomeItemHasAPossibleBulkAction(actions, data) {
-    return (0, import_element69.useMemo)(() => {
+    return (0, import_element70.useMemo)(() => {
       return data.some((item) => {
         return actions.some((action) => {
           return action.supportsBulk && (!action.isEligible || action.isEligible(item));
@@ -24791,7 +24755,7 @@ var wp;
     actions,
     getItemId: getItemId2
   }) {
-    const selectableItems = (0, import_element69.useMemo)(() => {
+    const selectableItems = (0, import_element70.useMemo)(() => {
       return data.filter((item) => {
         return actions.some(
           (action) => action.supportsBulk && (!action.isEligible || action.isEligible(item))
@@ -24862,8 +24826,8 @@ var wp;
     actionInProgress,
     setActionInProgress
   }) {
-    const registry = (0, import_data58.useRegistry)();
-    const selectedEligibleItems = (0, import_element69.useMemo)(() => {
+    const registry = (0, import_data60.useRegistry)();
+    const selectedEligibleItems = (0, import_element70.useMemo)(() => {
       return selectedItems.filter((item) => {
         return !action.isEligible || action.isEligible(item);
       });
@@ -24970,28 +24934,28 @@ var wp;
     getItemId: getItemId2,
     paginationInfo
   }) {
-    const [actionInProgress, setActionInProgress] = (0, import_element69.useState)(
+    const [actionInProgress, setActionInProgress] = (0, import_element70.useState)(
       null
     );
-    const footerContentRef = (0, import_element69.useRef)(null);
+    const footerContentRef = (0, import_element70.useRef)(void 0);
     const isMobile = (0, import_compose13.useViewportMatch)("medium", "<");
-    const bulkActions = (0, import_element69.useMemo)(
+    const bulkActions = (0, import_element70.useMemo)(
       () => actions.filter((action) => action.supportsBulk),
       [actions]
     );
-    const selectableItems = (0, import_element69.useMemo)(() => {
+    const selectableItems = (0, import_element70.useMemo)(() => {
       return data.filter((item) => {
         return bulkActions.some(
           (action) => !action.isEligible || action.isEligible(item)
         );
       });
     }, [data, bulkActions]);
-    const selectedItems = (0, import_element69.useMemo)(() => {
+    const selectedItems = (0, import_element70.useMemo)(() => {
       return data.filter(
         (item) => selection.includes(getItemId2(item)) && selectableItems.includes(item)
       );
     }, [selection, data, getItemId2, selectableItems]);
-    const actionsToShow = (0, import_element69.useMemo)(
+    const actionsToShow = (0, import_element70.useMemo)(
       () => actions.filter((action) => {
         return action.supportsBulk && (!isMobile || action.icon) && selectedItems.some(
           (item) => !action.isEligible || action.isEligible(item)
@@ -25001,7 +24965,7 @@ var wp;
     );
     if (!actionInProgress) {
       if (footerContentRef.current) {
-        footerContentRef.current = null;
+        footerContentRef.current = void 0;
       }
       return renderFooterContent(
         data,
@@ -25039,7 +25003,7 @@ var wp;
       onChangeSelection,
       getItemId: getItemId2,
       paginationInfo
-    } = (0, import_element69.useContext)(dataviews_context_default);
+    } = (0, import_element70.useContext)(dataviews_context_default);
     return /* @__PURE__ */ (0, import_jsx_runtime186.jsx)(
       FooterContent,
       {
@@ -25056,7 +25020,7 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/table/column-header-menu.mjs
   var import_i18n88 = __toESM(require_i18n(), 1);
   var import_components95 = __toESM(require_components(), 1);
-  var import_element70 = __toESM(require_element(), 1);
+  var import_element71 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/utils/get-hideable-fields.mjs
   function getHideableFields(view, fields) {
@@ -25074,12 +25038,12 @@ var wp;
   var import_jsx_runtime187 = __toESM(require_jsx_runtime(), 1);
   var { Menu: Menu6 } = unlock3(import_components95.privateApis);
   function WithMenuSeparators({ children }) {
-    return import_element70.Children.toArray(children).filter(Boolean).map((child, i2) => /* @__PURE__ */ (0, import_jsx_runtime187.jsxs)(import_element70.Fragment, { children: [
+    return import_element71.Children.toArray(children).filter(Boolean).map((child, i2) => /* @__PURE__ */ (0, import_jsx_runtime187.jsxs)(import_element71.Fragment, { children: [
       i2 > 0 && /* @__PURE__ */ (0, import_jsx_runtime187.jsx)(Menu6.Separator, {}),
       child
     ] }, i2));
   }
-  var _HeaderMenu = (0, import_element70.forwardRef)(function HeaderMenu({
+  var _HeaderMenu = (0, import_element71.forwardRef)(function HeaderMenu({
     fieldId,
     view,
     fields,
@@ -25098,7 +25062,7 @@ var wp;
     let canAddFilter = false;
     let operators = [];
     const field = fields.find((f2) => f2.id === fieldId);
-    const { setIsShowingFilter } = (0, import_element70.useContext)(dataviews_context_default);
+    const { setIsShowingFilter } = (0, import_element71.useContext)(dataviews_context_default);
     if (!field) {
       return null;
     }
@@ -25313,7 +25277,7 @@ var wp;
   var column_header_menu_default = ColumnHeaderMenu;
 
   // packages/dataviews/build-module/components/dataviews-layouts/utils/item-click-wrapper.mjs
-  var import_element71 = __toESM(require_element(), 1);
+  var import_element72 = __toESM(require_element(), 1);
   var import_jsx_runtime188 = __toESM(require_jsx_runtime(), 1);
   function getClickableItemProps({
     item,
@@ -25359,7 +25323,7 @@ var wp;
         ...extraProps,
         children
       });
-      return (0, import_element71.cloneElement)(renderedElement, {
+      return (0, import_element72.cloneElement)(renderedElement, {
         onClick: (event) => {
           event.stopPropagation();
           if (renderedElement.props.onClick) {
@@ -25457,7 +25421,7 @@ var wp;
 
   // packages/dataviews/build-module/components/dataviews-layouts/table/use-is-horizontal-scroll-end.mjs
   var import_compose14 = __toESM(require_compose(), 1);
-  var import_element72 = __toESM(require_element(), 1);
+  var import_element73 = __toESM(require_element(), 1);
   var import_i18n89 = __toESM(require_i18n(), 1);
   var isScrolledToEnd = (element) => {
     if ((0, import_i18n89.isRTL)()) {
@@ -25470,9 +25434,9 @@ var wp;
     scrollContainerRef,
     enabled = false
   }) {
-    const [isHorizontalScrollEnd, setIsHorizontalScrollEnd] = (0, import_element72.useState)(false);
+    const [isHorizontalScrollEnd, setIsHorizontalScrollEnd] = (0, import_element73.useState)(false);
     const handleIsHorizontalScrollEnd = (0, import_compose14.useDebounce)(
-      (0, import_element72.useCallback)(() => {
+      (0, import_element73.useCallback)(() => {
         const scrollContainer = scrollContainerRef.current;
         if (scrollContainer) {
           setIsHorizontalScrollEnd(isScrolledToEnd(scrollContainer));
@@ -25480,7 +25444,7 @@ var wp;
       }, [scrollContainerRef, setIsHorizontalScrollEnd]),
       200
     );
-    (0, import_element72.useEffect)(() => {
+    (0, import_element73.useEffect)(() => {
       if (typeof window === "undefined" || !enabled || !scrollContainerRef.current) {
         return () => {
         };
@@ -25517,7 +25481,7 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-view-config/properties-section.mjs
   var import_components96 = __toESM(require_components(), 1);
   var import_i18n90 = __toESM(require_i18n(), 1);
-  var import_element73 = __toESM(require_element(), 1);
+  var import_element74 = __toESM(require_element(), 1);
   var import_jsx_runtime190 = __toESM(require_jsx_runtime(), 1);
   function FieldItem({
     field,
@@ -25535,7 +25499,7 @@ var wp;
   function PropertiesSection({
     showLabel = true
   }) {
-    const { view, fields, onChangeView } = (0, import_element73.useContext)(dataviews_context_default);
+    const { view, fields, onChangeView } = (0, import_element74.useContext)(dataviews_context_default);
     const regularFields = getHideableFields(view, fields);
     if (!regularFields?.length) {
       return null;
@@ -25661,7 +25625,7 @@ var wp;
     isActionsColumnSticky,
     posinset
   }) {
-    const { paginationInfo } = (0, import_element74.useContext)(dataviews_context_default);
+    const { paginationInfo } = (0, import_element75.useContext)(dataviews_context_default);
     const hasPossibleBulkAction = useHasAPossibleBulkAction(actions, item);
     const isSelected2 = hasPossibleBulkAction && selection.includes(id);
     const {
@@ -25670,7 +25634,7 @@ var wp;
       showDescription = true,
       infiniteScrollEnabled
     } = view;
-    const isTouchDeviceRef = (0, import_element74.useRef)(false);
+    const isTouchDeviceRef = (0, import_element75.useRef)(false);
     const columns = view.fields ?? [];
     const hasPrimaryColumn = titleField && showTitle || mediaField && showMedia || descriptionField2 && showDescription;
     return /* @__PURE__ */ (0, import_jsx_runtime191.jsxs)(
@@ -25790,19 +25754,19 @@ var wp;
     className,
     empty
   }) {
-    const { containerRef } = (0, import_element74.useContext)(dataviews_context_default);
-    const headerMenuRefs = (0, import_element74.useRef)(/* @__PURE__ */ new Map());
-    const headerMenuToFocusRef = (0, import_element74.useRef)();
-    const [nextHeaderMenuToFocus, setNextHeaderMenuToFocus] = (0, import_element74.useState)();
+    const { containerRef } = (0, import_element75.useContext)(dataviews_context_default);
+    const headerMenuRefs = (0, import_element75.useRef)(/* @__PURE__ */ new Map());
+    const headerMenuToFocusRef = (0, import_element75.useRef)(void 0);
+    const [nextHeaderMenuToFocus, setNextHeaderMenuToFocus] = (0, import_element75.useState)();
     const hasBulkActions = useSomeItemHasAPossibleBulkAction(actions, data);
-    const [contextMenuAnchor, setContextMenuAnchor] = (0, import_element74.useState)(null);
-    (0, import_element74.useEffect)(() => {
+    const [contextMenuAnchor, setContextMenuAnchor] = (0, import_element75.useState)(null);
+    (0, import_element75.useEffect)(() => {
       if (headerMenuToFocusRef.current) {
         headerMenuToFocusRef.current.focus();
         headerMenuToFocusRef.current = void 0;
       }
     });
-    const tableNoticeId = (0, import_element74.useId)();
+    const tableNoticeId = (0, import_element75.useId)();
     const isHorizontalScrollEnd = useIsHorizontalScrollEnd({
       scrollContainerRef: containerRef,
       enabled: !!actions?.length
@@ -25883,7 +25847,7 @@ var wp;
                   className: clsx_default(
                     `dataviews-view-table__col-${column}`,
                     {
-                      "dataviews-view-table__col-first-data": !hasPrimaryColumn && index === 0
+                      "dataviews-view-table__col-expand": !hasPrimaryColumn && index === columns.length - 1
                     }
                   )
                 },
@@ -26077,12 +26041,12 @@ var wp;
   var import_i18n93 = __toESM(require_i18n(), 1);
   var import_compose15 = __toESM(require_compose(), 1);
   var import_keycodes7 = __toESM(require_keycodes(), 1);
-  var import_element76 = __toESM(require_element(), 1);
+  var import_element77 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataviews-layouts/grid/preview-size-picker.mjs
   var import_components98 = __toESM(require_components(), 1);
   var import_i18n92 = __toESM(require_i18n(), 1);
-  var import_element75 = __toESM(require_element(), 1);
+  var import_element76 = __toESM(require_element(), 1);
   var import_jsx_runtime192 = __toESM(require_jsx_runtime(), 1);
   var imageSizes = [
     {
@@ -26115,9 +26079,9 @@ var wp;
   ];
   var DEFAULT_PREVIEW_SIZE = imageSizes[2].value;
   function useGridColumns() {
-    const context = (0, import_element75.useContext)(dataviews_context_default);
+    const context = (0, import_element76.useContext)(dataviews_context_default);
     const view = context.view;
-    return (0, import_element75.useMemo)(() => {
+    return (0, import_element76.useMemo)(() => {
       const containerWidth = context.containerWidth;
       const gap = 32;
       const previewSize = view.layout?.previewSize ?? DEFAULT_PREVIEW_SIZE;
@@ -26138,7 +26102,7 @@ var wp;
     }
     return chunks;
   }
-  var GridItem = (0, import_element76.forwardRef)(function GridItem2({
+  var GridItem = (0, import_element77.forwardRef)(function GridItem2({
     view,
     selection,
     onChangeSelection,
@@ -26353,7 +26317,7 @@ var wp;
     getItemId: getItemId2,
     actions
   }) {
-    const { paginationInfo, resizeObserverRef } = (0, import_element76.useContext)(dataviews_context_default);
+    const { paginationInfo, resizeObserverRef } = (0, import_element77.useContext)(dataviews_context_default);
     const gridColumns = useGridColumns();
     const hasBulkActions = useSomeItemHasAPossibleBulkAction(actions, data);
     const titleField = fields.find(
@@ -26543,9 +26507,9 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/list/index.mjs
   var import_compose16 = __toESM(require_compose(), 1);
   var import_components101 = __toESM(require_components(), 1);
-  var import_element77 = __toESM(require_element(), 1);
+  var import_element78 = __toESM(require_element(), 1);
   var import_i18n95 = __toESM(require_i18n(), 1);
-  var import_data59 = __toESM(require_data(), 1);
+  var import_data61 = __toESM(require_data(), 1);
   var import_jsx_runtime195 = __toESM(require_jsx_runtime(), 1);
   var { Menu: Menu7 } = unlock3(import_components101.privateApis);
   function generateItemWrapperCompositeId(idPrefix) {
@@ -26562,8 +26526,8 @@ var wp;
     primaryAction,
     item
   }) {
-    const registry = (0, import_data59.useRegistry)();
-    const [isModalOpen, setIsModalOpen] = (0, import_element77.useState)(false);
+    const registry = (0, import_data61.useRegistry)();
+    const [isModalOpen, setIsModalOpen] = (0, import_element78.useState)(false);
     const compositeItemId = generatePrimaryActionCompositeId(
       idPrefix,
       primaryAction.id
@@ -26631,20 +26595,20 @@ var wp;
       showDescription = true,
       infiniteScrollEnabled
     } = view;
-    const itemRef = (0, import_element77.useRef)(null);
+    const itemRef = (0, import_element78.useRef)(null);
     const labelId = `${idPrefix}-label`;
     const descriptionId = `${idPrefix}-description`;
-    const registry = (0, import_data59.useRegistry)();
-    const [isHovered, setIsHovered] = (0, import_element77.useState)(false);
-    const [activeModalAction, setActiveModalAction] = (0, import_element77.useState)(
+    const registry = (0, import_data61.useRegistry)();
+    const [isHovered, setIsHovered] = (0, import_element78.useState)(false);
+    const [activeModalAction, setActiveModalAction] = (0, import_element78.useState)(
       null
     );
     const handleHover = ({ type }) => {
       const isHover = type === "mouseenter";
       setIsHovered(isHover);
     };
-    const { paginationInfo } = (0, import_element77.useContext)(dataviews_context_default);
-    (0, import_element77.useEffect)(() => {
+    const { paginationInfo } = (0, import_element78.useContext)(dataviews_context_default);
+    (0, import_element78.useEffect)(() => {
       if (isSelected2) {
         itemRef.current?.scrollIntoView({
           behavior: "auto",
@@ -26653,7 +26617,7 @@ var wp;
         });
       }
     }, [isSelected2]);
-    const { primaryAction, eligibleActions } = (0, import_element77.useMemo)(() => {
+    const { primaryAction, eligibleActions } = (0, import_element78.useMemo)(() => {
       const _eligibleActions = actions.filter(
         (action) => !action.isEligible || action.isEligible(item)
       );
@@ -26881,11 +26845,11 @@ var wp;
     );
     const otherFields = (view?.fields ?? []).map((fieldId) => fields.find((f2) => fieldId === f2.id)).filter(isDefined2);
     const onSelect = (item) => onChangeSelection([getItemId2(item)]);
-    const generateCompositeItemIdPrefix = (0, import_element77.useCallback)(
+    const generateCompositeItemIdPrefix = (0, import_element78.useCallback)(
       (item) => `${baseId}-${getItemId2(item)}`,
       [baseId, getItemId2]
     );
-    const isActiveCompositeItem = (0, import_element77.useCallback)(
+    const isActiveCompositeItem = (0, import_element78.useCallback)(
       (item, idToCheck) => {
         return idToCheck.startsWith(
           generateCompositeItemIdPrefix(item)
@@ -26893,8 +26857,8 @@ var wp;
       },
       [generateCompositeItemIdPrefix]
     );
-    const [activeCompositeId, setActiveCompositeId] = (0, import_element77.useState)(void 0);
-    (0, import_element77.useEffect)(() => {
+    const [activeCompositeId, setActiveCompositeId] = (0, import_element78.useState)(void 0);
+    (0, import_element78.useEffect)(() => {
       if (selectedItem) {
         setActiveCompositeId(
           generateItemWrapperCompositeId(
@@ -26908,7 +26872,7 @@ var wp;
     );
     const previousActiveItemIndex = (0, import_compose16.usePrevious)(activeItemIndex);
     const isActiveIdInList = activeItemIndex !== -1;
-    const selectCompositeItem = (0, import_element77.useCallback)(
+    const selectCompositeItem = (0, import_element78.useCallback)(
       (targetIndex, generateCompositeId) => {
         const clampedIndex = Math.min(
           data.length - 1,
@@ -26926,7 +26890,7 @@ var wp;
       },
       [data, generateCompositeItemIdPrefix]
     );
-    (0, import_element77.useEffect)(() => {
+    (0, import_element78.useEffect)(() => {
       const wasActiveIdInList = previousActiveItemIndex !== void 0 && previousActiveItemIndex !== -1;
       if (!isActiveIdInList && wasActiveIdInList) {
         selectCompositeItem(
@@ -26935,7 +26899,7 @@ var wp;
         );
       }
     }, [isActiveIdInList, selectCompositeItem, previousActiveItemIndex]);
-    const onDropdownTriggerKeyDown = (0, import_element77.useCallback)(
+    const onDropdownTriggerKeyDown = (0, import_element78.useCallback)(
       (event) => {
         if (event.key === "ArrowDown") {
           event.preventDefault();
@@ -27074,7 +27038,7 @@ var wp;
 
   // packages/dataviews/build-module/components/dataviews-layouts/activity/activity-group.mjs
   var import_i18n96 = __toESM(require_i18n(), 1);
-  var import_element78 = __toESM(require_element(), 1);
+  var import_element79 = __toESM(require_element(), 1);
   var import_jsx_runtime196 = __toESM(require_jsx_runtime(), 1);
   function ActivityGroup({
     groupName,
@@ -27083,7 +27047,7 @@ var wp;
     showLabel = true,
     children
   }) {
-    const groupHeader = showLabel ? (0, import_element78.createInterpolateElement)(
+    const groupHeader = showLabel ? (0, import_element79.createInterpolateElement)(
       // translators: %s: The label of the field e.g. "Status".
       (0, import_i18n96.sprintf)((0, import_i18n96.__)("%s: <groupName />"), groupField.label).trim(),
       {
@@ -27112,8 +27076,8 @@ var wp;
 
   // packages/dataviews/build-module/components/dataviews-layouts/activity/activity-item.mjs
   var import_components102 = __toESM(require_components(), 1);
-  var import_element79 = __toESM(require_element(), 1);
-  var import_data60 = __toESM(require_data(), 1);
+  var import_element80 = __toESM(require_element(), 1);
+  var import_data62 = __toESM(require_data(), 1);
   var import_compose17 = __toESM(require_compose(), 1);
   var import_jsx_runtime197 = __toESM(require_jsx_runtime(), 1);
   function ActivityItem(props) {
@@ -27136,10 +27100,10 @@ var wp;
       showDescription = true,
       infiniteScrollEnabled
     } = view;
-    const itemRef = (0, import_element79.useRef)(null);
-    const registry = (0, import_data60.useRegistry)();
-    const { paginationInfo } = (0, import_element79.useContext)(dataviews_context_default);
-    const { primaryActions, eligibleActions } = (0, import_element79.useMemo)(() => {
+    const itemRef = (0, import_element80.useRef)(null);
+    const registry = (0, import_data62.useRegistry)();
+    const { paginationInfo } = (0, import_element80.useContext)(dataviews_context_default);
+    const { primaryActions, eligibleActions } = (0, import_element80.useMemo)(() => {
       const _eligibleActions = actions.filter(
         (action) => !action.isEligible || action.isEligible(item)
       );
@@ -27171,7 +27135,7 @@ var wp;
       }
     ) });
     const renderedTitleField = showTitle && titleField?.render ? /* @__PURE__ */ (0, import_jsx_runtime197.jsx)(titleField.render, { item, field: titleField }) : null;
-    const verticalGap = (0, import_element79.useMemo)(() => {
+    const verticalGap = (0, import_element80.useMemo)(() => {
       switch (density) {
         case "comfortable":
           return "md";
@@ -27371,17 +27335,17 @@ var wp;
   var import_components106 = __toESM(require_components(), 1);
   var import_i18n99 = __toESM(require_i18n(), 1);
   var import_compose18 = __toESM(require_compose(), 1);
-  var import_element83 = __toESM(require_element(), 1);
+  var import_element84 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataviews-picker-footer/index.mjs
   var import_components105 = __toESM(require_components(), 1);
-  var import_data61 = __toESM(require_data(), 1);
-  var import_element81 = __toESM(require_element(), 1);
+  var import_data63 = __toESM(require_data(), 1);
+  var import_element82 = __toESM(require_element(), 1);
   var import_i18n98 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/components/dataviews-pagination/index.mjs
   var import_components104 = __toESM(require_components(), 1);
-  var import_element80 = __toESM(require_element(), 1);
+  var import_element81 = __toESM(require_element(), 1);
   var import_i18n97 = __toESM(require_i18n(), 1);
   var import_jsx_runtime199 = __toESM(require_jsx_runtime(), 1);
   function DataViewsPagination() {
@@ -27389,7 +27353,7 @@ var wp;
       view,
       onChangeView,
       paginationInfo: { totalItems = 0, totalPages }
-    } = (0, import_element80.useContext)(dataviews_context_default);
+    } = (0, import_element81.useContext)(dataviews_context_default);
     if (!totalItems || !totalPages || view.infiniteScrollEnabled) {
       return null;
     }
@@ -27426,7 +27390,7 @@ var wp;
               align: "center",
               gap: "xs",
               className: "dataviews-pagination__page-select",
-              children: (0, import_element80.createInterpolateElement)(
+              children: (0, import_element81.createInterpolateElement)(
                 (0, import_i18n97.sprintf)(
                   // translators: 1: Current page number, 2: Total number of pages.
                   (0, import_i18n97._x)(
@@ -27493,20 +27457,20 @@ var wp;
       }
     );
   }
-  var dataviews_pagination_default = (0, import_element80.memo)(DataViewsPagination);
+  var dataviews_pagination_default = (0, import_element81.memo)(DataViewsPagination);
 
   // packages/dataviews/build-module/components/dataviews-picker-footer/index.mjs
   var import_jsx_runtime200 = __toESM(require_jsx_runtime(), 1);
   function useIsMultiselectPicker(actions) {
-    return (0, import_element81.useMemo)(() => {
+    return (0, import_element82.useMemo)(() => {
       return actions?.every((action) => action.supportsBulk);
     }, [actions]);
   }
 
   // packages/dataviews/build-module/components/dataviews-layouts/utils/grid-items.mjs
-  var import_element82 = __toESM(require_element(), 1);
+  var import_element83 = __toESM(require_element(), 1);
   var import_jsx_runtime201 = __toESM(require_jsx_runtime(), 1);
-  var GridItems = (0, import_element82.forwardRef)(({ className, previewSize, ...props }, ref) => {
+  var GridItems = (0, import_element83.forwardRef)(({ className, previewSize, ...props }, ref) => {
     return /* @__PURE__ */ (0, import_jsx_runtime201.jsx)(
       "div",
       {
@@ -27726,7 +27690,7 @@ var wp;
     className,
     empty
   }) {
-    const { resizeObserverRef, paginationInfo, itemListLabel } = (0, import_element83.useContext)(dataviews_context_default);
+    const { resizeObserverRef, paginationInfo, itemListLabel } = (0, import_element84.useContext)(dataviews_context_default);
     const titleField = fields.find(
       (field) => field.id === view?.titleField
     );
@@ -27903,7 +27867,7 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/picker-table/index.mjs
   var import_i18n100 = __toESM(require_i18n(), 1);
   var import_components107 = __toESM(require_components(), 1);
-  var import_element84 = __toESM(require_element(), 1);
+  var import_element85 = __toESM(require_element(), 1);
   var import_jsx_runtime203 = __toESM(require_jsx_runtime(), 1);
   function TableColumnField2({
     item,
@@ -27935,9 +27899,9 @@ var wp;
     multiselect,
     posinset
   }) {
-    const { paginationInfo } = (0, import_element84.useContext)(dataviews_context_default);
+    const { paginationInfo } = (0, import_element85.useContext)(dataviews_context_default);
     const isSelected2 = selection.includes(id);
-    const [isHovered, setIsHovered] = (0, import_element84.useState)(false);
+    const [isHovered, setIsHovered] = (0, import_element85.useState)(false);
     const {
       showTitle = true,
       showMedia = true,
@@ -28056,17 +28020,17 @@ var wp;
     className,
     empty
   }) {
-    const headerMenuRefs = (0, import_element84.useRef)(/* @__PURE__ */ new Map());
-    const headerMenuToFocusRef = (0, import_element84.useRef)();
-    const [nextHeaderMenuToFocus, setNextHeaderMenuToFocus] = (0, import_element84.useState)();
+    const headerMenuRefs = (0, import_element85.useRef)(/* @__PURE__ */ new Map());
+    const headerMenuToFocusRef = (0, import_element85.useRef)(void 0);
+    const [nextHeaderMenuToFocus, setNextHeaderMenuToFocus] = (0, import_element85.useState)();
     const isMultiselect = useIsMultiselectPicker(actions) ?? false;
-    (0, import_element84.useEffect)(() => {
+    (0, import_element85.useEffect)(() => {
       if (headerMenuToFocusRef.current) {
         headerMenuToFocusRef.current.focus();
         headerMenuToFocusRef.current = void 0;
       }
     });
-    const tableNoticeId = (0, import_element84.useId)();
+    const tableNoticeId = (0, import_element85.useId)();
     if (nextHeaderMenuToFocus) {
       headerMenuToFocusRef.current = nextHeaderMenuToFocus;
       setNextHeaderMenuToFocus(void 0);
@@ -28282,7 +28246,7 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/utils/preview-size-picker.mjs
   var import_components108 = __toESM(require_components(), 1);
   var import_i18n101 = __toESM(require_i18n(), 1);
-  var import_element85 = __toESM(require_element(), 1);
+  var import_element86 = __toESM(require_element(), 1);
   var import_jsx_runtime204 = __toESM(require_jsx_runtime(), 1);
   var imageSizes2 = [
     {
@@ -28314,7 +28278,7 @@ var wp;
     }
   ];
   function PreviewSizePicker() {
-    const context = (0, import_element85.useContext)(dataviews_context_default);
+    const context = (0, import_element86.useContext)(dataviews_context_default);
     const view = context.view;
     const breakValues = imageSizes2.filter((size) => {
       return context.containerWidth >= size.breakpoint;
@@ -28354,10 +28318,10 @@ var wp;
   // packages/dataviews/build-module/components/dataviews-layouts/utils/density-picker.mjs
   var import_components109 = __toESM(require_components(), 1);
   var import_i18n102 = __toESM(require_i18n(), 1);
-  var import_element86 = __toESM(require_element(), 1);
+  var import_element87 = __toESM(require_element(), 1);
   var import_jsx_runtime205 = __toESM(require_jsx_runtime(), 1);
   function DensityPicker() {
-    const context = (0, import_element86.useContext)(dataviews_context_default);
+    const context = (0, import_element87.useContext)(dataviews_context_default);
     const view = context.view;
     return /* @__PURE__ */ (0, import_jsx_runtime205.jsxs)(
       import_components109.__experimentalToggleGroupControl,
@@ -28457,80 +28421,14 @@ var wp;
   ];
 
   // packages/dataviews/build-module/components/dataviews-filters/filters.mjs
-  var import_element94 = __toESM(require_element(), 1);
+  var import_element95 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataviews-filters/filter.mjs
   var import_components112 = __toESM(require_components(), 1);
   var import_i18n106 = __toESM(require_i18n(), 1);
-  var import_element91 = __toESM(require_element(), 1);
+  var import_element92 = __toESM(require_element(), 1);
 
-  // node_modules/@ariakit/react-core/esm/__chunks/3YLGPPWQ.js
-  var __defProp2 = Object.defineProperty;
-  var __defProps = Object.defineProperties;
-  var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-  var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-  var __hasOwnProp2 = Object.prototype.hasOwnProperty;
-  var __propIsEnum = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues = (a2, b2) => {
-    for (var prop in b2 || (b2 = {}))
-      if (__hasOwnProp2.call(b2, prop))
-        __defNormalProp(a2, prop, b2[prop]);
-    if (__getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(b2)) {
-        if (__propIsEnum.call(b2, prop))
-          __defNormalProp(a2, prop, b2[prop]);
-      }
-    return a2;
-  };
-  var __spreadProps = (a2, b2) => __defProps(a2, __getOwnPropDescs(b2));
-  var __objRest = (source, exclude) => {
-    var target = {};
-    for (var prop in source)
-      if (__hasOwnProp2.call(source, prop) && exclude.indexOf(prop) < 0)
-        target[prop] = source[prop];
-    if (source != null && __getOwnPropSymbols)
-      for (var prop of __getOwnPropSymbols(source)) {
-        if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-          target[prop] = source[prop];
-      }
-    return target;
-  };
-
-  // node_modules/@ariakit/core/esm/__chunks/3YLGPPWQ.js
-  var __defProp3 = Object.defineProperty;
-  var __defProps2 = Object.defineProperties;
-  var __getOwnPropDescs2 = Object.getOwnPropertyDescriptors;
-  var __getOwnPropSymbols2 = Object.getOwnPropertySymbols;
-  var __hasOwnProp3 = Object.prototype.hasOwnProperty;
-  var __propIsEnum2 = Object.prototype.propertyIsEnumerable;
-  var __defNormalProp2 = (obj, key, value) => key in obj ? __defProp3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __spreadValues2 = (a2, b2) => {
-    for (var prop in b2 || (b2 = {}))
-      if (__hasOwnProp3.call(b2, prop))
-        __defNormalProp2(a2, prop, b2[prop]);
-    if (__getOwnPropSymbols2)
-      for (var prop of __getOwnPropSymbols2(b2)) {
-        if (__propIsEnum2.call(b2, prop))
-          __defNormalProp2(a2, prop, b2[prop]);
-      }
-    return a2;
-  };
-  var __spreadProps2 = (a2, b2) => __defProps2(a2, __getOwnPropDescs2(b2));
-  var __objRest2 = (source, exclude) => {
-    var target = {};
-    for (var prop in source)
-      if (__hasOwnProp3.call(source, prop) && exclude.indexOf(prop) < 0)
-        target[prop] = source[prop];
-    if (source != null && __getOwnPropSymbols2)
-      for (var prop of __getOwnPropSymbols2(source)) {
-        if (exclude.indexOf(prop) < 0 && __propIsEnum2.call(source, prop))
-          target[prop] = source[prop];
-      }
-    return target;
-  };
-
-  // node_modules/@ariakit/core/esm/__chunks/PBFD2E7P.js
+  // node_modules/@ariakit/core/esm/__chunks/XMCVU3LR.js
   function noop3(..._) {
   }
   function applyState(argument, currentValue) {
@@ -28565,7 +28463,7 @@ var wp;
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   }
   function omit(object, keys) {
-    const result = __spreadValues2({}, object);
+    const result = { ...object };
     for (const key of keys) {
       if (hasOwnProperty(result, key)) {
         delete result[key];
@@ -28617,7 +28515,7 @@ var wp;
     return void 0;
   }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/SK3NAZA3.js
+  // node_modules/@ariakit/react-core/esm/__chunks/YXGXYGQX.js
   var import_react8 = __toESM(require_react(), 1);
   function setRef(ref, value) {
     if (typeof ref === "function") {
@@ -28635,11 +28533,11 @@ var wp;
   }
   function getRefProperty(element) {
     if (!isValidElementWithRef(element)) return null;
-    const props = __spreadValues({}, element.props);
+    const props = { ...element.props };
     return props.ref || element.ref;
   }
   function mergeProps2(base, overrides) {
-    const props = __spreadValues({}, base);
+    const props = { ...base };
     for (const key in overrides) {
       if (!hasOwnProperty(overrides, key)) continue;
       if (key === "className") {
@@ -28649,7 +28547,7 @@ var wp;
       }
       if (key === "style") {
         const prop = "style";
-        props[prop] = base[prop] ? __spreadValues(__spreadValues({}, base[prop]), overrides[prop]) : overrides[prop];
+        props[prop] = base[prop] ? { ...base[prop], ...overrides[prop] } : overrides[prop];
         continue;
       }
       const overrideValue = overrides[key];
@@ -28668,7 +28566,7 @@ var wp;
     return props;
   }
 
-  // node_modules/@ariakit/core/esm/__chunks/DTR5TSDJ.js
+  // node_modules/@ariakit/core/esm/__chunks/3DNM6L6E.js
   var canUseDOM = checkIsBrowser();
   function checkIsBrowser() {
     var _a;
@@ -28680,11 +28578,12 @@ var wp;
     return node.ownerDocument || document;
   }
   function getActiveElement(node, activeDescendant = false) {
+    var _a;
     const { activeElement } = getDocument(node);
     if (!(activeElement == null ? void 0 : activeElement.nodeName)) {
       return null;
     }
-    if (isFrame(activeElement) && activeElement.contentDocument) {
+    if (isFrame(activeElement) && ((_a = activeElement.contentDocument) == null ? void 0 : _a.body)) {
       return getActiveElement(
         activeElement.contentDocument.body,
         activeDescendant
@@ -28735,7 +28634,7 @@ var wp;
       const isTextInput = element instanceof HTMLInputElement && element.selectionStart !== null;
       const isTextArea = element.tagName === "TEXTAREA";
       return isTextInput || isTextArea || false;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -28832,7 +28731,7 @@ var wp;
     );
   }
 
-  // node_modules/@ariakit/core/esm/__chunks/QAGXQEUG.js
+  // node_modules/@ariakit/core/esm/__chunks/SNHYQNEZ.js
   function isTouchDevice() {
     return canUseDOM && !!navigator.maxTouchPoints;
   }
@@ -28881,7 +28780,7 @@ var wp;
   function fireBlurEvent(element, eventInit) {
     const event = new FocusEvent("blur", eventInit);
     const defaultAllowed = element.dispatchEvent(event);
-    const bubbleInit = __spreadProps2(__spreadValues2({}, eventInit), { bubbles: true });
+    const bubbleInit = { ...eventInit, bubbles: true };
     element.dispatchEvent(new FocusEvent("focusout", bubbleInit));
     return defaultAllowed;
   }
@@ -28939,10 +28838,10 @@ var wp;
     return removeEventListener;
   }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/ABQUS43J.js
-  var import_react9 = __toESM(require_react(), 1);
+  // node_modules/@ariakit/react-core/esm/__chunks/KPHZR4MB.js
   var React7 = __toESM(require_react(), 1);
-  var _React = __spreadValues({}, React7);
+  var import_react9 = __toESM(require_react(), 1);
+  var _React = { ...React7 };
   var useReactId = _React.useId;
   var useReactDeferredValue = _React.useDeferredValue;
   var useReactInsertionEffect = _React.useInsertionEffect;
@@ -29091,23 +28990,26 @@ var wp;
       },
       [...deps, props.wrapElement]
     );
-    return __spreadProps(__spreadValues({}, props), { wrapElement });
+    return { ...props, wrapElement };
   }
   function useMetadataProps(props, key, value) {
     const parent = props.onLoadedMetadataCapture;
     const onLoadedMetadataCapture = (0, import_react9.useMemo)(() => {
       return Object.assign(() => {
-      }, __spreadProps(__spreadValues({}, parent), { [key]: value }));
+      }, { ...parent, [key]: value });
     }, [parent, key, value]);
     return [parent == null ? void 0 : parent[key], { onLoadedMetadataCapture }];
   }
+  var hasInstalledGlobalEventListeners = false;
   function useIsMouseMoving() {
     (0, import_react9.useEffect)(() => {
+      if (hasInstalledGlobalEventListeners) return;
       addGlobalEventListener("mousemove", setMouseMoving, true);
       addGlobalEventListener("mousedown", resetMouseMoving, true);
       addGlobalEventListener("mouseup", resetMouseMoving, true);
       addGlobalEventListener("keydown", resetMouseMoving, true);
       addGlobalEventListener("scroll", resetMouseMoving, true);
+      hasInstalledGlobalEventListeners = true;
     }, []);
     const isMouseMoving = useEvent(() => mouseMoving);
     return isMouseMoving;
@@ -29130,11 +29032,14 @@ var wp;
     mouseMoving = false;
   }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/LMDWO4NN.js
+  // node_modules/@ariakit/react-core/esm/__chunks/GWSL6KNJ.js
   var React8 = __toESM(require_react(), 1);
   var import_jsx_runtime206 = __toESM(require_jsx_runtime(), 1);
   function forwardRef22(render4) {
-    const Role = React8.forwardRef((props, ref) => render4(__spreadProps(__spreadValues({}, props), { ref })));
+    const Role = React8.forwardRef(
+      // @ts-ignore Incompatible with React 19 types. Ignore for now.
+      (props, ref) => render4({ ...props, ref })
+    );
     Role.displayName = render4.displayName || render4.name;
     return Role;
   }
@@ -29142,16 +29047,20 @@ var wp;
     return React8.memo(Component, propsAreEqual);
   }
   function createElement5(Type, props) {
-    const _a = props, { wrapElement, render: render4 } = _a, rest = __objRest(_a, ["wrapElement", "render"]);
+    const { wrapElement, render: render4, ...rest } = props;
     const mergedRef = useMergeRefs(props.ref, getRefProperty(render4));
     let element;
     if (React8.isValidElement(render4)) {
-      const renderProps = __spreadProps(__spreadValues({}, render4.props), { ref: mergedRef });
+      const renderProps = {
+        // @ts-ignore Incompatible with React 19 types. Ignore for now.
+        ...render4.props,
+        ref: mergedRef
+      };
       element = React8.cloneElement(render4, mergeProps2(rest, renderProps));
     } else if (render4) {
       element = render4(rest);
     } else {
-      element = /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Type, __spreadValues({}, rest));
+      element = /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Type, { ...rest });
     }
     if (wrapElement) {
       return wrapElement(element);
@@ -29183,15 +29092,15 @@ var wp;
     };
     const ContextProvider = (props) => {
       return providers.reduceRight(
-        (children, Provider) => /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Provider, __spreadProps(__spreadValues({}, props), { children })),
-        /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(context.Provider, __spreadValues({}, props))
+        (children, Provider) => /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Provider, { ...props, children }),
+        /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(context.Provider, { ...props })
       );
     };
     const ScopedContextProvider = (props) => {
-      return /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(ContextProvider, __spreadProps(__spreadValues({}, props), { children: scopedProviders.reduceRight(
-        (children, Provider) => /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Provider, __spreadProps(__spreadValues({}, props), { children })),
-        /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(scopedContext.Provider, __spreadValues({}, props))
-      ) }));
+      return /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(ContextProvider, { ...props, children: scopedProviders.reduceRight(
+        (children, Provider) => /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(Provider, { ...props, children }),
+        /* @__PURE__ */ (0, import_jsx_runtime206.jsx)(scopedContext.Provider, { ...props })
+      ) });
     };
     return {
       context,
@@ -29204,7 +29113,7 @@ var wp;
     };
   }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/VDHZ5F7K.js
+  // node_modules/@ariakit/react-core/esm/__chunks/SMPCIMZM.js
   var ctx2 = createStoreContext();
   var useCollectionContext = ctx2.useContext;
   var useCollectionScopedContext = ctx2.useScopedContext;
@@ -29212,7 +29121,7 @@ var wp;
   var CollectionContextProvider = ctx2.ContextProvider;
   var CollectionScopedContextProvider = ctx2.ScopedContextProvider;
 
-  // node_modules/@ariakit/react-core/esm/__chunks/P7GR5CS5.js
+  // node_modules/@ariakit/react-core/esm/__chunks/AVVXDJMZ.js
   var import_react10 = __toESM(require_react(), 1);
   var ctx3 = createStoreContext(
     [CollectionContextProvider],
@@ -29230,1138 +29139,8 @@ var wp;
     void 0
   );
 
-  // node_modules/@ariakit/react-core/esm/__chunks/3XAVFTCA.js
-  var import_react11 = __toESM(require_react(), 1);
-  var TagValueContext = (0, import_react11.createContext)(null);
-  var TagRemoveIdContext = (0, import_react11.createContext)(
-    null
-  );
-  var ctx4 = createStoreContext(
-    [CompositeContextProvider],
-    [CompositeScopedContextProvider]
-  );
-  var useTagContext = ctx4.useContext;
-  var useTagScopedContext = ctx4.useScopedContext;
-  var useTagProviderContext = ctx4.useProviderContext;
-  var TagContextProvider = ctx4.ContextProvider;
-  var TagScopedContextProvider = ctx4.ScopedContextProvider;
-
-  // node_modules/@ariakit/core/esm/__chunks/BCALMBPZ.js
-  function getInternal(store2, key) {
-    const internals = store2.__unstableInternals;
-    invariant(internals, "Invalid store");
-    return internals[key];
-  }
-  function createStore(initialState, ...stores) {
-    let state = initialState;
-    let prevStateBatch = state;
-    let lastUpdate = /* @__PURE__ */ Symbol();
-    let destroy = noop3;
-    const instances = /* @__PURE__ */ new Set();
-    const updatedKeys = /* @__PURE__ */ new Set();
-    const setups = /* @__PURE__ */ new Set();
-    const listeners = /* @__PURE__ */ new Set();
-    const batchListeners = /* @__PURE__ */ new Set();
-    const disposables = /* @__PURE__ */ new WeakMap();
-    const listenerKeys = /* @__PURE__ */ new WeakMap();
-    const storeSetup = (callback) => {
-      setups.add(callback);
-      return () => setups.delete(callback);
-    };
-    const storeInit = () => {
-      const initialized = instances.size;
-      const instance = /* @__PURE__ */ Symbol();
-      instances.add(instance);
-      const maybeDestroy = () => {
-        instances.delete(instance);
-        if (instances.size) return;
-        destroy();
-      };
-      if (initialized) return maybeDestroy;
-      const desyncs = getKeys(state).map(
-        (key) => chain(
-          ...stores.map((store2) => {
-            var _a;
-            const storeState = (_a = store2 == null ? void 0 : store2.getState) == null ? void 0 : _a.call(store2);
-            if (!storeState) return;
-            if (!hasOwnProperty(storeState, key)) return;
-            return sync2(store2, [key], (state2) => {
-              setState(
-                key,
-                state2[key],
-                // @ts-expect-error - Not public API. This is just to prevent
-                // infinite loops.
-                true
-              );
-            });
-          })
-        )
-      );
-      const teardowns = [];
-      for (const setup2 of setups) {
-        teardowns.push(setup2());
-      }
-      const cleanups = stores.map(init);
-      destroy = chain(...desyncs, ...teardowns, ...cleanups);
-      return maybeDestroy;
-    };
-    const sub = (keys, listener, set = listeners) => {
-      set.add(listener);
-      listenerKeys.set(listener, keys);
-      return () => {
-        var _a;
-        (_a = disposables.get(listener)) == null ? void 0 : _a();
-        disposables.delete(listener);
-        listenerKeys.delete(listener);
-        set.delete(listener);
-      };
-    };
-    const storeSubscribe = (keys, listener) => sub(keys, listener);
-    const storeSync = (keys, listener) => {
-      disposables.set(listener, listener(state, state));
-      return sub(keys, listener);
-    };
-    const storeBatch = (keys, listener) => {
-      disposables.set(listener, listener(state, prevStateBatch));
-      return sub(keys, listener, batchListeners);
-    };
-    const storePick = (keys) => createStore(pick(state, keys), finalStore);
-    const storeOmit = (keys) => createStore(omit(state, keys), finalStore);
-    const getState = () => state;
-    const setState = (key, value, fromStores = false) => {
-      var _a;
-      if (!hasOwnProperty(state, key)) return;
-      const nextValue = applyState(value, state[key]);
-      if (nextValue === state[key]) return;
-      if (!fromStores) {
-        for (const store2 of stores) {
-          (_a = store2 == null ? void 0 : store2.setState) == null ? void 0 : _a.call(store2, key, nextValue);
-        }
-      }
-      const prevState = state;
-      state = __spreadProps2(__spreadValues2({}, state), { [key]: nextValue });
-      const thisUpdate = /* @__PURE__ */ Symbol();
-      lastUpdate = thisUpdate;
-      updatedKeys.add(key);
-      const run = (listener, prev, uKeys) => {
-        var _a2;
-        const keys = listenerKeys.get(listener);
-        const updated = (k2) => uKeys ? uKeys.has(k2) : k2 === key;
-        if (!keys || keys.some(updated)) {
-          (_a2 = disposables.get(listener)) == null ? void 0 : _a2();
-          disposables.set(listener, listener(state, prev));
-        }
-      };
-      for (const listener of listeners) {
-        run(listener, prevState);
-      }
-      queueMicrotask(() => {
-        if (lastUpdate !== thisUpdate) return;
-        const snapshot = state;
-        for (const listener of batchListeners) {
-          run(listener, prevStateBatch, updatedKeys);
-        }
-        prevStateBatch = snapshot;
-        updatedKeys.clear();
-      });
-    };
-    const finalStore = {
-      getState,
-      setState,
-      __unstableInternals: {
-        setup: storeSetup,
-        init: storeInit,
-        subscribe: storeSubscribe,
-        sync: storeSync,
-        batch: storeBatch,
-        pick: storePick,
-        omit: storeOmit
-      }
-    };
-    return finalStore;
-  }
-  function setup(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "setup")(...args);
-  }
-  function init(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "init")(...args);
-  }
-  function subscribe(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "subscribe")(...args);
-  }
-  function sync2(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "sync")(...args);
-  }
-  function batch(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "batch")(...args);
-  }
-  function omit2(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "omit")(...args);
-  }
-  function pick2(store2, ...args) {
-    if (!store2) return;
-    return getInternal(store2, "pick")(...args);
-  }
-  function mergeStore(...stores) {
-    const initialState = stores.reduce((state, store22) => {
-      var _a;
-      const nextState = (_a = store22 == null ? void 0 : store22.getState) == null ? void 0 : _a.call(store22);
-      if (!nextState) return state;
-      return Object.assign(state, nextState);
-    }, {});
-    const store2 = createStore(initialState, ...stores);
-    return Object.assign({}, ...stores, store2);
-  }
-  function throwOnConflictingProps(props, store2) {
-    if (false) return;
-    if (!store2) return;
-    const defaultKeys = Object.entries(props).filter(([key, value]) => key.startsWith("default") && value !== void 0).map(([key]) => {
-      var _a;
-      const stateKey = key.replace("default", "");
-      return `${((_a = stateKey[0]) == null ? void 0 : _a.toLowerCase()) || ""}${stateKey.slice(1)}`;
-    });
-    if (!defaultKeys.length) return;
-    const storeState = store2.getState();
-    const conflictingProps = defaultKeys.filter(
-      (key) => hasOwnProperty(storeState, key)
-    );
-    if (!conflictingProps.length) return;
-    throw new Error(
-      `Passing a store prop in conjunction with a default state is not supported.
-
-const store = useSelectStore();
-<SelectProvider store={store} defaultValue="Apple" />
-                ^             ^
-
-Instead, pass the default state to the topmost store:
-
-const store = useSelectStore({ defaultValue: "Apple" });
-<SelectProvider store={store} />
-
-See https://github.com/ariakit/ariakit/pull/2745 for more details.
-
-If there's a particular need for this, please submit a feature request at https://github.com/ariakit/ariakit
-`
-    );
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/YV4JVR4I.js
-  var React9 = __toESM(require_react(), 1);
-  var import_shim = __toESM(require_shim(), 1);
-  var { useSyncExternalStore } = import_shim.default;
-  var noopSubscribe = () => () => {
-  };
-  function useStoreState(store2, keyOrSelector = identity) {
-    const storeSubscribe = React9.useCallback(
-      (callback) => {
-        if (!store2) return noopSubscribe();
-        return subscribe(store2, null, callback);
-      },
-      [store2]
-    );
-    const getSnapshot = () => {
-      const key = typeof keyOrSelector === "string" ? keyOrSelector : null;
-      const selector2 = typeof keyOrSelector === "function" ? keyOrSelector : null;
-      const state = store2 == null ? void 0 : store2.getState();
-      if (selector2) return selector2(state);
-      if (!state) return;
-      if (!key) return;
-      if (!hasOwnProperty(state, key)) return;
-      return state[key];
-    };
-    return useSyncExternalStore(storeSubscribe, getSnapshot, getSnapshot);
-  }
-  function useStoreStateObject(store2, object) {
-    const objRef = React9.useRef(
-      {}
-    );
-    const storeSubscribe = React9.useCallback(
-      (callback) => {
-        if (!store2) return noopSubscribe();
-        return subscribe(store2, null, callback);
-      },
-      [store2]
-    );
-    const getSnapshot = () => {
-      const state = store2 == null ? void 0 : store2.getState();
-      let updated = false;
-      const obj = objRef.current;
-      for (const prop in object) {
-        const keyOrSelector = object[prop];
-        if (typeof keyOrSelector === "function") {
-          const value = keyOrSelector(state);
-          if (value !== obj[prop]) {
-            obj[prop] = value;
-            updated = true;
-          }
-        }
-        if (typeof keyOrSelector === "string") {
-          if (!state) continue;
-          if (!hasOwnProperty(state, keyOrSelector)) continue;
-          const value = state[keyOrSelector];
-          if (value !== obj[prop]) {
-            obj[prop] = value;
-            updated = true;
-          }
-        }
-      }
-      if (updated) {
-        objRef.current = __spreadValues({}, obj);
-      }
-      return objRef.current;
-    };
-    return useSyncExternalStore(storeSubscribe, getSnapshot, getSnapshot);
-  }
-  function useStoreProps(store2, props, key, setKey) {
-    const value = hasOwnProperty(props, key) ? props[key] : void 0;
-    const setValue = setKey ? props[setKey] : void 0;
-    const propsRef = useLiveRef({ value, setValue });
-    useSafeLayoutEffect(() => {
-      return sync2(store2, [key], (state, prev) => {
-        const { value: value2, setValue: setValue2 } = propsRef.current;
-        if (!setValue2) return;
-        if (state[key] === prev[key]) return;
-        if (state[key] === value2) return;
-        setValue2(state[key]);
-      });
-    }, [store2, key]);
-    useSafeLayoutEffect(() => {
-      if (value === void 0) return;
-      store2.setState(key, value);
-      return batch(store2, [key], () => {
-        if (value === void 0) return;
-        store2.setState(key, value);
-      });
-    });
-  }
-  function useStore(createStore2, props) {
-    const [store2, setStore] = React9.useState(() => createStore2(props));
-    useSafeLayoutEffect(() => init(store2), [store2]);
-    const useState210 = React9.useCallback(
-      (keyOrSelector) => useStoreState(store2, keyOrSelector),
-      [store2]
-    );
-    const memoizedStore = React9.useMemo(
-      () => __spreadProps(__spreadValues({}, store2), { useState: useState210 }),
-      [store2, useState210]
-    );
-    const updateStore = useEvent(() => {
-      setStore((store22) => createStore2(__spreadValues(__spreadValues({}, props), store22.getState())));
-    });
-    return [memoizedStore, updateStore];
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/CYQWQL4J.js
-  function getCommonParent(items) {
-    var _a;
-    const firstItem = items.find((item) => !!item.element);
-    const lastItem = [...items].reverse().find((item) => !!item.element);
-    let parentElement = (_a = firstItem == null ? void 0 : firstItem.element) == null ? void 0 : _a.parentElement;
-    while (parentElement && (lastItem == null ? void 0 : lastItem.element)) {
-      const parent = parentElement;
-      if (lastItem && parent.contains(lastItem.element)) {
-        return parentElement;
-      }
-      parentElement = parentElement.parentElement;
-    }
-    return getDocument(parentElement).body;
-  }
-  function getPrivateStore(store2) {
-    return store2 == null ? void 0 : store2.__unstablePrivateStore;
-  }
-  function createCollectionStore(props = {}) {
-    var _a;
-    throwOnConflictingProps(props, props.store);
-    const syncState = (_a = props.store) == null ? void 0 : _a.getState();
-    const items = defaultValue(
-      props.items,
-      syncState == null ? void 0 : syncState.items,
-      props.defaultItems,
-      []
-    );
-    const itemsMap = new Map(items.map((item) => [item.id, item]));
-    const initialState = {
-      items,
-      renderedItems: defaultValue(syncState == null ? void 0 : syncState.renderedItems, [])
-    };
-    const syncPrivateStore = getPrivateStore(props.store);
-    const privateStore = createStore(
-      { items, renderedItems: initialState.renderedItems },
-      syncPrivateStore
-    );
-    const collection = createStore(initialState, props.store);
-    const sortItems = (renderedItems) => {
-      const sortedItems = sortBasedOnDOMPosition(renderedItems, (i2) => i2.element);
-      privateStore.setState("renderedItems", sortedItems);
-      collection.setState("renderedItems", sortedItems);
-    };
-    setup(collection, () => init(privateStore));
-    setup(privateStore, () => {
-      return batch(privateStore, ["items"], (state) => {
-        collection.setState("items", state.items);
-      });
-    });
-    setup(privateStore, () => {
-      return batch(privateStore, ["renderedItems"], (state) => {
-        let firstRun = true;
-        let raf2 = requestAnimationFrame(() => {
-          const { renderedItems } = collection.getState();
-          if (state.renderedItems === renderedItems) return;
-          sortItems(state.renderedItems);
-        });
-        if (typeof IntersectionObserver !== "function") {
-          return () => cancelAnimationFrame(raf2);
-        }
-        const ioCallback = () => {
-          if (firstRun) {
-            firstRun = false;
-            return;
-          }
-          cancelAnimationFrame(raf2);
-          raf2 = requestAnimationFrame(() => sortItems(state.renderedItems));
-        };
-        const root = getCommonParent(state.renderedItems);
-        const observer = new IntersectionObserver(ioCallback, { root });
-        for (const item of state.renderedItems) {
-          if (!item.element) continue;
-          observer.observe(item.element);
-        }
-        return () => {
-          cancelAnimationFrame(raf2);
-          observer.disconnect();
-        };
-      });
-    });
-    const mergeItem = (item, setItems, canDeleteFromMap = false) => {
-      let prevItem;
-      setItems((items2) => {
-        const index = items2.findIndex(({ id }) => id === item.id);
-        const nextItems = items2.slice();
-        if (index !== -1) {
-          prevItem = items2[index];
-          const nextItem = __spreadValues2(__spreadValues2({}, prevItem), item);
-          nextItems[index] = nextItem;
-          itemsMap.set(item.id, nextItem);
-        } else {
-          nextItems.push(item);
-          itemsMap.set(item.id, item);
-        }
-        return nextItems;
-      });
-      const unmergeItem = () => {
-        setItems((items2) => {
-          if (!prevItem) {
-            if (canDeleteFromMap) {
-              itemsMap.delete(item.id);
-            }
-            return items2.filter(({ id }) => id !== item.id);
-          }
-          const index = items2.findIndex(({ id }) => id === item.id);
-          if (index === -1) return items2;
-          const nextItems = items2.slice();
-          nextItems[index] = prevItem;
-          itemsMap.set(item.id, prevItem);
-          return nextItems;
-        });
-      };
-      return unmergeItem;
-    };
-    const registerItem = (item) => mergeItem(
-      item,
-      (getItems) => privateStore.setState("items", getItems),
-      true
-    );
-    return __spreadProps2(__spreadValues2({}, collection), {
-      registerItem,
-      renderItem: (item) => chain(
-        registerItem(item),
-        mergeItem(
-          item,
-          (getItems) => privateStore.setState("renderedItems", getItems)
-        )
-      ),
-      item: (id) => {
-        if (!id) return null;
-        let item = itemsMap.get(id);
-        if (!item) {
-          const { items: items2 } = privateStore.getState();
-          item = items2.find((item2) => item2.id === id);
-          if (item) {
-            itemsMap.set(id, item);
-          }
-        }
-        return item || null;
-      },
-      // @ts-expect-error Internal
-      __unstablePrivateStore: privateStore
-    });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/C3IKGW5T.js
-  function useCollectionStoreProps(store2, update4, props) {
-    useUpdateEffect(update4, [props.store]);
-    useStoreProps(store2, props, "items", "setItems");
-    return store2;
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/7PRQYBBV.js
-  function toArray2(arg) {
-    if (Array.isArray(arg)) {
-      return arg;
-    }
-    return typeof arg !== "undefined" ? [arg] : [];
-  }
-  function flatten2DArray(array) {
-    const flattened = [];
-    for (const row of array) {
-      flattened.push(...row);
-    }
-    return flattened;
-  }
-  function reverseArray(array) {
-    return array.slice().reverse();
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/AJZ4BYF3.js
-  var NULL_ITEM = { id: null };
-  function findFirstEnabledItem(items, excludeId) {
-    return items.find((item) => {
-      if (excludeId) {
-        return !item.disabled && item.id !== excludeId;
-      }
-      return !item.disabled;
-    });
-  }
-  function getEnabledItems(items, excludeId) {
-    return items.filter((item) => {
-      if (excludeId) {
-        return !item.disabled && item.id !== excludeId;
-      }
-      return !item.disabled;
-    });
-  }
-  function getItemsInRow(items, rowId) {
-    return items.filter((item) => item.rowId === rowId);
-  }
-  function flipItems(items, activeId, shouldInsertNullItem = false) {
-    const index = items.findIndex((item) => item.id === activeId);
-    return [
-      ...items.slice(index + 1),
-      ...shouldInsertNullItem ? [NULL_ITEM] : [],
-      ...items.slice(0, index)
-    ];
-  }
-  function groupItemsByRows(items) {
-    const rows = [];
-    for (const item of items) {
-      const row = rows.find((currentRow) => {
-        var _a;
-        return ((_a = currentRow[0]) == null ? void 0 : _a.rowId) === item.rowId;
-      });
-      if (row) {
-        row.push(item);
-      } else {
-        rows.push([item]);
-      }
-    }
-    return rows;
-  }
-  function getMaxRowLength(array) {
-    let maxLength = 0;
-    for (const { length } of array) {
-      if (length > maxLength) {
-        maxLength = length;
-      }
-    }
-    return maxLength;
-  }
-  function createEmptyItem(rowId) {
-    return {
-      id: "__EMPTY_ITEM__",
-      disabled: true,
-      rowId
-    };
-  }
-  function normalizeRows(rows, activeId, focusShift) {
-    const maxLength = getMaxRowLength(rows);
-    for (const row of rows) {
-      for (let i2 = 0; i2 < maxLength; i2 += 1) {
-        const item = row[i2];
-        if (!item || focusShift && item.disabled) {
-          const isFirst = i2 === 0;
-          const previousItem = isFirst && focusShift ? findFirstEnabledItem(row) : row[i2 - 1];
-          row[i2] = previousItem && activeId !== previousItem.id && focusShift ? previousItem : createEmptyItem(previousItem == null ? void 0 : previousItem.rowId);
-        }
-      }
-    }
-    return rows;
-  }
-  function verticalizeItems(items) {
-    const rows = groupItemsByRows(items);
-    const maxLength = getMaxRowLength(rows);
-    const verticalized = [];
-    for (let i2 = 0; i2 < maxLength; i2 += 1) {
-      for (const row of rows) {
-        const item = row[i2];
-        if (item) {
-          verticalized.push(__spreadProps2(__spreadValues2({}, item), {
-            // If there's no rowId, it means that it's not a grid composite, but
-            // a single row instead. So, instead of verticalizing it, that is,
-            // assigning a different rowId based on the column index, we keep it
-            // undefined so they will be part of the same row. This is useful
-            // when using up/down on one-dimensional composites.
-            rowId: item.rowId ? `${i2}` : void 0
-          }));
-        }
-      }
-    }
-    return verticalized;
-  }
-  function createCompositeStore(props = {}) {
-    var _a;
-    const syncState = (_a = props.store) == null ? void 0 : _a.getState();
-    const collection = createCollectionStore(props);
-    const activeId = defaultValue(
-      props.activeId,
-      syncState == null ? void 0 : syncState.activeId,
-      props.defaultActiveId
-    );
-    const initialState = __spreadProps2(__spreadValues2({}, collection.getState()), {
-      id: defaultValue(
-        props.id,
-        syncState == null ? void 0 : syncState.id,
-        `id-${Math.random().toString(36).slice(2, 8)}`
-      ),
-      activeId,
-      baseElement: defaultValue(syncState == null ? void 0 : syncState.baseElement, null),
-      includesBaseElement: defaultValue(
-        props.includesBaseElement,
-        syncState == null ? void 0 : syncState.includesBaseElement,
-        activeId === null
-      ),
-      moves: defaultValue(syncState == null ? void 0 : syncState.moves, 0),
-      orientation: defaultValue(
-        props.orientation,
-        syncState == null ? void 0 : syncState.orientation,
-        "both"
-      ),
-      rtl: defaultValue(props.rtl, syncState == null ? void 0 : syncState.rtl, false),
-      virtualFocus: defaultValue(
-        props.virtualFocus,
-        syncState == null ? void 0 : syncState.virtualFocus,
-        false
-      ),
-      focusLoop: defaultValue(props.focusLoop, syncState == null ? void 0 : syncState.focusLoop, false),
-      focusWrap: defaultValue(props.focusWrap, syncState == null ? void 0 : syncState.focusWrap, false),
-      focusShift: defaultValue(props.focusShift, syncState == null ? void 0 : syncState.focusShift, false)
-    });
-    const composite = createStore(initialState, collection, props.store);
-    setup(
-      composite,
-      () => sync2(composite, ["renderedItems", "activeId"], (state) => {
-        composite.setState("activeId", (activeId2) => {
-          var _a2;
-          if (activeId2 !== void 0) return activeId2;
-          return (_a2 = findFirstEnabledItem(state.renderedItems)) == null ? void 0 : _a2.id;
-        });
-      })
-    );
-    const getNextId = (direction = "next", options = {}) => {
-      var _a2, _b;
-      const defaultState = composite.getState();
-      const {
-        skip = 0,
-        activeId: activeId2 = defaultState.activeId,
-        focusShift = defaultState.focusShift,
-        focusLoop = defaultState.focusLoop,
-        focusWrap = defaultState.focusWrap,
-        includesBaseElement = defaultState.includesBaseElement,
-        renderedItems = defaultState.renderedItems,
-        rtl = defaultState.rtl
-      } = options;
-      const isVerticalDirection = direction === "up" || direction === "down";
-      const isNextDirection = direction === "next" || direction === "down";
-      const canReverse = isNextDirection ? rtl && !isVerticalDirection : !rtl || isVerticalDirection;
-      const canShift = focusShift && !skip;
-      let items = !isVerticalDirection ? renderedItems : flatten2DArray(
-        normalizeRows(groupItemsByRows(renderedItems), activeId2, canShift)
-      );
-      items = canReverse ? reverseArray(items) : items;
-      items = isVerticalDirection ? verticalizeItems(items) : items;
-      if (activeId2 == null) {
-        return (_a2 = findFirstEnabledItem(items)) == null ? void 0 : _a2.id;
-      }
-      const activeItem = items.find((item) => item.id === activeId2);
-      if (!activeItem) {
-        return (_b = findFirstEnabledItem(items)) == null ? void 0 : _b.id;
-      }
-      const isGrid2 = items.some((item) => item.rowId);
-      const activeIndex = items.indexOf(activeItem);
-      const nextItems = items.slice(activeIndex + 1);
-      const nextItemsInRow = getItemsInRow(nextItems, activeItem.rowId);
-      if (skip) {
-        const nextEnabledItemsInRow = getEnabledItems(nextItemsInRow, activeId2);
-        const nextItem2 = nextEnabledItemsInRow.slice(skip)[0] || // If we can't find an item, just return the last one.
-        nextEnabledItemsInRow[nextEnabledItemsInRow.length - 1];
-        return nextItem2 == null ? void 0 : nextItem2.id;
-      }
-      const canLoop = focusLoop && (isVerticalDirection ? focusLoop !== "horizontal" : focusLoop !== "vertical");
-      const canWrap = isGrid2 && focusWrap && (isVerticalDirection ? focusWrap !== "horizontal" : focusWrap !== "vertical");
-      const hasNullItem = isNextDirection ? (!isGrid2 || isVerticalDirection) && canLoop && includesBaseElement : isVerticalDirection ? includesBaseElement : false;
-      if (canLoop) {
-        const loopItems = canWrap && !hasNullItem ? items : getItemsInRow(items, activeItem.rowId);
-        const sortedItems = flipItems(loopItems, activeId2, hasNullItem);
-        const nextItem2 = findFirstEnabledItem(sortedItems, activeId2);
-        return nextItem2 == null ? void 0 : nextItem2.id;
-      }
-      if (canWrap) {
-        const nextItem2 = findFirstEnabledItem(
-          // We can use nextItems, which contains all the next items, including
-          // items from other rows, to wrap between rows. However, if there is a
-          // null item (the composite container), we'll only use the next items in
-          // the row. So moving next from the last item will focus on the
-          // composite container. On grid composites, horizontal navigation never
-          // focuses on the composite container, only vertical.
-          hasNullItem ? nextItemsInRow : nextItems,
-          activeId2
-        );
-        const nextId2 = hasNullItem ? (nextItem2 == null ? void 0 : nextItem2.id) || null : nextItem2 == null ? void 0 : nextItem2.id;
-        return nextId2;
-      }
-      const nextItem = findFirstEnabledItem(nextItemsInRow, activeId2);
-      if (!nextItem && hasNullItem) {
-        return null;
-      }
-      return nextItem == null ? void 0 : nextItem.id;
-    };
-    return __spreadProps2(__spreadValues2(__spreadValues2({}, collection), composite), {
-      setBaseElement: (element) => composite.setState("baseElement", element),
-      setActiveId: (id) => composite.setState("activeId", id),
-      move: (id) => {
-        if (id === void 0) return;
-        composite.setState("activeId", id);
-        composite.setState("moves", (moves) => moves + 1);
-      },
-      first: () => {
-        var _a2;
-        return (_a2 = findFirstEnabledItem(composite.getState().renderedItems)) == null ? void 0 : _a2.id;
-      },
-      last: () => {
-        var _a2;
-        return (_a2 = findFirstEnabledItem(reverseArray(composite.getState().renderedItems))) == null ? void 0 : _a2.id;
-      },
-      next: (options) => {
-        if (options !== void 0 && typeof options === "number") {
-          options = { skip: options };
-        }
-        return getNextId("next", options);
-      },
-      previous: (options) => {
-        if (options !== void 0 && typeof options === "number") {
-          options = { skip: options };
-        }
-        return getNextId("previous", options);
-      },
-      down: (options) => {
-        if (options !== void 0 && typeof options === "number") {
-          options = { skip: options };
-        }
-        return getNextId("down", options);
-      },
-      up: (options) => {
-        if (options !== void 0 && typeof options === "number") {
-          options = { skip: options };
-        }
-        return getNextId("up", options);
-      }
-    });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/4CMBR7SL.js
-  function useCompositeStoreOptions(props) {
-    const id = useId5(props.id);
-    return __spreadValues({ id }, props);
-  }
-  function useCompositeStoreProps(store2, update4, props) {
-    store2 = useCollectionStoreProps(store2, update4, props);
-    useStoreProps(store2, props, "activeId", "setActiveId");
-    useStoreProps(store2, props, "includesBaseElement");
-    useStoreProps(store2, props, "virtualFocus");
-    useStoreProps(store2, props, "orientation");
-    useStoreProps(store2, props, "rtl");
-    useStoreProps(store2, props, "focusLoop");
-    useStoreProps(store2, props, "focusWrap");
-    useStoreProps(store2, props, "focusShift");
-    return store2;
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/RCQ5P4YE.js
-  function createDisclosureStore(props = {}) {
-    const store2 = mergeStore(
-      props.store,
-      omit2(props.disclosure, ["contentElement", "disclosureElement"])
-    );
-    throwOnConflictingProps(props, store2);
-    const syncState = store2 == null ? void 0 : store2.getState();
-    const open = defaultValue(
-      props.open,
-      syncState == null ? void 0 : syncState.open,
-      props.defaultOpen,
-      false
-    );
-    const animated2 = defaultValue(props.animated, syncState == null ? void 0 : syncState.animated, false);
-    const initialState = {
-      open,
-      animated: animated2,
-      animating: !!animated2 && open,
-      mounted: open,
-      contentElement: defaultValue(syncState == null ? void 0 : syncState.contentElement, null),
-      disclosureElement: defaultValue(syncState == null ? void 0 : syncState.disclosureElement, null)
-    };
-    const disclosure = createStore(initialState, store2);
-    setup(
-      disclosure,
-      () => sync2(disclosure, ["animated", "animating"], (state) => {
-        if (state.animated) return;
-        disclosure.setState("animating", false);
-      })
-    );
-    setup(
-      disclosure,
-      () => subscribe(disclosure, ["open"], () => {
-        if (!disclosure.getState().animated) return;
-        disclosure.setState("animating", true);
-      })
-    );
-    setup(
-      disclosure,
-      () => sync2(disclosure, ["open", "animating"], (state) => {
-        disclosure.setState("mounted", state.open || state.animating);
-      })
-    );
-    return __spreadProps2(__spreadValues2({}, disclosure), {
-      disclosure: props.disclosure,
-      setOpen: (value) => disclosure.setState("open", value),
-      show: () => disclosure.setState("open", true),
-      hide: () => disclosure.setState("open", false),
-      toggle: () => disclosure.setState("open", (open2) => !open2),
-      stopAnimation: () => disclosure.setState("animating", false),
-      setContentElement: (value) => disclosure.setState("contentElement", value),
-      setDisclosureElement: (value) => disclosure.setState("disclosureElement", value)
-    });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/WYCIER3C.js
-  function useDisclosureStoreProps(store2, update4, props) {
-    useUpdateEffect(update4, [props.store, props.disclosure]);
-    useStoreProps(store2, props, "open", "setOpen");
-    useStoreProps(store2, props, "mounted", "setMounted");
-    useStoreProps(store2, props, "animated");
-    return Object.assign(store2, { disclosure: props.disclosure });
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/FZZ2AVHF.js
-  function createDialogStore(props = {}) {
-    return createDisclosureStore(props);
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/BM6PGYQY.js
-  function useDialogStoreProps(store2, update4, props) {
-    return useDisclosureStoreProps(store2, update4, props);
-  }
-
-  // node_modules/@ariakit/core/esm/__chunks/ME2CUF3F.js
-  function createPopoverStore(_a = {}) {
-    var _b = _a, {
-      popover: otherPopover
-    } = _b, props = __objRest2(_b, [
-      "popover"
-    ]);
-    const store2 = mergeStore(
-      props.store,
-      omit2(otherPopover, [
-        "arrowElement",
-        "anchorElement",
-        "contentElement",
-        "popoverElement",
-        "disclosureElement"
-      ])
-    );
-    throwOnConflictingProps(props, store2);
-    const syncState = store2 == null ? void 0 : store2.getState();
-    const dialog = createDialogStore(__spreadProps2(__spreadValues2({}, props), { store: store2 }));
-    const placement = defaultValue(
-      props.placement,
-      syncState == null ? void 0 : syncState.placement,
-      "bottom"
-    );
-    const initialState = __spreadProps2(__spreadValues2({}, dialog.getState()), {
-      placement,
-      currentPlacement: placement,
-      anchorElement: defaultValue(syncState == null ? void 0 : syncState.anchorElement, null),
-      popoverElement: defaultValue(syncState == null ? void 0 : syncState.popoverElement, null),
-      arrowElement: defaultValue(syncState == null ? void 0 : syncState.arrowElement, null),
-      rendered: /* @__PURE__ */ Symbol("rendered")
-    });
-    const popover = createStore(initialState, dialog, store2);
-    return __spreadProps2(__spreadValues2(__spreadValues2({}, dialog), popover), {
-      setAnchorElement: (element) => popover.setState("anchorElement", element),
-      setPopoverElement: (element) => popover.setState("popoverElement", element),
-      setArrowElement: (element) => popover.setState("arrowElement", element),
-      render: () => popover.setState("rendered", /* @__PURE__ */ Symbol("rendered"))
-    });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/O2PQ2652.js
-  function usePopoverStoreProps(store2, update4, props) {
-    useUpdateEffect(update4, [props.popover]);
-    useStoreProps(store2, props, "placement");
-    return useDialogStoreProps(store2, update4, props);
-  }
-
-  // node_modules/@ariakit/core/esm/combobox/combobox-store.js
-  var isTouchSafari = isSafari() && isTouchDevice();
-  function createComboboxStore(_a = {}) {
-    var _b = _a, {
-      tag
-    } = _b, props = __objRest2(_b, [
-      "tag"
-    ]);
-    const store2 = mergeStore(props.store, pick2(tag, ["value", "rtl"]));
-    throwOnConflictingProps(props, store2);
-    const tagState = tag == null ? void 0 : tag.getState();
-    const syncState = store2 == null ? void 0 : store2.getState();
-    const activeId = defaultValue(
-      props.activeId,
-      syncState == null ? void 0 : syncState.activeId,
-      props.defaultActiveId,
-      null
-    );
-    const composite = createCompositeStore(__spreadProps2(__spreadValues2({}, props), {
-      activeId,
-      includesBaseElement: defaultValue(
-        props.includesBaseElement,
-        syncState == null ? void 0 : syncState.includesBaseElement,
-        true
-      ),
-      orientation: defaultValue(
-        props.orientation,
-        syncState == null ? void 0 : syncState.orientation,
-        "vertical"
-      ),
-      focusLoop: defaultValue(props.focusLoop, syncState == null ? void 0 : syncState.focusLoop, true),
-      focusWrap: defaultValue(props.focusWrap, syncState == null ? void 0 : syncState.focusWrap, true),
-      virtualFocus: defaultValue(
-        props.virtualFocus,
-        syncState == null ? void 0 : syncState.virtualFocus,
-        true
-      )
-    }));
-    const popover = createPopoverStore(__spreadProps2(__spreadValues2({}, props), {
-      placement: defaultValue(
-        props.placement,
-        syncState == null ? void 0 : syncState.placement,
-        "bottom-start"
-      )
-    }));
-    const value = defaultValue(
-      props.value,
-      syncState == null ? void 0 : syncState.value,
-      props.defaultValue,
-      ""
-    );
-    const selectedValue = defaultValue(
-      props.selectedValue,
-      syncState == null ? void 0 : syncState.selectedValue,
-      tagState == null ? void 0 : tagState.values,
-      props.defaultSelectedValue,
-      ""
-    );
-    const multiSelectable = Array.isArray(selectedValue);
-    const initialState = __spreadProps2(__spreadValues2(__spreadValues2({}, composite.getState()), popover.getState()), {
-      value,
-      selectedValue,
-      resetValueOnSelect: defaultValue(
-        props.resetValueOnSelect,
-        syncState == null ? void 0 : syncState.resetValueOnSelect,
-        multiSelectable
-      ),
-      resetValueOnHide: defaultValue(
-        props.resetValueOnHide,
-        syncState == null ? void 0 : syncState.resetValueOnHide,
-        multiSelectable && !tag
-      ),
-      activeValue: syncState == null ? void 0 : syncState.activeValue
-    });
-    const combobox = createStore(initialState, composite, popover, store2);
-    if (isTouchSafari) {
-      setup(
-        combobox,
-        () => sync2(combobox, ["virtualFocus"], () => {
-          combobox.setState("virtualFocus", false);
-        })
-      );
-    }
-    setup(combobox, () => {
-      if (!tag) return;
-      return chain(
-        sync2(combobox, ["selectedValue"], (state) => {
-          if (!Array.isArray(state.selectedValue)) return;
-          tag.setValues(state.selectedValue);
-        }),
-        sync2(tag, ["values"], (state) => {
-          combobox.setState("selectedValue", state.values);
-        })
-      );
-    });
-    setup(
-      combobox,
-      () => sync2(combobox, ["resetValueOnHide", "mounted"], (state) => {
-        if (!state.resetValueOnHide) return;
-        if (state.mounted) return;
-        combobox.setState("value", value);
-      })
-    );
-    setup(
-      combobox,
-      () => sync2(combobox, ["open"], (state) => {
-        if (state.open) return;
-        combobox.setState("activeId", activeId);
-        combobox.setState("moves", 0);
-      })
-    );
-    setup(
-      combobox,
-      () => sync2(combobox, ["moves", "activeId"], (state, prevState) => {
-        if (state.moves === prevState.moves) {
-          combobox.setState("activeValue", void 0);
-        }
-      })
-    );
-    setup(
-      combobox,
-      () => batch(combobox, ["moves", "renderedItems"], (state, prev) => {
-        if (state.moves === prev.moves) return;
-        const { activeId: activeId2 } = combobox.getState();
-        const activeItem = composite.item(activeId2);
-        combobox.setState("activeValue", activeItem == null ? void 0 : activeItem.value);
-      })
-    );
-    return __spreadProps2(__spreadValues2(__spreadValues2(__spreadValues2({}, popover), composite), combobox), {
-      tag,
-      setValue: (value2) => combobox.setState("value", value2),
-      resetValue: () => combobox.setState("value", initialState.value),
-      setSelectedValue: (selectedValue2) => combobox.setState("selectedValue", selectedValue2)
-    });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/FEOFMWBY.js
-  function useComboboxStoreOptions(props) {
-    const tag = useTagContext();
-    props = __spreadProps(__spreadValues({}, props), {
-      tag: props.tag !== void 0 ? props.tag : tag
-    });
-    return useCompositeStoreOptions(props);
-  }
-  function useComboboxStoreProps(store2, update4, props) {
-    useUpdateEffect(update4, [props.tag]);
-    useStoreProps(store2, props, "value", "setValue");
-    useStoreProps(store2, props, "selectedValue", "setSelectedValue");
-    useStoreProps(store2, props, "resetValueOnHide");
-    useStoreProps(store2, props, "resetValueOnSelect");
-    return Object.assign(
-      useCompositeStoreProps(
-        usePopoverStoreProps(store2, update4, props),
-        update4,
-        props
-      ),
-      { tag: props.tag }
-    );
-  }
-  function useComboboxStore(props = {}) {
-    props = useComboboxStoreOptions(props);
-    const [store2, update4] = useStore(createComboboxStore, props);
-    return useComboboxStoreProps(store2, update4, props);
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/S6EF7IVO.js
-  var ctx5 = createStoreContext();
-  var useDisclosureContext = ctx5.useContext;
-  var useDisclosureScopedContext = ctx5.useScopedContext;
-  var useDisclosureProviderContext = ctx5.useProviderContext;
-  var DisclosureContextProvider = ctx5.ContextProvider;
-  var DisclosureScopedContextProvider = ctx5.ScopedContextProvider;
-
-  // node_modules/@ariakit/react-core/esm/__chunks/RS7LB2H4.js
-  var import_react12 = __toESM(require_react(), 1);
-  var ctx6 = createStoreContext(
-    [DisclosureContextProvider],
-    [DisclosureScopedContextProvider]
-  );
-  var useDialogContext = ctx6.useContext;
-  var useDialogScopedContext = ctx6.useScopedContext;
-  var useDialogProviderContext = ctx6.useProviderContext;
-  var DialogContextProvider = ctx6.ContextProvider;
-  var DialogScopedContextProvider = ctx6.ScopedContextProvider;
-  var DialogHeadingContext = (0, import_react12.createContext)(void 0);
-  var DialogDescriptionContext = (0, import_react12.createContext)(void 0);
-
-  // node_modules/@ariakit/react-core/esm/__chunks/MTZPJQMC.js
-  var ctx7 = createStoreContext(
-    [DialogContextProvider],
-    [DialogScopedContextProvider]
-  );
-  var usePopoverContext = ctx7.useContext;
-  var usePopoverScopedContext = ctx7.useScopedContext;
-  var usePopoverProviderContext = ctx7.useProviderContext;
-  var PopoverContextProvider = ctx7.ContextProvider;
-  var PopoverScopedContextProvider = ctx7.ScopedContextProvider;
-
-  // node_modules/@ariakit/react-core/esm/__chunks/VEVQD5MH.js
-  var import_react13 = __toESM(require_react(), 1);
-  var ComboboxListRoleContext = (0, import_react13.createContext)(
-    void 0
-  );
-  var ctx8 = createStoreContext(
-    [PopoverContextProvider, CompositeContextProvider],
-    [PopoverScopedContextProvider, CompositeScopedContextProvider]
-  );
-  var useComboboxContext = ctx8.useContext;
-  var useComboboxScopedContext = ctx8.useScopedContext;
-  var useComboboxProviderContext = ctx8.useProviderContext;
-  var ComboboxContextProvider = ctx8.ContextProvider;
-  var ComboboxScopedContextProvider = ctx8.ScopedContextProvider;
-  var ComboboxItemValueContext = (0, import_react13.createContext)(
-    void 0
-  );
-  var ComboboxItemCheckedContext = (0, import_react13.createContext)(false);
-
-  // node_modules/@ariakit/react-core/esm/__chunks/OMU7RWRV.js
-  var TagName = "div";
-  var usePopoverAnchor = createHook(
-    function usePopoverAnchor2(_a) {
-      var _b = _a, { store: store2 } = _b, props = __objRest(_b, ["store"]);
-      const context = usePopoverProviderContext();
-      store2 = store2 || context;
-      props = __spreadProps(__spreadValues({}, props), {
-        ref: useMergeRefs(store2 == null ? void 0 : store2.setAnchorElement, props.ref)
-      });
-      return props;
-    }
-  );
-  var PopoverAnchor = forwardRef22(function PopoverAnchor2(props) {
-    const htmlProps = usePopoverAnchor(props);
-    return createElement5(TagName, htmlProps);
-  });
-
   // node_modules/@ariakit/react-core/esm/__chunks/5VQZOHHZ.js
-  function findFirstEnabledItem2(items, excludeId) {
+  function findFirstEnabledItem(items, excludeId) {
     return items.find((item) => {
       if (excludeId) {
         return !item.disabled && item.id !== excludeId;
@@ -30373,7 +29152,7 @@ If there's a particular need for this, please submit a feature request at https:
     if (!id) return null;
     return store2.item(id) || null;
   }
-  function groupItemsByRows2(items) {
+  function groupItemsByRows(items) {
     const rows = [];
     for (const item of items) {
       const row = rows.find((currentRow) => {
@@ -30421,9 +29200,45 @@ If there's a particular need for this, please submit a feature request at https:
     return true;
   }
 
+  // node_modules/@ariakit/react-core/esm/__chunks/Z2O3VLAQ.js
+  var import_react11 = __toESM(require_react(), 1);
+  var TagName = "div";
+  var useCollectionItem = createHook(
+    function useCollectionItem2({
+      store: store2,
+      shouldRegisterItem = true,
+      getItem = identity,
+      // @ts-expect-error This prop may come from a collection renderer.
+      element,
+      ...props
+    }) {
+      const context = useCollectionContext();
+      store2 = store2 || context;
+      const id = useId5(props.id);
+      const ref = (0, import_react11.useRef)(element);
+      (0, import_react11.useEffect)(() => {
+        const element2 = ref.current;
+        if (!id) return;
+        if (!element2) return;
+        if (!shouldRegisterItem) return;
+        const item = getItem({ id, element: element2 });
+        return store2 == null ? void 0 : store2.renderItem(item);
+      }, [id, shouldRegisterItem, getItem, store2]);
+      props = {
+        ...props,
+        ref: useMergeRefs(ref, props.ref)
+      };
+      return removeUndefinedValues(props);
+    }
+  );
+  var CollectionItem = forwardRef22(function CollectionItem2(props) {
+    const htmlProps = useCollectionItem(props);
+    return createElement5(TagName, htmlProps);
+  });
+
   // node_modules/@ariakit/react-core/esm/__chunks/SWN3JYXT.js
-  var import_react14 = __toESM(require_react(), 1);
-  var FocusableContext = (0, import_react14.createContext)(true);
+  var import_react12 = __toESM(require_react(), 1);
+  var FocusableContext = (0, import_react12.createContext)(true);
 
   // node_modules/@ariakit/core/esm/utils/focus.js
   var selector = "input:not([type='hidden']):not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], button:not([disabled]), [tabindex], summary, iframe, object, embed, area[href], audio[controls], video[controls], [contenteditable]:not([contenteditable='false'])";
@@ -30467,12 +29282,12 @@ If there's a particular need for this, please submit a feature request at https:
       element.focus();
     } else {
       element.focus({ preventScroll: true });
-      element.scrollIntoView(__spreadValues2({ block: "nearest", inline: "nearest" }, options));
+      element.scrollIntoView({ block: "nearest", inline: "nearest", ...options });
     }
   }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/LVA2YJMS.js
-  var import_react15 = __toESM(require_react(), 1);
+  // node_modules/@ariakit/react-core/esm/__chunks/U6HHPQDW.js
+  var import_react13 = __toESM(require_react(), 1);
   var TagName2 = "div";
   var isSafariBrowser = isSafari();
   var alwaysFocusVisibleInputTypes = [
@@ -30555,6 +29370,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
     });
   }
+  var hasInstalledGlobalEventListeners2 = false;
   var isKeyboardModality = true;
   function onGlobalMouseDown(event) {
     const target = event.target;
@@ -30571,26 +29387,23 @@ If there's a particular need for this, please submit a feature request at https:
     isKeyboardModality = true;
   }
   var useFocusable = createHook(
-    function useFocusable2(_a) {
-      var _b = _a, {
-        focusable = true,
-        accessibleWhenDisabled,
-        autoFocus,
-        onFocusVisible
-      } = _b, props = __objRest(_b, [
-        "focusable",
-        "accessibleWhenDisabled",
-        "autoFocus",
-        "onFocusVisible"
-      ]);
-      const ref = (0, import_react15.useRef)(null);
-      (0, import_react15.useEffect)(() => {
+    function useFocusable2({
+      focusable = true,
+      accessibleWhenDisabled,
+      autoFocus,
+      onFocusVisible,
+      ...props
+    }) {
+      const ref = (0, import_react13.useRef)(null);
+      (0, import_react13.useEffect)(() => {
         if (!focusable) return;
+        if (hasInstalledGlobalEventListeners2) return;
         addGlobalEventListener("mousedown", onGlobalMouseDown, true);
         addGlobalEventListener("keydown", onGlobalKeyDown, true);
+        hasInstalledGlobalEventListeners2 = true;
       }, [focusable]);
       if (isSafariBrowser) {
-        (0, import_react15.useEffect)(() => {
+        (0, import_react13.useEffect)(() => {
           if (!focusable) return;
           const element = ref.current;
           if (!element) return;
@@ -30610,14 +29423,14 @@ If there's a particular need for this, please submit a feature request at https:
       }
       const disabled = focusable && disabledFromProps(props);
       const trulyDisabled = !!disabled && !accessibleWhenDisabled;
-      const [focusVisible, setFocusVisible] = (0, import_react15.useState)(false);
-      (0, import_react15.useEffect)(() => {
+      const [focusVisible, setFocusVisible] = (0, import_react13.useState)(false);
+      (0, import_react13.useEffect)(() => {
         if (!focusable) return;
         if (trulyDisabled && focusVisible) {
           setFocusVisible(false);
         }
       }, [focusable, trulyDisabled, focusVisible]);
-      (0, import_react15.useEffect)(() => {
+      (0, import_react13.useEffect)(() => {
         if (!focusable) return;
         if (!focusVisible) return;
         const element = ref.current;
@@ -30713,9 +29526,10 @@ If there's a particular need for this, please submit a feature request at https:
         onBlurProp == null ? void 0 : onBlurProp(event);
         if (!focusable) return;
         if (!isFocusEventOutside(event)) return;
+        event.currentTarget.removeAttribute("data-focus-visible");
         setFocusVisible(false);
       });
-      const autoFocusOnShow = (0, import_react15.useContext)(FocusableContext);
+      const autoFocusOnShow = (0, import_react13.useContext)(FocusableContext);
       const autoFocusRef = useEvent((element) => {
         if (!focusable) return;
         if (!autoFocus) return;
@@ -30731,17 +29545,17 @@ If there's a particular need for this, please submit a feature request at https:
       const nativeTabbable = focusable && isNativeTabbable(tagName);
       const supportsDisabled = focusable && supportsDisabledAttribute(tagName);
       const styleProp = props.style;
-      const style = (0, import_react15.useMemo)(() => {
+      const style = (0, import_react13.useMemo)(() => {
         if (trulyDisabled) {
-          return __spreadValues({ pointerEvents: "none" }, styleProp);
+          return { pointerEvents: "none", ...styleProp };
         }
         return styleProp;
       }, [trulyDisabled, styleProp]);
-      props = __spreadProps(__spreadValues({
+      props = {
         "data-focus-visible": focusable && focusVisible || void 0,
         "data-autofocus": autoFocus || void 0,
-        "aria-disabled": disabled || void 0
-      }, props), {
+        "aria-disabled": disabled || void 0,
+        ...props,
         ref: useMergeRefs(ref, autoFocusRef, props.ref),
         style,
         tabIndex: getTabIndex(
@@ -30761,7 +29575,7 @@ If there's a particular need for this, please submit a feature request at https:
         onKeyDownCapture,
         onFocusCapture,
         onBlur
-      });
+      };
       return removeUndefinedValues(props);
     }
   );
@@ -30770,702 +29584,9 @@ If there's a particular need for this, please submit a feature request at https:
     return createElement5(TagName2, htmlProps);
   });
 
-  // node_modules/@ariakit/react-core/esm/__chunks/ITI7HKP4.js
-  var import_react16 = __toESM(require_react(), 1);
-  var import_jsx_runtime207 = __toESM(require_jsx_runtime(), 1);
-  var TagName3 = "div";
-  function isGrid(items) {
-    return items.some((item) => !!item.rowId);
-  }
-  function isPrintableKey(event) {
-    const target = event.target;
-    if (target && !isTextField(target)) return false;
-    return event.key.length === 1 && !event.ctrlKey && !event.metaKey;
-  }
-  function isModifierKey(event) {
-    return event.key === "Shift" || event.key === "Control" || event.key === "Alt" || event.key === "Meta";
-  }
-  function useKeyboardEventProxy(store2, onKeyboardEvent, previousElementRef) {
-    return useEvent((event) => {
-      var _a;
-      onKeyboardEvent == null ? void 0 : onKeyboardEvent(event);
-      if (event.defaultPrevented) return;
-      if (event.isPropagationStopped()) return;
-      if (!isSelfTarget(event)) return;
-      if (isModifierKey(event)) return;
-      if (isPrintableKey(event)) return;
-      const state = store2.getState();
-      const activeElement = (_a = getEnabledItem(store2, state.activeId)) == null ? void 0 : _a.element;
-      if (!activeElement) return;
-      const _b = event, { view } = _b, eventInit = __objRest(_b, ["view"]);
-      const previousElement = previousElementRef == null ? void 0 : previousElementRef.current;
-      if (activeElement !== previousElement) {
-        activeElement.focus();
-      }
-      if (!fireKeyboardEvent(activeElement, event.type, eventInit)) {
-        event.preventDefault();
-      }
-      if (event.currentTarget.contains(activeElement)) {
-        event.stopPropagation();
-      }
-    });
-  }
-  function findFirstEnabledItemInTheLastRow(items) {
-    return findFirstEnabledItem2(
-      flatten2DArray(reverseArray(groupItemsByRows2(items)))
-    );
-  }
-  function useScheduleFocus(store2) {
-    const [scheduled, setScheduled] = (0, import_react16.useState)(false);
-    const schedule2 = (0, import_react16.useCallback)(() => setScheduled(true), []);
-    const activeItem = store2.useState(
-      (state) => getEnabledItem(store2, state.activeId)
-    );
-    (0, import_react16.useEffect)(() => {
-      const activeElement = activeItem == null ? void 0 : activeItem.element;
-      if (!scheduled) return;
-      if (!activeElement) return;
-      setScheduled(false);
-      activeElement.focus({ preventScroll: true });
-    }, [activeItem, scheduled]);
-    return schedule2;
-  }
-  var useComposite = createHook(
-    function useComposite2(_a) {
-      var _b = _a, {
-        store: store2,
-        composite = true,
-        focusOnMove = composite,
-        moveOnKeyPress = true
-      } = _b, props = __objRest(_b, [
-        "store",
-        "composite",
-        "focusOnMove",
-        "moveOnKeyPress"
-      ]);
-      const context = useCompositeProviderContext();
-      store2 = store2 || context;
-      invariant(
-        store2,
-        "Composite must receive a `store` prop or be wrapped in a CompositeProvider component."
-      );
-      const ref = (0, import_react16.useRef)(null);
-      const previousElementRef = (0, import_react16.useRef)(null);
-      const scheduleFocus = useScheduleFocus(store2);
-      const moves = store2.useState("moves");
-      const [, setBaseElement] = useTransactionState(
-        composite ? store2.setBaseElement : null
-      );
-      (0, import_react16.useEffect)(() => {
-        var _a2;
-        if (!store2) return;
-        if (!moves) return;
-        if (!composite) return;
-        if (!focusOnMove) return;
-        const { activeId: activeId2 } = store2.getState();
-        const itemElement = (_a2 = getEnabledItem(store2, activeId2)) == null ? void 0 : _a2.element;
-        if (!itemElement) return;
-        focusIntoView(itemElement);
-      }, [store2, moves, composite, focusOnMove]);
-      useSafeLayoutEffect(() => {
-        if (!store2) return;
-        if (!moves) return;
-        if (!composite) return;
-        const { baseElement, activeId: activeId2 } = store2.getState();
-        const isSelfAcive = activeId2 === null;
-        if (!isSelfAcive) return;
-        if (!baseElement) return;
-        const previousElement = previousElementRef.current;
-        previousElementRef.current = null;
-        if (previousElement) {
-          fireBlurEvent(previousElement, { relatedTarget: baseElement });
-        }
-        if (!hasFocus(baseElement)) {
-          baseElement.focus();
-        }
-      }, [store2, moves, composite]);
-      const activeId = store2.useState("activeId");
-      const virtualFocus = store2.useState("virtualFocus");
-      useSafeLayoutEffect(() => {
-        var _a2;
-        if (!store2) return;
-        if (!composite) return;
-        if (!virtualFocus) return;
-        const previousElement = previousElementRef.current;
-        previousElementRef.current = null;
-        if (!previousElement) return;
-        const activeElement = (_a2 = getEnabledItem(store2, activeId)) == null ? void 0 : _a2.element;
-        const relatedTarget = activeElement || getActiveElement(previousElement);
-        if (relatedTarget === previousElement) return;
-        fireBlurEvent(previousElement, { relatedTarget });
-      }, [store2, activeId, virtualFocus, composite]);
-      const onKeyDownCapture = useKeyboardEventProxy(
-        store2,
-        props.onKeyDownCapture,
-        previousElementRef
-      );
-      const onKeyUpCapture = useKeyboardEventProxy(
-        store2,
-        props.onKeyUpCapture,
-        previousElementRef
-      );
-      const onFocusCaptureProp = props.onFocusCapture;
-      const onFocusCapture = useEvent((event) => {
-        onFocusCaptureProp == null ? void 0 : onFocusCaptureProp(event);
-        if (event.defaultPrevented) return;
-        if (!store2) return;
-        const { virtualFocus: virtualFocus2 } = store2.getState();
-        if (!virtualFocus2) return;
-        const previousActiveElement = event.relatedTarget;
-        const isSilentlyFocused = silentlyFocused(event.currentTarget);
-        if (isSelfTarget(event) && isSilentlyFocused) {
-          event.stopPropagation();
-          previousElementRef.current = previousActiveElement;
-        }
-      });
-      const onFocusProp = props.onFocus;
-      const onFocus = useEvent((event) => {
-        onFocusProp == null ? void 0 : onFocusProp(event);
-        if (event.defaultPrevented) return;
-        if (!composite) return;
-        if (!store2) return;
-        const { relatedTarget } = event;
-        const { virtualFocus: virtualFocus2 } = store2.getState();
-        if (virtualFocus2) {
-          if (isSelfTarget(event) && !isItem(store2, relatedTarget)) {
-            queueMicrotask(scheduleFocus);
-          }
-        } else if (isSelfTarget(event)) {
-          store2.setActiveId(null);
-        }
-      });
-      const onBlurCaptureProp = props.onBlurCapture;
-      const onBlurCapture = useEvent((event) => {
-        var _a2;
-        onBlurCaptureProp == null ? void 0 : onBlurCaptureProp(event);
-        if (event.defaultPrevented) return;
-        if (!store2) return;
-        const { virtualFocus: virtualFocus2, activeId: activeId2 } = store2.getState();
-        if (!virtualFocus2) return;
-        const activeElement = (_a2 = getEnabledItem(store2, activeId2)) == null ? void 0 : _a2.element;
-        const nextActiveElement = event.relatedTarget;
-        const nextActiveElementIsItem = isItem(store2, nextActiveElement);
-        const previousElement = previousElementRef.current;
-        previousElementRef.current = null;
-        if (isSelfTarget(event) && nextActiveElementIsItem) {
-          if (nextActiveElement === activeElement) {
-            if (previousElement && previousElement !== nextActiveElement) {
-              fireBlurEvent(previousElement, event);
-            }
-          } else if (activeElement) {
-            fireBlurEvent(activeElement, event);
-          } else if (previousElement) {
-            fireBlurEvent(previousElement, event);
-          }
-          event.stopPropagation();
-        } else {
-          const targetIsItem = isItem(store2, event.target);
-          if (!targetIsItem && activeElement) {
-            fireBlurEvent(activeElement, event);
-          }
-        }
-      });
-      const onKeyDownProp = props.onKeyDown;
-      const moveOnKeyPressProp = useBooleanEvent(moveOnKeyPress);
-      const onKeyDown = useEvent((event) => {
-        var _a2;
-        onKeyDownProp == null ? void 0 : onKeyDownProp(event);
-        if (event.defaultPrevented) return;
-        if (!store2) return;
-        if (!isSelfTarget(event)) return;
-        const { orientation, renderedItems, activeId: activeId2 } = store2.getState();
-        const activeItem = getEnabledItem(store2, activeId2);
-        if ((_a2 = activeItem == null ? void 0 : activeItem.element) == null ? void 0 : _a2.isConnected) return;
-        const isVertical = orientation !== "horizontal";
-        const isHorizontal = orientation !== "vertical";
-        const grid = isGrid(renderedItems);
-        const isHorizontalKey = event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Home" || event.key === "End";
-        if (isHorizontalKey && isTextField(event.currentTarget)) return;
-        const up = () => {
-          if (grid) {
-            const item = findFirstEnabledItemInTheLastRow(renderedItems);
-            return item == null ? void 0 : item.id;
-          }
-          return store2 == null ? void 0 : store2.last();
-        };
-        const keyMap = {
-          ArrowUp: (grid || isVertical) && up,
-          ArrowRight: (grid || isHorizontal) && store2.first,
-          ArrowDown: (grid || isVertical) && store2.first,
-          ArrowLeft: (grid || isHorizontal) && store2.last,
-          Home: store2.first,
-          End: store2.last,
-          PageUp: store2.first,
-          PageDown: store2.last
-        };
-        const action = keyMap[event.key];
-        if (action) {
-          const id = action();
-          if (id !== void 0) {
-            if (!moveOnKeyPressProp(event)) return;
-            event.preventDefault();
-            store2.move(id);
-          }
-        }
-      });
-      props = useWrapElement(
-        props,
-        (element) => /* @__PURE__ */ (0, import_jsx_runtime207.jsx)(CompositeContextProvider, { value: store2, children: element }),
-        [store2]
-      );
-      const activeDescendant = store2.useState((state) => {
-        var _a2;
-        if (!store2) return;
-        if (!composite) return;
-        if (!state.virtualFocus) return;
-        return (_a2 = getEnabledItem(store2, state.activeId)) == null ? void 0 : _a2.id;
-      });
-      props = __spreadProps(__spreadValues({
-        "aria-activedescendant": activeDescendant
-      }, props), {
-        ref: useMergeRefs(ref, setBaseElement, props.ref),
-        onKeyDownCapture,
-        onKeyUpCapture,
-        onFocusCapture,
-        onFocus,
-        onBlurCapture,
-        onKeyDown
-      });
-      const focusable = store2.useState(
-        (state) => composite && (state.virtualFocus || state.activeId === null)
-      );
-      props = useFocusable(__spreadValues({ focusable }, props));
-      return props;
-    }
-  );
-  var Composite6 = forwardRef22(function Composite22(props) {
-    const htmlProps = useComposite(props);
-    return createElement5(TagName3, htmlProps);
-  });
-
-  // node_modules/@ariakit/react-core/esm/combobox/combobox.js
-  var import_react17 = __toESM(require_react(), 1);
-  var TagName4 = "input";
-  function isFirstItemAutoSelected(items, activeValue, autoSelect) {
-    if (!autoSelect) return false;
-    const firstItem = items.find((item) => !item.disabled && item.value);
-    return (firstItem == null ? void 0 : firstItem.value) === activeValue;
-  }
-  function hasCompletionString(value, activeValue) {
-    if (!activeValue) return false;
-    if (value == null) return false;
-    value = normalizeString2(value);
-    return activeValue.length > value.length && activeValue.toLowerCase().indexOf(value.toLowerCase()) === 0;
-  }
-  function isInputEvent(event) {
-    return event.type === "input";
-  }
-  function isAriaAutoCompleteValue(value) {
-    return value === "inline" || value === "list" || value === "both" || value === "none";
-  }
-  function getDefaultAutoSelectId(items) {
-    const item = items.find((item2) => {
-      var _a;
-      if (item2.disabled) return false;
-      return ((_a = item2.element) == null ? void 0 : _a.getAttribute("role")) !== "tab";
-    });
-    return item == null ? void 0 : item.id;
-  }
-  var useCombobox = createHook(
-    function useCombobox2(_a) {
-      var _b = _a, {
-        store: store2,
-        focusable = true,
-        autoSelect: autoSelectProp = false,
-        getAutoSelectId,
-        setValueOnChange,
-        showMinLength = 0,
-        showOnChange,
-        showOnMouseDown,
-        showOnClick = showOnMouseDown,
-        showOnKeyDown,
-        showOnKeyPress = showOnKeyDown,
-        blurActiveItemOnClick,
-        setValueOnClick = true,
-        moveOnKeyPress = true,
-        autoComplete = "list"
-      } = _b, props = __objRest(_b, [
-        "store",
-        "focusable",
-        "autoSelect",
-        "getAutoSelectId",
-        "setValueOnChange",
-        "showMinLength",
-        "showOnChange",
-        "showOnMouseDown",
-        "showOnClick",
-        "showOnKeyDown",
-        "showOnKeyPress",
-        "blurActiveItemOnClick",
-        "setValueOnClick",
-        "moveOnKeyPress",
-        "autoComplete"
-      ]);
-      const context = useComboboxProviderContext();
-      store2 = store2 || context;
-      invariant(
-        store2,
-        "Combobox must receive a `store` prop or be wrapped in a ComboboxProvider component."
-      );
-      const ref = (0, import_react17.useRef)(null);
-      const [valueUpdated, forceValueUpdate] = useForceUpdate2();
-      const canAutoSelectRef = (0, import_react17.useRef)(false);
-      const composingRef = (0, import_react17.useRef)(false);
-      const autoSelect = store2.useState(
-        (state) => state.virtualFocus && autoSelectProp
-      );
-      const inline = autoComplete === "inline" || autoComplete === "both";
-      const [canInline, setCanInline] = (0, import_react17.useState)(inline);
-      useUpdateLayoutEffect(() => {
-        if (!inline) return;
-        setCanInline(true);
-      }, [inline]);
-      const storeValue = store2.useState("value");
-      const prevSelectedValueRef = (0, import_react17.useRef)();
-      (0, import_react17.useEffect)(() => {
-        return sync2(store2, ["selectedValue", "activeId"], (_, prev) => {
-          prevSelectedValueRef.current = prev.selectedValue;
-        });
-      }, []);
-      const inlineActiveValue = store2.useState((state) => {
-        var _a2;
-        if (!inline) return;
-        if (!canInline) return;
-        if (state.activeValue && Array.isArray(state.selectedValue)) {
-          if (state.selectedValue.includes(state.activeValue)) return;
-          if ((_a2 = prevSelectedValueRef.current) == null ? void 0 : _a2.includes(state.activeValue)) return;
-        }
-        return state.activeValue;
-      });
-      const items = store2.useState("renderedItems");
-      const open = store2.useState("open");
-      const contentElement = store2.useState("contentElement");
-      const value = (0, import_react17.useMemo)(() => {
-        if (!inline) return storeValue;
-        if (!canInline) return storeValue;
-        const firstItemAutoSelected = isFirstItemAutoSelected(
-          items,
-          inlineActiveValue,
-          autoSelect
-        );
-        if (firstItemAutoSelected) {
-          if (hasCompletionString(storeValue, inlineActiveValue)) {
-            const slice = (inlineActiveValue == null ? void 0 : inlineActiveValue.slice(storeValue.length)) || "";
-            return storeValue + slice;
-          }
-          return storeValue;
-        }
-        return inlineActiveValue || storeValue;
-      }, [inline, canInline, items, inlineActiveValue, autoSelect, storeValue]);
-      (0, import_react17.useEffect)(() => {
-        const element = ref.current;
-        if (!element) return;
-        const onCompositeItemMove = () => setCanInline(true);
-        element.addEventListener("combobox-item-move", onCompositeItemMove);
-        return () => {
-          element.removeEventListener("combobox-item-move", onCompositeItemMove);
-        };
-      }, []);
-      (0, import_react17.useEffect)(() => {
-        if (!inline) return;
-        if (!canInline) return;
-        if (!inlineActiveValue) return;
-        const firstItemAutoSelected = isFirstItemAutoSelected(
-          items,
-          inlineActiveValue,
-          autoSelect
-        );
-        if (!firstItemAutoSelected) return;
-        if (!hasCompletionString(storeValue, inlineActiveValue)) return;
-        let cleanup = noop3;
-        queueMicrotask(() => {
-          const element = ref.current;
-          if (!element) return;
-          const { start: prevStart, end: prevEnd } = getTextboxSelection(element);
-          const nextStart = storeValue.length;
-          const nextEnd = inlineActiveValue.length;
-          setSelectionRange(element, nextStart, nextEnd);
-          cleanup = () => {
-            if (!hasFocus(element)) return;
-            const { start: start2, end } = getTextboxSelection(element);
-            if (start2 !== nextStart) return;
-            if (end !== nextEnd) return;
-            setSelectionRange(element, prevStart, prevEnd);
-          };
-        });
-        return () => cleanup();
-      }, [
-        valueUpdated,
-        inline,
-        canInline,
-        inlineActiveValue,
-        items,
-        autoSelect,
-        storeValue
-      ]);
-      const scrollingElementRef = (0, import_react17.useRef)(null);
-      const getAutoSelectIdProp = useEvent(getAutoSelectId);
-      const autoSelectIdRef = (0, import_react17.useRef)(null);
-      (0, import_react17.useEffect)(() => {
-        if (!open) return;
-        if (!contentElement) return;
-        const scrollingElement = getScrollingElement(contentElement);
-        if (!scrollingElement) return;
-        scrollingElementRef.current = scrollingElement;
-        const onUserScroll = () => {
-          canAutoSelectRef.current = false;
-        };
-        const onScroll = () => {
-          if (!store2) return;
-          if (!canAutoSelectRef.current) return;
-          const { activeId } = store2.getState();
-          if (activeId === null) return;
-          if (activeId === autoSelectIdRef.current) return;
-          canAutoSelectRef.current = false;
-        };
-        const options = { passive: true, capture: true };
-        scrollingElement.addEventListener("wheel", onUserScroll, options);
-        scrollingElement.addEventListener("touchmove", onUserScroll, options);
-        scrollingElement.addEventListener("scroll", onScroll, options);
-        return () => {
-          scrollingElement.removeEventListener("wheel", onUserScroll, true);
-          scrollingElement.removeEventListener("touchmove", onUserScroll, true);
-          scrollingElement.removeEventListener("scroll", onScroll, true);
-        };
-      }, [open, contentElement, store2]);
-      useSafeLayoutEffect(() => {
-        if (!storeValue) return;
-        if (composingRef.current) return;
-        canAutoSelectRef.current = true;
-      }, [storeValue]);
-      useSafeLayoutEffect(() => {
-        if (autoSelect !== "always" && open) return;
-        canAutoSelectRef.current = open;
-      }, [autoSelect, open]);
-      const resetValueOnSelect = store2.useState("resetValueOnSelect");
-      useUpdateEffect(() => {
-        var _a2, _b2;
-        const canAutoSelect = canAutoSelectRef.current;
-        if (!store2) return;
-        if (!open) return;
-        if (!canAutoSelect && !resetValueOnSelect) return;
-        const { baseElement, contentElement: contentElement2, activeId } = store2.getState();
-        if (baseElement && !hasFocus(baseElement)) return;
-        if (contentElement2 == null ? void 0 : contentElement2.hasAttribute("data-placing")) {
-          const observer = new MutationObserver(forceValueUpdate);
-          observer.observe(contentElement2, { attributeFilter: ["data-placing"] });
-          return () => observer.disconnect();
-        }
-        if (autoSelect && canAutoSelect) {
-          const userAutoSelectId = getAutoSelectIdProp(items);
-          const autoSelectId = userAutoSelectId !== void 0 ? userAutoSelectId : (_a2 = getDefaultAutoSelectId(items)) != null ? _a2 : store2.first();
-          autoSelectIdRef.current = autoSelectId;
-          store2.move(autoSelectId != null ? autoSelectId : null);
-        } else {
-          const element = (_b2 = store2.item(activeId || store2.first())) == null ? void 0 : _b2.element;
-          if (element && "scrollIntoView" in element) {
-            element.scrollIntoView({ block: "nearest", inline: "nearest" });
-          }
-        }
-        return;
-      }, [
-        store2,
-        open,
-        valueUpdated,
-        storeValue,
-        autoSelect,
-        resetValueOnSelect,
-        getAutoSelectIdProp,
-        items
-      ]);
-      (0, import_react17.useEffect)(() => {
-        if (!inline) return;
-        const combobox = ref.current;
-        if (!combobox) return;
-        const elements2 = [combobox, contentElement].filter(
-          (value2) => !!value2
-        );
-        const onBlur2 = (event) => {
-          if (elements2.every((el) => isFocusEventOutside(event, el))) {
-            store2 == null ? void 0 : store2.setValue(value);
-          }
-        };
-        for (const element of elements2) {
-          element.addEventListener("focusout", onBlur2);
-        }
-        return () => {
-          for (const element of elements2) {
-            element.removeEventListener("focusout", onBlur2);
-          }
-        };
-      }, [inline, contentElement, store2, value]);
-      const canShow = (event) => {
-        const currentTarget = event.currentTarget;
-        return currentTarget.value.length >= showMinLength;
-      };
-      const onChangeProp = props.onChange;
-      const showOnChangeProp = useBooleanEvent(showOnChange != null ? showOnChange : canShow);
-      const setValueOnChangeProp = useBooleanEvent(
-        // If the combobox is combined with tags, the value will be set by the tag
-        // input component.
-        setValueOnChange != null ? setValueOnChange : !store2.tag
-      );
-      const onChange = useEvent((event) => {
-        onChangeProp == null ? void 0 : onChangeProp(event);
-        if (event.defaultPrevented) return;
-        if (!store2) return;
-        const currentTarget = event.currentTarget;
-        const { value: value2, selectionStart, selectionEnd } = currentTarget;
-        const nativeEvent = event.nativeEvent;
-        canAutoSelectRef.current = true;
-        if (isInputEvent(nativeEvent)) {
-          if (nativeEvent.isComposing) {
-            canAutoSelectRef.current = false;
-            composingRef.current = true;
-          }
-          if (inline) {
-            const textInserted = nativeEvent.inputType === "insertText" || nativeEvent.inputType === "insertCompositionText";
-            const caretAtEnd = selectionStart === value2.length;
-            setCanInline(textInserted && caretAtEnd);
-          }
-        }
-        if (setValueOnChangeProp(event)) {
-          const isSameValue = value2 === store2.getState().value;
-          store2.setValue(value2);
-          queueMicrotask(() => {
-            setSelectionRange(currentTarget, selectionStart, selectionEnd);
-          });
-          if (inline && autoSelect && isSameValue) {
-            forceValueUpdate();
-          }
-        }
-        if (showOnChangeProp(event)) {
-          store2.show();
-        }
-        if (!autoSelect || !canAutoSelectRef.current) {
-          store2.setActiveId(null);
-        }
-      });
-      const onCompositionEndProp = props.onCompositionEnd;
-      const onCompositionEnd = useEvent((event) => {
-        canAutoSelectRef.current = true;
-        composingRef.current = false;
-        onCompositionEndProp == null ? void 0 : onCompositionEndProp(event);
-        if (event.defaultPrevented) return;
-        if (!autoSelect) return;
-        forceValueUpdate();
-      });
-      const onMouseDownProp = props.onMouseDown;
-      const blurActiveItemOnClickProp = useBooleanEvent(
-        blurActiveItemOnClick != null ? blurActiveItemOnClick : () => !!(store2 == null ? void 0 : store2.getState().includesBaseElement)
-      );
-      const setValueOnClickProp = useBooleanEvent(setValueOnClick);
-      const showOnClickProp = useBooleanEvent(showOnClick != null ? showOnClick : canShow);
-      const onMouseDown = useEvent((event) => {
-        onMouseDownProp == null ? void 0 : onMouseDownProp(event);
-        if (event.defaultPrevented) return;
-        if (event.button) return;
-        if (event.ctrlKey) return;
-        if (!store2) return;
-        if (blurActiveItemOnClickProp(event)) {
-          store2.setActiveId(null);
-        }
-        if (setValueOnClickProp(event)) {
-          store2.setValue(value);
-        }
-        if (showOnClickProp(event)) {
-          queueBeforeEvent(event.currentTarget, "mouseup", store2.show);
-        }
-      });
-      const onKeyDownProp = props.onKeyDown;
-      const showOnKeyPressProp = useBooleanEvent(showOnKeyPress != null ? showOnKeyPress : canShow);
-      const onKeyDown = useEvent((event) => {
-        onKeyDownProp == null ? void 0 : onKeyDownProp(event);
-        if (!event.repeat) {
-          canAutoSelectRef.current = false;
-        }
-        if (event.defaultPrevented) return;
-        if (event.ctrlKey) return;
-        if (event.altKey) return;
-        if (event.shiftKey) return;
-        if (event.metaKey) return;
-        if (!store2) return;
-        const { open: open2 } = store2.getState();
-        if (open2) return;
-        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-          if (showOnKeyPressProp(event)) {
-            event.preventDefault();
-            store2.show();
-          }
-        }
-      });
-      const onBlurProp = props.onBlur;
-      const onBlur = useEvent((event) => {
-        canAutoSelectRef.current = false;
-        onBlurProp == null ? void 0 : onBlurProp(event);
-        if (event.defaultPrevented) return;
-      });
-      const id = useId5(props.id);
-      const ariaAutoComplete = isAriaAutoCompleteValue(autoComplete) ? autoComplete : void 0;
-      const isActiveItem = store2.useState((state) => state.activeId === null);
-      props = __spreadProps(__spreadValues({
-        id,
-        role: "combobox",
-        "aria-autocomplete": ariaAutoComplete,
-        "aria-haspopup": getPopupRole(contentElement, "listbox"),
-        "aria-expanded": open,
-        "aria-controls": contentElement == null ? void 0 : contentElement.id,
-        "data-active-item": isActiveItem || void 0,
-        value
-      }, props), {
-        ref: useMergeRefs(ref, props.ref),
-        onChange,
-        onCompositionEnd,
-        onMouseDown,
-        onKeyDown,
-        onBlur
-      });
-      props = useComposite(__spreadProps(__spreadValues({
-        store: store2,
-        focusable
-      }, props), {
-        // Enable inline autocomplete when the user moves from the combobox input
-        // to an item.
-        moveOnKeyPress: (event) => {
-          if (isFalsyBooleanCallback(moveOnKeyPress, event)) return false;
-          if (inline) setCanInline(true);
-          return true;
-        }
-      }));
-      props = usePopoverAnchor(__spreadValues({ store: store2 }, props));
-      return __spreadValues({ autoComplete: "off" }, props);
-    }
-  );
-  var Combobox = forwardRef22(function Combobox2(props) {
-    const htmlProps = useCombobox(props);
-    return createElement5(TagName4, htmlProps);
-  });
-
-  // node_modules/@ariakit/react-core/esm/combobox/combobox-provider.js
-  var import_jsx_runtime208 = __toESM(require_jsx_runtime(), 1);
-  function ComboboxProvider(props = {}) {
-    const store2 = useComboboxStore(props);
-    return /* @__PURE__ */ (0, import_jsx_runtime208.jsx)(ComboboxContextProvider, { value: store2, children: props.children });
-  }
-
-  // node_modules/@ariakit/react-core/esm/__chunks/KUU7WJ55.js
-  var import_react18 = __toESM(require_react(), 1);
-  var TagName5 = "button";
+  // node_modules/@ariakit/react-core/esm/__chunks/PZ3OL7I2.js
+  var import_react14 = __toESM(require_react(), 1);
+  var TagName3 = "button";
   function isNativeClick(event) {
     if (!event.isTrusted) return false;
     const element = event.currentTarget;
@@ -31479,16 +29600,15 @@ If there's a particular need for this, please submit a feature request at https:
   }
   var symbol = /* @__PURE__ */ Symbol("command");
   var useCommand = createHook(
-    function useCommand2(_a) {
-      var _b = _a, { clickOnEnter = true, clickOnSpace = true } = _b, props = __objRest(_b, ["clickOnEnter", "clickOnSpace"]);
-      const ref = (0, import_react18.useRef)(null);
-      const [isNativeButton, setIsNativeButton] = (0, import_react18.useState)(false);
-      (0, import_react18.useEffect)(() => {
+    function useCommand2({ clickOnEnter = true, clickOnSpace = true, ...props }) {
+      const ref = (0, import_react14.useRef)(null);
+      const [isNativeButton, setIsNativeButton] = (0, import_react14.useState)(false);
+      (0, import_react14.useEffect)(() => {
         if (!ref.current) return;
         setIsNativeButton(isButton(ref.current));
       }, []);
-      const [active, setActive] = (0, import_react18.useState)(false);
-      const activeRef = (0, import_react18.useRef)(false);
+      const [active, setActive] = (0, import_react14.useState)(false);
+      const activeRef = (0, import_react14.useRef)(false);
       const disabled = disabledFromProps(props);
       const [isDuplicate, metadataProps] = useMetadataProps(props, symbol, true);
       const onKeyDownProp = props.onKeyDown;
@@ -31514,7 +29634,7 @@ If there's a particular need for this, please submit a feature request at https:
           if (isEnter) {
             if (!nativeClick) {
               event.preventDefault();
-              const _a2 = event, { view } = _a2, eventInit = __objRest(_a2, ["view"]);
+              const { view, ...eventInit } = event;
               const click = () => fireClickEvent(element, eventInit);
               if (isFirefox()) {
                 queueBeforeEvent(element, "keyup", click);
@@ -31545,258 +29665,346 @@ If there's a particular need for this, please submit a feature request at https:
             event.preventDefault();
             setActive(false);
             const element = event.currentTarget;
-            const _a2 = event, { view } = _a2, eventInit = __objRest(_a2, ["view"]);
+            const { view, ...eventInit } = event;
             queueMicrotask(() => fireClickEvent(element, eventInit));
           }
         }
       });
-      props = __spreadProps(__spreadValues(__spreadValues({
+      props = {
         "data-active": active || void 0,
-        type: isNativeButton ? "button" : void 0
-      }, metadataProps), props), {
+        type: isNativeButton ? "button" : void 0,
+        ...metadataProps,
+        ...props,
         ref: useMergeRefs(ref, props.ref),
         onKeyDown,
         onKeyUp
-      });
+      };
       props = useFocusable(props);
       return props;
     }
   );
   var Command = forwardRef22(function Command2(props) {
     const htmlProps = useCommand(props);
-    return createElement5(TagName5, htmlProps);
+    return createElement5(TagName3, htmlProps);
   });
 
-  // node_modules/@ariakit/react-core/esm/combobox/combobox-item-value.js
-  var import_react19 = __toESM(require_react(), 1);
-  var import_jsx_runtime209 = __toESM(require_jsx_runtime(), 1);
-  var TagName6 = "span";
-  function normalizeValue(value) {
-    return normalizeString2(value).toLowerCase();
+  // node_modules/@ariakit/core/esm/__chunks/SXKM4CGU.js
+  function getInternal(store2, key) {
+    const internals = store2.__unstableInternals;
+    invariant(internals, "Invalid store");
+    return internals[key];
   }
-  function getOffsets(string, values) {
-    const offsets = [];
-    for (const value of values) {
-      let pos = 0;
-      const length = value.length;
-      while (string.indexOf(value, pos) !== -1) {
-        const index = string.indexOf(value, pos);
-        if (index !== -1) {
-          offsets.push([index, length]);
+  function createStore(initialState, ...stores) {
+    let state = initialState;
+    let prevStateBatch = state;
+    let lastUpdate = /* @__PURE__ */ Symbol();
+    let destroy = noop3;
+    const instances = /* @__PURE__ */ new Set();
+    const updatedKeys = /* @__PURE__ */ new Set();
+    const setups = /* @__PURE__ */ new Set();
+    const listeners = /* @__PURE__ */ new Set();
+    const batchListeners = /* @__PURE__ */ new Set();
+    const disposables = /* @__PURE__ */ new WeakMap();
+    const listenerKeys = /* @__PURE__ */ new WeakMap();
+    const storeSetup = (callback) => {
+      setups.add(callback);
+      return () => setups.delete(callback);
+    };
+    const storeInit = () => {
+      const initialized = instances.size;
+      const instance = /* @__PURE__ */ Symbol();
+      instances.add(instance);
+      const maybeDestroy = () => {
+        instances.delete(instance);
+        if (instances.size) return;
+        destroy();
+      };
+      if (initialized) return maybeDestroy;
+      const desyncs = getKeys(state).map(
+        (key) => chain(
+          ...stores.map((store2) => {
+            var _a;
+            const storeState = (_a = store2 == null ? void 0 : store2.getState) == null ? void 0 : _a.call(store2);
+            if (!storeState) return;
+            if (!hasOwnProperty(storeState, key)) return;
+            return sync2(store2, [key], (state2) => {
+              setState(
+                key,
+                state2[key],
+                // @ts-expect-error - Not public API. This is just to prevent
+                // infinite loops.
+                true
+              );
+            });
+          })
+        )
+      );
+      const teardowns = [];
+      for (const setup2 of setups) {
+        teardowns.push(setup2());
+      }
+      const cleanups = stores.map(init);
+      destroy = chain(...desyncs, ...teardowns, ...cleanups);
+      return maybeDestroy;
+    };
+    const sub = (keys, listener, set = listeners) => {
+      set.add(listener);
+      listenerKeys.set(listener, keys);
+      return () => {
+        var _a;
+        (_a = disposables.get(listener)) == null ? void 0 : _a();
+        disposables.delete(listener);
+        listenerKeys.delete(listener);
+        set.delete(listener);
+      };
+    };
+    const storeSubscribe = (keys, listener) => sub(keys, listener);
+    const storeSync = (keys, listener) => {
+      disposables.set(listener, listener(state, state));
+      return sub(keys, listener);
+    };
+    const storeBatch = (keys, listener) => {
+      disposables.set(listener, listener(state, prevStateBatch));
+      return sub(keys, listener, batchListeners);
+    };
+    const storePick = (keys) => createStore(pick(state, keys), finalStore);
+    const storeOmit = (keys) => createStore(omit(state, keys), finalStore);
+    const getState = () => state;
+    const setState = (key, value, fromStores = false) => {
+      var _a;
+      if (!hasOwnProperty(state, key)) return;
+      const nextValue = applyState(value, state[key]);
+      if (nextValue === state[key]) return;
+      if (!fromStores) {
+        for (const store2 of stores) {
+          (_a = store2 == null ? void 0 : store2.setState) == null ? void 0 : _a.call(store2, key, nextValue);
         }
-        pos = index + 1;
+      }
+      const prevState = state;
+      state = { ...state, [key]: nextValue };
+      const thisUpdate = /* @__PURE__ */ Symbol();
+      lastUpdate = thisUpdate;
+      updatedKeys.add(key);
+      const run = (listener, prev, uKeys) => {
+        var _a2;
+        const keys = listenerKeys.get(listener);
+        const updated = (k2) => uKeys ? uKeys.has(k2) : k2 === key;
+        if (!keys || keys.some(updated)) {
+          (_a2 = disposables.get(listener)) == null ? void 0 : _a2();
+          disposables.set(listener, listener(state, prev));
+        }
+      };
+      for (const listener of listeners) {
+        run(listener, prevState);
+      }
+      queueMicrotask(() => {
+        if (lastUpdate !== thisUpdate) return;
+        const snapshot = state;
+        for (const listener of batchListeners) {
+          run(listener, prevStateBatch, updatedKeys);
+        }
+        prevStateBatch = snapshot;
+        updatedKeys.clear();
+      });
+    };
+    const finalStore = {
+      getState,
+      setState,
+      __unstableInternals: {
+        setup: storeSetup,
+        init: storeInit,
+        subscribe: storeSubscribe,
+        sync: storeSync,
+        batch: storeBatch,
+        pick: storePick,
+        omit: storeOmit
+      }
+    };
+    return finalStore;
+  }
+  function setup(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "setup")(...args);
+  }
+  function init(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "init")(...args);
+  }
+  function subscribe(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "subscribe")(...args);
+  }
+  function sync2(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "sync")(...args);
+  }
+  function batch(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "batch")(...args);
+  }
+  function omit2(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "omit")(...args);
+  }
+  function pick2(store2, ...args) {
+    if (!store2) return;
+    return getInternal(store2, "pick")(...args);
+  }
+  function mergeStore(...stores) {
+    var _a;
+    const initialState = {};
+    for (const store22 of stores) {
+      const nextState = (_a = store22 == null ? void 0 : store22.getState) == null ? void 0 : _a.call(store22);
+      if (nextState) {
+        Object.assign(initialState, nextState);
       }
     }
-    return offsets;
+    const store2 = createStore(initialState, ...stores);
+    return Object.assign({}, ...stores, store2);
   }
-  function filterOverlappingOffsets(offsets) {
-    return offsets.filter(([offset, length], i2, arr) => {
-      return !arr.some(
-        ([o3, l2], j2) => j2 !== i2 && o3 <= offset && o3 + l2 >= offset + length
-      );
+  function throwOnConflictingProps(props, store2) {
+    if (false) return;
+    if (!store2) return;
+    const defaultKeys = Object.entries(props).filter(([key, value]) => key.startsWith("default") && value !== void 0).map(([key]) => {
+      var _a;
+      const stateKey = key.replace("default", "");
+      return `${((_a = stateKey[0]) == null ? void 0 : _a.toLowerCase()) || ""}${stateKey.slice(1)}`;
     });
-  }
-  function sortOffsets(offsets) {
-    return offsets.sort(([a2], [b2]) => a2 - b2);
-  }
-  function splitValue(itemValue, userValue) {
-    if (!itemValue) return itemValue;
-    if (!userValue) return itemValue;
-    const userValues = toArray2(userValue).filter(Boolean).map(normalizeValue);
-    const parts = [];
-    const span = (value, autocomplete = false) => /* @__PURE__ */ (0, import_jsx_runtime209.jsx)(
-      "span",
-      {
-        "data-autocomplete-value": autocomplete ? "" : void 0,
-        "data-user-value": autocomplete ? void 0 : "",
-        children: value
-      },
-      parts.length
+    if (!defaultKeys.length) return;
+    const storeState = store2.getState();
+    const conflictingProps = defaultKeys.filter(
+      (key) => hasOwnProperty(storeState, key)
     );
-    const offsets = sortOffsets(
-      filterOverlappingOffsets(
-        // Convert userValues into a set to avoid duplicates
-        getOffsets(normalizeValue(itemValue), new Set(userValues))
-      )
-    );
-    if (!offsets.length) {
-      parts.push(span(itemValue, true));
-      return parts;
-    }
-    const [firstOffset] = offsets[0];
-    const values = [
-      itemValue.slice(0, firstOffset),
-      ...offsets.flatMap(([offset, length], i2) => {
-        var _a;
-        const value = itemValue.slice(offset, offset + length);
-        const nextOffset = (_a = offsets[i2 + 1]) == null ? void 0 : _a[0];
-        const nextValue = itemValue.slice(offset + length, nextOffset);
-        return [value, nextValue];
-      })
-    ];
-    values.forEach((value, i2) => {
-      if (!value) return;
-      parts.push(span(value, i2 % 2 === 0));
-    });
-    return parts;
-  }
-  var useComboboxItemValue = createHook(function useComboboxItemValue2(_a) {
-    var _b = _a, { store: store2, value, userValue } = _b, props = __objRest(_b, ["store", "value", "userValue"]);
-    const context = useComboboxScopedContext();
-    store2 = store2 || context;
-    const itemContext = (0, import_react19.useContext)(ComboboxItemValueContext);
-    const itemValue = value != null ? value : itemContext;
-    const inputValue = useStoreState(store2, (state) => userValue != null ? userValue : state == null ? void 0 : state.value);
-    const children = (0, import_react19.useMemo)(() => {
-      if (!itemValue) return;
-      if (!inputValue) return itemValue;
-      return splitValue(itemValue, inputValue);
-    }, [itemValue, inputValue]);
-    props = __spreadValues({
-      children
-    }, props);
-    return removeUndefinedValues(props);
-  });
-  var ComboboxItemValue = forwardRef22(function ComboboxItemValue2(props) {
-    const htmlProps = useComboboxItemValue(props);
-    return createElement5(TagName6, htmlProps);
-  });
+    if (!conflictingProps.length) return;
+    throw new Error(
+      `Passing a store prop in conjunction with a default state is not supported.
 
-  // node_modules/@ariakit/react-core/esm/__chunks/UQQRIHDV.js
-  var import_react20 = __toESM(require_react(), 1);
-  var TagName7 = "div";
-  function getMouseDestination(event) {
-    const relatedTarget = event.relatedTarget;
-    if ((relatedTarget == null ? void 0 : relatedTarget.nodeType) === Node.ELEMENT_NODE) {
-      return relatedTarget;
-    }
-    return null;
+const store = useSelectStore();
+<SelectProvider store={store} defaultValue="Apple" />
+                ^             ^
+
+Instead, pass the default state to the topmost store:
+
+const store = useSelectStore({ defaultValue: "Apple" });
+<SelectProvider store={store} />
+
+See https://github.com/ariakit/ariakit/pull/2745 for more details.
+
+If there's a particular need for this, please submit a feature request at https://github.com/ariakit/ariakit
+`
+    );
   }
-  function hoveringInside(event) {
-    const nextElement = getMouseDestination(event);
-    if (!nextElement) return false;
-    return contains(event.currentTarget, nextElement);
+
+  // node_modules/@ariakit/react-core/esm/__chunks/Q5W46E73.js
+  var React9 = __toESM(require_react(), 1);
+  var import_shim = __toESM(require_shim(), 1);
+  var { useSyncExternalStore } = import_shim.default;
+  var noopSubscribe = () => () => {
+  };
+  function useStoreState(store2, keyOrSelector = identity) {
+    const storeSubscribe = React9.useCallback(
+      (callback) => {
+        if (!store2) return noopSubscribe();
+        return subscribe(store2, null, callback);
+      },
+      [store2]
+    );
+    const getSnapshot = () => {
+      const key = typeof keyOrSelector === "string" ? keyOrSelector : null;
+      const selector2 = typeof keyOrSelector === "function" ? keyOrSelector : null;
+      const state = store2 == null ? void 0 : store2.getState();
+      if (selector2) return selector2(state);
+      if (!state) return;
+      if (!key) return;
+      if (!hasOwnProperty(state, key)) return;
+      return state[key];
+    };
+    return useSyncExternalStore(storeSubscribe, getSnapshot, getSnapshot);
   }
-  var symbol2 = /* @__PURE__ */ Symbol("composite-hover");
-  function movingToAnotherItem(event) {
-    let dest = getMouseDestination(event);
-    if (!dest) return false;
-    do {
-      if (hasOwnProperty(dest, symbol2) && dest[symbol2]) return true;
-      dest = dest.parentElement;
-    } while (dest);
-    return false;
-  }
-  var useCompositeHover = createHook(
-    function useCompositeHover2(_a) {
-      var _b = _a, {
-        store: store2,
-        focusOnHover = true,
-        blurOnHoverEnd = !!focusOnHover
-      } = _b, props = __objRest(_b, [
-        "store",
-        "focusOnHover",
-        "blurOnHoverEnd"
-      ]);
-      const context = useCompositeContext();
-      store2 = store2 || context;
-      invariant(
-        store2,
-        "CompositeHover must be wrapped in a Composite component."
-      );
-      const isMouseMoving = useIsMouseMoving();
-      const onMouseMoveProp = props.onMouseMove;
-      const focusOnHoverProp = useBooleanEvent(focusOnHover);
-      const onMouseMove = useEvent((event) => {
-        onMouseMoveProp == null ? void 0 : onMouseMoveProp(event);
-        if (event.defaultPrevented) return;
-        if (!isMouseMoving()) return;
-        if (!focusOnHoverProp(event)) return;
-        if (!hasFocusWithin(event.currentTarget)) {
-          const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
-          if (baseElement && !hasFocus(baseElement)) {
-            baseElement.focus();
+  function useStoreStateObject(store2, object) {
+    const objRef = React9.useRef(
+      {}
+    );
+    const storeSubscribe = React9.useCallback(
+      (callback) => {
+        if (!store2) return noopSubscribe();
+        return subscribe(store2, null, callback);
+      },
+      [store2]
+    );
+    const getSnapshot = () => {
+      const state = store2 == null ? void 0 : store2.getState();
+      let updated = false;
+      const obj = objRef.current;
+      for (const prop in object) {
+        const keyOrSelector = object[prop];
+        if (typeof keyOrSelector === "function") {
+          const value = keyOrSelector(state);
+          if (value !== obj[prop]) {
+            obj[prop] = value;
+            updated = true;
           }
         }
-        store2 == null ? void 0 : store2.setActiveId(event.currentTarget.id);
+        if (typeof keyOrSelector === "string") {
+          if (!state) continue;
+          if (!hasOwnProperty(state, keyOrSelector)) continue;
+          const value = state[keyOrSelector];
+          if (value !== obj[prop]) {
+            obj[prop] = value;
+            updated = true;
+          }
+        }
+      }
+      if (updated) {
+        objRef.current = { ...obj };
+      }
+      return objRef.current;
+    };
+    return useSyncExternalStore(storeSubscribe, getSnapshot, getSnapshot);
+  }
+  function useStoreProps(store2, props, key, setKey) {
+    const value = hasOwnProperty(props, key) ? props[key] : void 0;
+    const setValue = setKey ? props[setKey] : void 0;
+    const propsRef = useLiveRef({ value, setValue });
+    useSafeLayoutEffect(() => {
+      return sync2(store2, [key], (state, prev) => {
+        const { value: value2, setValue: setValue2 } = propsRef.current;
+        if (!setValue2) return;
+        if (state[key] === prev[key]) return;
+        if (state[key] === value2) return;
+        setValue2(state[key]);
       });
-      const onMouseLeaveProp = props.onMouseLeave;
-      const blurOnHoverEndProp = useBooleanEvent(blurOnHoverEnd);
-      const onMouseLeave = useEvent((event) => {
-        var _a2;
-        onMouseLeaveProp == null ? void 0 : onMouseLeaveProp(event);
-        if (event.defaultPrevented) return;
-        if (!isMouseMoving()) return;
-        if (hoveringInside(event)) return;
-        if (movingToAnotherItem(event)) return;
-        if (!focusOnHoverProp(event)) return;
-        if (!blurOnHoverEndProp(event)) return;
-        store2 == null ? void 0 : store2.setActiveId(null);
-        (_a2 = store2 == null ? void 0 : store2.getState().baseElement) == null ? void 0 : _a2.focus();
+    }, [store2, key]);
+    useSafeLayoutEffect(() => {
+      if (value === void 0) return;
+      store2.setState(key, value);
+      return batch(store2, [key], () => {
+        if (value === void 0) return;
+        store2.setState(key, value);
       });
-      const ref = (0, import_react20.useCallback)((element) => {
-        if (!element) return;
-        element[symbol2] = true;
-      }, []);
-      props = __spreadProps(__spreadValues({}, props), {
-        ref: useMergeRefs(ref, props.ref),
-        onMouseMove,
-        onMouseLeave
-      });
-      return removeUndefinedValues(props);
-    }
-  );
-  var CompositeHover = memo22(
-    forwardRef22(function CompositeHover2(props) {
-      const htmlProps = useCompositeHover(props);
-      return createElement5(TagName7, htmlProps);
-    })
-  );
+    });
+  }
+  function useStore(createStore2, props) {
+    const [store2, setStore] = React9.useState(() => createStore2(props));
+    useSafeLayoutEffect(() => init(store2), [store2]);
+    const useState210 = React9.useCallback(
+      (keyOrSelector) => useStoreState(store2, keyOrSelector),
+      [store2]
+    );
+    const memoizedStore = React9.useMemo(
+      () => ({ ...store2, useState: useState210 }),
+      [store2, useState210]
+    );
+    const updateStore = useEvent(() => {
+      setStore((store22) => createStore2({ ...props, ...store22.getState() }));
+    });
+    return [memoizedStore, updateStore];
+  }
 
-  // node_modules/@ariakit/react-core/esm/__chunks/RZ4GPYOB.js
-  var import_react21 = __toESM(require_react(), 1);
-  var TagName8 = "div";
-  var useCollectionItem = createHook(
-    function useCollectionItem2(_a) {
-      var _b = _a, {
-        store: store2,
-        shouldRegisterItem = true,
-        getItem = identity,
-        element
-      } = _b, props = __objRest(_b, [
-        "store",
-        "shouldRegisterItem",
-        "getItem",
-        // @ts-expect-error This prop may come from a collection renderer.
-        "element"
-      ]);
-      const context = useCollectionContext();
-      store2 = store2 || context;
-      const id = useId5(props.id);
-      const ref = (0, import_react21.useRef)(element);
-      (0, import_react21.useEffect)(() => {
-        const element2 = ref.current;
-        if (!id) return;
-        if (!element2) return;
-        if (!shouldRegisterItem) return;
-        const item = getItem({ id, element: element2 });
-        return store2 == null ? void 0 : store2.renderItem(item);
-      }, [id, shouldRegisterItem, getItem, store2]);
-      props = __spreadProps(__spreadValues({}, props), {
-        ref: useMergeRefs(ref, props.ref)
-      });
-      return removeUndefinedValues(props);
-    }
-  );
-  var CollectionItem = forwardRef22(function CollectionItem2(props) {
-    const htmlProps = useCollectionItem(props);
-    return createElement5(TagName8, htmlProps);
-  });
-
-  // node_modules/@ariakit/react-core/esm/__chunks/P2CTZE2T.js
-  var import_react22 = __toESM(require_react(), 1);
-  var import_jsx_runtime210 = __toESM(require_jsx_runtime(), 1);
-  var TagName9 = "button";
+  // node_modules/@ariakit/react-core/esm/__chunks/WZWDIE3S.js
+  var import_react15 = __toESM(require_react(), 1);
+  var import_jsx_runtime207 = __toESM(require_jsx_runtime(), 1);
+  var TagName4 = "button";
   function isEditableElement(element) {
     if (isTextbox(element)) return true;
     return element.tagName === "INPUT" && !isButton(element);
@@ -31853,31 +30061,22 @@ If there's a particular need for this, please submit a feature request at https:
     return isItem(store2, event.target);
   }
   var useCompositeItem = createHook(
-    function useCompositeItem2(_a) {
-      var _b = _a, {
-        store: store2,
-        rowId: rowIdProp,
-        preventScrollOnKeyDown = false,
-        moveOnKeyPress = true,
-        tabbable = false,
-        getItem: getItemProp,
-        "aria-setsize": ariaSetSizeProp,
-        "aria-posinset": ariaPosInSetProp
-      } = _b, props = __objRest(_b, [
-        "store",
-        "rowId",
-        "preventScrollOnKeyDown",
-        "moveOnKeyPress",
-        "tabbable",
-        "getItem",
-        "aria-setsize",
-        "aria-posinset"
-      ]);
+    function useCompositeItem2({
+      store: store2,
+      rowId: rowIdProp,
+      preventScrollOnKeyDown = false,
+      moveOnKeyPress = true,
+      tabbable = false,
+      getItem: getItemProp,
+      "aria-setsize": ariaSetSizeProp,
+      "aria-posinset": ariaPosInSetProp,
+      ...props
+    }) {
       const context = useCompositeContext();
       store2 = store2 || context;
       const id = useId5(props.id);
-      const ref = (0, import_react22.useRef)(null);
-      const row = (0, import_react22.useContext)(CompositeRowContext);
+      const ref = (0, import_react15.useRef)(null);
+      const row = (0, import_react15.useContext)(CompositeRowContext);
       const disabled = disabledFromProps(props);
       const trulyDisabled = disabled && !props.accessibleWhenDisabled;
       const {
@@ -31929,15 +30128,16 @@ If there's a particular need for this, please submit a feature request at https:
           return state.activeId === id;
         }
       });
-      const getItem = (0, import_react22.useCallback)(
+      const getItem = (0, import_react15.useCallback)(
         (item) => {
-          var _a2;
-          const nextItem = __spreadProps(__spreadValues({}, item), {
+          var _a;
+          const nextItem = {
+            ...item,
             id: id || item.id,
             rowId,
             disabled: !!trulyDisabled,
-            children: (_a2 = item.element) == null ? void 0 : _a2.textContent
-          });
+            children: (_a = item.element) == null ? void 0 : _a.textContent
+          };
           if (getItemProp) {
             return getItemProp(nextItem);
           }
@@ -31946,7 +30146,7 @@ If there's a particular need for this, please submit a feature request at https:
         [id, rowId, trulyDisabled, getItemProp]
       );
       const onFocusProp = props.onFocus;
-      const hasFocusedComposite = (0, import_react22.useRef)(false);
+      const hasFocusedComposite = (0, import_react15.useRef)(false);
       const onFocus = useEvent((event) => {
         onFocusProp == null ? void 0 : onFocusProp(event);
         if (event.defaultPrevented) return;
@@ -32056,244 +30256,365 @@ If there's a particular need for this, please submit a feature request at https:
           }
         }
       });
-      const providerValue = (0, import_react22.useMemo)(
+      const providerValue = (0, import_react15.useMemo)(
         () => ({ id, baseElement }),
         [id, baseElement]
       );
       props = useWrapElement(
         props,
-        (element) => /* @__PURE__ */ (0, import_jsx_runtime210.jsx)(CompositeItemContext.Provider, { value: providerValue, children: element }),
+        (element) => /* @__PURE__ */ (0, import_jsx_runtime207.jsx)(CompositeItemContext.Provider, { value: providerValue, children: element }),
         [providerValue]
       );
-      props = __spreadProps(__spreadValues({
+      props = {
         id,
-        "data-active-item": isActiveItem || void 0
-      }, props), {
+        "data-active-item": isActiveItem || void 0,
+        ...props,
         ref: useMergeRefs(ref, props.ref),
         tabIndex: isTabbable ? props.tabIndex : -1,
         onFocus,
         onBlurCapture,
         onKeyDown
-      });
+      };
       props = useCommand(props);
-      props = useCollectionItem(__spreadProps(__spreadValues({
-        store: store2
-      }, props), {
+      props = useCollectionItem({
+        store: store2,
+        ...props,
         getItem,
         shouldRegisterItem: id ? props.shouldRegisterItem : false
-      }));
-      return removeUndefinedValues(__spreadProps(__spreadValues({}, props), {
+      });
+      return removeUndefinedValues({
+        ...props,
         "aria-setsize": ariaSetSize,
         "aria-posinset": ariaPosInSet
-      }));
+      });
     }
   );
   var CompositeItem = memo22(
     forwardRef22(function CompositeItem2(props) {
       const htmlProps = useCompositeItem(props);
-      return createElement5(TagName9, htmlProps);
+      return createElement5(TagName4, htmlProps);
     })
   );
 
-  // node_modules/@ariakit/react-core/esm/__chunks/ZTDSJLD6.js
-  var import_react23 = __toESM(require_react(), 1);
-  var import_jsx_runtime211 = __toESM(require_jsx_runtime(), 1);
-  var TagName10 = "div";
-  function isSelected(storeValue, itemValue) {
-    if (itemValue == null) return;
-    if (storeValue == null) return false;
-    if (Array.isArray(storeValue)) {
-      return storeValue.includes(itemValue);
+  // node_modules/@ariakit/core/esm/__chunks/7PRQYBBV.js
+  function toArray2(arg) {
+    if (Array.isArray(arg)) {
+      return arg;
     }
-    return storeValue === itemValue;
+    return typeof arg !== "undefined" ? [arg] : [];
   }
-  function getItemRole(popupRole) {
-    var _a;
-    const itemRoleByPopupRole = {
-      menu: "menuitem",
-      listbox: "option",
-      tree: "treeitem"
-    };
-    const key = popupRole;
-    return (_a = itemRoleByPopupRole[key]) != null ? _a : "option";
+  function flatten2DArray(array) {
+    const flattened = [];
+    for (const row of array) {
+      flattened.push(...row);
+    }
+    return flattened;
   }
-  var useComboboxItem = createHook(
-    function useComboboxItem2(_a) {
-      var _b = _a, {
-        store: store2,
-        value,
-        hideOnClick,
-        setValueOnClick,
-        selectValueOnClick = true,
-        resetValueOnSelect,
-        focusOnHover = false,
-        moveOnKeyPress = true,
-        getItem: getItemProp
-      } = _b, props = __objRest(_b, [
-        "store",
-        "value",
-        "hideOnClick",
-        "setValueOnClick",
-        "selectValueOnClick",
-        "resetValueOnSelect",
-        "focusOnHover",
-        "moveOnKeyPress",
-        "getItem"
-      ]);
-      var _a2;
-      const context = useComboboxScopedContext();
+  function reverseArray(array) {
+    return array.slice().reverse();
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/ZMWF7ASR.js
+  var import_react16 = __toESM(require_react(), 1);
+  var import_jsx_runtime208 = __toESM(require_jsx_runtime(), 1);
+  var TagName5 = "div";
+  function isGrid(items) {
+    return items.some((item) => !!item.rowId);
+  }
+  function isPrintableKey(event) {
+    const target = event.target;
+    if (target && !isTextField(target)) return false;
+    return event.key.length === 1 && !event.ctrlKey && !event.metaKey;
+  }
+  function isModifierKey(event) {
+    return event.key === "Shift" || event.key === "Control" || event.key === "Alt" || event.key === "Meta";
+  }
+  function useKeyboardEventProxy(store2, onKeyboardEvent, previousElementRef) {
+    return useEvent((event) => {
+      var _a;
+      onKeyboardEvent == null ? void 0 : onKeyboardEvent(event);
+      if (event.defaultPrevented) return;
+      if (event.isPropagationStopped()) return;
+      if (!isSelfTarget(event)) return;
+      if (isModifierKey(event)) return;
+      if (isPrintableKey(event)) return;
+      const state = store2.getState();
+      const activeElement = (_a = getEnabledItem(store2, state.activeId)) == null ? void 0 : _a.element;
+      if (!activeElement) return;
+      const { view, ...eventInit } = event;
+      const previousElement = previousElementRef == null ? void 0 : previousElementRef.current;
+      if (activeElement !== previousElement) {
+        activeElement.focus();
+      }
+      if (!fireKeyboardEvent(activeElement, event.type, eventInit)) {
+        event.preventDefault();
+      }
+      if (event.currentTarget.contains(activeElement)) {
+        event.stopPropagation();
+      }
+    });
+  }
+  function findFirstEnabledItemInTheLastRow(items) {
+    return findFirstEnabledItem(
+      flatten2DArray(reverseArray(groupItemsByRows(items)))
+    );
+  }
+  function useScheduleFocus(store2) {
+    const [scheduled, setScheduled] = (0, import_react16.useState)(false);
+    const schedule2 = (0, import_react16.useCallback)(() => setScheduled(true), []);
+    const activeItem = store2.useState(
+      (state) => getEnabledItem(store2, state.activeId)
+    );
+    (0, import_react16.useEffect)(() => {
+      const activeElement = activeItem == null ? void 0 : activeItem.element;
+      if (!scheduled) return;
+      if (!activeElement) return;
+      setScheduled(false);
+      activeElement.focus({ preventScroll: true });
+    }, [activeItem, scheduled]);
+    return schedule2;
+  }
+  var useComposite = createHook(
+    function useComposite2({
+      store: store2,
+      composite = true,
+      focusOnMove = composite,
+      moveOnKeyPress = true,
+      ...props
+    }) {
+      const context = useCompositeProviderContext();
       store2 = store2 || context;
       invariant(
         store2,
-        "ComboboxItem must be wrapped in a ComboboxList or ComboboxPopover component."
+        "Composite must receive a `store` prop or be wrapped in a CompositeProvider component."
       );
-      const { resetValueOnSelectState, multiSelectable, selected } = useStoreStateObject(store2, {
-        resetValueOnSelectState: "resetValueOnSelect",
-        multiSelectable(state) {
-          return Array.isArray(state.selectedValue);
-        },
-        selected(state) {
-          return isSelected(state.selectedValue, value);
+      const ref = (0, import_react16.useRef)(null);
+      const previousElementRef = (0, import_react16.useRef)(null);
+      const scheduleFocus = useScheduleFocus(store2);
+      const moves = store2.useState("moves");
+      const [, setBaseElement] = useTransactionState(
+        composite ? store2.setBaseElement : null
+      );
+      (0, import_react16.useEffect)(() => {
+        var _a;
+        if (!store2) return;
+        if (!moves) return;
+        if (!composite) return;
+        if (!focusOnMove) return;
+        const { activeId: activeId2 } = store2.getState();
+        const itemElement = (_a = getEnabledItem(store2, activeId2)) == null ? void 0 : _a.element;
+        if (!itemElement) return;
+        focusIntoView(itemElement);
+      }, [store2, moves, composite, focusOnMove]);
+      useSafeLayoutEffect(() => {
+        if (!store2) return;
+        if (!moves) return;
+        if (!composite) return;
+        const { baseElement, activeId: activeId2 } = store2.getState();
+        const isSelfAcive = activeId2 === null;
+        if (!isSelfAcive) return;
+        if (!baseElement) return;
+        const previousElement = previousElementRef.current;
+        previousElementRef.current = null;
+        if (previousElement) {
+          fireBlurEvent(previousElement, { relatedTarget: baseElement });
+        }
+        if (!hasFocus(baseElement)) {
+          baseElement.focus();
+        }
+      }, [store2, moves, composite]);
+      const activeId = store2.useState("activeId");
+      const virtualFocus = store2.useState("virtualFocus");
+      useSafeLayoutEffect(() => {
+        var _a;
+        if (!store2) return;
+        if (!composite) return;
+        if (!virtualFocus) return;
+        const previousElement = previousElementRef.current;
+        previousElementRef.current = null;
+        if (!previousElement) return;
+        const activeElement = (_a = getEnabledItem(store2, activeId)) == null ? void 0 : _a.element;
+        const relatedTarget = activeElement || getActiveElement(previousElement);
+        if (relatedTarget === previousElement) return;
+        fireBlurEvent(previousElement, { relatedTarget });
+      }, [store2, activeId, virtualFocus, composite]);
+      const onKeyDownCapture = useKeyboardEventProxy(
+        store2,
+        props.onKeyDownCapture,
+        previousElementRef
+      );
+      const onKeyUpCapture = useKeyboardEventProxy(
+        store2,
+        props.onKeyUpCapture,
+        previousElementRef
+      );
+      const onFocusCaptureProp = props.onFocusCapture;
+      const onFocusCapture = useEvent((event) => {
+        onFocusCaptureProp == null ? void 0 : onFocusCaptureProp(event);
+        if (event.defaultPrevented) return;
+        if (!store2) return;
+        const { virtualFocus: virtualFocus2 } = store2.getState();
+        if (!virtualFocus2) return;
+        const previousActiveElement = event.relatedTarget;
+        const isSilentlyFocused = silentlyFocused(event.currentTarget);
+        if (isSelfTarget(event) && isSilentlyFocused) {
+          event.stopPropagation();
+          previousElementRef.current = previousActiveElement;
         }
       });
-      const getItem = (0, import_react23.useCallback)(
-        (item) => {
-          const nextItem = __spreadProps(__spreadValues({}, item), { value });
-          if (getItemProp) {
-            return getItemProp(nextItem);
-          }
-          return nextItem;
-        },
-        [value, getItemProp]
-      );
-      setValueOnClick = setValueOnClick != null ? setValueOnClick : !multiSelectable;
-      hideOnClick = hideOnClick != null ? hideOnClick : value != null && !multiSelectable;
-      const onClickProp = props.onClick;
-      const setValueOnClickProp = useBooleanEvent(setValueOnClick);
-      const selectValueOnClickProp = useBooleanEvent(selectValueOnClick);
-      const resetValueOnSelectProp = useBooleanEvent(
-        (_a2 = resetValueOnSelect != null ? resetValueOnSelect : resetValueOnSelectState) != null ? _a2 : multiSelectable
-      );
-      const hideOnClickProp = useBooleanEvent(hideOnClick);
-      const onClick = useEvent((event) => {
-        onClickProp == null ? void 0 : onClickProp(event);
+      const onFocusProp = props.onFocus;
+      const onFocus = useEvent((event) => {
+        onFocusProp == null ? void 0 : onFocusProp(event);
         if (event.defaultPrevented) return;
-        if (isDownloading(event)) return;
-        if (isOpeningInNewTab(event)) return;
-        if (value != null) {
-          if (selectValueOnClickProp(event)) {
-            if (resetValueOnSelectProp(event)) {
-              store2 == null ? void 0 : store2.resetValue();
-            }
-            store2 == null ? void 0 : store2.setSelectedValue((prevValue) => {
-              if (!Array.isArray(prevValue)) return value;
-              if (prevValue.includes(value)) {
-                return prevValue.filter((v2) => v2 !== value);
-              }
-              return [...prevValue, value];
-            });
+        if (!composite) return;
+        if (!store2) return;
+        const { relatedTarget } = event;
+        const { virtualFocus: virtualFocus2 } = store2.getState();
+        if (virtualFocus2) {
+          if (isSelfTarget(event) && !isItem(store2, relatedTarget)) {
+            queueMicrotask(scheduleFocus);
           }
-          if (setValueOnClickProp(event)) {
-            store2 == null ? void 0 : store2.setValue(value);
-          }
+        } else if (isSelfTarget(event)) {
+          store2.setActiveId(null);
         }
-        if (hideOnClickProp(event)) {
-          store2 == null ? void 0 : store2.hide();
+      });
+      const onBlurCaptureProp = props.onBlurCapture;
+      const onBlurCapture = useEvent((event) => {
+        var _a;
+        onBlurCaptureProp == null ? void 0 : onBlurCaptureProp(event);
+        if (event.defaultPrevented) return;
+        if (!store2) return;
+        const { virtualFocus: virtualFocus2, activeId: activeId2 } = store2.getState();
+        if (!virtualFocus2) return;
+        const activeElement = (_a = getEnabledItem(store2, activeId2)) == null ? void 0 : _a.element;
+        const nextActiveElement = event.relatedTarget;
+        const nextActiveElementIsItem = isItem(store2, nextActiveElement);
+        const previousElement = previousElementRef.current;
+        previousElementRef.current = null;
+        if (isSelfTarget(event) && nextActiveElementIsItem) {
+          if (nextActiveElement === activeElement) {
+            if (previousElement && previousElement !== nextActiveElement) {
+              fireBlurEvent(previousElement, event);
+            }
+          } else if (activeElement) {
+            fireBlurEvent(activeElement, event);
+          } else if (previousElement) {
+            fireBlurEvent(previousElement, event);
+          }
+          event.stopPropagation();
+        } else {
+          const targetIsItem = isItem(store2, event.target);
+          if (!targetIsItem && activeElement) {
+            fireBlurEvent(activeElement, event);
+          }
         }
       });
       const onKeyDownProp = props.onKeyDown;
+      const moveOnKeyPressProp = useBooleanEvent(moveOnKeyPress);
       const onKeyDown = useEvent((event) => {
+        var _a;
         onKeyDownProp == null ? void 0 : onKeyDownProp(event);
+        if (event.nativeEvent.isComposing) return;
         if (event.defaultPrevented) return;
-        const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
-        if (!baseElement) return;
-        if (hasFocus(baseElement)) return;
-        const printable = event.key.length === 1;
-        if (printable || event.key === "Backspace" || event.key === "Delete") {
-          queueMicrotask(() => baseElement.focus());
-          if (isTextField(baseElement)) {
-            store2 == null ? void 0 : store2.setValue(baseElement.value);
+        if (!store2) return;
+        if (!isSelfTarget(event)) return;
+        const { orientation, renderedItems, activeId: activeId2 } = store2.getState();
+        const activeItem = getEnabledItem(store2, activeId2);
+        if ((_a = activeItem == null ? void 0 : activeItem.element) == null ? void 0 : _a.isConnected) return;
+        const isVertical = orientation !== "horizontal";
+        const isHorizontal = orientation !== "vertical";
+        const grid = isGrid(renderedItems);
+        const isHorizontalKey = event.key === "ArrowLeft" || event.key === "ArrowRight" || event.key === "Home" || event.key === "End";
+        if (isHorizontalKey && isTextField(event.currentTarget)) return;
+        const up = () => {
+          if (grid) {
+            const item = findFirstEnabledItemInTheLastRow(renderedItems);
+            return item == null ? void 0 : item.id;
+          }
+          return store2 == null ? void 0 : store2.last();
+        };
+        const keyMap = {
+          ArrowUp: (grid || isVertical) && up,
+          ArrowRight: (grid || isHorizontal) && store2.first,
+          ArrowDown: (grid || isVertical) && store2.first,
+          ArrowLeft: (grid || isHorizontal) && store2.last,
+          Home: store2.first,
+          End: store2.last,
+          PageUp: store2.first,
+          PageDown: store2.last
+        };
+        const action = keyMap[event.key];
+        if (action) {
+          const id = action();
+          if (id !== void 0) {
+            if (!moveOnKeyPressProp(event)) return;
+            event.preventDefault();
+            store2.move(id);
           }
         }
       });
-      if (multiSelectable && selected != null) {
-        props = __spreadValues({
-          "aria-selected": selected
-        }, props);
-      }
       props = useWrapElement(
         props,
-        (element) => /* @__PURE__ */ (0, import_jsx_runtime211.jsx)(ComboboxItemValueContext.Provider, { value, children: /* @__PURE__ */ (0, import_jsx_runtime211.jsx)(ComboboxItemCheckedContext.Provider, { value: selected != null ? selected : false, children: element }) }),
-        [value, selected]
+        (element) => /* @__PURE__ */ (0, import_jsx_runtime208.jsx)(CompositeContextProvider, { value: store2, children: element }),
+        [store2]
       );
-      const popupRole = (0, import_react23.useContext)(ComboboxListRoleContext);
-      props = __spreadProps(__spreadValues({
-        role: getItemRole(popupRole),
-        children: value
-      }, props), {
-        onClick,
-        onKeyDown
+      const activeDescendant = store2.useState((state) => {
+        var _a;
+        if (!store2) return;
+        if (!composite) return;
+        if (!state.virtualFocus) return;
+        return (_a = getEnabledItem(store2, state.activeId)) == null ? void 0 : _a.id;
       });
-      const moveOnKeyPressProp = useBooleanEvent(moveOnKeyPress);
-      props = useCompositeItem(__spreadProps(__spreadValues({
-        store: store2
-      }, props), {
-        getItem,
-        // Dispatch a custom event on the combobox input when moving to an item
-        // with the keyboard so the Combobox component can enable inline
-        // autocompletion.
-        moveOnKeyPress: (event) => {
-          if (!moveOnKeyPressProp(event)) return false;
-          const moveEvent = new Event("combobox-item-move");
-          const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
-          baseElement == null ? void 0 : baseElement.dispatchEvent(moveEvent);
-          return true;
-        }
-      }));
-      props = useCompositeHover(__spreadValues({ store: store2, focusOnHover }, props));
+      props = {
+        "aria-activedescendant": activeDescendant,
+        ...props,
+        ref: useMergeRefs(ref, setBaseElement, props.ref),
+        onKeyDownCapture,
+        onKeyUpCapture,
+        onFocusCapture,
+        onFocus,
+        onBlurCapture,
+        onKeyDown
+      };
+      const focusable = store2.useState(
+        (state) => composite && (state.virtualFocus || state.activeId === null)
+      );
+      props = useFocusable({ focusable, ...props });
       return props;
     }
   );
-  var ComboboxItem = memo22(
-    forwardRef22(function ComboboxItem2(props) {
-      const htmlProps = useComboboxItem(props);
-      return createElement5(TagName10, htmlProps);
-    })
-  );
+  var Composite6 = forwardRef22(function Composite22(props) {
+    const htmlProps = useComposite(props);
+    return createElement5(TagName5, htmlProps);
+  });
 
-  // node_modules/@ariakit/react-core/esm/combobox/combobox-label.js
-  var TagName11 = "label";
-  var useComboboxLabel = createHook(
-    function useComboboxLabel2(_a) {
-      var _b = _a, { store: store2 } = _b, props = __objRest(_b, ["store"]);
-      const context = useComboboxProviderContext();
-      store2 = store2 || context;
-      invariant(
-        store2,
-        "ComboboxLabel must receive a `store` prop or be wrapped in a ComboboxProvider component."
-      );
-      const comboboxId = store2.useState((state) => {
-        var _a2;
-        return (_a2 = state.baseElement) == null ? void 0 : _a2.id;
-      });
-      props = __spreadValues({
-        htmlFor: comboboxId
-      }, props);
-      return removeUndefinedValues(props);
-    }
-  );
-  var ComboboxLabel = memo22(
-    forwardRef22(function ComboboxLabel2(props) {
-      const htmlProps = useComboboxLabel(props);
-      return createElement5(TagName11, htmlProps);
-    })
-  );
+  // node_modules/@ariakit/react-core/esm/__chunks/LVDQFHCH.js
+  var ctx4 = createStoreContext();
+  var useDisclosureContext = ctx4.useContext;
+  var useDisclosureScopedContext = ctx4.useScopedContext;
+  var useDisclosureProviderContext = ctx4.useProviderContext;
+  var DisclosureContextProvider = ctx4.ContextProvider;
+  var DisclosureScopedContextProvider = ctx4.ScopedContextProvider;
 
-  // node_modules/@ariakit/react-core/esm/__chunks/VGCJ63VH.js
-  var import_react24 = __toESM(require_react(), 1);
+  // node_modules/@ariakit/react-core/esm/__chunks/A62MDFCW.js
+  var import_react17 = __toESM(require_react(), 1);
+  var ctx5 = createStoreContext(
+    [DisclosureContextProvider],
+    [DisclosureScopedContextProvider]
+  );
+  var useDialogContext = ctx5.useContext;
+  var useDialogScopedContext = ctx5.useScopedContext;
+  var useDialogProviderContext = ctx5.useProviderContext;
+  var DialogContextProvider = ctx5.ContextProvider;
+  var DialogScopedContextProvider = ctx5.ScopedContextProvider;
+  var DialogHeadingContext = (0, import_react17.createContext)(void 0);
+  var DialogDescriptionContext = (0, import_react17.createContext)(void 0);
+
+  // node_modules/@ariakit/react-core/esm/__chunks/6B3RXHKP.js
+  var import_react18 = __toESM(require_react(), 1);
   var import_react_dom2 = __toESM(require_react_dom(), 1);
-  var import_jsx_runtime212 = __toESM(require_jsx_runtime(), 1);
-  var TagName12 = "div";
+  var import_jsx_runtime209 = __toESM(require_jsx_runtime(), 1);
+  var TagName6 = "div";
   function afterTimeout(timeoutMs, cb) {
     const timeoutId = setTimeout(cb, timeoutMs);
     return () => clearTimeout(timeoutId);
@@ -32315,17 +30636,16 @@ If there's a particular need for this, please submit a feature request at https:
   function isHidden(mounted, hidden, alwaysVisible) {
     return !alwaysVisible && hidden !== false && (!mounted || !!hidden);
   }
-  var useDisclosureContent = createHook(function useDisclosureContent2(_a) {
-    var _b = _a, { store: store2, alwaysVisible } = _b, props = __objRest(_b, ["store", "alwaysVisible"]);
+  var useDisclosureContent = createHook(function useDisclosureContent2({ store: store2, alwaysVisible, ...props }) {
     const context = useDisclosureProviderContext();
     store2 = store2 || context;
     invariant(
       store2,
       "DisclosureContent must receive a `store` prop or be wrapped in a DisclosureProvider component."
     );
-    const ref = (0, import_react24.useRef)(null);
+    const ref = (0, import_react18.useRef)(null);
     const id = useId5(props.id);
-    const [transition, setTransition] = (0, import_react24.useState)(null);
+    const [transition, setTransition] = (0, import_react18.useState)(null);
     const open = store2.useState("open");
     const mounted = store2.useState("mounted");
     const animated2 = store2.useState("animated");
@@ -32407,39 +30727,37 @@ If there's a particular need for this, please submit a feature request at https:
     }, [store2, animated2, contentElement, otherElement, open, transition]);
     props = useWrapElement(
       props,
-      (element) => /* @__PURE__ */ (0, import_jsx_runtime212.jsx)(DialogScopedContextProvider, { value: store2, children: element }),
+      (element) => /* @__PURE__ */ (0, import_jsx_runtime209.jsx)(DialogScopedContextProvider, { value: store2, children: element }),
       [store2]
     );
     const hidden = isHidden(mounted, props.hidden, alwaysVisible);
     const styleProp = props.style;
-    const style = (0, import_react24.useMemo)(() => {
+    const style = (0, import_react18.useMemo)(() => {
       if (hidden) {
-        return __spreadProps(__spreadValues({}, styleProp), { display: "none" });
+        return { ...styleProp, display: "none" };
       }
       return styleProp;
     }, [hidden, styleProp]);
-    props = __spreadProps(__spreadValues({
+    props = {
       id,
       "data-open": open || void 0,
       "data-enter": transition === "enter" || void 0,
       "data-leave": transition === "leave" || void 0,
-      hidden
-    }, props), {
+      hidden,
+      ...props,
       ref: useMergeRefs(id ? store2.setContentElement : null, ref, props.ref),
       style
-    });
+    };
     return removeUndefinedValues(props);
   });
   var DisclosureContentImpl = forwardRef22(function DisclosureContentImpl2(props) {
     const htmlProps = useDisclosureContent(props);
-    return createElement5(TagName12, htmlProps);
+    return createElement5(TagName6, htmlProps);
   });
-  var DisclosureContent = forwardRef22(function DisclosureContent2(_a) {
-    var _b = _a, {
-      unmountOnHide
-    } = _b, props = __objRest(_b, [
-      "unmountOnHide"
-    ]);
+  var DisclosureContent = forwardRef22(function DisclosureContent2({
+    unmountOnHide,
+    ...props
+  }) {
     const context = useDisclosureProviderContext();
     const store2 = props.store || context;
     const mounted = useStoreState(
@@ -32447,16 +30765,1380 @@ If there's a particular need for this, please submit a feature request at https:
       (state) => !unmountOnHide || (state == null ? void 0 : state.mounted)
     );
     if (mounted === false) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime212.jsx)(DisclosureContentImpl, __spreadValues({}, props));
+    return /* @__PURE__ */ (0, import_jsx_runtime209.jsx)(DisclosureContentImpl, { ...props });
   });
 
-  // node_modules/@ariakit/react-core/esm/__chunks/HUWAI7RB.js
-  var import_react25 = __toESM(require_react(), 1);
-  var import_jsx_runtime213 = __toESM(require_jsx_runtime(), 1);
+  // node_modules/@ariakit/core/esm/__chunks/75BJEVSH.js
+  function createDisclosureStore(props = {}) {
+    const store2 = mergeStore(
+      props.store,
+      omit2(props.disclosure, ["contentElement", "disclosureElement"])
+    );
+    throwOnConflictingProps(props, store2);
+    const syncState = store2 == null ? void 0 : store2.getState();
+    const open = defaultValue(
+      props.open,
+      syncState == null ? void 0 : syncState.open,
+      props.defaultOpen,
+      false
+    );
+    const animated2 = defaultValue(props.animated, syncState == null ? void 0 : syncState.animated, false);
+    const initialState = {
+      open,
+      animated: animated2,
+      animating: !!animated2 && open,
+      mounted: open,
+      contentElement: defaultValue(syncState == null ? void 0 : syncState.contentElement, null),
+      disclosureElement: defaultValue(syncState == null ? void 0 : syncState.disclosureElement, null)
+    };
+    const disclosure = createStore(initialState, store2);
+    setup(
+      disclosure,
+      () => sync2(disclosure, ["animated", "animating"], (state) => {
+        if (state.animated) return;
+        disclosure.setState("animating", false);
+      })
+    );
+    setup(
+      disclosure,
+      () => subscribe(disclosure, ["open"], () => {
+        if (!disclosure.getState().animated) return;
+        disclosure.setState("animating", true);
+      })
+    );
+    setup(
+      disclosure,
+      () => sync2(disclosure, ["open", "animating"], (state) => {
+        disclosure.setState("mounted", state.open || state.animating);
+      })
+    );
+    return {
+      ...disclosure,
+      disclosure: props.disclosure,
+      setOpen: (value) => disclosure.setState("open", value),
+      show: () => disclosure.setState("open", true),
+      hide: () => disclosure.setState("open", false),
+      toggle: () => disclosure.setState("open", (open2) => !open2),
+      stopAnimation: () => disclosure.setState("animating", false),
+      setContentElement: (value) => disclosure.setState("contentElement", value),
+      setDisclosureElement: (value) => disclosure.setState("disclosureElement", value)
+    };
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/WLZ6H5FH.js
+  function useDisclosureStoreProps(store2, update4, props) {
+    useUpdateEffect(update4, [props.store, props.disclosure]);
+    useStoreProps(store2, props, "open", "setOpen");
+    useStoreProps(store2, props, "mounted", "setMounted");
+    useStoreProps(store2, props, "animated");
+    return Object.assign(store2, { disclosure: props.disclosure });
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/JMU4N4M5.js
+  var ctx6 = createStoreContext(
+    [DialogContextProvider],
+    [DialogScopedContextProvider]
+  );
+  var usePopoverContext = ctx6.useContext;
+  var usePopoverScopedContext = ctx6.useScopedContext;
+  var usePopoverProviderContext = ctx6.useProviderContext;
+  var PopoverContextProvider = ctx6.ContextProvider;
+  var PopoverScopedContextProvider = ctx6.ScopedContextProvider;
+
+  // node_modules/@ariakit/core/esm/__chunks/N5XGANPW.js
+  function getCommonParent(items) {
+    var _a;
+    const firstItem = items.find((item) => !!item.element);
+    const lastItem = [...items].reverse().find((item) => !!item.element);
+    let parentElement = (_a = firstItem == null ? void 0 : firstItem.element) == null ? void 0 : _a.parentElement;
+    while (parentElement && (lastItem == null ? void 0 : lastItem.element)) {
+      const parent = parentElement;
+      if (lastItem && parent.contains(lastItem.element)) {
+        return parentElement;
+      }
+      parentElement = parentElement.parentElement;
+    }
+    return getDocument(parentElement).body;
+  }
+  function getPrivateStore(store2) {
+    return store2 == null ? void 0 : store2.__unstablePrivateStore;
+  }
+  function createCollectionStore(props = {}) {
+    var _a;
+    throwOnConflictingProps(props, props.store);
+    const syncState = (_a = props.store) == null ? void 0 : _a.getState();
+    const items = defaultValue(
+      props.items,
+      syncState == null ? void 0 : syncState.items,
+      props.defaultItems,
+      []
+    );
+    const itemsMap = new Map(items.map((item) => [item.id, item]));
+    const initialState = {
+      items,
+      renderedItems: defaultValue(syncState == null ? void 0 : syncState.renderedItems, [])
+    };
+    const syncPrivateStore = getPrivateStore(props.store);
+    const privateStore = createStore(
+      { items, renderedItems: initialState.renderedItems },
+      syncPrivateStore
+    );
+    const collection = createStore(initialState, props.store);
+    const sortItems = (renderedItems) => {
+      const sortedItems = sortBasedOnDOMPosition(renderedItems, (i2) => i2.element);
+      privateStore.setState("renderedItems", sortedItems);
+      collection.setState("renderedItems", sortedItems);
+    };
+    setup(collection, () => init(privateStore));
+    setup(privateStore, () => {
+      return batch(privateStore, ["items"], (state) => {
+        collection.setState("items", state.items);
+      });
+    });
+    setup(privateStore, () => {
+      return batch(privateStore, ["renderedItems"], (state) => {
+        let firstRun = true;
+        let raf2 = requestAnimationFrame(() => {
+          const { renderedItems } = collection.getState();
+          if (state.renderedItems === renderedItems) return;
+          sortItems(state.renderedItems);
+        });
+        if (typeof IntersectionObserver !== "function") {
+          return () => cancelAnimationFrame(raf2);
+        }
+        const ioCallback = () => {
+          if (firstRun) {
+            firstRun = false;
+            return;
+          }
+          cancelAnimationFrame(raf2);
+          raf2 = requestAnimationFrame(() => sortItems(state.renderedItems));
+        };
+        const root = getCommonParent(state.renderedItems);
+        const observer = new IntersectionObserver(ioCallback, { root });
+        for (const item of state.renderedItems) {
+          if (!item.element) continue;
+          observer.observe(item.element);
+        }
+        return () => {
+          cancelAnimationFrame(raf2);
+          observer.disconnect();
+        };
+      });
+    });
+    const mergeItem = (item, setItems, canDeleteFromMap = false) => {
+      let prevItem;
+      setItems((items2) => {
+        const index = items2.findIndex(({ id }) => id === item.id);
+        const nextItems = items2.slice();
+        if (index !== -1) {
+          prevItem = items2[index];
+          const nextItem = { ...prevItem, ...item };
+          nextItems[index] = nextItem;
+          itemsMap.set(item.id, nextItem);
+        } else {
+          nextItems.push(item);
+          itemsMap.set(item.id, item);
+        }
+        return nextItems;
+      });
+      const unmergeItem = () => {
+        setItems((items2) => {
+          if (!prevItem) {
+            if (canDeleteFromMap) {
+              itemsMap.delete(item.id);
+            }
+            return items2.filter(({ id }) => id !== item.id);
+          }
+          const index = items2.findIndex(({ id }) => id === item.id);
+          if (index === -1) return items2;
+          const nextItems = items2.slice();
+          nextItems[index] = prevItem;
+          itemsMap.set(item.id, prevItem);
+          return nextItems;
+        });
+      };
+      return unmergeItem;
+    };
+    const registerItem = (item) => mergeItem(
+      item,
+      (getItems) => privateStore.setState("items", getItems),
+      true
+    );
+    return {
+      ...collection,
+      registerItem,
+      renderItem: (item) => chain(
+        registerItem(item),
+        mergeItem(
+          item,
+          (getItems) => privateStore.setState("renderedItems", getItems)
+        )
+      ),
+      item: (id) => {
+        if (!id) return null;
+        let item = itemsMap.get(id);
+        if (!item) {
+          const { items: items2 } = privateStore.getState();
+          item = items2.find((item2) => item2.id === id);
+          if (item) {
+            itemsMap.set(id, item);
+          }
+        }
+        return item || null;
+      },
+      // @ts-expect-error Internal
+      __unstablePrivateStore: privateStore
+    };
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/GVAFFF2B.js
+  function useCollectionStoreProps(store2, update4, props) {
+    useUpdateEffect(update4, [props.store]);
+    useStoreProps(store2, props, "items", "setItems");
+    return store2;
+  }
+
+  // node_modules/@ariakit/core/esm/__chunks/RVTIKFRL.js
+  var NULL_ITEM = { id: null };
+  function findFirstEnabledItem2(items, excludeId) {
+    return items.find((item) => {
+      if (excludeId) {
+        return !item.disabled && item.id !== excludeId;
+      }
+      return !item.disabled;
+    });
+  }
+  function getEnabledItems(items, excludeId) {
+    return items.filter((item) => {
+      if (excludeId) {
+        return !item.disabled && item.id !== excludeId;
+      }
+      return !item.disabled;
+    });
+  }
+  function getItemsInRow(items, rowId) {
+    return items.filter((item) => item.rowId === rowId);
+  }
+  function flipItems(items, activeId, shouldInsertNullItem = false) {
+    const index = items.findIndex((item) => item.id === activeId);
+    return [
+      ...items.slice(index + 1),
+      ...shouldInsertNullItem ? [NULL_ITEM] : [],
+      ...items.slice(0, index)
+    ];
+  }
+  function groupItemsByRows2(items) {
+    const rows = [];
+    for (const item of items) {
+      const row = rows.find((currentRow) => {
+        var _a;
+        return ((_a = currentRow[0]) == null ? void 0 : _a.rowId) === item.rowId;
+      });
+      if (row) {
+        row.push(item);
+      } else {
+        rows.push([item]);
+      }
+    }
+    return rows;
+  }
+  function getMaxRowLength(array) {
+    let maxLength = 0;
+    for (const { length } of array) {
+      if (length > maxLength) {
+        maxLength = length;
+      }
+    }
+    return maxLength;
+  }
+  function createEmptyItem(rowId) {
+    return {
+      id: "__EMPTY_ITEM__",
+      disabled: true,
+      rowId
+    };
+  }
+  function normalizeRows(rows, activeId, focusShift) {
+    const maxLength = getMaxRowLength(rows);
+    for (const row of rows) {
+      for (let i2 = 0; i2 < maxLength; i2 += 1) {
+        const item = row[i2];
+        if (!item || focusShift && item.disabled) {
+          const isFirst = i2 === 0;
+          const previousItem = isFirst && focusShift ? findFirstEnabledItem2(row) : row[i2 - 1];
+          row[i2] = previousItem && activeId !== previousItem.id && focusShift ? previousItem : createEmptyItem(previousItem == null ? void 0 : previousItem.rowId);
+        }
+      }
+    }
+    return rows;
+  }
+  function verticalizeItems(items) {
+    const rows = groupItemsByRows2(items);
+    const maxLength = getMaxRowLength(rows);
+    const verticalized = [];
+    for (let i2 = 0; i2 < maxLength; i2 += 1) {
+      for (const row of rows) {
+        const item = row[i2];
+        if (item) {
+          verticalized.push({
+            ...item,
+            // If there's no rowId, it means that it's not a grid composite, but
+            // a single row instead. So, instead of verticalizing it, that is,
+            // assigning a different rowId based on the column index, we keep it
+            // undefined so they will be part of the same row. This is useful
+            // when using up/down on one-dimensional composites.
+            rowId: item.rowId ? `${i2}` : void 0
+          });
+        }
+      }
+    }
+    return verticalized;
+  }
+  function createCompositeStore(props = {}) {
+    var _a;
+    const syncState = (_a = props.store) == null ? void 0 : _a.getState();
+    const collection = createCollectionStore(props);
+    const activeId = defaultValue(
+      props.activeId,
+      syncState == null ? void 0 : syncState.activeId,
+      props.defaultActiveId
+    );
+    const initialState = {
+      ...collection.getState(),
+      id: defaultValue(
+        props.id,
+        syncState == null ? void 0 : syncState.id,
+        `id-${Math.random().toString(36).slice(2, 8)}`
+      ),
+      activeId,
+      baseElement: defaultValue(syncState == null ? void 0 : syncState.baseElement, null),
+      includesBaseElement: defaultValue(
+        props.includesBaseElement,
+        syncState == null ? void 0 : syncState.includesBaseElement,
+        activeId === null
+      ),
+      moves: defaultValue(syncState == null ? void 0 : syncState.moves, 0),
+      orientation: defaultValue(
+        props.orientation,
+        syncState == null ? void 0 : syncState.orientation,
+        "both"
+      ),
+      rtl: defaultValue(props.rtl, syncState == null ? void 0 : syncState.rtl, false),
+      virtualFocus: defaultValue(
+        props.virtualFocus,
+        syncState == null ? void 0 : syncState.virtualFocus,
+        false
+      ),
+      focusLoop: defaultValue(props.focusLoop, syncState == null ? void 0 : syncState.focusLoop, false),
+      focusWrap: defaultValue(props.focusWrap, syncState == null ? void 0 : syncState.focusWrap, false),
+      focusShift: defaultValue(props.focusShift, syncState == null ? void 0 : syncState.focusShift, false)
+    };
+    const composite = createStore(initialState, collection, props.store);
+    setup(
+      composite,
+      () => sync2(composite, ["renderedItems", "activeId"], (state) => {
+        composite.setState("activeId", (activeId2) => {
+          var _a2;
+          if (activeId2 !== void 0) return activeId2;
+          return (_a2 = findFirstEnabledItem2(state.renderedItems)) == null ? void 0 : _a2.id;
+        });
+      })
+    );
+    const getNextId = (direction = "next", options = {}) => {
+      var _a2, _b;
+      const defaultState = composite.getState();
+      const {
+        skip = 0,
+        activeId: activeId2 = defaultState.activeId,
+        focusShift = defaultState.focusShift,
+        focusLoop = defaultState.focusLoop,
+        focusWrap = defaultState.focusWrap,
+        includesBaseElement = defaultState.includesBaseElement,
+        renderedItems = defaultState.renderedItems,
+        rtl = defaultState.rtl
+      } = options;
+      const isVerticalDirection = direction === "up" || direction === "down";
+      const isNextDirection = direction === "next" || direction === "down";
+      const canReverse = isNextDirection ? rtl && !isVerticalDirection : !rtl || isVerticalDirection;
+      const canShift = focusShift && !skip;
+      let items = !isVerticalDirection ? renderedItems : flatten2DArray(
+        normalizeRows(groupItemsByRows2(renderedItems), activeId2, canShift)
+      );
+      items = canReverse ? reverseArray(items) : items;
+      items = isVerticalDirection ? verticalizeItems(items) : items;
+      if (activeId2 == null) {
+        return (_a2 = findFirstEnabledItem2(items)) == null ? void 0 : _a2.id;
+      }
+      const activeItem = items.find((item) => item.id === activeId2);
+      if (!activeItem) {
+        return (_b = findFirstEnabledItem2(items)) == null ? void 0 : _b.id;
+      }
+      const isGrid2 = items.some((item) => item.rowId);
+      const activeIndex = items.indexOf(activeItem);
+      const nextItems = items.slice(activeIndex + 1);
+      const nextItemsInRow = getItemsInRow(nextItems, activeItem.rowId);
+      if (skip) {
+        const nextEnabledItemsInRow = getEnabledItems(nextItemsInRow, activeId2);
+        const nextItem2 = nextEnabledItemsInRow.slice(skip)[0] || // If we can't find an item, just return the last one.
+        nextEnabledItemsInRow[nextEnabledItemsInRow.length - 1];
+        return nextItem2 == null ? void 0 : nextItem2.id;
+      }
+      const canLoop = focusLoop && (isVerticalDirection ? focusLoop !== "horizontal" : focusLoop !== "vertical");
+      const canWrap = isGrid2 && focusWrap && (isVerticalDirection ? focusWrap !== "horizontal" : focusWrap !== "vertical");
+      const hasNullItem = isNextDirection ? (!isGrid2 || isVerticalDirection) && canLoop && includesBaseElement : isVerticalDirection ? includesBaseElement : false;
+      if (canLoop) {
+        const loopItems = canWrap && !hasNullItem ? items : getItemsInRow(items, activeItem.rowId);
+        const sortedItems = flipItems(loopItems, activeId2, hasNullItem);
+        const nextItem2 = findFirstEnabledItem2(sortedItems, activeId2);
+        return nextItem2 == null ? void 0 : nextItem2.id;
+      }
+      if (canWrap) {
+        const nextItem2 = findFirstEnabledItem2(
+          // We can use nextItems, which contains all the next items, including
+          // items from other rows, to wrap between rows. However, if there is a
+          // null item (the composite container), we'll only use the next items in
+          // the row. So moving next from the last item will focus on the
+          // composite container. On grid composites, horizontal navigation never
+          // focuses on the composite container, only vertical.
+          hasNullItem ? nextItemsInRow : nextItems,
+          activeId2
+        );
+        const nextId2 = hasNullItem ? (nextItem2 == null ? void 0 : nextItem2.id) || null : nextItem2 == null ? void 0 : nextItem2.id;
+        return nextId2;
+      }
+      const nextItem = findFirstEnabledItem2(nextItemsInRow, activeId2);
+      if (!nextItem && hasNullItem) {
+        return null;
+      }
+      return nextItem == null ? void 0 : nextItem.id;
+    };
+    return {
+      ...collection,
+      ...composite,
+      setBaseElement: (element) => composite.setState("baseElement", element),
+      setActiveId: (id) => composite.setState("activeId", id),
+      move: (id) => {
+        if (id === void 0) return;
+        composite.setState("activeId", id);
+        composite.setState("moves", (moves) => moves + 1);
+      },
+      first: () => {
+        var _a2;
+        return (_a2 = findFirstEnabledItem2(composite.getState().renderedItems)) == null ? void 0 : _a2.id;
+      },
+      last: () => {
+        var _a2;
+        return (_a2 = findFirstEnabledItem2(reverseArray(composite.getState().renderedItems))) == null ? void 0 : _a2.id;
+      },
+      next: (options) => {
+        if (options !== void 0 && typeof options === "number") {
+          options = { skip: options };
+        }
+        return getNextId("next", options);
+      },
+      previous: (options) => {
+        if (options !== void 0 && typeof options === "number") {
+          options = { skip: options };
+        }
+        return getNextId("previous", options);
+      },
+      down: (options) => {
+        if (options !== void 0 && typeof options === "number") {
+          options = { skip: options };
+        }
+        return getNextId("down", options);
+      },
+      up: (options) => {
+        if (options !== void 0 && typeof options === "number") {
+          options = { skip: options };
+        }
+        return getNextId("up", options);
+      }
+    };
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/IQYAUKXT.js
+  function useCompositeStoreOptions(props) {
+    const id = useId5(props.id);
+    return { id, ...props };
+  }
+  function useCompositeStoreProps(store2, update4, props) {
+    store2 = useCollectionStoreProps(store2, update4, props);
+    useStoreProps(store2, props, "activeId", "setActiveId");
+    useStoreProps(store2, props, "includesBaseElement");
+    useStoreProps(store2, props, "virtualFocus");
+    useStoreProps(store2, props, "orientation");
+    useStoreProps(store2, props, "rtl");
+    useStoreProps(store2, props, "focusLoop");
+    useStoreProps(store2, props, "focusWrap");
+    useStoreProps(store2, props, "focusShift");
+    return store2;
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/CVCFNOHX.js
+  var import_react19 = __toESM(require_react(), 1);
+  var ComboboxListRoleContext = (0, import_react19.createContext)(
+    void 0
+  );
+  var ctx7 = createStoreContext(
+    [PopoverContextProvider, CompositeContextProvider],
+    [PopoverScopedContextProvider, CompositeScopedContextProvider]
+  );
+  var useComboboxContext = ctx7.useContext;
+  var useComboboxScopedContext = ctx7.useScopedContext;
+  var useComboboxProviderContext = ctx7.useProviderContext;
+  var ComboboxContextProvider = ctx7.ContextProvider;
+  var ComboboxScopedContextProvider = ctx7.ScopedContextProvider;
+  var ComboboxItemValueContext = (0, import_react19.createContext)(
+    void 0
+  );
+  var ComboboxItemCheckedContext = (0, import_react19.createContext)(false);
+
+  // node_modules/@ariakit/core/esm/__chunks/KMAUV3TY.js
+  function createDialogStore(props = {}) {
+    return createDisclosureStore(props);
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/4NYSH4UO.js
+  function useDialogStoreProps(store2, update4, props) {
+    return useDisclosureStoreProps(store2, update4, props);
+  }
+
+  // node_modules/@ariakit/core/esm/__chunks/BFGNM53A.js
+  function createPopoverStore({
+    popover: otherPopover,
+    ...props
+  } = {}) {
+    const store2 = mergeStore(
+      props.store,
+      omit2(otherPopover, [
+        "arrowElement",
+        "anchorElement",
+        "contentElement",
+        "popoverElement",
+        "disclosureElement"
+      ])
+    );
+    throwOnConflictingProps(props, store2);
+    const syncState = store2 == null ? void 0 : store2.getState();
+    const dialog = createDialogStore({ ...props, store: store2 });
+    const placement = defaultValue(
+      props.placement,
+      syncState == null ? void 0 : syncState.placement,
+      "bottom"
+    );
+    const initialState = {
+      ...dialog.getState(),
+      placement,
+      currentPlacement: placement,
+      anchorElement: defaultValue(syncState == null ? void 0 : syncState.anchorElement, null),
+      popoverElement: defaultValue(syncState == null ? void 0 : syncState.popoverElement, null),
+      arrowElement: defaultValue(syncState == null ? void 0 : syncState.arrowElement, null),
+      rendered: /* @__PURE__ */ Symbol("rendered")
+    };
+    const popover = createStore(initialState, dialog, store2);
+    return {
+      ...dialog,
+      ...popover,
+      setAnchorElement: (element) => popover.setState("anchorElement", element),
+      setPopoverElement: (element) => popover.setState("popoverElement", element),
+      setArrowElement: (element) => popover.setState("arrowElement", element),
+      render: () => popover.setState("rendered", /* @__PURE__ */ Symbol("rendered"))
+    };
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/B6FLPFJM.js
+  function usePopoverStoreProps(store2, update4, props) {
+    useUpdateEffect(update4, [props.popover]);
+    useStoreProps(store2, props, "placement");
+    return useDialogStoreProps(store2, update4, props);
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/4POTBZ2J.js
+  var TagName7 = "div";
+  var usePopoverAnchor = createHook(
+    function usePopoverAnchor2({ store: store2, ...props }) {
+      const context = usePopoverProviderContext();
+      store2 = store2 || context;
+      props = {
+        ...props,
+        ref: useMergeRefs(store2 == null ? void 0 : store2.setAnchorElement, props.ref)
+      };
+      return props;
+    }
+  );
+  var PopoverAnchor = forwardRef22(function PopoverAnchor2(props) {
+    const htmlProps = usePopoverAnchor(props);
+    return createElement5(TagName7, htmlProps);
+  });
+
+  // node_modules/@ariakit/react-core/esm/__chunks/X6LNAU2F.js
+  var import_react20 = __toESM(require_react(), 1);
+  var TagName8 = "div";
+  function getMouseDestination(event) {
+    const relatedTarget = event.relatedTarget;
+    if ((relatedTarget == null ? void 0 : relatedTarget.nodeType) === Node.ELEMENT_NODE) {
+      return relatedTarget;
+    }
+    return null;
+  }
+  function hoveringInside(event) {
+    const nextElement = getMouseDestination(event);
+    if (!nextElement) return false;
+    return contains(event.currentTarget, nextElement);
+  }
+  var symbol2 = /* @__PURE__ */ Symbol("composite-hover");
+  function movingToAnotherItem(event) {
+    let dest = getMouseDestination(event);
+    if (!dest) return false;
+    do {
+      if (hasOwnProperty(dest, symbol2) && dest[symbol2]) return true;
+      dest = dest.parentElement;
+    } while (dest);
+    return false;
+  }
+  var useCompositeHover = createHook(
+    function useCompositeHover2({
+      store: store2,
+      focusOnHover = true,
+      blurOnHoverEnd = !!focusOnHover,
+      ...props
+    }) {
+      const context = useCompositeContext();
+      store2 = store2 || context;
+      invariant(
+        store2,
+        "CompositeHover must be wrapped in a Composite component."
+      );
+      const isMouseMoving = useIsMouseMoving();
+      const onMouseMoveProp = props.onMouseMove;
+      const focusOnHoverProp = useBooleanEvent(focusOnHover);
+      const onMouseMove = useEvent((event) => {
+        onMouseMoveProp == null ? void 0 : onMouseMoveProp(event);
+        if (event.defaultPrevented) return;
+        if (!isMouseMoving()) return;
+        if (!focusOnHoverProp(event)) return;
+        if (!hasFocusWithin(event.currentTarget)) {
+          const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
+          if (baseElement && !hasFocus(baseElement)) {
+            baseElement.focus();
+          }
+        }
+        store2 == null ? void 0 : store2.setActiveId(event.currentTarget.id);
+      });
+      const onMouseLeaveProp = props.onMouseLeave;
+      const blurOnHoverEndProp = useBooleanEvent(blurOnHoverEnd);
+      const onMouseLeave = useEvent((event) => {
+        var _a;
+        onMouseLeaveProp == null ? void 0 : onMouseLeaveProp(event);
+        if (event.defaultPrevented) return;
+        if (!isMouseMoving()) return;
+        if (hoveringInside(event)) return;
+        if (movingToAnotherItem(event)) return;
+        if (!focusOnHoverProp(event)) return;
+        if (!blurOnHoverEndProp(event)) return;
+        store2 == null ? void 0 : store2.setActiveId(null);
+        (_a = store2 == null ? void 0 : store2.getState().baseElement) == null ? void 0 : _a.focus();
+      });
+      const ref = (0, import_react20.useCallback)((element) => {
+        if (!element) return;
+        element[symbol2] = true;
+      }, []);
+      props = {
+        ...props,
+        ref: useMergeRefs(ref, props.ref),
+        onMouseMove,
+        onMouseLeave
+      };
+      return removeUndefinedValues(props);
+    }
+  );
+  var CompositeHover = memo22(
+    forwardRef22(function CompositeHover2(props) {
+      const htmlProps = useCompositeHover(props);
+      return createElement5(TagName8, htmlProps);
+    })
+  );
+
+  // node_modules/@ariakit/react-core/esm/combobox/combobox.js
+  var import_react21 = __toESM(require_react(), 1);
+  var TagName9 = "input";
+  function isFirstItemAutoSelected(items, activeValue, autoSelect) {
+    if (!autoSelect) return false;
+    const firstItem = items.find((item) => !item.disabled && item.value);
+    return (firstItem == null ? void 0 : firstItem.value) === activeValue;
+  }
+  function hasCompletionString(value, activeValue) {
+    if (!activeValue) return false;
+    if (value == null) return false;
+    value = normalizeString2(value);
+    return activeValue.length > value.length && activeValue.toLowerCase().indexOf(value.toLowerCase()) === 0;
+  }
+  function isInputEvent(event) {
+    return event.type === "input";
+  }
+  function isAriaAutoCompleteValue(value) {
+    return value === "inline" || value === "list" || value === "both" || value === "none";
+  }
+  function getDefaultAutoSelectId(items) {
+    const item = items.find((item2) => {
+      var _a;
+      if (item2.disabled) return false;
+      return ((_a = item2.element) == null ? void 0 : _a.getAttribute("role")) !== "tab";
+    });
+    return item == null ? void 0 : item.id;
+  }
+  var useCombobox = createHook(
+    function useCombobox2({
+      store: store2,
+      focusable = true,
+      autoSelect: autoSelectProp = false,
+      getAutoSelectId,
+      setValueOnChange,
+      showMinLength = 0,
+      showOnChange,
+      showOnMouseDown,
+      showOnClick = showOnMouseDown,
+      showOnKeyDown,
+      showOnKeyPress = showOnKeyDown,
+      blurActiveItemOnClick,
+      setValueOnClick = true,
+      moveOnKeyPress = true,
+      autoComplete = "list",
+      ...props
+    }) {
+      const context = useComboboxProviderContext();
+      store2 = store2 || context;
+      invariant(
+        store2,
+        "Combobox must receive a `store` prop or be wrapped in a ComboboxProvider component."
+      );
+      const ref = (0, import_react21.useRef)(null);
+      const [valueUpdated, forceValueUpdate] = useForceUpdate2();
+      const canAutoSelectRef = (0, import_react21.useRef)(false);
+      const composingRef = (0, import_react21.useRef)(false);
+      const autoSelect = store2.useState(
+        (state) => state.virtualFocus && autoSelectProp
+      );
+      const inline = autoComplete === "inline" || autoComplete === "both";
+      const [canInline, setCanInline] = (0, import_react21.useState)(inline);
+      useUpdateLayoutEffect(() => {
+        if (!inline) return;
+        setCanInline(true);
+      }, [inline]);
+      const storeValue = store2.useState("value");
+      const prevSelectedValueRef = (0, import_react21.useRef)(void 0);
+      (0, import_react21.useEffect)(() => {
+        return sync2(store2, ["selectedValue", "activeId"], (_, prev) => {
+          prevSelectedValueRef.current = prev.selectedValue;
+        });
+      }, []);
+      const inlineActiveValue = store2.useState((state) => {
+        var _a;
+        if (!inline) return;
+        if (!canInline) return;
+        if (state.activeValue && Array.isArray(state.selectedValue)) {
+          if (state.selectedValue.includes(state.activeValue)) return;
+          if ((_a = prevSelectedValueRef.current) == null ? void 0 : _a.includes(state.activeValue)) return;
+        }
+        return state.activeValue;
+      });
+      const items = store2.useState("renderedItems");
+      const open = store2.useState("open");
+      const contentElement = store2.useState("contentElement");
+      const value = (0, import_react21.useMemo)(() => {
+        if (!inline) return storeValue;
+        if (!canInline) return storeValue;
+        const firstItemAutoSelected = isFirstItemAutoSelected(
+          items,
+          inlineActiveValue,
+          autoSelect
+        );
+        if (firstItemAutoSelected) {
+          if (hasCompletionString(storeValue, inlineActiveValue)) {
+            const slice = (inlineActiveValue == null ? void 0 : inlineActiveValue.slice(storeValue.length)) || "";
+            return storeValue + slice;
+          }
+          return storeValue;
+        }
+        return inlineActiveValue || storeValue;
+      }, [inline, canInline, items, inlineActiveValue, autoSelect, storeValue]);
+      (0, import_react21.useEffect)(() => {
+        const element = ref.current;
+        if (!element) return;
+        const onCompositeItemMove = () => setCanInline(true);
+        element.addEventListener("combobox-item-move", onCompositeItemMove);
+        return () => {
+          element.removeEventListener("combobox-item-move", onCompositeItemMove);
+        };
+      }, []);
+      (0, import_react21.useEffect)(() => {
+        if (!inline) return;
+        if (!canInline) return;
+        if (!inlineActiveValue) return;
+        const firstItemAutoSelected = isFirstItemAutoSelected(
+          items,
+          inlineActiveValue,
+          autoSelect
+        );
+        if (!firstItemAutoSelected) return;
+        if (!hasCompletionString(storeValue, inlineActiveValue)) return;
+        let cleanup = noop3;
+        queueMicrotask(() => {
+          const element = ref.current;
+          if (!element) return;
+          const { start: prevStart, end: prevEnd } = getTextboxSelection(element);
+          const nextStart = storeValue.length;
+          const nextEnd = inlineActiveValue.length;
+          setSelectionRange(element, nextStart, nextEnd);
+          cleanup = () => {
+            if (!hasFocus(element)) return;
+            const { start: start2, end } = getTextboxSelection(element);
+            if (start2 !== nextStart) return;
+            if (end !== nextEnd) return;
+            setSelectionRange(element, prevStart, prevEnd);
+          };
+        });
+        return () => cleanup();
+      }, [
+        valueUpdated,
+        inline,
+        canInline,
+        inlineActiveValue,
+        items,
+        autoSelect,
+        storeValue
+      ]);
+      const scrollingElementRef = (0, import_react21.useRef)(null);
+      const getAutoSelectIdProp = useEvent(getAutoSelectId);
+      const autoSelectIdRef = (0, import_react21.useRef)(null);
+      (0, import_react21.useEffect)(() => {
+        if (!open) return;
+        if (!contentElement) return;
+        const scrollingElement = getScrollingElement(contentElement);
+        if (!scrollingElement) return;
+        scrollingElementRef.current = scrollingElement;
+        const onUserScroll = () => {
+          canAutoSelectRef.current = false;
+        };
+        const onScroll = () => {
+          if (!store2) return;
+          if (!canAutoSelectRef.current) return;
+          const { activeId } = store2.getState();
+          if (activeId === null) return;
+          if (activeId === autoSelectIdRef.current) return;
+          canAutoSelectRef.current = false;
+        };
+        const options = { passive: true, capture: true };
+        scrollingElement.addEventListener("wheel", onUserScroll, options);
+        scrollingElement.addEventListener("touchmove", onUserScroll, options);
+        scrollingElement.addEventListener("scroll", onScroll, options);
+        return () => {
+          scrollingElement.removeEventListener("wheel", onUserScroll, true);
+          scrollingElement.removeEventListener("touchmove", onUserScroll, true);
+          scrollingElement.removeEventListener("scroll", onScroll, true);
+        };
+      }, [open, contentElement, store2]);
+      useSafeLayoutEffect(() => {
+        if (!storeValue) return;
+        if (composingRef.current) return;
+        canAutoSelectRef.current = true;
+      }, [storeValue]);
+      useSafeLayoutEffect(() => {
+        if (autoSelect !== "always" && open) return;
+        canAutoSelectRef.current = open;
+      }, [autoSelect, open]);
+      const resetValueOnSelect = store2.useState("resetValueOnSelect");
+      useUpdateEffect(() => {
+        var _a, _b;
+        const canAutoSelect = canAutoSelectRef.current;
+        if (!store2) return;
+        if (!open) return;
+        if (!canAutoSelect && !resetValueOnSelect) return;
+        const { baseElement, contentElement: contentElement2, activeId } = store2.getState();
+        if (baseElement && !hasFocus(baseElement)) return;
+        if (contentElement2 == null ? void 0 : contentElement2.hasAttribute("data-placing")) {
+          const observer = new MutationObserver(forceValueUpdate);
+          observer.observe(contentElement2, { attributeFilter: ["data-placing"] });
+          return () => observer.disconnect();
+        }
+        if (autoSelect && canAutoSelect) {
+          const userAutoSelectId = getAutoSelectIdProp(items);
+          const autoSelectId = userAutoSelectId !== void 0 ? userAutoSelectId : (_a = getDefaultAutoSelectId(items)) != null ? _a : store2.first();
+          autoSelectIdRef.current = autoSelectId;
+          store2.move(autoSelectId != null ? autoSelectId : null);
+        } else {
+          const element = (_b = store2.item(activeId || store2.first())) == null ? void 0 : _b.element;
+          if (element && "scrollIntoView" in element) {
+            element.scrollIntoView({ block: "nearest", inline: "nearest" });
+          }
+        }
+        return;
+      }, [
+        store2,
+        open,
+        valueUpdated,
+        storeValue,
+        autoSelect,
+        resetValueOnSelect,
+        getAutoSelectIdProp,
+        items
+      ]);
+      (0, import_react21.useEffect)(() => {
+        if (!inline) return;
+        const combobox = ref.current;
+        if (!combobox) return;
+        const elements2 = [combobox, contentElement].filter(
+          (value2) => !!value2
+        );
+        const onBlur2 = (event) => {
+          if (elements2.every((el) => isFocusEventOutside(event, el))) {
+            store2 == null ? void 0 : store2.setValue(value);
+          }
+        };
+        for (const element of elements2) {
+          element.addEventListener("focusout", onBlur2);
+        }
+        return () => {
+          for (const element of elements2) {
+            element.removeEventListener("focusout", onBlur2);
+          }
+        };
+      }, [inline, contentElement, store2, value]);
+      const canShow = (event) => {
+        const currentTarget = event.currentTarget;
+        return currentTarget.value.length >= showMinLength;
+      };
+      const onChangeProp = props.onChange;
+      const showOnChangeProp = useBooleanEvent(showOnChange != null ? showOnChange : canShow);
+      const setValueOnChangeProp = useBooleanEvent(
+        // If the combobox is combined with tags, the value will be set by the tag
+        // input component.
+        setValueOnChange != null ? setValueOnChange : !store2.tag
+      );
+      const onChange = useEvent((event) => {
+        onChangeProp == null ? void 0 : onChangeProp(event);
+        if (event.defaultPrevented) return;
+        if (!store2) return;
+        const currentTarget = event.currentTarget;
+        const { value: value2, selectionStart, selectionEnd } = currentTarget;
+        const nativeEvent = event.nativeEvent;
+        canAutoSelectRef.current = true;
+        if (isInputEvent(nativeEvent)) {
+          if (nativeEvent.isComposing) {
+            canAutoSelectRef.current = false;
+            composingRef.current = true;
+          }
+          if (inline) {
+            const textInserted = nativeEvent.inputType === "insertText" || nativeEvent.inputType === "insertCompositionText";
+            const caretAtEnd = selectionStart === value2.length;
+            setCanInline(textInserted && caretAtEnd);
+          }
+        }
+        if (setValueOnChangeProp(event)) {
+          const isSameValue = value2 === store2.getState().value;
+          store2.setValue(value2);
+          queueMicrotask(() => {
+            setSelectionRange(currentTarget, selectionStart, selectionEnd);
+          });
+          if (inline && autoSelect && isSameValue) {
+            forceValueUpdate();
+          }
+        }
+        if (showOnChangeProp(event)) {
+          store2.show();
+        }
+        if (!autoSelect || !canAutoSelectRef.current) {
+          store2.setActiveId(null);
+        }
+      });
+      const onCompositionEndProp = props.onCompositionEnd;
+      const onCompositionEnd = useEvent((event) => {
+        canAutoSelectRef.current = true;
+        composingRef.current = false;
+        onCompositionEndProp == null ? void 0 : onCompositionEndProp(event);
+        if (event.defaultPrevented) return;
+        if (!autoSelect) return;
+        forceValueUpdate();
+      });
+      const onMouseDownProp = props.onMouseDown;
+      const blurActiveItemOnClickProp = useBooleanEvent(
+        blurActiveItemOnClick != null ? blurActiveItemOnClick : (() => !!(store2 == null ? void 0 : store2.getState().includesBaseElement))
+      );
+      const setValueOnClickProp = useBooleanEvent(setValueOnClick);
+      const showOnClickProp = useBooleanEvent(showOnClick != null ? showOnClick : canShow);
+      const onMouseDown = useEvent((event) => {
+        onMouseDownProp == null ? void 0 : onMouseDownProp(event);
+        if (event.defaultPrevented) return;
+        if (event.button) return;
+        if (event.ctrlKey) return;
+        if (!store2) return;
+        if (blurActiveItemOnClickProp(event)) {
+          store2.setActiveId(null);
+        }
+        if (setValueOnClickProp(event)) {
+          store2.setValue(value);
+        }
+        if (showOnClickProp(event)) {
+          queueBeforeEvent(event.currentTarget, "mouseup", store2.show);
+        }
+      });
+      const onKeyDownProp = props.onKeyDown;
+      const showOnKeyPressProp = useBooleanEvent(showOnKeyPress != null ? showOnKeyPress : canShow);
+      const onKeyDown = useEvent((event) => {
+        onKeyDownProp == null ? void 0 : onKeyDownProp(event);
+        if (!event.repeat) {
+          canAutoSelectRef.current = false;
+        }
+        if (event.defaultPrevented) return;
+        if (event.ctrlKey) return;
+        if (event.altKey) return;
+        if (event.shiftKey) return;
+        if (event.metaKey) return;
+        if (!store2) return;
+        const { open: open2 } = store2.getState();
+        if (open2) return;
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+          if (showOnKeyPressProp(event)) {
+            event.preventDefault();
+            store2.show();
+          }
+        }
+      });
+      const onBlurProp = props.onBlur;
+      const onBlur = useEvent((event) => {
+        canAutoSelectRef.current = false;
+        onBlurProp == null ? void 0 : onBlurProp(event);
+        if (event.defaultPrevented) return;
+      });
+      const id = useId5(props.id);
+      const ariaAutoComplete = isAriaAutoCompleteValue(autoComplete) ? autoComplete : void 0;
+      const isActiveItem = store2.useState((state) => state.activeId === null);
+      props = {
+        id,
+        role: "combobox",
+        "aria-autocomplete": ariaAutoComplete,
+        "aria-haspopup": getPopupRole(contentElement, "listbox"),
+        "aria-expanded": open,
+        "aria-controls": contentElement == null ? void 0 : contentElement.id,
+        "data-active-item": isActiveItem || void 0,
+        value,
+        ...props,
+        ref: useMergeRefs(ref, props.ref),
+        onChange,
+        onCompositionEnd,
+        onMouseDown,
+        onKeyDown,
+        onBlur
+      };
+      props = useComposite({
+        store: store2,
+        focusable,
+        ...props,
+        // Enable inline autocomplete when the user moves from the combobox input
+        // to an item.
+        moveOnKeyPress: (event) => {
+          if (isFalsyBooleanCallback(moveOnKeyPress, event)) return false;
+          if (inline) setCanInline(true);
+          return true;
+        }
+      });
+      props = usePopoverAnchor({ store: store2, ...props });
+      return { autoComplete: "off", ...props };
+    }
+  );
+  var Combobox = forwardRef22(function Combobox2(props) {
+    const htmlProps = useCombobox(props);
+    return createElement5(TagName9, htmlProps);
+  });
+
+  // node_modules/@ariakit/react-core/esm/__chunks/IBXZ2LQC.js
+  var import_react22 = __toESM(require_react(), 1);
+  var import_jsx_runtime210 = __toESM(require_jsx_runtime(), 1);
+  var TagName10 = "div";
+  function isSelected(storeValue, itemValue) {
+    if (itemValue == null) return;
+    if (storeValue == null) return false;
+    if (Array.isArray(storeValue)) {
+      return storeValue.includes(itemValue);
+    }
+    return storeValue === itemValue;
+  }
+  function getItemRole(popupRole) {
+    var _a;
+    const itemRoleByPopupRole = {
+      menu: "menuitem",
+      listbox: "option",
+      tree: "treeitem"
+    };
+    const key = popupRole;
+    return (_a = itemRoleByPopupRole[key]) != null ? _a : "option";
+  }
+  var useComboboxItem = createHook(
+    function useComboboxItem2({
+      store: store2,
+      value,
+      hideOnClick,
+      setValueOnClick,
+      selectValueOnClick = true,
+      resetValueOnSelect,
+      focusOnHover = false,
+      moveOnKeyPress = true,
+      getItem: getItemProp,
+      ...props
+    }) {
+      var _a;
+      const context = useComboboxScopedContext();
+      store2 = store2 || context;
+      invariant(
+        store2,
+        "ComboboxItem must be wrapped in a ComboboxList or ComboboxPopover component."
+      );
+      const { resetValueOnSelectState, multiSelectable, selected } = useStoreStateObject(store2, {
+        resetValueOnSelectState: "resetValueOnSelect",
+        multiSelectable(state) {
+          return Array.isArray(state.selectedValue);
+        },
+        selected(state) {
+          return isSelected(state.selectedValue, value);
+        }
+      });
+      const getItem = (0, import_react22.useCallback)(
+        (item) => {
+          const nextItem = { ...item, value };
+          if (getItemProp) {
+            return getItemProp(nextItem);
+          }
+          return nextItem;
+        },
+        [value, getItemProp]
+      );
+      setValueOnClick = setValueOnClick != null ? setValueOnClick : !multiSelectable;
+      hideOnClick = hideOnClick != null ? hideOnClick : value != null && !multiSelectable;
+      const onClickProp = props.onClick;
+      const setValueOnClickProp = useBooleanEvent(setValueOnClick);
+      const selectValueOnClickProp = useBooleanEvent(selectValueOnClick);
+      const resetValueOnSelectProp = useBooleanEvent(
+        (_a = resetValueOnSelect != null ? resetValueOnSelect : resetValueOnSelectState) != null ? _a : multiSelectable
+      );
+      const hideOnClickProp = useBooleanEvent(hideOnClick);
+      const onClick = useEvent((event) => {
+        onClickProp == null ? void 0 : onClickProp(event);
+        if (event.defaultPrevented) return;
+        if (isDownloading(event)) return;
+        if (isOpeningInNewTab(event)) return;
+        if (value != null) {
+          if (selectValueOnClickProp(event)) {
+            if (resetValueOnSelectProp(event)) {
+              store2 == null ? void 0 : store2.resetValue();
+            }
+            store2 == null ? void 0 : store2.setSelectedValue((prevValue) => {
+              if (!Array.isArray(prevValue)) return value;
+              if (prevValue.includes(value)) {
+                return prevValue.filter((v2) => v2 !== value);
+              }
+              return [...prevValue, value];
+            });
+          }
+          if (setValueOnClickProp(event)) {
+            store2 == null ? void 0 : store2.setValue(value);
+          }
+        }
+        if (hideOnClickProp(event)) {
+          store2 == null ? void 0 : store2.hide();
+        }
+      });
+      const onKeyDownProp = props.onKeyDown;
+      const onKeyDown = useEvent((event) => {
+        onKeyDownProp == null ? void 0 : onKeyDownProp(event);
+        if (event.defaultPrevented) return;
+        const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
+        if (!baseElement) return;
+        if (hasFocus(baseElement)) return;
+        const printable = event.key.length === 1;
+        if (printable || event.key === "Backspace" || event.key === "Delete") {
+          queueMicrotask(() => baseElement.focus());
+          if (isTextField(baseElement)) {
+            store2 == null ? void 0 : store2.setValue(baseElement.value);
+          }
+        }
+      });
+      if (multiSelectable && selected != null) {
+        props = {
+          "aria-selected": selected,
+          ...props
+        };
+      }
+      props = useWrapElement(
+        props,
+        (element) => /* @__PURE__ */ (0, import_jsx_runtime210.jsx)(ComboboxItemValueContext.Provider, { value, children: /* @__PURE__ */ (0, import_jsx_runtime210.jsx)(ComboboxItemCheckedContext.Provider, { value: selected != null ? selected : false, children: element }) }),
+        [value, selected]
+      );
+      const popupRole = (0, import_react22.useContext)(ComboboxListRoleContext);
+      props = {
+        role: getItemRole(popupRole),
+        children: value,
+        ...props,
+        onClick,
+        onKeyDown
+      };
+      const moveOnKeyPressProp = useBooleanEvent(moveOnKeyPress);
+      props = useCompositeItem({
+        store: store2,
+        ...props,
+        getItem,
+        // Dispatch a custom event on the combobox input when moving to an item
+        // with the keyboard so the Combobox component can enable inline
+        // autocompletion.
+        moveOnKeyPress: (event) => {
+          if (!moveOnKeyPressProp(event)) return false;
+          const moveEvent = new Event("combobox-item-move");
+          const baseElement = store2 == null ? void 0 : store2.getState().baseElement;
+          baseElement == null ? void 0 : baseElement.dispatchEvent(moveEvent);
+          return true;
+        }
+      });
+      props = useCompositeHover({ store: store2, focusOnHover, ...props });
+      return props;
+    }
+  );
+  var ComboboxItem = memo22(
+    forwardRef22(function ComboboxItem2(props) {
+      const htmlProps = useComboboxItem(props);
+      return createElement5(TagName10, htmlProps);
+    })
+  );
+
+  // node_modules/@ariakit/react-core/esm/combobox/combobox-item-value.js
+  var import_react23 = __toESM(require_react(), 1);
+  var import_jsx_runtime211 = __toESM(require_jsx_runtime(), 1);
+  var TagName11 = "span";
+  function normalizeValue(value) {
+    return normalizeString2(value).toLowerCase();
+  }
+  function getOffsets(string, values) {
+    const offsets = [];
+    for (const value of values) {
+      let pos = 0;
+      const length = value.length;
+      while (string.indexOf(value, pos) !== -1) {
+        const index = string.indexOf(value, pos);
+        if (index !== -1) {
+          offsets.push([index, length]);
+        }
+        pos = index + 1;
+      }
+    }
+    return offsets;
+  }
+  function filterOverlappingOffsets(offsets) {
+    return offsets.filter(([offset, length], i2, arr) => {
+      return !arr.some(
+        ([o3, l2], j2) => j2 !== i2 && o3 <= offset && o3 + l2 >= offset + length
+      );
+    });
+  }
+  function sortOffsets(offsets) {
+    return offsets.sort(([a2], [b2]) => a2 - b2);
+  }
+  function splitValue(itemValue, userValue) {
+    if (!itemValue) return itemValue;
+    if (!userValue) return itemValue;
+    const userValues = toArray2(userValue).filter(Boolean).map(normalizeValue);
+    const parts = [];
+    const span = (value, autocomplete = false) => /* @__PURE__ */ (0, import_jsx_runtime211.jsx)(
+      "span",
+      {
+        "data-autocomplete-value": autocomplete ? "" : void 0,
+        "data-user-value": autocomplete ? void 0 : "",
+        children: value
+      },
+      parts.length
+    );
+    const offsets = sortOffsets(
+      filterOverlappingOffsets(
+        // Convert userValues into a set to avoid duplicates
+        getOffsets(normalizeValue(itemValue), new Set(userValues))
+      )
+    );
+    if (!offsets.length) {
+      parts.push(span(itemValue, true));
+      return parts;
+    }
+    const [firstOffset] = offsets[0];
+    const values = [
+      itemValue.slice(0, firstOffset),
+      ...offsets.flatMap(([offset, length], i2) => {
+        var _a;
+        const value = itemValue.slice(offset, offset + length);
+        const nextOffset = (_a = offsets[i2 + 1]) == null ? void 0 : _a[0];
+        const nextValue = itemValue.slice(offset + length, nextOffset);
+        return [value, nextValue];
+      })
+    ];
+    values.forEach((value, i2) => {
+      if (!value) return;
+      parts.push(span(value, i2 % 2 === 0));
+    });
+    return parts;
+  }
+  var useComboboxItemValue = createHook(function useComboboxItemValue2({ store: store2, value, userValue, ...props }) {
+    const context = useComboboxScopedContext();
+    store2 = store2 || context;
+    const itemContext = (0, import_react23.useContext)(ComboboxItemValueContext);
+    const itemValue = value != null ? value : itemContext;
+    const inputValue = useStoreState(store2, (state) => userValue != null ? userValue : state == null ? void 0 : state.value);
+    const children = (0, import_react23.useMemo)(() => {
+      if (!itemValue) return;
+      if (!inputValue) return itemValue;
+      return splitValue(itemValue, inputValue);
+    }, [itemValue, inputValue]);
+    props = {
+      children,
+      ...props
+    };
+    return removeUndefinedValues(props);
+  });
+  var ComboboxItemValue = forwardRef22(function ComboboxItemValue2(props) {
+    const htmlProps = useComboboxItemValue(props);
+    return createElement5(TagName11, htmlProps);
+  });
+
+  // node_modules/@ariakit/react-core/esm/combobox/combobox-label.js
+  var TagName12 = "label";
+  var useComboboxLabel = createHook(
+    function useComboboxLabel2({ store: store2, ...props }) {
+      const context = useComboboxProviderContext();
+      store2 = store2 || context;
+      invariant(
+        store2,
+        "ComboboxLabel must receive a `store` prop or be wrapped in a ComboboxProvider component."
+      );
+      const comboboxId = store2.useState((state) => {
+        var _a;
+        return (_a = state.baseElement) == null ? void 0 : _a.id;
+      });
+      props = {
+        htmlFor: comboboxId,
+        ...props
+      };
+      return removeUndefinedValues(props);
+    }
+  );
+  var ComboboxLabel = memo22(
+    forwardRef22(function ComboboxLabel2(props) {
+      const htmlProps = useComboboxLabel(props);
+      return createElement5(TagName12, htmlProps);
+    })
+  );
+
+  // node_modules/@ariakit/react-core/esm/__chunks/2G6YEJT4.js
+  var import_react24 = __toESM(require_react(), 1);
+  var import_jsx_runtime212 = __toESM(require_jsx_runtime(), 1);
   var TagName13 = "div";
   var useComboboxList = createHook(
-    function useComboboxList2(_a) {
-      var _b = _a, { store: store2, alwaysVisible } = _b, props = __objRest(_b, ["store", "alwaysVisible"]);
+    function useComboboxList2({ store: store2, alwaysVisible, ...props }) {
       const scopedContext = useComboboxScopedContext(true);
       const context = useComboboxContext();
       store2 = store2 || context;
@@ -32465,18 +32147,18 @@ If there's a particular need for this, please submit a feature request at https:
         store2,
         "ComboboxList must receive a `store` prop or be wrapped in a ComboboxProvider component."
       );
-      const ref = (0, import_react25.useRef)(null);
+      const ref = (0, import_react24.useRef)(null);
       const id = useId5(props.id);
       const mounted = store2.useState("mounted");
       const hidden = isHidden(mounted, props.hidden, alwaysVisible);
-      const style = hidden ? __spreadProps(__spreadValues({}, props.style), { display: "none" }) : props.style;
+      const style = hidden ? { ...props.style, display: "none" } : props.style;
       const multiSelectable = store2.useState(
         (state) => Array.isArray(state.selectedValue)
       );
       const role = useAttribute(ref, "role", props.role);
       const isCompositeRole = role === "listbox" || role === "tree" || role === "grid";
       const ariaMultiSelectable = isCompositeRole ? multiSelectable || void 0 : void 0;
-      const [hasListboxInside, setHasListboxInside] = (0, import_react25.useState)(false);
+      const [hasListboxInside, setHasListboxInside] = (0, import_react24.useState)(false);
       const contentElement = store2.useState("contentElement");
       useSafeLayoutEffect(() => {
         if (!mounted) return;
@@ -32496,24 +32178,25 @@ If there's a particular need for this, please submit a feature request at https:
         return () => observer.disconnect();
       }, [mounted, contentElement]);
       if (!hasListboxInside) {
-        props = __spreadValues({
+        props = {
           role: "listbox",
-          "aria-multiselectable": ariaMultiSelectable
-        }, props);
+          "aria-multiselectable": ariaMultiSelectable,
+          ...props
+        };
       }
       props = useWrapElement(
         props,
-        (element) => /* @__PURE__ */ (0, import_jsx_runtime213.jsx)(ComboboxScopedContextProvider, { value: store2, children: /* @__PURE__ */ (0, import_jsx_runtime213.jsx)(ComboboxListRoleContext.Provider, { value: role, children: element }) }),
+        (element) => /* @__PURE__ */ (0, import_jsx_runtime212.jsx)(ComboboxScopedContextProvider, { value: store2, children: /* @__PURE__ */ (0, import_jsx_runtime212.jsx)(ComboboxListRoleContext.Provider, { value: role, children: element }) }),
         [store2, role]
       );
       const setContentElement = id && (!scopedContext || !scopedContextSameStore) ? store2.setContentElement : null;
-      props = __spreadProps(__spreadValues({
+      props = {
         id,
-        hidden
-      }, props), {
+        hidden,
+        ...props,
         ref: useMergeRefs(setContentElement, ref, props.ref),
         style
-      });
+      };
       return removeUndefinedValues(props);
     }
   );
@@ -32522,11 +32205,205 @@ If there's a particular need for this, please submit a feature request at https:
     return createElement5(TagName13, htmlProps);
   });
 
+  // node_modules/@ariakit/react-core/esm/__chunks/XSIEPKGA.js
+  var import_react25 = __toESM(require_react(), 1);
+  var TagValueContext = (0, import_react25.createContext)(null);
+  var TagRemoveIdContext = (0, import_react25.createContext)(
+    null
+  );
+  var ctx8 = createStoreContext(
+    [CompositeContextProvider],
+    [CompositeScopedContextProvider]
+  );
+  var useTagContext = ctx8.useContext;
+  var useTagScopedContext = ctx8.useScopedContext;
+  var useTagProviderContext = ctx8.useProviderContext;
+  var TagContextProvider = ctx8.ContextProvider;
+  var TagScopedContextProvider = ctx8.ScopedContextProvider;
+
+  // node_modules/@ariakit/core/esm/combobox/combobox-store.js
+  var isTouchSafari = isSafari() && isTouchDevice();
+  function createComboboxStore({
+    tag,
+    ...props
+  } = {}) {
+    const store2 = mergeStore(props.store, pick2(tag, ["value", "rtl"]));
+    throwOnConflictingProps(props, store2);
+    const tagState = tag == null ? void 0 : tag.getState();
+    const syncState = store2 == null ? void 0 : store2.getState();
+    const activeId = defaultValue(
+      props.activeId,
+      syncState == null ? void 0 : syncState.activeId,
+      props.defaultActiveId,
+      null
+    );
+    const composite = createCompositeStore({
+      ...props,
+      activeId,
+      includesBaseElement: defaultValue(
+        props.includesBaseElement,
+        syncState == null ? void 0 : syncState.includesBaseElement,
+        true
+      ),
+      orientation: defaultValue(
+        props.orientation,
+        syncState == null ? void 0 : syncState.orientation,
+        "vertical"
+      ),
+      focusLoop: defaultValue(props.focusLoop, syncState == null ? void 0 : syncState.focusLoop, true),
+      focusWrap: defaultValue(props.focusWrap, syncState == null ? void 0 : syncState.focusWrap, true),
+      virtualFocus: defaultValue(
+        props.virtualFocus,
+        syncState == null ? void 0 : syncState.virtualFocus,
+        true
+      )
+    });
+    const popover = createPopoverStore({
+      ...props,
+      placement: defaultValue(
+        props.placement,
+        syncState == null ? void 0 : syncState.placement,
+        "bottom-start"
+      )
+    });
+    const value = defaultValue(
+      props.value,
+      syncState == null ? void 0 : syncState.value,
+      props.defaultValue,
+      ""
+    );
+    const selectedValue = defaultValue(
+      props.selectedValue,
+      syncState == null ? void 0 : syncState.selectedValue,
+      tagState == null ? void 0 : tagState.values,
+      props.defaultSelectedValue,
+      ""
+    );
+    const multiSelectable = Array.isArray(selectedValue);
+    const initialState = {
+      ...composite.getState(),
+      ...popover.getState(),
+      value,
+      selectedValue,
+      resetValueOnSelect: defaultValue(
+        props.resetValueOnSelect,
+        syncState == null ? void 0 : syncState.resetValueOnSelect,
+        multiSelectable
+      ),
+      resetValueOnHide: defaultValue(
+        props.resetValueOnHide,
+        syncState == null ? void 0 : syncState.resetValueOnHide,
+        multiSelectable && !tag
+      ),
+      activeValue: syncState == null ? void 0 : syncState.activeValue
+    };
+    const combobox = createStore(initialState, composite, popover, store2);
+    if (isTouchSafari) {
+      setup(
+        combobox,
+        () => sync2(combobox, ["virtualFocus"], () => {
+          combobox.setState("virtualFocus", false);
+        })
+      );
+    }
+    setup(combobox, () => {
+      if (!tag) return;
+      return chain(
+        sync2(combobox, ["selectedValue"], (state) => {
+          if (!Array.isArray(state.selectedValue)) return;
+          tag.setValues(state.selectedValue);
+        }),
+        sync2(tag, ["values"], (state) => {
+          combobox.setState("selectedValue", state.values);
+        })
+      );
+    });
+    setup(
+      combobox,
+      () => sync2(combobox, ["resetValueOnHide", "mounted"], (state) => {
+        if (!state.resetValueOnHide) return;
+        if (state.mounted) return;
+        combobox.setState("value", value);
+      })
+    );
+    setup(
+      combobox,
+      () => sync2(combobox, ["open"], (state) => {
+        if (state.open) return;
+        combobox.setState("activeId", activeId);
+        combobox.setState("moves", 0);
+      })
+    );
+    setup(
+      combobox,
+      () => sync2(combobox, ["moves", "activeId"], (state, prevState) => {
+        if (state.moves === prevState.moves) {
+          combobox.setState("activeValue", void 0);
+        }
+      })
+    );
+    setup(
+      combobox,
+      () => batch(combobox, ["moves", "renderedItems"], (state, prev) => {
+        if (state.moves === prev.moves) return;
+        const { activeId: activeId2 } = combobox.getState();
+        const activeItem = composite.item(activeId2);
+        combobox.setState("activeValue", activeItem == null ? void 0 : activeItem.value);
+      })
+    );
+    return {
+      ...popover,
+      ...composite,
+      ...combobox,
+      tag,
+      setValue: (value2) => combobox.setState("value", value2),
+      resetValue: () => combobox.setState("value", initialState.value),
+      setSelectedValue: (selectedValue2) => combobox.setState("selectedValue", selectedValue2)
+    };
+  }
+
+  // node_modules/@ariakit/react-core/esm/__chunks/SVN33SY6.js
+  function useComboboxStoreOptions(props) {
+    const tag = useTagContext();
+    props = {
+      ...props,
+      tag: props.tag !== void 0 ? props.tag : tag
+    };
+    return useCompositeStoreOptions(props);
+  }
+  function useComboboxStoreProps(store2, update4, props) {
+    useUpdateEffect(update4, [props.tag]);
+    useStoreProps(store2, props, "value", "setValue");
+    useStoreProps(store2, props, "selectedValue", "setSelectedValue");
+    useStoreProps(store2, props, "resetValueOnHide");
+    useStoreProps(store2, props, "resetValueOnSelect");
+    return Object.assign(
+      useCompositeStoreProps(
+        usePopoverStoreProps(store2, update4, props),
+        update4,
+        props
+      ),
+      { tag: props.tag }
+    );
+  }
+  function useComboboxStore(props = {}) {
+    props = useComboboxStoreOptions(props);
+    const [store2, update4] = useStore(createComboboxStore, props);
+    return useComboboxStoreProps(store2, update4, props);
+  }
+
+  // node_modules/@ariakit/react-core/esm/combobox/combobox-provider.js
+  var import_jsx_runtime213 = __toESM(require_jsx_runtime(), 1);
+  function ComboboxProvider(props = {}) {
+    const store2 = useComboboxStore(props);
+    return /* @__PURE__ */ (0, import_jsx_runtime213.jsx)(ComboboxContextProvider, { value: store2, children: props.children });
+  }
+
   // packages/dataviews/build-module/components/dataviews-filters/search-widget.mjs
   var import_remove_accents = __toESM(require_remove_accents(), 1);
   var import_compose19 = __toESM(require_compose(), 1);
   var import_i18n104 = __toESM(require_i18n(), 1);
-  var import_element88 = __toESM(require_element(), 1);
+  var import_element89 = __toESM(require_element(), 1);
   var import_components110 = __toESM(require_components(), 1);
 
   // packages/dataviews/build-module/components/dataviews-filters/utils.mjs
@@ -32545,16 +32422,16 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/hooks/use-elements.mjs
-  var import_element87 = __toESM(require_element(), 1);
+  var import_element88 = __toESM(require_element(), 1);
   var EMPTY_ARRAY7 = [];
   function useElements({
     elements: elements2,
     getElements
   }) {
     const staticElements = Array.isArray(elements2) && elements2.length > 0 ? elements2 : EMPTY_ARRAY7;
-    const [records, setRecords] = (0, import_element87.useState)(staticElements);
-    const [isLoading, setIsLoading] = (0, import_element87.useState)(false);
-    (0, import_element87.useEffect)(() => {
+    const [records, setRecords] = (0, import_element88.useState)(staticElements);
+    const [isLoading, setIsLoading] = (0, import_element88.useState)(false);
+    (0, import_element88.useEffect)(() => {
       if (!getElements) {
         setRecords(staticElements);
         return;
@@ -32627,7 +32504,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
   function ListBox({ view, filter, onChangeView }) {
     const baseId = (0, import_compose19.useInstanceId)(ListBox, "dataviews-filter-list-box");
-    const [activeCompositeId, setActiveCompositeId] = (0, import_element88.useState)(
+    const [activeCompositeId, setActiveCompositeId] = (0, import_element89.useState)(
       // When there are one or less operators, the first item is set as active
       // (by setting the initial `activeId` to `undefined`).
       // With 2 or more operators, the focus is moved on the operators control
@@ -32734,7 +32611,14 @@ If there's a particular need for this, please submit a feature request at https:
                   selected: currentValue.includes(element.value)
                 }
               ),
-              /* @__PURE__ */ (0, import_jsx_runtime214.jsx)("span", { children: element.label })
+              /* @__PURE__ */ (0, import_jsx_runtime214.jsx)(
+                "span",
+                {
+                  className: "dataviews-filters__search-widget-listitem-value",
+                  title: element.label,
+                  children: element.label
+                }
+              )
             ]
           },
           element.value
@@ -32743,13 +32627,13 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function ComboboxList22({ view, filter, onChangeView }) {
-    const [searchValue, setSearchValue] = (0, import_element88.useState)("");
-    const deferredSearchValue = (0, import_element88.useDeferredValue)(searchValue);
+    const [searchValue, setSearchValue] = (0, import_element89.useState)("");
+    const deferredSearchValue = (0, import_element89.useDeferredValue)(searchValue);
     const currentFilter = view.filters?.find(
       (_filter) => _filter.field === filter.field
     );
     const currentValue = getCurrentValue(filter, currentFilter);
-    const matches = (0, import_element88.useMemo)(() => {
+    const matches = (0, import_element89.useMemo)(() => {
       const normalizedSearch = normalizeSearchInput(deferredSearchValue);
       return filter.elements.filter(
         (item) => normalizeSearchInput(item.label).includes(normalizedSearch)
@@ -32836,16 +32720,23 @@ If there's a particular need for this, please submit a feature request at https:
                             )
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime214.jsxs)("span", { children: [
-                          /* @__PURE__ */ (0, import_jsx_runtime214.jsx)(
-                            ComboboxItemValue,
-                            {
-                              className: "dataviews-filters__search-widget-filter-combobox-item-value",
-                              value: element.label
-                            }
-                          ),
-                          !!element.description && /* @__PURE__ */ (0, import_jsx_runtime214.jsx)("span", { className: "dataviews-filters__search-widget-listitem-description", children: element.description })
-                        ] })
+                        /* @__PURE__ */ (0, import_jsx_runtime214.jsxs)(
+                          "span",
+                          {
+                            className: "dataviews-filters__search-widget-listitem-value",
+                            title: element.label,
+                            children: [
+                              /* @__PURE__ */ (0, import_jsx_runtime214.jsx)(
+                                ComboboxItemValue,
+                                {
+                                  className: "dataviews-filters__search-widget-filter-combobox-item-value",
+                                  value: element.label
+                                }
+                              ),
+                              !!element.description && /* @__PURE__ */ (0, import_jsx_runtime214.jsx)("span", { className: "dataviews-filters__search-widget-listitem-description", children: element.description })
+                            ]
+                          }
+                        )
                       ]
                     },
                     element.value
@@ -32877,7 +32768,7 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/dataviews/build-module/components/dataviews-filters/input-widget.mjs
   var import_es62 = __toESM(require_es6(), 1);
   var import_compose20 = __toESM(require_compose(), 1);
-  var import_element89 = __toESM(require_element(), 1);
+  var import_element90 = __toESM(require_element(), 1);
   var import_components111 = __toESM(require_components(), 1);
   var import_jsx_runtime215 = __toESM(require_jsx_runtime(), 1);
   function InputWidget({
@@ -32890,7 +32781,7 @@ If there's a particular need for this, please submit a feature request at https:
       (f2) => f2.field === filter.field
     );
     const currentValue = getCurrentValue(filter, currentFilter);
-    const field = (0, import_element89.useMemo)(() => {
+    const field = (0, import_element90.useMemo)(() => {
       const currentField = fields.find((f2) => f2.id === filter.field);
       if (currentField) {
         return {
@@ -32906,7 +32797,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       return currentField;
     }, [fields, filter.field]);
-    const data = (0, import_element89.useMemo)(() => {
+    const data = (0, import_element90.useMemo)(() => {
       return (view.filters ?? []).reduce(
         (acc, activeFilter) => {
           acc[activeFilter.field] = activeFilter.value;
@@ -34604,7 +34495,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/utils/operators.mjs
   var import_i18n105 = __toESM(require_i18n(), 1);
-  var import_element90 = __toESM(require_element(), 1);
+  var import_element91 = __toESM(require_element(), 1);
   var import_date2 = __toESM(require_date(), 1);
   var import_jsx_runtime216 = __toESM(require_jsx_runtime(), 1);
   var filterTextWrappers = {
@@ -34628,7 +34519,7 @@ If there's a particular need for this, please submit a feature request at https:
   var isNoneOperatorDefinition = {
     /* translators: DataViews operator name */
     label: (0, import_i18n105.__)("Is none of"),
-    filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+    filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
       (0, import_i18n105.sprintf)(
         /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is none of: Admin, Editor". */
         (0, import_i18n105.__)("<Name>%1$s is none of: </Name><Value>%2$s</Value>"),
@@ -34658,7 +34549,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_IS_ANY2,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Includes"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is any: Admin, Editor". */
           (0, import_i18n105.__)("<Name>%1$s includes: </Name><Value>%2$s</Value>"),
@@ -34691,7 +34582,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_IS_ALL,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Includes all"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author includes all: Admin, Editor". */
           (0, import_i18n105.__)("<Name>%1$s includes all: </Name><Value>%2$s</Value>"),
@@ -34718,7 +34609,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_BETWEEN,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Between (inc)"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Item count"). 2: Filter value min. 3: Filter value max. e.g.: "Item count between (inc): 10 and 180". */
           (0, import_i18n105.__)(
@@ -34746,7 +34637,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_IN_THE_PAST,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("In the past"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "7 days"): "Date is in the past: 7 days". */
           (0, import_i18n105.__)(
@@ -34774,7 +34665,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_OVER,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Over"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "7 days"): "Date is over: 7 days". */
           (0, import_i18n105.__)("<Name>%1$s is over: </Name><Value>%2$s</Value>"),
@@ -34800,7 +34691,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_IS2,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Is"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is: Admin". */
           (0, import_i18n105.__)("<Name>%1$s is: </Name><Value>%2$s</Value>"),
@@ -34818,7 +34709,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_IS_NOT,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Is not"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is not: Admin". */
           (0, import_i18n105.__)("<Name>%1$s is not: </Name><Value>%2$s</Value>"),
@@ -34836,7 +34727,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_LESS_THAN,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Less than"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is less than: 10". */
           (0, import_i18n105.__)("<Name>%1$s is less than: </Name><Value>%2$s</Value>"),
@@ -34858,7 +34749,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_GREATER_THAN,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Greater than"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is greater than: 10". */
           (0, import_i18n105.__)(
@@ -34882,7 +34773,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_LESS_THAN_OR_EQUAL,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Less than or equal"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is less than or equal to: 10". */
           (0, import_i18n105.__)(
@@ -34906,7 +34797,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_GREATER_THAN_OR_EQUAL,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Greater than or equal"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is greater than or equal to: 10". */
           (0, import_i18n105.__)(
@@ -34930,7 +34821,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_BEFORE2,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Before"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is before: 2024-01-01". */
           (0, import_i18n105.__)("<Name>%1$s is before: </Name><Value>%2$s</Value>"),
@@ -34953,7 +34844,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_AFTER2,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("After"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is after: 2024-01-01". */
           (0, import_i18n105.__)("<Name>%1$s is after: </Name><Value>%2$s</Value>"),
@@ -34976,7 +34867,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_BEFORE_INC,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Before (inc)"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is on or before: 2024-01-01". */
           (0, import_i18n105.__)(
@@ -35001,7 +34892,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_AFTER_INC,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("After (inc)"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is on or after: 2024-01-01". */
           (0, import_i18n105.__)(
@@ -35026,7 +34917,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_CONTAINS,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Contains"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title contains: Hello". */
           (0, import_i18n105.__)("<Name>%1$s contains: </Name><Value>%2$s</Value>"),
@@ -35048,7 +34939,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_NOT_CONTAINS,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Doesn't contain"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title doesn't contain: Hello". */
           (0, import_i18n105.__)(
@@ -35072,7 +34963,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_STARTS_WITH,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Starts with"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title starts with: Hello". */
           (0, import_i18n105.__)("<Name>%1$s starts with: </Name><Value>%2$s</Value>"),
@@ -35094,7 +34985,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_ON,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("On"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is: 2024-01-01". */
           (0, import_i18n105.__)("<Name>%1$s is: </Name><Value>%2$s</Value>"),
@@ -35117,7 +35008,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: OPERATOR_NOT_ON,
       /* translators: DataViews operator name */
       label: (0, import_i18n105.__)("Not on"),
-      filterText: (filter, activeElements) => (0, import_element90.createInterpolateElement)(
+      filterText: (filter, activeElements) => (0, import_element91.createInterpolateElement)(
         (0, import_i18n105.sprintf)(
           /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is not: 2024-01-01". */
           (0, import_i18n105.__)("<Name>%1$s is not: </Name><Value>%2$s</Value>"),
@@ -35251,13 +35142,13 @@ If there's a particular need for this, please submit a feature request at https:
     fields,
     ...commonProps
   }) {
-    const toggleRef = (0, import_element91.useRef)(null);
+    const toggleRef = (0, import_element92.useRef)(null);
     const { filter, view, onChangeView } = commonProps;
     const filterInView = view.filters?.find(
       (f2) => f2.field === filter.field
     );
     let activeElements = [];
-    const field = (0, import_element91.useMemo)(() => {
+    const field = (0, import_element92.useMemo)(() => {
       const currentField = fields.find((f2) => f2.id === filter.field);
       if (currentField) {
         return {
@@ -35428,7 +35319,7 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/dataviews/build-module/components/dataviews-filters/add-filter.mjs
   var import_components113 = __toESM(require_components(), 1);
   var import_i18n107 = __toESM(require_i18n(), 1);
-  var import_element92 = __toESM(require_element(), 1);
+  var import_element93 = __toESM(require_element(), 1);
   var import_jsx_runtime218 = __toESM(require_jsx_runtime(), 1);
   var { Menu: Menu8 } = unlock3(import_components113.privateApis);
   function AddFilterMenu({
@@ -35493,7 +35384,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
     );
   }
-  var add_filter_default = (0, import_element92.forwardRef)(AddFilter);
+  var add_filter_default = (0, import_element93.forwardRef)(AddFilter);
 
   // packages/dataviews/build-module/components/dataviews-filters/reset-filters.mjs
   var import_components114 = __toESM(require_components(), 1);
@@ -35532,9 +35423,9 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataviews-filters/use-filters.mjs
-  var import_element93 = __toESM(require_element(), 1);
+  var import_element94 = __toESM(require_element(), 1);
   function useFilters(fields, view) {
-    return (0, import_element93.useMemo)(() => {
+    return (0, import_element94.useMemo)(() => {
       const filters = [];
       fields.forEach((field) => {
         if (field.filterBy === false || !field.hasElements && !field.Edit) {
@@ -35585,8 +35476,8 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/dataviews/build-module/components/dataviews-filters/filters.mjs
   var import_jsx_runtime220 = __toESM(require_jsx_runtime(), 1);
   function Filters({ className }) {
-    const { fields, view, onChangeView, openedFilter, setOpenedFilter } = (0, import_element94.useContext)(dataviews_context_default);
-    const addFilterRef = (0, import_element94.useRef)(null);
+    const { fields, view, onChangeView, openedFilter, setOpenedFilter } = (0, import_element95.useContext)(dataviews_context_default);
+    const addFilterRef = (0, import_element95.useRef)(null);
     const filters = use_filters_default(fields, view);
     const addFilter = /* @__PURE__ */ (0, import_jsx_runtime220.jsx)(
       add_filter_default,
@@ -35644,10 +35535,10 @@ If there's a particular need for this, please submit a feature request at https:
       }
     );
   }
-  var filters_default = (0, import_element94.memo)(Filters);
+  var filters_default = (0, import_element95.memo)(Filters);
 
   // packages/dataviews/build-module/components/dataviews-filters/toggle.mjs
-  var import_element95 = __toESM(require_element(), 1);
+  var import_element96 = __toESM(require_element(), 1);
   var import_components115 = __toESM(require_components(), 1);
   var import_i18n109 = __toESM(require_i18n(), 1);
   var import_jsx_runtime221 = __toESM(require_jsx_runtime(), 1);
@@ -35659,9 +35550,9 @@ If there's a particular need for this, please submit a feature request at https:
       setOpenedFilter,
       isShowingFilter,
       setIsShowingFilter
-    } = (0, import_element95.useContext)(dataviews_context_default);
-    const buttonRef = (0, import_element95.useRef)(null);
-    const onChangeViewWithFilterVisibility = (0, import_element95.useCallback)(
+    } = (0, import_element96.useContext)(dataviews_context_default);
+    const buttonRef = (0, import_element96.useRef)(null);
+    const onChangeViewWithFilterVisibility = (0, import_element96.useCallback)(
       (_view) => {
         onChangeView(_view);
         setIsShowingFilter(true);
@@ -35722,7 +35613,7 @@ If there's a particular need for this, please submit a feature request at https:
     filtersCount,
     children
   }) {
-    (0, import_element95.useEffect)(
+    (0, import_element96.useEffect)(
       () => () => {
         buttonRef.current?.focus();
       },
@@ -35736,10 +35627,10 @@ If there's a particular need for this, please submit a feature request at https:
   var toggle_default = FiltersToggle;
 
   // packages/dataviews/build-module/components/dataviews-filters/filters-toggled.mjs
-  var import_element96 = __toESM(require_element(), 1);
+  var import_element97 = __toESM(require_element(), 1);
   var import_jsx_runtime222 = __toESM(require_jsx_runtime(), 1);
   function FiltersToggled(props) {
-    const { isShowingFilter } = (0, import_element96.useContext)(dataviews_context_default);
+    const { isShowingFilter } = (0, import_element97.useContext)(dataviews_context_default);
     if (!isShowingFilter) {
       return null;
     }
@@ -35748,7 +35639,7 @@ If there's a particular need for this, please submit a feature request at https:
   var filters_toggled_default = FiltersToggled;
 
   // packages/dataviews/build-module/components/dataviews-layout/index.mjs
-  var import_element97 = __toESM(require_element(), 1);
+  var import_element98 = __toESM(require_element(), 1);
   var import_i18n110 = __toESM(require_i18n(), 1);
   var import_jsx_runtime223 = __toESM(require_jsx_runtime(), 1);
   function DataViewsLayout({ className }) {
@@ -35769,7 +35660,7 @@ If there's a particular need for this, please submit a feature request at https:
       renderItemLink,
       defaultLayouts: defaultLayouts4,
       empty = /* @__PURE__ */ (0, import_jsx_runtime223.jsx)("p", { children: (0, import_i18n110.__)("No results") })
-    } = (0, import_element97.useContext)(dataviews_context_default);
+    } = (0, import_element98.useContext)(dataviews_context_default);
     const ViewComponent = VIEW_LAYOUTS.find(
       (v2) => v2.type === view.type && defaultLayouts4[v2.type]
     )?.component;
@@ -35797,7 +35688,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataviews-footer/index.mjs
-  var import_element98 = __toESM(require_element(), 1);
+  var import_element99 = __toESM(require_element(), 1);
   var import_jsx_runtime224 = __toESM(require_jsx_runtime(), 1);
   var EMPTY_ARRAY8 = [];
   function DataViewsFooter() {
@@ -35806,7 +35697,7 @@ If there's a particular need for this, please submit a feature request at https:
       paginationInfo: { totalItems = 0, totalPages },
       data,
       actions = EMPTY_ARRAY8
-    } = (0, import_element98.useContext)(dataviews_context_default);
+    } = (0, import_element99.useContext)(dataviews_context_default);
     const hasBulkActions = useSomeItemHasAPossibleBulkAction(actions, data) && [LAYOUT_TABLE2, LAYOUT_GRID2].includes(view.type);
     if (!totalItems || !totalPages || totalPages <= 1 && !hasBulkActions) {
       return null;
@@ -35829,25 +35720,27 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataviews-search/index.mjs
   var import_i18n111 = __toESM(require_i18n(), 1);
-  var import_element99 = __toESM(require_element(), 1);
+  var import_element100 = __toESM(require_element(), 1);
   var import_components116 = __toESM(require_components(), 1);
   var import_compose21 = __toESM(require_compose(), 1);
   var import_jsx_runtime225 = __toESM(require_jsx_runtime(), 1);
-  var DataViewsSearch = (0, import_element99.memo)(function Search({ label }) {
-    const { view, onChangeView } = (0, import_element99.useContext)(dataviews_context_default);
+  var DataViewsSearch = (0, import_element100.memo)(function Search({ label }) {
+    const { view, onChangeView } = (0, import_element100.useContext)(dataviews_context_default);
     const [search, setSearch, debouncedSearch] = (0, import_compose21.useDebouncedInput)(
       view.search
     );
-    (0, import_element99.useEffect)(() => {
-      setSearch(view.search ?? "");
+    (0, import_element100.useEffect)(() => {
+      if (view.search !== debouncedSearch) {
+        setSearch(view.search ?? "");
+      }
     }, [view.search, setSearch]);
-    const onChangeViewRef = (0, import_element99.useRef)(onChangeView);
-    const viewRef = (0, import_element99.useRef)(view);
-    (0, import_element99.useEffect)(() => {
+    const onChangeViewRef = (0, import_element100.useRef)(onChangeView);
+    const viewRef = (0, import_element100.useRef)(view);
+    (0, import_element100.useEffect)(() => {
       onChangeViewRef.current = onChangeView;
       viewRef.current = view;
     }, [onChangeView, view]);
-    (0, import_element99.useEffect)(() => {
+    (0, import_element100.useEffect)(() => {
       if (debouncedSearch !== viewRef.current?.search) {
         onChangeViewRef.current({
           ...viewRef.current,
@@ -35874,17 +35767,17 @@ If there's a particular need for this, please submit a feature request at https:
   // packages/dataviews/build-module/components/dataviews-view-config/index.mjs
   var import_components118 = __toESM(require_components(), 1);
   var import_i18n113 = __toESM(require_i18n(), 1);
-  var import_element101 = __toESM(require_element(), 1);
+  var import_element102 = __toESM(require_element(), 1);
   var import_warning = __toESM(require_warning(), 1);
   var import_compose22 = __toESM(require_compose(), 1);
 
   // packages/dataviews/build-module/components/dataviews-view-config/infinite-scroll-toggle.mjs
   var import_components117 = __toESM(require_components(), 1);
   var import_i18n112 = __toESM(require_i18n(), 1);
-  var import_element100 = __toESM(require_element(), 1);
+  var import_element101 = __toESM(require_element(), 1);
   var import_jsx_runtime226 = __toESM(require_jsx_runtime(), 1);
   function InfiniteScrollToggle() {
-    const context = (0, import_element100.useContext)(dataviews_context_default);
+    const context = (0, import_element101.useContext)(dataviews_context_default);
     const { view, onChangeView } = context;
     const infiniteScrollEnabled = view.infiniteScrollEnabled ?? false;
     if (!context.hasInfiniteScrollHandler) {
@@ -35917,7 +35810,7 @@ If there's a particular need for this, please submit a feature request at https:
     offset: 9
   };
   function ViewTypeMenu() {
-    const { view, onChangeView, defaultLayouts: defaultLayouts4 } = (0, import_element101.useContext)(dataviews_context_default);
+    const { view, onChangeView, defaultLayouts: defaultLayouts4 } = (0, import_element102.useContext)(dataviews_context_default);
     const availableLayouts = Object.keys(defaultLayouts4);
     if (availableLayouts.length <= 1) {
       return null;
@@ -35979,8 +35872,8 @@ If there's a particular need for this, please submit a feature request at https:
     ] });
   }
   function SortFieldControl() {
-    const { view, fields, onChangeView } = (0, import_element101.useContext)(dataviews_context_default);
-    const orderOptions = (0, import_element101.useMemo)(() => {
+    const { view, fields, onChangeView } = (0, import_element102.useContext)(dataviews_context_default);
+    const orderOptions = (0, import_element102.useMemo)(() => {
       const sortableFields = fields.filter(
         (field) => field.enableSorting !== false
       );
@@ -36012,7 +35905,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function SortDirectionControl() {
-    const { view, fields, onChangeView } = (0, import_element101.useContext)(dataviews_context_default);
+    const { view, fields, onChangeView } = (0, import_element102.useContext)(dataviews_context_default);
     const sortableFields = fields.filter(
       (field) => field.enableSorting !== false
     );
@@ -36063,7 +35956,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function ItemsPerPageControl() {
-    const { view, config: config2, onChangeView } = (0, import_element101.useContext)(dataviews_context_default);
+    const { view, config: config2, onChangeView } = (0, import_element102.useContext)(dataviews_context_default);
     const { infiniteScrollEnabled } = view;
     if (!config2 || !config2.perPageSizes || config2.perPageSizes.length < 2 || config2.perPageSizes.length > 6 || infiniteScrollEnabled) {
       return null;
@@ -36098,7 +35991,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function ResetViewButton() {
-    const { onReset } = (0, import_element101.useContext)(dataviews_context_default);
+    const { onReset } = (0, import_element102.useContext)(dataviews_context_default);
     if (onReset === void 0) {
       return null;
     }
@@ -36121,7 +36014,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function DataviewsViewConfigDropdown() {
-    const { view, onReset } = (0, import_element101.useContext)(dataviews_context_default);
+    const { view, onReset } = (0, import_element102.useContext)(dataviews_context_default);
     const popoverId = (0, import_compose22.useInstanceId)(
       _DataViewsViewConfig,
       "dataviews-view-config-dropdown"
@@ -36221,12 +36114,12 @@ If there's a particular need for this, please submit a feature request at https:
       /* @__PURE__ */ (0, import_jsx_runtime227.jsx)(DataviewsViewConfigDropdown, {})
     ] });
   }
-  var DataViewsViewConfig = (0, import_element101.memo)(_DataViewsViewConfig);
+  var DataViewsViewConfig = (0, import_element102.memo)(_DataViewsViewConfig);
   var dataviews_view_config_default = DataViewsViewConfig;
 
   // packages/dataviews/build-module/components/dataform-controls/checkbox.mjs
   var import_components119 = __toESM(require_components(), 1);
-  var import_element102 = __toESM(require_element(), 1);
+  var import_element103 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataform-controls/utils/get-custom-validity.mjs
   function getCustomValidity(isValid2, validity) {
@@ -36263,7 +36156,7 @@ If there's a particular need for this, please submit a feature request at https:
     validity
   }) {
     const { getValue, setValue, label, description, isValid: isValid2 } = field;
-    const onChangeControl = (0, import_element102.useCallback)(() => {
+    const onChangeControl = (0, import_element103.useCallback)(() => {
       onChange(
         setValue({ item: data, value: !getValue({ item: data }) })
       );
@@ -36285,7 +36178,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/combobox.mjs
   var import_components120 = __toESM(require_components(), 1);
-  var import_element103 = __toESM(require_element(), 1);
+  var import_element104 = __toESM(require_element(), 1);
   var import_jsx_runtime229 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedComboboxControl } = unlock3(import_components120.privateApis);
   function Combobox3({
@@ -36297,7 +36190,7 @@ If there's a particular need for this, please submit a feature request at https:
   }) {
     const { label, description, placeholder, getValue, setValue, isValid: isValid2 } = field;
     const value = getValue({ item: data }) ?? "";
-    const onChangeControl = (0, import_element103.useCallback)(
+    const onChangeControl = (0, import_element104.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue ?? "" })),
       [data, onChange, setValue]
     );
@@ -36328,13 +36221,13 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/datetime.mjs
   var import_components122 = __toESM(require_components(), 1);
-  var import_element105 = __toESM(require_element(), 1);
+  var import_element106 = __toESM(require_element(), 1);
   var import_i18n115 = __toESM(require_i18n(), 1);
   var import_date4 = __toESM(require_date(), 1);
 
   // packages/dataviews/build-module/components/dataform-controls/utils/relative-date-control.mjs
   var import_components121 = __toESM(require_components(), 1);
-  var import_element104 = __toESM(require_element(), 1);
+  var import_element105 = __toESM(require_element(), 1);
   var import_i18n114 = __toESM(require_i18n(), 1);
   var import_jsx_runtime230 = __toESM(require_jsx_runtime(), 1);
   var TIME_UNITS_OPTIONS = {
@@ -36363,7 +36256,7 @@ If there's a particular need for this, please submit a feature request at https:
     const { id, label, getValue, setValue } = field;
     const fieldValue = getValue({ item: data });
     const { value: relValue = "", unit = options[0].value } = fieldValue && typeof fieldValue === "object" ? fieldValue : {};
-    const onChangeValue = (0, import_element104.useCallback)(
+    const onChangeValue = (0, import_element105.useCallback)(
       (newValue) => onChange(
         setValue({
           item: data,
@@ -36372,7 +36265,7 @@ If there's a particular need for this, please submit a feature request at https:
       ),
       [onChange, setValue, data, unit]
     );
-    const onChangeUnit = (0, import_element104.useCallback)(
+    const onChangeUnit = (0, import_element105.useCallback)(
       (newUnit) => onChange(
         setValue({
           item: data,
@@ -36451,25 +36344,25 @@ If there's a particular need for this, please submit a feature request at https:
     const { id, label, description, setValue, getValue, isValid: isValid2 } = field;
     const fieldValue = getValue({ item: data });
     const value = typeof fieldValue === "string" ? fieldValue : void 0;
-    const [calendarMonth, setCalendarMonth] = (0, import_element105.useState)(() => {
+    const [calendarMonth, setCalendarMonth] = (0, import_element106.useState)(() => {
       const parsedDate = parseDateTime(value);
       return parsedDate || /* @__PURE__ */ new Date();
     });
-    const inputControlRef = (0, import_element105.useRef)(null);
-    const validationTimeoutRef = (0, import_element105.useRef)();
-    const previousFocusRef = (0, import_element105.useRef)(null);
-    const onChangeCallback = (0, import_element105.useCallback)(
+    const inputControlRef = (0, import_element106.useRef)(null);
+    const validationTimeoutRef = (0, import_element106.useRef)(void 0);
+    const previousFocusRef = (0, import_element106.useRef)(null);
+    const onChangeCallback = (0, import_element106.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
-    (0, import_element105.useEffect)(() => {
+    (0, import_element106.useEffect)(() => {
       return () => {
         if (validationTimeoutRef.current) {
           clearTimeout(validationTimeoutRef.current);
         }
       };
     }, []);
-    const onSelectDate = (0, import_element105.useCallback)(
+    const onSelectDate = (0, import_element106.useCallback)(
       (newDate) => {
         let dateTimeValue;
         if (newDate) {
@@ -36506,7 +36399,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [onChangeCallback, value]
     );
-    const handleManualDateTimeChange = (0, import_element105.useCallback)(
+    const handleManualDateTimeChange = (0, import_element106.useCallback)(
       (newValue) => {
         if (newValue) {
           const dateTime = new Date(newValue);
@@ -36609,7 +36502,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/date.mjs
   var import_components123 = __toESM(require_components(), 1);
-  var import_element106 = __toESM(require_element(), 1);
+  var import_element107 = __toESM(require_element(), 1);
   var import_i18n116 = __toESM(require_i18n(), 1);
   var import_date5 = __toESM(require_date(), 1);
   var import_jsx_runtime232 = __toESM(require_jsx_runtime(), 1);
@@ -36709,8 +36602,8 @@ If there's a particular need for this, please submit a feature request at https:
     children
   }) {
     const { isValid: isValid2 } = field;
-    const [customValidity, setCustomValidity] = (0, import_element106.useState)(void 0);
-    const validateRefs = (0, import_element106.useCallback)(() => {
+    const [customValidity, setCustomValidity] = (0, import_element107.useState)(void 0);
+    const validateRefs = (0, import_element107.useCallback)(() => {
       const refs = Array.isArray(inputRefs) ? inputRefs : [inputRefs];
       for (const ref of refs) {
         const input = ref.current;
@@ -36724,7 +36617,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       setCustomValidity(void 0);
     }, [inputRefs]);
-    (0, import_element106.useEffect)(() => {
+    (0, import_element107.useEffect)(() => {
       const refs = Array.isArray(inputRefs) ? inputRefs : [inputRefs];
       const result = validity ? getCustomValidity(isValid2, validity) : void 0;
       for (const ref of refs) {
@@ -36736,7 +36629,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       }
     }, [inputRefs, isValid2, validity]);
-    (0, import_element106.useEffect)(() => {
+    (0, import_element107.useEffect)(() => {
       const refs = Array.isArray(inputRefs) ? inputRefs : [inputRefs];
       const handleInvalid = (event) => {
         event.preventDefault();
@@ -36751,7 +36644,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       };
     }, [inputRefs, setIsTouched]);
-    (0, import_element106.useEffect)(() => {
+    (0, import_element107.useEffect)(() => {
       if (!isTouched) {
         return;
       }
@@ -36811,23 +36704,23 @@ If there's a particular need for this, please submit a feature request at https:
       isValid: isValid2,
       format: fieldFormat
     } = field;
-    const [selectedPresetId, setSelectedPresetId] = (0, import_element106.useState)(
+    const [selectedPresetId, setSelectedPresetId] = (0, import_element107.useState)(
       null
     );
     const weekStartsOn = fieldFormat.weekStartsOn ?? (0, import_date5.getSettings)().l10n.startOfWeek;
     const fieldValue = getValue({ item: data });
     const value = typeof fieldValue === "string" ? fieldValue : void 0;
-    const [calendarMonth, setCalendarMonth] = (0, import_element106.useState)(() => {
+    const [calendarMonth, setCalendarMonth] = (0, import_element107.useState)(() => {
       const parsedDate = parseDate(value);
       return parsedDate || /* @__PURE__ */ new Date();
     });
-    const [isTouched, setIsTouched] = (0, import_element106.useState)(false);
-    const validityTargetRef = (0, import_element106.useRef)(null);
-    const onChangeCallback = (0, import_element106.useCallback)(
+    const [isTouched, setIsTouched] = (0, import_element107.useState)(false);
+    const validityTargetRef = (0, import_element107.useRef)(null);
+    const onChangeCallback = (0, import_element107.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
-    const onSelectDate = (0, import_element106.useCallback)(
+    const onSelectDate = (0, import_element107.useCallback)(
       (newDate) => {
         const dateValue = newDate ? format(newDate, "yyyy-MM-dd") : void 0;
         onChangeCallback(dateValue);
@@ -36836,7 +36729,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [onChangeCallback]
     );
-    const handlePresetClick = (0, import_element106.useCallback)(
+    const handlePresetClick = (0, import_element107.useCallback)(
       (preset) => {
         const presetDate = preset.getValue();
         const dateValue = formatDate(presetDate);
@@ -36847,7 +36740,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [onChangeCallback]
     );
-    const handleManualDateChange = (0, import_element106.useCallback)(
+    const handleManualDateChange = (0, import_element107.useCallback)(
       (newValue) => {
         onChangeCallback(newValue);
         if (newValue) {
@@ -36970,7 +36863,7 @@ If there's a particular need for this, please submit a feature request at https:
       value = fieldValue;
     }
     const weekStartsOn = fieldFormat.weekStartsOn ?? (0, import_date5.getSettings)().l10n.startOfWeek;
-    const onChangeCallback = (0, import_element106.useCallback)(
+    const onChangeCallback = (0, import_element107.useCallback)(
       (newValue) => {
         onChange(
           setValue({
@@ -36981,10 +36874,10 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [data, onChange, setValue]
     );
-    const [selectedPresetId, setSelectedPresetId] = (0, import_element106.useState)(
+    const [selectedPresetId, setSelectedPresetId] = (0, import_element107.useState)(
       null
     );
-    const selectedRange = (0, import_element106.useMemo)(() => {
+    const selectedRange = (0, import_element107.useMemo)(() => {
       if (!value) {
         return { from: void 0, to: void 0 };
       }
@@ -36994,13 +36887,13 @@ If there's a particular need for this, please submit a feature request at https:
         to: parseDate(to2) || void 0
       };
     }, [value]);
-    const [calendarMonth, setCalendarMonth] = (0, import_element106.useState)(() => {
+    const [calendarMonth, setCalendarMonth] = (0, import_element107.useState)(() => {
       return selectedRange.from || /* @__PURE__ */ new Date();
     });
-    const [isTouched, setIsTouched] = (0, import_element106.useState)(false);
-    const fromInputRef = (0, import_element106.useRef)(null);
-    const toInputRef = (0, import_element106.useRef)(null);
-    const updateDateRange = (0, import_element106.useCallback)(
+    const [isTouched, setIsTouched] = (0, import_element107.useState)(false);
+    const fromInputRef = (0, import_element107.useRef)(null);
+    const toInputRef = (0, import_element107.useRef)(null);
+    const updateDateRange = (0, import_element107.useCallback)(
       (fromDate, toDate2) => {
         if (fromDate && toDate2) {
           onChangeCallback([
@@ -37013,7 +36906,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [onChangeCallback]
     );
-    const onSelectCalendarRange = (0, import_element106.useCallback)(
+    const onSelectCalendarRange = (0, import_element107.useCallback)(
       (newRange) => {
         updateDateRange(newRange?.from, newRange?.to);
         setSelectedPresetId(null);
@@ -37021,7 +36914,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [updateDateRange]
     );
-    const handlePresetClick = (0, import_element106.useCallback)(
+    const handlePresetClick = (0, import_element107.useCallback)(
       (preset) => {
         const [startDate2, endDate] = preset.getValue();
         setCalendarMonth(startDate2);
@@ -37031,7 +36924,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [updateDateRange]
     );
-    const handleManualDateChange = (0, import_element106.useCallback)(
+    const handleManualDateChange = (0, import_element107.useCallback)(
       (fromOrTo, newValue) => {
         const [currentFrom, currentTo] = value || [
           void 0,
@@ -37217,7 +37110,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/select.mjs
   var import_components124 = __toESM(require_components(), 1);
-  var import_element107 = __toESM(require_element(), 1);
+  var import_element108 = __toESM(require_element(), 1);
   var import_jsx_runtime233 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedSelectControl } = unlock3(import_components124.privateApis);
   function Select({
@@ -37231,7 +37124,7 @@ If there's a particular need for this, please submit a feature request at https:
     const { type, label, description, getValue, setValue, isValid: isValid2 } = field;
     const isMultiple = type === "array";
     const value = getValue({ item: data }) ?? (isMultiple ? [] : "");
-    const onChangeControl = (0, import_element107.useCallback)(
+    const onChangeControl = (0, import_element108.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
@@ -37280,7 +37173,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/utils/validated-input.mjs
   var import_components125 = __toESM(require_components(), 1);
-  var import_element108 = __toESM(require_element(), 1);
+  var import_element109 = __toESM(require_element(), 1);
   var import_jsx_runtime235 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedInputControl: ValidatedInputControl2 } = unlock3(import_components125.privateApis);
   function ValidatedText({
@@ -37296,7 +37189,7 @@ If there's a particular need for this, please submit a feature request at https:
   }) {
     const { label, placeholder, description, getValue, setValue, isValid: isValid2 } = field;
     const value = getValue({ item: data });
-    const onChangeControl = (0, import_element108.useCallback)(
+    const onChangeControl = (0, import_element109.useCallback)(
       (newValue) => onChange(
         setValue({
           item: data,
@@ -37413,7 +37306,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/utils/validated-number.mjs
   var import_components129 = __toESM(require_components(), 1);
-  var import_element109 = __toESM(require_element(), 1);
+  var import_element110 = __toESM(require_element(), 1);
   var import_i18n117 = __toESM(require_i18n(), 1);
   var import_jsx_runtime239 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedNumberControl } = unlock3(import_components129.privateApis);
@@ -37431,11 +37324,11 @@ If there's a particular need for this, please submit a feature request at https:
     step
   }) {
     const [min = "", max = ""] = value;
-    const onChangeMin = (0, import_element109.useCallback)(
+    const onChangeMin = (0, import_element110.useCallback)(
       (newValue) => onChange([toNumberOrEmpty(newValue), max]),
       [onChange, max]
     );
-    const onChangeMax = (0, import_element109.useCallback)(
+    const onChangeMax = (0, import_element110.useCallback)(
       (newValue) => onChange([min, toNumberOrEmpty(newValue)]),
       [onChange, min]
     );
@@ -37485,7 +37378,7 @@ If there's a particular need for this, please submit a feature request at https:
     const step = Math.pow(10, Math.abs(decimals) * -1);
     const { label, description, getValue, setValue, isValid: isValid2 } = field;
     const value = getValue({ item: data }) ?? "";
-    const onChangeControl = (0, import_element109.useCallback)(
+    const onChangeControl = (0, import_element110.useCallback)(
       (newValue) => {
         onChange(
           setValue({
@@ -37499,7 +37392,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [data, onChange, setValue]
     );
-    const onChangeBetweenControls = (0, import_element109.useCallback)(
+    const onChangeBetweenControls = (0, import_element110.useCallback)(
       (newValue) => {
         onChange(
           setValue({
@@ -37560,7 +37453,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/radio.mjs
   var import_components130 = __toESM(require_components(), 1);
-  var import_element110 = __toESM(require_element(), 1);
+  var import_element111 = __toESM(require_element(), 1);
   var import_jsx_runtime242 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedRadioControl } = unlock3(import_components130.privateApis);
   function Radio({
@@ -37577,7 +37470,7 @@ If there's a particular need for this, please submit a feature request at https:
       getElements: field.getElements
     });
     const value = getValue({ item: data });
-    const onChangeControl = (0, import_element110.useCallback)(
+    const onChangeControl = (0, import_element111.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
@@ -37601,7 +37494,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataform-controls/text.mjs
-  var import_element111 = __toESM(require_element(), 1);
+  var import_element112 = __toESM(require_element(), 1);
   var import_jsx_runtime243 = __toESM(require_jsx_runtime(), 1);
   function Text12({
     data,
@@ -37623,8 +37516,8 @@ If there's a particular need for this, please submit a feature request at https:
           hideLabelFromVision,
           markWhenOptional,
           validity,
-          prefix: prefix2 ? (0, import_element111.createElement)(prefix2) : void 0,
-          suffix: suffix ? (0, import_element111.createElement)(suffix) : void 0
+          prefix: prefix2 ? (0, import_element112.createElement)(prefix2) : void 0,
+          suffix: suffix ? (0, import_element112.createElement)(suffix) : void 0
         }
       }
     );
@@ -37632,7 +37525,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/toggle.mjs
   var import_components131 = __toESM(require_components(), 1);
-  var import_element112 = __toESM(require_element(), 1);
+  var import_element113 = __toESM(require_element(), 1);
   var import_jsx_runtime244 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedToggleControl } = unlock3(import_components131.privateApis);
   function Toggle({
@@ -37644,7 +37537,7 @@ If there's a particular need for this, please submit a feature request at https:
     validity
   }) {
     const { label, description, getValue, setValue, isValid: isValid2 } = field;
-    const onChangeControl = (0, import_element112.useCallback)(() => {
+    const onChangeControl = (0, import_element113.useCallback)(() => {
       onChange(
         setValue({ item: data, value: !getValue({ item: data }) })
       );
@@ -37666,7 +37559,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/textarea.mjs
   var import_components132 = __toESM(require_components(), 1);
-  var import_element113 = __toESM(require_element(), 1);
+  var import_element114 = __toESM(require_element(), 1);
   var import_jsx_runtime245 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedTextareaControl } = unlock3(import_components132.privateApis);
   function Textarea({
@@ -37681,7 +37574,7 @@ If there's a particular need for this, please submit a feature request at https:
     const { rows = 4 } = config2 || {};
     const { label, placeholder, description, setValue, isValid: isValid2 } = field;
     const value = field.getValue({ item: data });
-    const onChangeControl = (0, import_element113.useCallback)(
+    const onChangeControl = (0, import_element114.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
@@ -37707,7 +37600,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/toggle-group.mjs
   var import_components133 = __toESM(require_components(), 1);
-  var import_element114 = __toESM(require_element(), 1);
+  var import_element115 = __toESM(require_element(), 1);
   var import_jsx_runtime246 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedToggleGroupControl } = unlock3(import_components133.privateApis);
   function ToggleGroup({
@@ -37720,7 +37613,7 @@ If there's a particular need for this, please submit a feature request at https:
   }) {
     const { getValue, setValue, isValid: isValid2 } = field;
     const value = getValue({ item: data });
-    const onChangeControl = (0, import_element114.useCallback)(
+    const onChangeControl = (0, import_element115.useCallback)(
       (newValue) => onChange(setValue({ item: data, value: newValue })),
       [data, onChange, setValue]
     );
@@ -37762,7 +37655,7 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/array.mjs
   var import_components134 = __toESM(require_components(), 1);
-  var import_element115 = __toESM(require_element(), 1);
+  var import_element116 = __toESM(require_element(), 1);
   var import_jsx_runtime247 = __toESM(require_jsx_runtime(), 1);
   var { ValidatedFormTokenField } = unlock3(import_components134.privateApis);
   function ArrayControl({
@@ -37779,7 +37672,7 @@ If there's a particular need for this, please submit a feature request at https:
       elements: field.elements,
       getElements: field.getElements
     });
-    const arrayValueAsElements = (0, import_element115.useMemo)(
+    const arrayValueAsElements = (0, import_element116.useMemo)(
       () => Array.isArray(value) ? value.map((token) => {
         const element = elements2?.find(
           (suggestion) => suggestion.value === token
@@ -37788,7 +37681,7 @@ If there's a particular need for this, please submit a feature request at https:
       }) : [],
       [value, elements2]
     );
-    const onChangeControl = (0, import_element115.useCallback)(
+    const onChangeControl = (0, import_element116.useCallback)(
       (tokens) => {
         const valueTokens = tokens.map((token) => {
           if (typeof token === "object" && "value" in token) {
@@ -37851,10 +37744,11 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-controls/color.mjs
   var import_components135 = __toESM(require_components(), 1);
-  var import_element116 = __toESM(require_element(), 1);
+  var import_element117 = __toESM(require_element(), 1);
+  var import_i18n118 = __toESM(require_i18n(), 1);
   var import_jsx_runtime248 = __toESM(require_jsx_runtime(), 1);
-  var { ValidatedInputControl: ValidatedInputControl3, Picker } = unlock3(import_components135.privateApis);
-  var ColorPicker = ({
+  var { ValidatedInputControl: ValidatedInputControl3 } = unlock3(import_components135.privateApis);
+  var ColorPickerDropdown = ({
     color,
     onColorChange
   }) => {
@@ -37862,33 +37756,21 @@ If there's a particular need for this, please submit a feature request at https:
     return /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
       import_components135.Dropdown,
       {
-        renderToggle: ({ onToggle, isOpen }) => /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(import_components135.__experimentalInputControlPrefixWrapper, { variant: "icon", children: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
-          "button",
+        className: "dataviews-controls__color-picker-dropdown",
+        popoverProps: { resize: false },
+        renderToggle: ({ onToggle }) => /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
+          import_components135.Button,
           {
-            type: "button",
             onClick: onToggle,
-            style: {
-              width: "24px",
-              height: "24px",
-              borderRadius: "50%",
-              backgroundColor: validColor,
-              border: "1px solid #ddd",
-              cursor: "pointer",
-              outline: isOpen ? "2px solid #007cba" : "none",
-              outlineOffset: "2px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 0,
-              margin: 0
-            },
-            "aria-label": "Open color picker"
+            "aria-label": (0, import_i18n118.__)("Open color picker"),
+            size: "small",
+            icon: () => /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(import_components135.ColorIndicator, { colorValue: validColor })
           }
-        ) }),
-        renderContent: () => /* @__PURE__ */ (0, import_jsx_runtime248.jsx)("div", { style: { padding: "16px" }, children: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
-          Picker,
+        ),
+        renderContent: () => /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(import_components135.__experimentalDropdownContentWrapper, { paddingSize: "none", children: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
+          import_components135.ColorPicker,
           {
-            color: w(validColor),
+            color: validColor,
             onChange: onColorChange,
             enableAlpha: true
           }
@@ -37906,13 +37788,13 @@ If there's a particular need for this, please submit a feature request at https:
   }) {
     const { label, placeholder, description, setValue, isValid: isValid2 } = field;
     const value = field.getValue({ item: data }) || "";
-    const handleColorChange = (0, import_element116.useCallback)(
-      (colorObject) => {
-        onChange(setValue({ item: data, value: colorObject.toHex() }));
+    const handleColorChange = (0, import_element117.useCallback)(
+      (newColor) => {
+        onChange(setValue({ item: data, value: newColor }));
       },
       [data, onChange, setValue]
     );
-    const handleInputChange = (0, import_element116.useCallback)(
+    const handleInputChange = (0, import_element117.useCallback)(
       (newValue) => {
         onChange(setValue({ item: data, value: newValue || "" }));
       },
@@ -37931,21 +37813,21 @@ If there's a particular need for this, please submit a feature request at https:
         onChange: handleInputChange,
         hideLabelFromVision,
         type: "text",
-        prefix: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
-          ColorPicker,
+        prefix: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(import_components135.__experimentalInputControlPrefixWrapper, { variant: "control", children: /* @__PURE__ */ (0, import_jsx_runtime248.jsx)(
+          ColorPickerDropdown,
           {
             color: value,
             onColorChange: handleColorChange
           }
-        )
+        ) })
       }
     );
   }
 
   // packages/dataviews/build-module/components/dataform-controls/password.mjs
   var import_components136 = __toESM(require_components(), 1);
-  var import_element117 = __toESM(require_element(), 1);
-  var import_i18n118 = __toESM(require_i18n(), 1);
+  var import_element118 = __toESM(require_element(), 1);
+  var import_i18n119 = __toESM(require_i18n(), 1);
   var import_jsx_runtime249 = __toESM(require_jsx_runtime(), 1);
   function Password({
     data,
@@ -37955,8 +37837,8 @@ If there's a particular need for this, please submit a feature request at https:
     markWhenOptional,
     validity
   }) {
-    const [isVisible2, setIsVisible] = (0, import_element117.useState)(false);
-    const toggleVisibility = (0, import_element117.useCallback)(() => {
+    const [isVisible2, setIsVisible] = (0, import_element118.useState)(false);
+    const toggleVisibility = (0, import_element118.useCallback)(() => {
       setIsVisible((prev) => !prev);
     }, []);
     return /* @__PURE__ */ (0, import_jsx_runtime249.jsx)(
@@ -37976,7 +37858,7 @@ If there's a particular need for this, please submit a feature request at https:
               icon: isVisible2 ? unseen_default : seen_default,
               onClick: toggleVisibility,
               size: "small",
-              label: isVisible2 ? (0, import_i18n118.__)("Hide password") : (0, import_i18n118.__)("Show password")
+              label: isVisible2 ? (0, import_i18n119.__)("Hide password") : (0, import_i18n119.__)("Show password")
             }
           ) })
         }
@@ -38098,7 +37980,7 @@ If there's a particular need for this, please submit a feature request at https:
   var set_value_from_id_default = setValueFromId;
 
   // packages/dataviews/build-module/field-types/email.mjs
-  var import_i18n119 = __toESM(require_i18n(), 1);
+  var import_i18n120 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/field-types/utils/render-from-elements.mjs
   function RenderFromElements({
@@ -38208,7 +38090,7 @@ If there's a particular need for this, please submit a feature request at https:
   function isValidCustom(item, field) {
     const value = field.getValue({ item });
     if (![void 0, "", null].includes(value) && !emailRegex.test(value)) {
-      return (0, import_i18n119.__)("Value must be a valid email address.");
+      return (0, import_i18n120.__)("Value must be a valid email address.");
     }
     return null;
   }
@@ -38245,7 +38127,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/field-types/integer.mjs
-  var import_i18n120 = __toESM(require_i18n(), 1);
+  var import_i18n121 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/field-types/utils/sort-number.mjs
   var sort_number_default = (a2, b2, direction) => {
@@ -38311,7 +38193,7 @@ If there's a particular need for this, please submit a feature request at https:
   function isValidCustom2(item, field) {
     const value = field.getValue({ item });
     if (![void 0, "", null].includes(value) && !Number.isInteger(value)) {
-      return (0, import_i18n120.__)("Value must be an integer.");
+      return (0, import_i18n121.__)("Value must be an integer.");
     }
     return null;
   }
@@ -38358,7 +38240,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/field-types/number.mjs
-  var import_i18n121 = __toESM(require_i18n(), 1);
+  var import_i18n122 = __toESM(require_i18n(), 1);
   var format3 = {
     separatorThousand: ",",
     separatorDecimal: ".",
@@ -38394,7 +38276,7 @@ If there's a particular need for this, please submit a feature request at https:
   function isValidCustom3(item, field) {
     const value = field.getValue({ item });
     if (!isEmpty2(value) && !Number.isFinite(value)) {
-      return (0, import_i18n121.__)("Value must be a number.");
+      return (0, import_i18n122.__)("Value must be a number.");
     }
     return null;
   }
@@ -38600,7 +38482,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/field-types/boolean.mjs
-  var import_i18n122 = __toESM(require_i18n(), 1);
+  var import_i18n123 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/field-types/utils/is-valid-required-for-bool.mjs
   function isValidRequiredForBool(item, field) {
@@ -38615,17 +38497,17 @@ If there's a particular need for this, please submit a feature request at https:
   }) {
     const value = field.getValue({ item });
     if (value === true) {
-      return (0, import_i18n122.__)("True");
+      return (0, import_i18n123.__)("True");
     }
     if (value === false) {
-      return (0, import_i18n122.__)("False");
+      return (0, import_i18n123.__)("False");
     }
     return "";
   }
   function isValidCustom4(item, field) {
     const value = field.getValue({ item });
     if (![void 0, "", null].includes(value) && ![true, false].includes(value)) {
-      return (0, import_i18n122.__)("Value must be true, false, or undefined");
+      return (0, import_i18n123.__)("Value must be true, false, or undefined");
     }
     return null;
   }
@@ -38677,7 +38559,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/field-types/array.mjs
-  var import_i18n123 = __toESM(require_i18n(), 1);
+  var import_i18n124 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/field-types/utils/is-valid-required-for-array.mjs
   function isValidRequiredForArray(item, field) {
@@ -38702,10 +38584,10 @@ If there's a particular need for this, please submit a feature request at https:
   function isValidCustom5(item, field) {
     const value = field.getValue({ item });
     if (![void 0, "", null].includes(value) && !Array.isArray(value)) {
-      return (0, import_i18n123.__)("Value must be an array.");
+      return (0, import_i18n124.__)("Value must be an array.");
     }
     if (!value.every((v2) => typeof v2 === "string")) {
-      return (0, import_i18n123.__)("Every value must be a string.");
+      return (0, import_i18n124.__)("Every value must be a string.");
     }
     return null;
   }
@@ -38803,7 +38685,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/dataviews/build-module/field-types/color.mjs
-  var import_i18n124 = __toESM(require_i18n(), 1);
+  var import_i18n125 = __toESM(require_i18n(), 1);
   var import_jsx_runtime252 = __toESM(require_jsx_runtime(), 1);
   function render3({ item, field }) {
     if (field.hasElements) {
@@ -38833,7 +38715,7 @@ If there's a particular need for this, please submit a feature request at https:
   function isValidCustom6(item, field) {
     const value = field.getValue({ item });
     if (![void 0, "", null].includes(value) && !w(value).isValid()) {
-      return (0, import_i18n124.__)("Value must be a valid color.");
+      return (0, import_i18n125.__)("Value must be a valid color.");
     }
     return null;
   }
@@ -39161,8 +39043,8 @@ If there's a particular need for this, please submit a feature request at https:
     onReset
   }) {
     const { infiniteScrollHandler } = paginationInfo;
-    const containerRef = (0, import_element118.useRef)(null);
-    const [containerWidth, setContainerWidth] = (0, import_element118.useState)(0);
+    const containerRef = (0, import_element119.useRef)(null);
+    const [containerWidth, setContainerWidth] = (0, import_element119.useState)(0);
     const resizeObserverRef = (0, import_compose23.useResizeObserver)(
       (resizeObserverEntries) => {
         setContainerWidth(
@@ -39171,10 +39053,10 @@ If there's a particular need for this, please submit a feature request at https:
       },
       { box: "border-box" }
     );
-    const [selectionState, setSelectionState] = (0, import_element118.useState)([]);
+    const [selectionState, setSelectionState] = (0, import_element119.useState)([]);
     const isUncontrolled = selectionProperty === void 0 || onChangeSelection === void 0;
     const selection = isUncontrolled ? selectionState : selectionProperty;
-    const [openedFilter, setOpenedFilter] = (0, import_element118.useState)(null);
+    const [openedFilter, setOpenedFilter] = (0, import_element119.useState)(null);
     function setSelectionWithChange(value) {
       const newValue = typeof value === "function" ? value(selection) : value;
       if (isUncontrolled) {
@@ -39184,28 +39066,28 @@ If there's a particular need for this, please submit a feature request at https:
         onChangeSelection(newValue);
       }
     }
-    const _fields = (0, import_element118.useMemo)(() => normalizeFields(fields), [fields]);
-    const _selection = (0, import_element118.useMemo)(() => {
+    const _fields = (0, import_element119.useMemo)(() => normalizeFields(fields), [fields]);
+    const _selection = (0, import_element119.useMemo)(() => {
       return selection.filter(
         (id) => data.some((item) => getItemId2(item) === id)
       );
     }, [selection, data, getItemId2]);
     const filters = use_filters_default(_fields, view);
-    const hasPrimaryOrLockedFilters = (0, import_element118.useMemo)(
+    const hasPrimaryOrLockedFilters = (0, import_element119.useMemo)(
       () => (filters || []).some(
         (filter) => filter.isPrimary || filter.isLocked
       ),
       [filters]
     );
-    const [isShowingFilter, setIsShowingFilter] = (0, import_element118.useState)(
+    const [isShowingFilter, setIsShowingFilter] = (0, import_element119.useState)(
       hasPrimaryOrLockedFilters
     );
-    (0, import_element118.useEffect)(() => {
+    (0, import_element119.useEffect)(() => {
       if (hasPrimaryOrLockedFilters && !isShowingFilter) {
         setIsShowingFilter(true);
       }
     }, [hasPrimaryOrLockedFilters, isShowingFilter]);
-    (0, import_element118.useEffect)(() => {
+    (0, import_element119.useEffect)(() => {
       if (!view.infiniteScrollEnabled || !containerRef.current) {
         return;
       }
@@ -39225,7 +39107,7 @@ If there's a particular need for this, please submit a feature request at https:
         handleScroll.cancel();
       };
     }, [infiniteScrollHandler, view.infiniteScrollEnabled]);
-    const defaultLayouts4 = (0, import_element118.useMemo)(
+    const defaultLayouts4 = (0, import_element119.useMemo)(
       () => Object.fromEntries(
         Object.entries(defaultLayoutsProperty).filter(
           ([layoutType]) => {
@@ -39297,12 +39179,12 @@ If there's a particular need for this, please submit a feature request at https:
   var dataviews_default = DataViewsSubComponents;
 
   // packages/dataviews/build-module/dataform/index.mjs
-  var import_element129 = __toESM(require_element(), 1);
+  var import_element131 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataform-context/index.mjs
-  var import_element119 = __toESM(require_element(), 1);
+  var import_element120 = __toESM(require_element(), 1);
   var import_jsx_runtime254 = __toESM(require_jsx_runtime(), 1);
-  var DataFormContext = (0, import_element119.createContext)({
+  var DataFormContext = (0, import_element120.createContext)({
     fields: []
   });
   DataFormContext.displayName = "DataFormContext";
@@ -39315,10 +39197,10 @@ If there's a particular need for this, please submit a feature request at https:
   var dataform_context_default = DataFormContext;
 
   // packages/dataviews/build-module/components/dataform-layouts/data-form-layout.mjs
-  var import_element128 = __toESM(require_element(), 1);
+  var import_element130 = __toESM(require_element(), 1);
 
   // packages/dataviews/build-module/components/dataform-layouts/regular/index.mjs
-  var import_element120 = __toESM(require_element(), 1);
+  var import_element121 = __toESM(require_element(), 1);
   var import_components137 = __toESM(require_components(), 1);
 
   // packages/dataviews/build-module/components/dataform-layouts/normalize-form.mjs
@@ -39351,7 +39233,8 @@ If there's a particular need for this, please submit a feature request at https:
         type: "panel",
         labelPosition: layout?.labelPosition ?? "side",
         openAs: layout?.openAs ?? "dropdown",
-        summary: normalizedSummary
+        summary: normalizedSummary,
+        editVisibility: layout?.editVisibility ?? "on-hover"
       };
     } else if (layout?.type === "card") {
       if (layout.withHeader === false) {
@@ -39441,9 +39324,9 @@ If there's a particular need for this, please submit a feature request at https:
     markWhenOptional,
     validity
   }) {
-    const { fields } = (0, import_element120.useContext)(dataform_context_default);
+    const { fields } = (0, import_element121.useContext)(dataform_context_default);
     const layout = field.layout;
-    const form = (0, import_element120.useMemo)(
+    const form = (0, import_element121.useMemo)(
       () => ({
         layout: DEFAULT_LAYOUT,
         fields: !!field.children ? field.children : []
@@ -39533,245 +39416,195 @@ If there's a particular need for this, please submit a feature request at https:
     ) });
   }
 
-  // packages/dataviews/build-module/components/dataform-layouts/panel/index.mjs
-  var import_components141 = __toESM(require_components(), 1);
-  var import_element125 = __toESM(require_element(), 1);
-
-  // packages/dataviews/build-module/components/dataform-layouts/panel/dropdown.mjs
-  var import_components139 = __toESM(require_components(), 1);
-  var import_i18n126 = __toESM(require_i18n(), 1);
-  var import_element122 = __toESM(require_element(), 1);
-  var import_compose24 = __toESM(require_compose(), 1);
-
-  // packages/dataviews/build-module/components/dataform-layouts/panel/summary-button.mjs
-  var import_components138 = __toESM(require_components(), 1);
-  var import_i18n125 = __toESM(require_i18n(), 1);
-  var import_jsx_runtime256 = __toESM(require_jsx_runtime(), 1);
-  function SummaryButton({
-    summaryFields,
-    data,
-    labelPosition,
-    fieldLabel,
-    disabled,
-    onClick,
-    "aria-expanded": ariaExpanded
-  }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(
-      import_components138.Button,
-      {
-        className: "dataforms-layouts-panel__summary-button",
-        size: "compact",
-        variant: ["none", "top"].includes(labelPosition) ? "link" : "tertiary",
-        "aria-expanded": ariaExpanded,
-        "aria-label": (0, import_i18n125.sprintf)(
-          // translators: %s: Field name.
-          (0, import_i18n125._x)("Edit %s", "field"),
-          fieldLabel || ""
-        ),
-        onClick,
-        disabled,
-        accessibleWhenDisabled: true,
-        style: summaryFields.length > 1 ? {
-          minHeight: "auto",
-          height: "auto",
-          alignItems: "flex-start"
-        } : void 0,
-        children: summaryFields.length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(
-          "div",
-          {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              width: "100%",
-              gap: "2px"
-            },
-            children: summaryFields.map((summaryField) => /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(
-              "div",
-              {
-                style: { width: "100%" },
-                children: /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(
-                  summaryField.render,
-                  {
-                    item: data,
-                    field: summaryField
-                  }
-                )
-              },
-              summaryField.id
-            ))
-          }
-        ) : summaryFields.map((summaryField) => /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(
-          summaryField.render,
-          {
-            item: data,
-            field: summaryField
-          },
-          summaryField.id
-        ))
-      }
-    );
-  }
-  var summary_button_default = SummaryButton;
-
-  // packages/dataviews/build-module/hooks/use-report-validity.mjs
-  var import_element121 = __toESM(require_element(), 1);
-  function useReportValidity(ref, shouldReport) {
-    (0, import_element121.useEffect)(() => {
-      if (shouldReport && ref.current) {
-        const inputs = ref.current.querySelectorAll(
-          "input, textarea, select"
-        );
-        inputs.forEach((input) => {
-          input.reportValidity();
-        });
-      }
-    }, [shouldReport, ref]);
-  }
-
-  // packages/dataviews/build-module/components/dataform-layouts/panel/dropdown.mjs
-  var import_jsx_runtime257 = __toESM(require_jsx_runtime(), 1);
-  function DropdownHeader({
-    title,
-    onClose
-  }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-      Stack,
-      {
-        direction: "column",
-        className: "dataforms-layouts-panel__dropdown-header",
-        gap: "lg",
-        children: /* @__PURE__ */ (0, import_jsx_runtime257.jsxs)(Stack, { direction: "row", gap: "sm", align: "center", children: [
-          title && /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(import_components139.__experimentalHeading, { level: 2, size: 13, children: title }),
-          /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(import_components139.__experimentalSpacer, { style: { flex: 1 } }),
-          onClose && /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-            import_components139.Button,
-            {
-              label: (0, import_i18n126.__)("Close"),
-              icon: close_small_default,
-              onClick: onClose,
-              size: "small"
-            }
-          )
-        ] })
-      }
-    );
-  }
-  function DropdownContentWithValidation({
-    touched,
-    children
-  }) {
-    const ref = (0, import_element122.useRef)(null);
-    useReportValidity(ref, touched);
-    return /* @__PURE__ */ (0, import_jsx_runtime257.jsx)("div", { ref, children });
-  }
-  function PanelDropdown({
-    data,
-    field,
-    onChange,
-    validity,
-    labelPosition = "side",
-    summaryFields,
-    fieldDefinition,
-    popoverAnchor,
-    onClose: onCloseCallback,
-    touched
-  }) {
-    const fieldLabel = !!field.children ? field.label : fieldDefinition?.label;
-    const form = (0, import_element122.useMemo)(
-      () => ({
-        layout: DEFAULT_LAYOUT,
-        fields: !!field.children ? field.children : (
-          // If not explicit children return the field id itself.
-          [{ id: field.id, layout: DEFAULT_LAYOUT }]
-        )
-      }),
-      [field]
-    );
-    const formValidity = (0, import_element122.useMemo)(() => {
-      if (validity === void 0) {
-        return void 0;
-      }
-      if (!!field.children) {
-        return validity?.children;
-      }
-      return { [field.id]: validity };
-    }, [validity, field]);
-    const popoverProps = (0, import_element122.useMemo)(
-      () => ({
-        // Anchor the popover to the middle of the entire row so that it doesn't
-        // move around when the label changes.
-        anchor: popoverAnchor,
-        placement: "left-start",
-        offset: 36,
-        shift: true
-      }),
-      [popoverAnchor]
-    );
-    const focusOnMountRef = (0, import_compose24.useFocusOnMount)("firstInputElement");
-    return /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-      import_components139.Dropdown,
-      {
-        contentClassName: "dataforms-layouts-panel__field-dropdown",
-        popoverProps,
-        focusOnMount: false,
-        onToggle: (willOpen) => {
-          if (!willOpen) {
-            onCloseCallback?.();
-          }
-        },
-        toggleProps: {
-          size: "compact",
-          variant: "tertiary",
-          tooltipPosition: "middle left"
-        },
-        renderToggle: ({ isOpen, onToggle }) => /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-          summary_button_default,
-          {
-            summaryFields,
-            data,
-            labelPosition,
-            fieldLabel,
-            disabled: fieldDefinition.readOnly === true,
-            onClick: onToggle,
-            "aria-expanded": isOpen
-          }
-        ),
-        renderContent: ({ onClose }) => /* @__PURE__ */ (0, import_jsx_runtime257.jsxs)(DropdownContentWithValidation, { touched, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(DropdownHeader, { title: fieldLabel, onClose }),
-          /* @__PURE__ */ (0, import_jsx_runtime257.jsx)("div", { ref: focusOnMountRef, children: /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-            DataFormLayout,
-            {
-              data,
-              form,
-              onChange,
-              validity: formValidity,
-              children: (FieldLayout, childField, childFieldValidity, markWhenOptional) => /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
-                FieldLayout,
-                {
-                  data,
-                  field: childField,
-                  onChange,
-                  hideLabelFromVision: (form?.fields ?? []).length < 2,
-                  markWhenOptional,
-                  validity: childFieldValidity
-                },
-                childField.id
-              )
-            }
-          ) })
-        ] })
-      }
-    );
-  }
-  var dropdown_default = PanelDropdown;
-
   // packages/dataviews/build-module/components/dataform-layouts/panel/modal.mjs
   var import_deepmerge3 = __toESM(require_cjs(), 1);
   var import_components140 = __toESM(require_components(), 1);
   var import_i18n128 = __toESM(require_i18n(), 1);
-  var import_element124 = __toESM(require_element(), 1);
+  var import_element126 = __toESM(require_element(), 1);
   var import_compose25 = __toESM(require_compose(), 1);
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/summary-button.mjs
+  var import_components139 = __toESM(require_components(), 1);
+  var import_i18n126 = __toESM(require_i18n(), 1);
+  var import_compose24 = __toESM(require_compose(), 1);
+  var import_element122 = __toESM(require_element(), 1);
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/utils/get-label-classname.mjs
+  function getLabelClassName(labelPosition, showError) {
+    return clsx_default(
+      "dataforms-layouts-panel__field-label",
+      `dataforms-layouts-panel__field-label--label-position-${labelPosition}`,
+      { "has-error": showError }
+    );
+  }
+  var get_label_classname_default = getLabelClassName;
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/utils/get-label-content.mjs
+  var import_components138 = __toESM(require_components(), 1);
+  var import_jsx_runtime256 = __toESM(require_jsx_runtime(), 1);
+  function getLabelContent(showError, errorMessage, fieldLabel) {
+    return showError ? /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(import_components138.Tooltip, { text: errorMessage, placement: "top", children: /* @__PURE__ */ (0, import_jsx_runtime256.jsxs)("span", { className: "dataforms-layouts-panel__field-label-error-content", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(import_components138.Icon, { icon: error_default, size: 16 }),
+      /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(import_components138.BaseControl.VisualLabel, { children: fieldLabel })
+    ] }) }) : /* @__PURE__ */ (0, import_jsx_runtime256.jsx)(import_components138.BaseControl.VisualLabel, { children: fieldLabel });
+  }
+  var get_label_content_default = getLabelContent;
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/utils/get-first-validation-error.mjs
+  function getFirstValidationError(validity) {
+    if (!validity) {
+      return void 0;
+    }
+    const validityRules = Object.keys(validity).filter(
+      (key) => key !== "children"
+    );
+    for (const key of validityRules) {
+      const rule = validity[key];
+      if (rule === void 0) {
+        continue;
+      }
+      if (rule.type === "invalid") {
+        if (rule.message) {
+          return rule.message;
+        }
+        if (key === "required") {
+          return "A required field is empty";
+        }
+        return "Unidentified validation error";
+      }
+    }
+    if (validity.children) {
+      for (const childValidity of Object.values(validity.children)) {
+        const childError = getFirstValidationError(childValidity);
+        if (childError) {
+          return childError;
+        }
+      }
+    }
+    return void 0;
+  }
+  var get_first_validation_error_default = getFirstValidationError;
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/summary-button.mjs
+  var import_jsx_runtime257 = __toESM(require_jsx_runtime(), 1);
+  function SummaryButton({
+    data,
+    field,
+    fieldLabel,
+    summaryFields,
+    validity,
+    touched,
+    disabled,
+    onClick,
+    "aria-expanded": ariaExpanded
+  }) {
+    const { labelPosition, editVisibility } = field.layout;
+    const errorMessage = get_first_validation_error_default(validity);
+    const showError = touched && !!errorMessage;
+    const labelClassName = get_label_classname_default(labelPosition, showError);
+    const labelContent = get_label_content_default(showError, errorMessage, fieldLabel);
+    const className = clsx_default(
+      "dataforms-layouts-panel__field-trigger",
+      `dataforms-layouts-panel__field-trigger--label-${labelPosition}`,
+      {
+        "is-disabled": disabled,
+        "dataforms-layouts-panel__field-trigger--edit-always": editVisibility === "always"
+      }
+    );
+    const controlId = (0, import_compose24.useInstanceId)(
+      SummaryButton,
+      "dataforms-layouts-panel__field-control"
+    );
+    const ariaLabel = showError ? (0, import_i18n126.sprintf)(
+      // translators: %s: Field name.
+      (0, import_i18n126._x)("Edit %s (has errors)", "field"),
+      fieldLabel || ""
+    ) : (0, import_i18n126.sprintf)(
+      // translators: %s: Field name.
+      (0, import_i18n126._x)("Edit %s", "field"),
+      fieldLabel || ""
+    );
+    const rowRef = (0, import_element122.useRef)(null);
+    const handleRowClick = () => {
+      const selection = rowRef.current?.ownerDocument.defaultView?.getSelection();
+      if (selection && selection.toString().length > 0) {
+        return;
+      }
+      onClick();
+    };
+    const handleKeyDown = (event) => {
+      if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault();
+        onClick();
+      }
+    };
+    return /* @__PURE__ */ (0, import_jsx_runtime257.jsxs)(
+      "div",
+      {
+        ref: rowRef,
+        className,
+        onClick: !disabled ? handleRowClick : void 0,
+        onKeyDown: !disabled ? handleKeyDown : void 0,
+        children: [
+          labelPosition !== "none" && /* @__PURE__ */ (0, import_jsx_runtime257.jsx)("span", { className: labelClassName, children: labelContent }),
+          labelPosition === "none" && showError && /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(import_components139.Tooltip, { text: errorMessage, placement: "top", children: /* @__PURE__ */ (0, import_jsx_runtime257.jsx)("span", { className: "dataforms-layouts-panel__field-label-error-content", children: /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(import_components139.Icon, { icon: error_default, size: 16 }) }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+            "span",
+            {
+              id: `${controlId}`,
+              className: "dataforms-layouts-panel__field-control",
+              children: summaryFields.length > 1 ? /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+                "span",
+                {
+                  style: {
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    width: "100%",
+                    gap: "2px"
+                  },
+                  children: summaryFields.map((summaryField) => /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+                    "span",
+                    {
+                      style: { width: "100%" },
+                      children: /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+                        summaryField.render,
+                        {
+                          item: data,
+                          field: summaryField
+                        }
+                      )
+                    },
+                    summaryField.id
+                  ))
+                }
+              ) : summaryFields.map((summaryField) => /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+                summaryField.render,
+                {
+                  item: data,
+                  field: summaryField
+                },
+                summaryField.id
+              ))
+            }
+          ),
+          !disabled && /* @__PURE__ */ (0, import_jsx_runtime257.jsx)(
+            import_components139.Button,
+            {
+              className: "dataforms-layouts-panel__field-trigger-icon",
+              label: ariaLabel,
+              showTooltip: false,
+              icon: pencil_default,
+              size: "small",
+              "aria-expanded": ariaExpanded,
+              "aria-haspopup": "dialog",
+              "aria-describedby": `${controlId}`
+            }
+          )
+        ]
+      }
+    );
+  }
 
   // packages/dataviews/build-module/hooks/use-form-validity.mjs
   var import_deepmerge2 = __toESM(require_cjs(), 1);
@@ -40270,6 +40103,83 @@ If there's a particular need for this, please submit a feature request at https:
   }
   var use_form_validity_default = useFormValidity;
 
+  // packages/dataviews/build-module/hooks/use-report-validity.mjs
+  var import_element124 = __toESM(require_element(), 1);
+  function useReportValidity(ref, shouldReport) {
+    (0, import_element124.useEffect)(() => {
+      if (shouldReport && ref.current) {
+        const inputs = ref.current.querySelectorAll(
+          "input, textarea, select"
+        );
+        inputs.forEach((input) => {
+          input.reportValidity();
+        });
+      }
+    }, [shouldReport, ref]);
+  }
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/utils/use-field-from-form-field.mjs
+  var import_element125 = __toESM(require_element(), 1);
+
+  // packages/dataviews/build-module/components/dataform-layouts/get-summary-fields.mjs
+  function extractSummaryIds(summary) {
+    if (Array.isArray(summary)) {
+      return summary.map(
+        (item) => typeof item === "string" ? item : item.id
+      );
+    }
+    return [];
+  }
+  var getSummaryFields = (summaryField, fields) => {
+    if (Array.isArray(summaryField) && summaryField.length > 0) {
+      const summaryIds = extractSummaryIds(summaryField);
+      return summaryIds.map(
+        (summaryId) => fields.find((_field) => _field.id === summaryId)
+      ).filter((_field) => _field !== void 0);
+    }
+    return [];
+  };
+
+  // packages/dataviews/build-module/components/dataform-layouts/panel/utils/use-field-from-form-field.mjs
+  var getFieldDefinition = (field, fields) => {
+    const fieldDefinition = fields.find((_field) => _field.id === field.id);
+    if (!fieldDefinition) {
+      return fields.find((_field) => {
+        if (!!field.children) {
+          const simpleChildren = field.children.filter(
+            (child) => !child.children
+          );
+          if (simpleChildren.length === 0) {
+            return false;
+          }
+          return _field.id === simpleChildren[0].id;
+        }
+        return _field.id === field.id;
+      });
+    }
+    return fieldDefinition;
+  };
+  function useFieldFromFormField(field) {
+    const { fields } = (0, import_element125.useContext)(dataform_context_default);
+    const layout = field.layout;
+    const summaryFields = getSummaryFields(layout.summary, fields);
+    const fieldDefinition = getFieldDefinition(field, fields);
+    const fieldLabel = !!field.children ? field.label : fieldDefinition?.label;
+    if (summaryFields.length === 0) {
+      return {
+        summaryFields: fieldDefinition ? [fieldDefinition] : [],
+        fieldDefinition,
+        fieldLabel
+      };
+    }
+    return {
+      summaryFields,
+      fieldDefinition,
+      fieldLabel
+    };
+  }
+  var use_field_from_form_field_default = useFieldFromFormField;
+
   // packages/dataviews/build-module/components/dataform-layouts/panel/modal.mjs
   var import_jsx_runtime258 = __toESM(require_jsx_runtime(), 1);
   function ModalContent({
@@ -40280,14 +40190,14 @@ If there's a particular need for this, please submit a feature request at https:
     onClose,
     touched
   }) {
-    const { fields } = (0, import_element124.useContext)(dataform_context_default);
-    const [changes, setChanges] = (0, import_element124.useState)({});
-    const modalData = (0, import_element124.useMemo)(() => {
+    const { fields } = (0, import_element126.useContext)(dataform_context_default);
+    const [changes, setChanges] = (0, import_element126.useState)({});
+    const modalData = (0, import_element126.useMemo)(() => {
       return (0, import_deepmerge3.default)(data, changes, {
         arrayMerge: (target, source) => source
       });
     }, [data, changes]);
-    const form = (0, import_element124.useMemo)(
+    const form = (0, import_element126.useMemo)(
       () => ({
         layout: DEFAULT_LAYOUT,
         fields: !!field.children ? field.children : (
@@ -40323,7 +40233,7 @@ If there's a particular need for this, please submit a feature request at https:
       );
     };
     const focusOnMountRef = (0, import_compose25.useFocusOnMount)("firstInputElement");
-    const contentRef = (0, import_element124.useRef)(null);
+    const contentRef = (0, import_element126.useRef)(null);
     const mergedRef = (0, import_compose25.useMergeRefs)([focusOnMountRef, contentRef]);
     useReportValidity(contentRef, touched);
     return /* @__PURE__ */ (0, import_jsx_runtime258.jsxs)(
@@ -40393,26 +40303,28 @@ If there's a particular need for this, please submit a feature request at https:
     data,
     field,
     onChange,
-    labelPosition,
-    summaryFields,
-    fieldDefinition,
-    onClose: onCloseCallback,
-    touched
+    validity
   }) {
-    const [isOpen, setIsOpen] = (0, import_element124.useState)(false);
-    const fieldLabel = !!field.children ? field.label : fieldDefinition?.label;
+    const [touched, setTouched] = (0, import_element126.useState)(false);
+    const [isOpen, setIsOpen] = (0, import_element126.useState)(false);
+    const { fieldDefinition, fieldLabel, summaryFields } = use_field_from_form_field_default(field);
+    if (!fieldDefinition) {
+      return null;
+    }
     const handleClose = () => {
       setIsOpen(false);
-      onCloseCallback?.();
+      setTouched(true);
     };
     return /* @__PURE__ */ (0, import_jsx_runtime258.jsxs)(import_jsx_runtime258.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_runtime258.jsx)(
-        summary_button_default,
+        SummaryButton,
         {
-          summaryFields,
           data,
-          labelPosition,
+          field,
           fieldLabel,
+          summaryFields,
+          validity,
+          touched,
           disabled: fieldDefinition.readOnly === true,
           onClick: () => setIsOpen(true),
           "aria-expanded": isOpen
@@ -40433,220 +40345,200 @@ If there's a particular need for this, please submit a feature request at https:
   }
   var modal_default2 = PanelModal;
 
-  // packages/dataviews/build-module/components/dataform-layouts/get-summary-fields.mjs
-  function extractSummaryIds(summary) {
-    if (Array.isArray(summary)) {
-      return summary.map(
-        (item) => typeof item === "string" ? item : item.id
-      );
-    }
-    return [];
+  // packages/dataviews/build-module/components/dataform-layouts/panel/dropdown.mjs
+  var import_components141 = __toESM(require_components(), 1);
+  var import_i18n129 = __toESM(require_i18n(), 1);
+  var import_element127 = __toESM(require_element(), 1);
+  var import_compose26 = __toESM(require_compose(), 1);
+  var import_jsx_runtime259 = __toESM(require_jsx_runtime(), 1);
+  function DropdownHeader({
+    title,
+    onClose
+  }) {
+    return /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+      Stack,
+      {
+        direction: "column",
+        className: "dataforms-layouts-panel__dropdown-header",
+        gap: "lg",
+        children: /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)(Stack, { direction: "row", gap: "sm", align: "center", children: [
+          title && /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_components141.__experimentalHeading, { level: 2, size: 13, children: title }),
+          /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_components141.__experimentalSpacer, { style: { flex: 1 } }),
+          onClose && /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+            import_components141.Button,
+            {
+              label: (0, import_i18n129.__)("Close"),
+              icon: close_small_default,
+              onClick: onClose,
+              size: "small"
+            }
+          )
+        ] })
+      }
+    );
   }
-  var getSummaryFields = (summaryField, fields) => {
-    if (Array.isArray(summaryField) && summaryField.length > 0) {
-      const summaryIds = extractSummaryIds(summaryField);
-      return summaryIds.map(
-        (summaryId) => fields.find((_field) => _field.id === summaryId)
-      ).filter((_field) => _field !== void 0);
+  function DropdownContentWithValidation({
+    touched,
+    children
+  }) {
+    const ref = (0, import_element127.useRef)(null);
+    useReportValidity(ref, touched);
+    return /* @__PURE__ */ (0, import_jsx_runtime259.jsx)("div", { ref, children });
+  }
+  function PanelDropdown({
+    data,
+    field,
+    onChange,
+    validity
+  }) {
+    const [touched, setTouched] = (0, import_element127.useState)(false);
+    const [popoverAnchor, setPopoverAnchor] = (0, import_element127.useState)(
+      null
+    );
+    const popoverProps = (0, import_element127.useMemo)(
+      () => ({
+        // Anchor the popover to the middle of the entire row so that it doesn't
+        // move around when the label changes.
+        anchor: popoverAnchor,
+        placement: "left-start",
+        offset: 36,
+        shift: true
+      }),
+      [popoverAnchor]
+    );
+    const [dialogRef, dialogProps] = (0, import_compose26.__experimentalUseDialog)({
+      focusOnMount: "firstInputElement"
+    });
+    const form = (0, import_element127.useMemo)(
+      () => ({
+        layout: DEFAULT_LAYOUT,
+        fields: !!field.children ? field.children : (
+          // If not explicit children return the field id itself.
+          [{ id: field.id, layout: DEFAULT_LAYOUT }]
+        )
+      }),
+      [field]
+    );
+    const formValidity = (0, import_element127.useMemo)(() => {
+      if (validity === void 0) {
+        return void 0;
+      }
+      if (!!field.children) {
+        return validity?.children;
+      }
+      return { [field.id]: validity };
+    }, [validity, field]);
+    const { fieldDefinition, fieldLabel, summaryFields } = use_field_from_form_field_default(field);
+    if (!fieldDefinition) {
+      return null;
     }
-    return [];
-  };
+    return /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+      "div",
+      {
+        ref: setPopoverAnchor,
+        className: "dataforms-layouts-panel__field-dropdown-anchor",
+        children: /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+          import_components141.Dropdown,
+          {
+            contentClassName: "dataforms-layouts-panel__field-dropdown",
+            popoverProps,
+            focusOnMount: false,
+            onToggle: (willOpen) => {
+              if (!willOpen) {
+                setTouched(true);
+              }
+            },
+            renderToggle: ({ isOpen, onToggle }) => /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+              SummaryButton,
+              {
+                data,
+                field,
+                fieldLabel,
+                summaryFields,
+                validity,
+                touched,
+                disabled: fieldDefinition.readOnly === true,
+                onClick: onToggle,
+                "aria-expanded": isOpen
+              }
+            ),
+            renderContent: ({ onClose }) => /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(DropdownContentWithValidation, { touched, children: /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)("div", { ref: dialogRef, ...dialogProps, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+                DropdownHeader,
+                {
+                  title: fieldLabel,
+                  onClose
+                }
+              ),
+              /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+                DataFormLayout,
+                {
+                  data,
+                  form,
+                  onChange,
+                  validity: formValidity,
+                  children: (FieldLayout, childField, childFieldValidity, markWhenOptional) => /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+                    FieldLayout,
+                    {
+                      data,
+                      field: childField,
+                      onChange,
+                      hideLabelFromVision: (form?.fields ?? []).length < 2,
+                      markWhenOptional,
+                      validity: childFieldValidity
+                    },
+                    childField.id
+                  )
+                }
+              )
+            ] }) })
+          }
+        )
+      }
+    );
+  }
+  var dropdown_default = PanelDropdown;
 
   // packages/dataviews/build-module/components/dataform-layouts/panel/index.mjs
-  var import_jsx_runtime259 = __toESM(require_jsx_runtime(), 1);
-  function getFirstValidationError(validity) {
-    if (!validity) {
-      return void 0;
-    }
-    const validityRules = Object.keys(validity).filter(
-      (key) => key !== "children"
-    );
-    for (const key of validityRules) {
-      const rule = validity[key];
-      if (rule === void 0) {
-        continue;
-      }
-      if (rule.type === "invalid") {
-        if (rule.message) {
-          return rule.message;
-        }
-        if (key === "required") {
-          return "A required field is empty";
-        }
-        return "Unidentified validation error";
-      }
-    }
-    if (validity.children) {
-      for (const childValidity of Object.values(validity.children)) {
-        const childError = getFirstValidationError(childValidity);
-        if (childError) {
-          return childError;
-        }
-      }
-    }
-    return void 0;
-  }
-  var getFieldDefinition = (field, fields) => {
-    const fieldDefinition = fields.find((_field) => _field.id === field.id);
-    if (!fieldDefinition) {
-      return fields.find((_field) => {
-        if (!!field.children) {
-          const simpleChildren = field.children.filter(
-            (child) => !child.children
-          );
-          if (simpleChildren.length === 0) {
-            return false;
-          }
-          return _field.id === simpleChildren[0].id;
-        }
-        return _field.id === field.id;
-      });
-    }
-    return fieldDefinition;
-  };
-  var getFieldDefinitionAndSummaryFields = (layout, field, fields) => {
-    const summaryFields = getSummaryFields(layout.summary, fields);
-    const fieldDefinition = getFieldDefinition(field, fields);
-    if (summaryFields.length === 0) {
-      return {
-        summaryFields: fieldDefinition ? [fieldDefinition] : [],
-        fieldDefinition
-      };
-    }
-    return {
-      summaryFields,
-      fieldDefinition
-    };
-  };
+  var import_jsx_runtime260 = __toESM(require_jsx_runtime(), 1);
   function FormPanelField({
     data,
     field,
     onChange,
     validity
   }) {
-    const { fields } = (0, import_element125.useContext)(dataform_context_default);
     const layout = field.layout;
-    const [popoverAnchor, setPopoverAnchor] = (0, import_element125.useState)(
-      null
-    );
-    const [touched, setTouched] = (0, import_element125.useState)(false);
-    const handleClose = () => setTouched(true);
-    const { fieldDefinition, summaryFields } = getFieldDefinitionAndSummaryFields(layout, field, fields);
-    if (!fieldDefinition) {
-      return null;
+    if (layout.openAs === "modal") {
+      return /* @__PURE__ */ (0, import_jsx_runtime260.jsx)(
+        modal_default2,
+        {
+          data,
+          field,
+          onChange,
+          validity
+        }
+      );
     }
-    const labelPosition = layout.labelPosition;
-    const errorMessage = getFirstValidationError(validity);
-    const showError = touched && !!errorMessage;
-    const labelClassName = clsx_default(
-      "dataforms-layouts-panel__field-label",
-      `dataforms-layouts-panel__field-label--label-position-${labelPosition}`,
-      { "has-error": showError }
-    );
-    const fieldLabel = !!field.children ? field.label : fieldDefinition?.label;
-    const labelContent = showError ? /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_components141.Tooltip, { text: errorMessage, placement: "top", children: /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)(
-      Stack,
-      {
-        direction: "row",
-        gap: "sm",
-        className: "dataforms-layouts-panel__field-label-error-content",
-        justify: "flex-start",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_components141.Icon, { icon: error_default, size: 16 }),
-          /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_jsx_runtime259.Fragment, { children: fieldLabel })
-        ]
-      }
-    ) }) : fieldLabel;
-    const renderedControl = layout.openAs === "modal" ? /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
-      modal_default2,
-      {
-        data,
-        field,
-        onChange,
-        labelPosition,
-        summaryFields,
-        fieldDefinition,
-        onClose: handleClose,
-        touched
-      }
-    ) : /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime260.jsx)(
       dropdown_default,
       {
         data,
         field,
         onChange,
-        validity,
-        labelPosition,
-        summaryFields,
-        fieldDefinition,
-        popoverAnchor,
-        onClose: handleClose,
-        touched
-      }
-    );
-    if (labelPosition === "top") {
-      return /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)(
-        Stack,
-        {
-          direction: "column",
-          className: "dataforms-layouts-panel__field",
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
-              "div",
-              {
-                className: labelClassName,
-                style: { paddingBottom: 0 },
-                children: labelContent
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime259.jsx)("div", { className: "dataforms-layouts-panel__field-control", children: renderedControl })
-          ]
-        }
-      );
-    }
-    if (labelPosition === "none") {
-      return /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)(
-        Stack,
-        {
-          direction: "row",
-          gap: "sm",
-          className: "dataforms-layouts-panel__field dataforms-layouts-panel__field--label-position-none",
-          children: [
-            showError && /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(import_components141.Tooltip, { text: errorMessage, placement: "top", children: /* @__PURE__ */ (0, import_jsx_runtime259.jsx)(
-              import_components141.Icon,
-              {
-                className: "dataforms-layouts-panel__field-label-error-content",
-                icon: error_default,
-                size: 16
-              }
-            ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime259.jsx)("div", { className: "dataforms-layouts-panel__field-control", children: renderedControl })
-          ]
-        }
-      );
-    }
-    return /* @__PURE__ */ (0, import_jsx_runtime259.jsxs)(
-      Stack,
-      {
-        direction: "row",
-        gap: "sm",
-        ref: setPopoverAnchor,
-        className: "dataforms-layouts-panel__field",
-        children: [
-          /* @__PURE__ */ (0, import_jsx_runtime259.jsx)("div", { className: labelClassName, children: labelContent }),
-          /* @__PURE__ */ (0, import_jsx_runtime259.jsx)("div", { className: "dataforms-layouts-panel__field-control", children: renderedControl })
-        ]
+        validity
       }
     );
   }
 
   // packages/dataviews/build-module/components/dataform-layouts/card/index.mjs
   var import_components142 = __toESM(require_components(), 1);
-  var import_element126 = __toESM(require_element(), 1);
+  var import_compose27 = __toESM(require_compose(), 1);
+  var import_element128 = __toESM(require_element(), 1);
+  var import_i18n131 = __toESM(require_i18n(), 1);
 
   // packages/dataviews/build-module/components/dataform-layouts/validation-badge.mjs
-  var import_i18n129 = __toESM(require_i18n(), 1);
-  var import_jsx_runtime260 = __toESM(require_jsx_runtime(), 1);
+  var import_i18n130 = __toESM(require_i18n(), 1);
+  var import_jsx_runtime261 = __toESM(require_jsx_runtime(), 1);
   function countInvalidFields(validity) {
     if (!validity) {
       return 0;
@@ -40675,9 +40567,9 @@ If there's a particular need for this, please submit a feature request at https:
     if (invalidCount === 0) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime260.jsx)(Badge, { intent: "high", children: (0, import_i18n129.sprintf)(
+    return /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(Badge, { intent: "high", children: (0, import_i18n130.sprintf)(
       /* translators: %d: Number of fields that need attention */
-      (0, import_i18n129._n)(
+      (0, import_i18n130._n)(
         "%d field needs attention",
         "%d fields need attention",
         invalidCount
@@ -40687,88 +40579,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataform-layouts/card/index.mjs
-  var import_jsx_runtime261 = __toESM(require_jsx_runtime(), 1);
-  var NonCollapsibleCardHeader = ({
-    children,
-    ...props
-  }) => /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(import_components142.CardHeader, { isBorderless: true, ...props, children: /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-    "div",
-    {
-      style: {
-        height: "40px",
-        // This is to match the chevron's __next40pxDefaultSize
-        width: "100%",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center"
-      },
-      children
-    }
-  ) });
-  function useCardHeader(layout) {
-    const { isOpened, isCollapsible } = layout;
-    const [isOpen, setIsOpen] = (0, import_element126.useState)(isOpened);
-    const [touched, setTouched] = (0, import_element126.useState)(false);
-    (0, import_element126.useEffect)(() => {
-      setIsOpen(isOpened);
-    }, [isOpened]);
-    const toggle = (0, import_element126.useCallback)(() => {
-      if (isOpen) {
-        setTouched(true);
-      }
-      setIsOpen((prev) => !prev);
-    }, [isOpen]);
-    const CollapsibleCardHeader = (0, import_element126.useCallback)(
-      ({
-        children,
-        ...props
-      }) => /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(
-        import_components142.CardHeader,
-        {
-          ...props,
-          onClick: toggle,
-          style: {
-            cursor: "pointer",
-            ...props.style
-          },
-          isBorderless: true,
-          children: [
-            /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-              "div",
-              {
-                style: {
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
-                },
-                children
-              }
-            ),
-            /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-              import_components142.Button,
-              {
-                __next40pxDefaultSize: true,
-                variant: "tertiary",
-                icon: isOpen ? chevron_up_default : chevron_down_default,
-                "aria-expanded": isOpen,
-                "aria-label": isOpen ? "Collapse" : "Expand"
-              }
-            )
-          ]
-        }
-      ),
-      [toggle, isOpen]
-    );
-    const effectiveIsOpen = isCollapsible ? isOpen : true;
-    const CardHeaderComponent = isCollapsible ? CollapsibleCardHeader : NonCollapsibleCardHeader;
-    return {
-      isOpen: effectiveIsOpen,
-      CardHeader: CardHeaderComponent,
-      touched,
-      setTouched
-    };
-  }
+  var import_jsx_runtime262 = __toESM(require_jsx_runtime(), 1);
   function isSummaryFieldVisible(summaryField, summaryConfig, isOpen) {
     if (!summaryConfig || Array.isArray(summaryConfig) && summaryConfig.length === 0) {
       return false;
@@ -40802,18 +40613,36 @@ If there's a particular need for this, please submit a feature request at https:
     markWhenOptional,
     validity
   }) {
-    const { fields } = (0, import_element126.useContext)(dataform_context_default);
+    const { fields } = (0, import_element128.useContext)(dataform_context_default);
     const layout = field.layout;
-    const cardBodyRef = (0, import_element126.useRef)(null);
-    const form = (0, import_element126.useMemo)(
+    const cardBodyRef = (0, import_element128.useRef)(null);
+    const bodyId = (0, import_compose27.useInstanceId)(
+      FormCardField,
+      "dataforms-layouts-card-card-body"
+    );
+    const form = (0, import_element128.useMemo)(
       () => ({
         layout: DEFAULT_LAYOUT,
         fields: field.children ?? []
       }),
       [field]
     );
-    const { isOpen, CardHeader, touched, setTouched } = useCardHeader(layout);
-    const handleBlur = (0, import_element126.useCallback)(() => {
+    const { isOpened, isCollapsible } = layout;
+    const [internalIsOpen, setIsOpen] = (0, import_element128.useState)(isOpened);
+    const [touched, setTouched] = (0, import_element128.useState)(false);
+    (0, import_element128.useEffect)(() => {
+      setIsOpen(isOpened);
+    }, [isOpened]);
+    const toggle = (0, import_element128.useCallback)(() => {
+      setIsOpen((prev) => {
+        if (prev) {
+          setTouched(true);
+        }
+        return !prev;
+      });
+    }, []);
+    const isOpen = isCollapsible ? internalIsOpen : true;
+    const handleBlur = (0, import_element128.useCallback)(() => {
       setTouched(true);
     }, [setTouched]);
     useReportValidity(cardBodyRef, isOpen && touched);
@@ -40821,111 +40650,125 @@ If there's a particular need for this, please submit a feature request at https:
     const visibleSummaryFields = summaryFields.filter(
       (summaryField) => isSummaryFieldVisible(summaryField, layout.summary, isOpen)
     );
-    const validationBadge = touched && layout.isCollapsible ? /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(ValidationBadge, { validity }) : null;
+    const validationBadge = touched && layout.isCollapsible ? /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(ValidationBadge, { validity }) : null;
     const sizeCard = {
       blockStart: "medium",
       blockEnd: "medium",
       inlineStart: "medium",
       inlineEnd: "medium"
     };
-    if (!!field.children) {
-      const withHeader2 = !!field.label && layout.withHeader;
-      const sizeCardBody2 = {
-        blockStart: withHeader2 ? "none" : "medium",
-        blockEnd: "medium",
-        inlineStart: "medium",
-        inlineEnd: "medium"
-      };
-      return /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(import_components142.Card, { className: "dataforms-layouts-card__field", size: sizeCard, children: [
-        withHeader2 && /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(CardHeader, { className: "dataforms-layouts-card__field-header", children: [
-          /* @__PURE__ */ (0, import_jsx_runtime261.jsx)("span", { className: "dataforms-layouts-card__field-header-label", children: field.label }),
-          validationBadge,
-          visibleSummaryFields.length > 0 && layout.withHeader && /* @__PURE__ */ (0, import_jsx_runtime261.jsx)("div", { className: "dataforms-layouts-card__field-summary", children: visibleSummaryFields.map(
-            (summaryField) => /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-              summaryField.render,
-              {
-                item: data,
-                field: summaryField
-              },
-              summaryField.id
-            )
-          ) })
-        ] }),
-        (isOpen || !withHeader2) && // If it doesn't have a header, keep it open.
-        // Otherwise, the card will not be visible.
-        /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(
-          import_components142.CardBody,
+    let label = field.label;
+    let withHeader;
+    let bodyContent;
+    if (field.children) {
+      withHeader = !!label && layout.withHeader;
+      bodyContent = /* @__PURE__ */ (0, import_jsx_runtime262.jsxs)(import_jsx_runtime262.Fragment, { children: [
+        field.description && /* @__PURE__ */ (0, import_jsx_runtime262.jsx)("div", { className: "dataforms-layouts-card__field-description", children: field.description }),
+        /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+          DataFormLayout,
           {
-            size: sizeCardBody2,
-            className: "dataforms-layouts-card__field-control",
-            ref: cardBodyRef,
-            onBlur: handleBlur,
-            children: [
-              field.description && /* @__PURE__ */ (0, import_jsx_runtime261.jsx)("div", { className: "dataforms-layouts-card__field-description", children: field.description }),
-              /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-                DataFormLayout,
-                {
-                  data,
-                  form,
-                  onChange,
-                  validity: validity?.children
-                }
-              )
-            ]
+            data,
+            form,
+            onChange,
+            validity: validity?.children
           }
         )
       ] });
+    } else {
+      const fieldDefinition = fields.find(
+        (fieldDef) => fieldDef.id === field.id
+      );
+      if (!fieldDefinition || !fieldDefinition.Edit) {
+        return null;
+      }
+      const SingleFieldLayout = getFormFieldLayout("regular")?.component;
+      if (!SingleFieldLayout) {
+        return null;
+      }
+      label = fieldDefinition.label;
+      withHeader = !!label && layout.withHeader;
+      bodyContent = /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+        SingleFieldLayout,
+        {
+          data,
+          field,
+          onChange,
+          hideLabelFromVision: hideLabelFromVision || withHeader,
+          markWhenOptional,
+          validity
+        }
+      );
     }
-    const fieldDefinition = fields.find(
-      (fieldDef) => fieldDef.id === field.id
-    );
-    if (!fieldDefinition || !fieldDefinition.Edit) {
-      return null;
-    }
-    const RegularLayout = getFormFieldLayout("regular")?.component;
-    if (!RegularLayout) {
-      return null;
-    }
-    const withHeader = !!fieldDefinition.label && layout.withHeader;
     const sizeCardBody = {
       blockStart: withHeader ? "none" : "medium",
       blockEnd: "medium",
       inlineStart: "medium",
       inlineEnd: "medium"
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(import_components142.Card, { className: "dataforms-layouts-card__field", size: sizeCard, children: [
-      withHeader && /* @__PURE__ */ (0, import_jsx_runtime261.jsxs)(CardHeader, { className: "dataforms-layouts-card__field-header", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime261.jsx)("span", { className: "dataforms-layouts-card__field-header-label", children: fieldDefinition.label }),
-        validationBadge,
-        visibleSummaryFields.length > 0 && layout.withHeader && /* @__PURE__ */ (0, import_jsx_runtime261.jsx)("div", { className: "dataforms-layouts-card__field-summary", children: visibleSummaryFields.map((summaryField) => /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-          summaryField.render,
-          {
-            item: data,
-            field: summaryField
+    return /* @__PURE__ */ (0, import_jsx_runtime262.jsxs)(import_components142.Card, { className: "dataforms-layouts-card__field", size: sizeCard, children: [
+      withHeader && /* @__PURE__ */ (0, import_jsx_runtime262.jsxs)(
+        import_components142.CardHeader,
+        {
+          className: "dataforms-layouts-card__field-header",
+          onClick: isCollapsible ? toggle : void 0,
+          style: {
+            cursor: isCollapsible ? "pointer" : void 0
           },
-          summaryField.id
-        )) })
-      ] }),
+          isBorderless: true,
+          children: [
+            /* @__PURE__ */ (0, import_jsx_runtime262.jsxs)(
+              "div",
+              {
+                style: {
+                  // Match the expand/collapse button's height to avoid layout
+                  // differences when that button is not displayed.
+                  height: isCollapsible ? void 0 : "40px",
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                },
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime262.jsx)("span", { className: "dataforms-layouts-card__field-header-label", children: label }),
+                  validationBadge,
+                  visibleSummaryFields.length > 0 && layout.withHeader && /* @__PURE__ */ (0, import_jsx_runtime262.jsx)("div", { className: "dataforms-layouts-card__field-summary", children: visibleSummaryFields.map(
+                    (summaryField) => /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+                      summaryField.render,
+                      {
+                        item: data,
+                        field: summaryField
+                      },
+                      summaryField.id
+                    )
+                  ) })
+                ]
+              }
+            ),
+            isCollapsible && /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+              import_components142.Button,
+              {
+                __next40pxDefaultSize: true,
+                variant: "tertiary",
+                icon: isOpen ? chevron_up_default : chevron_down_default,
+                "aria-expanded": isOpen,
+                "aria-controls": bodyId,
+                "aria-label": isOpen ? (0, import_i18n131.__)("Collapse") : (0, import_i18n131.__)("Expand")
+              }
+            )
+          ]
+        }
+      ),
       (isOpen || !withHeader) && // If it doesn't have a header, keep it open.
       // Otherwise, the card will not be visible.
-      /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
         import_components142.CardBody,
         {
+          id: bodyId,
           size: sizeCardBody,
           className: "dataforms-layouts-card__field-control",
           ref: cardBodyRef,
           onBlur: handleBlur,
-          children: /* @__PURE__ */ (0, import_jsx_runtime261.jsx)(
-            RegularLayout,
-            {
-              data,
-              field,
-              onChange,
-              hideLabelFromVision: hideLabelFromVision || withHeader,
-              markWhenOptional,
-              validity
-            }
-          )
+          children: bodyContent
         }
       )
     ] });
@@ -40933,19 +40776,19 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/dataviews/build-module/components/dataform-layouts/row/index.mjs
   var import_components143 = __toESM(require_components(), 1);
-  var import_jsx_runtime262 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime263 = __toESM(require_jsx_runtime(), 1);
   function Header3({ title }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
       Stack,
       {
         direction: "column",
         className: "dataforms-layouts-row__header",
         gap: "lg",
-        children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(Stack, { direction: "row", align: "center", children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(import_components143.__experimentalHeading, { level: 2, size: 13, children: title }) })
+        children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(Stack, { direction: "row", align: "center", children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(import_components143.__experimentalHeading, { level: 2, size: 13, children: title }) })
       }
     );
   }
-  var EMPTY_WRAPPER = ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(import_jsx_runtime262.Fragment, { children });
+  var EMPTY_WRAPPER = ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(import_jsx_runtime263.Fragment, { children });
   function FormRowField({
     data,
     field,
@@ -40960,9 +40803,9 @@ If there's a particular need for this, please submit a feature request at https:
         layout: DEFAULT_LAYOUT,
         fields: field.children
       };
-      return /* @__PURE__ */ (0, import_jsx_runtime262.jsxs)("div", { className: "dataforms-layouts-row__field", children: [
-        !hideLabelFromVision && field.label && /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(Header3, { title: field.label }),
-        /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(Stack, { direction: "row", align: layout.alignment, gap: "lg", children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime263.jsxs)("div", { className: "dataforms-layouts-row__field", children: [
+        !hideLabelFromVision && field.label && /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(Header3, { title: field.label }),
+        /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(Stack, { direction: "row", align: layout.alignment, gap: "lg", children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
           DataFormLayout,
           {
             data,
@@ -40970,12 +40813,12 @@ If there's a particular need for this, please submit a feature request at https:
             onChange,
             validity: validity?.children,
             as: EMPTY_WRAPPER,
-            children: (FieldLayout, childField, childFieldValidity) => /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+            children: (FieldLayout, childField, childFieldValidity) => /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
               "div",
               {
                 className: "dataforms-layouts-row__field-control",
                 style: layout.styles[childField.id],
-                children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+                children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
                   FieldLayout,
                   {
                     data,
@@ -40997,7 +40840,7 @@ If there's a particular need for this, please submit a feature request at https:
     if (!RegularLayout) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(import_jsx_runtime262.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)("div", { className: "dataforms-layouts-row__field-control", children: /* @__PURE__ */ (0, import_jsx_runtime262.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(import_jsx_runtime263.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)("div", { className: "dataforms-layouts-row__field-control", children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
       RegularLayout,
       {
         data,
@@ -41010,28 +40853,28 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataform-layouts/details/index.mjs
-  var import_element127 = __toESM(require_element(), 1);
-  var import_i18n130 = __toESM(require_i18n(), 1);
-  var import_jsx_runtime263 = __toESM(require_jsx_runtime(), 1);
+  var import_element129 = __toESM(require_element(), 1);
+  var import_i18n132 = __toESM(require_i18n(), 1);
+  var import_jsx_runtime264 = __toESM(require_jsx_runtime(), 1);
   function FormDetailsField({
     data,
     field,
     onChange,
     validity
   }) {
-    const { fields } = (0, import_element127.useContext)(dataform_context_default);
-    const detailsRef = (0, import_element127.useRef)(null);
-    const contentRef = (0, import_element127.useRef)(null);
-    const [touched, setTouched] = (0, import_element127.useState)(false);
-    const [isOpen, setIsOpen] = (0, import_element127.useState)(false);
-    const form = (0, import_element127.useMemo)(
+    const { fields } = (0, import_element129.useContext)(dataform_context_default);
+    const detailsRef = (0, import_element129.useRef)(null);
+    const contentRef = (0, import_element129.useRef)(null);
+    const [touched, setTouched] = (0, import_element129.useState)(false);
+    const [isOpen, setIsOpen] = (0, import_element129.useState)(false);
+    const form = (0, import_element129.useMemo)(
       () => ({
         layout: DEFAULT_LAYOUT,
         fields: field.children ?? []
       }),
       [field]
     );
-    (0, import_element127.useEffect)(() => {
+    (0, import_element129.useEffect)(() => {
       const details = detailsRef.current;
       if (!details) {
         return;
@@ -41049,7 +40892,7 @@ If there's a particular need for this, please submit a feature request at https:
       };
     }, []);
     useReportValidity(contentRef, isOpen && touched);
-    const handleBlur = (0, import_element127.useCallback)(() => {
+    const handleBlur = (0, import_element129.useCallback)(() => {
       setTouched(true);
     }, []);
     if (!field.children) {
@@ -41059,17 +40902,17 @@ If there's a particular need for this, please submit a feature request at https:
     const summaryField = summaryFieldId ? fields.find((fieldDef) => fieldDef.id === summaryFieldId) : void 0;
     let summaryContent;
     if (summaryField && summaryField.render) {
-      summaryContent = /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(summaryField.render, { item: data, field: summaryField });
+      summaryContent = /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(summaryField.render, { item: data, field: summaryField });
     } else {
-      summaryContent = field.label || (0, import_i18n130.__)("More details");
+      summaryContent = field.label || (0, import_i18n132.__)("More details");
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime263.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime264.jsxs)(
       "details",
       {
         ref: detailsRef,
         className: "dataforms-layouts-details__details",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime263.jsx)("summary", { className: "dataforms-layouts-details__summary", children: /* @__PURE__ */ (0, import_jsx_runtime263.jsxs)(
+          /* @__PURE__ */ (0, import_jsx_runtime264.jsx)("summary", { className: "dataforms-layouts-details__summary", children: /* @__PURE__ */ (0, import_jsx_runtime264.jsxs)(
             Stack,
             {
               direction: "row",
@@ -41078,17 +40921,17 @@ If there's a particular need for this, please submit a feature request at https:
               className: "dataforms-layouts-details__summary-content",
               children: [
                 summaryContent,
-                touched && /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(ValidationBadge, { validity })
+                touched && /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(ValidationBadge, { validity })
               ]
             }
           ) }),
-          /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
             "div",
             {
               ref: contentRef,
               className: "dataforms-layouts-details__content",
               onBlur: handleBlur,
-              children: /* @__PURE__ */ (0, import_jsx_runtime263.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
                 DataFormLayout,
                 {
                   data,
@@ -41105,12 +40948,12 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataform-layouts/index.mjs
-  var import_jsx_runtime264 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime265 = __toESM(require_jsx_runtime(), 1);
   var FORM_FIELD_LAYOUTS = [
     {
       type: "regular",
       component: FormRegularField,
-      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
+      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
         Stack,
         {
           direction: "column",
@@ -41123,12 +40966,12 @@ If there's a particular need for this, please submit a feature request at https:
     {
       type: "panel",
       component: FormPanelField,
-      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
+      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
         Stack,
         {
           direction: "column",
           className: "dataforms-layouts__wrapper",
-          gap: "sm",
+          gap: "md",
           children
         }
       )
@@ -41136,7 +40979,7 @@ If there's a particular need for this, please submit a feature request at https:
     {
       type: "card",
       component: FormCardField,
-      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
+      wrapper: ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
         Stack,
         {
           direction: "column",
@@ -41152,13 +40995,13 @@ If there's a particular need for this, please submit a feature request at https:
       wrapper: ({
         children,
         layout
-      }) => /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
+      }) => /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
         Stack,
         {
           direction: "column",
           className: "dataforms-layouts__wrapper",
           gap: "lg",
-          children: /* @__PURE__ */ (0, import_jsx_runtime264.jsx)("div", { className: "dataforms-layouts-row__field", children: /* @__PURE__ */ (0, import_jsx_runtime264.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime265.jsx)("div", { className: "dataforms-layouts-row__field", children: /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
             Stack,
             {
               direction: "row",
@@ -41180,8 +41023,8 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/components/dataform-layouts/data-form-layout.mjs
-  var import_jsx_runtime265 = __toESM(require_jsx_runtime(), 1);
-  var DEFAULT_WRAPPER = ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(Stack, { direction: "column", className: "dataforms-layouts__wrapper", gap: "lg", children });
+  var import_jsx_runtime266 = __toESM(require_jsx_runtime(), 1);
+  var DEFAULT_WRAPPER = ({ children }) => /* @__PURE__ */ (0, import_jsx_runtime266.jsx)(Stack, { direction: "column", className: "dataforms-layouts__wrapper", gap: "lg", children });
   function DataFormLayout({
     data,
     form,
@@ -41190,8 +41033,8 @@ If there's a particular need for this, please submit a feature request at https:
     children,
     as
   }) {
-    const { fields: fieldDefinitions } = (0, import_element128.useContext)(dataform_context_default);
-    const markWhenOptional = (0, import_element128.useMemo)(() => {
+    const { fields: fieldDefinitions } = (0, import_element130.useContext)(dataform_context_default);
+    const markWhenOptional = (0, import_element130.useMemo)(() => {
       const requiredCount = fieldDefinitions.filter(
         (f2) => !!f2.isValid?.required
       ).length;
@@ -41204,7 +41047,7 @@ If there's a particular need for this, please submit a feature request at https:
       );
     }
     const Wrapper = as ?? getFormFieldLayout(form.layout.type)?.wrapper ?? DEFAULT_WRAPPER;
-    return /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(Wrapper, { layout: form.layout, children: form.fields.map((formField) => {
+    return /* @__PURE__ */ (0, import_jsx_runtime266.jsx)(Wrapper, { layout: form.layout, children: form.fields.map((formField) => {
       const FieldLayout = getFormFieldLayout(formField.layout.type)?.component;
       if (!FieldLayout) {
         return null;
@@ -41221,7 +41064,7 @@ If there's a particular need for this, please submit a feature request at https:
           markWhenOptional
         );
       }
-      return /* @__PURE__ */ (0, import_jsx_runtime265.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime266.jsx)(
         FieldLayout,
         {
           data,
@@ -41236,7 +41079,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/dataviews/build-module/dataform/index.mjs
-  var import_jsx_runtime266 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime267 = __toESM(require_jsx_runtime(), 1);
   function DataForm({
     data,
     form,
@@ -41244,15 +41087,15 @@ If there's a particular need for this, please submit a feature request at https:
     onChange,
     validity
   }) {
-    const normalizedForm = (0, import_element129.useMemo)(() => normalize_form_default(form), [form]);
-    const normalizedFields = (0, import_element129.useMemo)(
+    const normalizedForm = (0, import_element131.useMemo)(() => normalize_form_default(form), [form]);
+    const normalizedFields = (0, import_element131.useMemo)(
       () => normalizeFields(fields),
       [fields]
     );
     if (!form.fields) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime266.jsx)(DataFormProvider, { fields: normalizedFields, children: /* @__PURE__ */ (0, import_jsx_runtime266.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(DataFormProvider, { fields: normalizedFields, children: /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(
       DataFormLayout,
       {
         data,
@@ -41356,9 +41199,9 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/index.mjs
-  var import_core_data47 = __toESM(require_core_data(), 1);
-  var import_editor30 = __toESM(require_editor(), 1);
-  var import_router30 = __toESM(require_router(), 1);
+  var import_core_data48 = __toESM(require_core_data(), 1);
+  var import_editor31 = __toESM(require_editor(), 1);
+  var import_router31 = __toESM(require_router(), 1);
 
   // node_modules/dequal/dist/index.mjs
   var has = Object.prototype.hasOwnProperty;
@@ -41437,8 +41280,8 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/views/build-module/use-view.mjs
-  var import_element130 = __toESM(require_element(), 1);
-  var import_data62 = __toESM(require_data(), 1);
+  var import_element132 = __toESM(require_element(), 1);
+  var import_data64 = __toESM(require_data(), 1);
   var import_preferences11 = __toESM(require_preferences(), 1);
 
   // packages/views/build-module/preference-keys.mjs
@@ -41519,7 +41362,7 @@ If there's a particular need for this, please submit a feature request at https:
       onChangeQueryParams
     } = config2;
     const preferenceKey = generatePreferenceKey(kind, name2, slug);
-    const persistedView = (0, import_data62.useSelect)(
+    const persistedView = (0, import_data64.useSelect)(
       (select3) => {
         return select3(import_preferences11.store).get(
           "core/views",
@@ -41528,11 +41371,11 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [preferenceKey]
     );
-    const { set } = (0, import_data62.useDispatch)(import_preferences11.store);
+    const { set } = (0, import_data64.useDispatch)(import_preferences11.store);
     const baseView = persistedView ?? defaultView;
     const page = Number(queryParams?.page ?? baseView.page ?? 1);
     const search = queryParams?.search ?? baseView.search ?? "";
-    const view = (0, import_element130.useMemo)(() => {
+    const view = (0, import_element132.useMemo)(() => {
       return mergeActiveViewOverrides(
         {
           ...baseView,
@@ -41544,7 +41387,7 @@ If there's a particular need for this, please submit a feature request at https:
       );
     }, [baseView, page, search, activeViewOverrides, defaultView]);
     const isModified = !!persistedView;
-    const updateView = (0, import_element130.useCallback)(
+    const updateView = (0, import_element132.useCallback)(
       (newView) => {
         const urlParams = {
           page: newView?.page,
@@ -41587,7 +41430,7 @@ If there's a particular need for this, please submit a feature request at https:
         preferenceKey
       ]
     );
-    const resetToDefault = (0, import_element130.useCallback)(() => {
+    const resetToDefault = (0, import_element132.useCallback)(() => {
       set("core/views", preferenceKey, void 0);
     }, [preferenceKey, set]);
     return {
@@ -41599,12 +41442,12 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/views/build-module/load-view.mjs
-  var import_data63 = __toESM(require_data(), 1);
+  var import_data65 = __toESM(require_data(), 1);
   var import_preferences12 = __toESM(require_preferences(), 1);
   async function loadView(config2) {
     const { kind, name: name2, slug, defaultView, activeViewOverrides, queryParams } = config2;
     const preferenceKey = generatePreferenceKey(kind, name2, slug);
-    const persistedView = (0, import_data63.select)(import_preferences12.store).get(
+    const persistedView = (0, import_data65.select)(import_preferences12.store).get(
       "core/views",
       preferenceKey
     );
@@ -41623,40 +41466,40 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/index.mjs
-  var import_data69 = __toESM(require_data(), 1);
+  var import_data71 = __toESM(require_data(), 1);
   var import_url17 = __toESM(require_url(), 1);
 
   // packages/edit-site/build-module/components/page-patterns/use-pattern-settings.mjs
-  var import_core_data42 = __toESM(require_core_data(), 1);
-  var import_data64 = __toESM(require_data(), 1);
-  var import_element131 = __toESM(require_element(), 1);
-  var import_editor27 = __toESM(require_editor(), 1);
-  var { useGlobalStyles: useGlobalStyles3 } = unlock(import_editor27.privateApis);
+  var import_core_data43 = __toESM(require_core_data(), 1);
+  var import_data66 = __toESM(require_data(), 1);
+  var import_element133 = __toESM(require_element(), 1);
+  var import_editor28 = __toESM(require_editor(), 1);
+  var { useGlobalStyles: useGlobalStyles3 } = unlock(import_editor28.privateApis);
   function usePatternSettings() {
     const { merged: mergedConfig } = useGlobalStyles3();
-    const storedSettings = (0, import_data64.useSelect)((select3) => {
+    const storedSettings = (0, import_data66.useSelect)((select3) => {
       const { getSettings: getSettings7 } = unlock(select3(store));
       return getSettings7();
     }, []);
     const settingsBlockPatterns = storedSettings.__experimentalAdditionalBlockPatterns ?? // WP 6.0
     storedSettings.__experimentalBlockPatterns;
-    const restBlockPatterns = (0, import_data64.useSelect)(
-      (select3) => select3(import_core_data42.store).getBlockPatterns(),
+    const restBlockPatterns = (0, import_data66.useSelect)(
+      (select3) => select3(import_core_data43.store).getBlockPatterns(),
       []
     );
-    const blockPatterns = (0, import_element131.useMemo)(
+    const blockPatterns = (0, import_element133.useMemo)(
       () => [
         ...settingsBlockPatterns || [],
         ...restBlockPatterns || []
       ].filter(filterOutDuplicatesByName),
       [settingsBlockPatterns, restBlockPatterns]
     );
-    const [globalStyles, globalSettings] = (0, import_element131.useMemo)(() => {
+    const [globalStyles, globalSettings] = (0, import_element133.useMemo)(() => {
       return generateGlobalStyles(mergedConfig, [], {
         disableRootPadding: false
       });
     }, [mergedConfig]);
-    const settings2 = (0, import_element131.useMemo)(() => {
+    const settings2 = (0, import_element133.useMemo)(() => {
       const {
         __experimentalAdditionalBlockPatterns,
         styles,
@@ -41676,40 +41519,40 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/page-patterns/actions.mjs
   var import_components147 = __toESM(require_components(), 1);
-  var import_i18n134 = __toESM(require_i18n(), 1);
+  var import_i18n136 = __toESM(require_i18n(), 1);
 
   // packages/edit-site/build-module/components/add-new-pattern/index.mjs
   var import_components144 = __toESM(require_components(), 1);
-  var import_element132 = __toESM(require_element(), 1);
-  var import_i18n131 = __toESM(require_i18n(), 1);
-  var import_data65 = __toESM(require_data(), 1);
-  var import_router27 = __toESM(require_router(), 1);
+  var import_element134 = __toESM(require_element(), 1);
+  var import_i18n133 = __toESM(require_i18n(), 1);
+  var import_data67 = __toESM(require_data(), 1);
+  var import_router28 = __toESM(require_router(), 1);
   var import_patterns2 = __toESM(require_patterns(), 1);
   var import_notices5 = __toESM(require_notices(), 1);
-  var import_core_data43 = __toESM(require_core_data(), 1);
-  var import_editor28 = __toESM(require_editor(), 1);
-  var import_jsx_runtime267 = __toESM(require_jsx_runtime(), 1);
-  var { useHistory: useHistory17, useLocation: useLocation24 } = unlock(import_router27.privateApis);
+  var import_core_data44 = __toESM(require_core_data(), 1);
+  var import_editor29 = __toESM(require_editor(), 1);
+  var import_jsx_runtime268 = __toESM(require_jsx_runtime(), 1);
+  var { useHistory: useHistory17, useLocation: useLocation25 } = unlock(import_router28.privateApis);
   var { CreatePatternModal, useAddPatternCategory } = unlock(
     import_patterns2.privateApis
   );
-  var { CreateTemplatePartModal } = unlock(import_editor28.privateApis);
+  var { CreateTemplatePartModal } = unlock(import_editor29.privateApis);
   function AddNewPattern() {
     const history = useHistory17();
-    const location = useLocation24();
-    const [showPatternModal, setShowPatternModal] = (0, import_element132.useState)(false);
-    const [showTemplatePartModal, setShowTemplatePartModal] = (0, import_element132.useState)(false);
-    const { createPatternFromFile } = unlock((0, import_data65.useDispatch)(import_patterns2.store));
-    const { createSuccessNotice, createErrorNotice } = (0, import_data65.useDispatch)(import_notices5.store);
-    const patternUploadInputRef = (0, import_element132.useRef)();
+    const location = useLocation25();
+    const [showPatternModal, setShowPatternModal] = (0, import_element134.useState)(false);
+    const [showTemplatePartModal, setShowTemplatePartModal] = (0, import_element134.useState)(false);
+    const { createPatternFromFile } = unlock((0, import_data67.useDispatch)(import_patterns2.store));
+    const { createSuccessNotice, createErrorNotice } = (0, import_data67.useDispatch)(import_notices5.store);
+    const patternUploadInputRef = (0, import_element134.useRef)();
     const {
       isBlockBasedTheme,
       addNewPatternLabel,
       addNewTemplatePartLabel,
       canCreatePattern,
       canCreateTemplatePart
-    } = (0, import_data65.useSelect)((select3) => {
-      const { getCurrentTheme, getPostType: getPostType2, canUser } = select3(import_core_data43.store);
+    } = (0, import_data67.useSelect)((select3) => {
+      const { getCurrentTheme, getPostType: getPostType2, canUser } = select3(import_core_data44.store);
       return {
         isBlockBasedTheme: getCurrentTheme()?.is_block_theme,
         addNewPatternLabel: getPostType2(PATTERN_TYPES.user)?.labels?.add_new_item,
@@ -41762,15 +41605,15 @@ If there's a particular need for this, please submit a feature request at https:
         onClick: () => {
           patternUploadInputRef.current.click();
         },
-        title: (0, import_i18n131.__)("Import pattern from JSON")
+        title: (0, import_i18n133.__)("Import pattern from JSON")
       });
     }
     const { categoryMap, findOrCreateTerm } = useAddPatternCategory();
     if (controls.length === 0) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime267.jsxs)(import_jsx_runtime267.Fragment, { children: [
-      addNewPatternLabel && /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime268.jsxs)(import_jsx_runtime268.Fragment, { children: [
+      addNewPatternLabel && /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
         import_components144.DropdownMenu,
         {
           controls,
@@ -41784,7 +41627,7 @@ If there's a particular need for this, please submit a feature request at https:
           label: addNewPatternLabel
         }
       ),
-      showPatternModal && /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(
+      showPatternModal && /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
         CreatePatternModal,
         {
           onClose: () => setShowPatternModal(false),
@@ -41792,7 +41635,7 @@ If there's a particular need for this, please submit a feature request at https:
           onError: handleError
         }
       ),
-      showTemplatePartModal && /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(
+      showTemplatePartModal && /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
         CreateTemplatePartModal,
         {
           closeModal: () => setShowTemplatePartModal(false),
@@ -41801,7 +41644,7 @@ If there's a particular need for this, please submit a feature request at https:
           onError: handleError
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime267.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
         "input",
         {
           type: "file",
@@ -41837,9 +41680,9 @@ If there's a particular need for this, please submit a feature request at https:
                 );
               }
               createSuccessNotice(
-                (0, import_i18n131.sprintf)(
+                (0, import_i18n133.sprintf)(
                   // translators: %s: The imported pattern's title.
-                  (0, import_i18n131.__)('Imported "%s" from JSON.'),
+                  (0, import_i18n133.__)('Imported "%s" from JSON.'),
                   pattern.title.raw
                 ),
                 {
@@ -41863,16 +41706,16 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/page-patterns/rename-category-menu-item.mjs
   var import_components145 = __toESM(require_components(), 1);
-  var import_element133 = __toESM(require_element(), 1);
-  var import_i18n132 = __toESM(require_i18n(), 1);
+  var import_element135 = __toESM(require_element(), 1);
+  var import_i18n134 = __toESM(require_i18n(), 1);
   var import_patterns3 = __toESM(require_patterns(), 1);
-  var import_jsx_runtime268 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime269 = __toESM(require_jsx_runtime(), 1);
   var { RenamePatternCategoryModal } = unlock(import_patterns3.privateApis);
   function RenameCategoryMenuItem({ category, onClose }) {
-    const [isModalOpen, setIsModalOpen] = (0, import_element133.useState)(false);
-    return /* @__PURE__ */ (0, import_jsx_runtime268.jsxs)(import_jsx_runtime268.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(import_components145.MenuItem, { onClick: () => setIsModalOpen(true), children: (0, import_i18n132.__)("Rename") }),
-      isModalOpen && /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
+    const [isModalOpen, setIsModalOpen] = (0, import_element135.useState)(false);
+    return /* @__PURE__ */ (0, import_jsx_runtime269.jsxs)(import_jsx_runtime269.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime269.jsx)(import_components145.MenuItem, { onClick: () => setIsModalOpen(true), children: (0, import_i18n134.__)("Rename") }),
+      isModalOpen && /* @__PURE__ */ (0, import_jsx_runtime269.jsx)(
         RenameModal2,
         {
           category,
@@ -41891,7 +41734,7 @@ If there's a particular need for this, please submit a feature request at https:
       name: category.label
     };
     const existingCategories = usePatternCategories();
-    return /* @__PURE__ */ (0, import_jsx_runtime268.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime269.jsx)(
       RenamePatternCategoryModal,
       {
         category: normalizedCategory,
@@ -41906,20 +41749,20 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/page-patterns/delete-category-menu-item.mjs
   var import_components146 = __toESM(require_components(), 1);
-  var import_core_data44 = __toESM(require_core_data(), 1);
-  var import_data66 = __toESM(require_data(), 1);
-  var import_element134 = __toESM(require_element(), 1);
+  var import_core_data45 = __toESM(require_core_data(), 1);
+  var import_data68 = __toESM(require_data(), 1);
+  var import_element136 = __toESM(require_element(), 1);
   var import_html_entities9 = __toESM(require_html_entities(), 1);
-  var import_i18n133 = __toESM(require_i18n(), 1);
+  var import_i18n135 = __toESM(require_i18n(), 1);
   var import_notices6 = __toESM(require_notices(), 1);
-  var import_router28 = __toESM(require_router(), 1);
-  var import_jsx_runtime269 = __toESM(require_jsx_runtime(), 1);
-  var { useHistory: useHistory18 } = unlock(import_router28.privateApis);
+  var import_router29 = __toESM(require_router(), 1);
+  var import_jsx_runtime270 = __toESM(require_jsx_runtime(), 1);
+  var { useHistory: useHistory18 } = unlock(import_router29.privateApis);
   function DeleteCategoryMenuItem({ category, onClose }) {
-    const [isModalOpen, setIsModalOpen] = (0, import_element134.useState)(false);
+    const [isModalOpen, setIsModalOpen] = (0, import_element136.useState)(false);
     const history = useHistory18();
-    const { createSuccessNotice, createErrorNotice } = (0, import_data66.useDispatch)(import_notices6.store);
-    const { deleteEntityRecord, invalidateResolution } = (0, import_data66.useDispatch)(import_core_data44.store);
+    const { createSuccessNotice, createErrorNotice } = (0, import_data68.useDispatch)(import_notices6.store);
+    const { deleteEntityRecord, invalidateResolution } = (0, import_data68.useDispatch)(import_core_data45.store);
     const onDelete = async () => {
       try {
         await deleteEntityRecord(
@@ -41936,9 +41779,9 @@ If there's a particular need for this, please submit a feature request at https:
           { per_page: -1 }
         ]);
         createSuccessNotice(
-          (0, import_i18n133.sprintf)(
+          (0, import_i18n135.sprintf)(
             /* translators: %s: The pattern category's name */
-            (0, import_i18n133._x)('"%s" deleted.', "pattern category"),
+            (0, import_i18n135._x)('"%s" deleted.', "pattern category"),
             category.label
           ),
           { type: "snackbar", id: "pattern-category-delete" }
@@ -41948,7 +41791,7 @@ If there's a particular need for this, please submit a feature request at https:
           `/pattern?categoryId=${PATTERN_DEFAULT_CATEGORY}`
         );
       } catch (error) {
-        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n133.__)(
+        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n135.__)(
           "An error occurred while deleting the pattern category."
         );
         createErrorNotice(errorMessage, {
@@ -41957,26 +41800,26 @@ If there's a particular need for this, please submit a feature request at https:
         });
       }
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime269.jsxs)(import_jsx_runtime269.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime269.jsx)(import_components146.MenuItem, { isDestructive: true, onClick: () => setIsModalOpen(true), children: (0, import_i18n133.__)("Delete") }),
-      /* @__PURE__ */ (0, import_jsx_runtime269.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime270.jsxs)(import_jsx_runtime270.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(import_components146.MenuItem, { isDestructive: true, onClick: () => setIsModalOpen(true), children: (0, import_i18n135.__)("Delete") }),
+      /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(
         import_components146.__experimentalConfirmDialog,
         {
           isOpen: isModalOpen,
           onConfirm: onDelete,
           onCancel: () => setIsModalOpen(false),
-          confirmButtonText: (0, import_i18n133.__)("Delete"),
+          confirmButtonText: (0, import_i18n135.__)("Delete"),
           className: "edit-site-patterns__delete-modal",
-          title: (0, import_i18n133.sprintf)(
+          title: (0, import_i18n135.sprintf)(
             // translators: %s: The pattern category's name.
-            (0, import_i18n133._x)('Delete "%s"?', "pattern category"),
+            (0, import_i18n135._x)('Delete "%s"?', "pattern category"),
             (0, import_html_entities9.decodeEntities)(category.label)
           ),
           size: "medium",
           __experimentalHideHeader: false,
-          children: (0, import_i18n133.sprintf)(
+          children: (0, import_i18n135.sprintf)(
             // translators: %s: The pattern category's name.
-            (0, import_i18n133.__)(
+            (0, import_i18n135.__)(
               'Are you sure you want to delete the category "%s"? The patterns will not be deleted.'
             ),
             (0, import_html_entities9.decodeEntities)(category.label)
@@ -41987,7 +41830,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/actions.mjs
-  var import_jsx_runtime270 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime271 = __toESM(require_jsx_runtime(), 1);
   function PatternsActions({ categoryId, type }) {
     const { patternCategories } = usePatternCategories();
     let patternCategory;
@@ -41996,26 +41839,26 @@ If there's a particular need for this, please submit a feature request at https:
         (category) => category.name === categoryId
       );
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime270.jsxs)(import_jsx_runtime270.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(AddNewPattern, {}),
-      !!patternCategory?.id && /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime271.jsxs)(import_jsx_runtime271.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(AddNewPattern, {}),
+      !!patternCategory?.id && /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
         import_components147.DropdownMenu,
         {
           icon: more_vertical_default,
-          label: (0, import_i18n134.__)("Actions"),
+          label: (0, import_i18n136.__)("Actions"),
           toggleProps: {
             className: "edit-site-patterns__button",
             size: "compact"
           },
-          children: ({ onClose }) => /* @__PURE__ */ (0, import_jsx_runtime270.jsxs)(import_components147.MenuGroup, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(
+          children: ({ onClose }) => /* @__PURE__ */ (0, import_jsx_runtime271.jsxs)(import_components147.MenuGroup, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
               RenameCategoryMenuItem,
               {
                 category: patternCategory,
                 onClose
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime270.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
               DeleteCategoryMenuItem,
               {
                 category: patternCategory,
@@ -42029,24 +41872,24 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/dataviews-actions/index.mjs
-  var import_i18n135 = __toESM(require_i18n(), 1);
-  var import_element135 = __toESM(require_element(), 1);
-  var import_router29 = __toESM(require_router(), 1);
-  var import_data67 = __toESM(require_data(), 1);
-  var import_core_data45 = __toESM(require_core_data(), 1);
+  var import_i18n137 = __toESM(require_i18n(), 1);
+  var import_element137 = __toESM(require_element(), 1);
+  var import_router30 = __toESM(require_router(), 1);
+  var import_data69 = __toESM(require_data(), 1);
+  var import_core_data46 = __toESM(require_core_data(), 1);
   var import_url16 = __toESM(require_url(), 1);
-  var { useLocation: useLocation25, useHistory: useHistory19 } = unlock(import_router29.privateApis);
+  var { useLocation: useLocation26, useHistory: useHistory19 } = unlock(import_router30.privateApis);
   var useSetActiveTemplateAction = () => {
-    const activeTheme = (0, import_data67.useSelect)(
-      (select3) => select3(import_core_data45.store).getCurrentTheme()
+    const activeTheme = (0, import_data69.useSelect)(
+      (select3) => select3(import_core_data46.store).getCurrentTheme()
     );
-    const { getEntityRecord } = (0, import_data67.useSelect)(import_core_data45.store);
-    const { editEntityRecord, saveEditedEntityRecord } = (0, import_data67.useDispatch)(import_core_data45.store);
-    return (0, import_element135.useMemo)(
+    const { getEntityRecord } = (0, import_data69.useSelect)(import_core_data46.store);
+    const { editEntityRecord, saveEditedEntityRecord } = (0, import_data69.useDispatch)(import_core_data46.store);
+    return (0, import_element137.useMemo)(
       () => ({
         id: "set-active-template",
         label(items) {
-          return items.some((item) => item._isActive) ? (0, import_i18n135.__)("Deactivate") : (0, import_i18n135.__)("Activate");
+          return items.some((item) => item._isActive) ? (0, import_i18n137.__)("Deactivate") : (0, import_i18n137.__)("Activate");
         },
         isPrimary: true,
         icon: pencil_default,
@@ -42087,10 +41930,10 @@ If there's a particular need for this, please submit a feature request at https:
   };
   var useEditPostAction = () => {
     const history = useHistory19();
-    return (0, import_element135.useMemo)(
+    return (0, import_element137.useMemo)(
       () => ({
         id: "edit-post",
-        label: (0, import_i18n135.__)("Edit"),
+        label: (0, import_i18n137.__)("Edit"),
         icon: pencil_default,
         isEligible(post2) {
           if (post2.status === "trash") {
@@ -42108,11 +41951,11 @@ If there's a particular need for this, please submit a feature request at https:
   };
   var useQuickEditPostAction = () => {
     const history = useHistory19();
-    const { path, query } = useLocation25();
-    return (0, import_element135.useMemo)(
+    const { path, query } = useLocation26();
+    return (0, import_element137.useMemo)(
       () => ({
         id: "quick-edit",
-        label: (0, import_i18n135.__)("Quick Edit"),
+        label: (0, import_i18n137.__)("Quick Edit"),
         icon: drawer_right_default,
         isPrimary: true,
         supportsBulk: true,
@@ -42138,19 +41981,19 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/page-patterns/fields.mjs
   var import_components148 = __toESM(require_components(), 1);
-  var import_i18n136 = __toESM(require_i18n(), 1);
-  var import_element136 = __toESM(require_element(), 1);
+  var import_i18n138 = __toESM(require_i18n(), 1);
+  var import_element138 = __toESM(require_element(), 1);
   var import_block_editor23 = __toESM(require_block_editor(), 1);
   var import_blocks12 = __toESM(require_blocks(), 1);
-  var import_editor29 = __toESM(require_editor(), 1);
+  var import_editor30 = __toESM(require_editor(), 1);
 
   // packages/edit-site/build-module/components/page-templates/hooks.mjs
-  var import_core_data46 = __toESM(require_core_data(), 1);
-  var import_data68 = __toESM(require_data(), 1);
+  var import_core_data47 = __toESM(require_core_data(), 1);
+  var import_data70 = __toESM(require_data(), 1);
   function useAddedBy(postType2, postId) {
-    return (0, import_data68.useSelect)(
+    return (0, import_data70.useSelect)(
       (select3) => {
-        const { getEntityRecord, getUser, getEditedEntityRecord } = select3(import_core_data46.store);
+        const { getEntityRecord, getUser, getEditedEntityRecord } = select3(import_core_data47.store);
         const template = getEditedEntityRecord(
           "postType",
           postType2,
@@ -42209,42 +42052,42 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-patterns/fields.mjs
-  var import_jsx_runtime271 = __toESM(require_jsx_runtime(), 1);
-  var { useStyle: useStyle4 } = unlock(import_editor29.privateApis);
+  var import_jsx_runtime272 = __toESM(require_jsx_runtime(), 1);
+  var { useStyle: useStyle4 } = unlock(import_editor30.privateApis);
   function PreviewField({ item }) {
-    const descriptionId = (0, import_element136.useId)();
+    const descriptionId = (0, import_element138.useId)();
     const description = item.description || item?.excerpt?.raw;
     const isTemplatePart2 = item.type === TEMPLATE_PART_POST_TYPE;
     const backgroundColor = useStyle4("color.background");
-    const blocks = (0, import_element136.useMemo)(() => {
+    const blocks = (0, import_element138.useMemo)(() => {
       return item.blocks ?? (0, import_blocks12.parse)(item.content.raw, {
         __unstableSkipMigrationLogs: true
       });
     }, [item?.content?.raw, item.blocks]);
     const isEmpty3 = !blocks?.length;
-    return /* @__PURE__ */ (0, import_jsx_runtime271.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime272.jsxs)(
       "div",
       {
         className: "page-patterns-preview-field",
         style: { backgroundColor },
         "aria-describedby": !!description ? descriptionId : void 0,
         children: [
-          isEmpty3 && isTemplatePart2 && (0, import_i18n136.__)("Empty template part"),
-          isEmpty3 && !isTemplatePart2 && (0, import_i18n136.__)("Empty pattern"),
-          !isEmpty3 && /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(import_block_editor23.BlockPreview.Async, { children: /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
+          isEmpty3 && isTemplatePart2 && (0, import_i18n138.__)("Empty template part"),
+          isEmpty3 && !isTemplatePart2 && (0, import_i18n138.__)("Empty pattern"),
+          !isEmpty3 && /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(import_block_editor23.BlockPreview.Async, { children: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
             import_block_editor23.BlockPreview,
             {
               blocks,
               viewportWidth: item.viewportWidth
             }
           ) }),
-          !!description && /* @__PURE__ */ (0, import_jsx_runtime271.jsx)("div", { hidden: true, id: descriptionId, children: description })
+          !!description && /* @__PURE__ */ (0, import_jsx_runtime272.jsx)("div", { hidden: true, id: descriptionId, children: description })
         ]
       }
     );
   }
   var previewField = {
-    label: (0, import_i18n136.__)("Preview"),
+    label: (0, import_i18n138.__)("Preview"),
     id: "preview",
     render: PreviewField,
     enableSorting: false
@@ -42252,23 +42095,23 @@ If there's a particular need for this, please submit a feature request at https:
   var SYNC_FILTERS = [
     {
       value: PATTERN_SYNC_TYPES.full,
-      label: (0, import_i18n136._x)("Synced", "pattern (singular)"),
-      description: (0, import_i18n136.__)("Patterns that are kept in sync across the site.")
+      label: (0, import_i18n138._x)("Synced", "pattern (singular)"),
+      description: (0, import_i18n138.__)("Patterns that are kept in sync across the site.")
     },
     {
       value: PATTERN_SYNC_TYPES.unsynced,
-      label: (0, import_i18n136._x)("Not synced", "pattern (singular)"),
-      description: (0, import_i18n136.__)(
+      label: (0, import_i18n138._x)("Not synced", "pattern (singular)"),
+      description: (0, import_i18n138.__)(
         "Patterns that can be changed freely without affecting the site."
       )
     }
   ];
   var patternStatusField = {
-    label: (0, import_i18n136.__)("Sync status"),
+    label: (0, import_i18n138.__)("Sync status"),
     id: "sync-status",
     render: ({ item }) => {
       const syncStatus = "wp_pattern_sync_status" in item ? item.wp_pattern_sync_status || PATTERN_SYNC_TYPES.full : PATTERN_SYNC_TYPES.unsynced;
-      return /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
         "span",
         {
           className: `edit-site-patterns__field-sync-status-${syncStatus}`,
@@ -42284,16 +42127,16 @@ If there's a particular need for this, please submit a feature request at https:
     enableSorting: false
   };
   function AuthorField({ item }) {
-    const [isImageLoaded, setIsImageLoaded] = (0, import_element136.useState)(false);
+    const [isImageLoaded, setIsImageLoaded] = (0, import_element138.useState)(false);
     const { text, icon, imageUrl } = useAddedBy(item.type, item.id);
-    return /* @__PURE__ */ (0, import_jsx_runtime271.jsxs)(import_components148.__experimentalHStack, { alignment: "left", spacing: 0, children: [
-      imageUrl && /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime272.jsxs)(import_components148.__experimentalHStack, { alignment: "left", spacing: 0, children: [
+      imageUrl && /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
         "div",
         {
           className: clsx_default("page-templates-author-field__avatar", {
             "is-loaded": isImageLoaded
           }),
-          children: /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
             "img",
             {
               onLoad: () => setIsImageLoaded(true),
@@ -42303,12 +42146,12 @@ If there's a particular need for this, please submit a feature request at https:
           )
         }
       ),
-      !imageUrl && /* @__PURE__ */ (0, import_jsx_runtime271.jsx)("div", { className: "page-templates-author-field__icon", children: /* @__PURE__ */ (0, import_jsx_runtime271.jsx)(icon_default, { icon }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime271.jsx)("span", { className: "page-templates-author-field__name", children: text })
+      !imageUrl && /* @__PURE__ */ (0, import_jsx_runtime272.jsx)("div", { className: "page-templates-author-field__icon", children: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(icon_default, { icon }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime272.jsx)("span", { className: "page-templates-author-field__name", children: text })
     ] });
   }
   var templatePartAuthorField = {
-    label: (0, import_i18n136.__)("Author"),
+    label: (0, import_i18n138.__)("Author"),
     id: "author",
     getValue: ({ item }) => item.author_text,
     render: AuthorField,
@@ -42318,10 +42161,10 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/page-patterns/index.mjs
-  var import_jsx_runtime272 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime273 = __toESM(require_jsx_runtime(), 1);
   var { ExperimentalBlockEditorProvider } = unlock(import_block_editor24.privateApis);
-  var { usePostActions, patternTitleField } = unlock(import_editor30.privateApis);
-  var { useLocation: useLocation26, useHistory: useHistory20 } = unlock(import_router30.privateApis);
+  var { usePostActions, patternTitleField } = unlock(import_editor31.privateApis);
+  var { useLocation: useLocation27, useHistory: useHistory20 } = unlock(import_router31.privateApis);
   var EMPTY_ARRAY11 = [];
   var defaultLayouts = {
     [LAYOUT_TABLE]: {
@@ -42350,8 +42193,8 @@ If there's a particular need for this, please submit a feature request at https:
   };
   function usePagePatternsHeader(type, categoryId) {
     const { patternCategories } = usePatternCategories();
-    const templatePartAreas = (0, import_data69.useSelect)(
-      (select3) => select3(import_core_data47.store).getCurrentTheme()?.default_template_part_areas || [],
+    const templatePartAreas = (0, import_data71.useSelect)(
+      (select3) => select3(import_core_data48.store).getCurrentTheme()?.default_template_part_areas || [],
       []
     );
     let title, description, patternCategory;
@@ -42359,8 +42202,8 @@ If there's a particular need for this, please submit a feature request at https:
       const templatePartArea = templatePartAreas.find(
         (area) => area.area === categoryId
       );
-      title = templatePartArea?.label || (0, import_i18n137.__)("All Template Parts");
-      description = templatePartArea?.description || (0, import_i18n137.__)("Includes every template part defined for any area.");
+      title = templatePartArea?.label || (0, import_i18n139.__)("All Template Parts");
+      description = templatePartArea?.description || (0, import_i18n139.__)("Includes every template part defined for any area.");
     } else if (type === PATTERN_TYPES.user && !!categoryId) {
       patternCategory = patternCategories.find(
         (category) => category.name === categoryId
@@ -42371,7 +42214,7 @@ If there's a particular need for this, please submit a feature request at https:
     return { title, description };
   }
   function DataviewsPatterns() {
-    const { path, query } = useLocation26();
+    const { path, query } = useLocation27();
     const { postType: postType2 = "wp_block", categoryId: categoryIdFromURL } = query;
     const history = useHistory20();
     const categoryId = categoryIdFromURL || PATTERN_DEFAULT_CATEGORY;
@@ -42401,10 +42244,10 @@ If there's a particular need for this, please submit a feature request at https:
       search: view.search,
       syncStatus: viewSyncStatus
     });
-    const { records } = (0, import_core_data47.useEntityRecords)("postType", TEMPLATE_PART_POST_TYPE, {
+    const { records } = (0, import_core_data48.useEntityRecords)("postType", TEMPLATE_PART_POST_TYPE, {
       per_page: -1
     });
-    const authors = (0, import_element137.useMemo)(() => {
+    const authors = (0, import_element139.useMemo)(() => {
       if (!records) {
         return EMPTY_ARRAY11;
       }
@@ -42417,7 +42260,7 @@ If there's a particular need for this, please submit a feature request at https:
         label: author
       }));
     }, [records]);
-    const fields = (0, import_element137.useMemo)(() => {
+    const fields = (0, import_element139.useMemo)(() => {
       const _fields = [previewField, patternTitleField];
       if (postType2 === PATTERN_TYPES.user) {
         _fields.push(patternStatusField);
@@ -42429,7 +42272,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       return _fields;
     }, [postType2, authors]);
-    const { data, paginationInfo } = (0, import_element137.useMemo)(() => {
+    const { data, paginationInfo } = (0, import_element139.useMemo)(() => {
       const viewWithoutFilters = { ...view };
       delete viewWithoutFilters.search;
       if (postType2 !== TEMPLATE_PART_POST_TYPE) {
@@ -42447,7 +42290,7 @@ If there's a particular need for this, please submit a feature request at https:
       context: "list"
     });
     const editAction = useEditPostAction();
-    const actions = (0, import_element137.useMemo)(() => {
+    const actions = (0, import_element139.useMemo)(() => {
       if (postType2 === TEMPLATE_PART_POST_TYPE) {
         return [editAction, ...templatePartActions].filter(Boolean);
       }
@@ -42458,20 +42301,20 @@ If there's a particular need for this, please submit a feature request at https:
       postType2,
       categoryId
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(ExperimentalBlockEditorProvider, { settings: settings2, children: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(ExperimentalBlockEditorProvider, { settings: settings2, children: /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(
       page_default,
       {
         className: "edit-site-page-patterns-dataviews",
         title,
         subTitle: description,
-        actions: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
+        actions: /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(
           PatternsActions,
           {
             categoryId,
             postType: postType2
           }
         ),
-        children: /* @__PURE__ */ (0, import_jsx_runtime272.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(
           dataviews_default,
           {
             paginationInfo,
@@ -42501,7 +42344,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/site-editor-routes/patterns.mjs
-  var import_jsx_runtime273 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime274 = __toESM(require_jsx_runtime(), 1);
   var patternsRoute = {
     name: "patterns",
     path: "/pattern",
@@ -42509,20 +42352,20 @@ If there's a particular need for this, please submit a feature request at https:
       sidebar({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
         const backPath = isBlockTheme || isClassicThemeWithStyleBookSupport(siteData) ? "/" : void 0;
-        return /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(SidebarNavigationScreenPatterns, { backPath });
+        return /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(SidebarNavigationScreenPatterns, { backPath });
       },
-      content: /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(DataviewsPatterns, {}),
+      content: /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(DataviewsPatterns, {}),
       mobile({ siteData, query }) {
         const { categoryId } = query;
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
         const backPath = isBlockTheme || isClassicThemeWithStyleBookSupport(siteData) ? "/" : void 0;
-        return !!categoryId ? /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(DataviewsPatterns, {}) : /* @__PURE__ */ (0, import_jsx_runtime273.jsx)(SidebarNavigationScreenPatterns, { backPath });
+        return !!categoryId ? /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(DataviewsPatterns, {}) : /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(SidebarNavigationScreenPatterns, { backPath });
       }
     }
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/pattern-item.mjs
-  var import_jsx_runtime274 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime275 = __toESM(require_jsx_runtime(), 1);
   var patternItemRoute = {
     name: "pattern-item",
     path: "/wp_block/:postId",
@@ -42530,41 +42373,41 @@ If there's a particular need for this, please submit a feature request at https:
       sidebar({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
         const backPath = isBlockTheme || isClassicThemeWithStyleBookSupport(siteData) ? "/" : void 0;
-        return /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(SidebarNavigationScreenPatterns, { backPath });
+        return /* @__PURE__ */ (0, import_jsx_runtime275.jsx)(SidebarNavigationScreenPatterns, { backPath });
       },
-      mobile: /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(EditSiteEditor, {}),
-      preview: /* @__PURE__ */ (0, import_jsx_runtime274.jsx)(EditSiteEditor, {})
-    }
-  };
-
-  // packages/edit-site/build-module/components/site-editor-routes/template-part-item.mjs
-  var import_jsx_runtime275 = __toESM(require_jsx_runtime(), 1);
-  var templatePartItemRoute = {
-    name: "template-part-item",
-    path: "/wp_template_part/*postId",
-    areas: {
-      sidebar: /* @__PURE__ */ (0, import_jsx_runtime275.jsx)(SidebarNavigationScreenPatterns, { backPath: "/" }),
       mobile: /* @__PURE__ */ (0, import_jsx_runtime275.jsx)(EditSiteEditor, {}),
       preview: /* @__PURE__ */ (0, import_jsx_runtime275.jsx)(EditSiteEditor, {})
     }
   };
 
+  // packages/edit-site/build-module/components/site-editor-routes/template-part-item.mjs
+  var import_jsx_runtime276 = __toESM(require_jsx_runtime(), 1);
+  var templatePartItemRoute = {
+    name: "template-part-item",
+    path: "/wp_template_part/*postId",
+    areas: {
+      sidebar: /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(SidebarNavigationScreenPatterns, { backPath: "/" }),
+      mobile: /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(EditSiteEditor, {}),
+      preview: /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(EditSiteEditor, {})
+    }
+  };
+
   // packages/edit-site/build-module/components/sidebar-navigation-screen-templates-browse/index.mjs
-  var import_i18n140 = __toESM(require_i18n(), 1);
+  var import_i18n142 = __toESM(require_i18n(), 1);
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-templates-browse/content.mjs
-  var import_core_data48 = __toESM(require_core_data(), 1);
-  var import_element138 = __toESM(require_element(), 1);
+  var import_core_data49 = __toESM(require_core_data(), 1);
+  var import_element140 = __toESM(require_element(), 1);
   var import_components149 = __toESM(require_components(), 1);
-  var import_i18n138 = __toESM(require_i18n(), 1);
-  var import_router31 = __toESM(require_router(), 1);
+  var import_i18n140 = __toESM(require_i18n(), 1);
+  var import_router32 = __toESM(require_router(), 1);
   var import_url18 = __toESM(require_url(), 1);
-  var import_jsx_runtime276 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation27 } = unlock(import_router31.privateApis);
+  var import_jsx_runtime277 = __toESM(require_jsx_runtime(), 1);
+  var { useLocation: useLocation28 } = unlock(import_router32.privateApis);
   var EMPTY_ARRAY12 = [];
   function TemplateDataviewItem({ template, isActive }) {
     const { text, icon } = useAddedBy(template.type, template.id);
-    return /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
       SidebarNavigationItem,
       {
         to: (0, import_url18.addQueryArgs)("/template", { activeView: text }),
@@ -42577,14 +42420,14 @@ If there's a particular need for this, please submit a feature request at https:
   function DataviewsTemplatesSidebarContent() {
     const {
       query: { activeView = "active" }
-    } = useLocation27();
-    const { records } = (0, import_core_data48.useEntityRecords)("root", "registeredTemplate", {
+    } = useLocation28();
+    const { records } = (0, import_core_data49.useEntityRecords)("root", "registeredTemplate", {
       // This should not be needed, the endpoint returns all registered
       // templates, but it's not possible right now to turn off pagination for
       // entity configs.
       per_page: -1
     });
-    const firstItemPerAuthorText = (0, import_element138.useMemo)(() => {
+    const firstItemPerAuthorText = (0, import_element140.useMemo)(() => {
       const firstItemPerAuthor = records?.reduce((acc, template) => {
         const author = template.author_text;
         if (author && !acc[author]) {
@@ -42594,17 +42437,17 @@ If there's a particular need for this, please submit a feature request at https:
       }, {});
       return (firstItemPerAuthor && Object.values(firstItemPerAuthor)) ?? EMPTY_ARRAY12;
     }, [records]);
-    return /* @__PURE__ */ (0, import_jsx_runtime276.jsxs)(import_components149.__experimentalItemGroup, { className: "edit-site-sidebar-navigation-screen-templates-browse", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime277.jsxs)(import_components149.__experimentalItemGroup, { className: "edit-site-sidebar-navigation-screen-templates-browse", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
         SidebarNavigationItem,
         {
           to: "/template",
           icon: published_default,
           "aria-current": activeView === "active",
-          children: (0, import_i18n138.__)("Active templates")
+          children: (0, import_i18n140.__)("Active templates")
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(
+      /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
         SidebarNavigationItem,
         {
           to: (0, import_url18.addQueryArgs)("/template", { activeView: "user" }),
@@ -42614,11 +42457,11 @@ If there's a particular need for this, please submit a feature request at https:
           // confusion. "Created" is closest to meaning database
           // templates, created by users.
           // https://developer.wordpress.org/themes/classic-themes/templates/page-template-files/#creating-custom-page-templates-for-global-use
-          children: (0, import_i18n138.__)("Created templates")
+          children: (0, import_i18n140.__)("Created templates")
         }
       ),
       firstItemPerAuthorText.map((template) => {
-        return /* @__PURE__ */ (0, import_jsx_runtime276.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
           TemplateDataviewItem,
           {
             template,
@@ -42631,18 +42474,18 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-templates-browse/content-legacy.mjs
-  var import_core_data49 = __toESM(require_core_data(), 1);
-  var import_element139 = __toESM(require_element(), 1);
+  var import_core_data50 = __toESM(require_core_data(), 1);
+  var import_element141 = __toESM(require_element(), 1);
   var import_components150 = __toESM(require_components(), 1);
-  var import_i18n139 = __toESM(require_i18n(), 1);
-  var import_router32 = __toESM(require_router(), 1);
+  var import_i18n141 = __toESM(require_i18n(), 1);
+  var import_router33 = __toESM(require_router(), 1);
   var import_url19 = __toESM(require_url(), 1);
-  var import_jsx_runtime277 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation28 } = unlock(import_router32.privateApis);
+  var import_jsx_runtime278 = __toESM(require_jsx_runtime(), 1);
+  var { useLocation: useLocation29 } = unlock(import_router33.privateApis);
   var EMPTY_ARRAY13 = [];
   function TemplateDataviewItem2({ template, isActive }) {
     const { text, icon } = useAddedBy(template.type, template.id);
-    return /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(
       SidebarNavigationItem,
       {
         to: (0, import_url19.addQueryArgs)("/template", { activeView: text }),
@@ -42655,11 +42498,11 @@ If there's a particular need for this, please submit a feature request at https:
   function DataviewsTemplatesSidebarContent2() {
     const {
       query: { activeView = "all" }
-    } = useLocation28();
-    const { records } = (0, import_core_data49.useEntityRecords)("postType", TEMPLATE_POST_TYPE, {
+    } = useLocation29();
+    const { records } = (0, import_core_data50.useEntityRecords)("postType", TEMPLATE_POST_TYPE, {
       per_page: -1
     });
-    const firstItemPerAuthorText = (0, import_element139.useMemo)(() => {
+    const firstItemPerAuthorText = (0, import_element141.useMemo)(() => {
       const firstItemPerAuthor = records?.reduce((acc, template) => {
         const author = template.author_text;
         if (author && !acc[author]) {
@@ -42669,18 +42512,18 @@ If there's a particular need for this, please submit a feature request at https:
       }, {});
       return (firstItemPerAuthor && Object.values(firstItemPerAuthor)) ?? EMPTY_ARRAY13;
     }, [records]);
-    return /* @__PURE__ */ (0, import_jsx_runtime277.jsxs)(import_components150.__experimentalItemGroup, { className: "edit-site-sidebar-navigation-screen-templates-browse", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime278.jsxs)(import_components150.__experimentalItemGroup, { className: "edit-site-sidebar-navigation-screen-templates-browse", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(
         SidebarNavigationItem,
         {
           to: "/template",
           icon: layout_default,
           "aria-current": activeView === "all",
-          children: (0, import_i18n139.__)("All templates")
+          children: (0, import_i18n141.__)("All templates")
         }
       ),
       firstItemPerAuthorText.map((template) => {
-        return /* @__PURE__ */ (0, import_jsx_runtime277.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(
           TemplateDataviewItem2,
           {
             template,
@@ -42693,62 +42536,62 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/sidebar-navigation-screen-templates-browse/index.mjs
-  var import_jsx_runtime278 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime279 = __toESM(require_jsx_runtime(), 1);
   function SidebarNavigationScreenTemplatesBrowse({ backPath }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
       SidebarNavigationScreen,
       {
-        title: (0, import_i18n140.__)("Templates"),
-        description: (0, import_i18n140.__)(
+        title: (0, import_i18n142.__)("Templates"),
+        description: (0, import_i18n142.__)(
           "Create new templates, or reset any customizations made to the templates supplied by your theme."
         ),
         backPath,
-        content: window?.__experimentalTemplateActivate ? /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(DataviewsTemplatesSidebarContent, {}) : /* @__PURE__ */ (0, import_jsx_runtime278.jsx)(DataviewsTemplatesSidebarContent2, {})
+        content: window?.__experimentalTemplateActivate ? /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(DataviewsTemplatesSidebarContent, {}) : /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(DataviewsTemplatesSidebarContent2, {})
       }
     );
   }
 
   // packages/edit-site/build-module/components/page-templates/index.mjs
-  var import_i18n146 = __toESM(require_i18n(), 1);
+  var import_i18n148 = __toESM(require_i18n(), 1);
   var import_html_entities14 = __toESM(require_html_entities(), 1);
-  var import_element145 = __toESM(require_element(), 1);
-  var import_core_data54 = __toESM(require_core_data(), 1);
-  var import_router34 = __toESM(require_router(), 1);
-  var import_editor34 = __toESM(require_editor(), 1);
+  var import_element147 = __toESM(require_element(), 1);
+  var import_core_data55 = __toESM(require_core_data(), 1);
+  var import_router35 = __toESM(require_router(), 1);
+  var import_editor35 = __toESM(require_editor(), 1);
   var import_url22 = __toESM(require_url(), 1);
-  var import_data73 = __toESM(require_data(), 1);
-  var import_compose28 = __toESM(require_compose(), 1);
+  var import_data75 = __toESM(require_data(), 1);
+  var import_compose30 = __toESM(require_compose(), 1);
   var import_components155 = __toESM(require_components(), 1);
   var import_notices8 = __toESM(require_notices(), 1);
 
   // packages/edit-site/build-module/components/add-new-template/index.mjs
   var import_components153 = __toESM(require_components(), 1);
   var import_html_entities12 = __toESM(require_html_entities(), 1);
-  var import_element143 = __toESM(require_element(), 1);
-  var import_data71 = __toESM(require_data(), 1);
-  var import_core_data52 = __toESM(require_core_data(), 1);
-  var import_compose27 = __toESM(require_compose(), 1);
-  var import_i18n144 = __toESM(require_i18n(), 1);
+  var import_element145 = __toESM(require_element(), 1);
+  var import_data73 = __toESM(require_data(), 1);
+  var import_core_data53 = __toESM(require_core_data(), 1);
+  var import_compose29 = __toESM(require_compose(), 1);
+  var import_i18n146 = __toESM(require_i18n(), 1);
   var import_notices7 = __toESM(require_notices(), 1);
-  var import_router33 = __toESM(require_router(), 1);
+  var import_router34 = __toESM(require_router(), 1);
   var import_dom13 = __toESM(require_dom(), 1);
 
   // packages/edit-site/build-module/components/add-new-template/add-custom-template-modal-content.mjs
-  var import_element141 = __toESM(require_element(), 1);
-  var import_i18n142 = __toESM(require_i18n(), 1);
+  var import_element143 = __toESM(require_element(), 1);
+  var import_i18n144 = __toESM(require_i18n(), 1);
   var import_components151 = __toESM(require_components(), 1);
-  var import_core_data51 = __toESM(require_core_data(), 1);
+  var import_core_data52 = __toESM(require_core_data(), 1);
   var import_html_entities11 = __toESM(require_html_entities(), 1);
-  var import_compose26 = __toESM(require_compose(), 1);
+  var import_compose28 = __toESM(require_compose(), 1);
   var import_dom12 = __toESM(require_dom(), 1);
   var import_url21 = __toESM(require_url(), 1);
 
   // packages/edit-site/build-module/components/add-new-template/utils.mjs
-  var import_data70 = __toESM(require_data(), 1);
-  var import_core_data50 = __toESM(require_core_data(), 1);
+  var import_data72 = __toESM(require_data(), 1);
+  var import_core_data51 = __toESM(require_core_data(), 1);
   var import_html_entities10 = __toESM(require_html_entities(), 1);
-  var import_element140 = __toESM(require_element(), 1);
-  var import_i18n141 = __toESM(require_i18n(), 1);
+  var import_element142 = __toESM(require_element(), 1);
+  var import_i18n143 = __toESM(require_i18n(), 1);
   var import_url20 = __toESM(require_url(), 1);
   var EMPTY_OBJECT2 = {};
   var getValueFromObjectPath2 = (object, path) => {
@@ -42768,8 +42611,8 @@ If there's a particular need for this, please submit a feature request at https:
     }));
   };
   var useExistingTemplates = () => {
-    return (0, import_data70.useSelect)(
-      (select3) => select3(import_core_data50.store).getEntityRecords(
+    return (0, import_data72.useSelect)(
+      (select3) => select3(import_core_data51.store).getEntityRecords(
         "postType",
         TEMPLATE_POST_TYPE,
         {
@@ -42780,17 +42623,17 @@ If there's a particular need for this, please submit a feature request at https:
     );
   };
   var useDefaultTemplateTypes = () => {
-    return (0, import_data70.useSelect)(
-      (select3) => select3(import_core_data50.store).getCurrentTheme()?.default_template_types || [],
+    return (0, import_data72.useSelect)(
+      (select3) => select3(import_core_data51.store).getCurrentTheme()?.default_template_types || [],
       []
     );
   };
   var usePublicPostTypes = () => {
-    const postTypes = (0, import_data70.useSelect)(
-      (select3) => select3(import_core_data50.store).getPostTypes({ per_page: -1 }),
+    const postTypes = (0, import_data72.useSelect)(
+      (select3) => select3(import_core_data51.store).getPostTypes({ per_page: -1 }),
       []
     );
-    return (0, import_element140.useMemo)(() => {
+    return (0, import_element142.useMemo)(() => {
       const excludedPostTypes = ["attachment"];
       return postTypes?.filter(
         ({ viewable, slug }) => viewable && !excludedPostTypes.includes(slug)
@@ -42803,11 +42646,11 @@ If there's a particular need for this, please submit a feature request at https:
     }, [postTypes]);
   };
   var usePublicTaxonomies = () => {
-    const taxonomies = (0, import_data70.useSelect)(
-      (select3) => select3(import_core_data50.store).getTaxonomies({ per_page: -1 }),
+    const taxonomies = (0, import_data72.useSelect)(
+      (select3) => select3(import_core_data51.store).getTaxonomies({ per_page: -1 }),
       []
     );
-    return (0, import_element140.useMemo)(() => {
+    return (0, import_element142.useMemo)(() => {
       return taxonomies?.filter(
         ({ visibility }) => visibility?.publicly_queryable
       );
@@ -42815,12 +42658,12 @@ If there's a particular need for this, please submit a feature request at https:
   };
   function usePostTypeArchiveMenuItems() {
     const publicPostTypes = usePublicPostTypes();
-    const postTypesWithArchives = (0, import_element140.useMemo)(
+    const postTypesWithArchives = (0, import_element142.useMemo)(
       () => publicPostTypes?.filter((postType2) => postType2.has_archive),
       [publicPostTypes]
     );
     const existingTemplates = useExistingTemplates();
-    const postTypeLabels = (0, import_element140.useMemo)(
+    const postTypeLabels = (0, import_element142.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { labels }) => {
         const singularName = labels.singular_name.toLowerCase();
         accumulator[singularName] = (accumulator[singularName] || 0) + 1;
@@ -42828,14 +42671,14 @@ If there's a particular need for this, please submit a feature request at https:
       }, {}),
       [publicPostTypes]
     );
-    const needsUniqueIdentifier = (0, import_element140.useCallback)(
+    const needsUniqueIdentifier = (0, import_element142.useCallback)(
       ({ labels, slug }) => {
         const singularName = labels.singular_name.toLowerCase();
         return postTypeLabels[singularName] > 1 && singularName !== slug;
       },
       [postTypeLabels]
     );
-    return (0, import_element140.useMemo)(
+    return (0, import_element142.useMemo)(
       () => postTypesWithArchives?.filter(
         (postType2) => !(existingTemplates || []).some(
           (existingTemplate) => existingTemplate.slug === "archive-" + postType2.slug
@@ -42843,24 +42686,24 @@ If there's a particular need for this, please submit a feature request at https:
       ).map((postType2) => {
         let title;
         if (needsUniqueIdentifier(postType2)) {
-          title = (0, import_i18n141.sprintf)(
+          title = (0, import_i18n143.sprintf)(
             // translators: %1s: Name of the post type e.g: "Post"; %2s: Slug of the post type e.g: "book".
-            (0, import_i18n141.__)("Archive: %1$s (%2$s)"),
+            (0, import_i18n143.__)("Archive: %1$s (%2$s)"),
             postType2.labels.singular_name,
             postType2.slug
           );
         } else {
-          title = (0, import_i18n141.sprintf)(
+          title = (0, import_i18n143.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n141.__)("Archive: %s"),
+            (0, import_i18n143.__)("Archive: %s"),
             postType2.labels.singular_name
           );
         }
         return {
           slug: "archive-" + postType2.slug,
-          description: (0, import_i18n141.sprintf)(
+          description: (0, import_i18n143.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n141.__)(
+            (0, import_i18n143.__)(
               "Displays an archive with the latest posts of type: %s."
             ),
             postType2.labels.singular_name
@@ -42879,7 +42722,7 @@ If there's a particular need for this, please submit a feature request at https:
   var usePostTypeMenuItems = (onClickMenuItem) => {
     const publicPostTypes = usePublicPostTypes();
     const defaultTemplateTypes = useDefaultTemplateTypes();
-    const templateLabels = (0, import_element140.useMemo)(
+    const templateLabels = (0, import_element142.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { labels }) => {
         const templateName = (labels.template_name || labels.singular_name).toLowerCase();
         accumulator[templateName] = (accumulator[templateName] || 0) + 1;
@@ -42887,14 +42730,14 @@ If there's a particular need for this, please submit a feature request at https:
       }, {}),
       [publicPostTypes]
     );
-    const needsUniqueIdentifier = (0, import_element140.useCallback)(
+    const needsUniqueIdentifier = (0, import_element142.useCallback)(
       ({ labels, slug }) => {
         const templateName = (labels.template_name || labels.singular_name).toLowerCase();
         return templateLabels[templateName] > 1 && templateName !== slug;
       },
       [templateLabels]
     );
-    const templatePrefixes = (0, import_element140.useMemo)(
+    const templatePrefixes = (0, import_element142.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { slug }) => {
         let suffix = slug;
         if (slug !== "page") {
@@ -42914,20 +42757,20 @@ If there's a particular need for this, please submit a feature request at https:
           ({ slug: _slug }) => _slug === generalTemplateSlug
         );
         const _needsUniqueIdentifier = needsUniqueIdentifier(postType2);
-        let menuItemTitle = labels.template_name || (0, import_i18n141.sprintf)(
+        let menuItemTitle = labels.template_name || (0, import_i18n143.sprintf)(
           // translators: %s: Name of the post type e.g: "Post".
-          (0, import_i18n141.__)("Single item: %s"),
+          (0, import_i18n143.__)("Single item: %s"),
           labels.singular_name
         );
         if (_needsUniqueIdentifier) {
-          menuItemTitle = labels.template_name ? (0, import_i18n141.sprintf)(
+          menuItemTitle = labels.template_name ? (0, import_i18n143.sprintf)(
             // translators: 1: Name of the template e.g: "Single Item: Post". 2: Slug of the post type e.g: "book".
-            (0, import_i18n141._x)("%1$s (%2$s)", "post type menu label"),
+            (0, import_i18n143._x)("%1$s (%2$s)", "post type menu label"),
             labels.template_name,
             slug
-          ) : (0, import_i18n141.sprintf)(
+          ) : (0, import_i18n143.sprintf)(
             // translators: 1: Name of the post type e.g: "Post". 2: Slug of the post type e.g: "book".
-            (0, import_i18n141._x)(
+            (0, import_i18n143._x)(
               "Single item: %1$s (%2$s)",
               "post type menu label"
             ),
@@ -42941,9 +42784,9 @@ If there's a particular need for this, please submit a feature request at https:
         } : {
           slug: generalTemplateSlug,
           title: menuItemTitle,
-          description: (0, import_i18n141.sprintf)(
+          description: (0, import_i18n143.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n141.__)("Displays a single item: %s."),
+            (0, import_i18n143.__)("Displays a single item: %s."),
             labels.singular_name
           ),
           // `icon` is the `menu_icon` property of a post type. We
@@ -42991,7 +42834,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       []
     );
-    const postTypesMenuItems = (0, import_element140.useMemo)(
+    const postTypesMenuItems = (0, import_element142.useMemo)(
       () => menuItems.reduce(
         (accumulator, postType2) => {
           const { slug } = postType2;
@@ -43012,7 +42855,7 @@ If there's a particular need for this, please submit a feature request at https:
     const publicTaxonomies = usePublicTaxonomies();
     const existingTemplates = useExistingTemplates();
     const defaultTemplateTypes = useDefaultTemplateTypes();
-    const templatePrefixes = (0, import_element140.useMemo)(
+    const templatePrefixes = (0, import_element142.useMemo)(
       () => publicTaxonomies?.reduce((accumulator, { slug }) => {
         let suffix = slug;
         if (!["category", "post_tag"].includes(slug)) {
@@ -43059,14 +42902,14 @@ If there's a particular need for this, please submit a feature request at https:
         );
         let menuItemTitle = labels.template_name || labels.singular_name;
         if (_needsUniqueIdentifier) {
-          menuItemTitle = labels.template_name ? (0, import_i18n141.sprintf)(
+          menuItemTitle = labels.template_name ? (0, import_i18n143.sprintf)(
             // translators: 1: Name of the template e.g: "Products by Category". 2: Slug of the taxonomy e.g: "product_cat".
-            (0, import_i18n141._x)("%1$s (%2$s)", "taxonomy template menu label"),
+            (0, import_i18n143._x)("%1$s (%2$s)", "taxonomy template menu label"),
             labels.template_name,
             slug
-          ) : (0, import_i18n141.sprintf)(
+          ) : (0, import_i18n143.sprintf)(
             // translators: 1: Name of the taxonomy e.g: "Category". 2: Slug of the taxonomy e.g: "product_cat".
-            (0, import_i18n141._x)("%1$s (%2$s)", "taxonomy menu label"),
+            (0, import_i18n143._x)("%1$s (%2$s)", "taxonomy menu label"),
             labels.singular_name,
             slug
           );
@@ -43077,9 +42920,9 @@ If there's a particular need for this, please submit a feature request at https:
         } : {
           slug: generalTemplateSlug,
           title: menuItemTitle,
-          description: (0, import_i18n141.sprintf)(
+          description: (0, import_i18n143.sprintf)(
             // translators: %s: Name of the taxonomy e.g: "Product Categories".
-            (0, import_i18n141.__)("Displays taxonomy: %s."),
+            (0, import_i18n143.__)("Displays taxonomy: %s."),
             labels.singular_name
           ),
           icon: block_meta_default,
@@ -43124,7 +42967,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       []
     );
-    const taxonomiesMenuItems = (0, import_element140.useMemo)(
+    const taxonomiesMenuItems = (0, import_element142.useMemo)(
       () => menuItems.reduce(
         (accumulator, taxonomy) => {
           const { slug } = taxonomy;
@@ -43156,7 +42999,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
     if (!authorMenuItem) {
       authorMenuItem = {
-        description: (0, import_i18n141.__)(
+        description: (0, import_i18n143.__)(
           "Displays latest posts written by a single author."
         ),
         slug: "author",
@@ -43187,9 +43030,9 @@ If there's a particular need for this, please submit a feature request at https:
                 suggestion.slug
               );
               return {
-                title: (0, import_i18n141.sprintf)(
+                title: (0, import_i18n143.sprintf)(
                   // translators: %s: Name of the author e.g: "Admin".
-                  (0, import_i18n141.__)("Author: %s"),
+                  (0, import_i18n143.__)("Author: %s"),
                   suggestion.name
                 ),
                 slug: templateSlug,
@@ -43198,10 +43041,10 @@ If there's a particular need for this, please submit a feature request at https:
             }
           },
           labels: {
-            singular_name: (0, import_i18n141.__)("Author"),
-            search_items: (0, import_i18n141.__)("Search Authors"),
-            not_found: (0, import_i18n141.__)("No authors found."),
-            all_items: (0, import_i18n141.__)("All Authors")
+            singular_name: (0, import_i18n143.__)("Author"),
+            search_items: (0, import_i18n143.__)("Search Authors"),
+            not_found: (0, import_i18n143.__)("No authors found."),
+            all_items: (0, import_i18n143.__)("All Authors")
           },
           hasGeneralTemplate,
           template
@@ -43213,12 +43056,12 @@ If there's a particular need for this, please submit a feature request at https:
     }
   }
   var useEntitiesInfo = (entityName, templatePrefixes, additionalQueryParameters = EMPTY_OBJECT2) => {
-    const entitiesHasRecords = (0, import_data70.useSelect)(
+    const entitiesHasRecords = (0, import_data72.useSelect)(
       (select3) => {
         return Object.keys(templatePrefixes || {}).reduce(
           (accumulator, slug) => {
             accumulator[slug] = !!select3(
-              import_core_data50.store
+              import_core_data51.store
             ).getEntityRecords(entityName, slug, {
               per_page: 1,
               _fields: "id",
@@ -43232,7 +43075,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [templatePrefixes, entityName, additionalQueryParameters]
     );
-    const entitiesInfo = (0, import_element140.useMemo)(() => {
+    const entitiesInfo = (0, import_element142.useMemo)(() => {
       return Object.keys(templatePrefixes || {}).reduce(
         (accumulator, slug) => {
           accumulator[slug] = {
@@ -43247,7 +43090,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/add-new-template/add-custom-template-modal-content.mjs
-  var import_jsx_runtime279 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime280 = __toESM(require_jsx_runtime(), 1);
   var EMPTY_ARRAY14 = [];
   function SuggestionListItem({
     suggestion,
@@ -43256,10 +43099,10 @@ If there's a particular need for this, please submit a feature request at https:
     entityForSuggestions
   }) {
     const baseCssClass = "edit-site-custom-template-modal__suggestions_list__list-item";
-    return /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
       import_components151.Composite.Item,
       {
-        render: /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+        render: /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
           import_components151.Button,
           {
             __next40pxDefaultSize: true,
@@ -43273,14 +43116,14 @@ If there's a particular need for this, please submit a feature request at https:
           }
         ),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
             import_components151.__experimentalText,
             {
               size: "body",
               lineHeight: 1.53846153846,
               weight: 500,
               className: `${baseCssClass}__title`,
-              children: /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
                 import_components151.TextHighlight,
                 {
                   text: (0, import_html_entities11.decodeEntities)(suggestion.name),
@@ -43289,7 +43132,7 @@ If there's a particular need for this, please submit a feature request at https:
               )
             }
           ),
-          suggestion.link && /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+          suggestion.link && /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
             import_components151.__experimentalText,
             {
               size: "body",
@@ -43304,7 +43147,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function useSearchSuggestions(entityForSuggestions, search) {
     const { config: config2 } = entityForSuggestions;
-    const query = (0, import_element141.useMemo)(
+    const query = (0, import_element143.useMemo)(
       () => ({
         order: "asc",
         context: "view",
@@ -43314,13 +43157,13 @@ If there's a particular need for this, please submit a feature request at https:
       }),
       [search, config2]
     );
-    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data51.useEntityRecords)(
+    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data52.useEntityRecords)(
       entityForSuggestions.type,
       entityForSuggestions.slug,
       query
     );
-    const [suggestions, setSuggestions] = (0, import_element141.useState)(EMPTY_ARRAY14);
-    (0, import_element141.useEffect)(() => {
+    const [suggestions, setSuggestions] = (0, import_element143.useState)(EMPTY_ARRAY14);
+    (0, import_element143.useEffect)(() => {
       if (!searchHasResolved) {
         return;
       }
@@ -43339,18 +43182,18 @@ If there's a particular need for this, please submit a feature request at https:
     return suggestions;
   }
   function SuggestionList({ entityForSuggestions, onSelect }) {
-    const [search, setSearch, debouncedSearch] = (0, import_compose26.useDebouncedInput)();
+    const [search, setSearch, debouncedSearch] = (0, import_compose28.useDebouncedInput)();
     const suggestions = useSearchSuggestions(
       entityForSuggestions,
       debouncedSearch
     );
     const { labels } = entityForSuggestions;
-    const [showSearchControl, setShowSearchControl] = (0, import_element141.useState)(false);
+    const [showSearchControl, setShowSearchControl] = (0, import_element143.useState)(false);
     if (!showSearchControl && suggestions?.length > 9) {
       setShowSearchControl(true);
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(import_jsx_runtime279.Fragment, { children: [
-      showSearchControl && /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(import_jsx_runtime280.Fragment, { children: [
+      showSearchControl && /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
         import_components151.SearchControl,
         {
           onChange: setSearch,
@@ -43359,14 +43202,14 @@ If there's a particular need for this, please submit a feature request at https:
           placeholder: labels.search_items
         }
       ),
-      !!suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+      !!suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
         import_components151.Composite,
         {
           orientation: "vertical",
           role: "listbox",
           className: "edit-site-custom-template-modal__suggestions_list",
-          "aria-label": (0, import_i18n142.__)("Suggestions list"),
-          children: suggestions.map((suggestion) => /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+          "aria-label": (0, import_i18n144.__)("Suggestions list"),
+          children: suggestions.map((suggestion) => /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
             SuggestionListItem,
             {
               suggestion,
@@ -43378,7 +43221,7 @@ If there's a particular need for this, please submit a feature request at https:
           ))
         }
       ),
-      debouncedSearch && !suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+      debouncedSearch && !suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
         import_components151.__experimentalText,
         {
           as: "p",
@@ -43394,8 +43237,8 @@ If there's a particular need for this, please submit a feature request at https:
     onBack,
     containerRef
   }) {
-    const [showSearchEntities, setShowSearchEntities] = (0, import_element141.useState)();
-    (0, import_element141.useEffect)(() => {
+    const [showSearchEntities, setShowSearchEntities] = (0, import_element143.useState)();
+    (0, import_element143.useEffect)(() => {
       if (containerRef.current) {
         const [firstFocusable] = import_dom12.focus.focusable.find(
           containerRef.current
@@ -43403,25 +43246,25 @@ If there's a particular need for this, please submit a feature request at https:
         firstFocusable?.focus();
       }
     }, [showSearchEntities]);
-    return /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
       import_components151.__experimentalVStack,
       {
         spacing: 4,
         className: "edit-site-custom-template-modal__contents-wrapper",
         alignment: "left",
         children: [
-          !showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(import_jsx_runtime279.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(import_components151.__experimentalText, { as: "p", children: (0, import_i18n142.__)(
+          !showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(import_jsx_runtime280.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(import_components151.__experimentalText, { as: "p", children: (0, import_i18n144.__)(
               "Select whether to create a single template for all items or a specific one."
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
               import_components151.Flex,
               {
                 className: "edit-site-custom-template-modal__contents",
                 gap: "4",
                 align: "initial",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
                     import_components151.FlexItem,
                     {
                       isBlock: true,
@@ -43441,7 +43284,7 @@ If there's a particular need for this, please submit a feature request at https:
                         });
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
                           import_components151.__experimentalText,
                           {
                             as: "span",
@@ -43450,19 +43293,19 @@ If there's a particular need for this, please submit a feature request at https:
                             children: entityForSuggestions.labels.all_items
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
                           import_components151.__experimentalText,
                           {
                             as: "span",
                             lineHeight: 1.53846153846,
                             // translators: The user is given the choice to set up a template for all items of a post type or taxonomy, or just a specific one.
-                            children: (0, import_i18n142.__)("For all items")
+                            children: (0, import_i18n144.__)("For all items")
                           }
                         )
                       ]
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
                     import_components151.FlexItem,
                     {
                       isBlock: true,
@@ -43471,7 +43314,7 @@ If there's a particular need for this, please submit a feature request at https:
                         setShowSearchEntities(true);
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
                           import_components151.__experimentalText,
                           {
                             as: "span",
@@ -43480,13 +43323,13 @@ If there's a particular need for this, please submit a feature request at https:
                             children: entityForSuggestions.labels.singular_name
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
                           import_components151.__experimentalText,
                           {
                             as: "span",
                             lineHeight: 1.53846153846,
                             // translators: The user is given the choice to set up a template for all items of a post type or taxonomy, or just a specific one.
-                            children: (0, import_i18n142.__)("For a specific item")
+                            children: (0, import_i18n144.__)("For a specific item")
                           }
                         )
                       ]
@@ -43495,28 +43338,28 @@ If there's a particular need for this, please submit a feature request at https:
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(import_components151.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(import_components151.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
               import_components151.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "tertiary",
                 onClick: onBack,
-                children: (0, import_i18n142.__)("Back")
+                children: (0, import_i18n144.__)("Back")
               }
             ) })
           ] }),
-          showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime279.jsxs)(import_jsx_runtime279.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(import_components151.__experimentalText, { as: "p", children: (0, import_i18n142.__)(
+          showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(import_jsx_runtime280.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(import_components151.__experimentalText, { as: "p", children: (0, import_i18n144.__)(
               "This template will be used only for the specific item chosen."
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
               SuggestionList,
               {
                 entityForSuggestions,
                 onSelect
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(import_components151.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime279.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(import_components151.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
               import_components151.Button,
               {
                 __next40pxDefaultSize: true,
@@ -43528,7 +43371,7 @@ If there's a particular need for this, please submit a feature request at https:
                     setShowSearchEntities(false);
                   }
                 },
-                children: (0, import_i18n142.__)("Back")
+                children: (0, import_i18n144.__)("Back")
               }
             ) })
           ] })
@@ -43597,16 +43440,16 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/add-new-template/add-custom-generic-template-modal-content.mjs
-  var import_element142 = __toESM(require_element(), 1);
-  var import_i18n143 = __toESM(require_i18n(), 1);
+  var import_element144 = __toESM(require_element(), 1);
+  var import_i18n145 = __toESM(require_i18n(), 1);
   var import_components152 = __toESM(require_components(), 1);
-  var import_jsx_runtime280 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime281 = __toESM(require_jsx_runtime(), 1);
   function AddCustomGenericTemplateModalContent({ createTemplate, onBack }) {
-    const [title, setTitle] = (0, import_element142.useState)("");
-    const defaultTitle = (0, import_i18n143.__)("Custom Template");
-    const [isBusy, setIsBusy] = (0, import_element142.useState)(false);
-    const inputRef = (0, import_element142.useRef)();
-    (0, import_element142.useEffect)(() => {
+    const [title, setTitle] = (0, import_element144.useState)("");
+    const defaultTitle = (0, import_i18n145.__)("Custom Template");
+    const [isBusy, setIsBusy] = (0, import_element144.useState)(false);
+    const inputRef = (0, import_element144.useRef)();
+    (0, import_element144.useEffect)(() => {
       if (inputRef.current) {
         inputRef.current.focus();
       }
@@ -43629,39 +43472,39 @@ If there's a particular need for this, please submit a feature request at https:
         setIsBusy(false);
       }
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime280.jsx)("form", { onSubmit: onCreateTemplate, children: /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(import_components152.__experimentalVStack, { spacing: 6, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime281.jsx)("form", { onSubmit: onCreateTemplate, children: /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(import_components152.__experimentalVStack, { spacing: 6, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
         import_components152.TextControl,
         {
           __next40pxDefaultSize: true,
-          label: (0, import_i18n143.__)("Name"),
+          label: (0, import_i18n145.__)("Name"),
           value: title,
           onChange: setTitle,
           placeholder: defaultTitle,
           disabled: isBusy,
           ref: inputRef,
-          help: (0, import_i18n143.__)(
+          help: (0, import_i18n145.__)(
             // eslint-disable-next-line no-restricted-syntax -- 'sidebar' is a common web design term for layouts
             'Describe the template, e.g. "Post with sidebar". A custom template can be manually applied to any post or page.'
           )
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime280.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(
         import_components152.__experimentalHStack,
         {
           className: "edit-site-custom-generic-template__modal-actions",
           justify: "right",
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
               import_components152.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "tertiary",
                 onClick: onBack,
-                children: (0, import_i18n143.__)("Back")
+                children: (0, import_i18n145.__)("Back")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime280.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
               import_components152.Button,
               {
                 __next40pxDefaultSize: true,
@@ -43669,7 +43512,7 @@ If there's a particular need for this, please submit a feature request at https:
                 type: "submit",
                 isBusy,
                 "aria-disabled": isBusy,
-                children: (0, import_i18n143.__)("Create")
+                children: (0, import_i18n145.__)("Create")
               }
             )
           ]
@@ -43680,8 +43523,8 @@ If there's a particular need for this, please submit a feature request at https:
   var add_custom_generic_template_modal_content_default = AddCustomGenericTemplateModalContent;
 
   // packages/edit-site/build-module/components/add-new-template/index.mjs
-  var import_jsx_runtime281 = __toESM(require_jsx_runtime(), 1);
-  var { useHistory: useHistory21 } = unlock(import_router33.privateApis);
+  var import_jsx_runtime282 = __toESM(require_jsx_runtime(), 1);
+  var { useHistory: useHistory21 } = unlock(import_router34.privateApis);
   var DEFAULT_TEMPLATE_SLUGS = [
     "front-page",
     "home",
@@ -43721,7 +43564,7 @@ If there's a particular need for this, please submit a feature request at https:
     onClick,
     children
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
       import_components153.Button,
       {
         __next40pxDefaultSize: true,
@@ -43729,7 +43572,7 @@ If there's a particular need for this, please submit a feature request at https:
         onClick,
         label: description,
         showTooltip: !!description,
-        children: /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(
           import_components153.Flex,
           {
             as: "span",
@@ -43739,15 +43582,15 @@ If there's a particular need for this, please submit a feature request at https:
             style: { width: "100%" },
             direction,
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime281.jsx)("div", { className: "edit-site-add-new-template__template-icon", children: /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(import_components153.Icon, { icon }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime282.jsx)("div", { className: "edit-site-add-new-template__template-icon", children: /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_components153.Icon, { icon }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(
                 import_components153.__experimentalVStack,
                 {
                   className: "edit-site-add-new-template__template-name",
                   alignment: "center",
                   spacing: 0,
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
                       import_components153.__experimentalText,
                       {
                         align: "center",
@@ -43772,32 +43615,32 @@ If there's a particular need for this, please submit a feature request at https:
     customGenericTemplate: 3
   };
   function NewTemplateModal({ onClose }) {
-    const [modalContent, setModalContent] = (0, import_element143.useState)(
+    const [modalContent, setModalContent] = (0, import_element145.useState)(
       modalContentMap.templatesList
     );
-    const [entityForSuggestions, setEntityForSuggestions] = (0, import_element143.useState)({});
-    const [isSubmitting, setIsSubmitting] = (0, import_element143.useState)(false);
+    const [entityForSuggestions, setEntityForSuggestions] = (0, import_element145.useState)({});
+    const [isSubmitting, setIsSubmitting] = (0, import_element145.useState)(false);
     const missingTemplates = useMissingTemplates(
       setEntityForSuggestions,
       () => setModalContent(modalContentMap.customTemplate)
     );
     const history = useHistory21();
-    const { saveEntityRecord } = (0, import_data71.useDispatch)(import_core_data52.store);
-    const { createErrorNotice, createSuccessNotice } = (0, import_data71.useDispatch)(import_notices7.store);
-    const containerRef = (0, import_element143.useRef)(null);
-    const isMobile = (0, import_compose27.useViewportMatch)("medium", "<");
-    const homeUrl = (0, import_data71.useSelect)((select3) => {
-      return select3(import_core_data52.store).getEntityRecord("root", "__unstableBase")?.home;
+    const { saveEntityRecord } = (0, import_data73.useDispatch)(import_core_data53.store);
+    const { createErrorNotice, createSuccessNotice } = (0, import_data73.useDispatch)(import_notices7.store);
+    const containerRef = (0, import_element145.useRef)(null);
+    const isMobile = (0, import_compose29.useViewportMatch)("medium", "<");
+    const homeUrl = (0, import_data73.useSelect)((select3) => {
+      return select3(import_core_data53.store).getEntityRecord("root", "__unstableBase")?.home;
     }, []);
     const TEMPLATE_SHORT_DESCRIPTIONS = {
       "front-page": homeUrl,
-      date: (0, import_i18n144.sprintf)(
+      date: (0, import_i18n146.sprintf)(
         // translators: %s: The homepage url.
-        (0, import_i18n144.__)("E.g. %s"),
+        (0, import_i18n146.__)("E.g. %s"),
         homeUrl + "/" + (/* @__PURE__ */ new Date()).getFullYear()
       )
     };
-    (0, import_element143.useEffect)(() => {
+    (0, import_element145.useEffect)(() => {
       if (containerRef.current && modalContent === modalContentMap.templatesList) {
         const [firstFocusable] = import_dom13.focus.focusable.find(
           containerRef.current
@@ -43832,17 +43675,17 @@ If there's a particular need for this, please submit a feature request at https:
           `/${TEMPLATE_POST_TYPE}/${newTemplate.id}?canvas=edit`
         );
         createSuccessNotice(
-          (0, import_i18n144.sprintf)(
+          (0, import_i18n146.sprintf)(
             // translators: %s: Title of the created post or template, e.g: "Hello world".
-            (0, import_i18n144.__)('"%s" successfully created.'),
-            (0, import_html_entities12.decodeEntities)(newTemplate.title?.rendered || title) || (0, import_i18n144.__)("(no title)")
+            (0, import_i18n146.__)('"%s" successfully created.'),
+            (0, import_html_entities12.decodeEntities)(newTemplate.title?.rendered || title) || (0, import_i18n146.__)("(no title)")
           ),
           {
             type: "snackbar"
           }
         );
       } catch (error) {
-        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n144.__)("An error occurred while creating the template.");
+        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n146.__)("An error occurred while creating the template.");
         createErrorNotice(errorMessage, {
           type: "snackbar"
         });
@@ -43854,17 +43697,17 @@ If there's a particular need for this, please submit a feature request at https:
       onClose();
       setModalContent(modalContentMap.templatesList);
     };
-    let modalTitle = (0, import_i18n144.__)("Add template");
+    let modalTitle = (0, import_i18n146.__)("Add template");
     if (modalContent === modalContentMap.customTemplate) {
-      modalTitle = (0, import_i18n144.sprintf)(
+      modalTitle = (0, import_i18n146.sprintf)(
         // translators: %s: Name of the post type e.g: "Post".
-        (0, import_i18n144.__)("Add template: %s"),
+        (0, import_i18n146.__)("Add template: %s"),
         entityForSuggestions.labels.singular_name
       );
     } else if (modalContent === modalContentMap.customGenericTemplate) {
-      modalTitle = (0, import_i18n144.__)("Create custom template");
+      modalTitle = (0, import_i18n146.__)("Create custom template");
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(
       import_components153.Modal,
       {
         title: modalTitle,
@@ -43876,7 +43719,7 @@ If there's a particular need for this, please submit a feature request at https:
         overlayClassName: modalContent === modalContentMap.customGenericTemplate ? "edit-site-custom-generic-template__modal" : void 0,
         ref: containerRef,
         children: [
-          modalContent === modalContentMap.templatesList && /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(
+          modalContent === modalContentMap.templatesList && /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(
             import_components153.__experimentalGrid,
             {
               columns: isMobile ? 2 : 3,
@@ -43885,12 +43728,12 @@ If there's a particular need for this, please submit a feature request at https:
               justify: "center",
               className: "edit-site-add-new-template__template-list__contents",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(import_components153.Flex, { className: "edit-site-add-new-template__template-list__prompt", children: (0, import_i18n144.__)(
+                /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_components153.Flex, { className: "edit-site-add-new-template__template-list__prompt", children: (0, import_i18n146.__)(
                   "Select what the new template should apply to:"
                 ) }),
                 missingTemplates.map((template) => {
                   const { title, slug, onClick } = template;
-                  return /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+                  return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
                     TemplateListItem,
                     {
                       title,
@@ -43903,21 +43746,21 @@ If there's a particular need for this, please submit a feature request at https:
                     slug
                   );
                 }),
-                /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
                   TemplateListItem,
                   {
-                    title: (0, import_i18n144.__)("Custom template"),
+                    title: (0, import_i18n146.__)("Custom template"),
                     direction: "row",
                     className: "edit-site-add-new-template__custom-template-button",
                     icon: pencil_default,
                     onClick: () => setModalContent(
                       modalContentMap.customGenericTemplate
                     ),
-                    children: /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+                    children: /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
                       import_components153.__experimentalText,
                       {
                         lineHeight: 1.53846153846,
-                        children: (0, import_i18n144.__)(
+                        children: (0, import_i18n146.__)(
                           "A custom template can be manually applied to any post or page."
                         )
                       }
@@ -43927,7 +43770,7 @@ If there's a particular need for this, please submit a feature request at https:
               ]
             }
           ),
-          modalContent === modalContentMap.customTemplate && /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+          modalContent === modalContentMap.customTemplate && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
             add_custom_template_modal_content_default,
             {
               onSelect: createTemplate,
@@ -43936,7 +43779,7 @@ If there's a particular need for this, please submit a feature request at https:
               containerRef
             }
           ),
-          modalContent === modalContentMap.customGenericTemplate && /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+          modalContent === modalContentMap.customGenericTemplate && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
             add_custom_generic_template_modal_content_default,
             {
               createTemplate,
@@ -43948,9 +43791,9 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function NewTemplate() {
-    const [showModal, setShowModal] = (0, import_element143.useState)(false);
-    const { postType: postType2 } = (0, import_data71.useSelect)((select3) => {
-      const { getPostType: getPostType2 } = select3(import_core_data52.store);
+    const [showModal, setShowModal] = (0, import_element145.useState)(false);
+    const { postType: postType2 } = (0, import_data73.useSelect)((select3) => {
+      const { getPostType: getPostType2 } = select3(import_core_data53.store);
       return {
         postType: getPostType2(TEMPLATE_POST_TYPE)
       };
@@ -43958,8 +43801,8 @@ If there's a particular need for this, please submit a feature request at https:
     if (!postType2) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime281.jsxs)(import_jsx_runtime281.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(import_jsx_runtime282.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
         import_components153.Button,
         {
           variant: "primary",
@@ -43969,7 +43812,7 @@ If there's a particular need for this, please submit a feature request at https:
           children: postType2.labels.add_new_item
         }
       ),
-      showModal && /* @__PURE__ */ (0, import_jsx_runtime281.jsx)(NewTemplateModal, { onClose: () => setShowModal(false) })
+      showModal && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(NewTemplateModal, { onClose: () => setShowModal(false) })
     ] });
   }
   function useMissingTemplates(setEntityForSuggestions, onClick) {
@@ -44013,22 +43856,22 @@ If there's a particular need for this, please submit a feature request at https:
     ];
     return missingTemplates;
   }
-  var add_new_template_default = (0, import_element143.memo)(NewTemplate);
+  var add_new_template_default = (0, import_element145.memo)(NewTemplate);
 
   // packages/edit-site/build-module/components/page-templates/fields.mjs
   var import_components154 = __toESM(require_components(), 1);
-  var import_i18n145 = __toESM(require_i18n(), 1);
-  var import_element144 = __toESM(require_element(), 1);
+  var import_i18n147 = __toESM(require_i18n(), 1);
+  var import_element146 = __toESM(require_element(), 1);
   var import_html_entities13 = __toESM(require_html_entities(), 1);
   var import_blocks13 = __toESM(require_blocks(), 1);
   var import_block_editor25 = __toESM(require_block_editor(), 1);
-  var import_editor33 = __toESM(require_editor(), 1);
-  var import_core_data53 = __toESM(require_core_data(), 1);
-  var import_data72 = __toESM(require_data(), 1);
-  var import_jsx_runtime282 = __toESM(require_jsx_runtime(), 1);
+  var import_editor34 = __toESM(require_editor(), 1);
+  var import_core_data54 = __toESM(require_core_data(), 1);
+  var import_data74 = __toESM(require_data(), 1);
+  var import_jsx_runtime283 = __toESM(require_jsx_runtime(), 1);
   var { Badge: Badge5 } = unlock(import_components154.privateApis);
-  var { useEntityRecordsWithPermissions } = unlock(import_core_data53.privateApis);
-  var { useStyle: useStyle5 } = unlock(import_editor33.privateApis);
+  var { useEntityRecordsWithPermissions } = unlock(import_core_data54.privateApis);
+  var { useStyle: useStyle5 } = unlock(import_editor34.privateApis);
   function useAllDefaultTemplateTypes() {
     const defaultTemplateTypes = useDefaultTemplateTypes();
     const { records: staticRecords } = useEntityRecordsWithPermissions(
@@ -44049,30 +43892,30 @@ If there's a particular need for this, please submit a feature request at https:
   function PreviewField2({ item }) {
     const settings2 = usePatternSettings();
     const backgroundColor = useStyle5("color.background") ?? "white";
-    const blocks = (0, import_element144.useMemo)(() => {
+    const blocks = (0, import_element146.useMemo)(() => {
       return (0, import_blocks13.parse)(item.content.raw);
     }, [item.content.raw]);
     const isEmpty3 = !blocks?.length;
-    return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_editor33.EditorProvider, { post: item, settings: settings2, children: /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(import_editor34.EditorProvider, { post: item, settings: settings2, children: /* @__PURE__ */ (0, import_jsx_runtime283.jsxs)(
       "div",
       {
         className: "page-templates-preview-field",
         style: { backgroundColor },
         children: [
-          isEmpty3 && (0, import_i18n145.__)("Empty template"),
-          !isEmpty3 && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_block_editor25.BlockPreview.Async, { children: /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_block_editor25.BlockPreview, { blocks }) })
+          isEmpty3 && (0, import_i18n147.__)("Empty template"),
+          !isEmpty3 && /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(import_block_editor25.BlockPreview.Async, { children: /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(import_block_editor25.BlockPreview, { blocks }) })
         ]
       }
     ) });
   }
   var previewField2 = {
-    label: (0, import_i18n145.__)("Preview"),
+    label: (0, import_i18n147.__)("Preview"),
     id: "preview",
     render: PreviewField2,
     enableSorting: false
   };
   var descriptionField = {
-    label: (0, import_i18n145.__)("Description"),
+    label: (0, import_i18n147.__)("Description"),
     id: "description",
     render: window?.__experimentalTemplateActivate ? function RenderDescription({ item }) {
       const defaultTemplateTypes = useAllDefaultTemplateTypes();
@@ -44087,16 +43930,16 @@ If there's a particular need for this, please submit a feature request at https:
     enableGlobalSearch: true
   };
   function AuthorField2({ item }) {
-    const [isImageLoaded, setIsImageLoaded] = (0, import_element144.useState)(false);
+    const [isImageLoaded, setIsImageLoaded] = (0, import_element146.useState)(false);
     const { text, icon, imageUrl } = useAddedBy(item.type, item.id);
-    return /* @__PURE__ */ (0, import_jsx_runtime282.jsxs)(import_components154.__experimentalHStack, { alignment: "left", spacing: 0, children: [
-      imageUrl && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime283.jsxs)(import_components154.__experimentalHStack, { alignment: "left", spacing: 0, children: [
+      imageUrl && /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(
         "div",
         {
           className: clsx_default("page-templates-author-field__avatar", {
             "is-loaded": isImageLoaded
           }),
-          children: /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(
             "img",
             {
               onLoad: () => setIsImageLoaded(true),
@@ -44106,49 +43949,49 @@ If there's a particular need for this, please submit a feature request at https:
           )
         }
       ),
-      !imageUrl && /* @__PURE__ */ (0, import_jsx_runtime282.jsx)("div", { className: "page-templates-author-field__icon", children: /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(import_components154.Icon, { icon }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime282.jsx)("span", { className: "page-templates-author-field__name", children: text })
+      !imageUrl && /* @__PURE__ */ (0, import_jsx_runtime283.jsx)("div", { className: "page-templates-author-field__icon", children: /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(import_components154.Icon, { icon }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime283.jsx)("span", { className: "page-templates-author-field__name", children: text })
     ] });
   }
   var authorField = {
-    label: (0, import_i18n145.__)("Author"),
+    label: (0, import_i18n147.__)("Author"),
     id: "author",
     getValue: ({ item }) => item.author_text ?? item.author,
     render: AuthorField2
   };
   var activeField = {
-    label: (0, import_i18n145.__)("Status"),
+    label: (0, import_i18n147.__)("Status"),
     id: "active",
     type: "boolean",
     getValue: ({ item }) => item._isActive,
     render: function Render({ item }) {
-      const activeLabel = item._isCustom ? (0, import_i18n145._x)("Active when used", "template") : (0, import_i18n145._x)("Active", "template");
+      const activeLabel = item._isCustom ? (0, import_i18n147._x)("Active when used", "template") : (0, import_i18n147._x)("Active", "template");
       const activeIntent = item._isCustom ? "info" : "success";
       const isActive = item._isActive;
-      return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(Badge5, { intent: isActive ? activeIntent : "default", children: isActive ? activeLabel : (0, import_i18n145._x)("Inactive", "template") });
+      return /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(Badge5, { intent: isActive ? activeIntent : "default", children: isActive ? activeLabel : (0, import_i18n147._x)("Inactive", "template") });
     }
   };
   var useThemeField = () => {
-    const activeTheme = (0, import_data72.useSelect)(
-      (select3) => select3(import_core_data53.store).getCurrentTheme()
+    const activeTheme = (0, import_data74.useSelect)(
+      (select3) => select3(import_core_data54.store).getCurrentTheme()
     );
-    return (0, import_element144.useMemo)(
+    return (0, import_element146.useMemo)(
       () => ({
-        label: (0, import_i18n145.__)("Compatible Theme"),
+        label: (0, import_i18n147.__)("Compatible Theme"),
         id: "theme",
         getValue: ({ item }) => item.theme,
         render: function Render3({ item }) {
           if (item.theme === activeTheme.stylesheet) {
-            return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(Badge5, { intent: "success", children: item.theme });
+            return /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(Badge5, { intent: "success", children: item.theme });
           }
-          return /* @__PURE__ */ (0, import_jsx_runtime282.jsx)(Badge5, { intent: "error", children: item.theme });
+          return /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(Badge5, { intent: "error", children: item.theme });
         }
       }),
       [activeTheme]
     );
   };
   var slugField = {
-    label: (0, import_i18n145.__)("Template Type"),
+    label: (0, import_i18n147.__)("Template Type"),
     id: "slug",
     getValue: ({ item }) => item.slug,
     render: function Render2({ item }) {
@@ -44156,7 +43999,7 @@ If there's a particular need for this, please submit a feature request at https:
       const defaultTemplateType = defaultTemplateTypes.find(
         (type) => type.slug === item.slug
       );
-      return defaultTemplateType?.title || (0, import_i18n145._x)("Custom", "template type");
+      return defaultTemplateType?.title || (0, import_i18n147._x)("Custom", "template type");
     }
   };
 
@@ -44207,17 +44050,17 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-templates/index.mjs
-  var import_jsx_runtime283 = __toESM(require_jsx_runtime(), 1);
-  var { usePostActions: usePostActions2, usePostFields, templateTitleField } = unlock(import_editor34.privateApis);
-  var { useHistory: useHistory22, useLocation: useLocation29 } = unlock(import_router34.privateApis);
-  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions2 } = unlock(import_core_data54.privateApis);
+  var import_jsx_runtime284 = __toESM(require_jsx_runtime(), 1);
+  var { usePostActions: usePostActions2, usePostFields, templateTitleField } = unlock(import_editor35.privateApis);
+  var { useHistory: useHistory22, useLocation: useLocation30 } = unlock(import_router35.privateApis);
+  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions2 } = unlock(import_core_data55.privateApis);
   function PageTemplates() {
-    const { path, query } = useLocation29();
+    const { path, query } = useLocation30();
     const { activeView = "active", postId } = query;
-    const [selection, setSelection] = (0, import_element145.useState)([postId]);
-    const [selectedRegisteredTemplate, setSelectedRegisteredTemplate] = (0, import_element145.useState)(false);
+    const [selection, setSelection] = (0, import_element147.useState)([postId]);
+    const [selectedRegisteredTemplate, setSelectedRegisteredTemplate] = (0, import_element147.useState)(false);
     const defaultView = DEFAULT_VIEW2;
-    const activeViewOverrides = (0, import_element145.useMemo)(
+    const activeViewOverrides = (0, import_element147.useMemo)(
       () => getActiveViewOverridesForTab(activeView),
       [activeView]
     );
@@ -44241,12 +44084,12 @@ If there's a particular need for this, please submit a feature request at https:
         );
       }
     });
-    const { activeTemplatesOption, activeTheme, defaultTemplateTypes } = (0, import_data73.useSelect)((select3) => {
-      const { getEntityRecord, getCurrentTheme } = select3(import_core_data54.store);
+    const { activeTemplatesOption, activeTheme, defaultTemplateTypes } = (0, import_data75.useSelect)((select3) => {
+      const { getEntityRecord, getCurrentTheme } = select3(import_core_data55.store);
       return {
         activeTemplatesOption: getEntityRecord("root", "site")?.active_templates,
         activeTheme: getCurrentTheme(),
-        defaultTemplateTypes: select3(import_core_data54.store).getCurrentTheme()?.default_template_types
+        defaultTemplateTypes: select3(import_core_data55.store).getCurrentTheme()?.default_template_types
       };
     });
     const { records: userRecords, isResolving: isLoadingUserRecords } = useEntityRecordsWithPermissions2("postType", TEMPLATE_POST_TYPE, {
@@ -44259,7 +44102,7 @@ If there's a particular need for this, please submit a feature request at https:
       // for entity configs.
       per_page: -1
     });
-    const activeTemplates = (0, import_element145.useMemo)(() => {
+    const activeTemplates = (0, import_element147.useMemo)(() => {
       const _active = [...staticRecords];
       if (activeTemplatesOption) {
         for (const activeSlug in activeTemplatesOption) {
@@ -44289,7 +44132,7 @@ If there's a particular need for this, please submit a feature request at https:
     } else {
       isLoadingData = isLoadingStaticData;
     }
-    const records = (0, import_element145.useMemo)(() => {
+    const records = (0, import_element147.useMemo)(() => {
       function isCustom(record) {
         return record.is_custom ?? // For user templates it's custom if the is_wp_suggestion meta
         // field is not set and the slug is not found in the default
@@ -44322,9 +44165,9 @@ If there's a particular need for this, please submit a feature request at https:
       staticRecords,
       activeView
     ]);
-    const users = (0, import_data73.useSelect)(
+    const users = (0, import_data75.useSelect)(
       (select3) => {
-        const { getUser } = select3(import_core_data54.store);
+        const { getUser } = select3(import_core_data55.store);
         return records.reduce((acc, record) => {
           if (record.author_text) {
             if (!acc[record.author_text]) {
@@ -44341,7 +44184,7 @@ If there's a particular need for this, please submit a feature request at https:
       [records]
     );
     const history = useHistory22();
-    const onChangeSelection = (0, import_element145.useCallback)(
+    const onChangeSelection = (0, import_element147.useCallback)(
       (items) => {
         setSelection(items);
         if (view?.type === "list") {
@@ -44359,7 +44202,7 @@ If there's a particular need for this, please submit a feature request at https:
     });
     const dateField = postTypeFields.find((field) => field.id === "date");
     const themeField = useThemeField();
-    const fields = (0, import_element145.useMemo)(() => {
+    const fields = (0, import_element147.useMemo)(() => {
       const _fields = [
         previewField2,
         templateTitleField,
@@ -44386,11 +44229,11 @@ If there's a particular need for this, please submit a feature request at https:
       });
       return _fields;
     }, [users, activeView, themeField, dateField]);
-    const { data, paginationInfo } = (0, import_element145.useMemo)(() => {
+    const { data, paginationInfo } = (0, import_element147.useMemo)(() => {
       return filterSortAndPaginate(records, view, fields);
     }, [records, view, fields]);
-    const { createSuccessNotice } = (0, import_data73.useDispatch)(import_notices8.store);
-    const onActionPerformed = (0, import_element145.useCallback)(
+    const { createSuccessNotice } = (0, import_data75.useDispatch)(import_notices8.store);
+    const onActionPerformed = (0, import_element147.useCallback)(
       (actionId, items) => {
         switch (actionId) {
           case "duplicate-post":
@@ -44399,17 +44242,17 @@ If there's a particular need for this, please submit a feature request at https:
               const _title = typeof newItem.title === "string" ? newItem.title : newItem.title?.rendered;
               history.navigate(`/template?activeView=user`);
               createSuccessNotice(
-                (0, import_i18n146.sprintf)(
+                (0, import_i18n148.sprintf)(
                   // translators: %s: Title of the created post or template, e.g: "Hello world".
-                  (0, import_i18n146.__)('"%s" successfully created.'),
-                  (0, import_html_entities14.decodeEntities)(_title) || (0, import_i18n146.__)("(no title)")
+                  (0, import_i18n148.__)('"%s" successfully created.'),
+                  (0, import_html_entities14.decodeEntities)(_title) || (0, import_i18n148.__)("(no title)")
                 ),
                 {
                   type: "snackbar",
                   id: "duplicate-post-action",
                   actions: [
                     {
-                      label: (0, import_i18n146.__)("Edit"),
+                      label: (0, import_i18n148.__)("Edit"),
                       onClick: () => {
                         history.navigate(
                           `/${newItem.type}/${newItem.id}?canvas=edit`
@@ -44432,11 +44275,11 @@ If there's a particular need for this, please submit a feature request at https:
     });
     const editAction = useEditPostAction();
     const setActiveTemplateAction = useSetActiveTemplateAction();
-    const actions = (0, import_element145.useMemo)(
+    const actions = (0, import_element147.useMemo)(
       () => activeView === "user" ? [setActiveTemplateAction, editAction, ...postTypeActions] : [setActiveTemplateAction, ...postTypeActions],
       [postTypeActions, setActiveTemplateAction, editAction, activeView]
     );
-    const onChangeView = (0, import_compose28.useEvent)((newView) => {
+    const onChangeView = (0, import_compose30.useEvent)((newView) => {
       updateView(newView);
       if (newView.type !== view.type) {
         history.invalidate();
@@ -44445,14 +44288,14 @@ If there's a particular need for this, please submit a feature request at https:
     const duplicateAction = actions.find(
       (action) => action.id === "duplicate-post"
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime283.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
       page_default,
       {
         className: "edit-site-page-templates",
-        title: (0, import_i18n146.__)("Templates"),
-        actions: /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(add_new_template_default, {}),
+        title: (0, import_i18n148.__)("Templates"),
+        actions: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(add_new_template_default, {}),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
             dataviews_default,
             {
               paginationInfo,
@@ -44482,13 +44325,13 @@ If there's a particular need for this, please submit a feature request at https:
             },
             activeView
           ),
-          selectedRegisteredTemplate && duplicateAction && /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(
+          selectedRegisteredTemplate && duplicateAction && /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
             import_components155.Modal,
             {
-              title: (0, import_i18n146.__)("Duplicate"),
+              title: (0, import_i18n148.__)("Duplicate"),
               onRequestClose: () => setSelectedRegisteredTemplate(),
               size: "small",
-              children: /* @__PURE__ */ (0, import_jsx_runtime283.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
                 duplicateAction.RenderModal,
                 {
                   items: [selectedRegisteredTemplate],
@@ -44503,42 +44346,42 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/page-templates/index-legacy.mjs
-  var import_i18n151 = __toESM(require_i18n(), 1);
-  var import_element150 = __toESM(require_element(), 1);
-  var import_core_data58 = __toESM(require_core_data(), 1);
-  var import_router36 = __toESM(require_router(), 1);
-  var import_editor35 = __toESM(require_editor(), 1);
+  var import_i18n153 = __toESM(require_i18n(), 1);
+  var import_element152 = __toESM(require_element(), 1);
+  var import_core_data59 = __toESM(require_core_data(), 1);
+  var import_router37 = __toESM(require_router(), 1);
+  var import_editor36 = __toESM(require_editor(), 1);
   var import_url25 = __toESM(require_url(), 1);
-  var import_compose31 = __toESM(require_compose(), 1);
+  var import_compose33 = __toESM(require_compose(), 1);
 
   // packages/edit-site/build-module/components/add-new-template-legacy/index.mjs
   var import_components158 = __toESM(require_components(), 1);
   var import_html_entities17 = __toESM(require_html_entities(), 1);
-  var import_element149 = __toESM(require_element(), 1);
-  var import_data75 = __toESM(require_data(), 1);
-  var import_core_data57 = __toESM(require_core_data(), 1);
-  var import_compose30 = __toESM(require_compose(), 1);
-  var import_i18n150 = __toESM(require_i18n(), 1);
+  var import_element151 = __toESM(require_element(), 1);
+  var import_data77 = __toESM(require_data(), 1);
+  var import_core_data58 = __toESM(require_core_data(), 1);
+  var import_compose32 = __toESM(require_compose(), 1);
+  var import_i18n152 = __toESM(require_i18n(), 1);
   var import_notices9 = __toESM(require_notices(), 1);
-  var import_router35 = __toESM(require_router(), 1);
+  var import_router36 = __toESM(require_router(), 1);
   var import_dom15 = __toESM(require_dom(), 1);
 
   // packages/edit-site/build-module/components/add-new-template-legacy/add-custom-template-modal-content.mjs
-  var import_element147 = __toESM(require_element(), 1);
-  var import_i18n148 = __toESM(require_i18n(), 1);
+  var import_element149 = __toESM(require_element(), 1);
+  var import_i18n150 = __toESM(require_i18n(), 1);
   var import_components156 = __toESM(require_components(), 1);
-  var import_core_data56 = __toESM(require_core_data(), 1);
+  var import_core_data57 = __toESM(require_core_data(), 1);
   var import_html_entities16 = __toESM(require_html_entities(), 1);
-  var import_compose29 = __toESM(require_compose(), 1);
+  var import_compose31 = __toESM(require_compose(), 1);
   var import_dom14 = __toESM(require_dom(), 1);
   var import_url24 = __toESM(require_url(), 1);
 
   // packages/edit-site/build-module/components/add-new-template-legacy/utils.mjs
-  var import_data74 = __toESM(require_data(), 1);
-  var import_core_data55 = __toESM(require_core_data(), 1);
+  var import_data76 = __toESM(require_data(), 1);
+  var import_core_data56 = __toESM(require_core_data(), 1);
   var import_html_entities15 = __toESM(require_html_entities(), 1);
-  var import_element146 = __toESM(require_element(), 1);
-  var import_i18n147 = __toESM(require_i18n(), 1);
+  var import_element148 = __toESM(require_element(), 1);
+  var import_i18n149 = __toESM(require_i18n(), 1);
   var import_url23 = __toESM(require_url(), 1);
   var EMPTY_OBJECT3 = {};
   var getValueFromObjectPath3 = (object, path) => {
@@ -44558,8 +44401,8 @@ If there's a particular need for this, please submit a feature request at https:
     }));
   };
   var useExistingTemplates2 = () => {
-    return (0, import_data74.useSelect)(
-      (select3) => select3(import_core_data55.store).getEntityRecords(
+    return (0, import_data76.useSelect)(
+      (select3) => select3(import_core_data56.store).getEntityRecords(
         "postType",
         TEMPLATE_POST_TYPE,
         {
@@ -44570,17 +44413,17 @@ If there's a particular need for this, please submit a feature request at https:
     );
   };
   var useDefaultTemplateTypes2 = () => {
-    return (0, import_data74.useSelect)(
-      (select3) => select3(import_core_data55.store).getCurrentTheme()?.default_template_types || [],
+    return (0, import_data76.useSelect)(
+      (select3) => select3(import_core_data56.store).getCurrentTheme()?.default_template_types || [],
       []
     );
   };
   var usePublicPostTypes2 = () => {
-    const postTypes = (0, import_data74.useSelect)(
-      (select3) => select3(import_core_data55.store).getPostTypes({ per_page: -1 }),
+    const postTypes = (0, import_data76.useSelect)(
+      (select3) => select3(import_core_data56.store).getPostTypes({ per_page: -1 }),
       []
     );
-    return (0, import_element146.useMemo)(() => {
+    return (0, import_element148.useMemo)(() => {
       const excludedPostTypes = ["attachment"];
       return postTypes?.filter(
         ({ viewable, slug }) => viewable && !excludedPostTypes.includes(slug)
@@ -44593,11 +44436,11 @@ If there's a particular need for this, please submit a feature request at https:
     }, [postTypes]);
   };
   var usePublicTaxonomies2 = () => {
-    const taxonomies = (0, import_data74.useSelect)(
-      (select3) => select3(import_core_data55.store).getTaxonomies({ per_page: -1 }),
+    const taxonomies = (0, import_data76.useSelect)(
+      (select3) => select3(import_core_data56.store).getTaxonomies({ per_page: -1 }),
       []
     );
-    return (0, import_element146.useMemo)(() => {
+    return (0, import_element148.useMemo)(() => {
       return taxonomies?.filter(
         ({ visibility }) => visibility?.publicly_queryable
       );
@@ -44605,12 +44448,12 @@ If there's a particular need for this, please submit a feature request at https:
   };
   function usePostTypeArchiveMenuItems2() {
     const publicPostTypes = usePublicPostTypes2();
-    const postTypesWithArchives = (0, import_element146.useMemo)(
+    const postTypesWithArchives = (0, import_element148.useMemo)(
       () => publicPostTypes?.filter((postType2) => postType2.has_archive),
       [publicPostTypes]
     );
     const existingTemplates = useExistingTemplates2();
-    const postTypeLabels = (0, import_element146.useMemo)(
+    const postTypeLabels = (0, import_element148.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { labels }) => {
         const singularName = labels.singular_name.toLowerCase();
         accumulator[singularName] = (accumulator[singularName] || 0) + 1;
@@ -44618,14 +44461,14 @@ If there's a particular need for this, please submit a feature request at https:
       }, {}),
       [publicPostTypes]
     );
-    const needsUniqueIdentifier = (0, import_element146.useCallback)(
+    const needsUniqueIdentifier = (0, import_element148.useCallback)(
       ({ labels, slug }) => {
         const singularName = labels.singular_name.toLowerCase();
         return postTypeLabels[singularName] > 1 && singularName !== slug;
       },
       [postTypeLabels]
     );
-    return (0, import_element146.useMemo)(
+    return (0, import_element148.useMemo)(
       () => postTypesWithArchives?.filter(
         (postType2) => !(existingTemplates || []).some(
           (existingTemplate) => existingTemplate.slug === "archive-" + postType2.slug
@@ -44633,24 +44476,24 @@ If there's a particular need for this, please submit a feature request at https:
       ).map((postType2) => {
         let title;
         if (needsUniqueIdentifier(postType2)) {
-          title = (0, import_i18n147.sprintf)(
+          title = (0, import_i18n149.sprintf)(
             // translators: %1s: Name of the post type e.g: "Post"; %2s: Slug of the post type e.g: "book".
-            (0, import_i18n147.__)("Archive: %1$s (%2$s)"),
+            (0, import_i18n149.__)("Archive: %1$s (%2$s)"),
             postType2.labels.singular_name,
             postType2.slug
           );
         } else {
-          title = (0, import_i18n147.sprintf)(
+          title = (0, import_i18n149.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n147.__)("Archive: %s"),
+            (0, import_i18n149.__)("Archive: %s"),
             postType2.labels.singular_name
           );
         }
         return {
           slug: "archive-" + postType2.slug,
-          description: (0, import_i18n147.sprintf)(
+          description: (0, import_i18n149.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n147.__)(
+            (0, import_i18n149.__)(
               "Displays an archive with the latest posts of type: %s."
             ),
             postType2.labels.singular_name
@@ -44670,7 +44513,7 @@ If there's a particular need for this, please submit a feature request at https:
     const publicPostTypes = usePublicPostTypes2();
     const existingTemplates = useExistingTemplates2();
     const defaultTemplateTypes = useDefaultTemplateTypes2();
-    const templateLabels = (0, import_element146.useMemo)(
+    const templateLabels = (0, import_element148.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { labels }) => {
         const templateName = (labels.template_name || labels.singular_name).toLowerCase();
         accumulator[templateName] = (accumulator[templateName] || 0) + 1;
@@ -44678,14 +44521,14 @@ If there's a particular need for this, please submit a feature request at https:
       }, {}),
       [publicPostTypes]
     );
-    const needsUniqueIdentifier = (0, import_element146.useCallback)(
+    const needsUniqueIdentifier = (0, import_element148.useCallback)(
       ({ labels, slug }) => {
         const templateName = (labels.template_name || labels.singular_name).toLowerCase();
         return templateLabels[templateName] > 1 && templateName !== slug;
       },
       [templateLabels]
     );
-    const templatePrefixes = (0, import_element146.useMemo)(
+    const templatePrefixes = (0, import_element148.useMemo)(
       () => publicPostTypes?.reduce((accumulator, { slug }) => {
         let suffix = slug;
         if (slug !== "page") {
@@ -44709,20 +44552,20 @@ If there's a particular need for this, please submit a feature request at https:
         );
         const hasGeneralTemplate = existingTemplateSlugs?.includes(generalTemplateSlug);
         const _needsUniqueIdentifier = needsUniqueIdentifier(postType2);
-        let menuItemTitle = labels.template_name || (0, import_i18n147.sprintf)(
+        let menuItemTitle = labels.template_name || (0, import_i18n149.sprintf)(
           // translators: %s: Name of the post type e.g: "Post".
-          (0, import_i18n147.__)("Single item: %s"),
+          (0, import_i18n149.__)("Single item: %s"),
           labels.singular_name
         );
         if (_needsUniqueIdentifier) {
-          menuItemTitle = labels.template_name ? (0, import_i18n147.sprintf)(
+          menuItemTitle = labels.template_name ? (0, import_i18n149.sprintf)(
             // translators: 1: Name of the template e.g: "Single Item: Post". 2: Slug of the post type e.g: "book".
-            (0, import_i18n147._x)("%1$s (%2$s)", "post type menu label"),
+            (0, import_i18n149._x)("%1$s (%2$s)", "post type menu label"),
             labels.template_name,
             slug
-          ) : (0, import_i18n147.sprintf)(
+          ) : (0, import_i18n149.sprintf)(
             // translators: 1: Name of the post type e.g: "Post". 2: Slug of the post type e.g: "book".
-            (0, import_i18n147._x)(
+            (0, import_i18n149._x)(
               "Single item: %1$s (%2$s)",
               "post type menu label"
             ),
@@ -44736,9 +44579,9 @@ If there's a particular need for this, please submit a feature request at https:
         } : {
           slug: generalTemplateSlug,
           title: menuItemTitle,
-          description: (0, import_i18n147.sprintf)(
+          description: (0, import_i18n149.sprintf)(
             // translators: %s: Name of the post type e.g: "Post".
-            (0, import_i18n147.__)("Displays a single item: %s."),
+            (0, import_i18n149.__)("Displays a single item: %s."),
             labels.singular_name
           ),
           // `icon` is the `menu_icon` property of a post type. We
@@ -44787,7 +44630,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       []
     );
-    const postTypesMenuItems = (0, import_element146.useMemo)(
+    const postTypesMenuItems = (0, import_element148.useMemo)(
       () => menuItems.reduce(
         (accumulator, postType2) => {
           const { slug } = postType2;
@@ -44808,7 +44651,7 @@ If there's a particular need for this, please submit a feature request at https:
     const publicTaxonomies = usePublicTaxonomies2();
     const existingTemplates = useExistingTemplates2();
     const defaultTemplateTypes = useDefaultTemplateTypes2();
-    const templatePrefixes = (0, import_element146.useMemo)(
+    const templatePrefixes = (0, import_element148.useMemo)(
       () => publicTaxonomies?.reduce((accumulator, { slug }) => {
         let suffix = slug;
         if (!["category", "post_tag"].includes(slug)) {
@@ -44855,14 +44698,14 @@ If there's a particular need for this, please submit a feature request at https:
         );
         let menuItemTitle = labels.template_name || labels.singular_name;
         if (_needsUniqueIdentifier) {
-          menuItemTitle = labels.template_name ? (0, import_i18n147.sprintf)(
+          menuItemTitle = labels.template_name ? (0, import_i18n149.sprintf)(
             // translators: 1: Name of the template e.g: "Products by Category". 2: Slug of the taxonomy e.g: "product_cat".
-            (0, import_i18n147._x)("%1$s (%2$s)", "taxonomy template menu label"),
+            (0, import_i18n149._x)("%1$s (%2$s)", "taxonomy template menu label"),
             labels.template_name,
             slug
-          ) : (0, import_i18n147.sprintf)(
+          ) : (0, import_i18n149.sprintf)(
             // translators: 1: Name of the taxonomy e.g: "Category". 2: Slug of the taxonomy e.g: "product_cat".
-            (0, import_i18n147._x)("%1$s (%2$s)", "taxonomy menu label"),
+            (0, import_i18n149._x)("%1$s (%2$s)", "taxonomy menu label"),
             labels.singular_name,
             slug
           );
@@ -44873,9 +44716,9 @@ If there's a particular need for this, please submit a feature request at https:
         } : {
           slug: generalTemplateSlug,
           title: menuItemTitle,
-          description: (0, import_i18n147.sprintf)(
+          description: (0, import_i18n149.sprintf)(
             // translators: %s: Name of the taxonomy e.g: "Product Categories".
-            (0, import_i18n147.__)("Displays taxonomy: %s."),
+            (0, import_i18n149.__)("Displays taxonomy: %s."),
             labels.singular_name
           ),
           icon: block_meta_default,
@@ -44920,7 +44763,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       []
     );
-    const taxonomiesMenuItems = (0, import_element146.useMemo)(
+    const taxonomiesMenuItems = (0, import_element148.useMemo)(
       () => menuItems.reduce(
         (accumulator, taxonomy) => {
           const { slug } = taxonomy;
@@ -44952,7 +44795,7 @@ If there's a particular need for this, please submit a feature request at https:
     );
     if (!authorMenuItem) {
       authorMenuItem = {
-        description: (0, import_i18n147.__)(
+        description: (0, import_i18n149.__)(
           "Displays latest posts written by a single author."
         ),
         slug: "author",
@@ -44990,10 +44833,10 @@ If there's a particular need for this, please submit a feature request at https:
             }
           },
           labels: {
-            singular_name: (0, import_i18n147.__)("Author"),
-            search_items: (0, import_i18n147.__)("Search Authors"),
-            not_found: (0, import_i18n147.__)("No authors found."),
-            all_items: (0, import_i18n147.__)("All Authors")
+            singular_name: (0, import_i18n149.__)("Author"),
+            search_items: (0, import_i18n149.__)("Search Authors"),
+            not_found: (0, import_i18n149.__)("No authors found."),
+            all_items: (0, import_i18n149.__)("All Authors")
           },
           hasGeneralTemplate,
           template
@@ -45006,7 +44849,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
   var useExistingTemplateSlugs = (templatePrefixes) => {
     const existingTemplates = useExistingTemplates2();
-    const existingSlugs = (0, import_element146.useMemo)(() => {
+    const existingSlugs = (0, import_element148.useMemo)(() => {
       return Object.entries(templatePrefixes || {}).reduce(
         (accumulator, [slug, prefix2]) => {
           const slugsWithTemplates = (existingTemplates || []).reduce(
@@ -45035,12 +44878,12 @@ If there's a particular need for this, please submit a feature request at https:
   };
   var useTemplatesToExclude = (entityName, templatePrefixes, additionalQueryParameters = {}) => {
     const slugsToExcludePerEntity = useExistingTemplateSlugs(templatePrefixes);
-    const recordsToExcludePerEntity = (0, import_data74.useSelect)(
+    const recordsToExcludePerEntity = (0, import_data76.useSelect)(
       (select3) => {
         return Object.entries(slugsToExcludePerEntity || {}).reduce(
           (accumulator, [slug, slugsWithTemplates]) => {
             const entitiesWithTemplates = select3(
-              import_core_data55.store
+              import_core_data56.store
             ).getEntityRecords(entityName, slug, {
               _fields: "id",
               context: "view",
@@ -45065,7 +44908,7 @@ If there's a particular need for this, please submit a feature request at https:
       templatePrefixes,
       additionalQueryParameters
     );
-    const entitiesHasRecords = (0, import_data74.useSelect)(
+    const entitiesHasRecords = (0, import_data76.useSelect)(
       (select3) => {
         return Object.keys(templatePrefixes || {}).reduce(
           (accumulator, slug) => {
@@ -45073,7 +44916,7 @@ If there's a particular need for this, please submit a feature request at https:
               ({ id }) => id
             ) || [];
             accumulator[slug] = !!select3(
-              import_core_data55.store
+              import_core_data56.store
             ).getEntityRecords(entityName, slug, {
               per_page: 1,
               _fields: "id",
@@ -45093,7 +44936,7 @@ If there's a particular need for this, please submit a feature request at https:
         additionalQueryParameters
       ]
     );
-    const entitiesInfo = (0, import_element146.useMemo)(() => {
+    const entitiesInfo = (0, import_element148.useMemo)(() => {
       return Object.keys(templatePrefixes || {}).reduce(
         (accumulator, slug) => {
           const existingEntitiesIds = recordsToExcludePerEntity?.[slug]?.map(
@@ -45112,7 +44955,7 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/add-new-template-legacy/add-custom-template-modal-content.mjs
-  var import_jsx_runtime284 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime285 = __toESM(require_jsx_runtime(), 1);
   var EMPTY_ARRAY15 = [];
   function SuggestionListItem2({
     suggestion,
@@ -45121,10 +44964,10 @@ If there's a particular need for this, please submit a feature request at https:
     entityForSuggestions
   }) {
     const baseCssClass = "edit-site-custom-template-modal__suggestions_list__list-item";
-    return /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
       import_components156.Composite.Item,
       {
-        render: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+        render: /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
           import_components156.Button,
           {
             __next40pxDefaultSize: true,
@@ -45138,14 +44981,14 @@ If there's a particular need for this, please submit a feature request at https:
           }
         ),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
             import_components156.__experimentalText,
             {
               size: "body",
               lineHeight: 1.53846153846,
               weight: 500,
               className: `${baseCssClass}__title`,
-              children: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+              children: /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
                 import_components156.TextHighlight,
                 {
                   text: (0, import_html_entities16.decodeEntities)(suggestion.name),
@@ -45154,7 +44997,7 @@ If there's a particular need for this, please submit a feature request at https:
               )
             }
           ),
-          suggestion.link && /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+          suggestion.link && /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
             import_components156.__experimentalText,
             {
               size: "body",
@@ -45169,7 +45012,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
   function useSearchSuggestions2(entityForSuggestions, search) {
     const { config: config2 } = entityForSuggestions;
-    const query = (0, import_element147.useMemo)(
+    const query = (0, import_element149.useMemo)(
       () => ({
         order: "asc",
         context: "view",
@@ -45179,13 +45022,13 @@ If there's a particular need for this, please submit a feature request at https:
       }),
       [search, config2]
     );
-    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data56.useEntityRecords)(
+    const { records: searchResults, hasResolved: searchHasResolved } = (0, import_core_data57.useEntityRecords)(
       entityForSuggestions.type,
       entityForSuggestions.slug,
       query
     );
-    const [suggestions, setSuggestions] = (0, import_element147.useState)(EMPTY_ARRAY15);
-    (0, import_element147.useEffect)(() => {
+    const [suggestions, setSuggestions] = (0, import_element149.useState)(EMPTY_ARRAY15);
+    (0, import_element149.useEffect)(() => {
       if (!searchHasResolved) {
         return;
       }
@@ -45204,18 +45047,18 @@ If there's a particular need for this, please submit a feature request at https:
     return suggestions;
   }
   function SuggestionList2({ entityForSuggestions, onSelect }) {
-    const [search, setSearch, debouncedSearch] = (0, import_compose29.useDebouncedInput)();
+    const [search, setSearch, debouncedSearch] = (0, import_compose31.useDebouncedInput)();
     const suggestions = useSearchSuggestions2(
       entityForSuggestions,
       debouncedSearch
     );
     const { labels } = entityForSuggestions;
-    const [showSearchControl, setShowSearchControl] = (0, import_element147.useState)(false);
+    const [showSearchControl, setShowSearchControl] = (0, import_element149.useState)(false);
     if (!showSearchControl && suggestions?.length > 9) {
       setShowSearchControl(true);
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(import_jsx_runtime284.Fragment, { children: [
-      showSearchControl && /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(import_jsx_runtime285.Fragment, { children: [
+      showSearchControl && /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
         import_components156.SearchControl,
         {
           onChange: setSearch,
@@ -45224,14 +45067,14 @@ If there's a particular need for this, please submit a feature request at https:
           placeholder: labels.search_items
         }
       ),
-      !!suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+      !!suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
         import_components156.Composite,
         {
           orientation: "vertical",
           role: "listbox",
           className: "edit-site-custom-template-modal__suggestions_list",
-          "aria-label": (0, import_i18n148.__)("Suggestions list"),
-          children: suggestions.map((suggestion) => /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+          "aria-label": (0, import_i18n150.__)("Suggestions list"),
+          children: suggestions.map((suggestion) => /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
             SuggestionListItem2,
             {
               suggestion,
@@ -45243,7 +45086,7 @@ If there's a particular need for this, please submit a feature request at https:
           ))
         }
       ),
-      debouncedSearch && !suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+      debouncedSearch && !suggestions?.length && /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
         import_components156.__experimentalText,
         {
           as: "p",
@@ -45259,10 +45102,10 @@ If there's a particular need for this, please submit a feature request at https:
     onBack,
     containerRef
   }) {
-    const [showSearchEntities, setShowSearchEntities] = (0, import_element147.useState)(
+    const [showSearchEntities, setShowSearchEntities] = (0, import_element149.useState)(
       entityForSuggestions.hasGeneralTemplate
     );
-    (0, import_element147.useEffect)(() => {
+    (0, import_element149.useEffect)(() => {
       if (containerRef.current) {
         const [firstFocusable] = import_dom14.focus.focusable.find(
           containerRef.current
@@ -45270,25 +45113,25 @@ If there's a particular need for this, please submit a feature request at https:
         firstFocusable?.focus();
       }
     }, [showSearchEntities]);
-    return /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
       import_components156.__experimentalVStack,
       {
         spacing: 4,
         className: "edit-site-custom-template-modal__contents-wrapper",
         alignment: "left",
         children: [
-          !showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(import_jsx_runtime284.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(import_components156.__experimentalText, { as: "p", children: (0, import_i18n148.__)(
+          !showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(import_jsx_runtime285.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(import_components156.__experimentalText, { as: "p", children: (0, import_i18n150.__)(
               "Select whether to create a single template for all items or a specific one."
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
               import_components156.Flex,
               {
                 className: "edit-site-custom-template-modal__contents",
                 gap: "4",
                 align: "initial",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
                     import_components156.FlexItem,
                     {
                       isBlock: true,
@@ -45308,7 +45151,7 @@ If there's a particular need for this, please submit a feature request at https:
                         });
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
                           import_components156.__experimentalText,
                           {
                             as: "span",
@@ -45317,19 +45160,19 @@ If there's a particular need for this, please submit a feature request at https:
                             children: entityForSuggestions.labels.all_items
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
                           import_components156.__experimentalText,
                           {
                             as: "span",
                             lineHeight: 1.53846153846,
                             // translators: The user is given the choice to set up a template for all items of a post type or taxonomy, or just a specific one.
-                            children: (0, import_i18n148.__)("For all items")
+                            children: (0, import_i18n150.__)("For all items")
                           }
                         )
                       ]
                     }
                   ),
-                  /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(
+                  /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
                     import_components156.FlexItem,
                     {
                       isBlock: true,
@@ -45338,7 +45181,7 @@ If there's a particular need for this, please submit a feature request at https:
                         setShowSearchEntities(true);
                       },
                       children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
                           import_components156.__experimentalText,
                           {
                             as: "span",
@@ -45347,13 +45190,13 @@ If there's a particular need for this, please submit a feature request at https:
                             children: entityForSuggestions.labels.singular_name
                           }
                         ),
-                        /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+                        /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
                           import_components156.__experimentalText,
                           {
                             as: "span",
                             lineHeight: 1.53846153846,
                             // translators: The user is given the choice to set up a template for all items of a post type or taxonomy, or just a specific one.
-                            children: (0, import_i18n148.__)("For a specific item")
+                            children: (0, import_i18n150.__)("For a specific item")
                           }
                         )
                       ]
@@ -45362,28 +45205,28 @@ If there's a particular need for this, please submit a feature request at https:
                 ]
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(import_components156.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(import_components156.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
               import_components156.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "tertiary",
                 onClick: onBack,
-                children: (0, import_i18n148.__)("Back")
+                children: (0, import_i18n150.__)("Back")
               }
             ) })
           ] }),
-          showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime284.jsxs)(import_jsx_runtime284.Fragment, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(import_components156.__experimentalText, { as: "p", children: (0, import_i18n148.__)(
+          showSearchEntities && /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(import_jsx_runtime285.Fragment, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(import_components156.__experimentalText, { as: "p", children: (0, import_i18n150.__)(
               "This template will be used only for the specific item chosen."
             ) }),
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
               SuggestionList2,
               {
                 entityForSuggestions,
                 onSelect
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(import_components156.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime284.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(import_components156.Flex, { justify: "right", children: /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
               import_components156.Button,
               {
                 __next40pxDefaultSize: true,
@@ -45395,7 +45238,7 @@ If there's a particular need for this, please submit a feature request at https:
                     setShowSearchEntities(false);
                   }
                 },
-                children: (0, import_i18n148.__)("Back")
+                children: (0, import_i18n150.__)("Back")
               }
             ) })
           ] })
@@ -45406,16 +45249,16 @@ If there's a particular need for this, please submit a feature request at https:
   var add_custom_template_modal_content_default2 = AddCustomTemplateModalContent2;
 
   // packages/edit-site/build-module/components/add-new-template-legacy/add-custom-generic-template-modal-content.mjs
-  var import_element148 = __toESM(require_element(), 1);
-  var import_i18n149 = __toESM(require_i18n(), 1);
+  var import_element150 = __toESM(require_element(), 1);
+  var import_i18n151 = __toESM(require_i18n(), 1);
   var import_components157 = __toESM(require_components(), 1);
-  var import_jsx_runtime285 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime286 = __toESM(require_jsx_runtime(), 1);
   function AddCustomGenericTemplateModalContent2({ createTemplate, onBack }) {
-    const [title, setTitle] = (0, import_element148.useState)("");
-    const defaultTitle = (0, import_i18n149.__)("Custom Template");
-    const [isBusy, setIsBusy] = (0, import_element148.useState)(false);
-    const inputRef = (0, import_element148.useRef)();
-    (0, import_element148.useEffect)(() => {
+    const [title, setTitle] = (0, import_element150.useState)("");
+    const defaultTitle = (0, import_i18n151.__)("Custom Template");
+    const [isBusy, setIsBusy] = (0, import_element150.useState)(false);
+    const inputRef = (0, import_element150.useRef)();
+    (0, import_element150.useEffect)(() => {
       if (inputRef.current) {
         inputRef.current.focus();
       }
@@ -45438,39 +45281,39 @@ If there's a particular need for this, please submit a feature request at https:
         setIsBusy(false);
       }
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime285.jsx)("form", { onSubmit: onCreateTemplate, children: /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(import_components157.__experimentalVStack, { spacing: 6, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime286.jsx)("form", { onSubmit: onCreateTemplate, children: /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(import_components157.__experimentalVStack, { spacing: 6, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
         import_components157.TextControl,
         {
           __next40pxDefaultSize: true,
-          label: (0, import_i18n149.__)("Name"),
+          label: (0, import_i18n151.__)("Name"),
           value: title,
           onChange: setTitle,
           placeholder: defaultTitle,
           disabled: isBusy,
           ref: inputRef,
-          help: (0, import_i18n149.__)(
+          help: (0, import_i18n151.__)(
             // eslint-disable-next-line no-restricted-syntax -- 'sidebar' is a common web design term for layouts
             'Describe the template, e.g. "Post with sidebar". A custom template can be manually applied to any post or page.'
           )
         }
       ),
-      /* @__PURE__ */ (0, import_jsx_runtime285.jsxs)(
+      /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(
         import_components157.__experimentalHStack,
         {
           className: "edit-site-custom-generic-template__modal-actions",
           justify: "right",
           children: [
-            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
               import_components157.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "tertiary",
                 onClick: onBack,
-                children: (0, import_i18n149.__)("Back")
+                children: (0, import_i18n151.__)("Back")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime285.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
               import_components157.Button,
               {
                 __next40pxDefaultSize: true,
@@ -45478,7 +45321,7 @@ If there's a particular need for this, please submit a feature request at https:
                 type: "submit",
                 isBusy,
                 "aria-disabled": isBusy,
-                children: (0, import_i18n149.__)("Create")
+                children: (0, import_i18n151.__)("Create")
               }
             )
           ]
@@ -45489,8 +45332,8 @@ If there's a particular need for this, please submit a feature request at https:
   var add_custom_generic_template_modal_content_default2 = AddCustomGenericTemplateModalContent2;
 
   // packages/edit-site/build-module/components/add-new-template-legacy/index.mjs
-  var import_jsx_runtime286 = __toESM(require_jsx_runtime(), 1);
-  var { useHistory: useHistory23 } = unlock(import_router35.privateApis);
+  var import_jsx_runtime287 = __toESM(require_jsx_runtime(), 1);
+  var { useHistory: useHistory23 } = unlock(import_router36.privateApis);
   var DEFAULT_TEMPLATE_SLUGS2 = [
     "front-page",
     "home",
@@ -45530,7 +45373,7 @@ If there's a particular need for this, please submit a feature request at https:
     onClick,
     children
   }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
       import_components158.Button,
       {
         __next40pxDefaultSize: true,
@@ -45538,7 +45381,7 @@ If there's a particular need for this, please submit a feature request at https:
         onClick,
         label: description,
         showTooltip: !!description,
-        children: /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime287.jsxs)(
           import_components158.Flex,
           {
             as: "span",
@@ -45548,15 +45391,15 @@ If there's a particular need for this, please submit a feature request at https:
             style: { width: "100%" },
             direction,
             children: [
-              /* @__PURE__ */ (0, import_jsx_runtime286.jsx)("div", { className: "edit-site-add-new-template__template-icon", children: /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(import_components158.Icon, { icon }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(
+              /* @__PURE__ */ (0, import_jsx_runtime287.jsx)("div", { className: "edit-site-add-new-template__template-icon", children: /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(import_components158.Icon, { icon }) }),
+              /* @__PURE__ */ (0, import_jsx_runtime287.jsxs)(
                 import_components158.__experimentalVStack,
                 {
                   className: "edit-site-add-new-template__template-name",
                   alignment: "center",
                   spacing: 0,
                   children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+                    /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
                       import_components158.__experimentalText,
                       {
                         align: "center",
@@ -45581,32 +45424,32 @@ If there's a particular need for this, please submit a feature request at https:
     customGenericTemplate: 3
   };
   function NewTemplateModal2({ onClose }) {
-    const [modalContent, setModalContent] = (0, import_element149.useState)(
+    const [modalContent, setModalContent] = (0, import_element151.useState)(
       modalContentMap2.templatesList
     );
-    const [entityForSuggestions, setEntityForSuggestions] = (0, import_element149.useState)({});
-    const [isSubmitting, setIsSubmitting] = (0, import_element149.useState)(false);
+    const [entityForSuggestions, setEntityForSuggestions] = (0, import_element151.useState)({});
+    const [isSubmitting, setIsSubmitting] = (0, import_element151.useState)(false);
     const missingTemplates = useMissingTemplates2(
       setEntityForSuggestions,
       () => setModalContent(modalContentMap2.customTemplate)
     );
     const history = useHistory23();
-    const { saveEntityRecord } = (0, import_data75.useDispatch)(import_core_data57.store);
-    const { createErrorNotice, createSuccessNotice } = (0, import_data75.useDispatch)(import_notices9.store);
-    const containerRef = (0, import_element149.useRef)(null);
-    const isMobile = (0, import_compose30.useViewportMatch)("medium", "<");
-    const homeUrl = (0, import_data75.useSelect)((select3) => {
-      return select3(import_core_data57.store).getEntityRecord("root", "__unstableBase")?.home;
+    const { saveEntityRecord } = (0, import_data77.useDispatch)(import_core_data58.store);
+    const { createErrorNotice, createSuccessNotice } = (0, import_data77.useDispatch)(import_notices9.store);
+    const containerRef = (0, import_element151.useRef)(null);
+    const isMobile = (0, import_compose32.useViewportMatch)("medium", "<");
+    const homeUrl = (0, import_data77.useSelect)((select3) => {
+      return select3(import_core_data58.store).getEntityRecord("root", "__unstableBase")?.home;
     }, []);
     const TEMPLATE_SHORT_DESCRIPTIONS = {
       "front-page": homeUrl,
-      date: (0, import_i18n150.sprintf)(
+      date: (0, import_i18n152.sprintf)(
         // translators: %s: The homepage url.
-        (0, import_i18n150.__)("E.g. %s"),
+        (0, import_i18n152.__)("E.g. %s"),
         homeUrl + "/" + (/* @__PURE__ */ new Date()).getFullYear()
       )
     };
-    (0, import_element149.useEffect)(() => {
+    (0, import_element151.useEffect)(() => {
       if (containerRef.current && modalContent === modalContentMap2.templatesList) {
         const [firstFocusable] = import_dom15.focus.focusable.find(
           containerRef.current
@@ -45639,17 +45482,17 @@ If there's a particular need for this, please submit a feature request at https:
           `/${TEMPLATE_POST_TYPE}/${newTemplate.id}?canvas=edit`
         );
         createSuccessNotice(
-          (0, import_i18n150.sprintf)(
+          (0, import_i18n152.sprintf)(
             // translators: %s: Title of the created post or template, e.g: "Hello world".
-            (0, import_i18n150.__)('"%s" successfully created.'),
-            (0, import_html_entities17.decodeEntities)(newTemplate.title?.rendered || title) || (0, import_i18n150.__)("(no title)")
+            (0, import_i18n152.__)('"%s" successfully created.'),
+            (0, import_html_entities17.decodeEntities)(newTemplate.title?.rendered || title) || (0, import_i18n152.__)("(no title)")
           ),
           {
             type: "snackbar"
           }
         );
       } catch (error) {
-        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n150.__)("An error occurred while creating the template.");
+        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n152.__)("An error occurred while creating the template.");
         createErrorNotice(errorMessage, {
           type: "snackbar"
         });
@@ -45661,17 +45504,17 @@ If there's a particular need for this, please submit a feature request at https:
       onClose();
       setModalContent(modalContentMap2.templatesList);
     };
-    let modalTitle = (0, import_i18n150.__)("Add template");
+    let modalTitle = (0, import_i18n152.__)("Add template");
     if (modalContent === modalContentMap2.customTemplate) {
-      modalTitle = (0, import_i18n150.sprintf)(
+      modalTitle = (0, import_i18n152.sprintf)(
         // translators: %s: Name of the post type e.g: "Post".
-        (0, import_i18n150.__)("Add template: %s"),
+        (0, import_i18n152.__)("Add template: %s"),
         entityForSuggestions.labels.singular_name
       );
     } else if (modalContent === modalContentMap2.customGenericTemplate) {
-      modalTitle = (0, import_i18n150.__)("Create custom template");
+      modalTitle = (0, import_i18n152.__)("Create custom template");
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime287.jsxs)(
       import_components158.Modal,
       {
         title: modalTitle,
@@ -45683,7 +45526,7 @@ If there's a particular need for this, please submit a feature request at https:
         overlayClassName: modalContent === modalContentMap2.customGenericTemplate ? "edit-site-custom-generic-template__modal" : void 0,
         ref: containerRef,
         children: [
-          modalContent === modalContentMap2.templatesList && /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(
+          modalContent === modalContentMap2.templatesList && /* @__PURE__ */ (0, import_jsx_runtime287.jsxs)(
             import_components158.__experimentalGrid,
             {
               columns: isMobile ? 2 : 3,
@@ -45692,12 +45535,12 @@ If there's a particular need for this, please submit a feature request at https:
               justify: "center",
               className: "edit-site-add-new-template__template-list__contents",
               children: [
-                /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(import_components158.Flex, { className: "edit-site-add-new-template__template-list__prompt", children: (0, import_i18n150.__)(
+                /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(import_components158.Flex, { className: "edit-site-add-new-template__template-list__prompt", children: (0, import_i18n152.__)(
                   "Select what the new template should apply to:"
                 ) }),
                 missingTemplates.map((template) => {
                   const { title, slug, onClick } = template;
-                  return /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+                  return /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
                     TemplateListItem2,
                     {
                       title,
@@ -45710,21 +45553,21 @@ If there's a particular need for this, please submit a feature request at https:
                     slug
                   );
                 }),
-                /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+                /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
                   TemplateListItem2,
                   {
-                    title: (0, import_i18n150.__)("Custom template"),
+                    title: (0, import_i18n152.__)("Custom template"),
                     direction: "row",
                     className: "edit-site-add-new-template__custom-template-button",
                     icon: pencil_default,
                     onClick: () => setModalContent(
                       modalContentMap2.customGenericTemplate
                     ),
-                    children: /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+                    children: /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
                       import_components158.__experimentalText,
                       {
                         lineHeight: 1.53846153846,
-                        children: (0, import_i18n150.__)(
+                        children: (0, import_i18n152.__)(
                           "A custom template can be manually applied to any post or page."
                         )
                       }
@@ -45734,7 +45577,7 @@ If there's a particular need for this, please submit a feature request at https:
               ]
             }
           ),
-          modalContent === modalContentMap2.customTemplate && /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+          modalContent === modalContentMap2.customTemplate && /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
             add_custom_template_modal_content_default2,
             {
               onSelect: createTemplate,
@@ -45743,7 +45586,7 @@ If there's a particular need for this, please submit a feature request at https:
               containerRef
             }
           ),
-          modalContent === modalContentMap2.customGenericTemplate && /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+          modalContent === modalContentMap2.customGenericTemplate && /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
             add_custom_generic_template_modal_content_default2,
             {
               createTemplate,
@@ -45755,9 +45598,9 @@ If there's a particular need for this, please submit a feature request at https:
     );
   }
   function NewTemplate2() {
-    const [showModal, setShowModal] = (0, import_element149.useState)(false);
-    const { postType: postType2 } = (0, import_data75.useSelect)((select3) => {
-      const { getPostType: getPostType2 } = select3(import_core_data57.store);
+    const [showModal, setShowModal] = (0, import_element151.useState)(false);
+    const { postType: postType2 } = (0, import_data77.useSelect)((select3) => {
+      const { getPostType: getPostType2 } = select3(import_core_data58.store);
       return {
         postType: getPostType2(TEMPLATE_POST_TYPE)
       };
@@ -45765,8 +45608,8 @@ If there's a particular need for this, please submit a feature request at https:
     if (!postType2) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime286.jsxs)(import_jsx_runtime286.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime287.jsxs)(import_jsx_runtime287.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
         import_components158.Button,
         {
           variant: "primary",
@@ -45776,7 +45619,7 @@ If there's a particular need for this, please submit a feature request at https:
           children: postType2.labels.add_new_item
         }
       ),
-      showModal && /* @__PURE__ */ (0, import_jsx_runtime286.jsx)(NewTemplateModal2, { onClose: () => setShowModal(false) })
+      showModal && /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(NewTemplateModal2, { onClose: () => setShowModal(false) })
     ] });
   }
   function useMissingTemplates2(setEntityForSuggestions, onClick) {
@@ -45824,19 +45667,19 @@ If there's a particular need for this, please submit a feature request at https:
     ];
     return missingTemplates;
   }
-  var add_new_template_legacy_default = (0, import_element149.memo)(NewTemplate2);
+  var add_new_template_legacy_default = (0, import_element151.memo)(NewTemplate2);
 
   // packages/edit-site/build-module/components/page-templates/index-legacy.mjs
-  var import_jsx_runtime287 = __toESM(require_jsx_runtime(), 1);
-  var { usePostActions: usePostActions3, templateTitleField: templateTitleField2 } = unlock(import_editor35.privateApis);
-  var { useHistory: useHistory24, useLocation: useLocation30 } = unlock(import_router36.privateApis);
-  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions3 } = unlock(import_core_data58.privateApis);
+  var import_jsx_runtime288 = __toESM(require_jsx_runtime(), 1);
+  var { usePostActions: usePostActions3, templateTitleField: templateTitleField2 } = unlock(import_editor36.privateApis);
+  var { useHistory: useHistory24, useLocation: useLocation31 } = unlock(import_router37.privateApis);
+  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions3 } = unlock(import_core_data59.privateApis);
   function PageTemplates2() {
-    const { path, query } = useLocation30();
+    const { path, query } = useLocation31();
     const { activeView = "active", postId } = query;
-    const [selection, setSelection] = (0, import_element150.useState)([postId]);
+    const [selection, setSelection] = (0, import_element152.useState)([postId]);
     const defaultView = DEFAULT_VIEW2;
-    const activeViewOverrides = (0, import_element150.useMemo)(
+    const activeViewOverrides = (0, import_element152.useMemo)(
       () => getActiveViewOverridesForTab(activeView),
       [activeView]
     );
@@ -45864,7 +45707,7 @@ If there's a particular need for this, please submit a feature request at https:
       per_page: -1
     });
     const history = useHistory24();
-    const onChangeSelection = (0, import_element150.useCallback)(
+    const onChangeSelection = (0, import_element152.useCallback)(
       (items) => {
         setSelection(items);
         if (view?.type === "list") {
@@ -45877,7 +45720,7 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [history, path, view?.type]
     );
-    const authors = (0, import_element150.useMemo)(() => {
+    const authors = (0, import_element152.useMemo)(() => {
       if (!records) {
         return [];
       }
@@ -45890,7 +45733,7 @@ If there's a particular need for this, please submit a feature request at https:
         label: author
       }));
     }, [records]);
-    const fields = (0, import_element150.useMemo)(
+    const fields = (0, import_element152.useMemo)(
       () => [
         previewField2,
         templateTitleField2,
@@ -45902,7 +45745,7 @@ If there's a particular need for this, please submit a feature request at https:
       ],
       [authors]
     );
-    const { data, paginationInfo } = (0, import_element150.useMemo)(() => {
+    const { data, paginationInfo } = (0, import_element152.useMemo)(() => {
       return filterSortAndPaginate(records, view, fields);
     }, [records, view, fields]);
     const postTypeActions = usePostActions3({
@@ -45910,23 +45753,23 @@ If there's a particular need for this, please submit a feature request at https:
       context: "list"
     });
     const editAction = useEditPostAction();
-    const actions = (0, import_element150.useMemo)(
+    const actions = (0, import_element152.useMemo)(
       () => [editAction, ...postTypeActions],
       [postTypeActions, editAction]
     );
-    const onChangeView = (0, import_compose31.useEvent)((newView) => {
+    const onChangeView = (0, import_compose33.useEvent)((newView) => {
       updateView(newView);
       if (newView.type !== view.type) {
         history.invalidate();
       }
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(
       page_default,
       {
         className: "edit-site-page-templates",
-        title: (0, import_i18n151.__)("Templates"),
-        actions: /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(add_new_template_legacy_default, {}),
-        children: /* @__PURE__ */ (0, import_jsx_runtime287.jsx)(
+        title: (0, import_i18n153.__)("Templates"),
+        actions: /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(add_new_template_legacy_default, {}),
+        children: /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(
           dataviews_default,
           {
             paginationInfo,
@@ -45955,7 +45798,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/site-editor-routes/templates.mjs
-  var import_jsx_runtime288 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime289 = __toESM(require_jsx_runtime(), 1);
   async function isTemplateListView(query) {
     const { activeView = "active" } = query;
     const view = await loadView({
@@ -45973,14 +45816,14 @@ If there's a particular need for this, please submit a feature request at https:
     areas: {
       sidebar({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(SidebarNavigationScreenUnsupported, {});
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenUnsupported, {});
       },
       content({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
         if (!isBlockTheme) {
           return void 0;
         }
-        return window?.__experimentalTemplateActivate ? /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(PageTemplates, {}) : /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(PageTemplates2, {});
+        return window?.__experimentalTemplateActivate ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(PageTemplates, {}) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(PageTemplates2, {});
       },
       async preview({ query, siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
@@ -45988,15 +45831,15 @@ If there's a particular need for this, please submit a feature request at https:
           return void 0;
         }
         const isListView2 = await isTemplateListView(query);
-        return isListView2 ? /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(EditSiteEditor, {}) : void 0;
+        return isListView2 ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(EditSiteEditor, {}) : void 0;
       },
       mobile({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
         if (!isBlockTheme) {
-          return /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(SidebarNavigationScreenUnsupported, {});
+          return /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenUnsupported, {});
         }
         const isTemplateActivateEnabled = typeof window !== "undefined" && window.__experimentalTemplateActivate;
-        return isTemplateActivateEnabled ? /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(PageTemplates, {}) : /* @__PURE__ */ (0, import_jsx_runtime288.jsx)(PageTemplates2, {});
+        return isTemplateActivateEnabled ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(PageTemplates, {}) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(PageTemplates2, {});
       }
     },
     widths: {
@@ -46008,19 +45851,19 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/template-item.mjs
-  var import_jsx_runtime289 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime290 = __toESM(require_jsx_runtime(), 1);
   var areas = {
     sidebar({ siteData }) {
       const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenUnsupported, {});
+      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(SidebarNavigationScreenTemplatesBrowse, { backPath: "/" }) : /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(SidebarNavigationScreenUnsupported, {});
     },
     mobile({ siteData }) {
       const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenUnsupported, {});
+      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(SidebarNavigationScreenUnsupported, {});
     },
     preview({ siteData }) {
       const isBlockTheme = siteData.currentTheme?.is_block_theme;
-      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime289.jsx)(SidebarNavigationScreenUnsupported, {});
+      return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(SidebarNavigationScreenUnsupported, {});
     }
   };
   var templateItemRoute = {
@@ -46030,22 +45873,22 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/pages.mjs
-  var import_router40 = __toESM(require_router(), 1);
-  var import_i18n155 = __toESM(require_i18n(), 1);
+  var import_router41 = __toESM(require_router(), 1);
+  var import_i18n157 = __toESM(require_i18n(), 1);
 
   // packages/edit-site/build-module/components/sidebar-dataviews/index.mjs
   var import_components160 = __toESM(require_components(), 1);
-  var import_router38 = __toESM(require_router(), 1);
-  var import_data76 = __toESM(require_data(), 1);
-  var import_core_data59 = __toESM(require_core_data(), 1);
-  var import_element151 = __toESM(require_element(), 1);
+  var import_router39 = __toESM(require_router(), 1);
+  var import_data78 = __toESM(require_data(), 1);
+  var import_core_data60 = __toESM(require_core_data(), 1);
+  var import_element153 = __toESM(require_element(), 1);
 
   // packages/edit-site/build-module/components/sidebar-dataviews/dataview-item.mjs
-  var import_router37 = __toESM(require_router(), 1);
+  var import_router38 = __toESM(require_router(), 1);
   var import_components159 = __toESM(require_components(), 1);
   var import_url26 = __toESM(require_url(), 1);
-  var import_jsx_runtime290 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation31 } = unlock(import_router37.privateApis);
+  var import_jsx_runtime291 = __toESM(require_jsx_runtime(), 1);
+  var { useLocation: useLocation32 } = unlock(import_router38.privateApis);
   function DataViewItem({
     title,
     slug,
@@ -46054,12 +45897,12 @@ If there's a particular need for this, please submit a feature request at https:
     isActive,
     suffix
   }) {
-    const { path } = useLocation31();
+    const { path } = useLocation32();
     const iconToUse = icon || VIEW_LAYOUTS.find((v2) => v2.type === type).icon;
     if (slug === "all") {
       slug = void 0;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime290.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime291.jsxs)(
       import_components159.__experimentalHStack,
       {
         justify: "flex-start",
@@ -46067,7 +45910,7 @@ If there's a particular need for this, please submit a feature request at https:
           "is-selected": isActive
         }),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime290.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime291.jsx)(
             SidebarNavigationItem,
             {
               icon: iconToUse,
@@ -46085,7 +45928,7 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/view-utils.mjs
-  var import_i18n152 = __toESM(require_i18n(), 1);
+  var import_i18n154 = __toESM(require_i18n(), 1);
   var defaultLayouts3 = {
     table: {},
     grid: {},
@@ -46108,13 +45951,13 @@ If there's a particular need for this, please submit a feature request at https:
   function getDefaultViews(postType2) {
     return [
       {
-        title: postType2?.labels?.all_items || (0, import_i18n152.__)("All items"),
+        title: postType2?.labels?.all_items || (0, import_i18n154.__)("All items"),
         slug: "all",
         icon: pages_default,
         view: DEFAULT_VIEW3
       },
       {
-        title: (0, import_i18n152.__)("Published"),
+        title: (0, import_i18n154.__)("Published"),
         slug: "published",
         icon: published_default,
         view: {
@@ -46130,7 +45973,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       },
       {
-        title: (0, import_i18n152.__)("Scheduled"),
+        title: (0, import_i18n154.__)("Scheduled"),
         slug: "future",
         icon: scheduled_default,
         view: {
@@ -46146,7 +45989,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       },
       {
-        title: (0, import_i18n152.__)("Drafts"),
+        title: (0, import_i18n154.__)("Drafts"),
         slug: "drafts",
         icon: drafts_default,
         view: {
@@ -46162,7 +46005,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       },
       {
-        title: (0, import_i18n152.__)("Pending"),
+        title: (0, import_i18n154.__)("Pending"),
         slug: "pending",
         icon: pending_default,
         view: {
@@ -46178,7 +46021,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       },
       {
-        title: (0, import_i18n152.__)("Private"),
+        title: (0, import_i18n154.__)("Private"),
         slug: "private",
         icon: not_allowed_default,
         view: {
@@ -46194,7 +46037,7 @@ If there's a particular need for this, please submit a feature request at https:
         }
       },
       {
-        title: (0, import_i18n152.__)("Trash"),
+        title: (0, import_i18n154.__)("Trash"),
         slug: "trash",
         icon: trash_default,
         view: {
@@ -46239,28 +46082,28 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/sidebar-dataviews/index.mjs
-  var import_jsx_runtime291 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation32 } = unlock(import_router38.privateApis);
+  var import_jsx_runtime292 = __toESM(require_jsx_runtime(), 1);
+  var { useLocation: useLocation33 } = unlock(import_router39.privateApis);
   function DataViewsSidebarContent({ postType: postType2 }) {
     const {
       query: { activeView = "all" }
-    } = useLocation32();
-    const postTypeObject = (0, import_data76.useSelect)(
+    } = useLocation33();
+    const postTypeObject = (0, import_data78.useSelect)(
       (select3) => {
-        const { getPostType: getPostType2 } = select3(import_core_data59.store);
+        const { getPostType: getPostType2 } = select3(import_core_data60.store);
         return getPostType2(postType2);
       },
       [postType2]
     );
-    const defaultViews = (0, import_element151.useMemo)(
+    const defaultViews = (0, import_element153.useMemo)(
       () => getDefaultViews(postTypeObject),
       [postTypeObject]
     );
     if (!postType2) {
       return null;
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime291.jsx)(import_jsx_runtime291.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime291.jsx)(import_components160.__experimentalItemGroup, { className: "edit-site-sidebar-dataviews", children: defaultViews.map((dataview) => {
-      return /* @__PURE__ */ (0, import_jsx_runtime291.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(import_jsx_runtime292.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(import_components160.__experimentalItemGroup, { className: "edit-site-sidebar-dataviews", children: defaultViews.map((dataview) => {
+      return /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(
         DataViewItem,
         {
           slug: dataview.slug,
@@ -46276,34 +46119,34 @@ If there's a particular need for this, please submit a feature request at https:
 
   // packages/edit-site/build-module/components/post-list/index.mjs
   var import_components163 = __toESM(require_components(), 1);
-  var import_core_data63 = __toESM(require_core_data(), 1);
-  var import_element155 = __toESM(require_element(), 1);
-  var import_router39 = __toESM(require_router(), 1);
-  var import_data79 = __toESM(require_data(), 1);
-  var import_editor39 = __toESM(require_editor(), 1);
-  var import_compose32 = __toESM(require_compose(), 1);
+  var import_core_data64 = __toESM(require_core_data(), 1);
+  var import_element157 = __toESM(require_element(), 1);
+  var import_router40 = __toESM(require_router(), 1);
+  var import_data81 = __toESM(require_data(), 1);
+  var import_editor40 = __toESM(require_editor(), 1);
+  var import_compose34 = __toESM(require_compose(), 1);
   var import_url27 = __toESM(require_url(), 1);
 
   // packages/edit-site/build-module/components/add-new-post/index.mjs
   var import_components161 = __toESM(require_components(), 1);
-  var import_i18n153 = __toESM(require_i18n(), 1);
-  var import_data77 = __toESM(require_data(), 1);
-  var import_element152 = __toESM(require_element(), 1);
-  var import_core_data60 = __toESM(require_core_data(), 1);
+  var import_i18n155 = __toESM(require_i18n(), 1);
+  var import_data79 = __toESM(require_data(), 1);
+  var import_element154 = __toESM(require_element(), 1);
+  var import_core_data61 = __toESM(require_core_data(), 1);
   var import_notices10 = __toESM(require_notices(), 1);
   var import_html_entities18 = __toESM(require_html_entities(), 1);
   var import_blocks14 = __toESM(require_blocks(), 1);
-  var import_jsx_runtime292 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime293 = __toESM(require_jsx_runtime(), 1);
   function AddNewPostModal({ postType: postType2, onSave, onClose }) {
-    const labels = (0, import_data77.useSelect)(
-      (select3) => select3(import_core_data60.store).getPostType(postType2)?.labels,
+    const labels = (0, import_data79.useSelect)(
+      (select3) => select3(import_core_data61.store).getPostType(postType2)?.labels,
       [postType2]
     );
-    const [isCreatingPost, setIsCreatingPost] = (0, import_element152.useState)(false);
-    const [title, setTitle] = (0, import_element152.useState)("");
-    const { saveEntityRecord } = (0, import_data77.useDispatch)(import_core_data60.store);
-    const { createErrorNotice, createSuccessNotice } = (0, import_data77.useDispatch)(import_notices10.store);
-    const { resolveSelect: resolveSelect2 } = (0, import_data77.useRegistry)();
+    const [isCreatingPost, setIsCreatingPost] = (0, import_element154.useState)(false);
+    const [title, setTitle] = (0, import_element154.useState)("");
+    const { saveEntityRecord } = (0, import_data79.useDispatch)(import_core_data61.store);
+    const { createErrorNotice, createSuccessNotice } = (0, import_data79.useDispatch)(import_notices10.store);
+    const { resolveSelect: resolveSelect2 } = (0, import_data79.useRegistry)();
     async function createPost(event) {
       event.preventDefault();
       if (isCreatingPost) {
@@ -46311,7 +46154,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       setIsCreatingPost(true);
       try {
-        const postTypeObject = await resolveSelect2(import_core_data60.store).getPostType(postType2);
+        const postTypeObject = await resolveSelect2(import_core_data61.store).getPostType(postType2);
         const newPage = await saveEntityRecord(
           "postType",
           postType2,
@@ -46330,15 +46173,15 @@ If there's a particular need for this, please submit a feature request at https:
         );
         onSave(newPage);
         createSuccessNotice(
-          (0, import_i18n153.sprintf)(
+          (0, import_i18n155.sprintf)(
             // translators: %s: Title of the created post or template, e.g: "Hello world".
-            (0, import_i18n153.__)('"%s" successfully created.'),
-            (0, import_html_entities18.decodeEntities)(newPage.title?.rendered || title) || (0, import_i18n153.__)("(no title)")
+            (0, import_i18n155.__)('"%s" successfully created.'),
+            (0, import_html_entities18.decodeEntities)(newPage.title?.rendered || title) || (0, import_i18n155.__)("(no title)")
           ),
           { type: "snackbar" }
         );
       } catch (error) {
-        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n153.__)("An error occurred while creating the item.");
+        const errorMessage = error.message && error.code !== "unknown_error" ? error.message : (0, import_i18n155.__)("An error occurred while creating the item.");
         createErrorNotice(errorMessage, {
           type: "snackbar"
         });
@@ -46346,38 +46189,38 @@ If there's a particular need for this, please submit a feature request at https:
         setIsCreatingPost(false);
       }
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
       import_components161.Modal,
       {
         title: (
           // translators: %s: post type singular_name label e.g: "Page".
-          (0, import_i18n153.sprintf)((0, import_i18n153.__)("Draft new: %s"), labels?.singular_name)
+          (0, import_i18n155.sprintf)((0, import_i18n155.__)("Draft new: %s"), labels?.singular_name)
         ),
         onRequestClose: onClose,
         focusOnMount: "firstContentElement",
         size: "small",
-        children: /* @__PURE__ */ (0, import_jsx_runtime292.jsx)("form", { onSubmit: createPost, children: /* @__PURE__ */ (0, import_jsx_runtime292.jsxs)(import_components161.__experimentalVStack, { spacing: 4, children: [
-          /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(
+        children: /* @__PURE__ */ (0, import_jsx_runtime293.jsx)("form", { onSubmit: createPost, children: /* @__PURE__ */ (0, import_jsx_runtime293.jsxs)(import_components161.__experimentalVStack, { spacing: 4, children: [
+          /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
             import_components161.TextControl,
             {
               __next40pxDefaultSize: true,
-              label: (0, import_i18n153.__)("Title"),
+              label: (0, import_i18n155.__)("Title"),
               onChange: setTitle,
-              placeholder: (0, import_i18n153.__)("No title"),
+              placeholder: (0, import_i18n155.__)("No title"),
               value: title
             }
           ),
-          /* @__PURE__ */ (0, import_jsx_runtime292.jsxs)(import_components161.__experimentalHStack, { spacing: 2, justify: "end", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime293.jsxs)(import_components161.__experimentalHStack, { spacing: 2, justify: "end", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
               import_components161.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "tertiary",
                 onClick: onClose,
-                children: (0, import_i18n153.__)("Cancel")
+                children: (0, import_i18n155.__)("Cancel")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime292.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
               import_components161.Button,
               {
                 __next40pxDefaultSize: true,
@@ -46385,7 +46228,7 @@ If there's a particular need for this, please submit a feature request at https:
                 type: "submit",
                 isBusy: isCreatingPost,
                 "aria-disabled": isCreatingPost,
-                children: (0, import_i18n153.__)("Create draft")
+                children: (0, import_i18n155.__)("Create draft")
               }
             )
           ] })
@@ -46395,10 +46238,10 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/use-notes-count.mjs
-  var import_element153 = __toESM(require_element(), 1);
-  var import_core_data61 = __toESM(require_core_data(), 1);
+  var import_element155 = __toESM(require_element(), 1);
+  var import_core_data62 = __toESM(require_core_data(), 1);
   function useNotesCount(postIds) {
-    const { records: notes, isResolving } = (0, import_core_data61.useEntityRecords)(
+    const { records: notes, isResolving } = (0, import_core_data62.useEntityRecords)(
       "root",
       "comment",
       {
@@ -46412,7 +46255,7 @@ If there's a particular need for this, please submit a feature request at https:
         enabled: postIds?.length > 0
       }
     );
-    const notesCount = (0, import_element153.useMemo)(() => {
+    const notesCount = (0, import_element155.useMemo)(() => {
       if (!notes || notes.length === 0) {
         return {};
       }
@@ -46427,47 +46270,24 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/quick-edit-modal.mjs
-  var import_i18n154 = __toESM(require_i18n(), 1);
-  var import_data78 = __toESM(require_data(), 1);
-  var import_core_data62 = __toESM(require_core_data(), 1);
+  var import_i18n156 = __toESM(require_i18n(), 1);
+  var import_data80 = __toESM(require_data(), 1);
+  var import_core_data63 = __toESM(require_core_data(), 1);
   var import_components162 = __toESM(require_components(), 1);
-  var import_element154 = __toESM(require_element(), 1);
-  var import_editor38 = __toESM(require_editor(), 1);
-  var import_block_editor26 = __toESM(require_block_editor(), 1);
-  var import_jsx_runtime293 = __toESM(require_jsx_runtime(), 1);
-  var { usePostFields: usePostFields2, PostCardPanel } = unlock(import_editor38.privateApis);
+  var import_element156 = __toESM(require_element(), 1);
+  var import_editor39 = __toESM(require_editor(), 1);
+  var import_jsx_runtime294 = __toESM(require_jsx_runtime(), 1);
+  var { usePostFields: usePostFields2, PostCardPanel } = unlock(import_editor39.privateApis);
   var fieldsWithBulkEditSupport = ["status", "date", "author", "discussion"];
   function QuickEditModal({ postType: postType2, postId, closeModal }) {
-    (0, import_element154.useEffect)(() => {
-      const handleKeyDown = (event) => {
-        if (event.key === "Escape" || event.code === "Escape") {
-          event.preventDefault();
-          event.stopPropagation();
-          closeModal?.();
-        }
-      };
-      const handleClickOutside = (event) => {
-        if (event.target.classList.contains(
-          "dataviews-action-modal__quick-edit"
-        )) {
-          closeModal?.();
-        }
-      };
-      document.addEventListener("keydown", handleKeyDown);
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("keydown", handleKeyDown);
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, [closeModal]);
     const isBulk = postId.length > 1;
-    const [localEdits, setLocalEdits] = (0, import_element154.useState)({});
-    const { record, hasFinishedResolution } = (0, import_data78.useSelect)(
+    const [localEdits, setLocalEdits] = (0, import_element156.useState)({});
+    const { record, hasFinishedResolution, canSwitchTemplate } = (0, import_data80.useSelect)(
       (select3) => {
         const {
           getEditedEntityRecord,
           hasFinishedResolution: hasFinished
-        } = select3(import_core_data62.store);
+        } = select3(import_core_data63.store);
         if (isBulk) {
           return {
             record: null,
@@ -46475,19 +46295,26 @@ If there's a particular need for this, please submit a feature request at https:
           };
         }
         const args = ["postType", postType2, postId[0]];
+        const { getHomePage, getPostsPageId } = unlock(
+          select3(import_core_data63.store)
+        );
+        const singlePostId = String(postId[0]);
+        const isPostsPage = singlePostId !== void 0 && getPostsPageId() === singlePostId;
+        const isFrontPage = singlePostId !== void 0 && postType2 === "page" && getHomePage()?.postId === singlePostId;
         return {
           record: getEditedEntityRecord(...args),
           hasFinishedResolution: hasFinished(
             "getEditedEntityRecord",
             args
-          )
+          ),
+          canSwitchTemplate: !isPostsPage && !isFrontPage
         };
       },
       [postType2, postId, isBulk]
     );
-    const { editEntityRecord, saveEditedEntityRecord } = (0, import_data78.useDispatch)(import_core_data62.store);
+    const { editEntityRecord, saveEditedEntityRecord } = (0, import_data80.useDispatch)(import_core_data63.store);
     const _fields = usePostFields2({ postType: postType2 });
-    const fields = (0, import_element154.useMemo)(
+    const fields = (0, import_element156.useMemo)(
       () => _fields?.map((field) => {
         if (field.id === "status") {
           return {
@@ -46497,11 +46324,17 @@ If there's a particular need for this, please submit a feature request at https:
             )
           };
         }
+        if (field.id === "template") {
+          return {
+            ...field,
+            readOnly: !canSwitchTemplate
+          };
+        }
         return field;
       }),
-      [_fields]
+      [_fields, canSwitchTemplate]
     );
-    const form = (0, import_element154.useMemo)(() => {
+    const form = (0, import_element156.useMemo)(() => {
       const allFields = [
         {
           id: "featured_media",
@@ -46512,8 +46345,14 @@ If there's a particular need for this, please submit a feature request at https:
         },
         {
           id: "status",
-          label: (0, import_i18n154.__)("Status & Visibility"),
-          children: ["status", "password"]
+          label: (0, import_i18n156.__)("Status"),
+          children: [
+            {
+              id: "status",
+              layout: { type: "regular", labelPosition: "none" }
+            },
+            "password"
+          ]
         },
         "author",
         "date",
@@ -46521,17 +46360,16 @@ If there's a particular need for this, please submit a feature request at https:
         "parent",
         {
           id: "discussion",
-          label: (0, import_i18n154.__)("Discussion"),
-          children: ["comment_status", "ping_status"]
+          label: (0, import_i18n156.__)("Discussion"),
+          children: [
+            {
+              id: "comment_status",
+              layout: { type: "regular", labelPosition: "none" }
+            },
+            "ping_status"
+          ]
         },
-        {
-          label: (0, import_i18n154.__)("Template"),
-          id: "template",
-          layout: {
-            type: "regular",
-            labelPosition: "side"
-          }
-        }
+        "template"
       ];
       return {
         layout: {
@@ -46554,7 +46392,7 @@ If there's a particular need for this, please submit a feature request at https:
       }
       setLocalEdits((prev) => ({ ...prev, ...edits }));
     };
-    (0, import_element154.useEffect)(() => {
+    (0, import_element156.useEffect)(() => {
       setLocalEdits({});
     }, [postId]);
     const onSave = async () => {
@@ -46572,30 +46410,15 @@ If there's a particular need for this, please submit a feature request at https:
       }
       closeModal?.();
     };
-    const { ExperimentalBlockEditorProvider: ExperimentalBlockEditorProvider2 } = unlock(
-      import_block_editor26.privateApis
-    );
-    const settings2 = usePatternSettings();
-    const fieldsWithDependency = (0, import_element154.useMemo)(() => {
-      return fields.map((field) => {
-        if (field.id === "template") {
-          return {
-            ...field,
-            Edit: (data) => /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(ExperimentalBlockEditorProvider2, { settings: settings2, children: /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(field.Edit, { ...data }) })
-          };
-        }
-        return field;
-      });
-    }, [fields, settings2]);
-    return /* @__PURE__ */ (0, import_jsx_runtime293.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime294.jsxs)(
       import_components162.Modal,
       {
         overlayClassName: "dataviews-action-modal__quick-edit",
         __experimentalHideHeader: true,
-        shouldCloseOnEsc: false,
-        shouldCloseOnClickOutside: false,
+        onRequestClose: closeModal,
+        focusOnMount: "firstElement",
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime293.jsx)("div", { className: "dataviews-action-modal__quick-edit-header", children: /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime294.jsx)("div", { className: "dataviews-action-modal__quick-edit-header", children: /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
             PostCardPanel,
             {
               postType: postType2,
@@ -46604,32 +46427,32 @@ If there's a particular need for this, please submit a feature request at https:
               hideActions: true
             }
           ) }),
-          /* @__PURE__ */ (0, import_jsx_runtime293.jsx)("div", { className: "dataviews-action-modal__quick-edit-content", children: hasFinishedResolution && /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime294.jsx)("div", { className: "dataviews-action-modal__quick-edit-content", children: hasFinishedResolution && /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
             DataForm,
             {
               data: { ...record, ...localEdits },
-              fields: fieldsWithDependency,
+              fields,
               form,
               onChange
             }
           ) }),
-          /* @__PURE__ */ (0, import_jsx_runtime293.jsxs)(import_components162.__experimentalHStack, { className: "dataviews-action-modal__quick-edit-footer", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime294.jsxs)(import_components162.__experimentalHStack, { className: "dataviews-action-modal__quick-edit-footer", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
               import_components162.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "secondary",
                 onClick: closeModal,
-                children: (0, import_i18n154.__)("Cancel")
+                children: (0, import_i18n156.__)("Cancel")
               }
             ),
-            /* @__PURE__ */ (0, import_jsx_runtime293.jsx)(
+            /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
               import_components162.Button,
               {
                 __next40pxDefaultSize: true,
                 variant: "primary",
                 onClick: onSave,
-                children: (0, import_i18n154.__)("Done")
+                children: (0, import_i18n156.__)("Done")
               }
             )
           ] })
@@ -46639,10 +46462,10 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/post-list/index.mjs
-  var import_jsx_runtime294 = __toESM(require_jsx_runtime(), 1);
-  var { usePostActions: usePostActions4, usePostFields: usePostFields3 } = unlock(import_editor39.privateApis);
-  var { useLocation: useLocation33, useHistory: useHistory25 } = unlock(import_router39.privateApis);
-  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions4 } = unlock(import_core_data63.privateApis);
+  var import_jsx_runtime295 = __toESM(require_jsx_runtime(), 1);
+  var { usePostActions: usePostActions4, usePostFields: usePostFields3 } = unlock(import_editor40.privateApis);
+  var { useLocation: useLocation34, useHistory: useHistory25 } = unlock(import_router40.privateApis);
+  var { useEntityRecordsWithPermissions: useEntityRecordsWithPermissions4 } = unlock(import_core_data64.privateApis);
   var EMPTY_ARRAY16 = [];
   var DEFAULT_STATUSES = "draft,future,pending,private,publish";
   function getItemId(item) {
@@ -46652,11 +46475,11 @@ If there's a particular need for this, please submit a feature request at https:
     return item.level;
   }
   function PostList({ postType: postType2 }) {
-    const { path, query } = useLocation33();
+    const { path, query } = useLocation34();
     const { activeView = "all", postId, quickEdit = false } = query;
     const history = useHistory25();
     const defaultView = DEFAULT_VIEW3;
-    const activeViewOverrides = (0, import_element155.useMemo)(
+    const activeViewOverrides = (0, import_element157.useMemo)(
       () => getActiveViewOverridesForTab2(activeView),
       [activeView]
     );
@@ -46680,14 +46503,14 @@ If there's a particular need for this, please submit a feature request at https:
         );
       }
     });
-    const onChangeView = (0, import_compose32.useEvent)((newView) => {
+    const onChangeView = (0, import_compose34.useEvent)((newView) => {
       updateView(newView);
       if (newView.type !== view.type) {
         history.invalidate();
       }
     });
-    const [selection, setSelection] = (0, import_element155.useState)(postId?.split(",") ?? []);
-    const onChangeSelection = (0, import_element155.useCallback)(
+    const [selection, setSelection] = (0, import_element157.useState)(postId?.split(",") ?? []);
+    const onChangeSelection = (0, import_element157.useCallback)(
       (items) => {
         setSelection(items);
         history.navigate(
@@ -46698,14 +46521,14 @@ If there's a particular need for this, please submit a feature request at https:
       },
       [path, history]
     );
-    (0, import_element155.useEffect)(() => {
+    (0, import_element157.useEffect)(() => {
       const newSelection = postId?.split(",") ?? [];
       setSelection(newSelection);
     }, [postId]);
     const fields = usePostFields3({
       postType: postType2
     });
-    const queryArgs = (0, import_element155.useMemo)(() => {
+    const queryArgs = (0, import_element157.useMemo)(() => {
       const filters = {};
       view.filters?.forEach((filter) => {
         if (filter.field === "status" && filter.operator === OPERATOR_IS_ANY) {
@@ -46747,12 +46570,12 @@ If there's a particular need for this, please submit a feature request at https:
       totalItems,
       totalPages
     } = useEntityRecordsWithPermissions4("postType", postType2, queryArgs);
-    const postIds = (0, import_element155.useMemo)(
+    const postIds = (0, import_element157.useMemo)(
       () => records?.map((record) => record.id) ?? [],
       [records]
     );
     const { notesCount, isLoading: isLoadingNotesCount } = useNotesCount(postIds);
-    const data = (0, import_element155.useMemo)(() => {
+    const data = (0, import_element157.useMemo)(() => {
       let processedRecords = records;
       if (view?.sort?.field === "author") {
         processedRecords = filterSortAndPaginate(
@@ -46770,10 +46593,10 @@ If there's a particular need for this, please submit a feature request at https:
       return processedRecords;
     }, [records, fields, view?.sort, notesCount]);
     const ids = data?.map((record) => getItemId(record)) ?? [];
-    const prevIds = (0, import_compose32.usePrevious)(ids) ?? [];
+    const prevIds = (0, import_compose34.usePrevious)(ids) ?? [];
     const deletedIds = prevIds.filter((id) => !ids.includes(id));
     const postIdWasDeleted = deletedIds.includes(postId);
-    (0, import_element155.useEffect)(() => {
+    (0, import_element157.useEffect)(() => {
       if (postIdWasDeleted) {
         history.navigate(
           (0, import_url27.addQueryArgs)(path, {
@@ -46782,16 +46605,16 @@ If there's a particular need for this, please submit a feature request at https:
         );
       }
     }, [history, postIdWasDeleted, path]);
-    const paginationInfo = (0, import_element155.useMemo)(
+    const paginationInfo = (0, import_element157.useMemo)(
       () => ({
         totalItems,
         totalPages
       }),
       [totalItems, totalPages]
     );
-    const { labels, canCreateRecord } = (0, import_data79.useSelect)(
+    const { labels, canCreateRecord } = (0, import_data81.useSelect)(
       (select3) => {
-        const { getPostType: getPostType2, canUser } = select3(import_core_data63.store);
+        const { getPostType: getPostType2, canUser } = select3(import_core_data64.store);
         return {
           labels: getPostType2(postType2)?.labels,
           canCreateRecord: canUser("create", {
@@ -46808,18 +46631,14 @@ If there's a particular need for this, please submit a feature request at https:
     });
     const editAction = useEditPostAction();
     const quickEditAction = useQuickEditPostAction();
-    const actions = (0, import_element155.useMemo)(() => {
-      if (!window.__experimentalQuickEditDataViews) {
-        const editActionPrimary = { ...editAction, isPrimary: true };
-        return [editActionPrimary, ...postTypeActions];
-      }
+    const actions = (0, import_element157.useMemo)(() => {
       if (view.type === LAYOUT_LIST) {
         const editActionPrimary = { ...editAction, isPrimary: true };
         return [editActionPrimary, ...postTypeActions];
       }
       return [editAction, quickEditAction, ...postTypeActions];
     }, [view.type, editAction, quickEditAction, postTypeActions]);
-    const [showAddPostModal, setShowAddPostModal] = (0, import_element155.useState)(false);
+    const [showAddPostModal, setShowAddPostModal] = (0, import_element157.useState)(false);
     const openModal = () => setShowAddPostModal(true);
     const closeModal = () => setShowAddPostModal(false);
     const handleNewPage = ({ type, id }) => {
@@ -46834,12 +46653,12 @@ If there's a particular need for this, please submit a feature request at https:
         })
       );
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime294.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime295.jsxs)(
       page_default,
       {
         title: labels?.name,
-        actions: /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(import_jsx_runtime294.Fragment, { children: labels?.add_new_item && canCreateRecord && /* @__PURE__ */ (0, import_jsx_runtime294.jsxs)(import_jsx_runtime294.Fragment, { children: [
-          /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
+        actions: /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(import_jsx_runtime295.Fragment, { children: labels?.add_new_item && canCreateRecord && /* @__PURE__ */ (0, import_jsx_runtime295.jsxs)(import_jsx_runtime295.Fragment, { children: [
+          /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
             import_components163.Button,
             {
               variant: "primary",
@@ -46848,7 +46667,7 @@ If there's a particular need for this, please submit a feature request at https:
               children: labels.add_new_item
             }
           ),
-          showAddPostModal && /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
+          showAddPostModal && /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
             AddNewPostModal,
             {
               postType: postType2,
@@ -46858,7 +46677,7 @@ If there's a particular need for this, please submit a feature request at https:
           )
         ] }) }),
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
+          /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
             dataviews_default,
             {
               paginationInfo,
@@ -46884,7 +46703,7 @@ If there's a particular need for this, please submit a feature request at https:
             },
             activeView
           ),
-          quickEdit && !isLoadingData && selection.length > 0 && view.type !== LAYOUT_LIST && /* @__PURE__ */ (0, import_jsx_runtime294.jsx)(
+          quickEdit && !isLoadingData && selection.length > 0 && view.type !== LAYOUT_LIST && /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
             QuickEditModal,
             {
               postType: postType2,
@@ -46898,8 +46717,8 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/site-editor-routes/pages.mjs
-  var import_jsx_runtime295 = __toESM(require_jsx_runtime(), 1);
-  var { useLocation: useLocation34 } = unlock(import_router40.privateApis);
+  var import_jsx_runtime296 = __toESM(require_jsx_runtime(), 1);
+  var { useLocation: useLocation35 } = unlock(import_router41.privateApis);
   async function isListView(query) {
     const { activeView = "all" } = query;
     const view = await loadView({
@@ -46912,9 +46731,9 @@ If there's a particular need for this, please submit a feature request at https:
     return view.type === "list";
   }
   function MobilePagesView() {
-    const { query = {} } = useLocation34();
+    const { query = {} } = useLocation35();
     const { canvas = "view" } = query;
-    return canvas === "edit" ? /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(PostList, { postType: "page" });
+    return canvas === "edit" ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(PostList, { postType: "page" });
   }
   var pagesRoute = {
     name: "pages",
@@ -46922,18 +46741,18 @@ If there's a particular need for this, please submit a feature request at https:
     areas: {
       sidebar({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(
           SidebarNavigationScreen,
           {
-            title: (0, import_i18n155.__)("Pages"),
+            title: (0, import_i18n157.__)("Pages"),
             backPath: "/",
-            content: /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(DataViewsSidebarContent, { postType: "page" })
+            content: /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(DataViewsSidebarContent, { postType: "page" })
           }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(SidebarNavigationScreenUnsupported, {});
+        ) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(SidebarNavigationScreenUnsupported, {});
       },
       content({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(PostList, { postType: "page" }) : void 0;
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(PostList, { postType: "page" }) : void 0;
       },
       async preview({ query, siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
@@ -46941,11 +46760,11 @@ If there's a particular need for this, please submit a feature request at https:
           return void 0;
         }
         const isList = await isListView(query);
-        return isList ? /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(EditSiteEditor, {}) : void 0;
+        return isList ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(EditSiteEditor, {}) : void 0;
       },
       mobile({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(MobilePagesView, {}) : /* @__PURE__ */ (0, import_jsx_runtime295.jsx)(SidebarNavigationScreenUnsupported, {});
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(MobilePagesView, {}) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(SidebarNavigationScreenUnsupported, {});
       }
     },
     widths: {
@@ -46957,90 +46776,90 @@ If there's a particular need for this, please submit a feature request at https:
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/page-item.mjs
-  var import_i18n156 = __toESM(require_i18n(), 1);
-  var import_jsx_runtime296 = __toESM(require_jsx_runtime(), 1);
+  var import_i18n158 = __toESM(require_i18n(), 1);
+  var import_jsx_runtime297 = __toESM(require_jsx_runtime(), 1);
   var pageItemRoute = {
     name: "page-item",
     path: "/page/:postId",
     areas: {
       sidebar({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(
           SidebarNavigationScreen,
           {
-            title: (0, import_i18n156.__)("Pages"),
+            title: (0, import_i18n158.__)("Pages"),
             backPath: "/",
-            content: /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(DataViewsSidebarContent, { postType: "page" })
+            content: /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(DataViewsSidebarContent, { postType: "page" })
           }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(SidebarNavigationScreenUnsupported, {});
+        ) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
       },
       mobile({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(SidebarNavigationScreenUnsupported, {});
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
       },
       preview({ siteData }) {
         const isBlockTheme = siteData.currentTheme?.is_block_theme;
-        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime296.jsx)(SidebarNavigationScreenUnsupported, {});
+        return isBlockTheme ? /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}) : /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(SidebarNavigationScreenUnsupported, {});
       }
     }
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/attachment-item.mjs
-  var import_i18n157 = __toESM(require_i18n(), 1);
-  var import_jsx_runtime297 = __toESM(require_jsx_runtime(), 1);
+  var import_i18n159 = __toESM(require_i18n(), 1);
+  var import_jsx_runtime298 = __toESM(require_jsx_runtime(), 1);
   var attachmentItemRoute = {
     name: "attachment-item",
     path: "/attachment/:postId",
     areas: {
-      sidebar: /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(
+      sidebar: /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(
         SidebarNavigationScreen,
         {
-          title: (0, import_i18n157.__)("Media"),
+          title: (0, import_i18n159.__)("Media"),
           backPath: "/",
           content: null
         }
       ),
-      mobile: /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {}),
-      preview: /* @__PURE__ */ (0, import_jsx_runtime297.jsx)(EditSiteEditor, {})
+      mobile: /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(EditSiteEditor, {}),
+      preview: /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(EditSiteEditor, {})
     }
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/stylebook.mjs
-  var import_i18n158 = __toESM(require_i18n(), 1);
-  var import_editor43 = __toESM(require_editor(), 1);
-  var import_jsx_runtime298 = __toESM(require_jsx_runtime(), 1);
-  var { StyleBookPreview: StyleBookPreview2 } = unlock(import_editor43.privateApis);
+  var import_i18n160 = __toESM(require_i18n(), 1);
+  var import_editor44 = __toESM(require_editor(), 1);
+  var import_jsx_runtime299 = __toESM(require_jsx_runtime(), 1);
+  var { StyleBookPreview: StyleBookPreview2 } = unlock(import_editor44.privateApis);
   var stylebookRoute = {
     name: "stylebook",
     path: "/stylebook",
     areas: {
       sidebar({ siteData }) {
-        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(
+        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(
           SidebarNavigationScreen,
           {
-            title: (0, import_i18n158.__)("Styles"),
+            title: (0, import_i18n160.__)("Styles"),
             backPath: "/",
-            description: (0, import_i18n158.__)(
+            description: (0, import_i18n160.__)(
               `Preview your website's visual identity: colors, typography, and blocks.`
             )
           }
-        ) : /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(SidebarNavigationScreenUnsupported, {});
+        ) : /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(SidebarNavigationScreenUnsupported, {});
       },
       preview({ siteData }) {
-        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(StyleBookPreview2, { isStatic: true }) : void 0;
+        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(StyleBookPreview2, { isStatic: true }) : void 0;
       },
       mobile({ siteData }) {
-        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime298.jsx)(StyleBookPreview2, { isStatic: true }) : void 0;
+        return isClassicThemeWithStyleBookSupport(siteData) ? /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(StyleBookPreview2, { isStatic: true }) : void 0;
       }
     }
   };
 
   // packages/edit-site/build-module/components/site-editor-routes/notfound.mjs
-  var import_i18n159 = __toESM(require_i18n(), 1);
+  var import_i18n161 = __toESM(require_i18n(), 1);
   var import_components164 = __toESM(require_components(), 1);
-  var import_jsx_runtime299 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime300 = __toESM(require_jsx_runtime(), 1);
   function NotFoundError() {
-    return /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(import_components164.Notice, { status: "error", isDismissible: false, children: (0, import_i18n159.__)(
+    return /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(import_components164.Notice, { status: "error", isDismissible: false, children: (0, import_i18n161.__)(
       "The requested page could not be found. Please check the URL."
     ) });
   }
@@ -47048,14 +46867,14 @@ If there's a particular need for this, please submit a feature request at https:
     name: "notfound",
     path: "*",
     areas: {
-      sidebar: /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(SidebarNavigationScreenMain, {}),
-      mobile: /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(
+      sidebar: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(SidebarNavigationScreenMain, {}),
+      mobile: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(
         SidebarNavigationScreenMain,
         {
-          customDescription: /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(NotFoundError, {})
+          customDescription: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(NotFoundError, {})
         }
       ),
-      content: /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(import_components164.__experimentalSpacer, { padding: 2, children: /* @__PURE__ */ (0, import_jsx_runtime299.jsx)(NotFoundError, {}) })
+      content: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(import_components164.__experimentalSpacer, { padding: 2, children: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(NotFoundError, {}) })
     }
   };
 
@@ -47077,9 +46896,9 @@ If there's a particular need for this, please submit a feature request at https:
     notFoundRoute
   ];
   function useRegisterSiteEditorRoutes() {
-    const registry = (0, import_data80.useRegistry)();
-    const { registerRoute: registerRoute2 } = unlock((0, import_data80.useDispatch)(store));
-    (0, import_element156.useEffect)(() => {
+    const registry = (0, import_data82.useRegistry)();
+    const { registerRoute: registerRoute2 } = unlock((0, import_data82.useDispatch)(store));
+    (0, import_element158.useEffect)(() => {
       registry.batch(() => {
         routes2.forEach(registerRoute2);
       });
@@ -47087,24 +46906,24 @@ If there's a particular need for this, please submit a feature request at https:
   }
 
   // packages/edit-site/build-module/components/app/index.mjs
-  var import_jsx_runtime300 = __toESM(require_jsx_runtime(), 1);
-  var { RouterProvider } = unlock(import_router41.privateApis);
+  var import_jsx_runtime301 = __toESM(require_jsx_runtime(), 1);
+  var { RouterProvider } = unlock(import_router42.privateApis);
   function AppLayout() {
     useCommonCommands();
     useSetCommandContext();
-    return /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(LayoutWithGlobalStylesProvider, {});
+    return /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(LayoutWithGlobalStylesProvider, {});
   }
   function App() {
     useRegisterSiteEditorRoutes();
-    const { routes: routes3, currentTheme, editorSettings } = (0, import_data81.useSelect)((select3) => {
+    const { routes: routes3, currentTheme, editorSettings } = (0, import_data83.useSelect)((select3) => {
       return {
         routes: unlock(select3(store)).getRoutes(),
-        currentTheme: select3(import_core_data64.store).getCurrentTheme(),
+        currentTheme: select3(import_core_data65.store).getCurrentTheme(),
         // This is a temp solution until the has_theme_json value is available for the current theme.
         editorSettings: select3(store).getSettings()
       };
     }, []);
-    const beforeNavigate = (0, import_element157.useCallback)(({ path, query }) => {
+    const beforeNavigate = (0, import_element159.useCallback)(({ path, query }) => {
       if (!isPreviewingTheme()) {
         return { path, query };
       }
@@ -47116,29 +46935,29 @@ If there's a particular need for this, please submit a feature request at https:
         }
       };
     }, []);
-    const matchResolverArgsValue = (0, import_element157.useMemo)(
+    const matchResolverArgsValue = (0, import_element159.useMemo)(
       () => ({
         siteData: { currentTheme, editorSettings }
       }),
       [currentTheme, editorSettings]
     );
-    return /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(
       RouterProvider,
       {
         routes: routes3,
         pathArg: "p",
         beforeNavigate,
         matchResolverArgs: matchResolverArgsValue,
-        children: /* @__PURE__ */ (0, import_jsx_runtime300.jsx)(AppLayout, {})
+        children: /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(AppLayout, {})
       }
     );
   }
 
   // packages/edit-site/build-module/deprecated.mjs
-  var import_editor44 = __toESM(require_editor(), 1);
+  var import_editor45 = __toESM(require_editor(), 1);
   var import_url28 = __toESM(require_url(), 1);
   var import_deprecated5 = __toESM(require_deprecated(), 1);
-  var import_jsx_runtime301 = __toESM(require_jsx_runtime(), 1);
+  var import_jsx_runtime302 = __toESM(require_jsx_runtime(), 1);
   var isSiteEditor = (0, import_url28.getPath)(window.location.href)?.includes(
     "site-editor.php"
   );
@@ -47153,36 +46972,36 @@ If there's a particular need for this, please submit a feature request at https:
       return null;
     }
     deprecateSlot("PluginMoreMenuItem");
-    return /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(import_editor44.PluginMoreMenuItem, { ...props });
+    return /* @__PURE__ */ (0, import_jsx_runtime302.jsx)(import_editor45.PluginMoreMenuItem, { ...props });
   }
   function PluginSidebar(props) {
     if (!isSiteEditor) {
       return null;
     }
     deprecateSlot("PluginSidebar");
-    return /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(import_editor44.PluginSidebar, { ...props });
+    return /* @__PURE__ */ (0, import_jsx_runtime302.jsx)(import_editor45.PluginSidebar, { ...props });
   }
   function PluginSidebarMoreMenuItem(props) {
     if (!isSiteEditor) {
       return null;
     }
     deprecateSlot("PluginSidebarMoreMenuItem");
-    return /* @__PURE__ */ (0, import_jsx_runtime301.jsx)(import_editor44.PluginSidebarMoreMenuItem, { ...props });
+    return /* @__PURE__ */ (0, import_jsx_runtime302.jsx)(import_editor45.PluginSidebarMoreMenuItem, { ...props });
   }
 
   // packages/edit-site/build-module/index.mjs
-  var import_jsx_runtime302 = __toESM(require_jsx_runtime(), 1);
-  var { registerCoreBlockBindingsSources } = unlock(import_editor45.privateApis);
+  var import_jsx_runtime303 = __toESM(require_jsx_runtime(), 1);
+  var { registerCoreBlockBindingsSources } = unlock(import_editor46.privateApis);
   function initializeEditor(id, settings2) {
     const target = document.getElementById(id);
-    const root = (0, import_element158.createRoot)(target);
-    (0, import_data82.dispatch)(import_blocks15.store).reapplyBlockTypeFilters();
+    const root = (0, import_element160.createRoot)(target);
+    (0, import_data84.dispatch)(import_blocks15.store).reapplyBlockTypeFilters();
     const coreBlocks = (0, import_block_library3.__experimentalGetCoreBlocks)().filter(
       ({ name: name2 }) => name2 !== "core/freeform"
     );
     (0, import_block_library3.registerCoreBlocks)(coreBlocks);
     registerCoreBlockBindingsSources();
-    (0, import_data82.dispatch)(import_blocks15.store).setFreeformFallbackBlockName("core/html");
+    (0, import_data84.dispatch)(import_blocks15.store).setFreeformFallbackBlockName("core/html");
     (0, import_widgets.registerLegacyWidgetBlock)({ inserter: false });
     (0, import_widgets.registerWidgetGroupBlock)({ inserter: false });
     if (true) {
@@ -47190,13 +47009,13 @@ If there's a particular need for this, please submit a feature request at https:
         enableFSEBlocks: true
       });
     }
-    (0, import_data82.dispatch)(import_preferences13.store).setDefaults("core/edit-site", {
+    (0, import_data84.dispatch)(import_preferences13.store).setDefaults("core/edit-site", {
       welcomeGuide: true,
       welcomeGuideStyles: true,
       welcomeGuidePage: true,
       welcomeGuideTemplate: true
     });
-    (0, import_data82.dispatch)(import_preferences13.store).setDefaults("core", {
+    (0, import_data84.dispatch)(import_preferences13.store).setDefaults("core", {
       allowRightClickOverrides: true,
       distractionFree: false,
       editorMode: "visual",
@@ -47210,17 +47029,17 @@ If there's a particular need for this, please submit a feature request at https:
       showListViewByDefault: false,
       enableChoosePatternModal: true
     });
-    if (window.__experimentalMediaProcessing) {
-      (0, import_data82.dispatch)(import_preferences13.store).setDefaults("core/media", {
+    if (window.__clientSideMediaProcessing) {
+      (0, import_data84.dispatch)(import_preferences13.store).setDefaults("core/media", {
         requireApproval: true,
         optimizeOnUpload: true
       });
     }
-    (0, import_data82.dispatch)(store).updateSettings(settings2);
+    (0, import_data84.dispatch)(store).updateSettings(settings2);
     window.addEventListener("dragover", (e2) => e2.preventDefault(), false);
     window.addEventListener("drop", (e2) => e2.preventDefault(), false);
     root.render(
-      /* @__PURE__ */ (0, import_jsx_runtime302.jsx)(import_element158.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime302.jsx)(App, {}) })
+      /* @__PURE__ */ (0, import_jsx_runtime303.jsx)(import_element160.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime303.jsx)(App, {}) })
     );
     return root;
   }

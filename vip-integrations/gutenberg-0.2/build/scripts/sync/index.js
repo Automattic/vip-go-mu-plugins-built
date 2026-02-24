@@ -53,1117 +53,6 @@ var wp;
     }
   });
 
-  // node_modules/diff/dist/diff.js
-  var require_diff = __commonJS({
-    "node_modules/diff/dist/diff.js"(exports, module) {
-      (function(global2, factory) {
-        typeof exports === "object" && typeof module !== "undefined" ? factory(exports) : typeof define === "function" && define.amd ? define(["exports"], factory) : (global2 = global2 || self, factory(global2.Diff = {}));
-      })(exports, function(exports2) {
-        "use strict";
-        function Diff() {
-        }
-        Diff.prototype = {
-          diff: function diff(oldString, newString) {
-            var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
-            var callback = options.callback;
-            if (typeof options === "function") {
-              callback = options;
-              options = {};
-            }
-            this.options = options;
-            var self2 = this;
-            function done(value) {
-              if (callback) {
-                setTimeout(function() {
-                  callback(void 0, value);
-                }, 0);
-                return true;
-              } else {
-                return value;
-              }
-            }
-            oldString = this.castInput(oldString);
-            newString = this.castInput(newString);
-            oldString = this.removeEmpty(this.tokenize(oldString));
-            newString = this.removeEmpty(this.tokenize(newString));
-            var newLen = newString.length, oldLen = oldString.length;
-            var editLength = 1;
-            var maxEditLength = newLen + oldLen;
-            var bestPath = [{
-              newPos: -1,
-              components: []
-            }];
-            var oldPos = this.extractCommon(bestPath[0], newString, oldString, 0);
-            if (bestPath[0].newPos + 1 >= newLen && oldPos + 1 >= oldLen) {
-              return done([{
-                value: this.join(newString),
-                count: newString.length
-              }]);
-            }
-            function execEditLength() {
-              for (var diagonalPath = -1 * editLength; diagonalPath <= editLength; diagonalPath += 2) {
-                var basePath = void 0;
-                var addPath = bestPath[diagonalPath - 1], removePath = bestPath[diagonalPath + 1], _oldPos = (removePath ? removePath.newPos : 0) - diagonalPath;
-                if (addPath) {
-                  bestPath[diagonalPath - 1] = void 0;
-                }
-                var canAdd = addPath && addPath.newPos + 1 < newLen, canRemove = removePath && 0 <= _oldPos && _oldPos < oldLen;
-                if (!canAdd && !canRemove) {
-                  bestPath[diagonalPath] = void 0;
-                  continue;
-                }
-                if (!canAdd || canRemove && addPath.newPos < removePath.newPos) {
-                  basePath = clonePath(removePath);
-                  self2.pushComponent(basePath.components, void 0, true);
-                } else {
-                  basePath = addPath;
-                  basePath.newPos++;
-                  self2.pushComponent(basePath.components, true, void 0);
-                }
-                _oldPos = self2.extractCommon(basePath, newString, oldString, diagonalPath);
-                if (basePath.newPos + 1 >= newLen && _oldPos + 1 >= oldLen) {
-                  return done(buildValues(self2, basePath.components, newString, oldString, self2.useLongestToken));
-                } else {
-                  bestPath[diagonalPath] = basePath;
-                }
-              }
-              editLength++;
-            }
-            if (callback) {
-              (function exec() {
-                setTimeout(function() {
-                  if (editLength > maxEditLength) {
-                    return callback();
-                  }
-                  if (!execEditLength()) {
-                    exec();
-                  }
-                }, 0);
-              })();
-            } else {
-              while (editLength <= maxEditLength) {
-                var ret = execEditLength();
-                if (ret) {
-                  return ret;
-                }
-              }
-            }
-          },
-          pushComponent: function pushComponent(components, added, removed) {
-            var last2 = components[components.length - 1];
-            if (last2 && last2.added === added && last2.removed === removed) {
-              components[components.length - 1] = {
-                count: last2.count + 1,
-                added,
-                removed
-              };
-            } else {
-              components.push({
-                count: 1,
-                added,
-                removed
-              });
-            }
-          },
-          extractCommon: function extractCommon(basePath, newString, oldString, diagonalPath) {
-            var newLen = newString.length, oldLen = oldString.length, newPos = basePath.newPos, oldPos = newPos - diagonalPath, commonCount = 0;
-            while (newPos + 1 < newLen && oldPos + 1 < oldLen && this.equals(newString[newPos + 1], oldString[oldPos + 1])) {
-              newPos++;
-              oldPos++;
-              commonCount++;
-            }
-            if (commonCount) {
-              basePath.components.push({
-                count: commonCount
-              });
-            }
-            basePath.newPos = newPos;
-            return oldPos;
-          },
-          equals: function equals(left, right) {
-            if (this.options.comparator) {
-              return this.options.comparator(left, right);
-            } else {
-              return left === right || this.options.ignoreCase && left.toLowerCase() === right.toLowerCase();
-            }
-          },
-          removeEmpty: function removeEmpty(array) {
-            var ret = [];
-            for (var i = 0; i < array.length; i++) {
-              if (array[i]) {
-                ret.push(array[i]);
-              }
-            }
-            return ret;
-          },
-          castInput: function castInput(value) {
-            return value;
-          },
-          tokenize: function tokenize(value) {
-            return value.split("");
-          },
-          join: function join(chars) {
-            return chars.join("");
-          }
-        };
-        function buildValues(diff, components, newString, oldString, useLongestToken) {
-          var componentPos = 0, componentLen = components.length, newPos = 0, oldPos = 0;
-          for (; componentPos < componentLen; componentPos++) {
-            var component = components[componentPos];
-            if (!component.removed) {
-              if (!component.added && useLongestToken) {
-                var value = newString.slice(newPos, newPos + component.count);
-                value = value.map(function(value2, i) {
-                  var oldValue = oldString[oldPos + i];
-                  return oldValue.length > value2.length ? oldValue : value2;
-                });
-                component.value = diff.join(value);
-              } else {
-                component.value = diff.join(newString.slice(newPos, newPos + component.count));
-              }
-              newPos += component.count;
-              if (!component.added) {
-                oldPos += component.count;
-              }
-            } else {
-              component.value = diff.join(oldString.slice(oldPos, oldPos + component.count));
-              oldPos += component.count;
-              if (componentPos && components[componentPos - 1].added) {
-                var tmp = components[componentPos - 1];
-                components[componentPos - 1] = components[componentPos];
-                components[componentPos] = tmp;
-              }
-            }
-          }
-          var lastComponent = components[componentLen - 1];
-          if (componentLen > 1 && typeof lastComponent.value === "string" && (lastComponent.added || lastComponent.removed) && diff.equals("", lastComponent.value)) {
-            components[componentLen - 2].value += lastComponent.value;
-            components.pop();
-          }
-          return components;
-        }
-        function clonePath(path) {
-          return {
-            newPos: path.newPos,
-            components: path.components.slice(0)
-          };
-        }
-        var characterDiff = new Diff();
-        function diffChars2(oldStr, newStr, options) {
-          return characterDiff.diff(oldStr, newStr, options);
-        }
-        function generateOptions(options, defaults) {
-          if (typeof options === "function") {
-            defaults.callback = options;
-          } else if (options) {
-            for (var name in options) {
-              if (options.hasOwnProperty(name)) {
-                defaults[name] = options[name];
-              }
-            }
-          }
-          return defaults;
-        }
-        var extendedWordChars = /^[A-Za-z\xC0-\u02C6\u02C8-\u02D7\u02DE-\u02FF\u1E00-\u1EFF]+$/;
-        var reWhitespace = /\S/;
-        var wordDiff = new Diff();
-        wordDiff.equals = function(left, right) {
-          if (this.options.ignoreCase) {
-            left = left.toLowerCase();
-            right = right.toLowerCase();
-          }
-          return left === right || this.options.ignoreWhitespace && !reWhitespace.test(left) && !reWhitespace.test(right);
-        };
-        wordDiff.tokenize = function(value) {
-          var tokens = value.split(/(\s+|[()[\]{}'"]|\b)/);
-          for (var i = 0; i < tokens.length - 1; i++) {
-            if (!tokens[i + 1] && tokens[i + 2] && extendedWordChars.test(tokens[i]) && extendedWordChars.test(tokens[i + 2])) {
-              tokens[i] += tokens[i + 2];
-              tokens.splice(i + 1, 2);
-              i--;
-            }
-          }
-          return tokens;
-        };
-        function diffWords(oldStr, newStr, options) {
-          options = generateOptions(options, {
-            ignoreWhitespace: true
-          });
-          return wordDiff.diff(oldStr, newStr, options);
-        }
-        function diffWordsWithSpace(oldStr, newStr, options) {
-          return wordDiff.diff(oldStr, newStr, options);
-        }
-        var lineDiff = new Diff();
-        lineDiff.tokenize = function(value) {
-          var retLines = [], linesAndNewlines = value.split(/(\n|\r\n)/);
-          if (!linesAndNewlines[linesAndNewlines.length - 1]) {
-            linesAndNewlines.pop();
-          }
-          for (var i = 0; i < linesAndNewlines.length; i++) {
-            var line = linesAndNewlines[i];
-            if (i % 2 && !this.options.newlineIsToken) {
-              retLines[retLines.length - 1] += line;
-            } else {
-              if (this.options.ignoreWhitespace) {
-                line = line.trim();
-              }
-              retLines.push(line);
-            }
-          }
-          return retLines;
-        };
-        function diffLines(oldStr, newStr, callback) {
-          return lineDiff.diff(oldStr, newStr, callback);
-        }
-        function diffTrimmedLines(oldStr, newStr, callback) {
-          var options = generateOptions(callback, {
-            ignoreWhitespace: true
-          });
-          return lineDiff.diff(oldStr, newStr, options);
-        }
-        var sentenceDiff = new Diff();
-        sentenceDiff.tokenize = function(value) {
-          return value.split(/(\S.+?[.!?])(?=\s+|$)/);
-        };
-        function diffSentences(oldStr, newStr, callback) {
-          return sentenceDiff.diff(oldStr, newStr, callback);
-        }
-        var cssDiff = new Diff();
-        cssDiff.tokenize = function(value) {
-          return value.split(/([{}:;,]|\s+)/);
-        };
-        function diffCss(oldStr, newStr, callback) {
-          return cssDiff.diff(oldStr, newStr, callback);
-        }
-        function _typeof(obj) {
-          if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-            _typeof = function(obj2) {
-              return typeof obj2;
-            };
-          } else {
-            _typeof = function(obj2) {
-              return obj2 && typeof Symbol === "function" && obj2.constructor === Symbol && obj2 !== Symbol.prototype ? "symbol" : typeof obj2;
-            };
-          }
-          return _typeof(obj);
-        }
-        function _toConsumableArray(arr) {
-          return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
-        }
-        function _arrayWithoutHoles(arr) {
-          if (Array.isArray(arr)) {
-            for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-            return arr2;
-          }
-        }
-        function _iterableToArray(iter) {
-          if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
-        }
-        function _nonIterableSpread() {
-          throw new TypeError("Invalid attempt to spread non-iterable instance");
-        }
-        var objectPrototypeToString = Object.prototype.toString;
-        var jsonDiff = new Diff();
-        jsonDiff.useLongestToken = true;
-        jsonDiff.tokenize = lineDiff.tokenize;
-        jsonDiff.castInput = function(value) {
-          var _this$options = this.options, undefinedReplacement = _this$options.undefinedReplacement, _this$options$stringi = _this$options.stringifyReplacer, stringifyReplacer = _this$options$stringi === void 0 ? function(k, v) {
-            return typeof v === "undefined" ? undefinedReplacement : v;
-          } : _this$options$stringi;
-          return typeof value === "string" ? value : JSON.stringify(canonicalize(value, null, null, stringifyReplacer), stringifyReplacer, "  ");
-        };
-        jsonDiff.equals = function(left, right) {
-          return Diff.prototype.equals.call(jsonDiff, left.replace(/,([\r\n])/g, "$1"), right.replace(/,([\r\n])/g, "$1"));
-        };
-        function diffJson(oldObj, newObj, options) {
-          return jsonDiff.diff(oldObj, newObj, options);
-        }
-        function canonicalize(obj, stack, replacementStack, replacer, key) {
-          stack = stack || [];
-          replacementStack = replacementStack || [];
-          if (replacer) {
-            obj = replacer(key, obj);
-          }
-          var i;
-          for (i = 0; i < stack.length; i += 1) {
-            if (stack[i] === obj) {
-              return replacementStack[i];
-            }
-          }
-          var canonicalizedObj;
-          if ("[object Array]" === objectPrototypeToString.call(obj)) {
-            stack.push(obj);
-            canonicalizedObj = new Array(obj.length);
-            replacementStack.push(canonicalizedObj);
-            for (i = 0; i < obj.length; i += 1) {
-              canonicalizedObj[i] = canonicalize(obj[i], stack, replacementStack, replacer, key);
-            }
-            stack.pop();
-            replacementStack.pop();
-            return canonicalizedObj;
-          }
-          if (obj && obj.toJSON) {
-            obj = obj.toJSON();
-          }
-          if (_typeof(obj) === "object" && obj !== null) {
-            stack.push(obj);
-            canonicalizedObj = {};
-            replacementStack.push(canonicalizedObj);
-            var sortedKeys = [], _key;
-            for (_key in obj) {
-              if (obj.hasOwnProperty(_key)) {
-                sortedKeys.push(_key);
-              }
-            }
-            sortedKeys.sort();
-            for (i = 0; i < sortedKeys.length; i += 1) {
-              _key = sortedKeys[i];
-              canonicalizedObj[_key] = canonicalize(obj[_key], stack, replacementStack, replacer, _key);
-            }
-            stack.pop();
-            replacementStack.pop();
-          } else {
-            canonicalizedObj = obj;
-          }
-          return canonicalizedObj;
-        }
-        var arrayDiff = new Diff();
-        arrayDiff.tokenize = function(value) {
-          return value.slice();
-        };
-        arrayDiff.join = arrayDiff.removeEmpty = function(value) {
-          return value;
-        };
-        function diffArrays(oldArr, newArr, callback) {
-          return arrayDiff.diff(oldArr, newArr, callback);
-        }
-        function parsePatch(uniDiff) {
-          var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
-          var diffstr = uniDiff.split(/\r\n|[\n\v\f\r\x85]/), delimiters = uniDiff.match(/\r\n|[\n\v\f\r\x85]/g) || [], list = [], i = 0;
-          function parseIndex() {
-            var index = {};
-            list.push(index);
-            while (i < diffstr.length) {
-              var line = diffstr[i];
-              if (/^(\-\-\-|\+\+\+|@@)\s/.test(line)) {
-                break;
-              }
-              var header = /^(?:Index:|diff(?: -r \w+)+)\s+(.+?)\s*$/.exec(line);
-              if (header) {
-                index.index = header[1];
-              }
-              i++;
-            }
-            parseFileHeader(index);
-            parseFileHeader(index);
-            index.hunks = [];
-            while (i < diffstr.length) {
-              var _line = diffstr[i];
-              if (/^(Index:|diff|\-\-\-|\+\+\+)\s/.test(_line)) {
-                break;
-              } else if (/^@@/.test(_line)) {
-                index.hunks.push(parseHunk());
-              } else if (_line && options.strict) {
-                throw new Error("Unknown line " + (i + 1) + " " + JSON.stringify(_line));
-              } else {
-                i++;
-              }
-            }
-          }
-          function parseFileHeader(index) {
-            var fileHeader = /^(---|\+\+\+)\s+(.*)$/.exec(diffstr[i]);
-            if (fileHeader) {
-              var keyPrefix = fileHeader[1] === "---" ? "old" : "new";
-              var data = fileHeader[2].split("	", 2);
-              var fileName = data[0].replace(/\\\\/g, "\\");
-              if (/^".*"$/.test(fileName)) {
-                fileName = fileName.substr(1, fileName.length - 2);
-              }
-              index[keyPrefix + "FileName"] = fileName;
-              index[keyPrefix + "Header"] = (data[1] || "").trim();
-              i++;
-            }
-          }
-          function parseHunk() {
-            var chunkHeaderIndex = i, chunkHeaderLine = diffstr[i++], chunkHeader = chunkHeaderLine.split(/@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
-            var hunk = {
-              oldStart: +chunkHeader[1],
-              oldLines: +chunkHeader[2] || 1,
-              newStart: +chunkHeader[3],
-              newLines: +chunkHeader[4] || 1,
-              lines: [],
-              linedelimiters: []
-            };
-            var addCount = 0, removeCount = 0;
-            for (; i < diffstr.length; i++) {
-              if (diffstr[i].indexOf("--- ") === 0 && i + 2 < diffstr.length && diffstr[i + 1].indexOf("+++ ") === 0 && diffstr[i + 2].indexOf("@@") === 0) {
-                break;
-              }
-              var operation = diffstr[i].length == 0 && i != diffstr.length - 1 ? " " : diffstr[i][0];
-              if (operation === "+" || operation === "-" || operation === " " || operation === "\\") {
-                hunk.lines.push(diffstr[i]);
-                hunk.linedelimiters.push(delimiters[i] || "\n");
-                if (operation === "+") {
-                  addCount++;
-                } else if (operation === "-") {
-                  removeCount++;
-                } else if (operation === " ") {
-                  addCount++;
-                  removeCount++;
-                }
-              } else {
-                break;
-              }
-            }
-            if (!addCount && hunk.newLines === 1) {
-              hunk.newLines = 0;
-            }
-            if (!removeCount && hunk.oldLines === 1) {
-              hunk.oldLines = 0;
-            }
-            if (options.strict) {
-              if (addCount !== hunk.newLines) {
-                throw new Error("Added line count did not match for hunk at line " + (chunkHeaderIndex + 1));
-              }
-              if (removeCount !== hunk.oldLines) {
-                throw new Error("Removed line count did not match for hunk at line " + (chunkHeaderIndex + 1));
-              }
-            }
-            return hunk;
-          }
-          while (i < diffstr.length) {
-            parseIndex();
-          }
-          return list;
-        }
-        function distanceIterator(start, minLine, maxLine) {
-          var wantForward = true, backwardExhausted = false, forwardExhausted = false, localOffset = 1;
-          return function iterator() {
-            if (wantForward && !forwardExhausted) {
-              if (backwardExhausted) {
-                localOffset++;
-              } else {
-                wantForward = false;
-              }
-              if (start + localOffset <= maxLine) {
-                return localOffset;
-              }
-              forwardExhausted = true;
-            }
-            if (!backwardExhausted) {
-              if (!forwardExhausted) {
-                wantForward = true;
-              }
-              if (minLine <= start - localOffset) {
-                return -localOffset++;
-              }
-              backwardExhausted = true;
-              return iterator();
-            }
-          };
-        }
-        function applyPatch(source, uniDiff) {
-          var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
-          if (typeof uniDiff === "string") {
-            uniDiff = parsePatch(uniDiff);
-          }
-          if (Array.isArray(uniDiff)) {
-            if (uniDiff.length > 1) {
-              throw new Error("applyPatch only works with a single input.");
-            }
-            uniDiff = uniDiff[0];
-          }
-          var lines = source.split(/\r\n|[\n\v\f\r\x85]/), delimiters = source.match(/\r\n|[\n\v\f\r\x85]/g) || [], hunks = uniDiff.hunks, compareLine = options.compareLine || function(lineNumber, line2, operation2, patchContent) {
-            return line2 === patchContent;
-          }, errorCount = 0, fuzzFactor = options.fuzzFactor || 0, minLine = 0, offset = 0, removeEOFNL, addEOFNL;
-          function hunkFits(hunk2, toPos2) {
-            for (var j2 = 0; j2 < hunk2.lines.length; j2++) {
-              var line2 = hunk2.lines[j2], operation2 = line2.length > 0 ? line2[0] : " ", content2 = line2.length > 0 ? line2.substr(1) : line2;
-              if (operation2 === " " || operation2 === "-") {
-                if (!compareLine(toPos2 + 1, lines[toPos2], operation2, content2)) {
-                  errorCount++;
-                  if (errorCount > fuzzFactor) {
-                    return false;
-                  }
-                }
-                toPos2++;
-              }
-            }
-            return true;
-          }
-          for (var i = 0; i < hunks.length; i++) {
-            var hunk = hunks[i], maxLine = lines.length - hunk.oldLines, localOffset = 0, toPos = offset + hunk.oldStart - 1;
-            var iterator = distanceIterator(toPos, minLine, maxLine);
-            for (; localOffset !== void 0; localOffset = iterator()) {
-              if (hunkFits(hunk, toPos + localOffset)) {
-                hunk.offset = offset += localOffset;
-                break;
-              }
-            }
-            if (localOffset === void 0) {
-              return false;
-            }
-            minLine = hunk.offset + hunk.oldStart + hunk.oldLines;
-          }
-          var diffOffset = 0;
-          for (var _i = 0; _i < hunks.length; _i++) {
-            var _hunk = hunks[_i], _toPos = _hunk.oldStart + _hunk.offset + diffOffset - 1;
-            diffOffset += _hunk.newLines - _hunk.oldLines;
-            if (_toPos < 0) {
-              _toPos = 0;
-            }
-            for (var j = 0; j < _hunk.lines.length; j++) {
-              var line = _hunk.lines[j], operation = line.length > 0 ? line[0] : " ", content = line.length > 0 ? line.substr(1) : line, delimiter = _hunk.linedelimiters[j];
-              if (operation === " ") {
-                _toPos++;
-              } else if (operation === "-") {
-                lines.splice(_toPos, 1);
-                delimiters.splice(_toPos, 1);
-              } else if (operation === "+") {
-                lines.splice(_toPos, 0, content);
-                delimiters.splice(_toPos, 0, delimiter);
-                _toPos++;
-              } else if (operation === "\\") {
-                var previousOperation = _hunk.lines[j - 1] ? _hunk.lines[j - 1][0] : null;
-                if (previousOperation === "+") {
-                  removeEOFNL = true;
-                } else if (previousOperation === "-") {
-                  addEOFNL = true;
-                }
-              }
-            }
-          }
-          if (removeEOFNL) {
-            while (!lines[lines.length - 1]) {
-              lines.pop();
-              delimiters.pop();
-            }
-          } else if (addEOFNL) {
-            lines.push("");
-            delimiters.push("\n");
-          }
-          for (var _k = 0; _k < lines.length - 1; _k++) {
-            lines[_k] = lines[_k] + delimiters[_k];
-          }
-          return lines.join("");
-        }
-        function applyPatches(uniDiff, options) {
-          if (typeof uniDiff === "string") {
-            uniDiff = parsePatch(uniDiff);
-          }
-          var currentIndex = 0;
-          function processIndex() {
-            var index = uniDiff[currentIndex++];
-            if (!index) {
-              return options.complete();
-            }
-            options.loadFile(index, function(err, data) {
-              if (err) {
-                return options.complete(err);
-              }
-              var updatedContent = applyPatch(data, index, options);
-              options.patched(index, updatedContent, function(err2) {
-                if (err2) {
-                  return options.complete(err2);
-                }
-                processIndex();
-              });
-            });
-          }
-          processIndex();
-        }
-        function structuredPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options) {
-          if (!options) {
-            options = {};
-          }
-          if (typeof options.context === "undefined") {
-            options.context = 4;
-          }
-          var diff = diffLines(oldStr, newStr, options);
-          diff.push({
-            value: "",
-            lines: []
-          });
-          function contextLines(lines) {
-            return lines.map(function(entry) {
-              return " " + entry;
-            });
-          }
-          var hunks = [];
-          var oldRangeStart = 0, newRangeStart = 0, curRange = [], oldLine = 1, newLine = 1;
-          var _loop = function _loop2(i2) {
-            var current = diff[i2], lines = current.lines || current.value.replace(/\n$/, "").split("\n");
-            current.lines = lines;
-            if (current.added || current.removed) {
-              var _curRange;
-              if (!oldRangeStart) {
-                var prev = diff[i2 - 1];
-                oldRangeStart = oldLine;
-                newRangeStart = newLine;
-                if (prev) {
-                  curRange = options.context > 0 ? contextLines(prev.lines.slice(-options.context)) : [];
-                  oldRangeStart -= curRange.length;
-                  newRangeStart -= curRange.length;
-                }
-              }
-              (_curRange = curRange).push.apply(_curRange, _toConsumableArray(lines.map(function(entry) {
-                return (current.added ? "+" : "-") + entry;
-              })));
-              if (current.added) {
-                newLine += lines.length;
-              } else {
-                oldLine += lines.length;
-              }
-            } else {
-              if (oldRangeStart) {
-                if (lines.length <= options.context * 2 && i2 < diff.length - 2) {
-                  var _curRange2;
-                  (_curRange2 = curRange).push.apply(_curRange2, _toConsumableArray(contextLines(lines)));
-                } else {
-                  var _curRange3;
-                  var contextSize = Math.min(lines.length, options.context);
-                  (_curRange3 = curRange).push.apply(_curRange3, _toConsumableArray(contextLines(lines.slice(0, contextSize))));
-                  var hunk = {
-                    oldStart: oldRangeStart,
-                    oldLines: oldLine - oldRangeStart + contextSize,
-                    newStart: newRangeStart,
-                    newLines: newLine - newRangeStart + contextSize,
-                    lines: curRange
-                  };
-                  if (i2 >= diff.length - 2 && lines.length <= options.context) {
-                    var oldEOFNewline = /\n$/.test(oldStr);
-                    var newEOFNewline = /\n$/.test(newStr);
-                    var noNlBeforeAdds = lines.length == 0 && curRange.length > hunk.oldLines;
-                    if (!oldEOFNewline && noNlBeforeAdds) {
-                      curRange.splice(hunk.oldLines, 0, "\\ No newline at end of file");
-                    }
-                    if (!oldEOFNewline && !noNlBeforeAdds || !newEOFNewline) {
-                      curRange.push("\\ No newline at end of file");
-                    }
-                  }
-                  hunks.push(hunk);
-                  oldRangeStart = 0;
-                  newRangeStart = 0;
-                  curRange = [];
-                }
-              }
-              oldLine += lines.length;
-              newLine += lines.length;
-            }
-          };
-          for (var i = 0; i < diff.length; i++) {
-            _loop(i);
-          }
-          return {
-            oldFileName,
-            newFileName,
-            oldHeader,
-            newHeader,
-            hunks
-          };
-        }
-        function createTwoFilesPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options) {
-          var diff = structuredPatch(oldFileName, newFileName, oldStr, newStr, oldHeader, newHeader, options);
-          var ret = [];
-          if (oldFileName == newFileName) {
-            ret.push("Index: " + oldFileName);
-          }
-          ret.push("===================================================================");
-          ret.push("--- " + diff.oldFileName + (typeof diff.oldHeader === "undefined" ? "" : "	" + diff.oldHeader));
-          ret.push("+++ " + diff.newFileName + (typeof diff.newHeader === "undefined" ? "" : "	" + diff.newHeader));
-          for (var i = 0; i < diff.hunks.length; i++) {
-            var hunk = diff.hunks[i];
-            ret.push("@@ -" + hunk.oldStart + "," + hunk.oldLines + " +" + hunk.newStart + "," + hunk.newLines + " @@");
-            ret.push.apply(ret, hunk.lines);
-          }
-          return ret.join("\n") + "\n";
-        }
-        function createPatch(fileName, oldStr, newStr, oldHeader, newHeader, options) {
-          return createTwoFilesPatch(fileName, fileName, oldStr, newStr, oldHeader, newHeader, options);
-        }
-        function arrayEqual(a, b) {
-          if (a.length !== b.length) {
-            return false;
-          }
-          return arrayStartsWith(a, b);
-        }
-        function arrayStartsWith(array, start) {
-          if (start.length > array.length) {
-            return false;
-          }
-          for (var i = 0; i < start.length; i++) {
-            if (start[i] !== array[i]) {
-              return false;
-            }
-          }
-          return true;
-        }
-        function calcLineCount(hunk) {
-          var _calcOldNewLineCount = calcOldNewLineCount(hunk.lines), oldLines = _calcOldNewLineCount.oldLines, newLines = _calcOldNewLineCount.newLines;
-          if (oldLines !== void 0) {
-            hunk.oldLines = oldLines;
-          } else {
-            delete hunk.oldLines;
-          }
-          if (newLines !== void 0) {
-            hunk.newLines = newLines;
-          } else {
-            delete hunk.newLines;
-          }
-        }
-        function merge(mine, theirs, base) {
-          mine = loadPatch(mine, base);
-          theirs = loadPatch(theirs, base);
-          var ret = {};
-          if (mine.index || theirs.index) {
-            ret.index = mine.index || theirs.index;
-          }
-          if (mine.newFileName || theirs.newFileName) {
-            if (!fileNameChanged(mine)) {
-              ret.oldFileName = theirs.oldFileName || mine.oldFileName;
-              ret.newFileName = theirs.newFileName || mine.newFileName;
-              ret.oldHeader = theirs.oldHeader || mine.oldHeader;
-              ret.newHeader = theirs.newHeader || mine.newHeader;
-            } else if (!fileNameChanged(theirs)) {
-              ret.oldFileName = mine.oldFileName;
-              ret.newFileName = mine.newFileName;
-              ret.oldHeader = mine.oldHeader;
-              ret.newHeader = mine.newHeader;
-            } else {
-              ret.oldFileName = selectField(ret, mine.oldFileName, theirs.oldFileName);
-              ret.newFileName = selectField(ret, mine.newFileName, theirs.newFileName);
-              ret.oldHeader = selectField(ret, mine.oldHeader, theirs.oldHeader);
-              ret.newHeader = selectField(ret, mine.newHeader, theirs.newHeader);
-            }
-          }
-          ret.hunks = [];
-          var mineIndex = 0, theirsIndex = 0, mineOffset = 0, theirsOffset = 0;
-          while (mineIndex < mine.hunks.length || theirsIndex < theirs.hunks.length) {
-            var mineCurrent = mine.hunks[mineIndex] || {
-              oldStart: Infinity
-            }, theirsCurrent = theirs.hunks[theirsIndex] || {
-              oldStart: Infinity
-            };
-            if (hunkBefore(mineCurrent, theirsCurrent)) {
-              ret.hunks.push(cloneHunk(mineCurrent, mineOffset));
-              mineIndex++;
-              theirsOffset += mineCurrent.newLines - mineCurrent.oldLines;
-            } else if (hunkBefore(theirsCurrent, mineCurrent)) {
-              ret.hunks.push(cloneHunk(theirsCurrent, theirsOffset));
-              theirsIndex++;
-              mineOffset += theirsCurrent.newLines - theirsCurrent.oldLines;
-            } else {
-              var mergedHunk = {
-                oldStart: Math.min(mineCurrent.oldStart, theirsCurrent.oldStart),
-                oldLines: 0,
-                newStart: Math.min(mineCurrent.newStart + mineOffset, theirsCurrent.oldStart + theirsOffset),
-                newLines: 0,
-                lines: []
-              };
-              mergeLines(mergedHunk, mineCurrent.oldStart, mineCurrent.lines, theirsCurrent.oldStart, theirsCurrent.lines);
-              theirsIndex++;
-              mineIndex++;
-              ret.hunks.push(mergedHunk);
-            }
-          }
-          return ret;
-        }
-        function loadPatch(param, base) {
-          if (typeof param === "string") {
-            if (/^@@/m.test(param) || /^Index:/m.test(param)) {
-              return parsePatch(param)[0];
-            }
-            if (!base) {
-              throw new Error("Must provide a base reference or pass in a patch");
-            }
-            return structuredPatch(void 0, void 0, base, param);
-          }
-          return param;
-        }
-        function fileNameChanged(patch) {
-          return patch.newFileName && patch.newFileName !== patch.oldFileName;
-        }
-        function selectField(index, mine, theirs) {
-          if (mine === theirs) {
-            return mine;
-          } else {
-            index.conflict = true;
-            return {
-              mine,
-              theirs
-            };
-          }
-        }
-        function hunkBefore(test, check) {
-          return test.oldStart < check.oldStart && test.oldStart + test.oldLines < check.oldStart;
-        }
-        function cloneHunk(hunk, offset) {
-          return {
-            oldStart: hunk.oldStart,
-            oldLines: hunk.oldLines,
-            newStart: hunk.newStart + offset,
-            newLines: hunk.newLines,
-            lines: hunk.lines
-          };
-        }
-        function mergeLines(hunk, mineOffset, mineLines, theirOffset, theirLines) {
-          var mine = {
-            offset: mineOffset,
-            lines: mineLines,
-            index: 0
-          }, their = {
-            offset: theirOffset,
-            lines: theirLines,
-            index: 0
-          };
-          insertLeading(hunk, mine, their);
-          insertLeading(hunk, their, mine);
-          while (mine.index < mine.lines.length && their.index < their.lines.length) {
-            var mineCurrent = mine.lines[mine.index], theirCurrent = their.lines[their.index];
-            if ((mineCurrent[0] === "-" || mineCurrent[0] === "+") && (theirCurrent[0] === "-" || theirCurrent[0] === "+")) {
-              mutualChange(hunk, mine, their);
-            } else if (mineCurrent[0] === "+" && theirCurrent[0] === " ") {
-              var _hunk$lines;
-              (_hunk$lines = hunk.lines).push.apply(_hunk$lines, _toConsumableArray(collectChange(mine)));
-            } else if (theirCurrent[0] === "+" && mineCurrent[0] === " ") {
-              var _hunk$lines2;
-              (_hunk$lines2 = hunk.lines).push.apply(_hunk$lines2, _toConsumableArray(collectChange(their)));
-            } else if (mineCurrent[0] === "-" && theirCurrent[0] === " ") {
-              removal(hunk, mine, their);
-            } else if (theirCurrent[0] === "-" && mineCurrent[0] === " ") {
-              removal(hunk, their, mine, true);
-            } else if (mineCurrent === theirCurrent) {
-              hunk.lines.push(mineCurrent);
-              mine.index++;
-              their.index++;
-            } else {
-              conflict(hunk, collectChange(mine), collectChange(their));
-            }
-          }
-          insertTrailing(hunk, mine);
-          insertTrailing(hunk, their);
-          calcLineCount(hunk);
-        }
-        function mutualChange(hunk, mine, their) {
-          var myChanges = collectChange(mine), theirChanges = collectChange(their);
-          if (allRemoves(myChanges) && allRemoves(theirChanges)) {
-            if (arrayStartsWith(myChanges, theirChanges) && skipRemoveSuperset(their, myChanges, myChanges.length - theirChanges.length)) {
-              var _hunk$lines3;
-              (_hunk$lines3 = hunk.lines).push.apply(_hunk$lines3, _toConsumableArray(myChanges));
-              return;
-            } else if (arrayStartsWith(theirChanges, myChanges) && skipRemoveSuperset(mine, theirChanges, theirChanges.length - myChanges.length)) {
-              var _hunk$lines4;
-              (_hunk$lines4 = hunk.lines).push.apply(_hunk$lines4, _toConsumableArray(theirChanges));
-              return;
-            }
-          } else if (arrayEqual(myChanges, theirChanges)) {
-            var _hunk$lines5;
-            (_hunk$lines5 = hunk.lines).push.apply(_hunk$lines5, _toConsumableArray(myChanges));
-            return;
-          }
-          conflict(hunk, myChanges, theirChanges);
-        }
-        function removal(hunk, mine, their, swap) {
-          var myChanges = collectChange(mine), theirChanges = collectContext(their, myChanges);
-          if (theirChanges.merged) {
-            var _hunk$lines6;
-            (_hunk$lines6 = hunk.lines).push.apply(_hunk$lines6, _toConsumableArray(theirChanges.merged));
-          } else {
-            conflict(hunk, swap ? theirChanges : myChanges, swap ? myChanges : theirChanges);
-          }
-        }
-        function conflict(hunk, mine, their) {
-          hunk.conflict = true;
-          hunk.lines.push({
-            conflict: true,
-            mine,
-            theirs: their
-          });
-        }
-        function insertLeading(hunk, insert, their) {
-          while (insert.offset < their.offset && insert.index < insert.lines.length) {
-            var line = insert.lines[insert.index++];
-            hunk.lines.push(line);
-            insert.offset++;
-          }
-        }
-        function insertTrailing(hunk, insert) {
-          while (insert.index < insert.lines.length) {
-            var line = insert.lines[insert.index++];
-            hunk.lines.push(line);
-          }
-        }
-        function collectChange(state) {
-          var ret = [], operation = state.lines[state.index][0];
-          while (state.index < state.lines.length) {
-            var line = state.lines[state.index];
-            if (operation === "-" && line[0] === "+") {
-              operation = "+";
-            }
-            if (operation === line[0]) {
-              ret.push(line);
-              state.index++;
-            } else {
-              break;
-            }
-          }
-          return ret;
-        }
-        function collectContext(state, matchChanges) {
-          var changes = [], merged = [], matchIndex = 0, contextChanges = false, conflicted = false;
-          while (matchIndex < matchChanges.length && state.index < state.lines.length) {
-            var change = state.lines[state.index], match = matchChanges[matchIndex];
-            if (match[0] === "+") {
-              break;
-            }
-            contextChanges = contextChanges || change[0] !== " ";
-            merged.push(match);
-            matchIndex++;
-            if (change[0] === "+") {
-              conflicted = true;
-              while (change[0] === "+") {
-                changes.push(change);
-                change = state.lines[++state.index];
-              }
-            }
-            if (match.substr(1) === change.substr(1)) {
-              changes.push(change);
-              state.index++;
-            } else {
-              conflicted = true;
-            }
-          }
-          if ((matchChanges[matchIndex] || "")[0] === "+" && contextChanges) {
-            conflicted = true;
-          }
-          if (conflicted) {
-            return changes;
-          }
-          while (matchIndex < matchChanges.length) {
-            merged.push(matchChanges[matchIndex++]);
-          }
-          return {
-            merged,
-            changes
-          };
-        }
-        function allRemoves(changes) {
-          return changes.reduce(function(prev, change) {
-            return prev && change[0] === "-";
-          }, true);
-        }
-        function skipRemoveSuperset(state, removeChanges, delta) {
-          for (var i = 0; i < delta; i++) {
-            var changeContent = removeChanges[removeChanges.length - delta + i].substr(1);
-            if (state.lines[state.index + i] !== " " + changeContent) {
-              return false;
-            }
-          }
-          state.index += delta;
-          return true;
-        }
-        function calcOldNewLineCount(lines) {
-          var oldLines = 0;
-          var newLines = 0;
-          lines.forEach(function(line) {
-            if (typeof line !== "string") {
-              var myCount = calcOldNewLineCount(line.mine);
-              var theirCount = calcOldNewLineCount(line.theirs);
-              if (oldLines !== void 0) {
-                if (myCount.oldLines === theirCount.oldLines) {
-                  oldLines += myCount.oldLines;
-                } else {
-                  oldLines = void 0;
-                }
-              }
-              if (newLines !== void 0) {
-                if (myCount.newLines === theirCount.newLines) {
-                  newLines += myCount.newLines;
-                } else {
-                  newLines = void 0;
-                }
-              }
-            } else {
-              if (newLines !== void 0 && (line[0] === "+" || line[0] === " ")) {
-                newLines++;
-              }
-              if (oldLines !== void 0 && (line[0] === "-" || line[0] === " ")) {
-                oldLines++;
-              }
-            }
-          });
-          return {
-            oldLines,
-            newLines
-          };
-        }
-        function convertChangesToDMP(changes) {
-          var ret = [], change, operation;
-          for (var i = 0; i < changes.length; i++) {
-            change = changes[i];
-            if (change.added) {
-              operation = 1;
-            } else if (change.removed) {
-              operation = -1;
-            } else {
-              operation = 0;
-            }
-            ret.push([operation, change.value]);
-          }
-          return ret;
-        }
-        function convertChangesToXML(changes) {
-          var ret = [];
-          for (var i = 0; i < changes.length; i++) {
-            var change = changes[i];
-            if (change.added) {
-              ret.push("<ins>");
-            } else if (change.removed) {
-              ret.push("<del>");
-            }
-            ret.push(escapeHTML(change.value));
-            if (change.added) {
-              ret.push("</ins>");
-            } else if (change.removed) {
-              ret.push("</del>");
-            }
-          }
-          return ret.join("");
-        }
-        function escapeHTML(s) {
-          var n = s;
-          n = n.replace(/&/g, "&amp;");
-          n = n.replace(/</g, "&lt;");
-          n = n.replace(/>/g, "&gt;");
-          n = n.replace(/"/g, "&quot;");
-          return n;
-        }
-        exports2.Diff = Diff;
-        exports2.diffChars = diffChars2;
-        exports2.diffWords = diffWords;
-        exports2.diffWordsWithSpace = diffWordsWithSpace;
-        exports2.diffLines = diffLines;
-        exports2.diffTrimmedLines = diffTrimmedLines;
-        exports2.diffSentences = diffSentences;
-        exports2.diffCss = diffCss;
-        exports2.diffJson = diffJson;
-        exports2.diffArrays = diffArrays;
-        exports2.structuredPatch = structuredPatch;
-        exports2.createTwoFilesPatch = createTwoFilesPatch;
-        exports2.createPatch = createPatch;
-        exports2.applyPatch = applyPatch;
-        exports2.applyPatches = applyPatches;
-        exports2.parsePatch = parsePatch;
-        exports2.merge = merge;
-        exports2.convertChangesToDMP = convertChangesToDMP;
-        exports2.convertChangesToXML = convertChangesToXML;
-        exports2.canonicalize = canonicalize;
-        Object.defineProperty(exports2, "__esModule", { value: true });
-      });
-    }
-  });
-
   // node_modules/fast-deep-equal/es6/index.js
   var require_es6 = __commonJS({
     "node_modules/fast-deep-equal/es6/index.js"(exports, module) {
@@ -10139,7 +9028,7 @@ var wp;
   }
   glo[importIdentifier] = true;
 
-  // node_modules/y-protocols/awareness.js
+  // packages/sync/node_modules/y-protocols/awareness.js
   var outdatedTimeout = 3e4;
   var Awareness = class extends Observable {
     /**
@@ -10272,11 +9161,10 @@ var wp;
   var CRDT_DOC_VERSION = 1;
   var CRDT_DOC_META_PERSISTENCE_KEY = "fromPersistence";
   var CRDT_RECORD_MAP_KEY = "document";
-  var CRDT_RECORD_METADATA_MAP_KEY = "documentMeta";
-  var CRDT_RECORD_METADATA_SAVED_AT_KEY = "savedAt";
-  var CRDT_RECORD_METADATA_SAVED_BY_KEY = "savedBy";
   var CRDT_STATE_MAP_KEY = "state";
-  var CRDT_STATE_VERSION_KEY = "version";
+  var CRDT_STATE_MAP_SAVED_AT_KEY = "savedAt";
+  var CRDT_STATE_MAP_SAVED_BY_KEY = "savedBy";
+  var CRDT_STATE_MAP_VERSION_KEY = "version";
   var LOCAL_EDITOR_ORIGIN = "gutenberg";
   var LOCAL_SYNC_MANAGER_ORIGIN = "syncManager";
   var WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE = "_crdt_document";
@@ -10288,6 +9176,27 @@ var wp;
     "@wordpress/sync"
   );
 
+  // packages/sync/build-module/performance.mjs
+  function logPerformanceTiming(fn) {
+    return function(...args2) {
+      const start = performance.now();
+      const result = fn.apply(this, args2);
+      const end = performance.now();
+      console.log(`${fn.name} took ${(end - start).toFixed(2)} ms`);
+      return result;
+    };
+  }
+  function passThru(fn) {
+    return ((...args2) => fn(...args2));
+  }
+  function yieldToEventLoop(fn) {
+    return function(...args2) {
+      setTimeout(() => {
+        fn.apply(this, args2);
+      }, 0);
+    };
+  }
+
   // packages/sync/build-module/utils.mjs
   function createYjsDoc(documentMeta = {}) {
     const metaMap = new Map(
@@ -10295,13 +9204,13 @@ var wp;
     );
     const ydoc = new Doc({ meta: metaMap });
     const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
-    stateMap.set(CRDT_STATE_VERSION_KEY, CRDT_DOC_VERSION);
+    stateMap.set(CRDT_STATE_MAP_VERSION_KEY, CRDT_DOC_VERSION);
     return ydoc;
   }
   function markEntityAsSaved(ydoc) {
-    const recordMeta = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
-    recordMeta.set(CRDT_RECORD_METADATA_SAVED_AT_KEY, Date.now());
-    recordMeta.set(CRDT_RECORD_METADATA_SAVED_BY_KEY, ydoc.clientID);
+    const recordMeta = ydoc.getMap(CRDT_STATE_MAP_KEY);
+    recordMeta.set(CRDT_STATE_MAP_SAVED_AT_KEY, Date.now());
+    recordMeta.set(CRDT_STATE_MAP_SAVED_BY_KEY, ydoc.clientID);
   }
   function pseudoRandomID() {
     return Math.floor(Math.random() * 1e9);
@@ -10346,7 +9255,7 @@ var wp;
   // packages/sync/build-module/providers/index.mjs
   var import_hooks = __toESM(require_hooks(), 1);
 
-  // node_modules/y-protocols/sync.js
+  // packages/sync/node_modules/y-protocols/sync.js
   var messageYjsSyncStep1 = 0;
   var messageYjsSyncStep2 = 1;
   var messageYjsUpdate = 2;
@@ -10360,25 +9269,29 @@ var wp;
     writeVarUint8Array(encoder, encodeStateAsUpdate(doc2, encodedStateVector));
   };
   var readSyncStep1 = (decoder, encoder, doc2) => writeSyncStep2(encoder, doc2, readVarUint8Array(decoder));
-  var readSyncStep2 = (decoder, doc2, transactionOrigin) => {
+  var readSyncStep2 = (decoder, doc2, transactionOrigin, errorHandler) => {
     try {
       applyUpdate(doc2, readVarUint8Array(decoder), transactionOrigin);
     } catch (error) {
+      if (errorHandler != null) errorHandler(
+        /** @type {Error} */
+        error
+      );
       console.error("Caught error while handling a Yjs update", error);
     }
   };
   var readUpdate2 = readSyncStep2;
-  var readSyncMessage = (decoder, encoder, doc2, transactionOrigin) => {
+  var readSyncMessage = (decoder, encoder, doc2, transactionOrigin, errorHandler) => {
     const messageType = readVarUint(decoder);
     switch (messageType) {
       case messageYjsSyncStep1:
         readSyncStep1(decoder, encoder, doc2);
         break;
       case messageYjsSyncStep2:
-        readSyncStep2(decoder, doc2, transactionOrigin);
+        readSyncStep2(decoder, doc2, transactionOrigin, errorHandler);
         break;
       case messageYjsUpdate:
-        readUpdate2(decoder, doc2, transactionOrigin);
+        readUpdate2(decoder, doc2, transactionOrigin, errorHandler);
         break;
       default:
         throw new Error("Unknown message type");
@@ -10397,7 +9310,7 @@ var wp;
 
   // packages/sync/build-module/providers/http-polling/utils.mjs
   var import_api_fetch = __toESM(require_api_fetch(), 1);
-  var SYNC_API_PATH = "/wp/v2/sync/updates";
+  var SYNC_API_PATH = "/wp-sync/v1/updates";
   function uint8ArrayToBase64(data) {
     let binary = "";
     const len = data.byteLength;
@@ -10487,7 +9400,7 @@ var wp;
   var MAX_ERROR_BACKOFF_IN_MS = 30 * 1e3;
   var POLLING_MANAGER_ORIGIN = "polling-manager";
   var roomStates = /* @__PURE__ */ new Map();
-  function createCompactionUpdate(updates) {
+  function createDeprecatedCompactionUpdate(updates) {
     const mergeable = updates.filter(
       (u) => [SyncUpdateType.COMPACTION, SyncUpdateType.UPDATE].includes(
         u.type
@@ -10599,6 +9512,9 @@ var wp;
         isPolling = false;
         return;
       }
+      roomStates.forEach((state) => {
+        state.onStatusChange({ status: "connecting" });
+      });
       const payload = {
         rooms: Array.from(roomStates.entries()).map(
           ([room, state]) => ({
@@ -10613,6 +9529,9 @@ var wp;
       try {
         const { rooms } = await postSyncUpdate(payload);
         pollInterval = POLLING_INTERVAL_IN_MS;
+        roomStates.forEach((state) => {
+          state.onStatusChange({ status: "connected" });
+        });
         rooms.forEach((room) => {
           if (!roomStates.has(room.room)) {
             return;
@@ -10628,9 +9547,18 @@ var wp;
             (update) => Boolean(update)
           );
           roomState.updateQueue.addBulk(responseUpdates);
-          if (room.compaction_request) {
+          if (room.should_compact) {
+            roomState.log("Server requested compaction update");
+            roomState.updateQueue.clear();
             roomState.updateQueue.add(
-              createCompactionUpdate(room.compaction_request)
+              roomState.createCompactionUpdate()
+            );
+          } else if (room.compaction_request) {
+            roomState.log("Server requested (old) compaction update");
+            roomState.updateQueue.add(
+              createDeprecatedCompactionUpdate(
+                room.compaction_request
+              )
             );
           }
         });
@@ -10653,12 +9581,22 @@ var wp;
             }
           );
         }
+        roomStates.forEach((state) => {
+          state.onStatusChange({ status: "disconnected" });
+        });
       }
       setTimeout(poll, pollInterval);
     }
     void start();
   }
-  function registerRoom(room, doc2, awareness, onSync, log) {
+  function registerRoom({
+    room,
+    doc: doc2,
+    awareness,
+    log,
+    onSync,
+    onStatusChange
+  }) {
     if (roomStates.has(room)) {
       return;
     }
@@ -10679,9 +9617,14 @@ var wp;
     }
     const roomState = {
       clientId: doc2.clientID,
+      createCompactionUpdate: () => createSyncUpdate(
+        encodeStateAsUpdate(doc2),
+        SyncUpdateType.COMPACTION
+      ),
       endCursor: 0,
       localAwarenessState: awareness.getLocalState() ?? {},
       log,
+      onStatusChange,
       processAwarenessUpdate: (state) => processAwarenessUpdate(state, awareness),
       processDocUpdate: (update) => processDocUpdate(update, doc2, onSync),
       unregister,
@@ -10713,20 +9656,21 @@ var wp;
       this.connect();
     }
     awareness;
+    status = "disconnected";
     synced = false;
     /**
      * Connect to the endpoint and initialize sync.
      */
     connect() {
       this.log("Connecting");
-      pollingManager.registerRoom(
-        this.options.room,
-        this.options.ydoc,
-        this.awareness,
-        this.onSync,
-        this.log
-      );
-      this.emitStatus("connected");
+      pollingManager.registerRoom({
+        room: this.options.room,
+        doc: this.options.ydoc,
+        awareness: this.awareness,
+        log: this.log,
+        onStatusChange: this.emitStatus,
+        onSync: this.onSync
+      });
     }
     /**
      * Destroy the provider and cleanup resources.
@@ -10741,16 +9685,26 @@ var wp;
     disconnect() {
       this.log("Disconnecting");
       pollingManager.unregisterRoom(this.options.room);
-      this.emitStatus("disconnected");
+      this.emitStatus({ status: "disconnected" });
     }
     /**
      * Emit connection status.
      *
-     * @param status The connection status
+     * @param status        The connection status
+     * @param status.error  Optional error information when status is 'disconnected'
+     * @param status.status The connection status ('connected', 'connecting', 'disconnected')
      */
-    emitStatus(status) {
-      this.emit("status", [{ status }]);
-    }
+    emitStatus = ({ error, status }) => {
+      if (this.status === status && !error) {
+        return;
+      }
+      if (status === "connecting" && this.status !== "disconnected") {
+        return;
+      }
+      this.log("Status change", { status, error });
+      this.status = status;
+      this.emit("status", [{ error, status }]);
+    };
     /**
      * Log debug messages if debugging is enabled.
      *
@@ -10772,7 +9726,6 @@ var wp;
       if (!this.synced) {
         this.synced = true;
         this.log("Synced");
-        this.emit("synced", [{ synced: true }]);
       }
     };
   };
@@ -10792,7 +9745,11 @@ var wp;
       });
       return {
         destroy: () => provider.destroy(),
-        on: provider.on.bind(provider)
+        // Adapter: ObservableV2.on is compatible with ProviderOn
+        // The callback receives data as the first parameter
+        on: (event, callback) => {
+          provider.on(event, callback);
+        }
       };
     };
   }
@@ -10809,7 +9766,7 @@ var wp;
     if (providerCreators) {
       return providerCreators;
     }
-    if (!window.__wpSyncEnabled) {
+    if (!window._wpCollaborationEnabled) {
       return [];
     }
     const filteredProviderCreators = (0, import_hooks.applyFilters)(
@@ -11103,7 +10060,11 @@ var wp;
   }
 
   // packages/sync/build-module/manager.mjs
-  function createSyncManager() {
+  function getEntityId(objectType, objectId) {
+    return `${objectType}_${objectId}`;
+  }
+  function createSyncManager(debug = false) {
+    const debugWrap = debug ? logPerformanceTiming : passThru;
     const collectionStates = /* @__PURE__ */ new Map();
     const entityStates = /* @__PURE__ */ new Map();
     let undoManager;
@@ -11116,14 +10077,24 @@ var wp;
       if (entityStates.has(entityId)) {
         return;
       }
+      handlers = {
+        addUndoMeta: debugWrap(handlers.addUndoMeta),
+        editRecord: debugWrap(handlers.editRecord),
+        getEditedRecord: debugWrap(handlers.getEditedRecord),
+        onStatusChange: debugWrap(handlers.onStatusChange),
+        refetchRecord: debugWrap(handlers.refetchRecord),
+        restoreUndoMeta: debugWrap(handlers.restoreUndoMeta),
+        saveRecord: debugWrap(handlers.saveRecord)
+      };
       const ydoc = createYjsDoc({ objectType });
       const recordMap = ydoc.getMap(CRDT_RECORD_MAP_KEY);
-      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+      const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
       const now = Date.now();
       const unload = () => {
         providerResults.forEach((result) => result.destroy());
+        handlers.onStatusChange(null);
         recordMap.unobserveDeep(onRecordUpdate);
-        recordMetaMap.unobserve(onRecordMetaUpdate);
+        stateMap.unobserve(onStateMapUpdate);
         ydoc.destroy();
         entityStates.delete(entityId);
       };
@@ -11132,16 +10103,16 @@ var wp;
         if (transaction.local && !(transaction.origin instanceof UndoManager)) {
           return;
         }
-        void updateEntityRecord(objectType, objectId);
+        void internal.updateEntityRecord(objectType, objectId);
       };
-      const onRecordMetaUpdate = (event, transaction) => {
+      const onStateMapUpdate = (event, transaction) => {
         if (transaction.local) {
           return;
         }
         event.keysChanged.forEach((key) => {
           switch (key) {
-            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
-              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
+            case CRDT_STATE_MAP_SAVED_AT_KEY:
+              const newValue = stateMap.get(CRDT_STATE_MAP_SAVED_AT_KEY);
               if ("number" === typeof newValue && newValue > now) {
                 void handlers.refetchRecord().catch(() => {
                 });
@@ -11176,13 +10147,13 @@ var wp;
             ydoc,
             awareness
           });
-          provider.on("sync-connection-status", handlers.onStateChange);
+          provider.on("status", handlers.onStatusChange);
           return provider;
         })
       );
       recordMap.observeDeep(onRecordUpdate);
-      recordMetaMap.observe(onRecordMetaUpdate);
-      applyPersistedCrdtDoc(objectType, objectId, record);
+      stateMap.observe(onStateMapUpdate);
+      internal.applyPersistedCrdtDoc(objectType, objectId, record);
     }
     async function loadCollection(syncConfig, objectType, handlers) {
       const providerCreators2 = getProviderCreators();
@@ -11193,22 +10164,23 @@ var wp;
         return;
       }
       const ydoc = createYjsDoc({ collection: true, objectType });
-      const recordMetaMap = ydoc.getMap(CRDT_RECORD_METADATA_MAP_KEY);
+      const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
       const now = Date.now();
       const unload = () => {
         providerResults.forEach((result) => result.destroy());
-        recordMetaMap.unobserve(onRecordMetaUpdate);
+        handlers.onStatusChange(null);
+        stateMap.unobserve(onStateMapUpdate);
         ydoc.destroy();
         collectionStates.delete(objectType);
       };
-      const onRecordMetaUpdate = (event, transaction) => {
+      const onStateMapUpdate = (event, transaction) => {
         if (transaction.local) {
           return;
         }
         event.keysChanged.forEach((key) => {
           switch (key) {
-            case CRDT_RECORD_METADATA_SAVED_AT_KEY:
-              const newValue = recordMetaMap.get(CRDT_RECORD_METADATA_SAVED_AT_KEY);
+            case CRDT_STATE_MAP_SAVED_AT_KEY:
+              const newValue = stateMap.get(CRDT_STATE_MAP_SAVED_AT_KEY);
               if ("number" === typeof newValue && newValue > now) {
                 void handlers.refetchRecords().catch(() => {
                 });
@@ -11234,18 +10206,15 @@ var wp;
             objectId: null,
             ydoc
           });
-          provider.on("sync-connection-status", handlers.onStateChange);
+          provider.on("status", handlers.onStatusChange);
           return provider;
         })
       );
-      recordMetaMap.observe(onRecordMetaUpdate);
+      stateMap.observe(onStateMapUpdate);
     }
     function unloadEntity(objectType, objectId) {
       entityStates.get(getEntityId(objectType, objectId))?.unload();
       updateCRDTDoc(objectType, null, {}, origin, { isSave: true });
-    }
-    function getEntityId(objectType, objectId) {
-      return `${objectType}_${objectId}`;
     }
     function getAwareness(objectType, objectId) {
       const entityId = getEntityId(objectType, objectId);
@@ -11255,7 +10224,7 @@ var wp;
       }
       return entityState.awareness;
     }
-    function applyPersistedCrdtDoc(objectType, objectId, record) {
+    function _applyPersistedCrdtDoc(objectType, objectId, record) {
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
       if (!entityState) {
@@ -11280,7 +10249,9 @@ var wp;
       if (!tempDoc) {
         targetDoc.transact(() => {
           applyChangesToCRDTDoc(targetDoc, record);
-          handlers.saveRecord();
+          if ("auto-draft" !== record.status) {
+            handlers.saveRecord();
+          }
         }, LOCAL_SYNC_MANAGER_ORIGIN);
         return;
       }
@@ -11326,7 +10297,7 @@ var wp;
         }, origin2);
       }
     }
-    async function updateEntityRecord(objectType, objectId) {
+    async function _updateEntityRecord(objectType, objectId) {
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
       if (!entityState) {
@@ -11350,22 +10321,235 @@ var wp;
       }
       return createPersistedCRDTDoc(entityState.ydoc);
     }
+    const internal = {
+      applyPersistedCrdtDoc: debugWrap(_applyPersistedCrdtDoc),
+      updateEntityRecord: debugWrap(_updateEntityRecord)
+    };
     return {
-      createMeta: createEntityMeta,
+      createMeta: debugWrap(createEntityMeta),
       getAwareness,
-      load: loadEntity,
-      loadCollection,
+      load: debugWrap(loadEntity),
+      loadCollection: debugWrap(loadCollection),
       // Use getter to ensure we always return the current value of `undoManager`.
       get undoManager() {
         return undoManager;
       },
-      unload: unloadEntity,
-      update: updateCRDTDoc
+      unload: debugWrap(unloadEntity),
+      update: debugWrap(yieldToEventLoop(updateCRDTDoc))
     };
   }
 
+  // packages/sync/node_modules/diff/libesm/diff/base.js
+  var Diff = class {
+    diff(oldStr, newStr, options = {}) {
+      let callback;
+      if (typeof options === "function") {
+        callback = options;
+        options = {};
+      } else if ("callback" in options) {
+        callback = options.callback;
+      }
+      const oldString = this.castInput(oldStr, options);
+      const newString = this.castInput(newStr, options);
+      const oldTokens = this.removeEmpty(this.tokenize(oldString, options));
+      const newTokens = this.removeEmpty(this.tokenize(newString, options));
+      return this.diffWithOptionsObj(oldTokens, newTokens, options, callback);
+    }
+    diffWithOptionsObj(oldTokens, newTokens, options, callback) {
+      var _a;
+      const done = (value) => {
+        value = this.postProcess(value, options);
+        if (callback) {
+          setTimeout(function() {
+            callback(value);
+          }, 0);
+          return void 0;
+        } else {
+          return value;
+        }
+      };
+      const newLen = newTokens.length, oldLen = oldTokens.length;
+      let editLength = 1;
+      let maxEditLength = newLen + oldLen;
+      if (options.maxEditLength != null) {
+        maxEditLength = Math.min(maxEditLength, options.maxEditLength);
+      }
+      const maxExecutionTime = (_a = options.timeout) !== null && _a !== void 0 ? _a : Infinity;
+      const abortAfterTimestamp = Date.now() + maxExecutionTime;
+      const bestPath = [{ oldPos: -1, lastComponent: void 0 }];
+      let newPos = this.extractCommon(bestPath[0], newTokens, oldTokens, 0, options);
+      if (bestPath[0].oldPos + 1 >= oldLen && newPos + 1 >= newLen) {
+        return done(this.buildValues(bestPath[0].lastComponent, newTokens, oldTokens));
+      }
+      let minDiagonalToConsider = -Infinity, maxDiagonalToConsider = Infinity;
+      const execEditLength = () => {
+        for (let diagonalPath = Math.max(minDiagonalToConsider, -editLength); diagonalPath <= Math.min(maxDiagonalToConsider, editLength); diagonalPath += 2) {
+          let basePath;
+          const removePath = bestPath[diagonalPath - 1], addPath = bestPath[diagonalPath + 1];
+          if (removePath) {
+            bestPath[diagonalPath - 1] = void 0;
+          }
+          let canAdd = false;
+          if (addPath) {
+            const addPathNewPos = addPath.oldPos - diagonalPath;
+            canAdd = addPath && 0 <= addPathNewPos && addPathNewPos < newLen;
+          }
+          const canRemove = removePath && removePath.oldPos + 1 < oldLen;
+          if (!canAdd && !canRemove) {
+            bestPath[diagonalPath] = void 0;
+            continue;
+          }
+          if (!canRemove || canAdd && removePath.oldPos < addPath.oldPos) {
+            basePath = this.addToPath(addPath, true, false, 0, options);
+          } else {
+            basePath = this.addToPath(removePath, false, true, 1, options);
+          }
+          newPos = this.extractCommon(basePath, newTokens, oldTokens, diagonalPath, options);
+          if (basePath.oldPos + 1 >= oldLen && newPos + 1 >= newLen) {
+            return done(this.buildValues(basePath.lastComponent, newTokens, oldTokens)) || true;
+          } else {
+            bestPath[diagonalPath] = basePath;
+            if (basePath.oldPos + 1 >= oldLen) {
+              maxDiagonalToConsider = Math.min(maxDiagonalToConsider, diagonalPath - 1);
+            }
+            if (newPos + 1 >= newLen) {
+              minDiagonalToConsider = Math.max(minDiagonalToConsider, diagonalPath + 1);
+            }
+          }
+        }
+        editLength++;
+      };
+      if (callback) {
+        (function exec() {
+          setTimeout(function() {
+            if (editLength > maxEditLength || Date.now() > abortAfterTimestamp) {
+              return callback(void 0);
+            }
+            if (!execEditLength()) {
+              exec();
+            }
+          }, 0);
+        })();
+      } else {
+        while (editLength <= maxEditLength && Date.now() <= abortAfterTimestamp) {
+          const ret = execEditLength();
+          if (ret) {
+            return ret;
+          }
+        }
+      }
+    }
+    addToPath(path, added, removed, oldPosInc, options) {
+      const last2 = path.lastComponent;
+      if (last2 && !options.oneChangePerToken && last2.added === added && last2.removed === removed) {
+        return {
+          oldPos: path.oldPos + oldPosInc,
+          lastComponent: { count: last2.count + 1, added, removed, previousComponent: last2.previousComponent }
+        };
+      } else {
+        return {
+          oldPos: path.oldPos + oldPosInc,
+          lastComponent: { count: 1, added, removed, previousComponent: last2 }
+        };
+      }
+    }
+    extractCommon(basePath, newTokens, oldTokens, diagonalPath, options) {
+      const newLen = newTokens.length, oldLen = oldTokens.length;
+      let oldPos = basePath.oldPos, newPos = oldPos - diagonalPath, commonCount = 0;
+      while (newPos + 1 < newLen && oldPos + 1 < oldLen && this.equals(oldTokens[oldPos + 1], newTokens[newPos + 1], options)) {
+        newPos++;
+        oldPos++;
+        commonCount++;
+        if (options.oneChangePerToken) {
+          basePath.lastComponent = { count: 1, previousComponent: basePath.lastComponent, added: false, removed: false };
+        }
+      }
+      if (commonCount && !options.oneChangePerToken) {
+        basePath.lastComponent = { count: commonCount, previousComponent: basePath.lastComponent, added: false, removed: false };
+      }
+      basePath.oldPos = oldPos;
+      return newPos;
+    }
+    equals(left, right, options) {
+      if (options.comparator) {
+        return options.comparator(left, right);
+      } else {
+        return left === right || !!options.ignoreCase && left.toLowerCase() === right.toLowerCase();
+      }
+    }
+    removeEmpty(array) {
+      const ret = [];
+      for (let i = 0; i < array.length; i++) {
+        if (array[i]) {
+          ret.push(array[i]);
+        }
+      }
+      return ret;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    castInput(value, options) {
+      return value;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    tokenize(value, options) {
+      return Array.from(value);
+    }
+    join(chars) {
+      return chars.join("");
+    }
+    postProcess(changeObjects, options) {
+      return changeObjects;
+    }
+    get useLongestToken() {
+      return false;
+    }
+    buildValues(lastComponent, newTokens, oldTokens) {
+      const components = [];
+      let nextComponent;
+      while (lastComponent) {
+        components.push(lastComponent);
+        nextComponent = lastComponent.previousComponent;
+        delete lastComponent.previousComponent;
+        lastComponent = nextComponent;
+      }
+      components.reverse();
+      const componentLen = components.length;
+      let componentPos = 0, newPos = 0, oldPos = 0;
+      for (; componentPos < componentLen; componentPos++) {
+        const component = components[componentPos];
+        if (!component.removed) {
+          if (!component.added && this.useLongestToken) {
+            let value = newTokens.slice(newPos, newPos + component.count);
+            value = value.map(function(value2, i) {
+              const oldValue = oldTokens[oldPos + i];
+              return oldValue.length > value2.length ? oldValue : value2;
+            });
+            component.value = this.join(value);
+          } else {
+            component.value = this.join(newTokens.slice(newPos, newPos + component.count));
+          }
+          newPos += component.count;
+          if (!component.added) {
+            oldPos += component.count;
+          }
+        } else {
+          component.value = this.join(oldTokens.slice(oldPos, oldPos + component.count));
+          oldPos += component.count;
+        }
+      }
+      return components;
+    }
+  };
+
+  // packages/sync/node_modules/diff/libesm/diff/character.js
+  var CharacterDiff = class extends Diff {
+  };
+  var characterDiff = new CharacterDiff();
+  function diffChars(oldStr, newStr, options) {
+    return characterDiff.diff(oldStr, newStr, options);
+  }
+
   // packages/sync/build-module/quill-delta/Delta.mjs
-  var import_diff = __toESM(require_diff(), 1);
   var import_es62 = __toESM(require_es6(), 1);
 
   // packages/sync/build-module/quill-delta/AttributeMap.mjs
@@ -11830,7 +11014,7 @@ var wp;
         return new _Delta();
       }
       const strings = this.deltasToStrings(other);
-      const diffResult = (0, import_diff.diffChars)(strings[0], strings[1]);
+      const diffResult = diffChars(strings[0], strings[1]);
       const thisIter = new Iterator(this.ops);
       const otherIter = new Iterator(other.ops);
       const retDelta = this.convertChangesToDelta(
@@ -12000,7 +11184,7 @@ var wp;
         return this.diff(other);
       }
       const strings = this.deltasToStrings(other);
-      let diffs = (0, import_diff.diffChars)(strings[0], strings[1]);
+      let diffs = diffChars(strings[0], strings[1]);
       let lastDiffPosition = 0;
       const adjustedDiffs = [];
       for (let i = 0; i < diffs.length; i++) {
@@ -12228,11 +11412,7 @@ var wp;
     Delta: Delta_default,
     CRDT_DOC_META_PERSISTENCE_KEY,
     CRDT_RECORD_MAP_KEY,
-    CRDT_RECORD_METADATA_MAP_KEY,
-    CRDT_RECORD_METADATA_SAVED_AT_KEY,
-    CRDT_RECORD_METADATA_SAVED_BY_KEY,
     LOCAL_EDITOR_ORIGIN,
-    LOCAL_SYNC_MANAGER_ORIGIN,
     WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
   });
 
@@ -12240,45 +11420,4 @@ var wp;
   var YJS_VERSION = "13";
   return __toCommonJS(index_exports);
 })();
-/*! Bundled license information:
-
-diff/dist/diff.js:
-  (*!
-  
-   diff v4.0.1
-  
-  Software License Agreement (BSD License)
-  
-  Copyright (c) 2009-2015, Kevin Decker <kpdecker@gmail.com>
-  
-  All rights reserved.
-  
-  Redistribution and use of this software in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
-  
-  * Redistributions of source code must retain the above
-    copyright notice, this list of conditions and the
-    following disclaimer.
-  
-  * Redistributions in binary form must reproduce the above
-    copyright notice, this list of conditions and the
-    following disclaimer in the documentation and/or other
-    materials provided with the distribution.
-  
-  * Neither the name of Kevin Decker nor the names of its
-    contributors may be used to endorse or promote products
-    derived from this software without specific prior
-    written permission.
-  
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
-  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-  FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-  IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-  OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  @license
-  *)
-*/
 //# sourceMappingURL=index.js.map

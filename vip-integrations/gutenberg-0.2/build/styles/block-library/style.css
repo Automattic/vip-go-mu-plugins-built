@@ -1746,6 +1746,27 @@ h6.has-text-align-left[style*=writing-mode]:where([style*=vertical-lr]) {
   rotate: 180deg;
 }
 
+/**
+ * Editor and frontend styles for the Icon Block.
+ */
+/* Icon Block styles. */
+.wp-block-icon {
+  line-height: 0;
+}
+.wp-block-icon.aligncenter {
+  display: flex;
+  justify-content: center;
+}
+.wp-block-icon svg {
+  box-sizing: border-box;
+  fill: currentColor;
+}
+
+:where(.wp-block-icon) svg {
+  width: 100%;
+  height: 100%;
+}
+
 .wp-block-image > a,
 .wp-block-image > figure > a {
   display: inline-block;
@@ -4414,9 +4435,6 @@ ul.wp-block-rss.is-grid li {
 .wp-block-tab[hidden], .wp-block-tab:empty {
   display: none !important;
 }
-.wp-block-tab:not(.wp-block):focus {
-  outline: none;
-}
 
 .wp-block-tab.wp-block.has-background,
 .wp-block-tab:not(.wp-block).has-background {
@@ -4583,15 +4601,19 @@ ul.wp-block-rss.is-grid li {
 
 .wp-block-tabs-menu-item {
   box-sizing: border-box;
+  color: inherit;
   display: block;
   width: max-content;
   text-decoration: none;
   cursor: pointer;
   flex-basis: inherit !important;
   flex-grow: inherit !important;
+  border: none;
+  background: none;
+  appearance: none;
+  -webkit-appearance: none;
   margin: 0;
-  padding-block: var(--tab-padding-block, var(--wp--preset--spacing--20, 0.5em));
-  padding-inline: var(--tab-padding-inline, var(--wp--preset--spacing--30, 1em));
+  padding: var(--wp--preset--spacing--20, 0.5em) var(--wp--preset--spacing--30, 1em);
   font-size: inherit;
   font-family: inherit;
   font-weight: inherit;
@@ -4600,20 +4622,12 @@ ul.wp-block-rss.is-grid li {
   text-transform: inherit;
   text-align: inherit;
 }
-.wp-block-tabs-menu-item:focus {
-  outline: none;
-}
 .wp-block-tabs-menu-item:focus-visible {
-  outline: 2px solid var(--tab-border-color-active, #000);
   outline-offset: 2px;
 }
-.wp-block-tabs-menu-item:hover {
-  background-color: var(--custom-tab-hover-color, #eaeaea) !important;
-  color: var(--custom-tab-hover-text-color, #000) !important;
-}
 .wp-block-tabs-menu-item[aria-selected=true], .wp-block-tabs-menu-item.is-active {
-  background-color: var(--custom-tab-active-color, #000) !important;
-  color: var(--custom-tab-active-text-color, #fff) !important;
+  background-color: #000;
+  color: #fff;
 }
 
 .wp-block-term-count {
@@ -4889,6 +4903,10 @@ a[data-fn].fn::after {
  * See: https://github.com/WordPress/gutenberg/pull/33743
  */
 html :where(.has-border-color) {
+  border-style: solid;
+}
+
+html :where([style*=border-color]) {
   border-style: solid;
 }
 
