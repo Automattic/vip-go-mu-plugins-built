@@ -31,6 +31,9 @@ class Ingestion_CLI extends WP_CLI_Command {
 	 * [--reset]
 	 * : Reset a stuck or completed sync so a new one can be started.
 	 *
+	 * [--preflight-check]
+	 * : Check if the site is ready for sync (config propagated, filters registered). Returns JSON with readiness status.
+	 *
 	 * [--format=<format>]
 	 * : Output format. Use 'json' for machine-readable output.
 	 * ---
@@ -69,6 +72,12 @@ class Ingestion_CLI extends WP_CLI_Command {
 		// Handle --reset flag.
 		if ( isset( $assoc_args['reset'] ) ) {
 			$this->reset_sync();
+			return;
+		}
+
+		// Handle --preflight-check flag.
+		if ( isset( $assoc_args['preflight-check'] ) ) {
+			$this->preflight_check( $assoc_args );
 			return;
 		}
 
@@ -219,6 +228,59 @@ class Ingestion_CLI extends WP_CLI_Command {
 				'post_types' => array_values( $post_types ),
 			]
 		);
+	}
+
+	/**
+	 * Check if the site is ready for a sync operation.
+	 *
+	 * Verifies that the configuration has propagated to the WordPress runtime
+	 * by checking for registered filters and required API configuration.
+	 *
+	 * @param array<string, string> $assoc_args Associative arguments (supports 'format').
+	 */
+	private function preflight_check( array $assoc_args = [] ): void {
+		$format = $assoc_args['format'] ?? 'json';
+
+		$config = \Automattic\VIP\Salesforce\Agentforce\Utils\Configs::get_config();
+
+		$has_filter       = (bool) has_filter( 'vip_agentforce_should_ingest_post' );
+		$sync_all_posts   = \Automattic\VIP\Salesforce\Agentforce\Utils\Configs::should_sync_all_posts();
+		$categories       = \Automattic\VIP\Salesforce\Agentforce\Utils\Configs::get_ingestion_categories();
+		$has_api_url      = ! empty( $config['ingestion_api_instance_url'] );
+		$has_api_token    = ! empty( $config['ingestion_api_token'] );
+		$has_api_source   = ! empty( $config['ingestion_api_source_name'] );
+		$has_api_object   = ! empty( $config['ingestion_api_object_name'] );
+		$has_required_api = $has_api_url && $has_api_token && $has_api_source && $has_api_object;
+
+		// Ready if filter is registered AND all required API config is present.
+		$ready = $has_filter && $has_required_api;
+
+		$result = [
+			'ready'             => $ready,
+			'filter_registered' => $has_filter,
+			'sync_all_posts'    => $sync_all_posts,
+			'categories'        => $categories,
+			'categories_count'  => count( $categories ),
+			'has_api_url'       => $has_api_url,
+			'has_api_token'     => $has_api_token,
+			'has_api_source'    => $has_api_source,
+			'has_api_object'    => $has_api_object,
+		];
+
+		if ( 'json' === $format ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- CLI output.
+			echo json_encode( $result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES );
+		} else {
+			WP_CLI::log( '=== Preflight Check ===' );
+			WP_CLI::log( sprintf( 'Ready: %s', $ready ? 'Yes' : 'No' ) );
+			WP_CLI::log( sprintf( 'Filter registered: %s', $has_filter ? 'Yes' : 'No' ) );
+			WP_CLI::log( sprintf( 'Sync all posts: %s', $sync_all_posts ? 'Yes' : 'No' ) );
+			WP_CLI::log( sprintf( 'Categories configured: %d', count( $categories ) ) );
+			WP_CLI::log( sprintf( 'API URL: %s', $has_api_url ? 'Set' : 'Missing' ) );
+			WP_CLI::log( sprintf( 'API token: %s', $has_api_token ? 'Set' : 'Missing' ) );
+			WP_CLI::log( sprintf( 'API source: %s', $has_api_source ? 'Set' : 'Missing' ) );
+			WP_CLI::log( sprintf( 'API object: %s', $has_api_object ? 'Set' : 'Missing' ) );
+		}
 	}
 
 	/**

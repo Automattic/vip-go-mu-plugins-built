@@ -139,11 +139,17 @@ class Assets {
 			true
 		);
 
+		$prechat_fields = Configs::get_prechat_fields();
+
 		$localize_data = array(
 			'embedding' => array(
 				'bootstrapSrc' => $parsed_embedding_script['bootstrap_src'],
 			),
 		);
+
+		if ( ! empty( $prechat_fields ) ) {
+			$localize_data['prechatFields'] = $prechat_fields;
+		}
 
 		// we're late loading the options to make sure we load them only if needed.
 		if ( 'OneTrust' === $consent_type ) {
