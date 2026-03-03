@@ -99,7 +99,8 @@ class Assets {
 	 * @return void
 	 */
 	public function enqueue_consent_scripts() {
-		if ( ! Configs::is_js_sdk_activated() ) {
+		$debug_preview = $this->is_debug_preview_enabled();
+		if ( ! $debug_preview && ! Configs::is_js_sdk_activated() ) {
 			return;
 		}
 		$parsed_embedding_script = $this->parse_embedding_script( Configs::get_embedding_script() );
@@ -107,7 +108,7 @@ class Assets {
 			return;
 		}
 
-		$consent_type     = get_option( 'vip_agentforce_consent_type', Constants::DEFAULT_CMP );
+		$consent_type     = $this->get_consent_type_for_request( $debug_preview );
 		$integration_path = $this->get_integration_path();
 
 		if ( ! in_array( $consent_type, Constants::SUPPORTED_CMPS, true ) ) {
@@ -179,7 +180,88 @@ class Assets {
 			return;
 		}
 
+		if ( $debug_preview ) {
+			wp_add_inline_script(
+				$script_handle,
+				'if ( window.AgentforceCMP && typeof window.AgentforceCMP.loadSDK === "function" ) { window.AgentforceCMP.loadSDK(); }',
+				'after'
+			);
+		}
+
 		wp_enqueue_script( $script_handle );
+	}
+
+	/**
+	 * Determine which CMP integration to run for the current request.
+	 *
+	 * @param bool $debug_preview_enabled Whether debug preview mode is enabled.
+	 * @return string
+	 */
+	private function get_consent_type_for_request( bool $debug_preview_enabled ): string {
+		if ( $debug_preview_enabled ) {
+			return 'Custom';
+		}
+
+		$consent_type = get_option( 'vip_agentforce_consent_type', Constants::DEFAULT_CMP );
+		if ( ! is_string( $consent_type ) || '' === $consent_type ) {
+			return Constants::DEFAULT_CMP;
+		}
+
+		return $consent_type;
+	}
+
+	/**
+	 * Whether the request is using debug preview mode.
+	 *
+	 * @return bool
+	 */
+	private function is_debug_preview_enabled(): bool {
+		if ( ! is_user_logged_in() || ! $this->current_user_can_debug_preview() ) {
+			return false;
+		}
+
+		$debug_value = '';
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only query param for preview mode.
+		if ( isset( $_GET['vip_agentforce_debug'] ) ) {
+			$debug_value = sanitize_text_field( wp_unslash( $_GET['vip_agentforce_debug'] ) );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return 'true' === strtolower( $debug_value );
+	}
+
+	/**
+	 * Whether current user can use Agentforce debug preview mode.
+	 *
+	 * @return bool
+	 */
+	private function current_user_can_debug_preview(): bool {
+		$allowed_capabilities = apply_filters(
+			'vip_agentforce_debug_preview_capabilities',
+			array( 'manage_options' )
+		);
+
+		if ( ! is_array( $allowed_capabilities ) || empty( $allowed_capabilities ) ) {
+			$allowed_capabilities = array( 'manage_options' );
+		}
+
+		foreach ( $allowed_capabilities as $capability ) {
+			if ( ! is_string( $capability ) ) {
+				continue;
+			}
+
+			$capability = trim( $capability );
+			if ( '' === $capability ) {
+				continue;
+			}
+
+			// phpcs:ignore WordPress.WP.Capabilities.Undetermined -- Capability list is filterable and validated as non-empty strings.
+			if ( current_user_can( $capability ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
