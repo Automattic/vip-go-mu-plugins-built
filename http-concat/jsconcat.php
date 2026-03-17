@@ -119,8 +119,11 @@ class WPcom_JS_Concat extends WP_Scripts {
 				$do_concat = false;
 			}
 
-			// Allow plugins to disable concatenation of certain scripts.
-			$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
+			// Only allow filter for anything that is currently concat'ing
+			// Scripts which are not concat'able should stay that way
+			if ( true === $do_concat ) {
+				$do_concat = apply_filters( 'js_do_concat', $do_concat, $handle );
+			}
 
 			if ( true === $do_concat ) {
 				if ( !isset( $javascripts[$level] ) )

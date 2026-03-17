@@ -87,8 +87,11 @@ class WPcom_CSS_Concat extends WP_Styles {
 			else
 				$css_url_parsed['path'] = substr( $css_realpath, strlen( ABSPATH ) - 1 );
 
-			// Allow plugins to disable concatenation of certain stylesheets.
-			$do_concat = apply_filters( 'css_do_concat', $do_concat, $handle );
+			// Only allow filter for anything that is currently concat'ing
+			// Stylesheets which are not concat'able should stay that way
+			if ( true === $do_concat ) {
+				$do_concat = apply_filters( 'css_do_concat', $do_concat, $handle );
+			}
 
 			if ( true === $do_concat ) {
 				$media = $obj->args;

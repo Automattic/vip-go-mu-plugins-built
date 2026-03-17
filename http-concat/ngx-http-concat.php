@@ -15,6 +15,10 @@
 require_once( __DIR__ . '/cssmin/cssmin.php' );
 require_once( __DIR__ . '/concat-utils.php' );
 
+if ( extension_loaded( 'newrelic' ) ) { // Ensure PHP agent is available
+	newrelic_ignore_transaction();
+}
+
 /* Config */
 // Maximum group size is set in WPCOM_Concat_Utils::$concat_max, anything over than that will be spit into multiple groups
 $concat_unique = true;
@@ -177,6 +181,14 @@ foreach ( $args as $uri ) {
 		// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 		$buf = WPCOM_Concat_Utils::relative_path_replace( $buf, $dirpath );
 
+		// Try to detect if this is a likely minified file by looking at the average line length.
+		// If it's over 500 chars, we consider it minified and skip the minification step to avoid
+		// attempts to minify already minified files, which can cause long processing times and timeouts.
+		$is_likely_minified = false;
+		$line_count         = substr_count( $buf, "\n" ) + 1;
+		$avg_line_length    = strlen( $buf ) / $line_count;
+		$is_likely_minified = $avg_line_length > 500;
+
 		// The @charset rules must be on top of the output
 		if ( 0 === strpos( $buf, '@charset' ) ) {
 			preg_replace_callback(
@@ -215,7 +227,11 @@ foreach ( $args as $uri ) {
 			);
 		}
 
-		$buf = $css_minify->run( $buf );
+		if ( ! $is_likely_minified ) {
+			$buf = $css_minify->run( $buf );
+		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( sprintf( 'ngx-http-concat: The file %s appears to be already minified, skipping minification step.', rawurlencode( $uri ) ) );
+		}
 	}
 
 	if ( 'application/javascript' == $mime_type )
