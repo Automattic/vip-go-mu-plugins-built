@@ -3351,7 +3351,8 @@ return array(
 			'interactivity' => array(
 				'clientNavigation' => true
 			),
-			'customCSS' => false
+			'customCSS' => false,
+			'visibility' => false
 		),
 		'editorStyle' => 'wp-block-html-editor'
 	),
@@ -3427,19 +3428,10 @@ return array(
 			)
 		),
 		'selectors' => array(
-			'root' => '.wp-block-icon',
-			'color' => array(
-				'root' => '.wp-block-icon svg'
-			),
-			'border' => array(
-				'root' => '.wp-block-icon svg'
-			),
+			'root' => '.wp-block-icon svg',
+			'css' => '.wp-block-icon',
 			'spacing' => array(
-				'padding' => '.wp-block-icon svg'
-			),
-			'dimensions' => array(
-				'root' => '.wp-block-icon svg',
-				'width' => '.wp-block-icon svg'
+				'margin' => '.wp-block-icon'
 			)
 		),
 		'style' => 'wp-block-icon',
@@ -4778,7 +4770,6 @@ return array(
 		),
 		'textdomain' => 'default',
 		'supports' => array(
-			'anchor' => true,
 			'customClassName' => false,
 			'className' => false,
 			'html' => false,
@@ -6041,6 +6032,9 @@ return array(
 		'description' => 'Displays the next or previous post link that is adjacent to the current post.',
 		'textdomain' => 'default',
 		'attributes' => array(
+			'textAlign' => array(
+				'type' => 'string'
+			),
 			'type' => array(
 				'type' => 'string',
 				'default' => 'next'
@@ -6079,7 +6073,6 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
-				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6337,6 +6330,9 @@ return array(
 			'queryId'
 		),
 		'attributes' => array(
+			'textAlign' => array(
+				'type' => 'string'
+			),
 			'level' => array(
 				'type' => 'number',
 				'default' => 2
@@ -6387,7 +6383,6 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
-				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontWeight' => true,
 				'__experimentalFontStyle' => true,
@@ -6936,6 +6931,9 @@ return array(
 			'type' => array(
 				'type' => 'string'
 			),
+			'textAlign' => array(
+				'type' => 'string'
+			),
 			'level' => array(
 				'type' => 'number',
 				'default' => 1
@@ -6981,7 +6979,6 @@ return array(
 			'typography' => array(
 				'fontSize' => true,
 				'lineHeight' => true,
-				'textAlign' => true,
 				'__experimentalFontFamily' => true,
 				'__experimentalFontStyle' => true,
 				'__experimentalFontWeight' => true,
@@ -7542,7 +7539,8 @@ return array(
 			'className' => false,
 			'customClassName' => false,
 			'html' => false,
-			'customCSS' => false
+			'customCSS' => false,
+			'visibility' => false
 		),
 		'editorStyle' => 'wp-block-shortcode-editor'
 	),
@@ -8642,7 +8640,30 @@ return array(
 			'core/tabs-editorActiveTabIndex'
 		),
 		'attributes' => array(
-			
+			'activeBackgroundColor' => array(
+				'type' => 'string'
+			),
+			'customActiveBackgroundColor' => array(
+				'type' => 'string'
+			),
+			'activeTextColor' => array(
+				'type' => 'string'
+			),
+			'customActiveTextColor' => array(
+				'type' => 'string'
+			),
+			'hoverBackgroundColor' => array(
+				'type' => 'string'
+			),
+			'customHoverBackgroundColor' => array(
+				'type' => 'string'
+			),
+			'hoverTextColor' => array(
+				'type' => 'string'
+			),
+			'customHoverTextColor' => array(
+				'type' => 'string'
+			)
 		),
 		'supports' => array(
 			'html' => false,

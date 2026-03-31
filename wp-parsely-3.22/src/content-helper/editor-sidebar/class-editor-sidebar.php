@@ -170,6 +170,13 @@ class Editor_Sidebar extends Content_Helper_Feature {
 			);
 		}
 
+		// Inject the admin URL for generating admin page links.
+		wp_add_inline_script(
+			static::get_script_id(),
+			'window.wpParselyAdminUrl = ' . wp_json_encode( admin_url() ) . ';',
+			'before'
+		);
+
 		// Inject the trackable statuses.
 		$trackable_statuses = Parsely::get_trackable_statuses();
 		wp_add_inline_script(

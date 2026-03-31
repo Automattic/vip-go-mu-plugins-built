@@ -20,6 +20,19 @@ import { SmartLinkingPanel, SmartLinkingPanelContext } from '../smart-linking/co
 import { TitleSuggestionsPanel } from '../title-suggestions/component';
 
 /**
+ * Builds the Boost Engagement button URL from the admin base URL and post ID.
+ *
+ * @since 3.22.1
+ *
+ * @param {string} adminUrl The WordPress admin base URL.
+ * @param {number} postId   The current post ID.
+ * @return {string} The full URL to the engagement-boost page for the given post.
+ */
+export function getBoostEngagementUrl( adminUrl: string, postId: number ): string {
+	return `${ adminUrl }admin.php?page=parsely-dashboard-page#/engagement-boost/${ postId }`;
+}
+
+/**
  * SidebarToolsTab component props.
  *
  * @since 3.14.0
@@ -57,7 +70,8 @@ export const SidebarToolsTab = (
 
 	return (
 		<Panel>
-			{ permissions.TitleSuggestions &&
+			<VerifyCredentials>
+				{ permissions.TitleSuggestions &&
 				<PanelBody
 					title={ __( 'Title Suggestions', 'wp-parsely' ) }
 					initialOpen={ settings.TitleSuggestions.Open }
@@ -71,36 +85,32 @@ export const SidebarToolsTab = (
 						trackToggle( 'title_suggestions', next );
 					} }
 				>
-					<VerifyCredentials>
-						<TitleSuggestionsPanel />
-					</VerifyCredentials>
+					<TitleSuggestionsPanel />
 				</PanelBody>
-			}
+				}
 
-			{
-				permissions.ExcerptSuggestions &&
-				<PostTypeSupportCheck supportKeys="excerpt">
-					<PanelBody
-						title={ __( 'Excerpt Suggestions', 'wp-parsely' ) }
-						initialOpen={ settings.ExcerptSuggestions.Open }
-						onToggle={ ( next ) => {
-							setSettings( {
-								ExcerptSuggestions: {
-									...settings.ExcerptSuggestions,
-									Open: next,
-								},
-							} );
-							trackToggle( 'excerpt_suggestions', next );
-						} }
-					>
-						<VerifyCredentials>
+				{
+					permissions.ExcerptSuggestions &&
+					<PostTypeSupportCheck supportKeys="excerpt">
+						<PanelBody
+							title={ __( 'Excerpt Suggestions', 'wp-parsely' ) }
+							initialOpen={ settings.ExcerptSuggestions.Open }
+							onToggle={ ( next ) => {
+								setSettings( {
+									ExcerptSuggestions: {
+										...settings.ExcerptSuggestions,
+										Open: next,
+									},
+								} );
+								trackToggle( 'excerpt_suggestions', next );
+							} }
+						>
 							<PostExcerptSuggestions />
-						</VerifyCredentials>
-					</PanelBody>
-				</PostTypeSupportCheck>
-			}
+						</PanelBody>
+					</PostTypeSupportCheck>
+				}
 
-			{ permissions.SmartLinking &&
+				{ permissions.SmartLinking &&
 				<PanelBody
 					title={ __( 'Smart Linking', 'wp-parsely' ) }
 					initialOpen={ settings.SmartLinking.Open }
@@ -114,47 +124,42 @@ export const SidebarToolsTab = (
 						trackToggle( 'smart_linking', next );
 					} }
 				>
-					<VerifyCredentials>
-						<SmartLinkingPanel
-							context={ SmartLinkingPanelContext.ContentHelperSidebar }
-							permissions={ permissions }
-						/>
-					</VerifyCredentials>
+					<SmartLinkingPanel
+						context={ SmartLinkingPanelContext.ContentHelperSidebar }
+						permissions={ permissions }
+					/>
 				</PanelBody>
-			}
-
-			<PanelBody
-				title={ __( 'Related Posts', 'wp-parsely' ) }
-				initialOpen={ settings.RelatedPosts.Open }
-				onToggle={ ( next ) => {
-					setSettings( {
-						RelatedPosts: {
-							...settings.RelatedPosts,
-							Open: next,
-						},
-					} );
-					trackToggle( 'related_top_posts', next );
-				} }
-			>
-				{
-					<VerifyCredentials>
-						<RelatedPostsPanel />
-					</VerifyCredentials>
 				}
-			</PanelBody>
 
-			{ postId > 0 && isPostTrackable && permissions.TrafficBoost &&
-				<Button
-					className="boost-engagement"
-					href={ `/wp-admin/admin.php?page=parsely-dashboard-page#/engagement-boost/${ postId }` }
-					rel="noopener"
-					target="_blank"
-					variant="secondary"
+				<PanelBody
+					title={ __( 'Related Posts', 'wp-parsely' ) }
+					initialOpen={ settings.RelatedPosts.Open }
+					onToggle={ ( next ) => {
+						setSettings( {
+							RelatedPosts: {
+								...settings.RelatedPosts,
+								Open: next,
+							},
+						} );
+						trackToggle( 'related_top_posts', next );
+					} }
 				>
-					{ __( 'Boost Engagement', 'wp-parsely' ) }
-					<Icon icon={ external } size={ 18 } className="parsely-external-link-icon" />
-				</Button>
-			}
+					<RelatedPostsPanel />
+				</PanelBody>
+
+				{ postId > 0 && isPostTrackable && permissions.TrafficBoost &&
+					<Button
+						className="boost-engagement"
+						href={ getBoostEngagementUrl( window.wpParselyAdminUrl, postId ) }
+						rel="noopener"
+						target="_blank"
+						variant="secondary"
+					>
+						{ __( 'Boost Engagement', 'wp-parsely' ) }
+						<Icon icon={ external } size={ 18 } className="parsely-external-link-icon" />
+					</Button>
+				}
+			</VerifyCredentials>
 		</Panel>
 	);
 };

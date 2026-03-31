@@ -84,7 +84,11 @@ final class Site_Health {
 			if ( $this->parsely->site_id_is_missing() ) {
 				$result['status']  = 'critical';
 				$result['label']   = __( 'You need to provide the Site ID', 'wp-parsely' );
-				$result['actions'] = __( 'The site ID can be set in the <a href="/wp-admin/admin.php?page=parsely-settings">Parse.ly Settings Page</a>.', 'wp-parsely' );
+				$result['actions'] = sprintf(
+					/* translators: %s: URL to the Parse.ly settings page */
+					__( 'The site ID can be set in the <a href="%s">Parse.ly Settings Page</a>.', 'wp-parsely' ),
+					esc_url( Parsely::get_settings_url() )
+				);
 			}
 
 			return $result;
@@ -100,6 +104,7 @@ final class Site_Health {
 			'label' => __( 'Parse.ly Site ID', 'wp-parsely' ),
 			'test'  => $test,
 		);
+		$tests['direct']   = $direct;
 
 		return $tests;
 	}

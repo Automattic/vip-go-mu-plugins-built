@@ -413,7 +413,7 @@ var wp;
   var abs = Math.abs;
   var min = (a, b) => a < b ? a : b;
   var max = (a, b) => a > b ? a : b;
-  var isNaN = Number.isNaN;
+  var isNaN2 = Number.isNaN;
   var isNegativeZero = (n) => n !== 0 ? n < 0 : 1 / n < 0;
 
   // node_modules/lib0/binary.js
@@ -463,8 +463,8 @@ var wp;
   var MIN_SAFE_INTEGER = Number.MIN_SAFE_INTEGER;
   var LOWEST_INT32 = 1 << 31;
   var isInteger = Number.isInteger || ((num) => typeof num === "number" && isFinite(num) && floor(num) === num);
-  var isNaN2 = Number.isNaN;
-  var parseInt = Number.parseInt;
+  var isNaN3 = Number.isNaN;
+  var parseInt2 = Number.parseInt;
 
   // node_modules/lib0/string.js
   var fromCharCode = String.fromCharCode;
@@ -9167,7 +9167,24 @@ var wp;
   var CRDT_STATE_MAP_VERSION_KEY = "version";
   var LOCAL_EDITOR_ORIGIN = "gutenberg";
   var LOCAL_SYNC_MANAGER_ORIGIN = "syncManager";
-  var WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE = "_crdt_document";
+  var LOCAL_UNDO_IGNORED_ORIGIN = "gutenberg-undo-ignored";
+
+  // packages/sync/build-module/errors.mjs
+  var ConnectionErrorCode = /* @__PURE__ */ ((ConnectionErrorCode2) => {
+    ConnectionErrorCode2["AUTHENTICATION_FAILED"] = "authentication-failed";
+    ConnectionErrorCode2["CONNECTION_EXPIRED"] = "connection-expired";
+    ConnectionErrorCode2["CONNECTION_LIMIT_EXCEEDED"] = "connection-limit-exceeded";
+    ConnectionErrorCode2["DOCUMENT_SIZE_LIMIT_EXCEEDED"] = "document-size-limit-exceeded";
+    ConnectionErrorCode2["UNKNOWN_ERROR"] = "unknown-error";
+    return ConnectionErrorCode2;
+  })(ConnectionErrorCode || {});
+  var ConnectionError = class extends Error {
+    constructor(code = "unknown-error", message) {
+      super(message);
+      this.code = code;
+      this.name = "ConnectionError";
+    }
+  };
 
   // packages/sync/build-module/lock-unlock.mjs
   var import_private_apis = __toESM(require_private_apis(), 1);
@@ -9182,7 +9199,9 @@ var wp;
       const start = performance.now();
       const result = fn.apply(this, args2);
       const end = performance.now();
-      console.log(`${fn.name} took ${(end - start).toFixed(2)} ms`);
+      console.log(
+        `[SyncManager][performance]: ${fn.name} took ${(end - start).toFixed(2)} ms`
+      );
       return result;
     };
   }
@@ -9197,63 +9216,11 @@ var wp;
     };
   }
 
-  // packages/sync/build-module/utils.mjs
-  function createYjsDoc(documentMeta = {}) {
-    const metaMap = new Map(
-      Object.entries(documentMeta)
-    );
-    const ydoc = new Doc({ meta: metaMap });
-    const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
-    stateMap.set(CRDT_STATE_MAP_VERSION_KEY, CRDT_DOC_VERSION);
-    return ydoc;
-  }
-  function markEntityAsSaved(ydoc) {
-    const recordMeta = ydoc.getMap(CRDT_STATE_MAP_KEY);
-    recordMeta.set(CRDT_STATE_MAP_SAVED_AT_KEY, Date.now());
-    recordMeta.set(CRDT_STATE_MAP_SAVED_BY_KEY, ydoc.clientID);
-  }
-  function pseudoRandomID() {
-    return Math.floor(Math.random() * 1e9);
-  }
-  function serializeCrdtDoc(crdtDoc) {
-    return JSON.stringify({
-      document: toBase64(encodeStateAsUpdateV2(crdtDoc)),
-      updateId: pseudoRandomID()
-      // helps with debugging
-    });
-  }
-  function deserializeCrdtDoc(serializedCrdtDoc) {
-    try {
-      const { document: document2 } = JSON.parse(serializedCrdtDoc);
-      const docMeta = {
-        [CRDT_DOC_META_PERSISTENCE_KEY]: true
-      };
-      const ydoc = createYjsDoc(docMeta);
-      const yupdate = fromBase64(document2);
-      applyUpdateV2(ydoc, yupdate);
-      ydoc.clientID = pseudoRandomID();
-      return ydoc;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  // packages/sync/build-module/persistence.mjs
-  function getPersistedCrdtDoc(record) {
-    const serializedCrdtDoc = record.meta?.[WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE];
-    if (serializedCrdtDoc) {
-      return deserializeCrdtDoc(serializedCrdtDoc);
-    }
-    return null;
-  }
-  function createPersistedCRDTDoc(ydoc) {
-    return {
-      [WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE]: serializeCrdtDoc(ydoc)
-    };
-  }
-
   // packages/sync/build-module/providers/index.mjs
-  var import_hooks = __toESM(require_hooks(), 1);
+  var import_hooks3 = __toESM(require_hooks(), 1);
+
+  // packages/sync/build-module/providers/http-polling/polling-manager.mjs
+  var import_hooks2 = __toESM(require_hooks(), 1);
 
   // packages/sync/node_modules/y-protocols/sync.js
   var messageYjsSyncStep1 = 0;
@@ -9298,6 +9265,23 @@ var wp;
     }
     return messageType;
   };
+
+  // packages/sync/build-module/providers/http-polling/config.mjs
+  var import_hooks = __toESM(require_hooks(), 1);
+  var DEFAULT_CLIENT_LIMIT_PER_ROOM = 3;
+  var MAX_ERROR_BACKOFF_IN_MS = 30 * 1e3;
+  var MAX_UPDATE_SIZE_IN_BYTES = 1 * 1024 * 1024;
+  var POLLING_INTERVAL_IN_MS = (0, import_hooks.applyFilters)(
+    "sync.pollingManager.pollingInterval",
+    4e3
+    // 4 seconds
+  );
+  var POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS = (0, import_hooks.applyFilters)(
+    "sync.pollingManager.pollingIntervalWithCollaborators",
+    1e3
+    // 1 second
+  );
+  var POLLING_INTERVAL_BACKGROUND_TAB_IN_MS = 25 * 1e3;
 
   // packages/sync/build-module/providers/http-polling/types.mjs
   var SyncUpdateType = /* @__PURE__ */ ((SyncUpdateType2) => {
@@ -9393,11 +9377,26 @@ var wp;
     }
     return await response.json();
   }
+  function postSyncUpdateNonBlocking(payload) {
+    if (payload.rooms.length === 0) {
+      return;
+    }
+    (0, import_api_fetch.default)({
+      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      method: "POST",
+      parse: false,
+      path: SYNC_API_PATH
+    }).catch(() => {
+    });
+  }
+  function intValueOrDefault(value, defaultValue) {
+    const intValue = parseInt(String(value), 10);
+    return isNaN(intValue) ? defaultValue : intValue;
+  }
 
   // packages/sync/build-module/providers/http-polling/polling-manager.mjs
-  var POLLING_INTERVAL_IN_MS = 1e3;
-  var POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS = 250;
-  var MAX_ERROR_BACKOFF_IN_MS = 30 * 1e3;
   var POLLING_MANAGER_ORIGIN = "polling-manager";
   var roomStates = /* @__PURE__ */ new Map();
   function createDeprecatedCompactionUpdate(updates) {
@@ -9407,7 +9406,7 @@ var wp;
       )
     ).map((u) => base64ToUint8Array(u.data));
     return createSyncUpdate(
-      mergeUpdates(mergeable),
+      mergeUpdatesV2(mergeable),
       SyncUpdateType.COMPACTION
     );
   }
@@ -9438,7 +9437,9 @@ var wp;
     const added = /* @__PURE__ */ new Set();
     const updated = /* @__PURE__ */ new Set();
     const removed = new Set(
-      currentStates.keys().filter((clientId) => !state[clientId])
+      Array.from(currentStates.keys()).filter(
+        (clientId) => !state[clientId]
+      )
     );
     Object.entries(state).forEach(([clientIdString, awarenessState]) => {
       const clientId = Number(clientIdString);
@@ -9499,19 +9500,78 @@ var wp;
       }
       case SyncUpdateType.COMPACTION:
       case SyncUpdateType.UPDATE: {
-        applyUpdate(doc2, data, POLLING_MANAGER_ORIGIN);
+        applyUpdateV2(doc2, data, POLLING_MANAGER_ORIGIN);
       }
     }
   }
+  function checkConnectionLimit(awareness, roomState) {
+    if (!roomState.isPrimaryRoom || hasCheckedConnectionLimit) {
+      return false;
+    }
+    hasCheckedConnectionLimit = true;
+    const maxClientsPerRoom = (0, import_hooks2.applyFilters)(
+      "sync.pollingProvider.maxClientsPerRoom",
+      DEFAULT_CLIENT_LIMIT_PER_ROOM,
+      roomState.room
+    );
+    const clientCount = Object.keys(awareness).length;
+    const validatedLimit = intValueOrDefault(
+      maxClientsPerRoom,
+      DEFAULT_CLIENT_LIMIT_PER_ROOM
+    );
+    if (clientCount > validatedLimit) {
+      roomState.log("Connection limit exceeded", {
+        clientCount,
+        maxClientsPerRoom: validatedLimit,
+        room: roomState.room
+      });
+      return true;
+    }
+    return false;
+  }
+  var areListenersRegistered = false;
+  var hasCheckedConnectionLimit = false;
+  var hasCollaborators = false;
+  var isActiveBrowser = "visible" === document.visibilityState;
   var isPolling = false;
+  var isUnloadPending = false;
   var pollInterval = POLLING_INTERVAL_IN_MS;
+  var pollingTimeoutId = null;
+  function handleBeforeUnload() {
+    isUnloadPending = true;
+  }
+  function handlePageHide() {
+    const rooms = Array.from(roomStates.entries()).map(
+      ([room, state]) => ({
+        after: 0,
+        awareness: null,
+        client_id: state.clientId,
+        room,
+        updates: []
+      })
+    );
+    postSyncUpdateNonBlocking({ rooms });
+  }
+  function handleVisibilityChange() {
+    const wasActive = isActiveBrowser;
+    isActiveBrowser = document.visibilityState === "visible";
+    if (isActiveBrowser && !wasActive) {
+      if (pollingTimeoutId) {
+        clearTimeout(pollingTimeoutId);
+        pollingTimeoutId = null;
+        poll();
+      }
+    }
+  }
   function poll() {
     isPolling = true;
+    pollingTimeoutId = null;
     async function start() {
       if (0 === roomStates.size) {
         isPolling = false;
         return;
       }
+      isUnloadPending = false;
       roomStates.forEach((state) => {
         state.onStatusChange({ status: "connecting" });
       });
@@ -9528,20 +9588,33 @@ var wp;
       };
       try {
         const { rooms } = await postSyncUpdate(payload);
-        pollInterval = POLLING_INTERVAL_IN_MS;
         roomStates.forEach((state) => {
           state.onStatusChange({ status: "connected" });
         });
+        hasCollaborators = false;
         rooms.forEach((room) => {
           if (!roomStates.has(room.room)) {
             return;
           }
           const roomState = roomStates.get(room.room);
           roomState.endCursor = room.end_cursor;
+          if (checkConnectionLimit(room.awareness, roomState)) {
+            roomState.onStatusChange({
+              status: "disconnected",
+              error: new ConnectionError(
+                ConnectionErrorCode.CONNECTION_LIMIT_EXCEEDED,
+                "Connection limit exceeded"
+              )
+            });
+            unregisterRoom(room.room);
+            return;
+          }
           roomState.processAwarenessUpdate(room.awareness);
-          if (Object.keys(room.awareness).length > 1) {
-            pollInterval = POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS;
-            roomState.updateQueue.resume();
+          if (roomState.isPrimaryRoom && Object.keys(room.awareness).length > 1) {
+            hasCollaborators = true;
+            roomStates.forEach((state) => {
+              state.updateQueue.resume();
+            });
           }
           const responseUpdates = room.updates.map((update) => roomState.processDocUpdate(update)).filter(
             (update) => Boolean(update)
@@ -9562,6 +9635,13 @@ var wp;
             );
           }
         });
+        if (isActiveBrowser && hasCollaborators) {
+          pollInterval = POLLING_INTERVAL_WITH_COLLABORATORS_IN_MS;
+        } else if (isActiveBrowser) {
+          pollInterval = POLLING_INTERVAL_IN_MS;
+        } else {
+          pollInterval = POLLING_INTERVAL_BACKGROUND_TAB_IN_MS;
+        }
       } catch (error) {
         pollInterval = Math.min(
           pollInterval * 2,
@@ -9572,7 +9652,12 @@ var wp;
             continue;
           }
           const state = roomStates.get(room.room);
-          state.updateQueue.restore(room.updates);
+          if (room.updates.length > 0 && state.endCursor > 0) {
+            state.updateQueue.clear();
+            state.updateQueue.add(state.createCompactionUpdate());
+          } else if (room.updates.length > 0) {
+            state.updateQueue.restore(room.updates);
+          }
           state.log(
             "Error posting sync update, will retry with backoff",
             {
@@ -9581,11 +9666,17 @@ var wp;
             }
           );
         }
-        roomStates.forEach((state) => {
-          state.onStatusChange({ status: "disconnected" });
-        });
+        if (!isUnloadPending) {
+          roomStates.forEach((state) => {
+            state.onStatusChange({
+              status: "disconnected",
+              canManuallyRetry: true,
+              willAutoRetryInMs: pollInterval
+            });
+          });
+        }
       }
-      setTimeout(poll, pollInterval);
+      pollingTimeoutId = setTimeout(poll, pollInterval);
     }
     void start();
   }
@@ -9601,6 +9692,7 @@ var wp;
       return;
     }
     const updateQueue = createUpdateQueue([createSyncStep1Update(doc2)]);
+    const isPrimaryRoom = 0 === roomStates.size;
     function onAwarenessUpdate() {
       roomState.localAwarenessState = awareness.getLocalState() ?? {};
     }
@@ -9608,41 +9700,99 @@ var wp;
       if (POLLING_MANAGER_ORIGIN === origin2) {
         return;
       }
+      if (update.byteLength > MAX_UPDATE_SIZE_IN_BYTES) {
+        const state = roomStates.get(room);
+        if (!state) {
+          return;
+        }
+        state.log("Document size limit exceeded", {
+          maxUpdateSizeInBytes: MAX_UPDATE_SIZE_IN_BYTES,
+          updateSizeInBytes: update.byteLength
+        });
+        state.onStatusChange({
+          status: "disconnected",
+          error: new ConnectionError(
+            ConnectionErrorCode.DOCUMENT_SIZE_LIMIT_EXCEEDED,
+            "Document size limit exceeded"
+          )
+        });
+        unregisterRoom(room);
+      }
       updateQueue.add(createSyncUpdate(update, SyncUpdateType.UPDATE));
     }
     function unregister() {
-      doc2.off("update", onDocUpdate);
+      doc2.off("updateV2", onDocUpdate);
       awareness.off("change", onAwarenessUpdate);
       updateQueue.clear();
     }
     const roomState = {
       clientId: doc2.clientID,
       createCompactionUpdate: () => createSyncUpdate(
-        encodeStateAsUpdate(doc2),
+        encodeStateAsUpdateV2(doc2),
         SyncUpdateType.COMPACTION
       ),
       endCursor: 0,
+      isPrimaryRoom,
       localAwarenessState: awareness.getLocalState() ?? {},
       log,
       onStatusChange,
       processAwarenessUpdate: (state) => processAwarenessUpdate(state, awareness),
       processDocUpdate: (update) => processDocUpdate(update, doc2, onSync),
+      room,
       unregister,
       updateQueue
     };
-    doc2.on("update", onDocUpdate);
+    doc2.on("updateV2", onDocUpdate);
     awareness.on("change", onAwarenessUpdate);
     roomStates.set(room, roomState);
+    if (!areListenersRegistered) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      window.addEventListener("pagehide", handlePageHide);
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+      areListenersRegistered = true;
+    }
     if (!isPolling) {
       poll();
     }
   }
   function unregisterRoom(room) {
-    roomStates.get(room)?.unregister();
-    roomStates.delete(room);
+    const state = roomStates.get(room);
+    if (state) {
+      const rooms = [
+        {
+          after: 0,
+          awareness: null,
+          client_id: state.clientId,
+          room,
+          updates: []
+        }
+      ];
+      postSyncUpdateNonBlocking({ rooms });
+      state.unregister();
+      roomStates.delete(room);
+    }
+    if (0 === roomStates.size && areListenersRegistered) {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handlePageHide);
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+      );
+      areListenersRegistered = false;
+      hasCheckedConnectionLimit = false;
+    }
+  }
+  function retryNow() {
+    pollInterval = POLLING_INTERVAL_IN_MS * 2;
+    if (pollingTimeoutId) {
+      clearTimeout(pollingTimeoutId);
+      pollingTimeoutId = null;
+      poll();
+    }
   }
   var pollingManager = {
     registerRoom,
+    retryNow,
     unregisterRoom
   };
 
@@ -9688,13 +9838,14 @@ var wp;
       this.emitStatus({ status: "disconnected" });
     }
     /**
-     * Emit connection status.
+     * Emit connection status, passing the full object through so that
+     * additional fields (e.g. `willAutoRetryInMs`) are preserved for consumers.
      *
-     * @param status        The connection status
-     * @param status.error  Optional error information when status is 'disconnected'
-     * @param status.status The connection status ('connected', 'connecting', 'disconnected')
+     * @param connectionStatus The connection status object
      */
-    emitStatus = ({ error, status }) => {
+    emitStatus = (connectionStatus) => {
+      const { status } = connectionStatus;
+      const error = status === "disconnected" ? connectionStatus.error : void 0;
       if (this.status === status && !error) {
         return;
       }
@@ -9703,7 +9854,7 @@ var wp;
       }
       this.log("Status change", { status, error });
       this.status = status;
-      this.emit("status", [{ error, status }]);
+      this.emit("status", [connectionStatus]);
     };
     /**
      * Log debug messages if debugging is enabled.
@@ -9769,7 +9920,7 @@ var wp;
     if (!window._wpCollaborationEnabled) {
       return [];
     }
-    const filteredProviderCreators = (0, import_hooks.applyFilters)(
+    const filteredProviderCreators = (0, import_hooks3.applyFilters)(
       "sync.providers",
       getDefaultProviderCreators()
     );
@@ -10059,6 +10210,48 @@ var wp;
     };
   }
 
+  // packages/sync/build-module/utils.mjs
+  function createYjsDoc(documentMeta = {}) {
+    const metaMap = new Map(
+      Object.entries(documentMeta)
+    );
+    return new Doc({ meta: metaMap });
+  }
+  function initializeYjsDoc(ydoc) {
+    const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
+    stateMap.set(CRDT_STATE_MAP_VERSION_KEY, CRDT_DOC_VERSION);
+  }
+  function markEntityAsSaved(ydoc) {
+    const recordMeta = ydoc.getMap(CRDT_STATE_MAP_KEY);
+    recordMeta.set(CRDT_STATE_MAP_SAVED_AT_KEY, Date.now());
+    recordMeta.set(CRDT_STATE_MAP_SAVED_BY_KEY, ydoc.clientID);
+  }
+  function pseudoRandomID() {
+    return Math.floor(Math.random() * 1e9);
+  }
+  function serializeCrdtDoc(crdtDoc) {
+    return JSON.stringify({
+      document: toBase64(encodeStateAsUpdateV2(crdtDoc)),
+      updateId: pseudoRandomID()
+      // helps with debugging
+    });
+  }
+  function deserializeCrdtDoc(serializedCrdtDoc) {
+    try {
+      const { document: document2 } = JSON.parse(serializedCrdtDoc);
+      const docMeta = {
+        [CRDT_DOC_META_PERSISTENCE_KEY]: true
+      };
+      const ydoc = createYjsDoc(docMeta);
+      const yupdate = fromBase64(document2);
+      applyUpdateV2(ydoc, yupdate);
+      ydoc.clientID = pseudoRandomID();
+      return ydoc;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // packages/sync/build-module/manager.mjs
   function getEntityId(objectType, objectId) {
     return `${objectType}_${objectId}`;
@@ -10068,29 +10261,42 @@ var wp;
     const collectionStates = /* @__PURE__ */ new Map();
     const entityStates = /* @__PURE__ */ new Map();
     let undoManager;
+    function log(component, message, entityId, context = {}) {
+      if (!debug) {
+        return;
+      }
+      console.log(`[SyncManager][${component}]: ${message}`, {
+        ...context,
+        entityId
+      });
+    }
     async function loadEntity(syncConfig, objectType, objectId, record, handlers) {
       const providerCreators2 = getProviderCreators();
-      if (0 === providerCreators2.length) {
-        return;
-      }
       const entityId = getEntityId(objectType, objectId);
-      if (entityStates.has(entityId)) {
+      if (0 === providerCreators2.length) {
+        log("loadEntity", "no providers, skipping", entityId);
         return;
       }
+      if (entityStates.has(entityId)) {
+        log("loadEntity", "already loaded", entityId);
+        return;
+      }
+      log("loadEntity", "loading", entityId);
       handlers = {
         addUndoMeta: debugWrap(handlers.addUndoMeta),
         editRecord: debugWrap(handlers.editRecord),
         getEditedRecord: debugWrap(handlers.getEditedRecord),
         onStatusChange: debugWrap(handlers.onStatusChange),
+        persistCRDTDoc: debugWrap(handlers.persistCRDTDoc),
         refetchRecord: debugWrap(handlers.refetchRecord),
-        restoreUndoMeta: debugWrap(handlers.restoreUndoMeta),
-        saveRecord: debugWrap(handlers.saveRecord)
+        restoreUndoMeta: debugWrap(handlers.restoreUndoMeta)
       };
       const ydoc = createYjsDoc({ objectType });
       const recordMap = ydoc.getMap(CRDT_RECORD_MAP_KEY);
       const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
       const now = Date.now();
       const unload = () => {
+        log("loadEntity", "unloading", entityId);
         providerResults.forEach((result) => result.destroy());
         handlers.onStatusChange(null);
         recordMap.unobserveDeep(onRecordUpdate);
@@ -10114,6 +10320,7 @@ var wp;
             case CRDT_STATE_MAP_SAVED_AT_KEY:
               const newValue = stateMap.get(CRDT_STATE_MAP_SAVED_AT_KEY);
               if ("number" === typeof newValue && newValue > now) {
+                log("loadEntity", "refetching record", entityId);
                 void handlers.refetchRecord().catch(() => {
                 });
               }
@@ -10139,6 +10346,7 @@ var wp;
         ydoc
       };
       entityStates.set(entityId, entityState);
+      log("loadEntity", "connecting", entityId);
       const providerResults = await Promise.all(
         providerCreators2.map(async (create7) => {
           const provider = await create7({
@@ -10153,20 +10361,26 @@ var wp;
       );
       recordMap.observeDeep(onRecordUpdate);
       stateMap.observe(onStateMapUpdate);
+      initializeYjsDoc(ydoc);
       internal.applyPersistedCrdtDoc(objectType, objectId, record);
     }
     async function loadCollection(syncConfig, objectType, handlers) {
       const providerCreators2 = getProviderCreators();
+      const entityId = getEntityId(objectType, null);
       if (0 === providerCreators2.length) {
+        log("loadCollection", "no providers, skipping", entityId);
         return;
       }
       if (collectionStates.has(objectType)) {
+        log("loadCollection", "already loaded", entityId);
         return;
       }
+      log("loadCollection", "loading", entityId);
       const ydoc = createYjsDoc({ collection: true, objectType });
       const stateMap = ydoc.getMap(CRDT_STATE_MAP_KEY);
       const now = Date.now();
       const unload = () => {
+        log("loadCollection", "unloading", entityId);
         providerResults.forEach((result) => result.destroy());
         handlers.onStatusChange(null);
         stateMap.unobserve(onStateMapUpdate);
@@ -10198,6 +10412,7 @@ var wp;
         ydoc
       };
       collectionStates.set(objectType, collectionState);
+      log("loadCollection", "connecting", entityId);
       const providerResults = await Promise.all(
         providerCreators2.map(async (create7) => {
           const provider = await create7({
@@ -10211,9 +10426,12 @@ var wp;
         })
       );
       stateMap.observe(onStateMapUpdate);
+      initializeYjsDoc(ydoc);
     }
     function unloadEntity(objectType, objectId) {
-      entityStates.get(getEntityId(objectType, objectId))?.unload();
+      const entityId = getEntityId(objectType, objectId);
+      log("unloadEntity", "unloading", entityId);
+      entityStates.get(entityId)?.unload();
       updateCRDTDoc(objectType, null, {}, origin, { isSave: true });
     }
     function getAwareness(objectType, objectId) {
@@ -10228,6 +10446,7 @@ var wp;
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
       if (!entityState) {
+        log("applyPersistedCrdtDoc", "no entity state", entityId);
         return;
       }
       const {
@@ -10235,23 +10454,17 @@ var wp;
         syncConfig: {
           applyChangesToCRDTDoc,
           getChangesFromCRDTDoc,
-          supports
+          getPersistedCRDTDoc
         },
         ydoc: targetDoc
       } = entityState;
-      if (!supports?.crdtPersistence) {
-        targetDoc.transact(() => {
-          applyChangesToCRDTDoc(targetDoc, record);
-        }, LOCAL_SYNC_MANAGER_ORIGIN);
-        return;
-      }
-      const tempDoc = getPersistedCrdtDoc(record);
+      const serialized = getPersistedCRDTDoc?.(record);
+      const tempDoc = serialized ? deserializeCrdtDoc(serialized) : null;
       if (!tempDoc) {
+        log("applyPersistedCrdtDoc", "no persisted doc", entityId);
         targetDoc.transact(() => {
           applyChangesToCRDTDoc(targetDoc, record);
-          if ("auto-draft" !== record.status) {
-            handlers.saveRecord();
-          }
+          handlers.persistCRDTDoc();
         }, LOCAL_SYNC_MANAGER_ORIGIN);
         return;
       }
@@ -10261,8 +10474,12 @@ var wp;
       const invalidatedKeys = Object.keys(invalidations);
       tempDoc.destroy();
       if (0 === invalidatedKeys.length) {
+        log("applyPersistedCrdtDoc", "valid persisted doc", entityId);
         return;
       }
+      log("applyPersistedCrdtDoc", "invalidated keys", entityId, {
+        invalidatedKeys
+      });
       const changes = invalidatedKeys.reduce(
         (acc, key) => Object.assign(acc, {
           [key]: record[key]
@@ -10271,7 +10488,7 @@ var wp;
       );
       targetDoc.transact(() => {
         applyChangesToCRDTDoc(targetDoc, changes);
-        handlers.saveRecord();
+        handlers.persistCRDTDoc();
       }, LOCAL_SYNC_MANAGER_ORIGIN);
     }
     function updateCRDTDoc(objectType, objectId, changes, origin2, options = {}) {
@@ -10285,6 +10502,9 @@ var wp;
           undoManager.stopCapturing?.();
         }
         ydoc.transact(() => {
+          log("updateCRDTDoc", "applying changes", entityId, {
+            changedKeys: Object.keys(changes)
+          });
           syncConfig.applyChangesToCRDTDoc(ydoc, changes);
           if (isSave) {
             markEntityAsSaved(ydoc);
@@ -10301,6 +10521,7 @@ var wp;
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
       if (!entityState) {
+        log("updateEntityRecord", "no entity state", entityId);
         return;
       }
       const { handlers, syncConfig, ydoc } = entityState;
@@ -10308,25 +10529,30 @@ var wp;
         ydoc,
         await handlers.getEditedRecord()
       );
-      if (0 === Object.keys(changes).length) {
+      const changedKeys = Object.keys(changes);
+      if (0 === changedKeys.length) {
         return;
       }
+      log("updateEntityRecord", "changes", entityId, {
+        changedKeys
+      });
       handlers.editRecord(changes);
     }
-    function createEntityMeta(objectType, objectId) {
+    async function createPersistedCRDTDoc(objectType, objectId) {
       const entityId = getEntityId(objectType, objectId);
       const entityState = entityStates.get(entityId);
-      if (!entityState?.syncConfig.supports?.crdtPersistence) {
-        return {};
+      if (!entityState?.ydoc) {
+        return null;
       }
-      return createPersistedCRDTDoc(entityState.ydoc);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      return serializeCrdtDoc(entityState.ydoc);
     }
     const internal = {
       applyPersistedCrdtDoc: debugWrap(_applyPersistedCrdtDoc),
       updateEntityRecord: debugWrap(_updateEntityRecord)
     };
     return {
-      createMeta: debugWrap(createEntityMeta),
+      createPersistedCRDTDoc: debugWrap(createPersistedCRDTDoc),
       getAwareness,
       load: debugWrap(loadEntity),
       loadCollection: debugWrap(loadCollection),
@@ -10549,6 +10775,54 @@ var wp;
     return characterDiff.diff(oldStr, newStr, options);
   }
 
+  // packages/sync/node_modules/diff/libesm/diff/line.js
+  var LineDiff = class extends Diff {
+    constructor() {
+      super(...arguments);
+      this.tokenize = tokenize;
+    }
+    equals(left, right, options) {
+      if (options.ignoreWhitespace) {
+        if (!options.newlineIsToken || !left.includes("\n")) {
+          left = left.trim();
+        }
+        if (!options.newlineIsToken || !right.includes("\n")) {
+          right = right.trim();
+        }
+      } else if (options.ignoreNewlineAtEof && !options.newlineIsToken) {
+        if (left.endsWith("\n")) {
+          left = left.slice(0, -1);
+        }
+        if (right.endsWith("\n")) {
+          right = right.slice(0, -1);
+        }
+      }
+      return super.equals(left, right, options);
+    }
+  };
+  var lineDiff = new LineDiff();
+  function diffLines(oldStr, newStr, options) {
+    return lineDiff.diff(oldStr, newStr, options);
+  }
+  function tokenize(value, options) {
+    if (options.stripTrailingCr) {
+      value = value.replace(/\r\n/g, "\n");
+    }
+    const retLines = [], linesAndNewlines = value.split(/(\n|\r\n)/);
+    if (!linesAndNewlines[linesAndNewlines.length - 1]) {
+      linesAndNewlines.pop();
+    }
+    for (let i = 0; i < linesAndNewlines.length; i++) {
+      const line = linesAndNewlines[i];
+      if (i % 2 && !options.newlineIsToken) {
+        retLines[retLines.length - 1] += line;
+      } else {
+        retLines.push(line);
+      }
+    }
+    return retLines;
+  }
+
   // packages/sync/build-module/quill-delta/Delta.mjs
   var import_es62 = __toESM(require_es6(), 1);
 
@@ -10753,6 +11027,13 @@ var wp;
     return JSON.parse(JSON.stringify(value));
   }
   var NULL_CHARACTER = String.fromCharCode(0);
+  var STRING_TOO_LARGE_THRESHOLD = 1e4;
+  function normalizeChangeCounts(changes) {
+    return changes.map((change) => ({
+      ...change,
+      count: change.value.length
+    }));
+  }
   var getEmbedTypeAndData = (a, b) => {
     if (typeof a !== "object" || a === null) {
       throw new Error(`cannot retain a ${typeof a}`);
@@ -11014,7 +11295,9 @@ var wp;
         return new _Delta();
       }
       const strings = this.deltasToStrings(other);
-      const diffResult = diffChars(strings[0], strings[1]);
+      const diffResult = normalizeChangeCounts(
+        diffChars(strings[0], strings[1])
+      );
       const thisIter = new Iterator(this.ops);
       const otherIter = new Iterator(other.ops);
       const retDelta = this.convertChangesToDelta(
@@ -11180,11 +11463,28 @@ var wp;
     diffWithCursor(other, cursorAfterChange) {
       if (this.ops === other.ops) {
         return new _Delta();
+      }
+      const strings = this.deltasToStrings(other);
+      const maxStringLength = Math.max(
+        ...strings.map((str) => str.length)
+      );
+      if (maxStringLength > STRING_TOO_LARGE_THRESHOLD) {
+        const diffResult = normalizeChangeCounts(
+          diffLines(strings[0], strings[1])
+        );
+        const thisIterLarge = new Iterator(this.ops);
+        const otherIterLarge = new Iterator(other.ops);
+        return this.convertChangesToDelta(
+          diffResult,
+          thisIterLarge,
+          otherIterLarge
+        ).chop();
       } else if (cursorAfterChange === null) {
         return this.diff(other);
       }
-      const strings = this.deltasToStrings(other);
-      let diffs = diffChars(strings[0], strings[1]);
+      let diffs = normalizeChangeCounts(
+        diffChars(strings[0], strings[1])
+      );
       let lastDiffPosition = 0;
       const adjustedDiffs = [];
       for (let i = 0; i < diffs.length; i++) {
@@ -11408,12 +11708,14 @@ var wp;
   // packages/sync/build-module/private-apis.mjs
   var privateApis = {};
   lock(privateApis, {
+    ConnectionErrorCode,
     createSyncManager,
     Delta: Delta_default,
     CRDT_DOC_META_PERSISTENCE_KEY,
     CRDT_RECORD_MAP_KEY,
     LOCAL_EDITOR_ORIGIN,
-    WORDPRESS_META_KEY_FOR_CRDT_DOC_PERSISTENCE
+    LOCAL_UNDO_IGNORED_ORIGIN,
+    retrySyncConnection: () => pollingManager.retryNow()
   });
 
   // packages/sync/build-module/index.mjs

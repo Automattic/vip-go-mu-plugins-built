@@ -818,20 +818,21 @@ html :where(.wp-block-column) {
   right: 0;
 }
 
-.block-library-html__modal {
-  height: 100%;
+@media (min-width: 600px) {
+  .block-library-html__modal:not(.is-full-screen) {
+    height: 9999rem;
+  }
 }
 .block-library-html__modal .components-modal__children-container {
   height: 100%;
 }
 
 .block-library-html__modal-tabs {
-  overflow-y: auto;
+  flex: 1;
 }
 
 .block-library-html__modal-content {
   flex: 1;
-  min-height: 0;
 }
 
 .block-library-html__modal-tab {
@@ -871,9 +872,17 @@ html :where(.wp-block-column) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
-  flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+.block-library-html__preview iframe {
+  height: 100%;
+}
+
+.wp-block[data-align=center] > .wp-block-icon {
+  display: flex;
+  justify-content: center;
 }
 
 .wp-block-icon__inserter {
@@ -1814,6 +1823,16 @@ body.editor-styles-wrapper .wp-block-navigation__responsive-container.is-menu-op
   color: #cc1818;
 }
 
+.navigation-link-to__action-button {
+  grid-column: auto;
+}
+.navigation-link-to__action-button:nth-last-child(1 of .navigation-link-to__action-button):nth-child(odd of .navigation-link-to__action-button) {
+  grid-column: 1/-1;
+}
+.navigation-link-to__action-button.navigation-link-to__action-button.navigation-link-to__action-button {
+  justify-content: center;
+}
+
 .wp-block-navigation-submenu {
   display: block;
 }
@@ -2325,6 +2344,7 @@ html[dir=rtl] .has-drop-cap:not(:focus)::first-letter {
 }
 
 .wp-block-tabs-menu-item.is-selected {
+  outline: 2px solid var(--wp-admin-theme-color, #007cba);
   outline-offset: 2px;
 }
 
@@ -2334,6 +2354,10 @@ html[dir=rtl] .has-drop-cap:not(:focus)::first-letter {
 }
 .block-editor-block-preview__live-content:has(.wp-block-tabs-menu-item) .wp-block-tabs-menu-item {
   flex-basis: 100% !important;
+}
+.block-editor-block-preview__live-content:has(.wp-block-tabs-menu-item):hover > .wp-block-tabs-menu-item {
+  background-color: var(--custom-tab-hover-color, #eaeaea) !important;
+  color: var(--custom-tab-hover-text-color, #000) !important;
 }
 
 .block-editor-template-part__selection-modal {

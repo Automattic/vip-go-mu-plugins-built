@@ -36,7 +36,7 @@ export const ParselyRecommendationsEdit = ( editProps: ParselyRecommendationsEdi
 
 // @ts-ignore
 registerBlockType( name, {
-	apiVersion: 2,
+	apiVersion: 3,
 	icon: LeafIcon,
 	category: 'widgets',
 	edit: ParselyRecommendationsEdit,

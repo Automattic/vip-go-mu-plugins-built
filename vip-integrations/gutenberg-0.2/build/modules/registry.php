@@ -78,6 +78,11 @@ return array(
 		'asset' => 'boot/index.min.asset.php',
 	),
 	array(
+		'id' => '@wordpress/connectors',
+		'path' => 'connectors/index',
+		'asset' => 'connectors/index.min.asset.php',
+	),
+	array(
 		'id' => '@wordpress/core-abilities',
 		'path' => 'core-abilities/index',
 		'asset' => 'core-abilities/index.min.asset.php',
@@ -136,6 +141,7 @@ return array(
 		'id' => '@wordpress/vips/worker',
 		'path' => 'vips/worker',
 		'asset' => 'vips/worker.min.asset.php',
+		'min_only' => true,
 	),
 	array(
 		'id' => '@wordpress/workflow',

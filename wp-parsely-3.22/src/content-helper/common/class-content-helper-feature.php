@@ -207,7 +207,7 @@ abstract class Content_Helper_Feature {
 					'Existing Parse.ly customers can enable this feature by setting their Site ID and API Secret in ',
 					'wp-parsely'
 				) . '
-				<a href="/wp-admin/admin.php?page=parsely-settings" target="_blank" rel="noopener">' .
+				<a href="' . esc_url( Parsely::get_settings_url() ) . '" target="_blank" rel="noopener">' .
 					__( 'wp-parsely options.', 'wp-parsely' ) . '
 				</a>
 			</p>

@@ -66,6 +66,7 @@ if ( class_exists( 'WP_REST_Controller' ) ) {
 
 	// WordPress 7.0 compat.
 	require __DIR__ . '/compat/wordpress-7.0/class-gutenberg-rest-autosaves-controller.php';
+	require __DIR__ . '/compat/wordpress-7.0/class-gutenberg-rest-revisions-controller.php';
 	require __DIR__ . '/compat/wordpress-7.0/class-gutenberg-rest-block-patterns-controller-7-0.php';
 	require __DIR__ . '/compat/wordpress-7.0/class-gutenberg-rest-templates-controller-7-0.php';
 	require __DIR__ . '/compat/wordpress-7.0/class-gutenberg-rest-static-templates-controller.php';
@@ -75,6 +76,8 @@ if ( class_exists( 'WP_REST_Controller' ) ) {
 	require __DIR__ . '/compat/wordpress-7.0/template-activate.php';
 	require __DIR__ . '/compat/wordpress-7.0/rest-api.php';
 	require __DIR__ . '/compat/wordpress-7.0/global-styles.php';
+	require __DIR__ . '/compat/wordpress-7.0/class-wp-connector-registry.php';
+	require __DIR__ . '/compat/wordpress-7.0/connectors.php';
 
 	// Plugin specific code.
 	require_once __DIR__ . '/class-wp-rest-global-styles-controller-gutenberg.php';
@@ -109,9 +112,7 @@ require __DIR__ . '/compat/wordpress-7.0/auto-register.php';
 require __DIR__ . '/compat/wordpress-7.0/blocks.php';
 require __DIR__ . '/compat/wordpress-7.0/kses.php';
 require __DIR__ . '/compat/wordpress-7.0/media.php';
-
-// Gutenberg plugin compat: disable client-side media processing by default.
-require __DIR__ . '/compat/plugin/media.php';
+require __DIR__ . '/compat/wordpress-7.0/command-palette.php';
 
 // Experimental features.
 require __DIR__ . '/experimental/block-editor-settings-mobile.php';
@@ -122,6 +123,9 @@ require __DIR__ . '/experimental/script-modules.php';
 require __DIR__ . '/experimental/pages/site-editor.php';
 require __DIR__ . '/experimental/extensible-site-editor.php';
 require __DIR__ . '/experimental/fonts/load.php';
+if ( class_exists( '\WordPress\AiClient\AiClient' ) ) {
+	require __DIR__ . '/experimental/connectors/load.php';
+}
 
 if ( gutenberg_is_experiment_enabled( 'gutenberg-workflow-palette' ) ) {
 	require __DIR__ . '/experimental/workflow-palette.php';

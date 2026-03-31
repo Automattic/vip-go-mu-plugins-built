@@ -8,9 +8,9 @@
 
 return array(
 	array(
-		'name'        => 'font-list',
-		'path'        => '/font-list',
-		'page'        => 'site-editor',
+		'name'        => 'connectors-home',
+		'path'        => '/',
+		'page'        => 'options-connectors',
 		'has_route'   => true,
 		'has_content' => true,
 	),
