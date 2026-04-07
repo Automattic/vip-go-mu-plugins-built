@@ -373,8 +373,19 @@ class Parsely {
 	public function get_tracker_url(): string {
 		if ( $this->site_id_is_set() ) {
 			$tracker_url = 'https://cdn.parsely.com/keys/' . $this->get_site_id() . '/p.js';
-			return esc_url( $tracker_url );
+
+			/**
+			 * Filters the URL of the Parse.ly tracker script.
+			 *
+			 * The filtered value gets sanitized with {@see esc_url_raw()}.
+			 *
+			 * @since 3.23.0
+			 *
+			 * @param string $tracker_url The URL of the tracker script.
+			 */
+			return esc_url_raw( apply_filters( 'wp_parsely_tracker_url', $tracker_url ) );
 		}
+
 		return '';
 	}
 

@@ -280,7 +280,7 @@ class Utils {
 		return esc_html(
 			sprintf(
 			/* translators: 1: Number of seconds */
-				__( '%1$d sec.', 'wp-parsely' ),
+				__( '%1$ds', 'wp-parsely' ),
 				round( $seconds )
 			)
 		);

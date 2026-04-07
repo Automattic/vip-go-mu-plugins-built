@@ -162,7 +162,7 @@ class Post_List_Stats extends Content_Helper_Feature {
 		wp_enqueue_style(
 			static::get_style_id(),
 			$built_assets_url . 'post-list-stats.css',
-			$admin_settings_asset['dependencies'],
+			array(),
 			$admin_settings_asset['version']
 		);
 	}
@@ -177,7 +177,7 @@ class Post_List_Stats extends Content_Helper_Feature {
 	 */
 	public function add_parsely_stats_column_on_list_view( array $columns ): array {
 		if ( $this->is_tracked_as_post_type() ) {
-			$columns['parsely-stats'] = __( 'Parse.ly Stats (7d)', 'wp-parsely' );
+			$columns['parsely-stats'] = __( 'Parse.ly (7d)', 'wp-parsely' );
 		}
 
 		return $columns;
@@ -210,7 +210,7 @@ class Post_List_Stats extends Content_Helper_Feature {
 		$stats_key = $this->get_unique_stats_key_of_current_post();
 		?>
 		<div class="parsely-post-stats" data-stats-key="<?php echo esc_attr( $stats_key ); ?>">
-			<span class="parsely-post-stats-placeholder">...</span>
+			<span class="parsely-post-stats-placeholder">—</span>
 		</div>
 		<?php
 	}
@@ -349,9 +349,9 @@ class Post_List_Stats extends Content_Helper_Feature {
 			 * @var Parsely_Post_Stats $stats
 			 */
 			$stats = array(
-				'page_views' => Utils::get_formatted_number( (string) $views ) . ' ' . _n( 'page view', 'page views', $views, 'wp-parsely' ),
-				'visitors'   => Utils::get_formatted_number( (string) $visitors ) . ' ' . _n( 'visitor', 'visitors', $visitors, 'wp-parsely' ),
-				'avg_time'   => Utils::get_formatted_time( $engaged_seconds ) . ' ' . __( 'avg time', 'wp-parsely' ),
+				'page_views' => Utils::get_formatted_number( (string) $views ),
+				'visitors'   => Utils::get_formatted_number( (string) $visitors ),
+				'avg_time'   => Utils::get_formatted_time( $engaged_seconds ),
 			);
 
 			$parsely_stats_map[ $key ] = $stats;

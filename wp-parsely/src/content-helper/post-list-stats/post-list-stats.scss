@@ -1,21 +1,28 @@
 .column-parsely-stats {
-	width: 200px;
-
-	@media only screen and (max-width: 991px) {
-		width: 150px;
-	}
-
 	.parsely-post-stats {
-		color: #959da5;
+		cursor: default;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px 8px;
 		min-height: 54px;
-		line-height: 18px;
 	}
 
 	.parsely-post-stats-placeholder {
+		color: #959da5;
 		letter-spacing: 2px;
 	}
 
-	.parsely-post-page-views {
-		color: #000;
+	.parsely-post-page-views,
+	.parsely-post-visitors,
+	.parsely-post-avg-time {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+
+		.dashicons {
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+		}
 	}
 }

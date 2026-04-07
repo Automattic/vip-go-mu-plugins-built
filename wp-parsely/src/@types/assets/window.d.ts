@@ -23,6 +23,7 @@ declare global {
 			onReady?: () => unknown,
 		},
 
+		wpParselyAdminUrl: string;
 		wpParselyContentHelperPermissions: string;
 		wpParselyContentHelperSettings: string;
 		wpParselyDependencies: { [key: string]: string };

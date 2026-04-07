@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.23.0](https://github.com/Parsely/wp-parsely/compare/3.22.1...3.23.0) - 2026-04-06
+
+### Added
+
+- Add `wp_parsely_tracker_url` filter ([#4108](https://github.com/Parsely/wp-parsely/pull/4108))
+
+### Changed
+
+- Update post list stats column to use icons ([#4136](https://github.com/Parsely/wp-parsely/pull/4136))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.23.0+label%3ADeps).
+
+## [3.22.1](https://github.com/Parsely/wp-parsely/compare/3.22.0...3.22.1) - 2026-03-30
+
+### Fixed
+
+- PCI Sidebar: Fix multiple contact messages ([#4097](https://github.com/Parsely/wp-parsely/pull/4097))
+- Fix hardcoded wp-admin URLs ([#4095](https://github.com/Parsely/wp-parsely/pull/4095))
+- Fix apiVersion number mismatch ([#4061](https://github.com/Parsely/wp-parsely/pull/4061))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.22.1+label%3ADeps).
+
 ## [3.22.0](https://github.com/Parsely/wp-parsely/compare/3.21.2...3.22.0) - 2026-01-12
 
 ### Added

@@ -12,7 +12,7 @@ import {
  * @since 3.9.0
  */
 interface VerifyCredentialsProps {
-	children: React.JSX.Element|JSX.Element[];
+	children: React.ReactNode;
 }
 
 /**

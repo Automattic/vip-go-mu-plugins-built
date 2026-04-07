@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { ParselyAPIError, ParselyAPIErrorInfo } from './common.interface';
 
 export interface ParselyPostsStatsResponse extends ParselyAPIError {
@@ -71,17 +72,48 @@ function showParselyStats( parselyStatsMap: ParselyStatsMap ): void {
 		statsElement.innerHTML = '';
 
 		if ( stats.page_views ) {
-			statsElement.innerHTML += `<span class="parsely-post-page-views">${ stats.page_views }</span><br/>`;
+			statsElement.innerHTML += getStatSpan(
+				'parsely-post-page-views', 'visibility',
+				/* translators: %s: number of page views */
+				sprintf( __( 'Page views: %s', 'wp-parsely' ), stats.page_views ),
+				stats.page_views
+			);
 		}
 
 		if ( stats.visitors ) {
-			statsElement.innerHTML += `<span class="parsely-post-visitors">${ stats.visitors }</span><br/>`;
+			statsElement.innerHTML += getStatSpan(
+				'parsely-post-visitors', 'groups',
+				/* translators: %s: number of visitors */
+				sprintf( __( 'Visitors: %s', 'wp-parsely' ), stats.visitors ),
+				stats.visitors
+			);
 		}
 
 		if ( stats.avg_time ) {
-			statsElement.innerHTML += `<span class="parsely-post-avg-time">${ stats.avg_time }</span><br/>`;
+			statsElement.innerHTML += getStatSpan(
+				'parsely-post-avg-time', 'clock',
+				/* translators: %s: average time spent on post */
+				sprintf( __( 'Avg. time: %s', 'wp-parsely' ), stats.avg_time ),
+				stats.avg_time
+			);
 		}
 	} );
+}
+
+/**
+ * Gets HTML for a single stat metric span with an icon and screen-reader label.
+ *
+ * @param {string} className CSS class for the outer span.
+ * @param {string} dashicon  Dashicon class name (without `dashicons` prefix).
+ * @param {string} srText    Full screen reader text (including the value).
+ * @param {string} value     The metric value to display visually.
+ */
+function getStatSpan( className: string, dashicon: string, srText: string, value: string ): string {
+	return `<span class="${ className }">` +
+		`<span class="dashicons dashicons-${ dashicon }" aria-hidden="true"></span>` +
+		`<span class="screen-reader-text">${ srText }</span>` +
+		`<span aria-hidden="true">${ value }</span>` +
+		`</span>`;
 }
 
 /**
