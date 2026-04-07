@@ -7,6 +7,8 @@
 
 namespace Automattic\VIP\Salesforce\Agentforce\Ingestion;
 
+use Automattic\VIP\Salesforce\Agentforce\Utils\Configs;
+
 /**
  * Provides a default implementation for transforming WP_Post to Ingestion_Post_Record.
  *
@@ -37,19 +39,24 @@ class Default_Transformer {
 			return $record;
 		}
 
-		$site_id = defined( 'VIP_GO_APP_ID' ) ? (string) VIP_GO_APP_ID : '0';
-		$blog_id = (string) get_current_blog_id();
-		$post_id = (string) $post->ID;
+		$site_id                  = defined( 'VIP_GO_APP_ID' ) ? (string) VIP_GO_APP_ID : '0';
+		$blog_id                  = (string) get_current_blog_id();
+		$post_id                  = (string) $post->ID;
+		$identity_site_id_blog_id = $site_id . '_' . $blog_id;
+		$filter_site_id_blog_id   = Configs::get_site_key();
 
-		$site_id_blog_id         = $site_id . '_' . $blog_id;
-		$site_id_blog_id_post_id = $site_id_blog_id . '_' . $post_id;
+		if ( '' === $filter_site_id_blog_id ) {
+			$filter_site_id_blog_id = $identity_site_id_blog_id;
+		}
+
+		$site_id_blog_id_post_id = $identity_site_id_blog_id . '_' . $post_id;
 
 		return new Ingestion_Post_Record(
 			[
 				'site_id'                 => $site_id,
 				'blog_id'                 => $blog_id,
 				'post_id'                 => $post_id,
-				'site_id_blog_id'         => $site_id_blog_id,
+				'site_id_blog_id'         => $filter_site_id_blog_id,
 				'site_id_blog_id_post_id' => $site_id_blog_id_post_id,
 				'published'               => 'publish' === $post->post_status,
 				'last_published_at'       => self::format_date( $post->post_date_gmt ),

@@ -5,7 +5,7 @@
  * Description: WordPress integration for Salesforce Agentforce on VIP
  * Author: WordPress VIP
  * Text Domain: vip-agentforce
- * Version: 0.1.8
+ * Version: 0.1.9
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * License: GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
@@ -61,6 +61,7 @@ if ( $is_local_env ) {
 if ( class_exists( 'Automattic\\VIP\\Prometheus\\Plugin' ) ) {
 	require __DIR__ . '/utils/metrics.php';
 }
+
 // Initialize tracking hooks
 \Automattic\VIP\Salesforce\Agentforce\Utils\Tracking::init();
 

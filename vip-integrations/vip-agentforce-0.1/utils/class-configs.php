@@ -57,6 +57,7 @@ class Configs {
 	 * Get the config
 	 * @return array{
 	 *     salesforce_instance_url?: string,
+	 *     site_key?: string,
 	 *     ingestion_api_instance_url?: string,
 	 *     ingestion_api_token?: string,
 	 *     ingestion_api_endpoint?: string,
@@ -140,16 +141,13 @@ class Configs {
 	 * @return array<string, string> Key-value pairs of hidden prechat fields.
 	 */
 	public static function get_prechat_fields(): array {
-		if ( ! defined( 'VIP_GO_APP_ID' ) ) {
-			throw new \RuntimeException( 'VIP_GO_APP_ID is not defined.' );
+		$site_key = self::get_site_key();
+
+		$fields = array();
+
+		if ( '' !== $site_key ) {
+			$fields['site_id_blog_id'] = $site_key;
 		}
-
-		$site_id = (string) VIP_GO_APP_ID;
-		$blog_id = (string) get_current_blog_id();
-
-		$fields = array(
-			'site_id_blog_id' => $site_id . '_' . $blog_id,
-		);
 
 		/**
 		 * Filters the hidden prechat fields sent to the Agentforce widget.
@@ -172,6 +170,25 @@ class Configs {
 		}
 
 		return $normalized;
+	}
+
+	/**
+	 * Returns the stored site key used for prechat and ingestion filtering.
+	 */
+	public static function get_site_key(): string {
+		$config = self::get_config();
+		$key    = $config['site_key'] ?? '';
+
+		if ( ! is_string( $key ) ) {
+			return '';
+		}
+
+		$key = trim( $key );
+		if ( '' === $key ) {
+			return '';
+		}
+
+		return $key;
 	}
 
 	public static function is_local_env(): bool {
