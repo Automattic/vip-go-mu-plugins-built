@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit();
 final class RestApi {
 	const NAMESPACE = 'vip-rtc/v1';
 
-	public function __construct() {
+	public static function init(): void {
 		add_action( 'rest_api_init', [ new AuthApiController(), 'register_routes' ], 10, 0 );
 	}
 }

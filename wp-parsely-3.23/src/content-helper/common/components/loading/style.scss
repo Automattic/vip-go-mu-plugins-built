@@ -1,0 +1,49 @@
+.wp-parsely-loading {
+	display: flex;
+	align-items: center;
+	gap: var(--grid-unit-20);
+	padding: var(--grid-unit-10) var(--grid-unit-15);
+	color: var(--sidebar-black);
+	min-width: to_rem(400px);
+	min-height: to_rem(24px);
+	border-radius: to_rem(4px);
+	justify-content: center;
+
+	.components-spinner {
+		flex-shrink: 0;
+		margin: 0;
+	}
+
+	.wp-parsely-loading-message {
+		max-width: to_rem(400px);
+		font-size: var(--font-size--medium);
+		line-height: 1.4;
+		margin: 0;
+		flex-grow: 1;
+	}
+
+	.wp-parsely-typewriter-text {
+		display: inline-block;
+		min-width: 1ch;
+		min-height: 1.4em;
+	}
+
+	.wp-parsely-typewriter-cursor {
+		display: inline-block;
+		animation: blink 1s step-end infinite;
+		margin-left: 2px;
+		font-weight: 400;
+		opacity: 0.7;
+	}
+
+	@keyframes blink {
+		from,
+		to {
+			opacity: 0;
+		}
+
+		50% {
+			opacity: 1;
+		}
+	}
+}

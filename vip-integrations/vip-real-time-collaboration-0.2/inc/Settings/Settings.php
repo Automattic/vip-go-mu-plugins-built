@@ -11,11 +11,11 @@ final class Settings {
 	 * We now have a separate option in WordPress Writing settings that we need to
 	 * target.
 	 */
-	public const GUTENBERG_OPTION_NAME = 'enable_real_time_collaboration';
+	public const GUTENBERG_OPTION_NAME = 'wp_collaboration_enabled';
 
-	public function __construct() {
-		add_action( 'admin_menu', [ $this, 'add_options_page' ] );
-		add_filter( 'default_option_' . self::GUTENBERG_OPTION_NAME, [ $this, 'filter_gutenberg_rtc_option' ], 99 );
+	public static function init(): void {
+		add_action( 'admin_menu', [ __CLASS__, 'add_options_page' ] );
+		add_filter( 'default_option_' . self::GUTENBERG_OPTION_NAME, [ __CLASS__, 'filter_gutenberg_rtc_option' ], 99 );
 	}
 
 	public static function is_vip_rtc_enabled(): bool {
@@ -25,11 +25,11 @@ final class Settings {
 	/**
 	 * Filter the Gutenberg RTC option to be enabled by defailt.
 	 *
-	 * @return int Whether RTC should be enabled in Gutenberg.
+	 * @return string Whether RTC should be enabled in Gutenberg.
 	 * @psalm-suppress PossiblyUnusedReturnValue Psalm does not detect usage via add_filter.
 	 */
-	public function filter_gutenberg_rtc_option(): int {
-		return 1;
+	public static function filter_gutenberg_rtc_option(): string {
+		return '1';
 	}
 
 	/**

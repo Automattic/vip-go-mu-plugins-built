@@ -1,0 +1,562 @@
+@import "../../common/css/variables";
+@import "../../common/css/functions";
+
+.wp-parsely-block-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255, 255, 255, 0.85);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	font-size: to_rem(18px);
+
+	.wp-parsely-block-overlay-label {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+		user-select: none;
+		gap: var(--grid-unit-10);
+		width: var(--grid-unit-10);
+	}
+
+	.wp-parsely-block-overlay-cancel {
+		pointer-events: all;
+		z-index: 10;
+		user-select: none;
+		padding: 0;
+		font-size: to_rem(18px);
+
+		&:focus {
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	svg {
+		width: to_rem(25px);
+		height: to_rem(25px);
+	}
+
+	&.full-content-overlay {
+		z-index: 999;
+		font-size: to_rem(20px);
+
+		span {
+			margin-top: to_rem(15px);
+		}
+
+		svg {
+			width: to_rem(50px);
+			height: to_rem(50px);
+		}
+	}
+}
+
+// Parse.ly icon appearing in Block settings.
+.wp-parsely-panel .components-panel__icon {
+	height: to_rem(24px);
+	margin: 0 var(--grid-unit-15) 0 0;
+	order: -1;
+	width: to_rem(24px);
+}
+
+.wp-parsely-smart-linking {
+
+	/* Override the default block inspector styles for the panel. */
+	.components-panel__row {
+		flex-direction: column;
+		margin-bottom: 0;
+	}
+
+	.components-base-control {
+		margin-bottom: 0;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+
+		.components-panel__row {
+			margin-bottom: 0;
+		}
+	}
+
+	.smart-linking-text {
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: to_rem(10px);
+		align-self: stretch;
+	}
+
+	.parsely-panel-settings {
+		width: 100%;
+	}
+
+	.parsely-panel-settings-body {
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+		flex-direction: column;
+		gap: to_rem(10px);
+
+		.smart-linking-block-select {
+			display: flex;
+			padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+			flex-direction: column;
+			gap: to_rem(24px);
+			align-self: stretch;
+
+			.components-toggle-group-control-option-base {
+				padding: to_rem(10px) 0;
+			}
+
+			.components-toggle-group-control {
+				height: 40px;
+
+				/**
+				 * Workaround for the ToggleGroupControl animation:
+				 * Prevents the animation from exiting the container.
+				 */
+				overflow: hidden;
+
+				/**
+				 * Workaround animation bug with ToggleGroupControl.
+				 * This works by setting the button background to transparent and
+				 * then setting the active item background to the sidebar black color.
+				 * The background should only pop-up as visible after 0.5s, therefore
+				 * hiding any janky animation.
+				 */
+				button {
+					background: transparent;
+					outline: transparent solid 2px;
+					outline-offset: -3px;
+
+					&[data-active-item] {
+						background: var(--sidebar-black);
+						transition:
+							background 0s 0.5s,
+							border-radius 0s 0.5s,
+							box-shadow 0s 0.5s,
+							color 0.2s 0.1s;
+						box-shadow: 0 -3px 0 0 #fff, 0 3px 0 0 #fff;
+						border-radius: 3px;
+					}
+
+					&:not([data-active-item]) {
+						transition: color 0.2s 0.1s;
+					}
+				}
+			}
+		}
+
+		.smart-linking-settings {
+			display: flex;
+			flex-direction: column;
+			gap: var(--grid-unit-20);
+			align-self: stretch;
+		}
+
+	}
+
+	.smart-linking-generate,
+	.smart-linking-manage {
+		display: flex;
+		padding: to_rem(6px) 0 var(--grid-unit-20) 0;
+		flex-direction: column;
+		align-self: stretch;
+
+		/* stylelint-disable-next-line no-descending-specificity */
+		button {
+			display: flex;
+			align-items: center;
+			align-self: stretch;
+			width: 100%;
+			justify-content: center;
+		}
+	}
+
+	.wp-parsely-smart-linking-suggested-links {
+		margin: 0;
+	}
+
+	.wp-parsely-smart-linking-hint {
+		margin-top: calc(var(--grid-unit-10) * -1);
+	}
+}
+
+.wp-parsely-smart-linking-review-modal {
+	display: flex;
+	width: to_rem(766px);
+	flex-direction: column;
+	align-items: flex-start;
+
+	.smart-linking-modal-body {
+		display: flex;
+		flex-direction: row;
+		gap: var(--grid-unit-30);
+		align-self: stretch;
+	}
+
+	.linking-post-details {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+
+		.linking-post-image {
+			margin-right: to_rem(10px);
+			max-width: to_rem(50px);
+
+			.icon-container {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: to_rem(50px);
+				height: to_rem(50px);
+			}
+		}
+
+		.linking-post-title {
+			color: var(--sidebar-black);
+
+			a {
+				text-decoration: none;
+			}
+		}
+
+		.linking-post-info {
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+
+			.linking-post-meta {
+				font-size: 0.9em;
+				color: var(--Gutenberg-Gray-700, #757575);
+			}
+		}
+
+		.linking-post-type {
+			margin-left: to_rem(10px);
+			white-space: nowrap;
+			color: var(--Gutenberg-Gray-700, #757575);
+		}
+	}
+
+	.smart-linking-review-sidebar {
+		display: flex;
+		min-width: to_rem(220px);
+		padding: to_rem(3px);
+		flex-direction: column;
+		align-items: flex-start;
+		gap: var(--grid-unit-20);
+		align-self: stretch;
+
+		.smart-linking-review-sidebar-tabs {
+			.components-tab-panel__tabs {
+				margin-bottom: var(--grid-unit-20);
+
+				// stylelint-disable-next-line no-descending-specificity
+				button {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					flex: 1 0 0;
+					height: var(--grid-unit-40);
+				}
+			}
+
+			.components-tab-panel__tabs-item {
+				color: var(--sidebar-black);
+				font-size: to_rem(11px);
+				font-style: normal;
+				font-weight: 600;
+				line-height: var(--grid-unit-20);
+				text-transform: uppercase;
+
+				&:focus-visible::before {
+					box-shadow: none;
+					outline: none;
+				}
+			}
+
+			.components-tab-panel__tab-content {
+				max-height: to_rem(370px);
+				overflow-y: auto;
+			}
+
+		}
+
+		.review-sidebar-tip {
+			font-size: var(--font-size--small);
+			padding: to_rem(5px);
+			margin-top: to_rem(-9px);
+			margin-bottom: to_rem(5px);
+			display: flex;
+			align-items: center;
+
+			.review-sidebar-tip svg {
+				margin-left: auto;
+				width: to_rem(24px);
+				height: to_rem(24px);
+				flex-shrink: 0;
+			}
+		}
+
+		.review-sidebar-header {
+			margin-bottom: var(--grid-unit-15);
+			display: flex;
+			align-items: center;
+			gap: to_rem(6px);
+			align-self: stretch;
+			color: var(--sidebar-black);
+			font-size: to_rem(11px);
+			font-style: normal;
+			font-weight: 600;
+			line-height: var(--grid-unit-20);
+			text-transform: uppercase;
+
+			>span {
+				color: var(--Gutenberg-Gray-700, #757575);
+			}
+		}
+
+		.components-button.components-menu-item__button {
+			width: to_rem(220px);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+
+			&:focus {
+				outline: none;
+				box-shadow: none;
+			}
+
+			.smart-linking-menu-label {
+				display: flex;
+				align-items: center;
+				white-space: nowrap;
+				padding-left: var(--grid-unit-10);
+				color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+			}
+
+			&.is-selected {
+				background-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+				color: #fff;
+
+				.smart-linking-menu-label {
+					color: #fff;
+				}
+			}
+
+			.components-menu-item__item {
+				width: 100%;
+				padding-right: 0;
+			}
+
+			.smart-linking-menu-item {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				display: inline;
+				text-align: left;
+				flex-grow: 1;
+			}
+		}
+	}
+
+	.smart-linking-review-suggestion {
+		max-width: to_rem(452px);
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: to_rem(16px);
+		flex: 1;
+		align-self: stretch;
+
+		.review-suggestions-breadcrumbs {
+			font-size: to_rem(12px);
+
+			.breadcrumbs-parent-separator {
+				margin: 0 var(--grid-unit-5);
+			}
+
+			.breadcrumbs-parent-block {
+				color: var(--Gutenberg-Gray-700, #757575);
+			}
+
+			.breadcrumbs-current-block {
+				color: var(--sidebar-black);
+
+				.breadcrumbs-current-block-name {
+					margin-left: var(--grid-unit-10);
+				}
+			}
+		}
+
+		.review-suggestion-post-title {
+			font-size: var(--font-size--large);
+			line-height: to_rem(24px);
+			font-weight: 500;
+		}
+
+		.components-divider {
+			width: to_rem(452px);
+			height: 1px;
+			border-color: #ccc;
+		}
+
+		.three-dots {
+			text-align: center;
+			font-size: to_rem(16px);
+			color: #ccc;
+			user-select: none;
+
+			&.is-top {
+				margin-bottom: to_rem(12px);
+			}
+
+			&.is-bottom {
+				margin-top: to_rem(12px);
+			}
+		}
+
+		.wp-parsely-link-suggestion-link-details {
+			align-self: stretch;
+			cursor: default;
+			display: flex;
+			gap: var(--grid-unit-15);
+			margin: 0 var(--grid-unit-10) var(--grid-unit-40) var(--grid-unit-10);
+			max-width: to_rem(452px);
+			overflow: hidden;
+
+			.thumbnail-column {
+				flex-shrink: 0; // Do not shrink.
+			}
+
+			.data-column {
+				flex: 1; // Take up all the available space.
+
+				.title-row {
+					display: flex;
+					gap: var(--grid-unit-5);
+					align-items: center;
+
+					a.components-button.is-link {
+						box-shadow: none;
+					}
+
+					span {
+						color: var(--Gutenberg-Gray-900, #1e1e1e);
+						max-width: to_rem(353px);
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+				}
+
+				.data-row {
+					display: flex;
+					gap: var(--grid-unit-15);
+					margin-top: var(--grid-unit-10);
+					max-width: to_rem(376px);
+
+					.data-point {
+						align-items: center;
+						color: var(--Gutenberg-Gray-700, #757575);
+						display: flex;
+						gap: var(--grid-unit-5);
+						white-space: nowrap;
+
+						svg {
+							fill: var(--Gutenberg-Gray-700, #757575);
+							flex-shrink: 0; // Do not shrink.
+						}
+
+						&.shrinkable {
+							overflow: hidden;
+
+							span {
+								overflow: hidden;
+								text-overflow: ellipsis;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		.review-controls {
+			display: flex;
+			width: to_rem(452px);
+			justify-content: space-between;
+			align-items: center;
+			flex-shrink: 0;
+			align-self: stretch;
+			margin: 0 var(--grid-unit-20);
+			user-select: none;
+
+			.reviews-controls-middle {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: var(--grid-unit-20);
+				flex: 1 0 0;
+			}
+
+			.wp-parsely-review-suggestion-previous,
+			.wp-parsely-review-suggestion-next {
+				color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+			}
+
+			.wp-parsely-review-suggestion-reject {
+				border-radius: 2px;
+				box-shadow: inset 0 0 0 1px var(--Gutenberg-Alert-Red, #cc1818);
+				background: var(--Gutenberg-White, #fff);
+				color: var(--Gutenberg-Alert-Red, #cc1818);
+			}
+		}
+	}
+}
+
+.wp-parsely-smart-linking-close-dialog {
+	display: flex;
+	width: to_rem(384px);
+	flex-direction: column;
+	align-items: flex-start;
+
+	.smart-linking-close-dialog-actions {
+		display: flex;
+		padding-top: var(--grid-unit-30);
+		justify-content: flex-end;
+		align-items: center;
+		gap: var(--grid-unit-15);
+		align-self: stretch;
+	}
+}
+
+.wp-parsely-preview-editor {
+	.editor-styles-wrapper {
+		padding-bottom: 0;
+		font-size: var(--font-size--medium);
+		background: var(--Gutenberg-White, #fff);
+	}
+
+	p[role="document"] {
+		margin: 0;
+	}
+
+	.smart-linking-highlight {
+		border-radius: 2px;
+		background: hsla(var(--parsely-green-components), 0.5);
+		mix-blend-mode: multiply;
+		text-decoration-line: underline;
+		color: var(--sidebar-black) !important;
+	}
+}

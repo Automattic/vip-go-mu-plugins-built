@@ -31,16 +31,6 @@ final class Compatibility {
 	}
 
 	/**
-	 * Get the supported post types for collaborative editing. This must be run
-	 * after the init hook, as the post types are registered at that point.
-	 *
-	 * @return array<string>
-	 */
-	public static function get_supported_post_types(): array {
-		return get_post_types_by_support( [ 'editor' ] );
-	}
-
-	/**
 	 * Check if the Gutenberg plugin is active.
 	 *
 	 * TODO: Check GUTENBERG_VERSION in production to ensure it is running a

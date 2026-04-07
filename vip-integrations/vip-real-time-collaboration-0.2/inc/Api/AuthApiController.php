@@ -22,8 +22,6 @@ final class AuthApiController extends WP_REST_Controller {
 
 	/**
 	 * Register REST API routes.
-	 *
-	 * @psalm-suppress InvalidAttribute
 	 */
 	#[\Override]
 	public function register_routes(): void {
