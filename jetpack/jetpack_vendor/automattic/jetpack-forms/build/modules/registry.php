@@ -7,14 +7,5 @@
  */
 
 return array(
-	array(
-		'id' => '@wordpress/boot',
-		'path' => 'boot/index',
-		'asset' => 'boot/index.min.asset.php',
-	),
-	array(
-		'id' => '@wordpress/route',
-		'path' => 'route/index',
-		'asset' => 'route/index.min.asset.php',
-	),
+
 );

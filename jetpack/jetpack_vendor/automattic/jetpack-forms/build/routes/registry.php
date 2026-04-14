@@ -11,7 +11,7 @@ return array(
 		'name'        => 'forms',
 		'path'        => '/forms',
 		'page'        => 'jetpack-forms-responses',
-		'has_route'   => false,
+		'has_route'   => true,
 		'has_content' => true,
 	),
 	array(
@@ -20,12 +20,5 @@ return array(
 		'page'        => 'jetpack-forms-responses',
 		'has_route'   => true,
 		'has_content' => true,
-	),
-	array(
-		'name'        => 'root',
-		'path'        => '/',
-		'page'        => 'jetpack-forms-responses',
-		'has_route'   => true,
-		'has_content' => false,
 	)
 );

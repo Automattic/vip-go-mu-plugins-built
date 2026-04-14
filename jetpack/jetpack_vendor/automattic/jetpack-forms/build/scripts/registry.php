@@ -7,14 +7,5 @@
  */
 
 return array(
-	array(
-		'handle' => 'wp-theme',
-		'path' => 'theme/index',
-		'asset' => 'theme/index.min.asset.php',
-	),
-	array(
-		'handle' => 'wp-private-apis',
-		'path' => 'private-apis/index',
-		'asset' => 'private-apis/index.min.asset.php',
-	),
+
 );

@@ -160,10 +160,6 @@ li.service.share-tumblr span::before {
   content: "\f214";
 }
 
-li.service.share-pocket span::before {
-  content: "\f224";
-}
-
 li.service.share-pinterest span::before {
   content: "\f209";
 }
@@ -371,13 +367,6 @@ body.settings_page_sharing .advanced input[type=submit] {
   height: 20px;
 }
 
-.preview-pocket .option-smart-on {
-  background: url(../../modules/sharedaddy/images/smart-pocket.png) no-repeat top right;
-  background-size: 60px 20px;
-  width: 60px;
-  height: 20px;
-}
-
 .preview-item.share-deprecated {
   opacity: 0.5;
 }
@@ -405,9 +394,6 @@ body.settings_page_sharing .advanced input[type=submit] {
   }
   .preview-pinterest .option-smart-on {
     background-image: url(../../modules/sharedaddy/images/smart-pinterest@2x.png);
-  }
-  .preview-pocket .option-smart-on {
-    background-image: url(../../modules/sharedaddy/images/smart-pocket@2x.png);
   }
 }
 /**

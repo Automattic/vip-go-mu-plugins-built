@@ -32,82 +32,82 @@ foreach ( $routes_by_page as $page_slug => $page_routes ) {
 	$GLOBALS[ $global_name ] = $page_routes;
 }
 
-if ( ! function_exists( 'jetpack_forms_register_page_routes' ) ) {
-	/**
-	 * Generic helper function to register routes for a page.
-	 *
-	 * @param array  $page_routes           Array of route data for the page.
-	 * @param string $register_function_name Name of the function to call for registering each route.
-	 */
-	function jetpack_forms_register_page_routes( $page_routes, $register_function_name ) {
-		// Load build constants
-		$build_constants = require __DIR__ . '/constants.php';
+/**
+ * Generic helper function to register routes for a page.
+ *
+ * @param array  $page_routes           Array of route data for the page.
+ * @param string $register_function_name Name of the function to call for registering each route.
+ */
+function jetpack_forms_register_page_routes( $page_routes, $register_function_name ) {
+	// Load build constants
+	$build_constants = require __DIR__ . '/constants.php';
 
-		foreach ( $page_routes as $route ) {
-			$content_handle = null;
-			$route_handle = null;
+	foreach ( $page_routes as $route ) {
+		$content_handle = null;
+		$route_handle = null;
 
-			// Register content module if exists
-			if ( $route['has_content'] ) {
-				$content_asset_path = __DIR__ . "/routes/{$route['name']}/content.min.asset.php";
-				if ( file_exists( $content_asset_path ) ) {
-					$content_asset = require $content_asset_path;
-					$content_handle = 'jetpack-forms/routes/' . $route['name'] . '/content';
-					$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
-					wp_register_script_module(
-						$content_handle,
-						$build_constants['build_url'] . 'routes/' . $route['name'] . '/content' . $extension,
-						$content_asset['module_dependencies'] ?? array(),
-						$content_asset['version'] ?? false
-					);
-				}
+		// Register content module if exists
+		if ( $route['has_content'] ) {
+			$content_asset_path = __DIR__ . "/routes/{$route['name']}/content.min.asset.php";
+			if ( file_exists( $content_asset_path ) ) {
+				$content_asset = require $content_asset_path;
+				$content_handle = 'jetpack-forms/routes/' . $route['name'] . '/content';
+				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+				// Deregister first to override any previously registered version
+				// (e.g., Core's default modules when running as a plugin).
+				wp_deregister_script_module( $content_handle );
+				wp_register_script_module(
+					$content_handle,
+					$build_constants['build_url'] . 'routes/' . $route['name'] . '/content' . $extension,
+					$content_asset['module_dependencies'] ?? array(),
+					$content_asset['version'] ?? false
+				);
 			}
+		}
 
-			// Register route module if exists
-			if ( $route['has_route'] ) {
-				$route_asset_path = __DIR__ . "/routes/{$route['name']}/route.min.asset.php";
-				if ( file_exists( $route_asset_path ) ) {
-					$route_asset = require $route_asset_path;
-					$route_handle = 'jetpack-forms/routes/' . $route['name'] . '/route';
-					$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
-					wp_register_script_module(
-						$route_handle,
-						$build_constants['build_url'] . 'routes/' . $route['name'] . '/route' . $extension,
-						$route_asset['module_dependencies'] ?? array(),
-						$route_asset['version'] ?? false
-					);
-				}
+		// Register route module if exists
+		if ( $route['has_route'] ) {
+			$route_asset_path = __DIR__ . "/routes/{$route['name']}/route.min.asset.php";
+			if ( file_exists( $route_asset_path ) ) {
+				$route_asset = require $route_asset_path;
+				$route_handle = 'jetpack-forms/routes/' . $route['name'] . '/route';
+				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+				// Deregister first to override any previously registered version
+				// (e.g., Core's default modules when running as a plugin).
+				wp_deregister_script_module( $route_handle );
+				wp_register_script_module(
+					$route_handle,
+					$build_constants['build_url'] . 'routes/' . $route['name'] . '/route' . $extension,
+					$route_asset['module_dependencies'] ?? array(),
+					$route_asset['version'] ?? false
+				);
 			}
+		}
 
-			// Register route with page
-			if ( function_exists( $register_function_name ) ) {
-				call_user_func( $register_function_name, $route['path'], $content_handle, $route_handle );
-			}
+		// Register route with page
+		if ( function_exists( $register_function_name ) ) {
+			call_user_func( $register_function_name, $route['path'], $content_handle, $route_handle );
 		}
 	}
 }
 
 // Page-specific route registration functions
 // Page-specific route registration functions for jetpack-forms-responses
-if ( ! function_exists( 'jetpack_forms_register_jetpack_forms_responses_page_routes' ) ) {
-	/**
-	 * Register routes for jetpack-forms-responses page (full-page mode).
-	 */
-	function jetpack_forms_register_jetpack_forms_responses_page_routes() {
-		global $jetpack_forms_jetpack_forms_responses_routes_data;
-		jetpack_forms_register_page_routes( $jetpack_forms_jetpack_forms_responses_routes_data, 'jetpack_forms_register_jetpack_forms_responses_route' );
-	}
+/**
+ * Register routes for jetpack-forms-responses page (full-page mode).
+ */
+function jetpack_forms_register_jetpack_forms_responses_page_routes() {
+	global $jetpack_forms_jetpack_forms_responses_routes_data;
+	jetpack_forms_register_page_routes( $jetpack_forms_jetpack_forms_responses_routes_data, 'jetpack_forms_register_jetpack_forms_responses_route' );
 }
 add_action( 'jetpack-forms-responses_init', 'jetpack_forms_register_jetpack_forms_responses_page_routes' );
 
-if ( ! function_exists( 'jetpack_forms_register_jetpack_forms_responses_wp_admin_page_routes' ) ) {
-	/**
-	 * Register routes for jetpack-forms-responses page (wp-admin mode).
-	 */
-	function jetpack_forms_register_jetpack_forms_responses_wp_admin_page_routes() {
-		global $jetpack_forms_jetpack_forms_responses_routes_data;
-		jetpack_forms_register_page_routes( $jetpack_forms_jetpack_forms_responses_routes_data, 'jetpack_forms_register_jetpack_forms_responses_wp_admin_route' );
-	}
+/**
+ * Register routes for jetpack-forms-responses page (wp-admin mode).
+ */
+function jetpack_forms_register_jetpack_forms_responses_wp_admin_page_routes() {
+	global $jetpack_forms_jetpack_forms_responses_routes_data;
+	jetpack_forms_register_page_routes( $jetpack_forms_jetpack_forms_responses_routes_data, 'jetpack_forms_register_jetpack_forms_responses_wp_admin_route' );
 }
 add_action( 'jetpack-forms-responses-wp-admin_init', 'jetpack_forms_register_jetpack_forms_responses_wp_admin_page_routes' );
 
