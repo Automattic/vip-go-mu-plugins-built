@@ -74,10 +74,13 @@ class WPcom_JS_Concat extends WP_Scripts {
 			}
 
 			if ( ! $this->registered[$handle]->src ) { // Defines a group.
-				if ( $this->do_item( $handle, $group ) ) {
-					$this->done[] = $handle;
-				}
-
+				// Source-less handles are aliases/groups. Defer them so pending concat
+				// chunks print before their inline output, matching WP_Scripts::do_item().
+				$level++;
+				$javascripts[$level]['type'] = 'do_item';
+				$javascripts[$level]['handle'] = $handle;
+				$level++;
+				unset( $this->to_do[$key] );
 				continue;
 			}
 
