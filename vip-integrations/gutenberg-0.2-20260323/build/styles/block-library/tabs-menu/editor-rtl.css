@@ -1,6 +1,0 @@
-.wp-block-tabs-menu > .block-editor-block-list__layout {
-  display: contents;
-}
-.wp-block-tabs-menu .block-editor-block-list__block:has(> .wp-block-tabs-menu-item) {
-  display: contents;
-}
