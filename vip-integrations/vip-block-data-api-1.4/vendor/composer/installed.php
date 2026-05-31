@@ -38,9 +38,9 @@
             'dev_requirement' => false,
         ),
         'symfony/dom-crawler' => array(
-            'pretty_version' => 'v6.4.25',
-            'version' => '6.4.25.0',
-            'reference' => '976302990f9f2a6d4c07206836dd4ca77cae9524',
+            'pretty_version' => 'v6.4.40',
+            'version' => '6.4.40.0',
+            'reference' => '7e65f76c28f5ed8d933f2c86698a3e2bf0de1b10',
             'type' => 'library',
             'install_path' => __DIR__ . '/../symfony/dom-crawler',
             'aliases' => array(),

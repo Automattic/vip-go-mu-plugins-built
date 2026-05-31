@@ -57,13 +57,13 @@ class CoreBlock {
 	 *
 	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/blocks/block.php#L19
 	 *
-	 * @param array    $inner_blocks Inner blocks.
-	 * @param string   $block_name   Block name.
-	 * @param int|null $post_id      Post ID.
-	 * @param array    $parsed_block Parsed block data.
+	 * @param array       $inner_blocks Inner blocks.
+	 * @param string|null $block_name   Block name, or null for parsed non-block content.
+	 * @param int|null    $post_id      Post ID.
+	 * @param array       $parsed_block Parsed block data.
 	 * @return array
 	 */
-	public static function get_inner_blocks( array $inner_blocks, string $block_name, int|null $post_id, array $parsed_block ): array {
+	public static function get_inner_blocks( array $inner_blocks, string|null $block_name, int|null $post_id, array $parsed_block ): array {
 		// Not a synced pattern? Return the inner blocks unchanged.
 		if ( self::$block_name !== $block_name || ! isset( $parsed_block['attrs']['ref'] ) ) {
 			return $inner_blocks;
