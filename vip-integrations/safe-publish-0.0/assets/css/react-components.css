@@ -1,0 +1,140 @@
+.safe-publish-controls-row {
+	display: flex;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 0 0 16px 48px;
+}
+
+.safe-publish-controls-row .safe-publish-post-type-selector {
+	width: 212px;
+}
+
+.safe-publish-controls-row .safe-publish-control--search {
+	flex: 1 1 240px;
+	max-width: 360px;
+}
+
+.safe-publish-controls-row .safe-publish-control--statuses {
+	flex: 1 1 240px;
+	max-width: 320px;
+	position: relative;
+}
+
+/*
+ * FormTokenField's suggestion list normally expands inline (flex: 1 0
+ * 100%), which on focus pushes the controls row taller and reflows the
+ * other fields. Float it as a popover so the toolbar height stays stable.
+ */
+.safe-publish-controls-row .safe-publish-control--statuses .components-form-token-field__suggestions-list {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 20;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-top: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	margin-top: 2px;
+	max-height: 200px;
+}
+
+.safe-publish-controls-row .safe-publish-control--dates {
+	flex: 0 0 auto;
+}
+
+.safe-publish-controls-row .safe-publish-control--spinner {
+	display: flex;
+	align-items: center;
+}
+
+.safe-publish-date-picker-panel {
+	display: flex;
+	flex-direction: row;
+	gap: 24px;
+	padding: 16px;
+}
+
+/*
+ * Two side-by-side calendars need ~620px of popover width, which gets
+ * clipped once the wp-admin sidebar collapses (mobile breakpoint at
+ * 782px) and the content area no longer leaves room. Stack at and below
+ * that breakpoint to match wp-admin's own responsive boundary.
+ */
+@media (max-width: 782px) {
+
+	.safe-publish-date-picker-panel {
+		flex-direction: column;
+	}
+}
+
+.safe-publish-date-picker-panel__heading {
+	font-weight: 600;
+	margin: 0 0 4px;
+}
+
+/*
+ * admin.css gives every .dataviews-search a bottom margin (from before the
+ * built-in toolbar was shown). Here the search shares a flex row with the
+ * Add-filter button, where that margin offsets it — drop it so they align.
+ */
+.safe-publish-dataviews-wrapper--with-builtins .dataviews-search {
+	margin-bottom: 0;
+}
+
+/*
+ * Source Posts replaces DataViews' built-in search box and faceted-filter UI
+ * with its own toolbar, so they're hidden there. Imported Posts opts back in
+ * via the --with-builtins modifier and drives them server-side.
+ */
+.safe-publish-dataviews-wrapper:not(.safe-publish-dataviews-wrapper--with-builtins) .dataviews-search,
+.safe-publish-dataviews-wrapper:not(.safe-publish-dataviews-wrapper--with-builtins) .dataviews-filters {
+	display: none;
+}
+
+/*
+ * Replace DataViews' "Page X of Y" widget. The catalog endpoint sets
+ * no_found_rows on its WP_Query and signals more pages via has_more, so
+ * we don't know the true total — the SelectControl would list fake pages
+ * and "of Y" would grow on every Next click. Hide the native widget and
+ * render "Page N" via the wrapper's --safe-publish-page-text CSS variable.
+ * Prev/Next live outside __page-select and stay untouched.
+ */
+.safe-publish-dataviews-wrapper .dataviews-pagination__page-select {
+	display: none;
+}
+
+.safe-publish-dataviews-wrapper .dataviews-pagination::before {
+	content: var(--safe-publish-page-text, "");
+	margin-right: auto;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.safe-publish-post-type-error {
+	max-width: 480px;
+	margin-left: 48px;
+	margin-top: 16px;
+}
+
+.safe-publish-dismissible-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	margin: 0 0 12px 0;
+	background: var(--safe-publish-surface-bg, #f0f6fc);
+	border: 1px solid var(--safe-publish-border, #c3c4c7);
+	border-radius: 16px;
+	font-size: 13px;
+}
+
+.safe-publish-imports-tabs .components-tab-panel__tabs {
+	margin-bottom: 12px;
+}
+
+.safe-publish-failed-error {
+	color: var(--safe-publish-status-error);
+}
