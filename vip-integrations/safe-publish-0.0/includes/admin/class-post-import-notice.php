@@ -107,18 +107,34 @@ final class Post_Import_Notice {
 			return;
 		}
 
+		// Auto-dismiss once the user reaches Imports — the notice's
+		// purpose was getting them here.
+		if ( 'safe-publish_page_safe-publish-imports' === $screen->id ) {
+			delete_transient( self::transient_key( $user_id ) );
+			return;
+		}
+
 		$session_id = (int) $data['session_id'];
 		$total      = (int) ( $data['total'] ?? 0 );
 		$successful = (int) ( $data['successful'] ?? 0 );
 		$failed     = (int) ( $data['failed'] ?? 0 );
 
-		$link = add_query_arg(
-			array(
-				'page'  => 'safe-publish-imports',
-				'batch' => $session_id,
-			),
-			admin_url( 'admin.php' )
+		$link_args = array(
+			'page'  => 'safe-publish-imports',
+			'batch' => $session_id,
 		);
+
+		// When everything failed, Posts filtered to this batch is empty
+		// — route to Failures instead.
+		$failures_only = 0 === $successful && $failed > 0;
+		if ( $failures_only ) {
+			$link_args['tab'] = 'failures';
+		}
+
+		$link      = add_query_arg( $link_args, admin_url( 'admin.php' ) );
+		$link_text = $failures_only
+			? __( 'View failures', 'safe-publish' )
+			: __( 'View imports', 'safe-publish' );
 
 		$message = sprintf(
 			/* translators: 1: successful count, 2: total count */
@@ -145,7 +161,7 @@ final class Post_Import_Notice {
 			<p>
 				<?php echo esc_html( $message ); ?>
 				<a href="<?php echo esc_url( $link ); ?>">
-					<?php esc_html_e( 'View imports', 'safe-publish' ); ?>
+					<?php echo esc_html( $link_text ); ?>
 				</a>
 			</p>
 		</div>

@@ -636,27 +636,44 @@ final class History_Repository {
 	}
 
 	/**
-	 * Counts failed import items across all sessions.
+	 * Deletes failed import items by id.
 	 *
-	 * Lets the Imports → Posts tab nudge operators toward the Failures tab
-	 * when their empty state hides a backlog of errored attempts. Backed by
-	 * the `status_import_date` index, which also covers
-	 * {@see self::list_failed_items()}.
+	 * Scoped to `status = 'error'` so the same DELETE can't be coerced into
+	 * removing success or updated rows.
 	 *
-	 * @return int Number of items currently flagged as 'error'.
+	 * @param int[] $item_ids Item ids to delete.
+	 * @return int Number of rows removed.
 	 */
-	public function count_failed_items(): int {
+	public function delete_failed_items( array $item_ids ): int {
 		global $wpdb;
 
-		$items_table = Import_Items_Table::table_name();
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$count = $wpdb->get_var(
-			"SELECT COUNT(*) FROM `{$items_table}` WHERE status = 'error'"
+		$ids = array_values(
+			array_unique(
+				array_filter(
+					array_map( 'absint', $item_ids ),
+					static fn( int $id ): bool => $id > 0
+				)
+			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
-		return null !== $count ? (int) $count : 0;
+		if ( 0 === count( $ids ) ) {
+			return 0;
+		}
+
+		$items_table  = Import_Items_Table::table_name();
+		$placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$deleted = $wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM `{$items_table}`"
+					. " WHERE status = 'error' AND id IN ({$placeholders})",
+				...$ids
+			)
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		return false === $deleted ? 0 : (int) $deleted;
 	}
 
 	/**

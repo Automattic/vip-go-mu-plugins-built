@@ -14,6 +14,7 @@ use Safe_Publish\API\Meta_Terms_Manager;
 use Safe_Publish\Media\Media_Importer;
 use Safe_Publish\Utils\Options;
 use Safe_Publish\Utils\Post_Type_Map;
+use Safe_Publish\Utils\Sync_State_Comparator;
 use Exception;
 use WP_Error;
 use WP_Post;
@@ -762,10 +763,13 @@ class Post_Import_Service {
 	/**
 	 * Annotates each post in an array with its local import status.
 	 *
-	 * Adds `is_imported` (bool), `has_update` (bool), `local_status` (string),
-	 * and `local_edit_url` (string) keys to every element based on whether a
-	 * matching local post exists and whether the source post's modified date
-	 * is newer. The whole page's lookups are batched into a single query.
+	 * Adds `is_imported`, `sync_status`, and `local_status` keys to every
+	 * element. `sync_status` is one of `available` (not imported),
+	 * `up-to-date`, `outdated`, or `unknown` — derived from
+	 * Sync_State_Comparator comparing the source's `modified_gmt` to the
+	 * items table's most recent `import_date_gmt`. `unknown` fires when
+	 * either timestamp can't be parsed (missing items row, malformed
+	 * source date). The whole page's lookups are batched into two queries.
 	 *
 	 * @param array $posts Posts array fetched from the source API, passed by reference.
 	 */
@@ -784,6 +788,15 @@ class Post_Import_Service {
 			$source_ids
 		);
 
+		$post_ids = array_map(
+			static fn( WP_Post $p ): int => (int) $p->ID,
+			$imported_by_source_id
+		);
+
+		$items_by_post_id = 0 === count( $post_ids )
+			? array()
+			: $this->repository->get_items_for_posts( $post_ids );
+
 		foreach ( $posts as &$post ) {
 			$source_id = absint( $post['id'] ?? 0 );
 			$imported  = $imported_by_source_id[ $source_id ] ?? null;
@@ -791,18 +804,21 @@ class Post_Import_Service {
 			$post['is_imported'] = null !== $imported;
 
 			if ( null !== $imported ) {
-				$source_modified = strtotime( $post['modified_gmt'] );
-				$local_modified  = strtotime( $imported->post_modified_gmt );
+				$item     = $items_by_post_id[ $imported->ID ] ?? null;
+				$is_newer = Sync_State_Comparator::source_is_newer(
+					(string) ( $post['modified_gmt'] ?? '' ),
+					(string) ( $item['import_date_gmt'] ?? '' )
+				);
 
-				$post['has_update']     = false !== $source_modified
-					&& false !== $local_modified
-					&& $source_modified > $local_modified;
-				$post['local_status']   = $imported->post_status;
-				$post['local_edit_url'] = get_edit_post_link( $imported->ID, 'raw' );
+				$post['sync_status'] = match ( $is_newer ) {
+					true  => 'outdated',
+					false => 'up-to-date',
+					null  => 'unknown',
+				};
+				$post['local_status'] = $imported->post_status;
 			} else {
-				$post['has_update']     = false;
-				$post['local_status']   = null;
-				$post['local_edit_url'] = null;
+				$post['sync_status']  = 'available';
+				$post['local_status'] = null;
 			}
 		}
 

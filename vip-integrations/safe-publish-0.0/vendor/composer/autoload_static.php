@@ -260,6 +260,7 @@ class ComposerStaticInit09faad949f5e8d8447ca4fc0eee42629
         'Safe_Publish\\Utils\\Logger' => __DIR__ . '/../..' . '/includes/utils/class-logger.php',
         'Safe_Publish\\Utils\\Options' => __DIR__ . '/../..' . '/includes/utils/class-options.php',
         'Safe_Publish\\Utils\\Post_Type_Map' => __DIR__ . '/../..' . '/includes/utils/class-post-type-map.php',
+        'Safe_Publish\\Utils\\Sync_State_Comparator' => __DIR__ . '/../..' . '/includes/utils/class-sync-state-comparator.php',
         'Safe_Publish\\Utils\\Topological_Sorter' => __DIR__ . '/../..' . '/includes/utils/class-topological-sorter.php',
         'Safe_Publish\\Validators\\URL_Validator' => __DIR__ . '/../..' . '/includes/validators/class-url-validator.php',
         'Utilities\\ArraySlice' => __DIR__ . '/..' . '/galbar/jsonpath/src/Galbar/Utilities/ArraySlice.php',

@@ -181,6 +181,7 @@ return array(
     'Safe_Publish\\Utils\\Logger' => $baseDir . '/includes/utils/class-logger.php',
     'Safe_Publish\\Utils\\Options' => $baseDir . '/includes/utils/class-options.php',
     'Safe_Publish\\Utils\\Post_Type_Map' => $baseDir . '/includes/utils/class-post-type-map.php',
+    'Safe_Publish\\Utils\\Sync_State_Comparator' => $baseDir . '/includes/utils/class-sync-state-comparator.php',
     'Safe_Publish\\Utils\\Topological_Sorter' => $baseDir . '/includes/utils/class-topological-sorter.php',
     'Safe_Publish\\Validators\\URL_Validator' => $baseDir . '/includes/validators/class-url-validator.php',
     'Utilities\\ArraySlice' => $vendorDir . '/galbar/jsonpath/src/Galbar/Utilities/ArraySlice.php',

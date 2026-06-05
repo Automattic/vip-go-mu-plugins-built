@@ -36,10 +36,15 @@ final class Admin_Page {
 					<h2>
 					<?php
 					if ( ! empty( $source_site_url ) ) {
+						$display_host = preg_replace(
+							'#^https?://#i',
+							'',
+							untrailingslashit( $source_site_url )
+						);
 						printf(
-							/* translators: %s: source site URL */
+							/* translators: %s: source site host */
 							esc_html__( 'Posts from %s', 'safe-publish' ),
-							esc_url( $source_site_url )
+							esc_html( $display_host )
 						);
 					} else {
 						esc_html_e( 'Posts from Source Site', 'safe-publish' );

@@ -11,15 +11,12 @@ namespace Safe_Publish\Admin;
 
 use Safe_Publish\API\Catalog_REST_Controller;
 use Safe_Publish\API\Source_Posts_API;
-use Safe_Publish\API\HTTP_Client;
 use Safe_Publish\API\Post_Type_Fetcher;
-use Safe_Publish\API\Request_Actions;
 use Safe_Publish\Auth\VIP_Safe_Auth;
 use Safe_Publish\Utils\Auth_Credential_Provider;
 use Safe_Publish\Utils\Options;
+use Safe_Publish\Utils\Sync_State_Comparator;
 use Safe_Publish\Utils\Topological_Sorter;
-use DateTimeImmutable;
-use DateTimeZone;
 use WP_Post;
 
 // Prevent direct access.
@@ -61,6 +58,24 @@ final class Admin_Ajax_Controller {
 	const SYNC_STATUS_BATCH_MAX = 100;
 
 	/**
+	 * Maximum number of items accepted by ajax_delete_failed_imports in a
+	 * single call. Bounds the prepared statement so a stray script can't
+	 * produce a DELETE with a million placeholders.
+	 *
+	 * @var int
+	 */
+	const DELETE_FAILED_IMPORTS_BATCH_MAX = 100;
+
+	/**
+	 * Maximum number of post ids accepted by ajax_bulk_delete_posts in a
+	 * single call. Each trash op runs in PHP — keep the batch small enough
+	 * that the request finishes within a typical admin-ajax timeout.
+	 *
+	 * @var int
+	 */
+	const BULK_DELETE_POSTS_BATCH_MAX = 50;
+
+	/**
 	 * Source Posts API instance.
 	 *
 	 * @var Source_Posts_API
@@ -89,33 +104,23 @@ final class Admin_Ajax_Controller {
 	private Post_Type_Fetcher $post_type_fetcher;
 
 	/**
-	 * HTTP Client instance.
-	 *
-	 * @var HTTP_Client
-	 */
-	private HTTP_Client $http_client;
-
-	/**
 	 * Constructs the Admin_Ajax_Controller instance.
 	 *
 	 * @param Source_Posts_API    $api                 Source Posts API instance.
 	 * @param History_Repository  $repository          History repository instance.
 	 * @param Post_Import_Service $post_import_service Post Import Service instance.
 	 * @param Post_Type_Fetcher   $post_type_fetcher   Post Type Fetcher instance.
-	 * @param HTTP_Client         $http_client         HTTP Client instance.
 	 */
 	public function __construct(
 		Source_Posts_API $api,
 		History_Repository $repository,
 		Post_Import_Service $post_import_service,
-		Post_Type_Fetcher $post_type_fetcher,
-		HTTP_Client $http_client
+		Post_Type_Fetcher $post_type_fetcher
 	) {
 		$this->api                 = $api;
 		$this->repository          = $repository;
 		$this->post_import_service = $post_import_service;
 		$this->post_type_fetcher   = $post_type_fetcher;
-		$this->http_client         = $http_client;
 	}
 
 	/**
@@ -125,12 +130,14 @@ final class Admin_Ajax_Controller {
 		add_action( 'wp_ajax_safe_publish_fetch_posts', array( $this, 'ajax_fetch_posts' ) );
 		add_action( 'wp_ajax_safe_publish_list_imported_posts', array( $this, 'ajax_list_imported_posts' ) );
 		add_action( 'wp_ajax_safe_publish_list_failed_imports', array( $this, 'ajax_list_failed_imports' ) );
+		add_action( 'wp_ajax_safe_publish_delete_failed_imports', array( $this, 'ajax_delete_failed_imports' ) );
 		add_action( 'wp_ajax_safe_publish_fetch_post_types', array( $this, 'ajax_fetch_post_types' ) );
 		add_action( 'wp_ajax_safe_publish_test_connection', array( $this, 'ajax_test_connection' ) );
 		add_action( 'wp_ajax_safe_publish_auth_status', array( $this, 'ajax_auth_status' ) );
 		add_action( 'wp_ajax_safe_publish_create_draft', array( $this, 'ajax_create_draft' ) );
 		add_action( 'wp_ajax_safe_publish_bulk_import', array( $this, 'ajax_bulk_import' ) );
 		add_action( 'wp_ajax_safe_publish_delete_post', array( $this, 'ajax_delete_post' ) );
+		add_action( 'wp_ajax_safe_publish_bulk_delete_posts', array( $this, 'ajax_bulk_delete_posts' ) );
 		add_action( 'wp_ajax_safe_publish_sync_status_batch', array( $this, 'ajax_sync_status_batch' ) );
 
 		$this->register_auth_status_invalidation();
@@ -315,8 +322,8 @@ final class Admin_Ajax_Controller {
 	 * Handles AJAX request for the Failures tab listing.
 	 *
 	 * Returns a page of items with status 'error' — failed imports that have no
-	 * local post — most recent first. Read-only; recovery happens by fixing the
-	 * source and re-importing from Source Posts.
+	 * local post — most recent first. Rows can be cleared from the tab via
+	 * {@see self::ajax_delete_failed_imports()}.
 	 */
 	public function ajax_list_failed_imports(): void {
 		check_ajax_referer( 'safe_publish_ajax_nonce', 'nonce' );
@@ -355,6 +362,45 @@ final class Admin_Ajax_Controller {
 				'has_more' => $has_more,
 			)
 		);
+	}
+
+	/**
+	 * Handles AJAX request for removing failed imports.
+	 *
+	 * Takes a list of item ids and hard-deletes the matching rows scoped to
+	 * `status = 'error'` so the endpoint can't be coerced into removing success
+	 * or updated rows.
+	 */
+	public function ajax_delete_failed_imports(): void {
+		check_ajax_referer( 'safe_publish_ajax_nonce', 'nonce' );
+		$this->verify_ajax_capability();
+
+		// Each element is downstream-sanitized via absint().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw_ids = (array) wp_unslash( $_POST['item_ids'] ?? array() );
+
+		$item_ids = array_map( 'absint', $raw_ids );
+
+		if ( 0 === count( $item_ids ) ) {
+			wp_send_json_error( __( 'No items provided.', 'safe-publish' ) );
+		}
+
+		if ( count( $item_ids ) > self::DELETE_FAILED_IMPORTS_BATCH_MAX ) {
+			wp_send_json_error(
+				sprintf(
+					/* translators: %d: maximum number of items per batch */
+					__(
+						'Failed-import removal is limited to %d items at a time.',
+						'safe-publish'
+					),
+					self::DELETE_FAILED_IMPORTS_BATCH_MAX
+				)
+			);
+		}
+
+		$deleted = $this->repository->delete_failed_items( $item_ids );
+
+		wp_send_json_success( array( 'deleted' => $deleted ) );
 	}
 
 	/**
@@ -436,22 +482,19 @@ final class Admin_Ajax_Controller {
 	/**
 	 * Appends the listing's first-load extras to a response when requested.
 	 *
-	 * Computes the filter facets and the count of failed imports over the
-	 * full set, so the client fetches them once (on first load) rather than
-	 * on every page/filter change.
+	 * Computes the filter facets over the full set so the client fetches them
+	 * once (on first load) rather than on every page/filter change.
 	 *
 	 * @param array $response    Response payload to augment.
 	 * @param bool  $with_facets Whether to attach the first-load extras.
-	 * @return array Response, with `facets` and `failed_count` keys when
-	 *               `$with_facets` is true.
+	 * @return array Response, with the `facets` key when `$with_facets` is true.
 	 */
 	private function with_imported_listing_extras(
 		array $response,
 		bool $with_facets
 	): array {
 		if ( $with_facets ) {
-			$response['facets']       = $this->repository->get_imported_filter_facets();
-			$response['failed_count'] = $this->repository->count_failed_items();
+			$response['facets'] = $this->repository->get_imported_filter_facets();
 		}
 
 		return $response;
@@ -984,6 +1027,90 @@ final class Admin_Ajax_Controller {
 	}
 
 	/**
+	 * Handles AJAX request for bulk-trashing imported posts from the
+	 * Imports → Posts tab.
+	 *
+	 * Each id is verified to map to a real post that this plugin imported
+	 * (META_SOURCE_POST_ID present) and that the caller can delete; rows
+	 * that fail either check are skipped, not aborted. The endpoint moves
+	 * matched posts to the trash via wp_trash_post — same disposition as
+	 * the single-delete path.
+	 */
+	public function ajax_bulk_delete_posts(): void {
+		check_ajax_referer( 'safe_publish_ajax_nonce', 'nonce' );
+		$this->verify_ajax_capability( 'delete_posts' );
+
+		// Each element is downstream-sanitized via absint().
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$raw_ids = (array) wp_unslash( $_POST['post_ids'] ?? array() );
+
+		$post_ids = array_values(
+			array_unique(
+				array_filter(
+					array_map( 'absint', $raw_ids ),
+					static fn( int $id ): bool => $id > 0
+				)
+			)
+		);
+
+		if ( 0 === count( $post_ids ) ) {
+			wp_send_json_error( __( 'No posts provided.', 'safe-publish' ) );
+		}
+
+		if ( count( $post_ids ) > self::BULK_DELETE_POSTS_BATCH_MAX ) {
+			wp_send_json_error(
+				sprintf(
+					/* translators: %d: maximum number of posts per batch */
+					__(
+						'Bulk delete is limited to %d posts at a time.',
+						'safe-publish'
+					),
+					self::BULK_DELETE_POSTS_BATCH_MAX
+				)
+			);
+		}
+
+		$deleted = 0;
+		$skipped = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! $post ) {
+				++$skipped;
+				continue;
+			}
+
+			$source_id = (string) get_post_meta(
+				$post->ID,
+				Options::META_SOURCE_POST_ID,
+				true
+			);
+			if ( '' === $source_id ) {
+				++$skipped;
+				continue;
+			}
+
+			if ( ! current_user_can( 'delete_post', $post->ID ) ) {
+				++$skipped;
+				continue;
+			}
+
+			if ( wp_trash_post( $post->ID ) ) {
+				++$deleted;
+			} else {
+				++$skipped;
+			}
+		}
+
+		wp_send_json_success(
+			array(
+				'deleted' => $deleted,
+				'skipped' => $skipped,
+			)
+		);
+	}
+
+	/**
 	 * Handles AJAX request for the Imports → Posts tab sync-status column.
 	 *
 	 * Takes a batch of source post IDs and returns per-ID one of
@@ -1113,18 +1240,9 @@ final class Admin_Ajax_Controller {
 	}
 
 	/**
-	 * Compares source modified_gmt against import_date_gmt and returns the
-	 * verdict.
-	 *
-	 * Both are parsed with an explicit UTC timezone so the comparison doesn't
-	 * depend on the request's PHP timezone. Equal timestamps resolve to
-	 * `up-to-date`: import_date_gmt is stamped after the source fetch, so any
-	 * later edit compares strictly greater.
-	 *
-	 * `invalid` flags a parse failure on either side. import_date_gmt is
-	 * locally-owned and NOT NULL, so a parse failure is a data bug — not
-	 * a network problem — and gets its own sentinel rather than
-	 * masquerading as `unreachable`. `missing` is set by the caller.
+	 * Maps Sync_State_Comparator's verdict to the Imports tab's status
+	 * string. `invalid` flags a local parse failure (a data bug), distinct
+	 * from `unreachable` (network) and `missing` (caller-set).
 	 *
 	 * @param string $source_modified_gmt ISO 8601 modified_gmt from the source.
 	 * @param string $import_date_gmt     MySQL datetime from the items table.
@@ -1134,23 +1252,16 @@ final class Admin_Ajax_Controller {
 		string $source_modified_gmt,
 		string $import_date_gmt
 	): string {
-		$utc       = new DateTimeZone( 'UTC' );
-		$source_dt = DateTimeImmutable::createFromFormat(
-			'Y-m-d\TH:i:s\Z',
+		$is_newer = Sync_State_Comparator::source_is_newer(
 			$source_modified_gmt,
-			$utc
-		);
-		$import_dt = DateTimeImmutable::createFromFormat(
-			'Y-m-d H:i:s',
-			$import_date_gmt,
-			$utc
+			$import_date_gmt
 		);
 
-		if ( false === $source_dt || false === $import_dt ) {
+		if ( null === $is_newer ) {
 			return 'invalid';
 		}
 
-		return $source_dt > $import_dt ? 'outdated' : 'up-to-date';
+		return $is_newer ? 'outdated' : 'up-to-date';
 	}
 
 	/**

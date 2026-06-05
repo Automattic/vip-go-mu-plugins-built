@@ -186,8 +186,7 @@ final class Plugin {
 			$this->api,
 			$content_processor,
 			$media_importer,
-			$post_type_fetcher,
-			$http_client
+			$post_type_fetcher
 		)->init();
 	}
 
@@ -199,15 +198,13 @@ final class Plugin {
 	 * @param Content_Processor $content_processor  Content Processor instance.
 	 * @param Media_Importer    $media_importer     Media Importer instance.
 	 * @param Post_Type_Fetcher $post_type_fetcher  Post Type Fetcher instance.
-	 * @param HTTP_Client       $http_client        HTTP Client instance.
 	 * @return Import_Mode_Admin_Handler Fully constructed Import_Mode_Admin_Handler coordinator.
 	 */
 	private function build_full_admin_handler(
 		Source_Posts_API $api,
 		Content_Processor $content_processor,
 		Media_Importer $media_importer,
-		Post_Type_Fetcher $post_type_fetcher,
-		HTTP_Client $http_client
+		Post_Type_Fetcher $post_type_fetcher
 	): Import_Mode_Admin_Handler {
 		$repository       = new History_Repository();
 		$rollback_service = new Session_Rollback_Service( $repository );
@@ -235,8 +232,7 @@ final class Plugin {
 			$api,
 			$repository,
 			$post_import_service,
-			$post_type_fetcher,
-			$http_client
+			$post_type_fetcher
 		);
 
 		return new Import_Mode_Admin_Handler(
