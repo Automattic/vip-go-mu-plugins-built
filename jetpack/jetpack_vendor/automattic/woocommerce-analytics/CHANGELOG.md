@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.16.5 - 2026-06-02
+### Fixed
+- Guard cart hook handlers against missing cart item data to prevent PHP warnings. [#64963]
+
+## 0.16.4 - 2026-05-11
+### Changed
+- Update package dependencies. [#64040]
+
+### Fixed
+- Skip server-side analytics events from cookie-less contexts (REST API, XMLRPC, cron, WP-CLI) to prevent inflated session counts. [#64686]
+
 ## [0.16.3] - 2026-04-06
 ### Changed
 - Update dependencies. [#46383]
@@ -21,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#47684]
 
 ### Fixed
-- Disable batched analytics requests when a SOCKS proxy is configured, falling back to wp_remote_get() which respects WP_PROXY_* settings. [#47707]
+- Disable batched analytics requests when a SOCKS proxy is configured, falling back to wp*remote_get() which respects WP_PROXY*\* settings. [#47707]
 
 ## [0.16.0] - 2026-03-16
 ### Changed
@@ -265,7 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.9] - 2024-09-09
 ### Added
-- Add Store ID property in common woocommerce analytics  properties. [#38857]
+- Add Store ID property in common woocommerce analytics properties. [#38857]
 
 ## [0.1.8] - 2024-08-26
 ### Changed

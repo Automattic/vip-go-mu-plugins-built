@@ -52,7 +52,7 @@ function jetpack_forms_register_page_routes( $page_routes, $register_function_na
 			if ( file_exists( $content_asset_path ) ) {
 				$content_asset = require $content_asset_path;
 				$content_handle = 'jetpack-forms/routes/' . $route['name'] . '/content';
-				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+				$extension = '.min.js';
 				// Deregister first to override any previously registered version
 				// (e.g., Core's default modules when running as a plugin).
 				wp_deregister_script_module( $content_handle );
@@ -71,7 +71,7 @@ function jetpack_forms_register_page_routes( $page_routes, $register_function_na
 			if ( file_exists( $route_asset_path ) ) {
 				$route_asset = require $route_asset_path;
 				$route_handle = 'jetpack-forms/routes/' . $route['name'] . '/route';
-				$extension = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+				$extension = '.min.js';
 				// Deregister first to override any previously registered version
 				// (e.g., Core's default modules when running as a plugin).
 				wp_deregister_script_module( $route_handle );

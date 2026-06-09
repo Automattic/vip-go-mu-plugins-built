@@ -10,7 +10,7 @@
  *
  * @param string $key Module file name without `.php`.
  *
- * @return array
+ * @return array|null
  */
 function jetpack_get_module_i18n( $key ) {
 	static $modules;
@@ -68,7 +68,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'google-fonts' => array(
 				'name' => _x( 'Google Fonts (Beta)', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Customize your site\'s typography with a selection of Google Fonts.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'This feature is now supported natively in WordPress when using any block theme. To use Google Fonts, refer to the WordPress.org Font Library documentation.', 'Module Description', 'jetpack' ),
 			),
 
 			'gravatar-hovercards' => array(
@@ -242,7 +242,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 		);
 	}
-	return isset( $modules[ $key ] ) ? $modules[ $key ] : null;
+	return $modules[ $key ] ?? null;
 }
 
 /**
@@ -376,7 +376,7 @@ function jetpack_get_module_i18n_tag( $key ) {
  *
  * @param string $key Module file name without `.php`.
  *
- * return array|string An array containing the module info or an empty string if the given module isn't known.
+ * return array|string|null An array containing the module info or an empty string if the given module isn't known.
  */
 function jetpack_get_module_info( $key ) {
 	static $module_info = array (
@@ -563,7 +563,7 @@ function jetpack_get_module_info( $key ) {
 	  'google-fonts' => 
 	  array (
 	    'name' => 'Google Fonts (Beta)',
-	    'description' => 'Customize your site\'s typography with a selection of Google Fonts.',
+	    'description' => 'This feature is now supported natively in WordPress when using any block theme. To use Google Fonts, refer to the WordPress.org Font Library documentation.',
 	    'sort' => '1',
 	    'recommendation_order' => '2',
 	    'introduced' => '10.8.0',
@@ -1004,7 +1004,7 @@ function jetpack_get_module_info( $key ) {
 	    'free' => '',
 	    'requires_connection' => 'Yes',
 	    'requires_user_connection' => 'Yes',
-	    'auto_activate' => 'No',
+	    'auto_activate' => 'Yes',
 	    'module_tags' => 'Social',
 	    'feature' => 'Engagement',
 	    'additional_search_queries' => 'subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator',
@@ -1191,7 +1191,7 @@ function jetpack_get_module_info( $key ) {
 	    'plan_classes' => '',
 	  ),
 	);
-	return isset( $module_info[ $key ] ) ? $module_info[ $key ] : null;
+	return $module_info[ $key ] ?? null;
 }
 
 /**

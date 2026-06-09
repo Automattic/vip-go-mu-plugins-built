@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.7] - 2026-06-08
+### Fixed
+- Brute Force Protection: Avoid a fatal error when rendering the login recovery form while an output buffer handler is active. [#49404]
+
+## [0.28.6] - 2026-06-01
+### Fixed
+- Brute Force Protection: Prevent PHP warning when username is invalid. [#49292]
+
+## [0.28.5] - 2026-05-25
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.28.4] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.28.3] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
 ## [0.28.2] - 2026-03-23
 ### Security
 - WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
@@ -529,6 +549,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.28.7]: https://github.com/Automattic/jetpack-waf/compare/v0.28.6...v0.28.7
+[0.28.6]: https://github.com/Automattic/jetpack-waf/compare/v0.28.5...v0.28.6
+[0.28.5]: https://github.com/Automattic/jetpack-waf/compare/v0.28.4...v0.28.5
+[0.28.4]: https://github.com/Automattic/jetpack-waf/compare/v0.28.3...v0.28.4
+[0.28.3]: https://github.com/Automattic/jetpack-waf/compare/v0.28.2...v0.28.3
 [0.28.2]: https://github.com/Automattic/jetpack-waf/compare/v0.28.1...v0.28.2
 [0.28.1]: https://github.com/Automattic/jetpack-waf/compare/v0.28.0...v0.28.1
 [0.28.0]: https://github.com/Automattic/jetpack-waf/compare/v0.27.11...v0.28.0

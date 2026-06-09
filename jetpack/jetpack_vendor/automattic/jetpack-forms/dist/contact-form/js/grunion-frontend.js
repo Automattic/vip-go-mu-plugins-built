@@ -1,1 +1,0 @@
-(()=>{"use strict";jQuery(function(t){t(".contact-form input.jp-contact-form-date").each(function(){const n=t(this),o=n.attr("data-format")||"yy-mm-dd";n.datepicker({dateFormat:o,constrainInput:!1,showOptions:{direction:"down"},onSelect:function(){t(this).focus()}})})})})();

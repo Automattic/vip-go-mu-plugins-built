@@ -242,35 +242,6 @@
   }
 }
 
-.jp-spinner {
-  display: flex;
-  align-items: center;
-}
-
-.jp-spinner__inner,
-.jp-spinner__outer {
-  margin: auto;
-  box-sizing: border-box;
-  border: 0.1em solid transparent;
-  border-radius: 50%;
-  border-top-color: #00aadc;
-  animation: 3s linear infinite;
-  animation-name: jetpack-rotate;
-}
-
-.jp-spinner__outer {
-  width: 20px;
-  height: 20px;
-  font-size: 20px;
-}
-
-.jp-spinner__inner {
-  width: 100%;
-  height: 100%;
-  border-left-color: #00aadc;
-  opacity: 0.4;
-}
-
 /**
  * Automatticons
  *
@@ -894,6 +865,12 @@
 #ie-legacy-notice .dops-notice__content {
   display: inline-block;
   margin-right: 10px;
+}
+
+.jp-loading-placeholder {
+  margin-top: 30vh;
+  margin-bottom: 25vh;
+  text-align: center;
 }
 
 /**
