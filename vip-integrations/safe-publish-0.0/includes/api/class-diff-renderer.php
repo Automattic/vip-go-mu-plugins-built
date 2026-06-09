@@ -82,15 +82,6 @@ final class Diff_Renderer {
 		// Extract current local data.
 		$current = $this->extract_current_data( $local_post );
 
-		// Preserve the pre-cleanup incoming title, content, and excerpt for
-		// the update payload — apply_cleanup() reserializes Gutenberg blocks
-		// and collapses whitespace, which is fine for diff rendering but
-		// would silently rewrite the destination post if returned to the
-		// update path. The diff display uses the cleaned copy below.
-		$raw_incoming_title   = $incoming['title'] ?? null;
-		$raw_incoming_content = $incoming['content'] ?? null;
-		$raw_incoming_excerpt = $incoming['excerpt'] ?? null;
-
 		// Apply normalization if requested.
 		if ( $cleanup ) {
 			$current  = $this->apply_cleanup( $current );
@@ -107,7 +98,7 @@ final class Diff_Renderer {
 		$content_diff_html = $this->generate_content_diff( $current['content'], $incoming['content'], $mode );
 		$non_content_diffs = $this->generate_non_content_diffs( $current, $incoming );
 
-		// Generate featured media diff with preview.
+		// Generate featured media side-by-side preview.
 		$featured_media_html = $this->generate_featured_media_diff(
 			$local_post->ID,
 			$source_site_url,
@@ -123,36 +114,20 @@ final class Diff_Renderer {
 		$current_rendered  = $this->render_content( $current['content'] );
 		$incoming_rendered = $this->render_content( $incoming['content'] );
 
-		// `content`, `excerpt`, and `featuredMedia` ride along on `incoming`
-		// because the catalog listing payload no longer carries them, and the
-		// update path needs the fresh source values that this method already
-		// fetched. Title, content, and excerpt use the pre-cleanup raw values
-		// so an Update writes the source's actual content, not the diff-
-		// normalized version.
+		$non_content_diffs['featuredMedia'] = $featured_media_html;
+
 		return array(
-			'contentDiffHtml'         => $content_diff_html,
-			'renderedContentDiffHtml' => null,
-			'blockDiffs'              => $block_diffs,
-			'nonContentDiffs'         => $non_content_diffs + array( 'featuredMedia' => $featured_media_html ),
-			'incoming'                => array(
-				'title'         => $raw_incoming_title,
-				'content'       => $raw_incoming_content,
-				'excerpt'       => $raw_incoming_excerpt,
-				'meta'          => $incoming['meta'] ?? null,
-				'terms'         => $incoming['terms'] ?? null,
-				'featuredMedia' => isset( $source_data['featured_media'] )
-					? (int) $source_data['featured_media']
-					: 0,
-			),
-			'current'                 => array(
+			'contentDiffHtml'      => $content_diff_html,
+			'blockDiffs'           => $block_diffs,
+			'nonContentDiffs'      => $non_content_diffs,
+			'current'              => array(
 				'title'   => $current['title'] ?? null,
 				'excerpt' => $current['excerpt'] ?? null,
 				'meta'    => $current['meta'] ?? null,
 				'terms'   => $current['terms'] ?? null,
 			),
-			'incomingRenderedHtml'    => $incoming_rendered,
-			'currentRenderedHtml'     => $current_rendered,
-			'localPostId'             => $local_post->ID,
+			'incomingRenderedHtml' => $incoming_rendered,
+			'currentRenderedHtml'  => $current_rendered,
 		);
 	}
 
@@ -174,7 +149,7 @@ final class Diff_Renderer {
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
 				'meta_value'     => $source_post_id,
 				'post_type'      => $post_type,
-				'post_status'    => array( 'draft', 'publish', 'pending' ),
+				'post_status'    => 'any',
 				'posts_per_page' => 1,
 				'fields'         => 'all',
 			)
@@ -306,7 +281,7 @@ final class Diff_Renderer {
 	 */
 	private function extract_current_data( WP_Post $post ): array {
 		$current = array(
-			'title'   => get_the_title( $post->ID ),
+			'title'   => $post->post_title,
 			'content' => $post->post_content,
 			'excerpt' => $post->post_excerpt,
 			'meta'    => get_post_meta( $post->ID ),
@@ -366,14 +341,17 @@ final class Diff_Renderer {
 	/**
 	 * Generates content diff HTML.
 	 *
+	 * Returns an empty string when the inputs are identical; the client uses
+	 * that signal to omit the Source Diff view.
+	 *
 	 * @param string $current  Current content.
 	 * @param string $incoming Incoming content.
 	 * @param string $mode     Diff mode ('split' or 'inline').
 	 *
-	 * @return string Diff HTML.
+	 * @return string Diff HTML, or '' when no changes.
 	 */
 	private function generate_content_diff( string $current, string $incoming, string $mode ): string {
-		$diff = wp_text_diff(
+		return wp_text_diff(
 			$current,
 			$incoming,
 			array(
@@ -382,14 +360,6 @@ final class Diff_Renderer {
 				'show_split_view' => ( 'split' === $mode ),
 			)
 		);
-
-		if ( '' === $diff ) {
-			return '<div class="incoming-diff no-changes"><p>'
-				. esc_html__( 'No content changes detected.', 'safe-publish' )
-				. '</p></div>';
-		}
-
-		return $diff;
 	}
 
 	/**
@@ -408,8 +378,7 @@ final class Diff_Renderer {
 			$current['title'] ?? '',
 			$incoming['title'] ?? '',
 			__( 'Current Title', 'safe-publish' ),
-			__( 'Incoming Title', 'safe-publish' ),
-			__( 'No title changes detected.', 'safe-publish' )
+			__( 'Incoming Title', 'safe-publish' )
 		);
 
 		// Excerpt diff (with normalization).
@@ -419,8 +388,7 @@ final class Diff_Renderer {
 			$current_excerpt,
 			$incoming_excerpt,
 			__( 'Current Excerpt', 'safe-publish' ),
-			__( 'Incoming Excerpt', 'safe-publish' ),
-			__( 'No excerpt changes detected.', 'safe-publish' )
+			__( 'Incoming Excerpt', 'safe-publish' )
 		);
 
 		// Taxonomies diff.
@@ -430,8 +398,7 @@ final class Diff_Renderer {
 			$current_terms_text,
 			$incoming_terms_text,
 			__( 'Current Taxonomies', 'safe-publish' ),
-			__( 'Incoming Taxonomies', 'safe-publish' ),
-			__( 'No taxonomy changes detected.', 'safe-publish' )
+			__( 'Incoming Taxonomies', 'safe-publish' )
 		);
 
 		// Meta diff.
@@ -441,8 +408,7 @@ final class Diff_Renderer {
 			$current_meta_text,
 			$incoming_meta_text,
 			__( 'Current Meta', 'safe-publish' ),
-			__( 'Incoming Meta', 'safe-publish' ),
-			__( 'No meta changes detected.', 'safe-publish' )
+			__( 'Incoming Meta', 'safe-publish' )
 		);
 
 		return $diffs;
@@ -451,22 +417,23 @@ final class Diff_Renderer {
 	/**
 	 * Generates a simple diff for two text strings.
 	 *
-	 * @param string $current      Current text.
-	 * @param string $incoming     Incoming text.
-	 * @param string $title_left   Title for left side.
-	 * @param string $title_right  Title for right side.
-	 * @param string $no_change_msg Message when no changes detected.
+	 * Returns an empty string when the inputs are identical; the client uses
+	 * that signal to omit the section by default.
 	 *
-	 * @return string Diff HTML.
+	 * @param string $current     Current text.
+	 * @param string $incoming    Incoming text.
+	 * @param string $title_left  Title for left side.
+	 * @param string $title_right Title for right side.
+	 *
+	 * @return string Diff HTML, or '' when no changes.
 	 */
 	private function generate_simple_diff(
 		string $current,
 		string $incoming,
 		string $title_left,
-		string $title_right,
-		string $no_change_msg
+		string $title_right
 	): string {
-		$diff = wp_text_diff(
+		return wp_text_diff(
 			$current,
 			$incoming,
 			array(
@@ -474,16 +441,14 @@ final class Diff_Renderer {
 				'title_right' => $title_right,
 			)
 		);
-
-		if ( '' === $diff ) {
-			return '<div class="incoming-diff no-changes"><p>' . esc_html( $no_change_msg ) . '</p></div>';
-		}
-
-		return $diff;
 	}
 
 	/**
-	 * Generates featured media diff with image previews.
+	 * Generates the featured media side-by-side preview.
+	 *
+	 * Returns an empty string when both sides resolve to the same image (or
+	 * both sides are missing); the client uses that signal to omit the
+	 * section.
 	 *
 	 * @param int      $local_post_id   Local post ID.
 	 * @param string   $source_site_url Source site URL.
@@ -491,7 +456,7 @@ final class Diff_Renderer {
 	 * @param callable $make_request    fn($url, $action, $credentials): array|WP_Error.
 	 * @param array    $credentials     Authentication credentials.
 	 *
-	 * @return string Featured media diff HTML with previews.
+	 * @return string Side-by-side preview HTML, or '' when unchanged.
 	 */
 	private function generate_featured_media_diff(
 		int $local_post_id,
@@ -521,55 +486,39 @@ final class Diff_Renderer {
 		}
 
 		$current_featured_id  = get_post_thumbnail_id( $local_post_id );
-		$current_featured_url = $current_featured_id ? wp_get_attachment_image_url( $current_featured_id, 'full' ) : '';
+		$current_featured_url = '';
+		if ( $current_featured_id ) {
+			$resolved = wp_get_attachment_image_url( $current_featured_id, 'full' );
+			if ( is_string( $resolved ) ) {
+				$current_featured_url = $resolved;
+			}
+		}
 
-		$current_featured_text  = $current_featured_url
-			? basename( (string) ( wp_parse_url( $current_featured_url, PHP_URL_PATH ) ?? $current_featured_url ) )
-			: 'None';
-		$incoming_featured_text = $incoming_featured_url
-			? basename( (string) ( wp_parse_url( $incoming_featured_url, PHP_URL_PATH ) ?? $incoming_featured_url ) )
-			: 'None';
-
-		$diff = wp_text_diff(
-			$current_featured_text,
-			$incoming_featured_text,
-			array(
-				'title_left'  => __( 'Current Featured Image', 'safe-publish' ),
-				'title_right' => __( 'Incoming Featured Image', 'safe-publish' ),
-			)
-		);
-
-		if ( '' === $diff ) {
-			$diff = '<div class="incoming-diff no-changes"><p>'
-				. esc_html__( 'No featured image changes detected.', 'safe-publish' )
-				. '</p></div>';
+		if ( $current_featured_url === $incoming_featured_url ) {
+			return '';
 		}
 
 		$current_img  = $current_featured_url
-			? '<img alt="" src="' . esc_url( $current_featured_url ) . '" style="max-width:100%;height:auto;" />'
+			? sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img alt="" src="%1$s" /></a>',
+				esc_url( $current_featured_url )
+			)
 			: '<em>' . esc_html__( 'None', 'safe-publish' ) . '</em>';
 		$incoming_img = $incoming_featured_url
-			? '<img alt="" src="' . esc_url( $incoming_featured_url ) . '" style="max-width:100%;height:auto;" />'
+			? sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer"><img alt="" src="%1$s" /></a>',
+				esc_url( $incoming_featured_url )
+			)
 			: '<em>' . esc_html__( 'None', 'safe-publish' ) . '</em>';
 
-		$preview = sprintf(
-			'<div class="incoming-featured-media-preview" style="display:flex;gap:16px;align-items:flex-start;margin-top:8px;">
-				<div style="flex:1;">
-					<strong>%1$s</strong>
-					<div style="margin-top:8px;">%2$s</div>
-				</div>
-				<div style="flex:1;">
-					<strong>%3$s</strong>
-					<div style="margin-top:8px;">%4$s</div>
-				</div>
+		return sprintf(
+			'<div class="incoming-featured-media-preview">
+				<div>%1$s</div>
+				<div>%2$s</div>
 			</div>',
-			esc_html__( 'Current', 'safe-publish' ),
 			$current_img,
-			esc_html__( 'Incoming', 'safe-publish' ),
 			$incoming_img
 		);
-
-		return $diff . $preview;
 	}
 
 	/**
@@ -628,6 +577,14 @@ final class Diff_Renderer {
 
 			$norm_cur = $cur ? $normalize_block_html( wp_kses_post( $cur_rendered ) ) : '';
 			$norm_inc = $inc ? $normalize_block_html( wp_kses_post( $inc_rendered ) ) : '';
+
+			// Skip empty freeform whitespace slots — parse_blocks emits them
+			// between real blocks and they carry no visible signal.
+			$cur_empty_freeform = ! $cur || ( null === $cur_name && '' === $norm_cur );
+			$inc_empty_freeform = ! $inc || ( null === $inc_name && '' === $norm_inc );
+			if ( $cur_empty_freeform && $inc_empty_freeform ) {
+				continue;
+			}
 
 			$status = 'unchanged';
 			if ( $cur && ! $inc ) {

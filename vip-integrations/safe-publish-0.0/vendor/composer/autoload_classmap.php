@@ -147,7 +147,6 @@ return array(
     'Safe_Publish\\Admin\\Admin_Page' => $baseDir . '/includes/admin/class-admin-page.php',
     'Safe_Publish\\Admin\\Content_Logger' => $baseDir . '/includes/admin/class-content-logger.php',
     'Safe_Publish\\Admin\\Content_Processor' => $baseDir . '/includes/admin/class-content-processor.php',
-    'Safe_Publish\\Admin\\Diff_Renderer' => $baseDir . '/includes/admin/class-diff-renderer.php',
     'Safe_Publish\\Admin\\Exports_Page' => $baseDir . '/includes/admin/class-exports-page.php',
     'Safe_Publish\\Admin\\History_Repository' => $baseDir . '/includes/admin/class-history-repository.php',
     'Safe_Publish\\Admin\\Import_Actions_Ajax_Handler' => $baseDir . '/includes/admin/class-import-actions-ajax-handler.php',

@@ -40,6 +40,20 @@ class Content_Generator {
 	public const SEEDER_META_KEY = '_seeder_generated';
 
 	/**
+	 * Post meta key that records the current revision number for a seeded
+	 * post. Absent until the post is updated at least once.
+	 */
+	public const REVISION_META_KEY = '_seeder_revision';
+
+	/**
+	 * Marker comments wrapping the per-revision note appended to post
+	 * content. Used to strip prior notes on subsequent updates so revisions
+	 * don't accumulate.
+	 */
+	private const REVISION_MARKER_BEGIN = '<!-- seeder-rev-note -->';
+	private const REVISION_MARKER_END   = '<!-- /seeder-rev-note -->';
+
+	/**
 	 * Available editor modes.
 	 *
 	 * @var list<string>
@@ -255,17 +269,21 @@ class Content_Generator {
 	 *
 	 * Rotates statuses so every batch of six covers publish, draft, and
 	 * private at least once: publish by default, draft every 5th, private
-	 * every 6th.
+	 * every 6th. A non-zero revision shifts the rotation so update mode
+	 * surfaces status transitions for the migration to propagate.
 	 *
-	 * @param int $index Post index (1-based).
+	 * @param int $index    Post index (1-based).
+	 * @param int $revision Revision number; 0 keeps create-mode rotation.
 	 * @return string 'publish', 'draft', or 'private'.
 	 */
-	public function resolve_status( int $index ): string {
-		if ( 0 === $index % 6 ) {
+	public function resolve_status( int $index, int $revision = 0 ): string {
+		$rotated = $index + $revision;
+
+		if ( 0 === $rotated % 6 ) {
 			return 'private';
 		}
 
-		if ( 0 === $index % 5 ) {
+		if ( 0 === $rotated % 5 ) {
 			return 'draft';
 		}
 
@@ -439,18 +457,29 @@ class Content_Generator {
 	 * Returns the meta values seeded for a given index.
 	 *
 	 * Includes the SEEDER_META_KEY tag so consumers can mark inserted posts
-	 * for later cleanup.
+	 * for later cleanup. A non-zero revision shifts the rotating color and
+	 * priority values and records the revision number so update mode
+	 * surfaces meta changes for the migration to propagate.
 	 *
-	 * @param int $index Post index (1-based).
+	 * @param int $index    Post index (1-based).
+	 * @param int $revision Revision number; 0 keeps create-mode values.
 	 * @return array<string, string|int> Meta key => value.
 	 */
-	public function meta_values( int $index ): array {
-		$color_index = max( 0, $index ) % count( self::COLORS );
-		return array(
+	public function meta_values( int $index, int $revision = 0 ): array {
+		$rotated     = $index + $revision;
+		$color_index = max( 0, $rotated ) % count( self::COLORS );
+
+		$values = array(
 			self::SEEDER_META_KEY => '1',
 			'seeder_color'        => self::COLORS[ $color_index ],
-			'seeder_priority'     => ( $index % 10 ) + 1,
+			'seeder_priority'     => ( $rotated % 10 ) + 1,
 		);
+
+		if ( $revision > 0 ) {
+			$values[ self::REVISION_META_KEY ] = (string) $revision;
+		}
+
+		return $values;
 	}
 
 	/**
@@ -458,14 +487,17 @@ class Content_Generator {
 	 *
 	 * Rotates two terms per taxonomy from term_config(). The caller is
 	 * responsible for filtering out taxonomies that don't apply to the
-	 * target post type.
+	 * target post type. A non-zero revision shifts the rotation so update
+	 * mode surfaces taxonomy changes for the migration to propagate.
 	 *
-	 * @param int $index Post index (1-based).
+	 * @param int $index    Post index (1-based).
+	 * @param int $revision Revision number; 0 keeps create-mode rotation.
 	 * @return array<string, list<string>> Taxonomy => list of term values
 	 *                                     (names or slugs per term_config()).
 	 */
-	public function term_assignments( int $index ): array {
+	public function term_assignments( int $index, int $revision = 0 ): array {
 		$assignments = array();
+		$rotated     = $index + $revision;
 
 		foreach ( self::term_config() as $taxonomy => $config ) {
 			$terms = $config['terms'];
@@ -476,8 +508,8 @@ class Content_Generator {
 			}
 
 			$assignments[ $taxonomy ] = array(
-				$terms[ $index % $n ],
-				$terms[ ( $index + 1 ) % $n ],
+				$terms[ $rotated % $n ],
+				$terms[ ( $rotated + 1 ) % $n ],
 			);
 		}
 
@@ -536,5 +568,78 @@ class Content_Generator {
 			'terms'          => $this->term_assignments( $index ),
 			'featured_media' => $image_refs[0]['id'] ?? 0,
 		);
+	}
+
+	/**
+	 * Returns the post index encoded in a seeder slug, or null if the slug
+	 * doesn't match the seeder format.
+	 *
+	 * @param string $slug Post slug to parse.
+	 * @return int|null Index, or null when the slug isn't seeder-shaped.
+	 */
+	public static function extract_index_from_slug( string $slug ): ?int {
+		if ( ! str_starts_with( $slug, 'seeder-' ) ) {
+			return null;
+		}
+
+		if ( 1 === preg_match( '/-(\d+)$/', $slug, $matches ) ) {
+			return (int) $matches[1];
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the given value with the trailing revision suffix updated.
+	 *
+	 * Strips any existing " (rev N)" suffix and appends a fresh one when
+	 * $revision is positive. Revision 0 simply strips, returning the value
+	 * to its create-mode form.
+	 *
+	 * @param string $value    Current title or excerpt.
+	 * @param int    $revision Target revision number.
+	 * @return string Value with the revision suffix applied.
+	 */
+	public static function apply_revision_suffix(
+		string $value,
+		int $revision
+	): string {
+		$stripped = (string) preg_replace(
+			'/\s*\(rev \d+\)\s*$/',
+			'',
+			$value
+		);
+
+		return $revision > 0
+			? $stripped . " (rev {$revision})"
+			: $stripped;
+	}
+
+	/**
+	 * Returns the post content with the revision note replaced.
+	 *
+	 * The revision note is wrapped in HTML marker comments so it can be
+	 * located and replaced without disturbing the rest of the body. Works
+	 * for both block and classic content.
+	 *
+	 * @param string $content  Current post content.
+	 * @param int    $revision Target revision number.
+	 * @return string Content with the revision note applied.
+	 */
+	public static function apply_revision_to_content(
+		string $content,
+		int $revision
+	): string {
+		$pattern  = '/\s*' . preg_quote( self::REVISION_MARKER_BEGIN, '/' )
+			. '.*?' . preg_quote( self::REVISION_MARKER_END, '/' ) . '/s';
+		$stripped = (string) preg_replace( $pattern, '', $content );
+
+		if ( 0 === $revision ) {
+			return $stripped;
+		}
+
+		return $stripped . "\n\n" . self::REVISION_MARKER_BEGIN
+			. "\n<p>Revision {$revision} update notice.</p>\n"
+			. self::REVISION_MARKER_END;
 	}
 }

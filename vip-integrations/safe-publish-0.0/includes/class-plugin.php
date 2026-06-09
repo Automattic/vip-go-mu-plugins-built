@@ -13,7 +13,6 @@ use Safe_Publish\Admin\Admin_Ajax_Controller;
 use Safe_Publish\Admin\Import_Mode_Admin_Handler;
 use Safe_Publish\Admin\Admin_Menu_Manager;
 use Safe_Publish\Admin\Content_Processor;
-use Safe_Publish\Admin\Diff_Renderer;
 use Safe_Publish\Admin\Exports_Page;
 use Safe_Publish\Admin\History_Repository;
 use Safe_Publish\Admin\Import_Actions_Ajax_Handler;
@@ -112,12 +111,45 @@ final class Plugin {
 		);
 
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_filter(
+			'vip_pendo_allowed_screens',
+			array( $this, 'register_pendo_screens' )
+		);
 
 		if ( $can_import ) {
 			$this->init_full_admin();
 		} else {
 			$this->init_settings_only_admin( $can_export );
 		}
+	}
+
+	/**
+	 * Registers the plugin's admin screens with VIP Pendo telemetry.
+	 *
+	 * Registered here rather than in a menu class because the screens span
+	 * both admin modes: the import-mode menu lives in Admin_Menu_Manager while
+	 * the export-only top-level page lives in this class, so neither owns the
+	 * full list. The "Source Posts" submenu reuses the `safe-publish` slug, so
+	 * it shares the top-level hook suffix and needs no separate entry. The
+	 * Exports submenu resolves to `safe-publish_page_safe-publish-exports` in
+	 * both modes because WordPress builds the suffix from the sanitized parent
+	 * menu title ("Safe Publish"), not the parent slug. Screens absent in the
+	 * active mode simply never match the current hook suffix.
+	 *
+	 * @param string[] $allowed_screens Hook suffixes where Pendo is enabled.
+	 * @return string[] Filtered list including the plugin's admin screens.
+	 */
+	public function register_pendo_screens( array $allowed_screens ): array {
+		return array_merge(
+			$allowed_screens,
+			array(
+				'toplevel_page_safe-publish',
+				'toplevel_page_safe-publish-settings',
+				'safe-publish_page_safe-publish-imports',
+				'safe-publish_page_safe-publish-settings',
+				'safe-publish_page_safe-publish-exports',
+			)
+		);
 	}
 
 	/**
@@ -179,7 +211,7 @@ final class Plugin {
 		// Build content processor with direct media service dependencies.
 		$content_processor = new Content_Processor( $media_importer, $content_media_processor );
 
-		$this->safe_publish_api = new Safe_Publish_API( null, null, $content_processor, $media_importer );
+		$this->safe_publish_api = new Safe_Publish_API();
 
 		// Build admin object graph and initialize.
 		$this->build_full_admin_handler(
@@ -208,15 +240,10 @@ final class Plugin {
 	): Import_Mode_Admin_Handler {
 		$repository       = new History_Repository();
 		$rollback_service = new Session_Rollback_Service( $repository );
-		$diff_renderer    = new Diff_Renderer();
 
 		$exports_page = new Exports_Page();
 
-		$import_actions = new Import_Actions_Ajax_Handler(
-			$repository,
-			$rollback_service,
-			$diff_renderer
-		);
+		$import_actions = new Import_Actions_Ajax_Handler( $rollback_service );
 
 		$post_import_service = new Post_Import_Service(
 			$api,

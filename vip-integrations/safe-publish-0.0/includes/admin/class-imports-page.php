@@ -73,6 +73,7 @@ final class Imports_Page {
 				'ajaxurl'        => admin_url( 'admin-ajax.php' ),
 				'settingsUrl'    => admin_url( 'admin.php?page=safe-publish-settings' ),
 				'sourcePostsUrl' => admin_url( 'admin.php?page=safe-publish' ),
+				'homeUrl'        => home_url(),
 				'nonce'          => wp_create_nonce( 'safe_publish_ajax_nonce' ),
 				'restNonce'      => wp_create_nonce( 'wp_rest' ),
 				'containerId'    => 'safe-publish-imports-container',

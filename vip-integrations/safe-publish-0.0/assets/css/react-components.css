@@ -3,7 +3,7 @@
 	align-items: flex-end;
 	flex-wrap: wrap;
 	gap: 16px;
-	margin: 0 0 16px 48px;
+	margin: 16px 0 16px 48px;
 }
 
 .safe-publish-controls-row .safe-publish-post-type-selector {
@@ -70,22 +70,21 @@
 }
 
 /*
- * admin.css gives every .dataviews-search a bottom margin (from before the
- * built-in toolbar was shown). Here the search shares a flex row with the
- * Add-filter button, where that margin offsets it — drop it so they align.
+ * Each admin page drives search/filter from its own toolbar; hide DataViews'
+ * built-ins so they don't duplicate the UI.
  */
-.safe-publish-dataviews-wrapper--with-builtins .dataviews-search {
-	margin-bottom: 0;
+.safe-publish-dataviews-wrapper .dataviews-search,
+.safe-publish-dataviews-wrapper .dataviews-filters {
+	display: none;
 }
 
 /*
- * Source Posts replaces DataViews' built-in search box and faceted-filter UI
- * with its own toolbar, so they're hidden there. Imported Posts opts back in
- * via the --with-builtins modifier and drives them server-side.
+ * Hiding the built-in search/filter UI leaves an empty toolbar row above
+ * the table; drop its vertical padding so it doesn't read as a white band.
  */
-.safe-publish-dataviews-wrapper:not(.safe-publish-dataviews-wrapper--with-builtins) .dataviews-search,
-.safe-publish-dataviews-wrapper:not(.safe-publish-dataviews-wrapper--with-builtins) .dataviews-filters {
-	display: none;
+.safe-publish-dataviews-wrapper .dataviews__view-actions {
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 /*
@@ -119,14 +118,16 @@
 	align-items: center;
 	gap: 8px;
 	padding: 6px 12px;
-	margin: 0 0 12px 0;
+	margin: 0 0 12px 48px;
 	background: var(--safe-publish-surface-bg, #f0f6fc);
 	border: 1px solid var(--safe-publish-border, #c3c4c7);
 	border-radius: 16px;
 	font-size: 13px;
 }
 
+/* Align the tab bar with the filter toolbar and the DataViews table content. */
 .safe-publish-imports-tabs .components-tab-panel__tabs {
+	margin-left: 48px;
 	margin-bottom: 12px;
 }
 

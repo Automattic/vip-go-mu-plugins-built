@@ -226,7 +226,6 @@ class ComposerStaticInit09faad949f5e8d8447ca4fc0eee42629
         'Safe_Publish\\Admin\\Admin_Page' => __DIR__ . '/../..' . '/includes/admin/class-admin-page.php',
         'Safe_Publish\\Admin\\Content_Logger' => __DIR__ . '/../..' . '/includes/admin/class-content-logger.php',
         'Safe_Publish\\Admin\\Content_Processor' => __DIR__ . '/../..' . '/includes/admin/class-content-processor.php',
-        'Safe_Publish\\Admin\\Diff_Renderer' => __DIR__ . '/../..' . '/includes/admin/class-diff-renderer.php',
         'Safe_Publish\\Admin\\Exports_Page' => __DIR__ . '/../..' . '/includes/admin/class-exports-page.php',
         'Safe_Publish\\Admin\\History_Repository' => __DIR__ . '/../..' . '/includes/admin/class-history-repository.php',
         'Safe_Publish\\Admin\\Import_Actions_Ajax_Handler' => __DIR__ . '/../..' . '/includes/admin/class-import-actions-ajax-handler.php',

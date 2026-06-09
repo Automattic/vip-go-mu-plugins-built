@@ -348,7 +348,10 @@ final class History_Repository {
 	}
 
 	/**
-	 * Looks up the most recent item row for a given imported post.
+	 * Looks up the most recent active item row for a given imported post.
+	 *
+	 * Rolled-back rows are excluded so the result reflects the post's
+	 * current content.
 	 *
 	 * @param int $post_id WordPress post ID.
 	 * @return array|null Item row or null if no matching item exists.
@@ -361,7 +364,9 @@ final class History_Repository {
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM `{$table}` WHERE post_id = %d ORDER BY id DESC LIMIT 1",
+				"SELECT * FROM `{$table}` WHERE post_id = %d"
+					. ' AND rolled_back = 0'
+					. ' ORDER BY id DESC LIMIT 1',
 				$post_id
 			),
 			ARRAY_A
@@ -375,24 +380,28 @@ final class History_Repository {
 	 * Returns a page of imported post IDs for the Imports → Posts tab listing,
 	 * with search/filter/sort applied across the full dataset.
 	 *
-	 * Aggregates the items table to one row per post (the most recent import
-	 * event) and joins wp_posts so post-level search/filters/sort act on every
-	 * imported post, not just the current page. The inner join also drops items
-	 * whose post no longer exists, so the page never carries IDs that hydration
-	 * would discard. Returns up to per_page+1 IDs so the caller can derive
-	 * has_more without a separate count query.
+	 * Aggregates the items table to one row per post (the most recent active
+	 * import event — rolled-back rows are skipped) and joins wp_posts so
+	 * post-level search/filters/sort act on every imported post, not just the
+	 * current page. The inner join also drops items whose post no longer
+	 * exists, so the page never carries IDs that hydration would discard.
+	 * Returns up to per_page+1 IDs so the caller can derive has_more without
+	 * a separate count query.
 	 *
 	 * @param int   $page     1-indexed page number.
 	 * @param int   $per_page Items per page.
 	 * @param array $args     {
 	 *     Optional. Search/filter/sort criteria.
 	 *
-	 *     @type string   $search     Title substring to match.
-	 *     @type string[] $statuses   post_status values to include.
-	 *     @type string[] $post_types post_type values to include.
-	 *     @type int      $session_id Most-recent-item session to match, or 0.
-	 *     @type string   $orderby    'import_date' (default) or 'title'.
-	 *     @type string   $order      'asc' or 'desc' (default).
+	 *     @type string   $search          Title substring to match.
+	 *     @type string   $name            Exact post_name (slug) match.
+	 *     @type string[] $statuses        post_status values to include.
+	 *     @type string[] $post_types      post_type values to include.
+	 *     @type int      $session_id      Most-recent-item session to match, or 0.
+	 *     @type string   $imported_after  MySQL datetime lower bound on import_date_gmt.
+	 *     @type string   $imported_before MySQL datetime upper bound on import_date_gmt.
+	 *     @type string   $orderby         'import_date' (default) or 'title'.
+	 *     @type string   $order           'asc' or 'desc' (default).
 	 * }
 	 * @return int[] Post IDs in display order.
 	 */
@@ -408,14 +417,17 @@ final class History_Repository {
 		$offset      = max( 0, ( $page - 1 ) * $per_page );
 		$limit       = $per_page + 1;
 
-		$search     = isset( $args['search'] ) ? (string) $args['search'] : '';
-		$statuses   = isset( $args['statuses'] ) ? (array) $args['statuses'] : array();
-		$post_types = isset( $args['post_types'] ) ? (array) $args['post_types'] : array();
-		$session_id = isset( $args['session_id'] ) ? (int) $args['session_id'] : 0;
-		$orderby    = ( isset( $args['orderby'] ) && 'title' === $args['orderby'] )
+		$search          = isset( $args['search'] ) ? (string) $args['search'] : '';
+		$name            = isset( $args['name'] ) ? (string) $args['name'] : '';
+		$statuses        = isset( $args['statuses'] ) ? (array) $args['statuses'] : array();
+		$post_types      = isset( $args['post_types'] ) ? (array) $args['post_types'] : array();
+		$session_id      = isset( $args['session_id'] ) ? (int) $args['session_id'] : 0;
+		$imported_after  = isset( $args['imported_after'] ) ? (string) $args['imported_after'] : '';
+		$imported_before = isset( $args['imported_before'] ) ? (string) $args['imported_before'] : '';
+		$orderby         = ( isset( $args['orderby'] ) && 'title' === $args['orderby'] )
 			? 'p.post_title'
 			: 'agg.max_date';
-		$order      = ( isset( $args['order'] ) && 'asc' === strtolower( (string) $args['order'] ) )
+		$order           = ( isset( $args['order'] ) && 'asc' === strtolower( (string) $args['order'] ) )
 			? 'ASC'
 			: 'DESC';
 
@@ -427,6 +439,21 @@ final class History_Repository {
 		if ( '' !== $search ) {
 			$where[]  = 'p.post_title LIKE %s';
 			$params[] = '%' . $wpdb->esc_like( $search ) . '%';
+		}
+
+		if ( '' !== $name ) {
+			$where[]  = 'p.post_name = %s';
+			$params[] = $name;
+		}
+
+		if ( '' !== $imported_after ) {
+			$where[]  = 'agg.max_date >= %s';
+			$params[] = $imported_after;
+		}
+
+		if ( '' !== $imported_before ) {
+			$where[]  = 'agg.max_date <= %s';
+			$params[] = $imported_before;
 		}
 
 		if ( count( $statuses ) > 0 ) {
@@ -457,7 +484,8 @@ final class History_Repository {
 			$where[]  = "EXISTS ( SELECT 1 FROM `{$items_table}` mr"
 				. ' WHERE mr.post_id = agg.post_id'
 				. ' AND mr.import_date_gmt = agg.max_date'
-				. ' AND mr.session_id = %d )';
+				. ' AND mr.session_id = %d'
+				. ' AND mr.rolled_back = 0 )';
 			$params[] = $session_id;
 		}
 
@@ -470,7 +498,8 @@ final class History_Repository {
 			$wpdb->prepare(
 				'SELECT agg.post_id FROM ('
 					. "SELECT post_id, MAX(import_date_gmt) AS max_date FROM `{$items_table}`"
-					. ' WHERE post_id IS NOT NULL GROUP BY post_id'
+					. ' WHERE post_id IS NOT NULL AND rolled_back = 0'
+					. ' GROUP BY post_id'
 					. ") agg INNER JOIN `{$posts_table}` p ON p.ID = agg.post_id"
 					. " WHERE {$where_sql}"
 					. " ORDER BY {$orderby} {$order}, agg.post_id DESC"
@@ -492,13 +521,14 @@ final class History_Repository {
 	}
 
 	/**
-	 * Bulk variant of get_item_for_post(): returns the most recent item row
-	 * for each provided post ID, keyed by post_id.
+	 * Bulk variant of get_item_for_post(): returns the most recent active item
+	 * row for each provided post ID, keyed by post_id.
 	 *
 	 * Drives the Imports → Posts tab listing — one query for the whole page
 	 * instead of N. Relies on the (post_id, import_date_gmt) composite
-	 * index for the inner aggregation. Ties on import_date_gmt resolve to
-	 * the highest id.
+	 * index for the inner aggregation. Rolled-back rows are excluded so the
+	 * result reflects each post's current content. Ties on import_date_gmt
+	 * resolve to the highest id.
 	 *
 	 * @param int[] $post_ids Post IDs to look up.
 	 * @return array<int, array> Map of post_id → most recent item row.
@@ -520,9 +550,10 @@ final class History_Repository {
 				"SELECT t1.* FROM `{$table}` t1"
 					. ' INNER JOIN ( SELECT post_id, MAX(import_date_gmt) AS max_date'
 					. " FROM `{$table}` WHERE post_id IN ({$placeholders})"
-					. ' GROUP BY post_id ) t2'
+					. ' AND rolled_back = 0 GROUP BY post_id ) t2'
 					. ' ON t1.post_id = t2.post_id'
 					. ' AND t1.import_date_gmt = t2.max_date'
+					. ' WHERE t1.rolled_back = 0'
 					. ' ORDER BY t1.id DESC',
 				...$values
 			),
@@ -602,11 +633,22 @@ final class History_Repository {
 	 * import date without a second query. Returns up to per_page+1 rows so the
 	 * caller can derive has_more without a separate count.
 	 *
-	 * @param int $page     1-indexed page number.
-	 * @param int $per_page Items per page.
+	 * @param int   $page     1-indexed page number.
+	 * @param int   $per_page Items per page.
+	 * @param array $args     {
+	 *     Optional. Search/filter criteria.
+	 *
+	 *     @type string $search           Title substring to match.
+	 *     @type string $attempted_after  MySQL datetime lower bound on import_date_gmt.
+	 *     @type string $attempted_before MySQL datetime upper bound on import_date_gmt.
+	 * }
 	 * @return array[] Item rows including session source_site_url and date.
 	 */
-	public function list_failed_items( int $page = 1, int $per_page = 20 ): array {
+	public function list_failed_items(
+		int $page = 1,
+		int $per_page = 20,
+		array $args = array()
+	): array {
 		global $wpdb;
 
 		$items_table   = Import_Items_Table::table_name();
@@ -614,7 +656,39 @@ final class History_Repository {
 		$offset        = max( 0, ( $page - 1 ) * $per_page );
 		$limit         = $per_page + 1;
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$search           = isset( $args['search'] ) ? (string) $args['search'] : '';
+		$attempted_after  = isset( $args['attempted_after'] )
+			? (string) $args['attempted_after']
+			: '';
+		$attempted_before = isset( $args['attempted_before'] )
+			? (string) $args['attempted_before']
+			: '';
+
+		// Only %s/%d placeholders are interpolated below; every user value is
+		// bound through $wpdb->prepare().
+		$where  = array( "it.status = 'error'" );
+		$params = array();
+
+		if ( '' !== $search ) {
+			$where[]  = 'it.title LIKE %s';
+			$params[] = '%' . $wpdb->esc_like( $search ) . '%';
+		}
+
+		if ( '' !== $attempted_after ) {
+			$where[]  = 'it.import_date_gmt >= %s';
+			$params[] = $attempted_after;
+		}
+
+		if ( '' !== $attempted_before ) {
+			$where[]  = 'it.import_date_gmt <= %s';
+			$params[] = $attempted_before;
+		}
+
+		$where_sql = implode( ' AND ', $where );
+		$params[]  = $limit;
+		$params[]  = $offset;
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT it.id, it.session_id, it.title, it.source_post_id,'
@@ -622,15 +696,14 @@ final class History_Repository {
 					. ' s.source_site_url'
 					. " FROM `{$items_table}` it"
 					. " INNER JOIN `{$imports_table}` s ON s.id = it.session_id"
-					. " WHERE it.status = 'error'"
+					. " WHERE {$where_sql}"
 					. ' ORDER BY it.import_date_gmt DESC, it.id DESC'
 					. ' LIMIT %d OFFSET %d',
-				$limit,
-				$offset
+				...$params
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		return is_array( $rows ) ? $rows : array();
 	}
