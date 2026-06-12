@@ -1,0 +1,192 @@
+# Copyright (C) 2026 WordPress VIP
+# This file is distributed under the GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+msgid ""
+msgstr ""
+"Project-Id-Version: VIP Agentforce 0.1.9\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vip-agentforce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-06-04T13:16:31+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vip-agentforce\n"
+
+#. Plugin Name of the plugin
+#: vip-agentforce.php
+msgid "VIP Agentforce"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vip-agentforce.php
+msgid "https://github.com/Automattic/vip-agentforce"
+msgstr ""
+
+#. Description of the plugin
+#: vip-agentforce.php
+msgid "WordPress integration for Salesforce Agentforce on VIP"
+msgstr ""
+
+#. Author of the plugin
+#: vip-agentforce.php
+msgid "WordPress VIP"
+msgstr ""
+
+#: modules/cmp/class-assets.php:85
+msgid "The admin asset file is missing. Run `npm run build` to generate it."
+msgstr ""
+
+#: modules/cmp/class-assets.php:89
+msgid "The admin script file is missing. Run `npm run build` to generate it."
+msgstr ""
+
+#: modules/cmp/class-assets.php:96
+msgid "The admin asset metadata is invalid. Run `npm run build` to regenerate it."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:50
+msgid "Settings Saved"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:83
+msgid "iubenda Purpose ID cannot be empty."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:98
+msgid "iubenda Purpose ID must be between 1 and 5."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:141
+#: modules/cmp/class-settings-page.php:220
+msgid "Agentforce Settings"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:142
+msgid "Agentforce"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:221
+msgid "Saved changes will be applied on the next page load."
+msgstr ""
+
+#: modules/ingestion/class-ingestion-cron.php:60
+msgid "VIP Agentforce Ingestion"
+msgstr ""
+
+#: modules/ingestion/class-ingestion-rest.php:54
+msgid "You do not have permission to view sync progress."
+msgstr ""
+
+#: assets/build/js/admin.js:221
+msgid "CookieYes"
+msgstr ""
+
+#: assets/build/js/admin.js:224
+msgid "CookieBot"
+msgstr ""
+
+#: assets/build/js/admin.js:227
+msgid "OneTrust"
+msgstr ""
+
+#: assets/build/js/admin.js:230
+msgid "iubenda"
+msgstr ""
+
+#: assets/build/js/admin.js:233
+msgid "Custom"
+msgstr ""
+
+#: assets/build/js/admin.js:252
+msgid "General Settings"
+msgstr ""
+
+#: assets/build/js/admin.js:253
+msgid "Choose how Agentforce loads based on your consent provider."
+msgstr ""
+
+#: assets/build/js/admin.js:260
+msgid "This lets you control when the Agentforce SDK loads after consent is granted."
+msgstr ""
+
+#: assets/build/js/admin.js:260
+msgid "Activate Agentforce after consent: <code>window.AgentforceCMP.loadSDK()</code>"
+msgstr ""
+
+#: assets/build/js/admin.js:262
+msgid "If consent is revoked: <code>window.AgentforceCMP.unloadSDK()</code>"
+msgstr ""
+
+#: assets/build/js/admin.js:266
+msgid "Consent Type"
+msgstr ""
+
+#: assets/build/js/admin.js:276
+msgid "OneTrust Group ID"
+msgstr ""
+
+#: assets/build/js/admin.js:289
+msgid "Enter the Cookiebot category (e.g., necessary, preferences, statistics, marketing)."
+msgstr ""
+
+#: assets/build/js/admin.js:289
+msgid "To see all available categories for your site, open browser console and run:"
+msgstr ""
+
+#: assets/build/js/admin.js:293
+msgid "Cookiebot Category"
+msgstr ""
+
+#: assets/build/js/admin.js:306
+msgid "Enter the iubenda Purpose ID (1 to 5). See the <link>iubenda documentation</link>."
+msgstr ""
+
+#: assets/build/js/admin.js:308
+msgid "iubenda documentation"
+msgstr ""
+
+#: assets/build/js/admin.js:313
+msgid "To see all available purpose IDs for your site, open browser console and run:"
+msgstr ""
+
+#: assets/build/js/admin.js:317
+msgid "iubenda Purpose ID"
+msgstr ""
+
+#: assets/build/js/admin.js:327
+msgid "Agent UI"
+msgstr ""
+
+#: assets/build/js/admin.js:328
+msgid "Alignment and custom styles for the launcher/widget."
+msgstr ""
+
+#: assets/build/js/admin.js:332
+msgid "Alignment"
+msgstr ""
+
+#: assets/build/js/admin.js:334
+msgid "Bottom right"
+msgstr ""
+
+#: assets/build/js/admin.js:337
+msgid "Bottom left"
+msgstr ""
+
+#: assets/build/js/admin.js:347
+msgid "Custom CSS (optional)"
+msgstr ""
+
+#: assets/build/js/admin.js:348
+msgid "/* Paste CSS to override agentforce styles */"
+msgstr ""
+
+#: assets/build/js/admin.js:370
+msgid "Save Changes"
+msgstr ""
+
+#: assets/build/js/admin.js:379
+msgid "Agentforce settings could not be loaded. Refresh the page and try again."
+msgstr ""

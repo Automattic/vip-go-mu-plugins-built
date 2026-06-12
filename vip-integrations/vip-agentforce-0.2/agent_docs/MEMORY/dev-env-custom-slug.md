@@ -1,0 +1,1 @@
+- Assuming a newly-created custom `vip dev-env` slug is ready after one `start` is wrong. Correct: if the login URL from `vip dev-env start` or `vip dev-env info` opens but does not automatically log in, run `vip dev-env stop --slug=<slug>` and then `vip dev-env start --slug=<slug> --skip-wp-versions-check` before debugging app code.
