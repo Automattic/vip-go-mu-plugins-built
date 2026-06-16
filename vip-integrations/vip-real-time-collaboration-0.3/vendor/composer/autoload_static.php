@@ -35,6 +35,7 @@ class ComposerStaticInit0c259ad047b224ddf37b84f36f049c74
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'VIPRealTimeCollaboration\\Api\\AuthApiController' => __DIR__ . '/../..' . '/inc/Api/AuthApiController.php',
         'VIPRealTimeCollaboration\\Api\\RestApi' => __DIR__ . '/../..' . '/inc/Api/RestApi.php',
+        'VIPRealTimeCollaboration\\Api\\TelemetryApiController' => __DIR__ . '/../..' . '/inc/Api/TelemetryApiController.php',
         'VIPRealTimeCollaboration\\Assets\\Assets' => __DIR__ . '/../..' . '/inc/Assets/Assets.php',
         'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => __DIR__ . '/../..' . '/inc/Auth/SyncPermissions.php',
         'VIPRealTimeCollaboration\\Auth\\WebSocketAuth' => __DIR__ . '/../..' . '/inc/Auth/WebSocketAuth.php',

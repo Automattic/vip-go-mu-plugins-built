@@ -12,5 +12,6 @@ final class RestApi {
 
 	public static function init(): void {
 		add_action( 'rest_api_init', [ new AuthApiController(), 'register_routes' ], 10, 0 );
+		add_action( 'rest_api_init', [ new TelemetryApiController(), 'register_routes' ], 10, 0 );
 	}
 }

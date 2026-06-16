@@ -12,6 +12,7 @@ return array(
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
     'VIPRealTimeCollaboration\\Api\\AuthApiController' => $baseDir . '/inc/Api/AuthApiController.php',
     'VIPRealTimeCollaboration\\Api\\RestApi' => $baseDir . '/inc/Api/RestApi.php',
+    'VIPRealTimeCollaboration\\Api\\TelemetryApiController' => $baseDir . '/inc/Api/TelemetryApiController.php',
     'VIPRealTimeCollaboration\\Assets\\Assets' => $baseDir . '/inc/Assets/Assets.php',
     'VIPRealTimeCollaboration\\Auth\\SyncPermissions' => $baseDir . '/inc/Auth/SyncPermissions.php',
     'VIPRealTimeCollaboration\\Auth\\WebSocketAuth' => $baseDir . '/inc/Auth/WebSocketAuth.php',
