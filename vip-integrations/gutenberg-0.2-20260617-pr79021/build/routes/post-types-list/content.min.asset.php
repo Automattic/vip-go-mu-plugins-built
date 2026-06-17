@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array(), 'module_dependencies' => array(array('id' => '@wordpress/content-types', 'import' => 'static')), 'version' => 'e79c11dfe2978aa5a273');
