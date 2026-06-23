@@ -2,11 +2,10 @@
 /**
  * Ingestion API Client.
  *
- * Handles single-attempt API calls to the Salesforce Data Cloud Ingestion API
- * and maintains a shared retry cache block that coordinates back-off across
- * workers. Retry of transient failures is owned by `Ingestion_Cron`,
- * which keeps queued items in place across cron ticks until they succeed
- * or the retry cap is exhausted.
+ * Handles API calls to the Salesforce Data Cloud Ingestion API and maintains
+ * a shared retry cache block that coordinates back-off across workers. Retry
+ * of transient failures is owned by `Ingestion_Cron`, which keeps queued items
+ * in place across cron ticks until they succeed or the retry cap is exhausted.
  *
  * @package vip-agentforce
  */
@@ -22,8 +21,9 @@ use Automattic\VIP\Salesforce\Agentforce\Utils\Logger;
  *
  * Responsibilities are deliberately narrow:
  *
- * - Make exactly one HTTP request per call. The caller (cron) decides whether
- *   to retry based on `Ingestion_API_Result::is_retryable()`.
+ * - Make one logical API call. A stale-token 401 may refresh config and defer
+ *   a bounded retry to the next round; all other retry decisions stay with cron via
+ *   `Ingestion_API_Result::is_retryable()`.
  * - Maintain a shared retry cache block:
  *   - Reactive: a 429 response stores the Retry-After window so other workers
  *     and other queue items defer the same way until it expires.
@@ -50,6 +50,11 @@ class Ingestion_API_Client {
 	private const CACHE_GROUP = 'vip_agentforce';
 
 	/**
+	 * Retry-state reason used when a refreshed token should be retried later.
+	 */
+	private const RETRY_REASON_AUTH_TOKEN_REFRESHED = 'auth_token_refreshed';
+
+	/**
 	 * Default exponential retry backoff floor, in seconds.
 	 */
 	private const DEFAULT_RETRY_BACKOFF_SECONDS = 5;
@@ -68,6 +73,11 @@ class Ingestion_API_Client {
 	 */
 	private const DEFAULT_TIMEOUT_CLI    = 15;
 	private const DEFAULT_TIMEOUT_NORMAL = 3;
+
+	/**
+	 * Default number of deferred retries after a 401 response.
+	 */
+	private const DEFAULT_AUTH_RETRY_COUNT = 2;
 
 	/**
 	 * Get current shared retry status for diagnostics and CLI output.
@@ -147,7 +157,7 @@ class Ingestion_API_Client {
 	}
 
 	/**
-	 * Make a single API request, honoring the shared retry block and
+	 * Make one logical API request, honoring the shared retry block and
 	 * returning a result that the cron can act on (retry or give up).
 	 *
 	 * @param string $method    HTTP method ('POST' or 'DELETE').
@@ -160,13 +170,7 @@ class Ingestion_API_Client {
 		if ( null !== $preflight_failure ) {
 			// Config/token failures are deterministic. Retrying would only
 			// hide the real setup problem behind the shared backoff flow.
-			Ingestion_Metrics::record_api_error( $preflight_failure['error_class'] );
-			return Ingestion_API_Result::failure(
-				$preflight_failure['message'],
-				null,
-				$record_id,
-				$preflight_failure['error_class']
-			);
+			return $this->create_preflight_failure_result( $preflight_failure, $record_id );
 		}
 
 		// If another worker already hit a retryable API failure, defer this
@@ -175,26 +179,34 @@ class Ingestion_API_Client {
 		$block_remaining = $this->get_rate_limit_block_remaining();
 		if ( $block_remaining > 0 ) {
 			$retry_status = self::get_retry_status();
-			$error_class  = match ( $retry_status['reason'] ) {
+			$retry_reason = $retry_status['reason'];
+			$error_class  = match ( $retry_reason ) {
 				'rate_limited', 'rate_limit_budget_low' => 'rate_limit',
 				'transient_server_error' => 'server',
 				'http_error' => 'network',
+				self::RETRY_REASON_AUTH_TOKEN_REFRESHED => 'auth',
 				default => 'unexpected',
 			};
 
-			Ingestion_Metrics::record_api_error( $error_class );
+			if ( self::RETRY_REASON_AUTH_TOKEN_REFRESHED !== $retry_reason ) {
+				Ingestion_Metrics::record_api_error( $error_class );
+			}
+
 			return Ingestion_API_Result::deferred(
 				sprintf(
 					'Ingestion API retry backoff active for %.1fs; deferring request (%s)',
 					$block_remaining,
-					$retry_status['reason'] ?? 'unknown'
+					$retry_reason ?? 'unknown'
 				),
 				$record_id,
 				$error_class
 			);
 		}
 
-		$response = $this->execute_request( $method, $body );
+		$request_config = Configs::get_config();
+		$request_token  = $request_config['ingestion_api_token'] ?? '';
+		$request_token  = is_string( $request_token ) ? $request_token : '';
+		$response       = $this->execute_request( $method, $body, $request_config );
 
 		if ( is_wp_error( $response ) ) {
 			// A transport failure means Salesforce was not reached at all. Arm
@@ -226,6 +238,46 @@ class Ingestion_API_Client {
 			Ingestion_Metrics::record_api_request( $method, (string) $status_code, 'success' );
 			$this->process_rate_limit_headers( $response );
 			return Ingestion_API_Result::success( $record_id, $response );
+		}
+
+		if ( 401 === $status_code ) {
+			$auth_failures = $this->get_consecutive_failures_for_reason( self::RETRY_REASON_AUTH_TOKEN_REFRESHED );
+
+			if ( $auth_failures < $this->get_auth_retry_count() ) {
+				$refreshed_config = Configs::refresh_config();
+				$refreshed_token  = $refreshed_config['ingestion_api_token'] ?? '';
+				$refreshed_token  = is_string( $refreshed_token ) ? $refreshed_token : '';
+				$retry_attempt    = $auth_failures + 1;
+
+				if ( Logger::is_verbose_ingestion_logging() ) {
+					Logger::warning(
+						'ingestion-api',
+						'Received 401 from Salesforce; refreshed ingestion config and deferred retry',
+						[
+							'attempt'       => $retry_attempt,
+							'max_retries'   => $this->get_auth_retry_count(),
+							'token_changed' => '' !== $refreshed_token && ! hash_equals( $request_token, $refreshed_token ),
+						]
+					);
+				}
+
+				$preflight_failure = self::get_request_preflight_failure();
+				if ( null !== $preflight_failure ) {
+					return $this->create_preflight_failure_result( $preflight_failure, $record_id );
+				}
+
+				$this->set_exponential_backoff(
+					self::RETRY_REASON_AUTH_TOKEN_REFRESHED,
+					$status_code,
+					'Auth failed; refreshed ingestion config and deferred retry'
+				);
+
+				return Ingestion_API_Result::deferred(
+					'Ingestion API auth retry deferred after refreshed config',
+					$record_id,
+					'auth'
+				);
+			}
 		}
 
 		// Rate limited: store the block for other workers, return failure.
@@ -328,12 +380,13 @@ class Ingestion_API_Client {
 	 *
 	 * @param string $method HTTP method.
 	 * @param string $body   Request body.
+	 * @param array<string, mixed> $config Request config.
 	 * @return array<string, mixed>|\WP_Error The response or error.
 	 */
-	private function execute_request( string $method, string $body ) {
-		$config = Configs::get_config();
-		$token  = $config['ingestion_api_token'] ?? '';
-		$url    = $this->build_api_url();
+	private function execute_request( string $method, string $body, array $config ) {
+		$token = $config['ingestion_api_token'] ?? '';
+		$token = is_string( $token ) ? $token : '';
+		$url   = $this->build_api_url();
 
 		return wp_remote_request(
 			$url,
@@ -346,6 +399,44 @@ class Ingestion_API_Client {
 				'body'    => $body,
 				'timeout' => $this->get_request_timeout(),
 			]
+		);
+	}
+
+	/**
+	 * Get the configured auth retry count.
+	 */
+	private function get_auth_retry_count(): int {
+		return max(
+			0,
+			(int) apply_filters( 'vip_agentforce_api_auth_retry_count', self::DEFAULT_AUTH_RETRY_COUNT )
+		);
+	}
+
+	/**
+	 * Get consecutive failures for the same retry reason.
+	 */
+	private function get_consecutive_failures_for_reason( string $reason ): int {
+		$state = self::get_retry_state();
+
+		return ( $state['reason'] ?? null ) === $reason
+			? (int) ( $state['consecutive_failures'] ?? 0 )
+			: 0;
+	}
+
+	/**
+	 * Create a final result for deterministic config/auth preflight failures.
+	 *
+	 * @param array{message: string, error_class: string, error_code: string} $preflight_failure Failure details.
+	 * @param string                                                          $record_id         Record ID.
+	 */
+	private function create_preflight_failure_result( array $preflight_failure, string $record_id ): Ingestion_API_Result {
+		Ingestion_Metrics::record_api_error( $preflight_failure['error_class'] );
+
+		return Ingestion_API_Result::failure(
+			$preflight_failure['message'],
+			null,
+			$record_id,
+			$preflight_failure['error_class']
 		);
 	}
 
@@ -482,8 +573,7 @@ class Ingestion_API_Client {
 	 * @param string   $error_message Operator-facing error summary.
 	 */
 	private function set_exponential_backoff( string $reason, ?int $status_code, string $error_message ): void {
-		$state                = self::get_retry_state();
-		$consecutive_failures = (int) ( $state['consecutive_failures'] ?? 0 ) + 1;
+		$consecutive_failures = $this->get_consecutive_failures_for_reason( $reason ) + 1;
 		$base_seconds         = max(
 			1,
 			(int) apply_filters( 'vip_agentforce_api_retry_backoff_base_seconds', self::DEFAULT_RETRY_BACKOFF_SECONDS )
@@ -526,8 +616,7 @@ class Ingestion_API_Client {
 		if ( $retry_after > 0 ) {
 			// Salesforce gave an explicit retry window. Use it as the source of
 			// truth, but keep the failure count so diagnostics still show trend.
-			$state                = self::get_retry_state();
-			$consecutive_failures = (int) ( $state['consecutive_failures'] ?? 0 ) + 1;
+			$consecutive_failures = $this->get_consecutive_failures_for_reason( $reason ) + 1;
 			$this->set_retry_block( $retry_after, $reason, $status_code, $error_message, $consecutive_failures );
 		} else {
 			// No Retry-After means we own the pacing. Use bounded exponential

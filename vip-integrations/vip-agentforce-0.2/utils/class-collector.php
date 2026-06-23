@@ -18,6 +18,7 @@ class Collector implements \Automattic\VIP\Prometheus\CollectorInterface {
 
 	public function collect_metrics(): void {
 		Ingestion_Metrics::collect_gauges();
+		Ingestion_Metrics::collect_counters();
 	}
 
 	public function process_metrics(): void {

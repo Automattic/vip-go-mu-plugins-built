@@ -194,12 +194,15 @@ class Assets {
 		}
 
 		// we're late loading the options to make sure we load them only if needed.
-		if ( 'OneTrust' === $consent_type ) {
+		if ( 'CookieYes' === $consent_type ) {
+			$cookieyes_category                 = get_option( 'vip_agentforce_cookieyes_category', Constants::DEFAULT_COOKIEYES_CATEGORY );
+			$localize_data['cookieyesCategory'] = Settings_Page::get_instance()->validate_cookieyes_category( $cookieyes_category );
+		} elseif ( 'OneTrust' === $consent_type ) {
 			$onetrust_group_id        = get_option( 'vip_agentforce_onetrust_group_id', Constants::DEFAULT_ONETRUST_GROUP_ID );
 			$localize_data['groupId'] = $onetrust_group_id;
 		} elseif ( 'CookieBot' === $consent_type ) {
 			$cookiebot_category                 = get_option( 'vip_agentforce_cookiebot_category', Constants::DEFAULT_COOKIEBOT_CATEGORY );
-			$localize_data['cookiebotCategory'] = $cookiebot_category;
+			$localize_data['cookiebotCategory'] = Settings_Page::get_instance()->validate_cookiebot_category( $cookiebot_category );
 		} elseif ( 'iubenda' === $consent_type ) {
 			$iubenda_purpose_id                = get_option( 'vip_agentforce_iubenda_category', Constants::DEFAULT_IUBENDA_PURPOSE_ID );
 			$localize_data['iubendaPurposeId'] = $iubenda_purpose_id;
@@ -361,44 +364,281 @@ class Assets {
 			return null;
 		}
 
-		$inline_init_js = $first_body;
-		$bootstrap_src  = esc_url_raw( trim( $src_match[2] ) );
+		$bootstrap_src = esc_url_raw( trim( $src_match[2] ) );
 
-		if ( '' === $bootstrap_src ) {
+		if ( '' === $bootstrap_src || ! $this->is_valid_salesforce_url( $bootstrap_src ) ) {
 			return null;
 		}
 
-		if ( ! $this->is_valid_bootstrap_src( $bootstrap_src ) ) {
+		// Do not trust the pasted inline script. Extract only its parameters, validate
+		// them, and rebuild the init script from a fixed template so no attacker-supplied
+		// JavaScript from the snippet can run on the front end.
+		$params = $this->parse_inline_init_params( $first_body );
+		if ( null === $params ) {
 			return null;
 		}
 
 		return array(
-			'inline_init_js' => $inline_init_js,
+			'inline_init_js' => $this->build_inline_init_script( $params ),
 			'bootstrap_src'  => $bootstrap_src,
 		);
 	}
 
 	/**
-	 * Validate bootstrap script source URL.
+	 * Extract and validate the Agentforce init parameters from the pasted inline script.
 	 *
-	 * @param string $bootstrap_src Bootstrap script URL.
+	 * Only these parameters are trusted from the snippet; everything else in the body is
+	 * discarded and the script is rebuilt by build_inline_init_script().
+	 *
+	 * @param string $inline_body Inline (first) script body.
+	 * @return array{org_id: string, deployment_name: string, site_url: string, scrt_url: string, language: string}|null
+	 */
+	private function parse_inline_init_params( string $inline_body ): ?array {
+		// Pull the org id, deployment name and site URL from the three positional string
+		// arguments of the bootstrap init call, plus its trailing settings object.
+		if ( 1 !== preg_match(
+			'/embeddedservice_bootstrap\.init\(\s*(["\'])(.*?)\1\s*,\s*(["\'])(.*?)\3\s*,\s*(["\'])(.*?)\5\s*,\s*\{(.*?)\}\s*\)/is',
+			$inline_body,
+			$init_match
+		) ) {
+			return null;
+		}
+
+		$org_id          = trim( $init_match[2] );
+		$deployment_name = trim( $init_match[4] );
+		$site_url        = esc_url_raw( trim( $init_match[6] ) );
+		$settings_block  = $init_match[7];
+
+		if ( 1 !== preg_match( '/\bscrt2URL\s*:\s*(["\'])(.*?)\1/is', $settings_block, $scrt_match ) ) {
+			return null;
+		}
+		$scrt_url = esc_url_raw( trim( $scrt_match[2] ) );
+
+		$language = '';
+		if ( 1 === preg_match( '/embeddedservice_bootstrap\.settings\.language\s*=\s*(["\'])(.*?)\1/is', $inline_body, $language_match ) ) {
+			$language = trim( $language_match[2] );
+		}
+
+		if ( 1 !== preg_match( '/^[A-Za-z0-9]{15,18}$/', $org_id ) ) {
+			return null;
+		}
+		if ( 1 !== preg_match( '/^[A-Za-z0-9_]+$/', $deployment_name ) ) {
+			return null;
+		}
+		if ( ! $this->is_valid_salesforce_url( $site_url ) || ! $this->is_valid_salesforce_url( $scrt_url ) ) {
+			return null;
+		}
+		if ( '' !== $language && 1 !== preg_match( '/^[A-Za-z_-]{2,}$/', $language ) ) {
+			return null;
+		}
+
+		return array(
+			'org_id'          => $org_id,
+			'deployment_name' => $deployment_name,
+			'site_url'        => $site_url,
+			'scrt_url'        => $scrt_url,
+			'language'        => $language,
+		);
+	}
+
+	/**
+	 * Build the inline init script from validated parameters using a fixed template.
+	 *
+	 * Values are embedded with wp_json_encode so they are emitted as safe JS string
+	 * literals and cannot break out of the template.
+	 *
+	 * @param array{org_id: string, deployment_name: string, site_url: string, scrt_url: string, language: string} $params Validated parameters.
+	 * @return string
+	 */
+	private function build_inline_init_script( array $params ): string {
+		$language_line = '';
+		if ( '' !== $params['language'] ) {
+			$language_line = sprintf(
+				"\t\t\tembeddedservice_bootstrap.settings.language = %s;\n",
+				wp_json_encode( $params['language'] )
+			);
+		}
+
+		return sprintf(
+			"function initEmbeddedMessaging() {\n" .
+			"\ttry {\n" .
+			'%s' .
+			"\t\tembeddedservice_bootstrap.init(\n" .
+			"\t\t\t%s,\n" .
+			"\t\t\t%s,\n" .
+			"\t\t\t%s,\n" .
+			"\t\t\t{\n" .
+			"\t\t\t\tscrt2URL: %s\n" .
+			"\t\t\t}\n" .
+			"\t\t);\n" .
+			"\t} catch (err) {\n" .
+			"\t\tconsole.error('Error loading Embedded Messaging: ', err);\n" .
+			"\t}\n" .
+			'}',
+			$language_line,
+			wp_json_encode( $params['org_id'] ),
+			wp_json_encode( $params['deployment_name'] ),
+			wp_json_encode( $params['site_url'] ),
+			wp_json_encode( $params['scrt_url'] )
+		);
+	}
+
+	/**
+	 * Validate a Salesforce embed URL: HTTPS, on the Salesforce-owned suffix allowlist,
+	 * and (when an instance URL is configured) belonging to that org.
+	 *
+	 * @param string $url Candidate URL.
 	 * @return bool
 	 */
-	private function is_valid_bootstrap_src( string $bootstrap_src ): bool {
-		$parts = wp_parse_url( $bootstrap_src );
+	private function is_valid_salesforce_url( string $url ): bool {
+		$parts = wp_parse_url( $url );
 		if ( ! is_array( $parts ) ) {
 			return false;
 		}
 
 		$scheme = $parts['scheme'] ?? '';
-		if ( ! is_string( $scheme ) ) {
+		if ( ! is_string( $scheme ) || 'https' !== strtolower( $scheme ) ) {
 			return false;
 		}
+
 		$host = $parts['host'] ?? '';
 		if ( ! is_string( $host ) || '' === trim( $host ) ) {
 			return false;
 		}
 
-		return 'https' === strtolower( $scheme );
+		return $this->is_allowed_bootstrap_host( strtolower( trim( $host ) ) );
+	}
+
+	/**
+	 * Whether a host is an allowed Agentforce bootstrap host.
+	 *
+	 * Two layers: the host must sit under a Salesforce-owned domain suffix, and —
+	 * when a Salesforce instance URL is configured — it must also belong to that
+	 * org. The org pin stops a snippet from loading the bootstrap from another
+	 * tenant's site on a shared Salesforce domain (e.g. `*.my.site.com`).
+	 *
+	 * @param string $host Lowercased, trimmed host.
+	 * @return bool
+	 */
+	private function is_allowed_bootstrap_host( string $host ): bool {
+		/**
+		 * Filters the domain suffixes the Agentforce bootstrap script may be served from.
+		 *
+		 * @param string[] $allowed_suffixes Salesforce-owned domain suffixes (e.g. "my.site.com").
+		 */
+		$allowed_suffixes = apply_filters(
+			'vip_agentforce_allowed_bootstrap_hosts',
+			Constants::ALLOWED_BOOTSTRAP_HOST_SUFFIXES
+		);
+
+		if ( ! is_array( $allowed_suffixes ) ) {
+			return false;
+		}
+
+		$suffix_allowed = false;
+		foreach ( $allowed_suffixes as $suffix ) {
+			if ( ! is_string( $suffix ) ) {
+				continue;
+			}
+
+			$suffix = strtolower( ltrim( trim( $suffix ), '.' ) );
+			if ( '' === $suffix ) {
+				continue;
+			}
+
+			if ( $host === $suffix || str_ends_with( $host, '.' . $suffix ) ) {
+				$suffix_allowed = true;
+				break;
+			}
+		}
+
+		if ( ! $suffix_allowed ) {
+			return false;
+		}
+
+		// Pin the bootstrap host to the configured org's My Domain label when we
+		// can derive one. Without an instance URL there is nothing to pin against,
+		// so the suffix allowlist stands on its own.
+		$org_label = $this->get_configured_org_label();
+		if ( '' === $org_label ) {
+			return true;
+		}
+
+		return $this->extract_org_label( $host ) === $org_label;
+	}
+
+	/**
+	 * The Salesforce org label the bootstrap host is pinned to, derived from the
+	 * configured instance (My Domain) URL. Empty when none is configured.
+	 *
+	 * @return string
+	 */
+	private function get_configured_org_label(): string {
+		$instance_url = Configs::get_salesforce_instance_url();
+		if ( '' === $instance_url ) {
+			return '';
+		}
+
+		$org_label = $this->extract_org_label( $this->host_from_value( $instance_url ) );
+
+		/**
+		 * Filters the Salesforce org label the Agentforce bootstrap host is pinned to.
+		 *
+		 * Derived from the configured instance URL's My Domain label, with any sandbox
+		 * or site qualifier stripped. Return an empty string to disable the org pin and
+		 * fall back to the domain-suffix allowlist alone (e.g. for an Experience Cloud
+		 * site whose host does not match the My Domain name).
+		 *
+		 * @param string $org_label    Derived org label (e.g. "acme").
+		 * @param string $instance_url Configured Salesforce instance URL.
+		 */
+		$org_label = apply_filters( 'vip_agentforce_bootstrap_org_label', $org_label, $instance_url );
+
+		return is_string( $org_label ) ? strtolower( trim( $org_label ) ) : '';
+	}
+
+	/**
+	 * Extract the host from a URL, or accept a bare host when no scheme is present.
+	 *
+	 * @param string $value URL or host string.
+	 * @return string Lowercased host, or empty string.
+	 */
+	private function host_from_value( string $value ): string {
+		$value = trim( $value );
+		if ( '' === $value ) {
+			return '';
+		}
+
+		$parts = wp_parse_url( $value );
+		if ( is_array( $parts ) && isset( $parts['host'] ) && is_string( $parts['host'] ) && '' !== $parts['host'] ) {
+			return strtolower( $parts['host'] );
+		}
+
+		// No scheme: wp_parse_url puts a bare host in `path`. Strip any path segment.
+		$host = strtolower( $value );
+		$host = strtok( $host, '/' );
+
+		return false === $host ? '' : $host;
+	}
+
+	/**
+	 * The org label of a host: its first DNS label with any Salesforce sandbox or
+	 * site qualifier stripped (e.g. `acme--dev.sandbox.my.site.com` -> `acme`).
+	 *
+	 * @param string $host Host name.
+	 * @return string
+	 */
+	private function extract_org_label( string $host ): string {
+		$host = strtolower( trim( $host ) );
+		if ( '' === $host ) {
+			return '';
+		}
+
+		$first_label = strtok( $host, '.' );
+		if ( false === $first_label ) {
+			return '';
+		}
+
+		return explode( '--', $first_label )[0];
 	}
 }

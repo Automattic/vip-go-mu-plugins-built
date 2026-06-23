@@ -5,6 +5,8 @@ namespace Automattic\VIP\Salesforce\Agentforce\Utils;
 use Automattic\VIP\Salesforce\Agentforce\Ingestion\Ingestion_Error;
 
 class Configs {
+	private const INTEGRATION_SLUG = 'agentforce';
+
 	/**
 	 * Cached config
 	 *
@@ -36,6 +38,21 @@ class Configs {
 	}
 
 	/**
+	 * Reload and cache the latest available integration config.
+	 *
+	 * @return array<string, mixed> The refreshed config.
+	 */
+	public static function refresh_config(): array {
+		$config = self::get_actual_config();
+
+		self::$cached_config                        = $config;
+		self::$cached_ingestion_token_failure       = self::detect_ingestion_token_failure( $config );
+		self::$cached_ingestion_token_status_loaded = true;
+
+		return $config;
+	}
+
+	/**
 	 * Returns whether the Agentforce JS SDK is activated in integration config.
 	 */
 	public static function is_js_sdk_activated(): bool {
@@ -57,6 +74,16 @@ class Configs {
 		$url    = $config['agentforce_js_sdk_url'] ?? '';
 
 		return is_string( $url ) ? $url : '';
+	}
+
+	/**
+	 * Returns the configured Salesforce instance (My Domain) URL from integration config.
+	 */
+	public static function get_salesforce_instance_url(): string {
+		$config = self::get_config();
+		$url    = $config['salesforce_instance_url'] ?? '';
+
+		return is_string( $url ) ? trim( $url ) : '';
 	}
 
 	/**
@@ -214,33 +241,75 @@ class Configs {
 	}
 
 	private static function init(): void {
-		$config = self::get_actual_config();
-
-		self::$cached_config                        = $config;
-		self::$cached_ingestion_token_failure       = self::detect_ingestion_token_failure( $config );
-		self::$cached_ingestion_token_status_loaded = true;
+		self::refresh_config();
 	}
 
 	/**
-	 * Retrieve the actual configuration from the defined constant.
+	 * Retrieve the actual configuration from VIP platform config or the legacy constant.
 	 *
 	 * @return array<string, mixed> The configuration array.
 	 */
 	private static function get_actual_config(): array {
-		if ( ! defined( 'VIP_AGENTFORCE_CONFIGS' ) ) {
-			Logger::warning_log_if_user_logged_in( 'sb_configs', 'VIP_AGENTFORCE_CONFIGS is not defined.' );
-			return [];
+		$configs = self::get_vip_integration_config();
+
+		if ( null === $configs ) {
+			$configs = self::get_constant_config();
 		}
 
-		$configs = constant( 'VIP_AGENTFORCE_CONFIGS' );
+		if ( null === $configs ) {
+			Logger::warning_log_if_user_logged_in( 'sb_configs', 'VIP Agentforce config is not available from platform config or VIP_AGENTFORCE_CONFIGS.' );
+			$configs = [];
+		}
+
 		if ( is_string( $configs ) ) {
 			$configs = json_decode( $configs, true );
 		}
 		if ( ! is_array( $configs ) ) {
-			return [];
+			$configs = [];
 		}
 
-		return self::normalize_config( $configs );
+		$normalized_config = self::normalize_config( $configs );
+		$filtered_config   = apply_filters( 'vip_agentforce_config', $normalized_config );
+
+		if ( ! is_array( $filtered_config ) ) {
+			return $normalized_config;
+		}
+
+		return self::normalize_config( $filtered_config );
+	}
+
+	/**
+	 * Retrieve the latest config from VIP's integrations config file, if loaded.
+	 *
+	 * @return array<string, mixed>|null The platform config, or null when unavailable.
+	 */
+	private static function get_vip_integration_config(): ?array {
+		if ( ! class_exists( '\\Automattic\\VIP\\Integrations\\IntegrationVipConfig' ) ) {
+			return null;
+		}
+
+		$vip_config = new \Automattic\VIP\Integrations\IntegrationVipConfig( self::INTEGRATION_SLUG );
+		$config     = array_merge(
+			$vip_config->get_env_config(),
+			$vip_config->get_network_site_config()
+		);
+
+		return ! empty( $config ) ? $config : null;
+	}
+
+	/**
+	 * Retrieve config from the legacy constant.
+	 *
+	 * @return array<string, mixed>|string|null The constant value, or null when absent.
+	 */
+	private static function get_constant_config(): array|string|null {
+		if ( ! defined( 'VIP_AGENTFORCE_CONFIGS' ) ) {
+			return null;
+		}
+
+		$configs = constant( 'VIP_AGENTFORCE_CONFIGS' );
+
+		return is_array( $configs ) || is_string( $configs ) ? $configs : null;
 	}
 
 	/**

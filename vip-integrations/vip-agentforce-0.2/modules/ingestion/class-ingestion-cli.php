@@ -31,7 +31,7 @@ class Ingestion_CLI extends WP_CLI_Command {
 	 * : Show the current sync progress instead of starting a new sync.
 	 *
 	 * [--reset]
-	 * : Reset a stuck or completed sync so a new one can be started.
+	 * : Clear existing sync progress without starting a new sync. Plain sync starts fresh automatically.
 	 *
 	 * [--preflight-check]
 	 * : Check if the site is ready for sync (config propagated, filters registered). Returns JSON with readiness status.
@@ -136,18 +136,6 @@ class Ingestion_CLI extends WP_CLI_Command {
 			return;
 		}
 
-		// Block if already running.
-		if ( Ingestion_Sync_Progress::is_running() ) {
-			$detail = 'A sync is already in progress. Use --status to check progress or --reset to clear a stuck sync.';
-			if ( 'json' === $format ) {
-				$this->output_json_error( Ingestion_Error::SYNC_IN_PROGRESS, $detail, Ingestion_Sync_Progress::STATUS_RUNNING );
-				return;
-			}
-
-			WP_CLI::error( $detail, false );
-			return;
-		}
-
 		$preflight_failure = Ingestion_API_Client::get_request_preflight_failure();
 		if ( null !== $preflight_failure ) {
 			// Do not start a bulk sync when setup/auth is already known bad.
@@ -194,13 +182,20 @@ class Ingestion_CLI extends WP_CLI_Command {
 			return;
 		}
 
+		// Plain `sync` can start fresh from any non-running state. Failed
+		// progress needs an explicit reset before start() can replace it.
+		$existing_progress = Ingestion_Sync_Progress::get();
+		if ( Ingestion_Sync_Progress::STATUS_FAILED === ( $existing_progress['status'] ?? null ) ) {
+			Ingestion_Sync_Progress::reset();
+		}
+
 		// Start the sync progress tracker.
 		$started = Ingestion_Sync_Progress::start( $total, array_values( $post_types ) );
 
 		if ( ! $started ) {
-			$detail = 'Failed to start sync. A sync may already be in progress.';
+			$detail = 'A sync is already in progress.';
 			if ( 'json' === $format ) {
-				$this->output_json_error( Ingestion_Error::SYNC_START_FAILED, $detail, Ingestion_Sync_Progress::STATUS_FAILED );
+				$this->output_json_error( Ingestion_Error::SYNC_IN_PROGRESS, $detail, Ingestion_Sync_Progress::STATUS_RUNNING );
 				return;
 			}
 

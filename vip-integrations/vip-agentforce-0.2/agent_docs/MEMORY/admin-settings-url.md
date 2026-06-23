@@ -1,0 +1,1 @@
+- Using `wp-admin/admin.php?page=vip-agentforce` for the Agentforce settings page is wrong. Correct: the current admin menu slug is `wp-admin/admin.php?page=vip-agentforce-settings`.

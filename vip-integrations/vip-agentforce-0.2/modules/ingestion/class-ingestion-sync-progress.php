@@ -78,10 +78,15 @@ class Ingestion_Sync_Progress {
 	 *
 	 * @param array{synced: int, skipped: int, failed: int, deleted: int} $batch_results Results from the batch.
 	 * @param int                                                         $last_post_id  The last post ID processed (cursor).
+	 * @param string|null                                                 $expected_sync_id Optional sync ID guard.
 	 */
-	public static function update( array $batch_results, int $last_post_id ): void {
+	public static function update( array $batch_results, int $last_post_id, ?string $expected_sync_id = null ): void {
 		$progress = self::get();
 		if ( null === $progress || self::STATUS_RUNNING !== $progress['status'] ) {
+			return;
+		}
+
+		if ( ! self::matches_expected_sync( $progress, $expected_sync_id ) ) {
 			return;
 		}
 
@@ -103,10 +108,16 @@ class Ingestion_Sync_Progress {
 
 	/**
 	 * Mark the sync as completed.
+	 *
+	 * @param string|null $expected_sync_id Optional sync ID guard.
 	 */
-	public static function complete(): void {
+	public static function complete( ?string $expected_sync_id = null ): void {
 		$progress = self::get();
 		if ( null === $progress || self::STATUS_RUNNING !== $progress['status'] ) {
+			return;
+		}
+
+		if ( ! self::matches_expected_sync( $progress, $expected_sync_id ) ) {
 			return;
 		}
 
@@ -123,10 +134,15 @@ class Ingestion_Sync_Progress {
 	 *
 	 * @param string      $reason     Raw, developer-facing reason for failure.
 	 * @param string|null $error_code Stable customer-facing error code (see Ingestion_Error).
+	 * @param string|null $expected_sync_id Optional sync ID guard.
 	 */
-	public static function fail( string $reason = '', ?string $error_code = null ): void {
+	public static function fail( string $reason = '', ?string $error_code = null, ?string $expected_sync_id = null ): void {
 		$progress = self::get();
 		if ( null === $progress || self::STATUS_RUNNING !== $progress['status'] ) {
+			return;
+		}
+
+		if ( ! self::matches_expected_sync( $progress, $expected_sync_id ) ) {
 			return;
 		}
 
@@ -426,6 +442,22 @@ class Ingestion_Sync_Progress {
 		return is_string( $stored_sync_id )
 			&& '' !== $stored_sync_id
 			&& $stored_sync_id === $candidate_sync_id;
+	}
+
+	/**
+	 * Check whether progress still belongs to the expected sync run.
+	 *
+	 * @param array<string, mixed> $progress         Current progress.
+	 * @param string|null          $expected_sync_id Expected sync ID, or null to skip the guard.
+	 */
+	private static function matches_expected_sync( array $progress, ?string $expected_sync_id ): bool {
+		if ( null === $expected_sync_id ) {
+			return true;
+		}
+
+		$current_sync_id = $progress['sync_id'] ?? null;
+
+		return is_string( $current_sync_id ) && hash_equals( $expected_sync_id, $current_sync_id );
 	}
 
 	/**

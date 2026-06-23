@@ -557,6 +557,7 @@ class Ingestion_Cron {
 
 		$last_post_id = $progress['last_post_id'] ?? 0;
 		$post_types   = ! empty( $progress['post_types'] ) ? $progress['post_types'] : get_post_types( [ 'public' => true ] );
+		$sync_id      = isset( $progress['sync_id'] ) && is_string( $progress['sync_id'] ) ? $progress['sync_id'] : null;
 
 		// Use posts_where filter to apply cursor (WHERE ID > last_post_id) efficiently.
 		$cursor_filter = function ( $where ) use ( $last_post_id ) {
@@ -585,7 +586,7 @@ class Ingestion_Cron {
 
 		// No more posts — bulk sync is done.
 		if ( empty( $posts ) ) {
-			Ingestion_Sync_Progress::complete();
+			Ingestion_Sync_Progress::complete( $sync_id );
 
 			Logger::info(
 				'ingestion-cron',
@@ -681,7 +682,9 @@ class Ingestion_Cron {
 							// Retryable bulk failures are deferred, not processed.
 							// Keep the cursor behind this post so the next run
 							// retries it after the shared backoff clears.
-							$failure_summary       = self::record_bulk_failure( $failure_summary, $post, $sync_result, $last_post_id, $limit );
+							if ( 'auth' !== $sync_result->error_class ) {
+								$failure_summary = self::record_bulk_failure( $failure_summary, $post, $sync_result, $last_post_id, $limit );
+							}
 							$retry_backoff_started = true;
 							break;
 						}
@@ -712,7 +715,7 @@ class Ingestion_Cron {
 		}
 
 		// Update the cursor and progress counters.
-		Ingestion_Sync_Progress::update( $batch_results, $new_last_post_id );
+		Ingestion_Sync_Progress::update( $batch_results, $new_last_post_id, $sync_id );
 
 		Logger::info(
 			'ingestion-cron',
@@ -747,7 +750,7 @@ class Ingestion_Cron {
 		if ( null !== $fast_fail_reason ) {
 			// Store a terminal sync status for deterministic site-wide failures
 			// so Dashboard can stop polling as "running".
-			Ingestion_Sync_Progress::fail( $fast_fail_reason, $fast_fail_code );
+			Ingestion_Sync_Progress::fail( $fast_fail_reason, $fast_fail_code, $sync_id );
 			return $results;
 		}
 
@@ -755,7 +758,7 @@ class Ingestion_Cron {
 		// Do not complete while retry backoff is active: the current post has
 		// intentionally been left behind the cursor for the next run.
 		if ( ! $retry_backoff_started && count( $posts ) < $limit ) {
-			Ingestion_Sync_Progress::complete();
+			Ingestion_Sync_Progress::complete( $sync_id );
 
 			Logger::info(
 				'ingestion-cron',
