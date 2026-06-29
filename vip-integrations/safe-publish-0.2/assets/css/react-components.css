@@ -1,0 +1,174 @@
+.safe-publish-controls-row {
+	display: flex;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	gap: 16px;
+	margin: 16px 0 16px 48px;
+}
+
+.safe-publish-controls-row .safe-publish-post-type-selector {
+	width: 212px;
+}
+
+.safe-publish-controls-row .safe-publish-control--search {
+	flex: 1 1 240px;
+	max-width: 360px;
+}
+
+.safe-publish-controls-row .safe-publish-control--statuses {
+	flex: 1 1 240px;
+	max-width: 320px;
+	position: relative;
+}
+
+/*
+ * FormTokenField's suggestion list normally expands inline (flex: 1 0
+ * 100%), which on focus pushes the controls row taller and reflows the
+ * other fields. Float it as a popover so the toolbar height stays stable.
+ */
+.safe-publish-controls-row .safe-publish-control--statuses .components-form-token-field__suggestions-list {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	right: 0;
+	z-index: 20;
+	background: #fff;
+	border: 1px solid #ddd;
+	border-top: none;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	margin-top: 2px;
+	max-height: 200px;
+}
+
+.safe-publish-controls-row .safe-publish-control--dates {
+	flex: 0 0 auto;
+}
+
+.safe-publish-date-picker-panel {
+	display: flex;
+	flex-direction: row;
+	gap: 24px;
+	padding: 16px;
+}
+
+/*
+ * Two side-by-side calendars need ~620px of popover width, which gets
+ * clipped once the wp-admin sidebar collapses (mobile breakpoint at
+ * 782px) and the content area no longer leaves room. Stack at and below
+ * that breakpoint to match wp-admin's own responsive boundary.
+ */
+@media (max-width: 782px) {
+
+	.safe-publish-date-picker-panel {
+		flex-direction: column;
+	}
+}
+
+.safe-publish-date-picker-panel__heading {
+	font-weight: 600;
+	margin: 0 0 4px;
+}
+
+/*
+ * Each admin page drives search/filter from its own toolbar; hide DataViews'
+ * built-ins so they don't duplicate the UI.
+ */
+.safe-publish-dataviews-wrapper .dataviews-search,
+.safe-publish-dataviews-wrapper .dataviews-filters {
+	display: none;
+}
+
+/*
+ * Hiding the built-in search/filter UI leaves an empty toolbar row above
+ * the table; drop its vertical padding so it doesn't read as a white band.
+ */
+.safe-publish-dataviews-wrapper .dataviews__view-actions {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+/*
+ * Replace DataViews' "Page X of Y" widget for pages whose pagination is
+ * approximate. The catalog endpoint sets no_found_rows on its WP_Query
+ * and signals more pages via has_more, so we don't know the true total —
+ * the SelectControl would list fake pages and "of Y" would grow on every
+ * Next click. Hide the native widget and render "Page N" via the
+ * wrapper's --safe-publish-page-text CSS variable. Prev/Next live
+ * outside __page-select and stay untouched. Pages with exact totals
+ * (audit log, etc.) skip the modifier and keep DataViews' built-in.
+ */
+.safe-publish-dataviews-wrapper--approx-pagination .dataviews-pagination__page-select {
+	display: none;
+}
+
+.safe-publish-dataviews-wrapper--approx-pagination .dataviews-pagination::before {
+	content: var(--safe-publish-page-text, "");
+	margin-right: auto;
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+}
+
+.safe-publish-post-type-error {
+	max-width: 480px;
+	margin-left: 48px;
+	margin-top: 16px;
+}
+
+.safe-publish-dismissible-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	margin: 0 0 12px 48px;
+	background: var(--safe-publish-surface-bg, #f0f6fc);
+	border: 1px solid var(--safe-publish-border, #c3c4c7);
+	border-radius: 16px;
+	font-size: 13px;
+}
+
+/* Align the tab bar with the filter toolbar and the DataViews table content. */
+.safe-publish-imports-tabs .components-tab-panel__tabs {
+	margin-left: 48px;
+	margin-bottom: 12px;
+}
+
+.safe-publish-failed-error {
+	color: var(--safe-publish-status-error);
+}
+
+.safe-publish-audit-channel,
+.safe-publish-audit-event {
+	font-size: 12px;
+	background: var(--safe-publish-bg-muted);
+	padding: 2px 6px;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+
+.safe-publish-audit-details {
+	max-width: 480px;
+}
+
+.safe-publish-audit-details__summary {
+	cursor: pointer;
+	font-size: 12px;
+	color: var(--safe-publish-text-muted);
+}
+
+.safe-publish-audit-details[open] .safe-publish-audit-details__summary {
+	margin-bottom: 6px;
+}
+
+.safe-publish-audit-details__json {
+	margin: 0;
+	padding: 8px 10px;
+	background: var(--safe-publish-bg-muted);
+	border: 1px solid var(--safe-publish-border);
+	border-radius: 3px;
+	font-size: 12px;
+	line-height: 1.5;
+	max-height: 240px;
+	overflow: auto;
+	white-space: pre;
+}
