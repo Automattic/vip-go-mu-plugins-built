@@ -1,0 +1,46 @@
+{
+  "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+  "meta": {
+    "title": "Remote Data Blocks latest",
+    "description": "Installs the latest release of remote-data-blocks plugin to WordPress Playground",
+    "author": "WordPress VIP",
+    "categories": [ "Content" ]
+  },
+  "features": {
+    "networking": true
+  },
+  "landingPage": "/wp-admin/post.php?post=4&action=edit",
+  "login": true,
+  "preferredVersions": {
+    "php": "8.2",
+    "wp": "latest"
+  },
+  "steps": [
+    {
+      "step": "setSiteOptions",
+      "options": {
+        "blogname": "Remote Data Blocks",
+        "blogdescription": "Explore the Remote Data Blocks plugin in a WordPress Playground"
+      }
+    },
+    {
+      "step": "installPlugin",
+      "options": {
+        "activate": true,
+        "targetFolderName": "remote-data-blocks"
+      },
+      "pluginData": {
+        "caption": "Installing Remote Data Blocks",
+        "resource": "url",
+        "url": "https://playground.wordpress.net/plugin-proxy.php?repo=Automattic/remote-data-blocks&name=remote-data-blocks.zip"
+      }
+    },
+    {
+      "step": "importWxr",
+      "file": {
+        "resource": "url",
+        "url": "https://raw.githubusercontent.com/Automattic/remote-data-blocks/refs/heads/trunk/example/assets/blueprint-content.wxr"
+      }
+    }
+  ]
+}
