@@ -2,7 +2,14 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.9.1 - 2026-06-24
+### Bug fixes
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
 ## 15.9 - 2026-06-09
+### Major Enhancements
+- General: Update minimum WordPress version to 6.9. [#49021]
+
 ### Enhancements
 - Abilities API: Register Shortlinks support for the WP.me Shortlinks module on WordPress 6.9+. [#48334]
 - Admin Menu: Add sidebar redesign fields, group metadata, and saved layout data to the `/wpcom/v2/admin-menu` endpoint when the public `wp-admin-sidebar` plugin is loaded. [#48715]
@@ -34,10 +41,9 @@
 
 ### Improved compatibility
 - ActivityPub: Allow Jetpack-signed admin requests to reach the inbox, proxy, and outbox client-to-server endpoints used by the connected site's WordPress.com Reader, without an OAuth bearer. [#48812]
-- General: Update minimum WordPress version to 6.9. [#49021]
 - Migrate Status indicator to @wordpress/ui Text. [#48711]
 - Resolve WPDS design tokens in the legacy settings dashboard CSS. [#48750]
-- Settings and AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
+- Settings And AI Pages: Replace the `.admin-ui-page` selector hook with the stable `.jp-admin-page__page` className passed through by AdminPage, restoring page-specific layout overrides. [#48410]
 
 ### Bug fixes
 - AI: Fix broken external links (Claude settings and agent documentation) in the MCP quick setup. [#49453]
@@ -112,7 +118,11 @@
 - Tests: drop a Related Posts ability assertion that fails on CI. [#48335]
 - Update composer.lock files. [#49415]
 - Updated WooCommerce Analytics package to version 0.16.5. [#49329]
-- Update package dependencies. [#48329] [#48405] [#49012] [#48404] [#49218] [#48683] [#48695] [#48689] [#49425] [#49379]
+- Update package dependencies. [#48329] [#48405] [#49012]
+- Update package dependencies. [#48404] [#49218]
+- Update package dependencies. [#48683] [#48695]
+- Update package dependencies. [#48689]
+- Update package dependencies. [#49425] [#49379]
 - Verification Tools: remove trailing slash from meta void elements to conform with the HTML spec. [#48869]
 - Widgets: Prevent a PHP error when Display Posts data is malformed. [#49295]
 
