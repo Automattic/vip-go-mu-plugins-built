@@ -1,0 +1,51 @@
+/**
+ * Safe Publish design tokens.
+ *
+ * Shared color, surface, and notice tokens consumed by every plugin admin
+ * stylesheet. Enqueued before any other plugin CSS so the custom properties
+ * resolve everywhere they are referenced.
+ */
+:root {
+
+	/* Text. */
+	--safe-publish-text: #1d2327;
+	--safe-publish-text-muted: #646970;
+	--safe-publish-text-on-fill: #fff;
+
+	/* Surfaces. */
+	--safe-publish-surface-bg: #fff;
+	--safe-publish-surface-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	--safe-publish-bg-muted: #f6f7f7;
+
+	/* Borders. */
+	--safe-publish-border-strong: #c3c4c7;
+	--safe-publish-border: #dcdcde;
+	--safe-publish-border-subtle: #f0f0f1;
+
+	/* Primary action (follows the user's WP admin color scheme). */
+	--safe-publish-primary: var(--wp-admin-theme-color);
+	--safe-publish-primary-hover: var(--wp-admin-theme-color-darker-10);
+
+	/* Status. */
+	--safe-publish-status-success: #008a20;
+	--safe-publish-status-warning: #996800;
+	--safe-publish-status-warning-bg: #fff8e5;
+	--safe-publish-status-warning-border: #f0d589;
+	--safe-publish-status-error: #d63638;
+	--safe-publish-status-error-hover: #b32d2e;
+
+	/* Pills. */
+	--safe-publish-pill-bg-neutral: #dcdcde;
+	--safe-publish-pill-bg-muted: #646970;
+
+	/* Info-tinted background surface (matches WP-native notice alert tone). */
+	--safe-publish-bg-info: #f0f6fc;
+
+	/* Diff palette (unified across inline highlights and block surfaces). */
+	--safe-publish-diff-added-bg: #d1f2a5;
+	--safe-publish-diff-added-text: #1a7f37;
+	--safe-publish-diff-removed-bg: #ffd8da;
+	--safe-publish-diff-removed-text: #cf222e;
+	--safe-publish-diff-surface-bg: #f6f8fa;
+	--safe-publish-diff-surface-border: #d0d7de;
+}
