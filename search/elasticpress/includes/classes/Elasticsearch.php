@@ -1636,10 +1636,48 @@ class Elasticsearch {
 		 */
 		$disable_query_logging = apply_filters( 'ep_disable_query_logging', false );
 
+		// VIP: Search Dev Tools relies on this backtrace
 		if ( ! $disable_query_logging && ( $wp_debug || $wp_ep_debug ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
-			$query['backtrace'] = wp_debug_backtrace_summary( null, 1, false ); // VIP: Search Dev Tools relies on this backtrace
-			$this->queries[]    = $query;
+			$backtrace = debug_backtrace( 0 );
+			$call_path = array();
+
+			foreach ( $backtrace as $bt_key => $call ) {
+				if ( ! isset( $call['args'] ) ) {
+					$call['args'] = array( '' );
+				}
+
+				if ( in_array( $call['function'], array( __FUNCTION__ ) ) ) {
+					continue;
+				}
+
+				$path = '';
+
+				$path  = isset( $call['file'] ) ? str_replace( ABSPATH, '', $call['file'] ) : '';
+				$path .= isset( $call['line'] ) ? ':' . $call['line'] : '';
+
+				if ( isset( $call['class'] ) ) {
+					$call_type = $call['type'] ?? '???';
+					$path     .= " {$call['class']}{$call_type}{$call['function']}()";
+				} elseif ( in_array( $call['function'], array( 'do_action', 'apply_filters', 'do_action_ref_array', 'apply_filters_ref_array' ) ) ) {
+					if ( is_object( $call['args'][0] ) && ! method_exists( $call['args'][0], '__toString' ) ) {
+						$path .= " {$call['function']}(Object)";
+					} elseif ( is_array( $call['args'][0] ) ) {
+						$path .= " {$call['function']}(Array)";
+					} else {
+						$path .= " {$call['function']}('{$call['args'][0]}')";
+					}
+				} elseif ( in_array( $call['function'], array( 'include', 'include_once', 'require', 'require_once' ) ) ) {
+					$file  = 0 == $bt_key ? '' : $call['args'][0];
+					$path .= " {$call['function']}('" . str_replace( ABSPATH, '', $file ) . "')";
+				} else {
+					$path .= " {$call['function']}()";
+				}
+
+				$call_path[] = trim( $path );
+				$query['backtrace'] = $call_path;
+			}
+
+			$this->queries[] = $query;
 		}
 
 		/**
