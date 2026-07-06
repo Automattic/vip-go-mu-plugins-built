@@ -1,0 +1,5 @@
+/* widgets/events/components/location-picker/location-picker.module.css */
+.location_picker_locationInput {
+  flex: 1;
+  min-inline-size: 120px;
+}

@@ -66,6 +66,18 @@ class CoreImage {
 	private static function get_size_metadata( $attributes, $attachment_metadata ) {
 		$size_metadata = [];
 
+		// Preserve any editor-provided dimensions (e.g. from drag-to-resize) as
+		// separate resize-width/resize-height attributes. The width/height
+		// attributes below are overwritten with the attachment's metadata, which
+		// would otherwise discard the resized dimensions selected in the editor.
+		if ( isset( $attributes['width'] ) ) {
+			$size_metadata['resize-width'] = $attributes['width'];
+		}
+
+		if ( isset( $attributes['height'] ) ) {
+			$size_metadata['resize-height'] = $attributes['height'];
+		}
+
 		if ( isset( $attachment_metadata['width'] ) ) {
 			$size_metadata['width'] = $attachment_metadata['width'];
 		}
