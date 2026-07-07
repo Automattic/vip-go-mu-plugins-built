@@ -111,3 +111,22 @@ function jetpack_newsletter_register_jetpack_newsletter_dashboard_wp_admin_page_
 }
 add_action( 'jetpack-newsletter-dashboard-wp-admin_init', 'jetpack_newsletter_register_jetpack_newsletter_dashboard_wp_admin_page_routes' );
 
+// Page-specific route registration functions for jetpack-subscribers-announcement
+/**
+ * Register routes for jetpack-subscribers-announcement page (full-page mode).
+ */
+function jetpack_newsletter_register_jetpack_subscribers_announcement_page_routes() {
+	global $jetpack_newsletter_jetpack_subscribers_announcement_routes_data;
+	jetpack_newsletter_register_page_routes( $jetpack_newsletter_jetpack_subscribers_announcement_routes_data, 'jetpack_newsletter_register_jetpack_subscribers_announcement_route' );
+}
+add_action( 'jetpack-subscribers-announcement_init', 'jetpack_newsletter_register_jetpack_subscribers_announcement_page_routes' );
+
+/**
+ * Register routes for jetpack-subscribers-announcement page (wp-admin mode).
+ */
+function jetpack_newsletter_register_jetpack_subscribers_announcement_wp_admin_page_routes() {
+	global $jetpack_newsletter_jetpack_subscribers_announcement_routes_data;
+	jetpack_newsletter_register_page_routes( $jetpack_newsletter_jetpack_subscribers_announcement_routes_data, 'jetpack_newsletter_register_jetpack_subscribers_announcement_wp_admin_route' );
+}
+add_action( 'jetpack-subscribers-announcement-wp-admin_init', 'jetpack_newsletter_register_jetpack_subscribers_announcement_wp_admin_page_routes' );
+

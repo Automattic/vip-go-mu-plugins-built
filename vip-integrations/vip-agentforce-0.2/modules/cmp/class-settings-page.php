@@ -164,8 +164,8 @@ class Settings_Page {
 	 */
 	public function add_settings_page(): void {
 		add_menu_page(
-			__( 'Agentforce Settings', 'vip-agentforce' ),
-			__( 'Agentforce', 'vip-agentforce' ),
+			__( 'Answers Agent Settings', 'vip-agentforce' ),
+			__( 'Answers Agent', 'vip-agentforce' ),
 			'manage_options',
 			'vip-agentforce-settings',
 			array( $this, 'render_settings_page' ),
@@ -257,7 +257,7 @@ class Settings_Page {
 		);
 		?>
 		<div class="wrap agentforce-wrap">
-			<h1><?php esc_html_e( 'Agentforce Settings', 'vip-agentforce' ); ?></h1>
+			<h1><?php esc_html_e( 'Answers Agent Settings', 'vip-agentforce' ); ?></h1>
 			<p class="af-page-description"><?php esc_html_e( 'Saved changes will be applied on the next page load.', 'vip-agentforce' ); ?></p>
 			<?php settings_errors( 'vip_agentforce_messages' ); ?>
 			<form method="post" action="options.php">

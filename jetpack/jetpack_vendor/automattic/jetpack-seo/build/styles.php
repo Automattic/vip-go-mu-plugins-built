@@ -43,7 +43,7 @@ function jetpack_seo_register_package_styles( $styles ) {
 	// Load build constants
 	$build_constants = require __DIR__ . '/constants.php';
 	$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
-	$suffix          = SCRIPT_DEBUG ? '' : '.min';
+	$suffix          = '.min';
 
 	$styles_dir  = __DIR__ . '/styles';
 	$styles_file = $styles_dir . '/registry.php';

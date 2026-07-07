@@ -99,7 +99,7 @@ class Jetpack_Activity_Log {
 			'manage_options',
 			self::PAGE_SLUG,
 			array( __CLASS__, 'render_page' ),
-			14
+			12
 		);
 
 		if ( $page_suffix ) {
@@ -139,7 +139,6 @@ class Jetpack_Activity_Log {
 	 * `Automattic\Jetpack\Publicize\Social_Admin_Page::admin_init()`.
 	 */
 	public static function admin_init() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- verified with wp_verify_nonce below.
 		if ( isset( $_GET['refresh_access'] ) && isset( $_GET['_wpnonce'] ) ) {
 			$nonce = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
 			if ( wp_verify_nonce( $nonce, self::REFRESH_ACCESS_NONCE_ACTION ) ) {

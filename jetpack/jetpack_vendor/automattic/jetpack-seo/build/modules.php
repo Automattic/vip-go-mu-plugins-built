@@ -38,9 +38,7 @@ function jetpack_seo_register_script_modules() {
 
 	foreach ( $modules as $module ) {
 		// WASM-only modules (e.g., vips worker) only have .min.js; use it even when SCRIPT_DEBUG is `true`.
-		$extension = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG && empty( $module['min_only'] ) )
-			? '.js'
-			: '.min.js';
+		$extension = '.min.js';
 
 		$asset_path = $modules_dir . '/' . $module['asset'];
 		$asset = file_exists( $asset_path ) ? require $asset_path : array();

@@ -584,8 +584,22 @@ class Contact_Form_Plugin {
 					$atts['labelstyles']                      = $label_attrs['style'] ?? null;
 					$add_block_style_classes_to_field_wrapper = true;
 
-					// check if the block has been hidden by blockVisibility support
-					$atts['labelhiddenbyblockvisibility'] = isset( $inner_block['attrs']['metadata']['blockVisibility'] ) && false === $inner_block['attrs']['metadata']['blockVisibility'];
+					// Honor blockVisibility support on the label. Full-hide
+					// (blockVisibility === false) skips the label render; per-viewport
+					// hide gets the same wp-block-hidden-{mobile,tablet,desktop} classes
+					// Gutenberg would add — the matching media-query CSS is already
+					// registered by core's render_block visibility filter (the label
+					// keeps visibility support). See FORMS-694.
+					$block_visibility                     = $inner_block['attrs']['metadata']['blockVisibility'] ?? null;
+					$atts['labelhiddenbyblockvisibility'] = false === $block_visibility;
+
+					if ( is_array( $block_visibility ) && isset( $block_visibility['viewport'] ) && is_array( $block_visibility['viewport'] ) ) {
+						foreach ( array( 'mobile', 'tablet', 'desktop' ) as $viewport_size ) {
+							if ( isset( $block_visibility['viewport'][ $viewport_size ] ) && false === $block_visibility['viewport'][ $viewport_size ] ) {
+								$atts['labelclasses'] .= ' wp-block-hidden-' . $viewport_size;
+							}
+						}
+					}
 
 					continue;
 				}
@@ -616,10 +630,6 @@ class Contact_Form_Plugin {
 				// This input is exclusively used by the new telephone field.
 				if ( 'jetpack/phone-input' === $block_name ) {
 					$atts['placeholder'] = $inner_block['attrs']['placeholder'] ?? '';
-
-					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
-						unset( $atts['default'] );
-					}
 
 					if ( ! isset( $atts['showCountrySelector'] ) || ! $atts['showCountrySelector'] ) {
 						unset( $atts['default'] );
@@ -952,6 +962,7 @@ class Contact_Form_Plugin {
 		$processor = new \WP_HTML_Tag_Processor( $button_blocks_html );
 
 		$processor->next_tag();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentionally bumping cursor to next tag.
 		$processor->next_tag();
 
 		$processor->set_attribute( 'data-wp-interactive', 'jetpack/form' );
@@ -1374,15 +1385,7 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_file( $atts, $content, $block ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'file', $block );
-		// Create wrapper div for the file field
-		$output = '<div class="jetpack-form-file-field">';
-
-		// Render the file field
-		$output .= Contact_Form::parse_contact_field( $atts, $content );
-
-		$output .= '</div>';
-
-		return $output;
+		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 	/**
 	 * Render the dropzone field.
@@ -1639,11 +1642,9 @@ class Contact_Form_Plugin {
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
 		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
-		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
@@ -2016,8 +2017,10 @@ class Contact_Form_Plugin {
 	 * Enforcement point for outbound-destination authorization on a submitted form.
 	 *
 	 * Destinations declared in the form content — webhooks, the legacy postToUrl attribute and
-	 * the Salesforce integration — are kept only when the source post's author may configure
-	 * them; otherwise they are removed from the form attributes in place, before the submission
+	 * the Salesforce integration — are kept only when whoever placed the form had an
+	 * administrator-level capability (an admin author for post/page forms, or the
+	 * `edit_theme_options` required to author block templates, template parts and widgets);
+	 * otherwise they are removed from the form attributes in place, before the submission
 	 * is processed and the Form_Webhooks / Post_To_Url services read those attributes. The
 	 * mutation is safe because nothing re-reads the original attribute values within the request
 	 * and the form attributes are not persisted after this point.
@@ -2034,7 +2037,8 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		if ( ! Jetpack_Forms::should_honor_content_destinations( $form->get_source()->get_id() ) ) {
+		$source = $form->get_source();
+		if ( ! Jetpack_Forms::should_honor_content_destinations( $source->get_id(), $source->get_source_type() ) ) {
 			// Drop every content-configured destination before the services read them.
 			// postToUrl and salesforceData are read directly by Post_To_Url.
 			$form->attributes['webhooks']       = array();
@@ -3748,9 +3752,8 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			array_shift( $lines ); // Array
-			array_shift( $lines ); // (
-			array_pop( $lines ); // )
+			array_splice( $lines, 0, 2 ); // Remove first two items: 'Array' and '('.
+			array_pop( $lines ); // Remove last item: ')'.
 			$print_r_output = implode( "\n", $lines );
 
 			// make sure we only match stuff with 4 preceding spaces (stuff for this array and not a nested one

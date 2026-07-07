@@ -61,8 +61,8 @@ The dev-env template includes a commented volume mount for testing another
 plugin alongside VIP Agentforce:
 
 ```yaml
-<%# Uncomment this to add an additional plugin into the WordPress environment %>
-<%# - /path/to/additional/plugin:/wp/wp-content/plugins/additional-plugin %>
+# Uncomment this to add an additional plugin into the WordPress environment.
+# - /path/to/additional/plugin:/wp/wp-content/plugins/additional-plugin
 ```
 
 To test a real plugin, edit `.wpvip/vip-dev-env.yml.ejs`, uncomment that second

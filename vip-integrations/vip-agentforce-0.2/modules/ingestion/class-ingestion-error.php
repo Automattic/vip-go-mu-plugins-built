@@ -34,11 +34,11 @@ class Ingestion_Error {
 	 * @var array<string, string>
 	 */
 	private const MESSAGES = [
-		self::FILTER_NOT_REGISTERED => "Content sync isn't set up for this site yet. Finish the Agentforce setup steps, then start the sync again.",
+		self::FILTER_NOT_REGISTERED => "Content sync isn't set up for this site yet. Finish the Answers Agent setup steps, then start the sync again.",
 		self::SYNC_IN_PROGRESS      => 'A sync is already running. Wait for it to finish before starting another one.',
 		self::NO_PUBLISHED_POSTS    => "There's no published content to sync yet. Publish a post and try again.",
 		self::SYNC_START_FAILED     => "We couldn't start the sync. Please try again in a moment.",
-		self::MISSING_API_CONFIG    => "Agentforce isn't fully connected yet. Finish connecting your Salesforce account in the setup wizard, then try again.",
+		self::MISSING_API_CONFIG    => "Answers Agent isn't fully connected yet. Finish connecting your Salesforce account in the VIP Dashboard, then try again.",
 		self::TOKEN_EXPIRED         => 'Your Salesforce connection has expired. Reconnect your account to continue syncing.',
 		self::TOKEN_INVALID         => "There's a problem with your Salesforce connection. Reconnect your account to continue syncing.",
 		self::AUTH_FAILED           => "We couldn't authenticate with Salesforce. Reconnect your account and try again.",

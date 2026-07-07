@@ -58,7 +58,7 @@ class Ingestion_Cron {
 	public static function add_cron_schedule( array $schedules ): array {
 		$schedules['vip_agentforce_ingestion'] = [
 			'interval' => self::get_cron_interval(),
-			'display'  => __( 'VIP Agentforce Ingestion', 'vip-agentforce' ),
+			'display'  => __( 'Answers Agent Content Sync', 'vip-agentforce' ),
 		];
 
 		return $schedules;
@@ -143,6 +143,12 @@ class Ingestion_Cron {
 			return;
 		}
 
+		$preflight_failure = self::get_expired_token_failure();
+		if ( null !== $preflight_failure ) {
+			self::record_expired_token_skip( $preflight_failure, 'Ingestion API token expired, skipping cron scheduling' );
+			return;
+		}
+
 		$scheduled = wp_schedule_event( time(), 'vip_agentforce_ingestion', self::CRON_HOOK );
 
 		if ( false !== $scheduled ) {
@@ -208,6 +214,13 @@ class Ingestion_Cron {
 			'failed'  => 0,
 			'skipped' => 0,
 		];
+
+		$preflight_failure = self::get_expired_token_failure();
+		if ( null !== $preflight_failure ) {
+			self::record_expired_token_skip( $preflight_failure );
+			self::unschedule_processing();
+			return $results;
+		}
 
 		Logger::info(
 			'ingestion-cron',
@@ -280,6 +293,46 @@ class Ingestion_Cron {
 		if ( ! Ingestion_Queue::has_queued_items() && ! Ingestion_Sync_Progress::is_running() ) {
 			self::unschedule_processing();
 		}
+	}
+
+	/**
+	 * Record an expired-token skip in the shared diagnostic status and logs.
+	 *
+	 * @param array{message: string, error_class: string, error_code: string} $preflight_failure Failure details.
+	 */
+	private static function record_expired_token_skip(
+		array $preflight_failure,
+		string $message = 'Ingestion API token expired, skipping queue processing'
+	): void {
+		$retry_status     = Ingestion_API_Client::get_retry_status();
+		$already_recorded = $preflight_failure['error_code'] === $retry_status['reason'];
+
+		if ( $already_recorded ) {
+			return;
+		}
+
+		Ingestion_API_Client::record_preflight_failure_status( $preflight_failure );
+		Logger::warning(
+			'ingestion-cron',
+			$message,
+			[
+				'reason'      => $preflight_failure['error_code'],
+				'error_class' => $preflight_failure['error_class'],
+			]
+		);
+	}
+
+	/**
+	 * Get an expired token failure that should pause cron without consuming work.
+	 *
+	 * @return array{message: string, error_class: string, error_code: string}|null
+	 */
+	private static function get_expired_token_failure(): ?array {
+		$preflight_failure = Ingestion_API_Client::get_request_preflight_failure();
+
+		return null !== $preflight_failure && Ingestion_Error::TOKEN_EXPIRED === $preflight_failure['error_code']
+			? $preflight_failure
+			: null;
 	}
 
 	/**
@@ -617,6 +670,7 @@ class Ingestion_Cron {
 		if ( null !== $preflight_failure ) {
 			// Preflight failures are site-wide setup/auth problems. Fail the
 			// batch once instead of making every post repeat the same failure.
+			Ingestion_API_Client::record_preflight_failure_status( $preflight_failure );
 			$first_post       = reset( $posts );
 			$first_post       = $first_post instanceof \WP_Post ? $first_post : null;
 			$preflight_result = null !== $first_post

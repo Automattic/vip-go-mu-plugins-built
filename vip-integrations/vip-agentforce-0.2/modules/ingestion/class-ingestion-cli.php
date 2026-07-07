@@ -602,6 +602,30 @@ class Ingestion_CLI extends WP_CLI_Command {
 				break;
 			}
 
+			// Stop `--all` only for config or token problems. Old retry warnings
+			// should not block the next batch.
+			$is_api_setup_blocker = in_array(
+				$retry_status['reason'],
+				[
+					Ingestion_Error::MISSING_API_CONFIG,
+					Ingestion_Error::TOKEN_EXPIRED,
+					Ingestion_Error::TOKEN_INVALID,
+				],
+				true
+			);
+
+			if ( $is_api_setup_blocker ) {
+				// Non-retryable preflight failures, like an expired token, do not
+				// activate backoff but still pause useful processing.
+				WP_CLI::warning(
+					sprintf(
+						'Ingestion API processing is paused: %s; stopping before the next batch.',
+						$retry_status['reason']
+					)
+				);
+				break;
+			}
+
 			// Check if there are more items (queue or active bulk sync).
 			$has_more = Ingestion_Queue::has_queued_items() || Ingestion_Sync_Progress::is_running();
 		} while ( $process_all && $has_more );
@@ -692,7 +716,7 @@ class Ingestion_CLI extends WP_CLI_Command {
 	private function log_retry_status(): void {
 		$status = Ingestion_API_Client::get_retry_status();
 
-		if ( ! $status['active'] && 0 === $status['consecutive_failures'] ) {
+		if ( ! $this->has_retry_status_details( $status ) ) {
 			// Keep normal status output compact. Once an incident has happened,
 			// even an expired state is useful enough to show for Support.
 			return;
@@ -728,6 +752,23 @@ class Ingestion_CLI extends WP_CLI_Command {
 		}
 
 		WP_CLI::log( 'Clear with: wp vip-agentforce ingestion clear-retry-backoff' );
+	}
+
+	/**
+	 * Whether retry status contains operator-facing details worth printing.
+	 *
+	 * @param array{
+	 *     active: bool,
+	 *     consecutive_failures: int,
+	 *     reason: string|null,
+	 *     last_error_message: string|null
+	 * } $status Retry status.
+	 */
+	private function has_retry_status_details( array $status ): bool {
+		return $status['active']
+			|| 0 !== $status['consecutive_failures']
+			|| null !== $status['reason']
+			|| null !== $status['last_error_message'];
 	}
 }
 

@@ -53,7 +53,7 @@ function jetpack_seo_register_package_scripts( $scripts ) {
 	// Load build constants
 	$build_constants = require __DIR__ . '/constants.php';
 	$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
-	$extension       = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.js' : '.min.js';
+	$extension       = '.min.js';
 
 	$scripts_dir  = __DIR__ . '/scripts';
 	$scripts_file = $scripts_dir . '/registry.php';

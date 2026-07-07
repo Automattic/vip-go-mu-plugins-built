@@ -5,8 +5,6 @@ namespace Automattic\VIP\Salesforce\Agentforce\Utils;
 use Automattic\VIP\Salesforce\Agentforce\Ingestion\Ingestion_Error;
 
 class Configs {
-	private const INTEGRATION_SLUG = 'agentforce';
-
 	/**
 	 * Cached config
 	 *
@@ -38,7 +36,7 @@ class Configs {
 	}
 
 	/**
-	 * Reload and cache the latest available integration config.
+	 * Reload and cache the constant-backed integration config.
 	 *
 	 * @return array<string, mixed> The refreshed config.
 	 */
@@ -245,19 +243,15 @@ class Configs {
 	}
 
 	/**
-	 * Retrieve the actual configuration from VIP platform config or the legacy constant.
+	 * Retrieve the actual configuration from the constant.
 	 *
 	 * @return array<string, mixed> The configuration array.
 	 */
 	private static function get_actual_config(): array {
-		$configs = self::get_vip_integration_config();
+		$configs = self::get_constant_config();
 
 		if ( null === $configs ) {
-			$configs = self::get_constant_config();
-		}
-
-		if ( null === $configs ) {
-			Logger::warning_log_if_user_logged_in( 'sb_configs', 'VIP Agentforce config is not available from platform config or VIP_AGENTFORCE_CONFIGS.' );
+			Logger::warning_log_if_user_logged_in( 'sb_configs', 'VIP_AGENTFORCE_CONFIGS is not defined.' );
 			$configs = [];
 		}
 
@@ -279,26 +273,7 @@ class Configs {
 	}
 
 	/**
-	 * Retrieve the latest config from VIP's integrations config file, if loaded.
-	 *
-	 * @return array<string, mixed>|null The platform config, or null when unavailable.
-	 */
-	private static function get_vip_integration_config(): ?array {
-		if ( ! class_exists( '\\Automattic\\VIP\\Integrations\\IntegrationVipConfig' ) ) {
-			return null;
-		}
-
-		$vip_config = new \Automattic\VIP\Integrations\IntegrationVipConfig( self::INTEGRATION_SLUG );
-		$config     = array_merge(
-			$vip_config->get_env_config(),
-			$vip_config->get_network_site_config()
-		);
-
-		return ! empty( $config ) ? $config : null;
-	}
-
-	/**
-	 * Retrieve config from the legacy constant.
+	 * Retrieve config from VIP_AGENTFORCE_CONFIGS.
 	 *
 	 * @return array<string, mixed>|string|null The constant value, or null when absent.
 	 */

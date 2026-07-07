@@ -719,6 +719,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['form_id'] = array(
+			'description' => __( 'The ID of the jetpack_form post the response is tied to, or 0 for classic (embedded) forms.', 'jetpack-forms' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['edit_form_url'] = array(
 			'description' => __( 'The URL to edit the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -1000,6 +1007,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$data['entry_permalink'] = $feedback_response->get_entry_permalink();
 		}
 
+		if ( rest_is_field_included( 'form_id', $fields ) ) {
+			$data['form_id'] = (int) $feedback_response->get_form_id();
+		}
+
 		if ( rest_is_field_included( 'edit_form_url', $fields ) ) {
 			$data['edit_form_url'] = $feedback_response->get_edit_form_url();
 		}
@@ -1146,7 +1157,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					'compare' => 'NOT EXISTS',
 				);
 			}
-			$args['meta_query'] = $meta_query; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			$args['meta_query'] = $meta_query;
 		}
 
 		return $args;
@@ -1302,7 +1313,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$query_args = array(
 				'post_type'      => 'feedback',
 				'post_status'    => $status,
-				'posts_per_page' => $batch_size, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'posts_per_page' => $batch_size,
 				'fields'         => 'ids', // Only get IDs to reduce memory usage
 			);
 

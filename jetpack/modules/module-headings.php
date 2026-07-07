@@ -121,6 +121,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Deliver images quickly with automatic resizing from Jetpack’s global image CDN.', 'Module Description', 'jetpack' ),
 			),
 
+			'podcast' => array(
+				'name' => _x( 'Podcast', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Publish, manage, and grow your podcast right from your site.', 'Module Description', 'jetpack' ),
+			),
+
 			'post-by-email' => array(
 				'name' => _x( 'Post by Email', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Publish blog posts simply by sending an email to a custom address.', 'Module Description', 'jetpack' ),
@@ -308,6 +313,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/json-api.php
 			// - modules/latex.php
 			// - modules/markdown.php
+			// - modules/podcast.php
 			// - modules/post-by-email.php
 			// - modules/shortcodes.php
 			'Writing' => _x( 'Writing', 'Module Tag', 'jetpack' ),
@@ -758,6 +764,24 @@ function jetpack_get_module_info( $key ) {
 	    'additional_search_queries' => 'photon, photo cdn, image cdn, speed, compression, resize, responsive images, responsive, content distribution network, optimize, page speed, image optimize, photon jetpack',
 	    'plan_classes' => '',
 	  ),
+	  'podcast' => 
+	  array (
+	    'name' => 'Podcast',
+	    'description' => 'Publish, manage, and grow your podcast right from your site.',
+	    'sort' => '38',
+	    'recommendation_order' => '',
+	    'introduced' => '',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'Writing',
+	    'feature' => 'Writing',
+	    'additional_search_queries' => 'podcast, podcasts, podcasting, audio, episodes, rss, feed, distribution',
+	    'plan_classes' => '',
+	  ),
 	  'post-by-email' => 
 	  array (
 	    'name' => 'Post by Email',
@@ -881,7 +905,7 @@ function jetpack_get_module_info( $key ) {
 	    'auto_activate' => 'No',
 	    'module_tags' => 'Social, Appearance',
 	    'feature' => 'Traffic',
-	    'additional_search_queries' => 'search engine optimization, social preview, meta description, custom title format',
+	    'additional_search_queries' => 'search engine optimization, social preview, meta description, custom title format, seo, sitemap, open graph, search engine, title tag',
 	    'plan_classes' => '',
 	  ),
 	  'sharedaddy' => 
