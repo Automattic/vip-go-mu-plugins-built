@@ -48,78 +48,83 @@ class Users_Query_Utils {
 	 */
 	public static function query_users_with_capability_filtering( $query_args, $blog_id = null, $count_only = true ) {
 		global $wpdb;
+		Role_Sanitizer::maybe_register_role_sanitizers();
 
-		// Single blog query
-		if ( ! is_multisite() || 0 !== $blog_id ) {
-			$query_args['blog_id'] = $blog_id;
-			$query_args['fields']  = 'ID';
+		try {
+			// Single blog query
+			if ( ! is_multisite() || 0 !== $blog_id ) {
+				$query_args['blog_id'] = $blog_id;
+				$query_args['fields']  = 'ID';
 
-			if ( $count_only ) {
-				$query_args['count_total'] = true;
-				$query_args['number']      = 1; // We only need the count
-			}
+				if ( $count_only ) {
+					$query_args['count_total'] = true;
+					$query_args['number']      = 1; // We only need the count
+				}
 
-			$user_query = new \WP_User_Query();
-			$user_query->prepare_query( $query_args );
+				$user_query = new \WP_User_Query();
+				$user_query->prepare_query( $query_args );
 
-			if ( $count_only ) {
-				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
-				$user_query->query_fields = 'COUNT(DISTINCT ' . $wpdb->users . '.ID)';
-			}
+				if ( $count_only ) {
+					// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users
+					$user_query->query_fields = 'COUNT(DISTINCT ' . $wpdb->users . '.ID)';
+				}
 
-			$request =
+				$request =
 				"SELECT {$user_query->query_fields}
 				{$user_query->query_from}
 				{$user_query->query_where}
 				{$user_query->query_orderby}
 				{$user_query->query_limit}";
 
-			if ( $count_only ) {
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				return (int) $wpdb->get_var( $request );
-			} else {
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				return array_map( 'intval', $wpdb->get_col( $request ) );
+				if ( $count_only ) {
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					return (int) $wpdb->get_var( $request );
+				} else {
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+					return array_map( 'intval', $wpdb->get_col( $request ) );
+				}
 			}
-		}
 
-		// Network-wide query
-		$capabilities = $query_args['capability__in'] ?? [];
-		$roles        = $query_args['role__in'] ?? [];
+			// Network-wide query
+			$capabilities = $query_args['capability__in'] ?? [];
+			$roles        = $query_args['role__in'] ?? [];
 
-		// Remove capability/role filters from query args and let WP_User_Query build the base query
-		$base_query_args = $query_args;
-		unset( $base_query_args['capability__in'], $base_query_args['role__in'] );
-		$base_query_args['fields']  = 'ID';
-		$base_query_args['blog_id'] = 0;
+			// Remove capability/role filters from query args and let WP_User_Query build the base query
+			$base_query_args = $query_args;
+			unset( $base_query_args['capability__in'], $base_query_args['role__in'] );
+			$base_query_args['fields']  = 'ID';
+			$base_query_args['blog_id'] = 0;
 
-		// Create WP_User_Query to get the base SQL clauses
-		$temp_query = new \WP_User_Query();
-		$temp_query->prepare_query( $base_query_args );
+			// Create WP_User_Query to get the base SQL clauses
+			$temp_query = new \WP_User_Query();
+			$temp_query->prepare_query( $base_query_args );
 
-		// Build our network-wide capability filtering clause
-		$capability_where = self::build_network_capability_where_clause( $capabilities, $roles );
+			// Build our network-wide capability filtering clause
+			$capability_where = self::build_network_capability_where_clause( $capabilities, $roles );
 
-		if ( empty( $capability_where ) ) {
-			// No capability/role filtering needed, use the temp query results
-			return $count_only ? $temp_query->get_total() : array_map( 'intval', $temp_query->get_results() );
-		}
+			if ( empty( $capability_where ) ) {
+				// No capability/role filtering needed, use the temp query results
+				return $count_only ? $temp_query->get_total() : array_map( 'intval', $temp_query->get_results() );
+			}
 
-		// Build the final query using WP_User_Query's SQL with our additional WHERE clause
-		if ( $count_only ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built by WP_User_Query and internal methods
-			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Required for network-wide user capability filtering
-			$sql = "SELECT COUNT(DISTINCT {$wpdb->users}.ID) {$temp_query->query_from} {$temp_query->query_where} AND ({$capability_where})";
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$result = $wpdb->get_var( $sql );
-			return (int) $result;
-		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built by WP_User_Query and internal methods
-			// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Required for network-wide user capability filtering
-			$sql = "SELECT DISTINCT {$wpdb->users}.ID {$temp_query->query_from} {$temp_query->query_where} AND ({$capability_where})";
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$results = $wpdb->get_col( $sql );
-			return array_map( 'intval', $results );
+			// Build the final query using WP_User_Query's SQL with our additional WHERE clause
+			if ( $count_only ) {
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built by WP_User_Query and internal methods
+				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Required for network-wide user capability filtering
+				$sql = "SELECT COUNT(DISTINCT {$wpdb->users}.ID) {$temp_query->query_from} {$temp_query->query_where} AND ({$capability_where})";
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$result = $wpdb->get_var( $sql );
+				return (int) $result;
+			} else {
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built by WP_User_Query and internal methods
+				// phpcs:ignore WordPressVIPMinimum.Variables.RestrictedVariables.user_meta__wpdb__users -- Required for network-wide user capability filtering
+				$sql = "SELECT DISTINCT {$wpdb->users}.ID {$temp_query->query_from} {$temp_query->query_where} AND ({$capability_where})";
+				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$results = $wpdb->get_col( $sql );
+				return array_map( 'intval', $results );
+			}
+		} finally {
+			Role_Sanitizer::unregister_role_sanitizers();
 		}
 	}
 

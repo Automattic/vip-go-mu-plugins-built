@@ -4,6 +4,7 @@ namespace Automattic\VIP\Security\Data_Sync;
 
 use Automattic\VIP\Security\Utils\Logger;
 use Automattic\VIP\Security\Constants;
+use Automattic\VIP\Security\MFAUsers\Forced_MFA_Users;
 
 /**
  * This is the class that sends data to Site Details Service (SDS)
@@ -42,31 +43,49 @@ class Data_Sync {
 
 
 	/**
-	 * Add the two-factor enforcement status details to the Site Details Service (SDS) payload.
+	 * Add the two-factor enforcement status and MFA additional capabilities details to the Site Details Service (SDS) payload.
 	 *
 	 * The function augments the incoming `$data` array by injecting a new element under the
 	 * standard SDS data key (`Constants::SDS_DATA_KEY`). The resulting payload section has the
 	 * following structure:
 	 *
 	 *     'two_factor_status' => [
-	 *         'is_enforced_globally'         => bool, // `wpcom_vip_is_two_factor_forced` hooked to `__return_true`
-	 *         'is_not_enforced_globally'     => bool, // `wpcom_vip_is_two_factor_forced` hooked to `__return_false`
-	 *         'has_two_factor_forced_filter' => bool, // Any filter present on `wpcom_vip_is_two_factor_forced`
-	 *         'is_entirely_disabled'         => bool, // 2FA disabled via `wpcom_vip_enable_two_factor` returning false
-	 *         'has_enable_two_factor_filter' => bool, // Any filter present on `wpcom_vip_enable_two_factor`
+	 *         'is_enforced_globally'                    => bool,   // `wpcom_vip_is_two_factor_forced` hooked to `__return_true`
+	 *         'is_not_enforced_globally'                => bool,   // `wpcom_vip_is_two_factor_forced` hooked to `__return_false`
+	 *         'has_two_factor_forced_filter'             => bool,   // Any filter present on `wpcom_vip_is_two_factor_forced`
+	 *         'is_entirely_disabled'                    => bool,   // 2FA disabled via `wpcom_vip_enable_two_factor` returning false
+	 *         'has_enable_two_factor_filter'             => bool,   // Any filter present on `wpcom_vip_enable_two_factor`
+	 *         'has_mfa_additional_capabilities_filter'   => bool,   // Any filter present on MFA additional capabilities
+	 *         'mfa_additional_required_capabilities'    => string, // Comma-separated list of additional capabilities when filter is present
 	 *     ],
 	 *
+	 * @param array $data The current SDS payload data array.
 	 * @return array Modified SDS payload including the `two_factor_status` information.
 	 */
 	public static function add_two_factor_enforcement_status_to_sds_payload( $data ) {
+		$has_additional_capabilities_filter   = has_filter( Forced_MFA_Users::ADDITIONAL_CAPABILITIES_FILTER_NAME ) !== false;
+		$mfa_additional_required_capabilities = '';
+		if ( $has_additional_capabilities_filter ) {
+			try {
+				$mfa_additional_required_capabilities = implode( ',', apply_filters( Forced_MFA_Users::ADDITIONAL_CAPABILITIES_FILTER_NAME, [] ) );
+			} catch ( \Exception $e ) {
+				Logger::error(
+					self::LOG_FEATURE_NAME,
+					'Error retrieving MFA additional required capabilities: ' . $e->getMessage()
+				);
+			}
+		}
 		$data['two_factor_status'] = [
 			// return wpcom_vip_is_two_factor_forced status
-			'is_enforced_globally'         => \has_filter( 'wpcom_vip_is_two_factor_forced', '__return_true' ) !== false,
-			'is_not_enforced_globally'     => \has_filter( 'wpcom_vip_is_two_factor_forced', '__return_false' ) !== false,
-			'has_two_factor_forced_filter' => has_filter( 'wpcom_vip_is_two_factor_forced' ) !== false,
+			'is_enforced_globally'                   => \has_filter( 'wpcom_vip_is_two_factor_forced', '__return_true' ) !== false,
+			'is_not_enforced_globally'               => \has_filter( 'wpcom_vip_is_two_factor_forced', '__return_false' ) !== false,
+			'has_two_factor_forced_filter'           => has_filter( 'wpcom_vip_is_two_factor_forced' ) !== false,
 			// return wpcom_vip_enable_two_factor status
-			'is_entirely_disabled'         => \has_filter( 'wpcom_vip_enable_two_factor', '__return_false' ) !== false || apply_filters( 'wpcom_vip_enable_two_factor', true ) === false,
-			'has_enable_two_factor_filter' => \has_filter( 'wpcom_vip_enable_two_factor' ) !== false,
+			'is_entirely_disabled'                   => \has_filter( 'wpcom_vip_enable_two_factor', '__return_false' ) !== false || apply_filters( 'wpcom_vip_enable_two_factor', true ) === false,
+			'has_enable_two_factor_filter'           => \has_filter( 'wpcom_vip_enable_two_factor' ) !== false,
+
+			'has_mfa_additional_capabilities_filter' => $has_additional_capabilities_filter,
+			'mfa_additional_required_capabilities'   => $mfa_additional_required_capabilities,
 		];
 		return $data;
 	}

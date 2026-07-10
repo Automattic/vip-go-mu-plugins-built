@@ -144,8 +144,8 @@ class Inactive_Users {
 			return;
 		}
 
-		if ( self::is_considered_inactive( $user_id ) ) {
-			// User needs to be unblocked first
+		if ( self::is_block_action_enabled() && self::is_considered_inactive( $user_id ) ) {
+			// User needs to be unblocked first.
 			return;
 		}
 
@@ -226,6 +226,19 @@ class Inactive_Users {
 		return $available;
 	}
 
+	/**
+	 * Render the "Inactive User" / "Blocked: Inactivity" badge in the username
+	 * column of the Users list table.
+	 *
+	 * The badge is injected into the rendered username cell via a small inline
+	 * script keyed on the core `#user-{ID}` row id. We deliberately do NOT mutate
+	 * the `WP_User` objects in `$wp_list_table->items`: those objects are shared
+	 * by reference and are passed to the `user_row_actions` filter (and other
+	 * consumers) during row rendering. Appending badge markup to `user_login`
+	 * corrupts that value for every such consumer — e.g. Co-Authors Plus reads
+	 * `$user_object->user_login` to look up a linked guest author and would no
+	 * longer find a match (PLTFRM-2468).
+	 */
 	public static function modify_users_list_table_items() {
 		global $wp_list_table;
 
@@ -244,31 +257,144 @@ class Inactive_Users {
 			return;
 		}
 
-		// Modify each user item to add badge to username
+		$badge_class = self::is_block_action_enabled() ? 'blocked' : 'inactive';
+		$badge_text  = self::is_block_action_enabled() ?
+			__( 'Blocked: Inactivity', 'wpvip' ) :
+			__( 'Inactive User', 'wpvip' );
+
+		// Collect the IDs of inactive users to badge. We only need the IDs; the
+		// markup is built client-side so the WP_User objects stay pristine.
+		$inactive_user_ids = array();
 		foreach ( $items as $user ) {
-			if ( ! self::is_considered_inactive( $user->ID ) ) {
+			if ( ! isset( $user->ID ) ) {
 				continue;
 			}
 
-			// Create the badge
-			$badge_text = self::is_block_action_enabled() ?
-			esc_html__( 'Blocked: Inactivity', 'wpvip' ) :
-			esc_html__( 'Inactive User', 'wpvip' );
-
-			$badge_class = self::is_block_action_enabled() ? 'blocked' : 'inactive';
-
-			$badge = sprintf(
-				'<span class="inactive-user-badge inactive-user-badge--%s">%s</span>',
-				$badge_class,
-				$badge_text
-			);
-
-			// Add the badge to the user_login field (which is what gets displayed in the username column)
-			$user->user_login = esc_html( $user->user_login ) . '&nbsp;&nbsp;' . $badge;
+			if ( self::is_considered_inactive( $user->ID ) ) {
+				$inactive_user_ids[] = (int) $user->ID;
+			}
 		}
 
-		// Update the list table items
-		$wp_list_table->items = $items;
+		if ( empty( $inactive_user_ids ) ) {
+			return;
+		}
+
+		self::render_username_badges_script( $inactive_user_ids, $badge_class, $badge_text );
+	}
+
+	/**
+	 * Print an inline script that appends the inactivity badge to the username
+	 * cell of each inactive user's row, without mutating any WP_User object.
+	 *
+	 * @param int[]  $inactive_user_ids IDs of users that should receive a badge.
+	 * @param string $badge_class       Badge modifier class: `inactive` or `blocked`.
+	 * @param string $badge_text        Human-readable badge label.
+	 */
+	protected static function render_username_badges_script( array $inactive_user_ids, $badge_class, $badge_text ) {
+		// Harden the JSON so a translated badge string can never break out of the
+		// inline <script> (e.g. a `</script>` sequence injected via a translation
+		// or the `gettext` filter).
+		$payload = wp_json_encode(
+			array(
+				'ids'   => array_values( $inactive_user_ids ),
+				'class' => 'inactive-user-badge inactive-user-badge--' . $badge_class,
+				'text'  => $badge_text,
+			),
+			JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
+		);
+
+		if ( false === $payload ) {
+			return;
+		}
+		?>
+		<script type="text/javascript">
+		( function () {
+			var data = <?php echo $payload; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode with JSON_HEX_* flags is script-context safe. ?>;
+
+			// Locate a user's row across both the single-site and network Users
+			// tables. Single-site rows expose `id="user-{ID}"`; network rows have
+			// no row id, so fall back to the row's checkbox (`#blog_{ID}`, present
+			// for non-super-admins) and finally to the edit link (`user_id={ID}`).
+			function findRow( id ) {
+				var row = document.getElementById( 'user-' + id );
+				if ( row ) {
+					return row;
+				}
+
+				var checkbox = document.getElementById( 'blog_' + id );
+				if ( checkbox && checkbox.closest ) {
+					row = checkbox.closest( 'tr' );
+					if ( row ) {
+						return row;
+					}
+				}
+
+				// Match the edit link by the exact `user_id` query value. A bare
+				// substring match (`user_id=1`) would also match `user_id=10`, so
+				// confirm the captured value equals the target ID.
+				var wanted = String( id );
+				var links  = document.querySelectorAll( 'a[href*="user_id=' + id + '"]' );
+				for ( var i = 0; i < links.length; i++ ) {
+					if ( ! links[ i ].closest ) {
+						continue;
+					}
+
+					var href = links[ i ].getAttribute( 'href' ) || '';
+					var re   = /[?&]user_id=(\d+)/g;
+					var match;
+					while ( ( match = re.exec( href ) ) !== null ) {
+						if ( match[ 1 ] === wanted ) {
+							return links[ i ].closest( 'tr' );
+						}
+					}
+				}
+
+				return null;
+			}
+
+			function addBadges() {
+				if ( ! data || ! Array.isArray( data.ids ) ) {
+					return;
+				}
+
+				data.ids.forEach( function ( id ) {
+					var row = findRow( id );
+					if ( ! row ) {
+						return;
+					}
+
+					var cell = row.querySelector( '.column-username' );
+					if ( ! cell || cell.querySelector( '.inactive-user-badge' ) ) {
+						return;
+					}
+
+					var badge = document.createElement( 'span' );
+					badge.className = data.class;
+					badge.textContent = data.text;
+
+					// Anchor after the username label (the <strong> wrapping the
+					// login), falling back to the cell itself.
+					var label = cell.querySelector( 'strong' ) || cell;
+					var spacer = document.createTextNode( '\u00A0\u00A0' );
+
+					if ( label === cell ) {
+						cell.appendChild( spacer );
+						cell.appendChild( badge );
+					} else {
+						label.parentNode.insertBefore( spacer, label.nextSibling );
+						label.parentNode.insertBefore( badge, spacer.nextSibling );
+					}
+				} );
+			}
+
+			if ( 'loading' === document.readyState ) {
+				document.addEventListener( 'DOMContentLoaded', addBadges );
+			} else {
+				addBadges();
+			}
+		} )();
+		</script>
+		<?php
 	}
 
 	public static function add_username_badge_styles() {
@@ -492,7 +618,7 @@ class Inactive_Users {
 
 			$unblock_link = "<div class='row-actions'><span>User blocked due to inactivity. <a class='reset_last_seen_action' href='" . esc_url( $url ) . "'>" . __( 'Unblock', 'wpvip' ) . '</a></span></div>';
 		}
-		return sprintf( '<span class="wp-ui-text-notification">%s</span>' . $unblock_link, esc_html( $date ) );
+		return sprintf( '<span class="wp-ui-text-notification">%s</span>', esc_html( $date ) ) . $unblock_link;
 	}
 
 	/**

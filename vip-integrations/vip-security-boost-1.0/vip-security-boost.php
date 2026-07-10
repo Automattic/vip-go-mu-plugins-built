@@ -24,6 +24,7 @@ require_once __DIR__ . '/utils/class-email-utils.php';
 require_once __DIR__ . '/utils/class-constants.php';
 require_once __DIR__ . '/utils/class-logger.php';
 require_once __DIR__ . '/utils/class-tracking.php';
+require_once __DIR__ . '/utils/class-role-sanitizer.php';
 
 use function Automattic\VIP\Security\Utils\load_integration_configs_from_headers;
 use function Automattic\VIP\Security\Utils\load_integration_configs_from_url;
