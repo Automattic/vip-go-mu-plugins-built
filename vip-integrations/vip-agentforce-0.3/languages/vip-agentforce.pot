@@ -1,0 +1,250 @@
+# Copyright (C) 2026 WordPress VIP
+# This file is distributed under the GPL version 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html.
+msgid ""
+msgstr ""
+"Project-Id-Version: Answers Agent 0.2.2\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/vip-agentforce\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-08T16:14:49+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: vip-agentforce\n"
+
+#. Plugin Name of the plugin
+#: vip-agentforce.php
+#: modules/cmp/class-settings-page.php:154
+msgid "Answers Agent"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: vip-agentforce.php
+msgid "https://github.com/Automattic/vip-agentforce"
+msgstr ""
+
+#. Description of the plugin
+#: vip-agentforce.php
+msgid "Deploy a Salesforce Agentforce agent on your WordPress application to bring AI to your visitor experience, powered by your content."
+msgstr ""
+
+#. Author of the plugin
+#: vip-agentforce.php
+msgid "WordPress VIP"
+msgstr ""
+
+#: modules/cmp/class-assets.php:85
+msgid "The admin asset file is missing. Run `npm run build` to generate it."
+msgstr ""
+
+#: modules/cmp/class-assets.php:89
+msgid "The admin script file is missing. Run `npm run build` to generate it."
+msgstr ""
+
+#: modules/cmp/class-assets.php:96
+msgid "The admin asset metadata is invalid. Run `npm run build` to regenerate it."
+msgstr ""
+
+#: modules/cmp/class-assets.php:199
+msgid "Ask"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:50
+msgid "Settings Saved"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:83
+msgid "iubenda Purpose ID cannot be empty."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:98
+msgid "iubenda Purpose ID must be between 1 and 5."
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:153
+#: modules/cmp/class-settings-page.php:235
+msgid "Answers Agent Settings"
+msgstr ""
+
+#: modules/cmp/class-settings-page.php:236
+msgid "Saved changes will be applied on the next page load."
+msgstr ""
+
+#: modules/ingestion/class-ingestion-cron.php:61
+msgid "Answers Agent Content Sync"
+msgstr ""
+
+#: modules/ingestion/class-ingestion-rest.php:54
+msgid "You do not have permission to view sync progress."
+msgstr ""
+
+#: assets/build/js/admin.js:156
+#: assets/build/js/admin.js:172
+msgid "Necessary"
+msgstr ""
+
+#: assets/build/js/admin.js:159
+msgid "Functional"
+msgstr ""
+
+#: assets/build/js/admin.js:162
+msgid "Analytics"
+msgstr ""
+
+#: assets/build/js/admin.js:165
+msgid "Performance"
+msgstr ""
+
+#: assets/build/js/admin.js:168
+msgid "Advertisement"
+msgstr ""
+
+#: assets/build/js/admin.js:175
+msgid "Preferences"
+msgstr ""
+
+#: assets/build/js/admin.js:178
+msgid "Statistics"
+msgstr ""
+
+#: assets/build/js/admin.js:181
+msgid "Marketing"
+msgstr ""
+
+#: assets/build/js/admin.js:263
+msgid "CookieYes"
+msgstr ""
+
+#: assets/build/js/admin.js:266
+msgid "CookieBot"
+msgstr ""
+
+#: assets/build/js/admin.js:269
+msgid "OneTrust"
+msgstr ""
+
+#: assets/build/js/admin.js:272
+msgid "iubenda"
+msgstr ""
+
+#: assets/build/js/admin.js:275
+msgid "Custom"
+msgstr ""
+
+#: assets/build/js/admin.js:304
+msgid "General Settings"
+msgstr ""
+
+#: assets/build/js/admin.js:305
+msgid "Choose how Answers Agent loads based on your consent provider."
+msgstr ""
+
+#: assets/build/js/admin.js:312
+msgid "This lets you control when Answers Agent loads after consent is granted."
+msgstr ""
+
+#: assets/build/js/admin.js:312
+msgid "Activate Answers Agent after consent: <code>window.AgentforceCMP.loadSDK()</code>"
+msgstr ""
+
+#: assets/build/js/admin.js:314
+msgid "If consent is revoked: <code>window.AgentforceCMP.unloadSDK()</code>"
+msgstr ""
+
+#: assets/build/js/admin.js:318
+msgid "Consent Type"
+msgstr ""
+
+#: assets/build/js/admin.js:328
+msgid "OneTrust Group ID"
+msgstr ""
+
+#: assets/build/js/admin.js:340
+msgid "Choose the CookieYes category that must be granted before Answers Agent loads."
+msgstr ""
+
+#: assets/build/js/admin.js:341
+msgid "CookieYes Category"
+msgstr ""
+
+#: assets/build/js/admin.js:354
+msgid "Choose the Cookiebot category that must be granted before Answers Agent loads."
+msgstr ""
+
+#: assets/build/js/admin.js:355
+msgid "Cookiebot Category"
+msgstr ""
+
+#: assets/build/js/admin.js:369
+msgid "Enter the iubenda Purpose ID (1 to 5). See the <link>iubenda documentation</link>."
+msgstr ""
+
+#: assets/build/js/admin.js:371
+msgid "iubenda documentation"
+msgstr ""
+
+#: assets/build/js/admin.js:376
+msgid "Purpose IDs:"
+msgstr ""
+
+#: assets/build/js/admin.js:378
+msgid "1 - Necessary"
+msgstr ""
+
+#: assets/build/js/admin.js:380
+msgid "2 - Functionality (live chat and support)"
+msgstr ""
+
+#: assets/build/js/admin.js:382
+msgid "3 - Experience (external or social content)"
+msgstr ""
+
+#: assets/build/js/admin.js:384
+msgid "4 - Measurement (analytics and testing)"
+msgstr ""
+
+#: assets/build/js/admin.js:386
+msgid "5 - Marketing (ads and remarketing)"
+msgstr ""
+
+#: assets/build/js/admin.js:388
+msgid "Choose the category where your Answers Agent widget is listed in iubenda."
+msgstr ""
+
+#: assets/build/js/admin.js:388
+msgid "To see all available purpose IDs for your site, open browser console and run:"
+msgstr ""
+
+#: assets/build/js/admin.js:392
+msgid "iubenda Purpose ID"
+msgstr ""
+
+#: assets/build/js/admin.js:402
+msgid "Agent UI"
+msgstr ""
+
+#: assets/build/js/admin.js:403
+msgid "Alignment for the launcher/widget."
+msgstr ""
+
+#: assets/build/js/admin.js:407
+msgid "Alignment"
+msgstr ""
+
+#: assets/build/js/admin.js:409
+msgid "Bottom right"
+msgstr ""
+
+#: assets/build/js/admin.js:412
+msgid "Bottom left"
+msgstr ""
+
+#: assets/build/js/admin.js:432
+msgid "Save Changes"
+msgstr ""
+
+#: assets/build/js/admin.js:441
+msgid "Answers Agent settings could not be loaded. Refresh the page and try again."
+msgstr ""

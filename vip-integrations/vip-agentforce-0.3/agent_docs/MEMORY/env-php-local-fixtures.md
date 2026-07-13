@@ -1,0 +1,1 @@
+- Patching `.wpvip/plugin-loader.php` to inject local `VIP_AGENTFORCE_CONFIGS` or temporary API mocks is wrong. Correct: use the gitignored plugin-root `env.php`, which `vip-agentforce.php` loads before developer setup and module initialization.
