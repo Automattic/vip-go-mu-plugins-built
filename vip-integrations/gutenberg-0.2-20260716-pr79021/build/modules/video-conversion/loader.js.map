@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../packages/video-conversion/src/loader.ts"],
+  "sourcesContent": ["/**\n * Loader for the @wordpress/video-conversion/worker module.\n *\n * This tiny module exists so that WordPress can discover the video conversion\n * worker as a dynamic module dependency and include it in the import map.\n * Without this, the dynamic import() call in the upload-media IIFE bundle\n * cannot resolve the module URL at runtime.\n *\n * The loader is enqueued on block editor pages via wp_enqueue_script_module()\n * in lib/client-assets.php. The worker module is only fetched when\n * GIF-to-video conversion is actually triggered.\n *\n * @see packages/upload-media/src/store/utils/video-conversion.ts (the consumer)\n * @see packages/vips/src/loader.ts (the reference pattern)\n */\nexport default function loader() {\n\treturn import( '@wordpress/video-conversion/worker' );\n}\n"],
+  "mappings": ";AAee,SAAR,SAA0B;AAChC,SAAO,OAAQ,oCAAqC;AACrD;",
+  "names": []
+}
