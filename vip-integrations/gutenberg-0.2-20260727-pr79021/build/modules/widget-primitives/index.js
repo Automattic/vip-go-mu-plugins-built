@@ -1,0 +1,191 @@
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __commonJS = (cb, mod) => function __require() {
+  return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+
+// package-external:@wordpress/element
+var require_element = __commonJS({
+  "package-external:@wordpress/element"(exports, module) {
+    module.exports = window.wp.element;
+  }
+});
+
+// vendor-external:react/jsx-runtime
+var require_jsx_runtime = __commonJS({
+  "vendor-external:react/jsx-runtime"(exports, module) {
+    module.exports = window.ReactJSXRuntime;
+  }
+});
+
+// packages/widget-primitives/build-module/tools/get-lazy-widget-component/get-lazy-widget-component.mjs
+var import_element = __toESM(require_element(), 1);
+function isValidWidgetModule(module) {
+  return typeof module === "object" && module !== null && "default" in module && typeof module.default === "function";
+}
+var componentCache = /* @__PURE__ */ new Map();
+function getLazyWidgetComponent(renderModule, resolveWidgetModule) {
+  const cached = componentCache.get(renderModule);
+  if (cached) {
+    return cached;
+  }
+  const lazyComponent = (0, import_element.lazy)(async () => {
+    const module = await resolveWidgetModule(renderModule);
+    if (!isValidWidgetModule(module)) {
+      throw new Error(`Invalid widget module: ${renderModule}`);
+    }
+    return module;
+  });
+  componentCache.set(renderModule, lazyComponent);
+  return lazyComponent;
+}
+
+// packages/widget-primitives/build-module/components/widget-render/widget-render.mjs
+var import_jsx_runtime = __toESM(require_jsx_runtime(), 1);
+function WidgetRender({
+  widgetType,
+  attributes,
+  setAttributes,
+  resolveWidgetModule
+}) {
+  const WidgetComponent = getLazyWidgetComponent(
+    widgetType.renderModule,
+    resolveWidgetModule
+  );
+  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_jsx_runtime.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+    WidgetComponent,
+    {
+      attributes,
+      setAttributes
+    }
+  ) });
+}
+
+// packages/widget-primitives/build-module/hooks/use-widget-types.mjs
+var import_element2 = __toESM(require_element(), 1);
+
+// packages/widget-primitives/build-module/field-types/field-types.mjs
+var FIELD_TYPE_NAME_PATTERN = /^[a-z][a-z0-9-]*(\/[a-z][a-z0-9-]*)?$/;
+var fieldTypes = /* @__PURE__ */ new Map();
+function registerFieldType(fieldType) {
+  if (!FIELD_TYPE_NAME_PATTERN.test(fieldType.name) || fieldTypes.has(fieldType.name)) {
+    return void 0;
+  }
+  fieldTypes.set(fieldType.name, fieldType);
+  return fieldType;
+}
+function resolveFields(fields) {
+  return fields.map((field) => {
+    const fieldType = field.type ? fieldTypes.get(field.type) : void 0;
+    if (!fieldType) {
+      return field;
+    }
+    const { name, baseType, isValid, ...fieldDefaults } = fieldType;
+    const { type, isValid: fieldIsValid, ...rest } = field;
+    return {
+      ...fieldDefaults,
+      ...rest,
+      type: baseType,
+      ...isValid || fieldIsValid ? { isValid: { ...isValid, ...fieldIsValid } } : {}
+    };
+  });
+}
+
+// packages/widget-primitives/build-module/hooks/use-widget-types.mjs
+function useWidgetTypes(records) {
+  const [widgetTypes, setWidgetTypes] = (0, import_element2.useState)([]);
+  const [isResolvingWidgetTypes, setIsResolvingWidgetTypes] = (0, import_element2.useState)(true);
+  (0, import_element2.useEffect)(() => {
+    if (records === null || records === void 0) {
+      setIsResolvingWidgetTypes(true);
+      return;
+    }
+    if (records.length === 0) {
+      setWidgetTypes([]);
+      setIsResolvingWidgetTypes(false);
+      return;
+    }
+    let cancelled = false;
+    setIsResolvingWidgetTypes(true);
+    Promise.all(
+      records.map(async (record) => {
+        if (!record.widget_module) {
+          return null;
+        }
+        try {
+          const module = await import(
+            /* webpackIgnore: true */
+            record.widget_module
+          );
+          if (!module?.default) {
+            return null;
+          }
+          const metadata = module.default;
+          return {
+            ...metadata,
+            ...metadata.attributes ? {
+              attributes: resolveFields(
+                metadata.attributes
+              )
+            } : {},
+            name: record.name,
+            renderModule: record.render_module ?? "",
+            /*
+             * `title` is required:
+             * - Server-side title wins
+             * - Then the module's title
+             * - Then the record's name as fallback
+             */
+            title: record.title ?? metadata.title ?? record.name,
+            ...record.presentation ? { presentation: record.presentation } : {},
+            ...record.category ? { category: record.category } : {},
+            ...record.description ? { description: record.description } : {},
+            ...record.help ? { help: record.help } : {},
+            ...record.keywords ? { keywords: record.keywords } : {},
+            ...record.actions ? { actions: record.actions } : {}
+          };
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      if (cancelled) {
+        return;
+      }
+      setWidgetTypes(
+        results.filter((t) => t !== null)
+      );
+      setIsResolvingWidgetTypes(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [records]);
+  return [widgetTypes, isResolvingWidgetTypes];
+}
+export {
+  WidgetRender,
+  registerFieldType,
+  useWidgetTypes
+};
+//# sourceMappingURL=index.js.map
