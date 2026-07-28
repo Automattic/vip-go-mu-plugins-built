@@ -950,7 +950,7 @@ class Smart_Link extends Base_Model {
 			// Build the query arguments.
 			$query_args = array(
 				'post_type'      => 'parsely_smart_link',
-				'posts_per_page' => -1,
+				'posts_per_page' => -1, // phpcs:ignore WordPressVIPMinimum.Performance.NoPaging.posts_per_page_posts_per_page
 				'fields'         => 'ids', // Only get the post IDs to improve performance.
 				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 				'tax_query'      => array_merge( array( 'relation' => 'AND' ), $tax_query ),
