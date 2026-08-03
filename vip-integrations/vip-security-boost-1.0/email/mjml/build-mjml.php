@@ -8,11 +8,22 @@ use Spatie\Mjml\Mjml;
 $script_dir = __DIR__;
 $files      = glob( $script_dir . '/*.mjml' );
 
+$failed = 0;
 foreach ( $files as $file ) {
-	mjml_to_html( $file );
+	if ( ! mjml_to_html( $file ) ) {
+		++$failed;
+	}
 }
 
-function mjml_to_html( $file_path ) { 
+// Exit non-zero so the calling build script can tell a failed build from a
+// successful one, rather than reporting success over unwritten templates.
+if ( $failed > 0 ) {
+	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
+	fwrite( STDERR, sprintf( "%d of %d template(s) failed to convert.\n", $failed, count( $files ) ) );
+	exit( 1 );
+}
+
+function mjml_to_html( $file_path ): bool {
 	global $script_dir;
 	// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown
 	$mjml = file_get_contents( $file_path );
@@ -34,9 +45,11 @@ function mjml_to_html( $file_path ) {
 		$html_file_path = __DIR__ . '/../templates/' . $file_name . '.html';
 
 		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_file_put_contents
-		file_put_contents( $html_file_path, $html );
-	} else {
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( 'MJML could not be converted' );
+		return false !== file_put_contents( $html_file_path, $html );
 	}
+
+	// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.file_ops_fwrite
+	fwrite( STDERR, sprintf( "MJML could not convert %s.\n", basename( $file_path ) ) );
+
+	return false;
 }

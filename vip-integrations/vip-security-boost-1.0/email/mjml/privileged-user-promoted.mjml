@@ -8,13 +8,13 @@
 					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
 						A user has been granted the Administrator role on your site "<strong>{{%=site_name%}}</strong>".<br /> Please review the details below:
 					</mj-text>
-					<mj-text align="center" font-size="20px" line-height="5px">
+					<mj-text align="center" font-size="20px" line-height="25px" padding="0px">
 						<strong>Username</strong>: {{%=user_login%}}
 					</mj-text>
-					<mj-text align="center" font-size="20px" line-height="5px">
+					<mj-text align="center" font-size="20px" line-height="25px" padding="0px">
 						<strong>Email</strong>: {{%=user_email%}}
 					</mj-text>
-					<mj-text align="center" font-size="20px" line-height="5px">
+					<mj-text align="center" font-size="20px" line-height="25px" padding="0px">
 						<strong>Role</strong>: {{%=user_role%}}
 					</mj-text>
 					<mj-text font-size="20px" padding="14px 0px 24px" line-height="30px">
