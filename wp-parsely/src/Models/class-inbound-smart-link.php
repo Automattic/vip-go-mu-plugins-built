@@ -1115,7 +1115,7 @@ class Inbound_Smart_Link extends Smart_Link {
 		// and the smart_link_status set to pending.
 		$args = array(
 			'post_type'      => 'parsely_smart_link',
-			'posts_per_page' => -1,
+			'posts_per_page' => -1, // phpcs:ignore WordPressVIPMinimum.Performance.NoPaging.posts_per_page_posts_per_page
 			'fields'         => 'ids',
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
 			'tax_query'      => array(

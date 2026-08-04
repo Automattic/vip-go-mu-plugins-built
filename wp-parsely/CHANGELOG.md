@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.23.5](https://github.com/Parsely/wp-parsely/compare/3.23.4...3.23.5) - 2026-07-28
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.23.5+label%3ADeps).
+
 ## [3.23.4](https://github.com/Parsely/wp-parsely/compare/3.23.3...3.23.4) - 2026-07-21
 
 ### Dependency Updates
