@@ -1,0 +1,118 @@
+<?php declare(strict_types = 1);
+
+namespace VIPRealTimeCollaboration\Assets;
+
+defined( 'ABSPATH' ) || exit();
+
+use function add_action;
+use function admin_url;
+use function apply_filters;
+use function current_user_can;
+use function function_exists;
+use function get_current_blog_id;
+use function plugins_url;
+use function wp_add_inline_script;
+use function wp_create_nonce;
+use function wp_die;
+use function wp_enqueue_script;
+
+/**
+ * Enqueues the necessary JavaScript and CSS assets for the plugin.
+ */
+final class Assets {
+	public static function init(): void {
+		add_action( 'admin_init', [ __CLASS__, 'load_assets' ], 10, 0 );
+	}
+
+	public static function load_assets(): void {
+		$vip_rtc_ws_url = null;
+
+		// Error checking for the WebSocket URL is already done in the main plugin file.
+		// This is here just for safety.
+		if ( defined( 'VIP_RTC_WS_URL' ) ) {
+			/**
+			 * @var string
+			 */
+			$vip_rtc_ws_url = constant( 'VIP_RTC_WS_URL' );
+		}
+
+		$vip_rtc_ws_multiplexing_enabled = defined( 'VIP_RTC_WS_MULTIPLEXING_ENABLED' )
+			&& true === constant( 'VIP_RTC_WS_MULTIPLEXING_ENABLED' );
+
+		$asset_file = dirname( constant( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_ROOT' ) ) . '/build/index.asset.php';
+		$script_file = plugins_url( 'build/index.js', constant( 'VIP_REAL_TIME_COLLABORATION__PLUGIN_ROOT' ) );
+
+		if ( ! file_exists( $asset_file ) ) {
+			wp_die( sprintf( 'The asset file %s is missing. Run `npm run build` to generate it.', esc_html( $asset_file ) ) );
+		}
+
+		/**
+		 * @var array{
+		 *   dependencies: array{string},
+		 *   version: string,
+		 * }
+		 */
+		$asset = include $asset_file;
+
+		$dependencies = array_unique( array_merge( $asset['dependencies'], [ 'wp-sync' ] ) );
+
+		wp_enqueue_script(
+			'vip-real-time-collaboration',
+			$script_file,
+			$dependencies,
+			$asset['version'],
+			[ 'in_footer' => false ]
+		);
+
+		$script_data = wp_json_encode( [
+			'debug' => [],
+			'wsUrl' => $vip_rtc_ws_url,
+			'multiplexingEnabled' => $vip_rtc_ws_multiplexing_enabled,
+			'blogId' => get_current_blog_id(),
+			'contactAjax' => self::get_contact_ajax_config(),
+			'supportEmail' => self::get_support_email(),
+			'capabilities' => [
+				'manage_options' => current_user_can( 'manage_options' ),
+			],
+		], JSON_HEX_TAG | JSON_UNESCAPED_SLASHES );
+
+		/** @psalm-suppress DocblockTypeContradiction */ // wp_json_encode() can return an empty string.
+		if ( ! is_string( $script_data ) || '' === $script_data ) {
+			$script_data = '{}';
+		}
+
+		wp_add_inline_script(
+			'vip-real-time-collaboration',
+			"var VIP_RTC = $script_data;",
+			'before'
+		);
+	}
+
+	/**
+	 * Email used by the mailto: fallback when the contact form handler is
+	 * unavailable. Filterable so platform code can override.
+	 */
+	private static function get_support_email(): string {
+		/** @var mixed $value */
+		$value = apply_filters( 'vip_rtc_support_email', 'support@wpvip.com' );
+		return is_string( $value ) && '' !== $value ? $value : 'support@wpvip.com';
+	}
+
+	/**
+	 * Configuration for posting to the vip-dashboard contact form handler.
+	 * Returns null when the handler is unavailable so the editor can fall back
+	 * to a mailto: link.
+	 *
+	 * @return array{url:string,nonce:string}|null
+	 */
+	private static function get_contact_ajax_config(): ?array {
+		if ( ! function_exists( 'vip_contact_form_handler' ) ) {
+			return null;
+		}
+
+		return [
+			'url' => admin_url( 'admin-ajax.php' ),
+			'nonce' => (string) wp_create_nonce( 'vip-dashboard' ),
+		];
+	}
+}
