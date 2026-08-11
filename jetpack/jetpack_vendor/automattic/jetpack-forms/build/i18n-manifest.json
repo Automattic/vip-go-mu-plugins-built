@@ -1,0 +1,8 @@
+{
+	"bundles": [
+		"build/routes/forms/content.js",
+		"build/routes/forms/route.js",
+		"build/routes/response/content.js",
+		"build/routes/responses/content.js"
+	]
+}

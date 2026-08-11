@@ -1,0 +1,6 @@
+{
+	"bundles": [
+		"build/routes/dashboard/content.js",
+		"build/routes/subscribers-announcement/content.js"
+	]
+}

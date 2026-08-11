@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('jetpack-search/store'), 'version' => '90a2b63a3ad3254d3740', 'type' => 'module');
+<?php return array('dependencies' => array('jetpack-search/store'), 'version' => 'b27de589eb7865736ec1', 'type' => 'module');

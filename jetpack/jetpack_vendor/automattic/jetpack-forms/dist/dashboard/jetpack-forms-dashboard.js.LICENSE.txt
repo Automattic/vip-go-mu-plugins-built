@@ -5,6 +5,11 @@
  * Released under the MIT License.
  */
 
+/*!
+* tabbable 6.5.0
+* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+*/
+
 /**
  * @license React
  * use-sync-external-store-shim.production.js
@@ -35,7 +40,7 @@
  */
 
 /**
- * react-router v7.15.1
+ * react-router v7.18.0
  *
  * Copyright (c) Remix Software Inc.
  *

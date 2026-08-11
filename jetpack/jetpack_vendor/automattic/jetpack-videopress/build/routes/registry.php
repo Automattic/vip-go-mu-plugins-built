@@ -9,14 +9,14 @@
 return array(
 	array(
 		'name'        => 'library',
-		'path'        => '/library',
+		'path'        => '/',
 		'page'        => 'jetpack-videopress-dashboard',
 		'has_route'   => true,
 		'has_content' => true,
 	),
 	array(
 		'name'        => 'overview',
-		'path'        => '/',
+		'path'        => '/stats',
 		'page'        => 'jetpack-videopress-dashboard',
 		'has_route'   => true,
 		'has_content' => true,
@@ -31,6 +31,13 @@ return array(
 	array(
 		'name'        => 'video',
 		'path'        => '/video/$id',
+		'page'        => 'jetpack-videopress-dashboard',
+		'has_route'   => true,
+		'has_content' => true,
+	),
+	array(
+		'name'        => 'video-editor',
+		'path'        => '/video/$id/editor',
 		'page'        => 'jetpack-videopress-dashboard',
 		'has_route'   => true,
 		'has_content' => true,

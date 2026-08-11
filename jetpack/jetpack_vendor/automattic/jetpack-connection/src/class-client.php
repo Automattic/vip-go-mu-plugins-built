@@ -46,12 +46,24 @@ class Client {
 
 		$response = self::_wp_remote_request( $result['url'], $result['request'] );
 
+		// Feed the response into the outgoing-request error flow of Error_Handler: any known
+		// connection error in it is stored and surfaced to the user. See the Error_Handler
+		// class docblock for the full picture of both error-handling flows.
+		// Outgoing XML-RPC calls (Jetpack_IXR_Client) are funneled through this method too;
+		// tell the transports apart by the endpoint the request targets.
+		// The literals match Error_Handler::ERROR_TYPE_XMLRPC / ERROR_TYPE_REST. The constants
+		// themselves must not be referenced from this class: during a plugin update, a stale
+		// Error_Handler that predates them can already be loaded, and resolving them against
+		// it would fatal the request.
+		$request_path = (string) wp_parse_url( empty( $args['url'] ) ? '' : $args['url'], PHP_URL_PATH );
+		$error_type   = '/xmlrpc.php' === substr( $request_path, -strlen( '/xmlrpc.php' ) ) ? 'xmlrpc' : 'rest';
+
 		Error_Handler::get_instance()->check_api_response_for_errors(
 			$response,
 			$result['auth'],
 			empty( $args['url'] ) ? '' : $args['url'],
 			empty( $args['method'] ) ? 'POST' : $args['method'],
-			'rest'
+			$error_type
 		);
 
 		/**

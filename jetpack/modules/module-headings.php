@@ -774,7 +774,7 @@ function jetpack_get_module_info( $key ) {
 	    'changed' => '',
 	    'deactivate' => '',
 	    'free' => '',
-	    'requires_connection' => 'Yes',
+	    'requires_connection' => 'No',
 	    'requires_user_connection' => '',
 	    'auto_activate' => 'Yes',
 	    'module_tags' => 'Writing',

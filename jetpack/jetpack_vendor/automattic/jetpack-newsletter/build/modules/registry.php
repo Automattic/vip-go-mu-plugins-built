@@ -7,5 +7,9 @@
  */
 
 return array(
-
+	array(
+		'id' => '@jetpack-newsletter/init',
+		'path' => 'init/index',
+		'asset' => 'init/index.min.asset.php',
+	),
 );

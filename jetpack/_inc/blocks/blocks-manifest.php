@@ -925,7 +925,7 @@ To start using the **Jetpack AI Assistant**, type `/AI` in the block editor.',
     'version' => '12.5.0',
     'textdomain' => 'jetpack',
     'category' => 'monetize',
-    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M16.5 4.5c2.206 0 4 1.794 4 4 0 4.67-5.543 8.94-8.5 11.023C9.043 17.44 3.5 13.17 3.5 8.5c0-2.206 1.794-4 4-4 1.298 0 2.522.638 3.273 1.706L12 7.953l1.227-1.746c.75-1.07 1.975-1.707 3.273-1.707m0-1.5c-1.862 0-3.505.928-4.5 2.344C11.005 3.928 9.362 3 7.5 3 4.462 3 2 5.462 2 8.5c0 5.72 6.5 10.438 10 12.85 3.5-2.412 10-7.13 10-12.85C22 5.462 19.538 3 16.5 3z\' /></svg>',
+    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><g transform=\'translate(1.2 1.2) scale(0.9)\'><path d=\'M16.5 4.5c2.206 0 4 1.794 4 4 0 4.67-5.543 8.94-8.5 11.023C9.043 17.44 3.5 13.17 3.5 8.5c0-2.206 1.794-4 4-4 1.298 0 2.522.638 3.273 1.706L12 7.953l1.227-1.746c.75-1.07 1.975-1.707 3.273-1.707m0-1.5c-1.862 0-3.505.928-4.5 2.344C11.005 3.928 9.362 3 7.5 3 4.462 3 2 5.462 2 8.5c0 5.72 6.5 10.438 10 12.85 3.5-2.412 10-7.13 10-12.85C22 5.462 19.538 3 16.5 3z\' /></g></svg>',
     'supports' => 
     array (
       'html' => false,
@@ -2075,7 +2075,7 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
     'version' => '12.5.0',
     'textdomain' => 'jetpack',
     'category' => 'monetize',
-    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M20 4H4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h16c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zm0 2v2H4V6h16zM4 18v-6h16v6H4zm2-4h7v2H6v-2zm9 0h3v2h-3v-2z\'/></svg>',
+    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path fill-rule=\'evenodd\' clip-rule=\'evenodd\' d=\'M5.5 9.5v-2h13v2h-13zm0 3v4h13v-4h-13zM4 7a1 1 0 011-1h14a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V7z\'/></svg>',
     'supports' => 
     array (
       '__experimentalExposeControlsToChildren' => true,
@@ -2418,7 +2418,7 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
     'version' => '12.5.0',
     'textdomain' => 'jetpack',
     'category' => 'monetize',
-    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'m12.74,14.43l-4.1-1.26-.13.71-.42,6.87c-.03.49.52.81.93.54l3.72-2.48,4,2.51c.42.26.96-.07.92-.56l-.64-6.87v-.71l-4.28,1.26Z\'/><path d=\'m12.74,15.14c-3.55,0-6.44-2.89-6.44-6.44s2.89-6.44,6.44-6.44,6.44,2.89,6.44,6.44-2.89,6.44-6.44,6.44Zm0-11.89c-3,0-5.44,2.44-5.44,5.44s2.44,5.44,5.44,5.44,5.44-2.44,5.44-5.44-2.44-5.44-5.44-5.44Z\'/><path d=\'M11.95 11.08 9.36 8.48 10.06 7.77 11.95 9.66 15.42 6.19 16.13 6.9 11.95 11.08z\'/></svg>',
+    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path fill-rule=\'evenodd\' clip-rule=\'evenodd\' d=\'M12 1.75a6.75 6.75 0 014 12.19l1.36 6.48a.85.85 0 01-1.22.93L12 19.6l-4.14 1.75a.85.85 0 01-1.22-.93l1.36-6.48A6.75 6.75 0 0112 1.75zm0 1.5a5.25 5.25 0 100 10.5 5.25 5.25 0 000-10.5zm-2.2 12.05l-.86 4.06 2.77-1.17a.85.85 0 01.66 0l2.77 1.17-.86-4.06A6.72 6.72 0 0112 15.25a6.72 6.72 0 01-2.2-.37zM11.3 11.6 9 9.3l1.1-1.1 1.2 1.2 2.5-2.5 1.1 1.1z\'/></svg>',
     'supports' => 
     array (
       'html' => false,
@@ -2619,7 +2619,7 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
     'version' => '12.5.0',
     'textdomain' => 'jetpack',
     'category' => 'monetize',
-    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M20 4H4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2h16c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zm0 2v2H4V6h16zM4 18v-6h16v6H4zm2-4h7v2H6v-2zm9 0h3v2h-3v-2z\'/></svg>',
+    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path fill-rule=\'evenodd\' clip-rule=\'evenodd\' d=\'M5.5 9.5v-2h13v2h-13zm0 3v4h13v-4h-13zM4 7a1 1 0 011-1h14a1 1 0 011 1v10a1 1 0 01-1 1H5a1 1 0 01-1-1V7z\'/></svg>',
     'supports' => 
     array (
       'html' => false,
@@ -3719,7 +3719,7 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
     'version' => '12.5.0',
     'textdomain' => 'jetpack',
     'category' => 'monetize',
-    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M10 15.619C6.84915 15.619 4.28572 13.0542 4.28572 9.90176C4.28572 7.24269 6.10957 5.00183 8.57143 4.36551V0C3.72557 0.693782 0 4.86162 0 9.90176C0 15.4274 4.47715 19.9069 10 19.9069C12.2461 19.9069 14.3193 19.1658 15.9887 17.9148L12.9003 14.825C12.0494 15.3287 11.0581 15.619 10 15.619 M15.7135 9.90176C15.7135 10.9604 15.4233 11.9522 14.9199 12.8035L18.0082 15.8935C19.2585 14.2232 19.9992 12.149 19.9992 9.90176C19.9992 4.86162 16.2736 0.693782 11.4277 0V4.36551C13.8896 5.00183 15.7135 7.24269 15.7135 9.90176\'/></svg>',
+    'icon' => '<svg viewBox=\'0 0 24 24\' width=\'24\' height=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><g transform=\'translate(3.7 3.45) scale(0.86)\'><path d=\'M10 15.619C6.84915 15.619 4.28572 13.0542 4.28572 9.90176C4.28572 7.24269 6.10957 5.00183 8.57143 4.36551V0C3.72557 0.693782 0 4.86162 0 9.90176C0 15.4274 4.47715 19.9069 10 19.9069C12.2461 19.9069 14.3193 19.1658 15.9887 17.9148L12.9003 14.825C12.0494 15.3287 11.0581 15.619 10 15.619 M15.7135 9.90176C15.7135 10.9604 15.4233 11.9522 14.9199 12.8035L18.0082 15.8935C19.2585 14.2232 19.9992 12.149 19.9992 9.90176C19.9992 4.86162 16.2736 0.693782 11.4277 0V4.36551C13.8896 5.00183 15.7135 7.24269 15.7135 9.90176\'/></g></svg>',
     'supports' => 
     array (
       'align' => true,

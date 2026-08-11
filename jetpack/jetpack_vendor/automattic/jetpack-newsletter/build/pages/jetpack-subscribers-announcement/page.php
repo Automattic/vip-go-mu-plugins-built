@@ -88,9 +88,10 @@ function jetpack_newsletter_get_jetpack_subscribers_announcement_menu_items() {
  */
 function jetpack_newsletter_jetpack_subscribers_announcement_preload_data() {
 	// Define paths to preload - same for all pages
-	// Please also change packages/core-data/src/entities.js when changing this.
+	// This must exactly match the _fields list in packages/core-data/src/entities.js,
+	// same fields in the same order, or the preload is never consumed.
 	$preload_paths = array(
-		'/?_fields=description,gmt_offset,home,image_sizes,image_size_threshold,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
 		array( '/wp/v2/settings', 'OPTIONS' ),
 	);
 
@@ -162,7 +163,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 		wp_register_script( 'jetpack-subscribers-announcement-prerequisites', '', $asset['dependencies'], $asset['version'], true );
 
 		// Add inline script to initialize the app
-		$init_modules = [];
+		$init_modules = ["@jetpack-newsletter/init"];
 		wp_add_inline_script(
 			'jetpack-subscribers-announcement-prerequisites',
 			sprintf(
@@ -193,7 +194,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 		);
 
 		// Add init modules as static dependencies
-			// No init modules configured
+			$boot_dependencies[] = array( 'import' => 'static', 'id' => '@jetpack-newsletter/init' );
 
 		// Add all registered routes as dependencies
 		foreach ( $routes as $route ) {
@@ -251,7 +252,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 			html {
 				background: #f1f1f1;
 				color: #444;
-				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 				font-size: 13px;
 				line-height: 1.4em;
 			}
@@ -283,7 +284,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 	// BEGIN see wp-admin/admin-footer.php
 
 	/** This action is documented in wp-admin/admin-footer.php */
-	do_action( 'admin_footer', '' );
+	do_action( 'admin_footer', $hook_suffix );
 
 	// Print import map first so it's available for inline scripts
 	wp_script_modules()->print_import_map();

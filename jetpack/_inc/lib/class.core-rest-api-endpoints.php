@@ -832,13 +832,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function set_subscriber_cookie_and_redirect( $request ) {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$token                = $subscription_service->get_and_set_token_from_request();
-		$payload              = $subscription_service->decode_token( $token );
-		$is_valid_token       = ! empty( $payload );
-		if ( $is_valid_token ) {
-			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
+		// Note: get_and_set_token_from_request() sets the subscriber cookie as a side effect.
+		// The cookie is set regardless of the redirect target below; only the redirect is gated.
+		$token          = $subscription_service->get_and_set_token_from_request();
+		$payload        = $subscription_service->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
+		if ( ! $is_valid_token ) {
+			return new WP_Error( 'invalid-token', 'Invalid Token', array( 'status' => 403 ) );
 		}
-		return new WP_Error( 'invalid-token', 'Invalid Token' );
+
+		// Only redirect to the current site, not to an arbitrary host.
+		$redirect_url = wp_validate_redirect( $request['redirect_url'], '' );
+		if ( ! $redirect_url ) {
+			return new WP_Error( 'invalid-redirect', 'Invalid Redirect URL', array( 'status' => 400 ) );
+		}
+
+		return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
 	}
 
 	/**
@@ -2950,6 +2959,30 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'sanitize_callback' => 'Jetpack_SEO_Titles::sanitize_title_formats',
 			),
 
+			// AI tab (Jetpack > SEO). Plain option the SEO package reads to serve
+			// /llms.txt. The front-end behavior is gated inside the package; this
+			// only round-trips the persisted state alongside the other seo-tools
+			// settings.
+			'jetpack_seo_llms_txt_enabled'              => array(
+				'description'       => esc_html__( 'Generate an llms.txt file to guide AI assistants around your content.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'seo-tools',
+			),
+
+			// AI tab (Jetpack > SEO). Sparse per-crawler override map the SEO
+			// package reads to emit robots.txt directives for blocked AI crawlers.
+			// Stored as `slug => bool` (true = blocked); catalog validation and
+			// default-pruning happen in `Ai_Crawlers::get_overrides()`.
+			'jetpack_seo_ai_crawler_overrides'          => array(
+				'description'       => esc_html__( 'AI crawler allow/block overrides.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(),
+				'jp_group'          => 'seo-tools',
+				'sanitize_callback' => __CLASS__ . '::sanitize_ai_crawler_overrides',
+			),
+
 			// VideoPress.
 			'videopress_private_enabled_for_site'       => array(
 				'description'       => esc_html__( 'Video Privacy: Restrict views to members of this site', 'jetpack' ),
@@ -3648,6 +3681,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Sanitize the AI crawler override map.
+	 *
+	 * Keeps the value package-agnostic: each key is normalized with sanitize_key()
+	 * and each value cast to bool. Catalog validation and default-pruning happen in
+	 * `Automattic\Jetpack\SEO\Ai_Crawlers::get_overrides()`.
+	 *
+	 * @param mixed $value The submitted override map.
+	 *
+	 * @return array<string, bool> Sanitized `slug => bool` map.
+	 */
+	public static function sanitize_ai_crawler_overrides( $value ) {
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$sanitized = array();
+		foreach ( $value as $k => $v ) {
+			$sanitized[ sanitize_key( $k ) ] = (bool) $v;
+		}
+		return $sanitized;
+	}
+
+	/**
 	 * Get the currently accessed route and return the module slug in it.
 	 *
 	 * @since 4.3.0
@@ -3708,6 +3764,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$modules['extra']['news_sitemap_url'] = $news_sitemap_url;
 		}
 		return $modules;
+	}
+
+	/**
+	 * Remove options the current user cannot read.
+	 *
+	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
+	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
+	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $options Option definitions keyed by option name.
+	 * @return array
+	 */
+	public static function filter_options_for_response( $options ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $options;
+		}
+
+		$restricted = array(
+			'jetpack_protect_key',
+			'jetpack_protect_global_whitelist',
+		);
+
+		return array_filter(
+			$options,
+			static function ( $option_name ) use ( $restricted ) {
+				return 0 !== strpos( $option_name, 'jetpack_waf_' )
+					&& ! in_array( $option_name, $restricted, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
 	}
 
 	/**
@@ -3805,7 +3893,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}
 		}
-		return $options;
+
+		// Filter last: the switch above assigns current_value by key without isset(),
+		// so filtering earlier would let those assignments re-add a removed option.
+		return self::filter_options_for_response( $options );
 	}
 
 	/**

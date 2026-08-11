@@ -7,5 +7,9 @@
  */
 
 return array(
-
+	array(
+		'handle' => 'jetpack-backup-init',
+		'path' => 'init/index',
+		'asset' => 'init/index.min.asset.php',
+	),
 );

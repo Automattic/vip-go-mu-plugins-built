@@ -61,9 +61,14 @@ function get_subscriber_login_url( $redirect ) {
 		return wpcom_logmein_redirect_url( $redirect, false, null, 'link', get_current_blog_id() );
 	}
 
-	// On self-hosted we will save and hide the token
+	// On self-hosted we will save and hide the token.
+	// rawurlencode the redirect before nesting it: it is already percent-encoded
+	// (e.g. an emoji or non-ASCII slug comes through as %F0%9F%8C%91), and add_query_arg
+	// does not encode the values it inserts. Without this extra layer the value is
+	// over-decoded to raw bytes by the time it reaches the subscribers/auth endpoint,
+	// which strips it and 404s. See NL-273.
 	$redirect_url = get_site_url() . '/wp-json/jetpack/v4/subscribers/auth';
-	$redirect_url = add_query_arg( 'redirect_url', $redirect, $redirect_url );
+	$redirect_url = add_query_arg( 'redirect_url', rawurlencode( $redirect ), $redirect_url );
 
 	return add_query_arg(
 		array(
@@ -106,7 +111,12 @@ function render_login_button_block( $attributes, $content ) {
 	$redirect_url = get_current_url();
 	$url          = get_subscriber_login_url( $redirect_url );
 
-	return preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+	$content = preg_replace( '/(<a\b[^><]*)>/i', '$1 href="' . esc_url( $url ) . '">', $content );
+
+	// Defense in depth: the label is inner block content (KSES-filtered on save for
+	// roles without `unfiltered_html`), but escape it again on output so a stored
+	// payload can never render as live markup.
+	return wp_kses_post( $content );
 }
 
 /**

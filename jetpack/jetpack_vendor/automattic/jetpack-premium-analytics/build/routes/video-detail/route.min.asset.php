@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array('react', 'wp-core-data', 'wp-data', 'wp-date', 'wp-i18n'), 'module_dependencies' => array(array('id' => '@jetpack-premium-analytics/data', 'import' => 'static'), array('id' => '@wordpress/route', 'import' => 'static')), 'version' => '88bd45739206b10f5191');

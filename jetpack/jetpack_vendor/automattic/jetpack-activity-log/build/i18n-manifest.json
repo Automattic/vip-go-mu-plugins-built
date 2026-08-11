@@ -1,0 +1,5 @@
+{
+	"bundles": [
+		"build/routes/dashboard/content.js"
+	]
+}
