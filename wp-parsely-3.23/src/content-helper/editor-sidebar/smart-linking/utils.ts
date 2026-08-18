@@ -672,11 +672,16 @@ export async function validateAndFixSmartLinksInBlock( block: BlockInstance ): P
  * scrolls the viewport to the link element.
  *
  * @since 3.16.0
+ * @since 3.23.6 Select the whole link, including any nested markup.
  *
- * @param {HTMLElement} blockContent   The block content to select the smart link in.
- * @param {string}      smartLinkValue The smart link value to select.
+ * @param {HTMLElement|null} blockContent   The block content to select the smart link in.
+ * @param {string}           smartLinkValue The smart link value to select.
  */
-export const selectSmartLink = ( blockContent: HTMLElement, smartLinkValue: string ): void => {
+export const selectSmartLink = ( blockContent: HTMLElement | null, smartLinkValue: string ): void => {
+	if ( ! blockContent ) {
+		return;
+	}
+
 	const linkElement = blockContent.querySelector(
 		`a[data-smartlink="${ smartLinkValue }"]`,
 	) as HTMLElement;
@@ -689,8 +694,9 @@ export const selectSmartLink = ( blockContent: HTMLElement, smartLinkValue: stri
 		const ownerDocument = blockContent.ownerDocument;
 		const range = ownerDocument.createRange();
 		if ( linkElement.firstChild ) {
-			range.setStart( linkElement.firstChild, 0 ); // Start at the beginning of the link text
-			range.setEndAfter( linkElement.firstChild );
+			// Covers every child, so a link holding nested markup is selected in
+			// full rather than up to its first child.
+			range.selectNodeContents( linkElement );
 			const sel = ownerDocument.getSelection();
 			if ( sel ) {
 				sel.removeAllRanges();
@@ -700,6 +706,37 @@ export const selectSmartLink = ( blockContent: HTMLElement, smartLinkValue: stri
 
 		// Scroll the viewport to the link element.
 		linkElement.scrollIntoView( { behavior: 'smooth', block: 'center' } );
+	}
+};
+
+/**
+ * Selects a smart link, reapplying the selection until it sticks.
+ *
+ * The Editor resets the selection while it finishes initializing, which
+ * discards a selection made as soon as the link renders.
+ *
+ * @since 3.23.6
+ *
+ * @param {Document} canvasDocument The document holding the smart link.
+ * @param {string}   smartLinkValue The smart link value to select.
+ * @param {number}   attempts       The maximum number of attempts.
+ */
+export const selectSmartLinkWhenReady = async (
+	canvasDocument: Document,
+	smartLinkValue: string,
+	attempts: number = 10
+): Promise<void> => {
+	const selector = `a[data-smartlink="${ smartLinkValue }"]`;
+
+	for ( let attempt = 0; attempt < attempts; attempt++ ) {
+		selectSmartLink( canvasDocument.body, smartLinkValue );
+
+		await new Promise( ( resolve ) => setTimeout( resolve, 300 ) );
+
+		const linkElement = canvasDocument.querySelector( selector );
+		if ( linkElement && canvasDocument.getSelection()?.toString() === linkElement.textContent ) {
+			return;
+		}
 	}
 };
 

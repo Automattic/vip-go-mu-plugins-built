@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { dispatchCoreBlockEditor, dispatchCoreEditor } from '../../../../@types/gutenberg/types';
 import { Telemetry } from '../../../../js/telemetry/telemetry';
+import { getEditorCanvasDocument } from '../../../common/utils/functions';
 import { SmartLink } from '../provider';
 import { SmartLinkingStore } from '../store';
 import { applyNodeToBlock, isInboundSmartLink, selectSmartLink } from '../utils';
@@ -416,7 +417,9 @@ const SmartLinkingReviewModalComponent = ( {
 			dispatchCoreBlockEditor.selectBlock( block.clientId );
 
 			// Find the link element within the block.
-			const blockContent = document.querySelector( `[data-block="${ block.clientId }"]` );
+			const blockContent = getEditorCanvasDocument().querySelector(
+				`[data-block="${ block.clientId }"]`
+			);
 			if ( blockContent ) {
 				selectSmartLink( blockContent as HTMLElement, selectedLink.uid );
 			}

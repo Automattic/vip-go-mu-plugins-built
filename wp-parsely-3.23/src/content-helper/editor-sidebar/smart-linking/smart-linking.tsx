@@ -14,14 +14,14 @@ import { __ } from '@wordpress/i18n';
 import { Telemetry } from '../../../js/telemetry/telemetry';
 import { LeafIcon } from '../../common/icons/leaf-icon';
 import { SettingsProvider, SidebarSettings, useSettings } from '../../common/settings';
-import { isEditorReady } from '../../common/utils/functions';
+import { isEditorReady, waitForEditorCanvasElement } from '../../common/utils/functions';
 import { getContentHelperPermissions } from '../../common/utils/permissions';
 import { VerifyCredentials } from '../../common/verify-credentials';
 import { getSettingsFromJson } from '../editor-sidebar';
 import { SmartLinkingPanel, SmartLinkingPanelContext } from './component';
 import { initBlockOverlay } from './component-block-overlay';
 import './smart-linking.scss';
-import { selectSmartLink } from './utils';
+import { selectSmartLinkWhenReady } from './utils';
 
 /**
  * Default maximum number of links to show in the smart linking panel.
@@ -158,9 +158,14 @@ export const initSmartLinking = (): void => {
 		const smartLinkValue = urlParams.get( 'smart-link' );
 
 		if ( smartLinkValue ) {
-			isEditorReady().then( () => {
-				const editorContent = document.querySelector( '.wp-block-post-content' );
-				selectSmartLink( editorContent as HTMLElement, smartLinkValue );
+			isEditorReady().then( async () => {
+				const linkElement = await waitForEditorCanvasElement(
+					`a[data-smartlink="${ smartLinkValue }"]`
+				);
+
+				if ( linkElement ) {
+					await selectSmartLinkWhenReady( linkElement.ownerDocument, smartLinkValue );
+				}
 			} );
 		}
 	} );

@@ -53,19 +53,20 @@ class Ingestion_Sync_Progress {
 		self::clear_live_progress();
 
 		$progress = [
-			'status'       => self::STATUS_RUNNING,
-			'total'        => $total,
-			'processed'    => 0,
-			'synced'       => 0,
-			'skipped'      => 0,
-			'failed'       => 0,
-			'deleted'      => 0,
-			'last_post_id' => 0,
-			'post_types'   => $post_types,
-			'sync_id'      => wp_generate_uuid4(),
-			'started_at'   => time(),
-			'updated_at'   => time(),
-			'completed_at' => null,
+			'status'                   => self::STATUS_RUNNING,
+			'total'                    => $total,
+			'processed'                => 0,
+			'synced'                   => 0,
+			'skipped'                  => 0,
+			'failed'                   => 0,
+			'deleted'                  => 0,
+			'consecutive_api_failures' => 0,
+			'last_post_id'             => 0,
+			'post_types'               => $post_types,
+			'sync_id'                  => wp_generate_uuid4(),
+			'started_at'               => time(),
+			'updated_at'               => time(),
+			'completed_at'             => null,
 		];
 
 		update_option( self::OPTION_NAME, $progress, false );
@@ -79,8 +80,9 @@ class Ingestion_Sync_Progress {
 	 * @param array{synced: int, skipped: int, failed: int, deleted: int} $batch_results Results from the batch.
 	 * @param int                                                         $last_post_id  The last post ID processed (cursor).
 	 * @param string|null                                                 $expected_sync_id Optional sync ID guard.
+	 * @param int|null                                                    $consecutive_api_failures Run-wide consecutive API failure streak. Replaces the stored value; null leaves it alone.
 	 */
-	public static function update( array $batch_results, int $last_post_id, ?string $expected_sync_id = null ): void {
+	public static function update( array $batch_results, int $last_post_id, ?string $expected_sync_id = null, ?int $consecutive_api_failures = null ): void {
 		$progress = self::get();
 		if ( null === $progress || self::STATUS_RUNNING !== $progress['status'] ) {
 			return;
@@ -102,6 +104,12 @@ class Ingestion_Sync_Progress {
 		$progress['deleted']     += $batch_results['deleted'] ?? 0;
 		$progress['last_post_id'] = $last_post_id;
 		$progress['updated_at']   = time();
+
+		// Unlike the counters above this is a streak, not a total: the caller
+		// already carries the run-wide value forward, so store it as given.
+		if ( null !== $consecutive_api_failures ) {
+			$progress['consecutive_api_failures'] = max( 0, $consecutive_api_failures );
+		}
 
 		update_option( self::OPTION_NAME, $progress, false );
 	}

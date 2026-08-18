@@ -207,7 +207,7 @@ class Assets {
 		} elseif ( 'OneTrust' === $consent_type ) {
 			$onetrust_group_id        = get_option( 'vip_agentforce_onetrust_group_id', Constants::DEFAULT_ONETRUST_GROUP_ID );
 			$localize_data['groupId'] = $onetrust_group_id;
-		} elseif ( 'CookieBot' === $consent_type ) {
+		} elseif ( 'Cookiebot' === $consent_type ) {
 			$cookiebot_category                 = get_option( 'vip_agentforce_cookiebot_category', Constants::DEFAULT_COOKIEBOT_CATEGORY );
 			$localize_data['cookiebotCategory'] = Settings_Page::get_instance()->validate_cookiebot_category( $cookiebot_category );
 		} elseif ( 'iubenda' === $consent_type ) {
@@ -258,7 +258,8 @@ class Assets {
 			return Constants::DEFAULT_CMP;
 		}
 
-		return $consent_type;
+		// Normalizes legacy casing, so sites still storing "CookieBot" keep gating.
+		return Settings_Page::get_instance()->sanitize_consent_type( $consent_type );
 	}
 
 	/**

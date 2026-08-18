@@ -122,7 +122,6 @@ return array(
     'Masterminds\\HTML5\\Parser\\Tokenizer' => $vendorDir . '/masterminds/html5/src/HTML5/Parser/Tokenizer.php',
     'Masterminds\\HTML5\\Parser\\TreeBuildingRules' => $vendorDir . '/masterminds/html5/src/HTML5/Parser/TreeBuildingRules.php',
     'Masterminds\\HTML5\\Parser\\UTF8Utils' => $vendorDir . '/masterminds/html5/src/HTML5/Parser/UTF8Utils.php',
-    'Masterminds\\HTML5\\Serializer\\HTML5Entities' => $vendorDir . '/masterminds/html5/src/HTML5/Serializer/HTML5Entities.php',
     'Masterminds\\HTML5\\Serializer\\OutputRules' => $vendorDir . '/masterminds/html5/src/HTML5/Serializer/OutputRules.php',
     'Masterminds\\HTML5\\Serializer\\RulesInterface' => $vendorDir . '/masterminds/html5/src/HTML5/Serializer/RulesInterface.php',
     'Masterminds\\HTML5\\Serializer\\Traverser' => $vendorDir . '/masterminds/html5/src/HTML5/Serializer/Traverser.php',

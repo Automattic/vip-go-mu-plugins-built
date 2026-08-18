@@ -4,19 +4,41 @@ namespace Automattic\VIP\Salesforce\Agentforce;
 
 class Constants {
 	const LOG_PLUGIN_NAME = 'vip-agentforce';
-	const SUPPORTED_CMPS  = array( 'CookieYes', 'CookieBot', 'OneTrust', 'iubenda', 'Custom' );
+	const SUPPORTED_CMPS  = array( 'CookieYes', 'Cookiebot', 'OneTrust', 'iubenda', 'Custom' );
 	const DEFAULT_CMP     = 'Custom';
+
+	/**
+	 * Stored consent type values that have since been renamed, mapped to their
+	 * current value.
+	 *
+	 * The consent type is persisted in `vip_agentforce_consent_type`, so renaming a
+	 * value orphans every site already holding the old one. Without this map they
+	 * would fail validation, silently fall back to the default CMP, and lose the
+	 * consent gating they configured.
+	 */
+	const LEGACY_CMP_ALIASES = array( 'CookieBot' => 'Cookiebot' );
 
 	const COOKIEYES_CATEGORIES       = array( 'necessary', 'functional', 'analytics', 'performance', 'advertisement' );
 	const DEFAULT_COOKIEYES_CATEGORY = 'functional';
 
-	const COOKIEBOT_CATEGORIES       = array( 'necessary', 'preferences', 'statistics', 'marketing' );
-	const DEFAULT_COOKIEBOT_CATEGORY = 'marketing';
+	const COOKIEBOT_CATEGORIES = array( 'necessary', 'preferences', 'statistics', 'marketing' );
 
 	/**
-	 * Default OneTrust consent group ID
+	 * Default Cookiebot category.
+	 *
+	 * "preferences" is Cookiebot's equivalent of the functional bucket the other CMP
+	 * defaults target. The agent is a support widget, not an advertising integration.
 	 */
-	const DEFAULT_ONETRUST_GROUP_ID = 'C0004';
+	const DEFAULT_COOKIEBOT_CATEGORY = 'preferences';
+
+	/**
+	 * Default OneTrust consent group ID.
+	 *
+	 * C0003 is "Functional Cookies" in OneTrust's stock template. Group IDs are
+	 * renameable per customer, so this is a starting point rather than a safe
+	 * assumption - confirm the site's own group IDs before relying on it.
+	 */
+	const DEFAULT_ONETRUST_GROUP_ID = 'C0003';
 
 	/**
 	 * Default iubenda Purpose ID.

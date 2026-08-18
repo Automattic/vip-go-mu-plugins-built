@@ -85,6 +85,18 @@ class Ingestion_API_Client {
 	private const DEFAULT_AUTH_RETRY_COUNT = 5;
 
 	/**
+	 * Maximum request body size accepted by the streaming Ingestion API.
+	 *
+	 * Anything larger is rejected at the gateway with a bare nginx 403 that says
+	 * nothing about the cause. The default transformer keeps `content` well under
+	 * this, but it only bounds that one field — a long title, a big excerpt, or a
+	 * record built by a custom `vip_agentforce_transform_post` filter can still
+	 * push a body over. Catch it here so the record fails with a message that
+	 * names the problem instead of an unexplained 403.
+	 */
+	private const MAX_REQUEST_BODY_BYTES = 200000;
+
+	/**
 	 * Get current shared retry status for diagnostics and CLI output.
 	 *
 	 * @return array{
@@ -203,6 +215,25 @@ class Ingestion_API_Client {
 			// hide the real setup problem behind the shared backoff flow.
 			self::record_preflight_failure_status( $preflight_failure );
 			return $this->create_preflight_failure_result( $preflight_failure, $record_id );
+		}
+
+		// An oversized body is deterministic: the gateway will reject it however
+		// many times we send it, so fail permanently rather than deferring it into
+		// the retry flow.
+		$body_size = strlen( $body );
+		if ( $body_size > self::MAX_REQUEST_BODY_BYTES ) {
+			Ingestion_Metrics::record_api_error( 'client' );
+
+			return Ingestion_API_Result::failure(
+				sprintf(
+					'Request body is %d bytes, over the Ingestion API limit of %d. The record is too large to send; reduce its field sizes in a vip_agentforce_transform_post filter.',
+					$body_size,
+					self::MAX_REQUEST_BODY_BYTES
+				),
+				null,
+				$record_id,
+				'client'
+			);
 		}
 
 		// If another worker already hit a retryable API failure, defer this

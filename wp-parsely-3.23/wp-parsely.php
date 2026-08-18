@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.23.5
+ * Version:           3.23.6
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -50,7 +50,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION             = '3.23.5';
+const PARSELY_VERSION             = '3.23.6';
 const PARSELY_FILE                = __FILE__;
 const PARSELY_DATA_SCHEMA_VERSION = '1';
 const PARSELY_CACHE_GROUP         = 'wp-parsely';
@@ -223,6 +223,20 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\\init_content_helpe
  */
 function init_content_helper_editor_sidebar(): void {
 	$GLOBALS['parsely_editor_sidebar']->run();
+}
+
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\\init_content_helper_canvas_styles' );
+/**
+ * Inserts the PCH Editor Sidebar styles that need to reach the Editor canvas.
+ *
+ * @since 3.24.0
+ */
+function init_content_helper_canvas_styles(): void {
+	if ( ! isset( $GLOBALS['parsely_editor_sidebar'] ) ) {
+		return;
+	}
+
+	$GLOBALS['parsely_editor_sidebar']->run_canvas_styles();
 }
 
 add_action( 'admin_init', __NAMESPACE__ . '\\parsely_content_helper_editor_sidebar_features' );

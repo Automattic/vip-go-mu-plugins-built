@@ -199,4 +199,28 @@ class Editor_Sidebar extends Content_Helper_Feature {
 			$asset_php['version']
 		);
 	}
+
+	/**
+	 * Inserts the styles that need to be loaded inside the Editor canvas.
+	 *
+	 * Runs on `enqueue_block_assets`, which is the only hook that reaches the
+	 * iframed Editor canvas. `enqueue_block_editor_assets` only loads assets in
+	 * the admin document.
+	 *
+	 * @since 3.23.6
+	 */
+	public function run_canvas_styles(): void {
+		if ( ! is_admin() || ! $this->can_enable_feature() ) {
+			return;
+		}
+
+		$asset_php = Utils::get_asset_info( 'build/content-helper/block-overlay.asset.php' );
+
+		wp_enqueue_style(
+			static::get_style_id() . '-canvas',
+			plugin_dir_url( PARSELY_FILE ) . 'build/content-helper/block-overlay.css',
+			array(),
+			$asset_php['version']
+		);
+	}
 }
