@@ -57,9 +57,6 @@ _n( "%d subscriber imported.", "%d subscribers imported.", 1, "jetpack-newslette
 /* translators: %d: number of email addresses that were already subscribed. */
 _n( "%d email address is already subscribed.", "%d email addresses are already subscribed.", 1, "jetpack-newsletter" );
 __( "Your subscribers have been imported.", "jetpack-newsletter" );
-__( "Every newsletter starts at one", "jetpack-newsletter" );
-__( "Yours is no exception. Add a few people who already know you: <who>friends, family, coworkers</who>.", "jetpack-newsletter" );
-_x( "Got it", "dismiss button", "jetpack-newsletter" );
 __( "Add subscribers", "jetpack-newsletter" );
 __( "More options", "jetpack-newsletter" );
 __( "Download as CSV", "jetpack-newsletter" );
@@ -68,9 +65,6 @@ _n( "Importing %d subscriber. This may take a few minutes.", "Importing %d subsc
 __( "Import cancelled.", "jetpack-newsletter" );
 __( "Imports of more than 10,000 subscribers will go through a manual review before being added to your site.", "jetpack-newsletter" );
 __( "By clicking “Add subscribers,” you represent that you’ve obtained the appropriate consent to email each person. Spam complaints or high bounce rate from your subscribers may lead to action against your account.", "jetpack-newsletter" );
-__( "Add these subscribers to specific categories", "jetpack-newsletter" );
-__( "Categories", "jetpack-newsletter" );
-__( "Type to add categories", "jetpack-newsletter" );
 /* translators: %s: comma-separated list of invalid email addresses. */
 __( "These entries don’t look like valid email addresses and will be skipped: %s", "jetpack-newsletter" );
 __( "Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.", "jetpack-newsletter" );
@@ -363,6 +357,7 @@ __( "Comp a subscription", "jetpack-newsletter" );
 __( "Remove subscriber", "jetpack-newsletter" );
 __( "Could not load subscribers.", "jetpack-newsletter" );
 __( "Search subscribers…", "jetpack-newsletter" );
+__( "Preview and edit", "jetpack-newsletter" );
 __( "Include the post's featured image in the new post emails", "jetpack-newsletter" );
 __( "For each new post email, include", "jetpack-newsletter" );
 __( "Full text", "jetpack-newsletter" );
@@ -379,7 +374,6 @@ __( "By <Author>%1$s</Author>", "jetpack-newsletter" );
 __( "Preview:", "jetpack-newsletter" );
 /* translators: %s is the display name of the author */
 __( "Avatar for %s", "jetpack-newsletter" );
-__( "Preview and edit", "jetpack-newsletter" );
 __( "Show author avatar on your emails", "jetpack-newsletter" );
 __( "Update your Gravatar", "jetpack-newsletter" );
 __( "We use Gravatar, a service that associates an avatar image with your primary email address.", "jetpack-newsletter" );
@@ -471,5 +465,6 @@ __( "Newsletter subscription details", "jetpack-newsletter" );
 __( "Receives emails for", "jetpack-newsletter" );
 __( "Not subscribed to any newsletter categories", "jetpack-newsletter" );
 __( "Subscriber information", "jetpack-newsletter" );
+__( "Joined", "jetpack-newsletter" );
 __( "Country", "jetpack-newsletter" );
 __( "Site", "jetpack-newsletter" );

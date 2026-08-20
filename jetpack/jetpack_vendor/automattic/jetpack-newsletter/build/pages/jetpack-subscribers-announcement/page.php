@@ -88,10 +88,9 @@ function jetpack_newsletter_get_jetpack_subscribers_announcement_menu_items() {
  */
 function jetpack_newsletter_jetpack_subscribers_announcement_preload_data() {
 	// Define paths to preload - same for all pages
-	// This must exactly match the _fields list in packages/core-data/src/entities.js,
-	// same fields in the same order, or the preload is never consumed.
+	// Please also change packages/core-data/src/entities.js when changing this.
 	$preload_paths = array(
-		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+		'/?_fields=description,gmt_offset,home,image_sizes,image_size_threshold,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
 		array( '/wp/v2/settings', 'OPTIONS' ),
 	);
 
@@ -252,7 +251,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 			html {
 				background: #f1f1f1;
 				color: #444;
-				font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 				font-size: 13px;
 				line-height: 1.4em;
 			}
@@ -284,7 +283,7 @@ function jetpack_newsletter_jetpack_subscribers_announcement_render_page() {
 	// BEGIN see wp-admin/admin-footer.php
 
 	/** This action is documented in wp-admin/admin-footer.php */
-	do_action( 'admin_footer', $hook_suffix );
+	do_action( 'admin_footer', '' );
 
 	// Print import map first so it's available for inline scripts
 	wp_script_modules()->print_import_map();
