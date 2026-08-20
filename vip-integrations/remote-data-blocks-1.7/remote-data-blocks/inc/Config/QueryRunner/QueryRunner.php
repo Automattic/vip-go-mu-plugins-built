@@ -4,8 +4,10 @@ namespace RemoteDataBlocks\Config\QueryRunner;
 
 use Exception;
 use GuzzleHttp\RequestOptions;
+use RemoteDataBlocks\Config\Query\CacheKeyRequestHeadersAwareInterface;
 use RemoteDataBlocks\Config\Query\HttpQueryInterface;
 use RemoteDataBlocks\Editor\DataBinding\Pagination;
+use RemoteDataBlocks\HttpClient\CacheKeyRequestHeaders;
 use RemoteDataBlocks\HttpClient\HttpClient;
 use RemoteDataBlocks\HttpClient\RdbCacheStrategy;
 use WP_Error;
@@ -57,6 +59,11 @@ class QueryRunner implements QueryRunnerInterface {
 		$body = $query->get_request_body( $input_variables );
 		$endpoint = $query->get_endpoint( $input_variables );
 		$cache_ttl = $query->get_cache_ttl( $input_variables );
+		$additional_cache_key_request_headers = [];
+		if ( $query instanceof CacheKeyRequestHeadersAwareInterface ) {
+			$additional_cache_key_request_headers = $query->get_cache_key_request_headers();
+		}
+		$cache_key_request_headers = CacheKeyRequestHeaders::merge( $additional_cache_key_request_headers );
 		$parsed_url = wp_parse_url( $endpoint );
 
 		if ( false === $parsed_url ) {
@@ -91,7 +98,9 @@ class QueryRunner implements QueryRunnerInterface {
 		$pass = ( $user || $pass ) ? $pass . '@' : '';
 		$origin = sprintf( '%s://%s%s%s%s', $scheme, $user, $pass, $host, $port );
 
-		$cache_headers = [];
+		$cache_headers = [
+			RdbCacheStrategy::CACHE_KEY_REQUEST_HEADERS_REQUEST_HEADER => $cache_key_request_headers,
+		];
 		if ( intval( $cache_ttl ) > 0 ) {
 			$cache_headers[ RdbCacheStrategy::CACHE_TTL_REQUEST_HEADER ] = $cache_ttl;
 		}

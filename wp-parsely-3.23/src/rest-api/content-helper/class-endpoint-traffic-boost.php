@@ -624,7 +624,7 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @since 3.19.0
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response The response object.
+	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function discard_suggestion( WP_REST_Request $request ) {
 		/**
@@ -633,6 +633,13 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		 * @var Inbound_Smart_Link $inbound_link
 		 */
 		$inbound_link = $request->get_param( 'inbound_link' );
+
+		$source_post_access = $this->validate_source_post_access(
+			$inbound_link->source_post_id
+		);
+		if ( is_wp_error( $source_post_access ) ) {
+			return $source_post_access;
+		}
 
 		$deleted = $inbound_link->delete();
 

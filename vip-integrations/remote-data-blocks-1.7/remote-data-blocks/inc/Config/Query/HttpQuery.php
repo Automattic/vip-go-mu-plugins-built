@@ -16,7 +16,7 @@ defined( 'ABSPATH' ) || exit();
  *
  * This class can be used to implement most HTTP queries.
  */
-class HttpQuery extends ArraySerializable implements HttpQueryInterface {
+class HttpQuery extends ArraySerializable implements CacheKeyRequestHeadersAwareInterface, HttpQueryInterface {
 	/**
 	 * Execute the query with the provided input variables. Execution can be
 	 * customized by providing a custom query runner.
@@ -36,6 +36,15 @@ class HttpQuery extends ArraySerializable implements HttpQueryInterface {
 		$query_runner = $this->config['query_runner'] ?? new QueryRunner();
 
 		return $query_runner->execute_batch( $this, $array_of_input_variables );
+	}
+
+	/**
+	 * Get the request header names whose values should be included in cache keys.
+	 *
+	 * @return array<string> Request header names included in cache keys.
+	 */
+	public function get_cache_key_request_headers(): array {
+		return $this->config['cache_key_request_headers'] ?? [];
 	}
 
 	/**

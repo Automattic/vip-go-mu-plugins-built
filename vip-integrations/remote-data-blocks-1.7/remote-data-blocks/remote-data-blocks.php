@@ -7,7 +7,7 @@
  * Author: Automattic
  * Author URI: https://automattic.com
  * Text Domain: remote-data-blocks
- * Version: 1.7.0
+ * Version: 1.7.1
  * Requires at least: 6.7
  * Requires PHP: 8.1
  * License: GPLv2 or later
@@ -28,7 +28,7 @@ if ( defined( 'REMOTE_DATA_BLOCKS__LOADED' ) || defined( 'REMOTE_DATA_BLOCKS__PL
 define( 'REMOTE_DATA_BLOCKS__LOADED', true );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_ROOT', __FILE__ );
 define( 'REMOTE_DATA_BLOCKS__PLUGIN_DIRECTORY', untrailingslashit( plugin_dir_path( __FILE__ ) ) );
-define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.7.0' );
+define( 'REMOTE_DATA_BLOCKS__PLUGIN_VERSION', '1.7.1' );
 
 define( 'REMOTE_DATA_BLOCKS__REST_NAMESPACE', 'remote-data-blocks/v1' );
 
