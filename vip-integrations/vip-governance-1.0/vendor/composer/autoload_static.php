@@ -7,14 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInitdd8012b317c6b32d326fb106782551b7
 {
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        'S' =>
         array (
             'Seld\\JsonLint\\' => 14,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Seld\\JsonLint\\' => 
+        'Seld\\JsonLint\\' =>
         array (
             0 => __DIR__ . '/..' . '/seld/jsonlint/src/Seld/JsonLint',
         ),

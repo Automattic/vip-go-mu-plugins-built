@@ -1,11 +1,14 @@
 # Release steps
 
-# Release steps
-
 ## 1. Bump plugin version
 
-1. When the version is ready for release, bump the version number in `vip-governance.php` and `package.json`. Change plugin header and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION` to match new version.
-2. PR version changes (e.g. "Release 1.2.3") and merge to `trunk`. When a version change is detected, the `release` workflow will generate a new tag and release ZIP.
+1. From a clean `trunk` checkout, run `npm run release -- patch`, replacing `patch` with `minor` or `major` as needed. The command:
+   - creates `release/<version>`;
+   - updates `package.json`, `package-lock.json`, the plugin header, and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`;
+   - stages only those version files; and
+   - commits them as `<version>`.
+2. Run `npm ci`, `composer install`, `npm run build`, and the relevant checks. Commit any intentional changes to the tracked `build/` and production `vendor/` files; the release ZIP is made from tracked files and the release workflow does not rebuild the bundle.
+3. Push the release branch manually and submit the PR. When the plugin header version change reaches `trunk`, the release workflow verifies it against `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`, creates the version tag and ZIP, and publishes a GitHub release.
 
 ## 2. Update integrations
 

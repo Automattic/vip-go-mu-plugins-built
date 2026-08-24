@@ -22,7 +22,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @var array
 	 */
-	private static $nested_settings_and_css = null;
+	private static ?array $nested_settings_and_css = null;
 
 	/**
 	 * Default origin, and preset base for the settings.
@@ -40,7 +40,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @access private
 	 */
-	public static function get_nested_settings_and_css( $governance_rules ) {
+	public static function get_nested_settings_and_css( array $governance_rules ): array {
 		if ( null !== self::$nested_settings_and_css ) {
 			return self::$nested_settings_and_css;
 		}
@@ -76,37 +76,30 @@ class NestedGovernanceProcessing {
 	 *       ],
 	 *     ]
 	 *
-	 * @param array $blocks_registered List of valid blocks.
-	 * @param array $current_block     The current block to break down.
-	 * @param array $nodes             The metadata of the nodes that have been built so far.
-	 * @param array $current_selector  The current selector of the current block.
-	 * @param array $current_path      The current path to the block.
+	 * @param array       $blocks_registered List of valid blocks.
+	 * @param array       $current_block     The current block to break down.
+	 * @param array       $nodes             The metadata of the nodes that have been built so far.
+	 * @param string|null $current_selector The current selector of the current block.
+	 * @param array       $current_path      The current path to the block.
 	 *
 	 * @return array
 	 */
-	private static function get_settings_of_blocks( $blocks_registered, $current_block, $nodes = [], $current_selector = null, $current_path = [] ) {
+	private static function get_settings_of_blocks( array $blocks_registered, array $current_block, array $nodes = [], ?string $current_selector = null, array $current_path = [] ): array {
 		foreach ( $current_block as $block_name => $block ) {
 			if ( ! self::is_block_supported( $block_name, $blocks_registered ) ) {
 				continue;
 			}
-
-			$selector = is_null( $current_selector ) ? null : $current_selector;
 
 			// If the block name ends with /* or is just *, then it's a wildcard rule and we need to use the wp-block selector to match against any block.
 			if ( str_ends_with( $block_name, '/*' ) || ( '*' === $block_name ) ) {
 				// Due to the fact that the paragraph block doesn't have a wp-block-paragraph class, we need to add it manually.
 				// In addition, wp-block is prefixed to the block name so this allows us to target all blocks.
 				$looked_up_selector = 'p, [class*=wp-block]';
-			} elseif ( function_exists( ( 'wp_get_block_css_selector' ) ) ) {
-				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
 			} else {
-				// ToDo: Once our minimum WordPress version >= 6.3, this can be deleted.
-				$looked_up_selector = self::get_css_selector_for_block( $block_name, $blocks_registered );
+				$looked_up_selector = wp_get_block_css_selector( $blocks_registered[ $block_name ] );
 			}
 
-			if ( ! is_null( $looked_up_selector ) ) {
-				$selector = $selector . ' ' . $looked_up_selector;
-			}
+			$selector = null === $looked_up_selector ? $current_selector : self::scope_selector( $current_selector, $looked_up_selector );
 
 			$path = empty( $current_path ) ? array( 'settings', 'blocks' ) : $current_path;
 			array_push( $path, $block_name );
@@ -123,6 +116,99 @@ class NestedGovernanceProcessing {
 	}
 
 	/**
+	 * Scope every child selector to every parent selector.
+	 *
+	 * @param string|null $parent_selector Parent selector, or null for a root-level block.
+	 * @param string      $child_selector  Child selector to scope.
+	 *
+	 * @return string Scoped selector.
+	 */
+	private static function scope_selector( ?string $parent_selector, string $child_selector ): string {
+		if ( null === $parent_selector ) {
+			return $child_selector;
+		}
+
+		$scoped_selectors = [];
+		$parent_selectors = self::split_selector_list( $parent_selector );
+		$child_selectors  = self::split_selector_list( $child_selector );
+
+		foreach ( $parent_selectors as $parent ) {
+			foreach ( $child_selectors as $child ) {
+				$scoped_selectors[] = $parent . ' ' . $child;
+			}
+		}
+
+		return implode( ', ', $scoped_selectors );
+	}
+
+	/**
+	 * Split a CSS selector list without treating commas inside brackets, parentheses,
+	 * or quoted strings as selector separators.
+	 *
+	 * @param string $selector Selector list.
+	 *
+	 * @return array
+	 */
+	private static function split_selector_list( string $selector ): array {
+		$selectors         = [];
+		$current_selector  = '';
+		$parentheses_depth = 0;
+		$bracket_depth     = 0;
+		$quote             = null;
+		$is_escaped        = false;
+
+		foreach ( str_split( $selector ) as $character ) {
+			if ( $is_escaped ) {
+				$current_selector .= $character;
+				$is_escaped        = false;
+				continue;
+			}
+
+			if ( '\\' === $character ) {
+				$current_selector .= $character;
+				$is_escaped        = true;
+				continue;
+			}
+
+			if ( null !== $quote ) {
+				$current_selector .= $character;
+				if ( $quote === $character ) {
+					$quote = null;
+				}
+				continue;
+			}
+
+			if ( '"' === $character || "'" === $character ) {
+				$current_selector .= $character;
+				$quote             = $character;
+				continue;
+			}
+
+			if ( '(' === $character ) {
+				++$parentheses_depth;
+			} elseif ( ')' === $character && $parentheses_depth > 0 ) {
+				--$parentheses_depth;
+			} elseif ( '[' === $character ) {
+				++$bracket_depth;
+			} elseif ( ']' === $character && $bracket_depth > 0 ) {
+				--$bracket_depth;
+			}
+
+			if ( ',' === $character && 0 === $parentheses_depth && 0 === $bracket_depth ) {
+				$selectors[]      = trim( $current_selector );
+				$current_selector = '';
+				continue;
+			}
+
+			$current_selector .= $character;
+		}
+
+		$selectors[] = trim( $current_selector );
+
+		return $selectors;
+	}
+
+	/**
 	 * Validates if a block is supported.
 	 *
 	 * Supported blocks are blocks that are registered in the block registry, or blocks that are wildcard blocks.
@@ -131,20 +217,20 @@ class NestedGovernanceProcessing {
 	 * @param array  $blocks_registered The blocks that are registered in the block registry.
 	 * @return boolean True if the block is supported, false otherwise.
 	 */
-	private static function is_block_supported( $block_name, $blocks_registered ) {
+	private static function is_block_supported( string $block_name, array $blocks_registered ): bool {
 		return array_key_exists( $block_name, $blocks_registered ) || str_ends_with( $block_name, '/*' ) || ( '*' === $block_name );
 	}
 
 	/**
 	 * Combine the block metadata with the presets to generate the nested settings and css, that would be used for nested governance
 	 *
-	 * @param [type] $governance_rules  Governance rules to be used.
-	 * @param [type] $path_and_selector_of_blocks the map of paths and selectors for each block.
-	 * @param [type] $presets_metadata Preset metadata from Gutenberg/WordPress.
+	 * @param array $governance_rules            Governance rules to be used.
+	 * @param array $path_and_selector_of_blocks The map of paths and selectors for each block.
+	 * @param array $presets_metadata            Preset metadata from Gutenberg/WordPress.
 	 *
 	 * @return array
 	 */
-	private static function get_css_and_theme_settings( $governance_rules, $path_and_selector_of_blocks, $presets_metadata ) {
+	private static function get_css_and_theme_settings( array $governance_rules, array $path_and_selector_of_blocks, array $presets_metadata ): array {
 		// Expected theme.json path.
 		$theme_json = array(
 			'settings' => array(
@@ -228,16 +314,18 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return string New selector.
 	 */
-	private static function append_to_selector( $selector, $to_append ) {
-		if ( ! str_contains( $selector, ',' ) ) {
-			return $selector . $to_append;
-		}
-		$new_selectors = [];
-		$selectors     = explode( ',', $selector );
-		foreach ( $selectors as $sel ) {
-			$new_selectors[] = $sel . $to_append;
-		}
-		return implode( ',', $new_selectors );
+	private static function append_to_selector( string $selector, string $to_append ): string {
+		$selectors = self::split_selector_list( $selector );
+
+		return implode(
+			', ',
+			array_map(
+				static function ( $single_selector ) use ( $to_append ): string {
+					return $single_selector . $to_append;
+				},
+				$selectors
+			)
+		);
 	}
 
 	/**
@@ -250,7 +338,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return array Array of presets where the key and value are both the slug.
 	 */
-	private static function get_settings_slugs( $settings, $preset_metadata ) {
+	private static function get_settings_slugs( array $settings, array $preset_metadata ): array {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
 
 		$result = [];
@@ -276,7 +364,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return string Resulting CSS ruleset.
 	 */
-	private static function to_ruleset( $selector, $declarations ) {
+	private static function to_ruleset( string $selector, array $declarations ): string {
 		if ( empty( $declarations ) ) {
 			return '';
 		}
@@ -327,7 +415,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return array Array of presets where each key is a slug and each value is the preset value.
 	 */
-	private static function get_settings_values_by_slug( $settings, $preset_metadata ) {
+	private static function get_settings_values_by_slug( array $settings, array $preset_metadata ): array {
 		$preset_per_origin = _wp_array_get( $settings, $preset_metadata['path'], [] );
 
 		$result = [];
@@ -368,31 +456,7 @@ class NestedGovernanceProcessing {
 	 *
 	 * @return string CSS Custom Property. Something along the lines of `--wp--preset--color--black`.
 	 */
-	private static function replace_slug_in_string( $input, $slug ) {
+	private static function replace_slug_in_string( string $input, string $slug ): string {
 		return strtr( $input, array( '$slug' => $slug ) );
-	}
-
-	/**
-	 * Get the CSS selector for a block using the block name
-	 *
-	 * This method is only used for WordPress versions below 6.3. After 6.3, we have a built in
-	 * way of accessing this selector. This will be deprecated once 6.3 is available for a
-	 * majority of VIP sites.
-	 *
-	 * @param string $block_name Name of the block.
-	 * @param array  $blocks_registered Blocks that are allowed via the block registry.
-	 *
-	 * @return string the css selector for the block.
-	 */
-	private static function get_css_selector_for_block( $block_name, $blocks_registered ) {
-		$block = $blocks_registered[ $block_name ];
-		if (
-			isset( $block->supports['__experimentalSelector'] ) &&
-			is_string( $block->supports['__experimentalSelector'] )
-		) {
-			return $block->supports['__experimentalSelector'];
-		} else {
-			return '.wp-block-' . str_replace( '/', '-', str_replace( 'core/', '', $block_name ) );
-		}
 	}
 }

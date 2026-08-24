@@ -18,6 +18,11 @@
 	padding-left: 1.25rem;
 }
 
+.governance-rules.with-warnings .governance-rules-validation {
+	border-left: 2px solid #dba617;
+	padding-left: 1.25rem;
+}
+
 .governance-rules-validation pre {
 	white-space: pre-wrap;
 	display: inline-block;
@@ -28,7 +33,7 @@
 	padding: 0.5rem 0 1rem 0;
 }
 
-.validation-errors {
+.validation-errors, .validation-warnings {
 	font-size: 1rem;
 	font-weight: 700;
 }

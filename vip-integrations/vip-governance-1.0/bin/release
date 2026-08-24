@@ -1,0 +1,62 @@
+#!/bin/sh
+
+set -eu
+
+if [ "$#" -ne 1 ]; then
+	echo "Usage: npm run release -- <major|minor|patch>"
+	exit 1
+fi
+
+release_type=$1
+php_file="vip-governance.php"
+package_file="package.json"
+package_lock_file="package-lock.json"
+current_version=$(sed -n 's/.*Version: \([0-9.]*\).*/\1/p' "$php_file")
+
+old_ifs=$IFS
+IFS=.
+set -- $current_version
+IFS=$old_ifs
+
+major=$1
+minor=$2
+patch=$3
+
+case $release_type in
+	major)
+		new_version="$((major + 1)).0.0"
+		;;
+	minor)
+		new_version="$major.$((minor + 1)).0"
+		;;
+	patch)
+		new_version="$major.$minor.$((patch + 1))"
+		;;
+	*)
+		echo "Invalid release type. Use major, minor, or patch."
+		exit 1
+		;;
+esac
+
+branch_name="release/$new_version"
+
+if [ -n "$(git status --porcelain)" ]; then
+	echo "The working tree must be clean before creating a release."
+	exit 1
+fi
+
+git checkout -b "$branch_name"
+
+sed -i.bak "s/Version: $current_version/Version: $new_version/" "$php_file"
+sed -i.bak "s/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$current_version'/WPCOMVIP__GOVERNANCE__PLUGIN_VERSION', '$new_version'/" "$php_file"
+rm "$php_file.bak"
+
+current_package_version=$(node -p "require('./package.json').version")
+sed -i.bak "s/\"version\": \"$current_package_version\"/\"version\": \"$new_version\"/" "$package_file"
+rm "$package_file.bak"
+npm install --package-lock-only --ignore-scripts
+
+git add "$php_file" "$package_file" "$package_lock_file"
+git commit -m "$new_version"
+
+echo "Created $branch_name. Push it manually when ready."

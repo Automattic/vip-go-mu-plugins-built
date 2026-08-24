@@ -18,14 +18,14 @@ class Analytics {
 	 *
 	 * @var array
 	 */
-	private static $analytics_to_send = [];
+	private static array $analytics_to_send = [];
 
 	/**
 	 * Initialize the Analytics class.
 	 *
 	 * @access private
 	 */
-	public static function init() {
+	public static function init(): void {
 		add_action( 'shutdown', [ __CLASS__, 'send_analytics' ] );
 	}
 
@@ -34,7 +34,7 @@ class Analytics {
 	 *
 	 * @return void
 	 */
-	public static function record_usage() {
+	public static function record_usage(): void {
 		// Record usage on WPVIP sites only.
 		if ( ! self::is_wpvip_site() ) {
 			return;
@@ -48,7 +48,7 @@ class Analytics {
 	 *
 	 * @return void
 	 */
-	public static function record_error() {
+	public static function record_error(): void {
 		if ( self::is_wpvip_site() ) {
 			// Record error data from WPVIP for follow-up.
 			self::$analytics_to_send[ WPCOMVIP__GOVERNANCE__STAT_NAME___ERROR ] = constant( 'FILES_CLIENT_SITE_ID' );
@@ -60,7 +60,7 @@ class Analytics {
 	 *
 	 * @return void
 	 */
-	public static function send_analytics() {
+	public static function send_analytics(): void {
 		if ( empty( self::$analytics_to_send ) ) {
 			return;
 		}
@@ -84,7 +84,7 @@ class Analytics {
 	 *
 	 * @return bool true If it is a WPVIP site, false otherwise
 	 */
-	private static function is_wpvip_site() {
+	private static function is_wpvip_site(): bool {
 		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
 			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
 			&& defined( 'FILES_CLIENT_SITE_ID' ) && function_exists( '\Automattic\VIP\Stats\send_pixel' );

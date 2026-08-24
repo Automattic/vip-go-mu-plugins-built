@@ -263,6 +263,11 @@ describe( 'blockUtils', () => {
 	} );
 
 	describe( 'doesBlockNameMatchBlockWildcard', () => {
+		it( 'should match every block for the standalone wildcard rule', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', '*' ) ).toBeTruthy();
+			expect( doesBlockNameMatchBlockWildcard( 'custom/product', '*' ) ).toBeTruthy();
+		} );
+
 		it( 'should not be null if the block name matches any of the wildcard rules', () => {
 			const blockName = 'core/heading';
 			const rules = 'core/*';

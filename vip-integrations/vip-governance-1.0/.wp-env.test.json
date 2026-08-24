@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/wp-env.json",
+  "plugins": [ "." ],
+  "port": 8889,
+  "testsEnvironment": false,
+  "mappings": {
+    "wp-content/private": "./tests/private"
+  },
+  "config": {
+    "WPCOM_VIP_PRIVATE_DIR": "/var/www/html/wp-content/private"
+  }
+}

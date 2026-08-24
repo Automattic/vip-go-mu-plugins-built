@@ -15,12 +15,10 @@
 		"allowedBlocksArray": {
 			"description": "Array of allowed blocks for this rule. Blocks can contain asterisks for pattern matching.",
 			"type": "array",
-			"items": [
-				{
-					"type": "string",
-					"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
-				}
-			]
+			"items": {
+				"type": "string",
+				"examples": [ "*", "core/*", "core/paragraph", "core/heading" ]
+			}
 		},
 		"blockSettingsProperties": {
 			"description": "Block settings for block or nested inner block types",
@@ -31,6 +29,9 @@
 				}
 			},
 			"patternProperties": {
+				"^[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				},
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
 				},
@@ -43,6 +44,9 @@
 			"description": "Theme.json block settings for this rule. Allows block nesting and allowedBlocks array.",
 			"type": "object",
 			"patternProperties": {
+				"^[*]$": {
+					"$ref": "#/definitions/blockSettingsProperties"
+				},
 				"^[a-z][a-z0-9-]*/[a-z][a-z0-9-]*$": {
 					"$ref": "#/definitions/blockSettingsProperties"
 				},
@@ -84,6 +88,7 @@
 		},
 		"ruleDefaultProperties": {
 			"type": "object",
+			"minProperties": 2,
 			"properties": {
 				"type": {
 					"description": "Default rule - applies additively to all users.",
@@ -105,6 +110,7 @@
 		},
 		"ruleRoleProperties": {
 			"type": "object",
+			"minProperties": 3,
 			"properties": {
 				"type": {
 					"description": "Role rule - applies to one or more specific roles.",
@@ -134,6 +140,7 @@
 		},
 		"rulePostTypeProperties": {
 			"type": "object",
+			"minProperties": 3,
 			"properties": {
 				"type": {
 					"description": "Post Type rule - applies to one or more specific post types.",

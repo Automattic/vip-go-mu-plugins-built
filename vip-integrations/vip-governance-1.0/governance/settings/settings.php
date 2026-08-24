@@ -9,8 +9,6 @@ namespace WPCOMVIP\Governance;
 
 defined( 'ABSPATH' ) || die();
 
-use Exception;
-
 /**
  * Settings class used for the settings page.
  */
@@ -26,7 +24,7 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function init() {
+	public static function init(): void {
 		add_action( 'admin_init', [ __CLASS__, 'register_settings' ] );
 		add_action( 'admin_menu', [ __CLASS__, 'register_menu' ] );
 	}
@@ -38,12 +36,20 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function register_settings() {
-		register_setting( self::OPTIONS_KEY, self::OPTIONS_KEY, [ __CLASS__, 'validate_options' ] );
+	public static function register_settings(): void {
+		register_setting(
+			self::OPTIONS_KEY,
+			self::OPTIONS_KEY,
+			[
+				'type'              => 'array',
+				'sanitize_callback' => [ __CLASS__, 'validate_options' ],
+				'default'           => [ self::OPTIONS_KEY_IS_ENABLED => true ],
+			]
+		);
 
 		$section_id = 'plugin-settings';
-		add_settings_section( $section_id, __( 'Plugin Settings' ), '__return_null', self::MENU_SLUG );
-		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
+		add_settings_section( $section_id, __( 'Plugin Settings', 'vip-governance' ), '__return_null', self::MENU_SLUG );
+		add_settings_field( self::OPTIONS_KEY_IS_ENABLED, __( 'Enable governance', 'vip-governance' ), [ __CLASS__, 'render_is_enabled' ], self::MENU_SLUG, $section_id, [
 			'label_for' => self::OPTIONS_KEY_IS_ENABLED,
 		] );
 	}
@@ -55,8 +61,8 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function register_menu() {
-		$hook = add_menu_page( 'VIP Block Governance', 'VIP Block Governance', 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
+	public static function register_menu(): void {
+		$hook = add_menu_page( __( 'VIP Block Governance', 'vip-governance' ), __( 'VIP Block Governance', 'vip-governance' ), 'manage_options', self::MENU_SLUG, [ __CLASS__, 'render' ], 'dashicons-groups' );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'load-' . $hook, [ __CLASS__, 'enqueue_resources' ] );
 	}
@@ -68,7 +74,7 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function enqueue_resources() {
+	public static function enqueue_resources(): void {
 		wp_enqueue_style(
 			'wpcomvip-governance-settings',
 			plugins_url( '/governance/settings/settings.css', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
@@ -84,7 +90,7 @@ class Settings {
 	 *
 	 * @access private
 	 */
-	public static function enqueue_scripts() {
+	public static function enqueue_scripts(): void {
 		wp_enqueue_script(
 			'wpcomvip-governance-settings',
 			plugins_url( '/governance/settings/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
@@ -102,22 +108,22 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function render() {
-		// Remove the default rule type from the list of rule types allowed.
-		$rule_types_available  = RulesParser::RULE_TYPES;
+	public static function render(): void {
 		$post_types_available  = get_post_types();
 		$user_roles_available  = array_keys( wp_roles()->roles );
 		$governance_rules_json = GovernanceUtilities::get_governance_rules_json();
 		$governance_error      = false;
+		$governance_warnings   = [];
 		if ( is_wp_error( $governance_rules_json ) ) {
 			$governance_error      = $governance_rules_json->get_error_message();
 			$governance_rules_json = false;
 		} else {
-			$governance_rules = GovernanceUtilities::get_parsed_governance_rules();
-	
-			if ( is_wp_error( $governance_rules ) ) {
-				$governance_error = $governance_rules->get_error_message();
-				$governance_rules = [];
+			$parse_result = RulesParser::parse_with_warnings( $governance_rules_json );
+
+			if ( is_wp_error( $parse_result ) ) {
+				$governance_error = $parse_result->get_error_message();
+			} else {
+				$governance_warnings = $parse_result['warnings'];
 			}
 		}
 
@@ -131,25 +137,28 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function render_is_enabled() {
-		$options    = get_option( self::OPTIONS_KEY );
+	public static function render_is_enabled(): void {
+		$options    = get_option( self::OPTIONS_KEY, [] );
+		$options    = is_array( $options ) ? $options : [];
 		$is_enabled = $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
 
 		printf( '<input id="%1$s" name="%2$s[%1$s]" type="checkbox" value="yes" %3$s />', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_attr( self::OPTIONS_KEY ), checked( $is_enabled, true, false ) );
-		printf( '<label for="%s"><p class="description" style="display: inline-block; margin-left: 0.25rem">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable block editor governance rules for all users.' ) );
+		printf( '<label for="%s"><p class="description" style="display: inline-block; margin-left: 0.25rem">%s</p></label>', esc_attr( self::OPTIONS_KEY_IS_ENABLED ), esc_html__( 'Enable block editor governance rules for all users.', 'vip-governance' ) );
 	}
 
 	/**
 	 * Ensure that the options are valid.
 	 *
-	 * @param array $options Options that have been submitted.
+	 * @param mixed $options Options that have been submitted.
 	 * 
-	 * @return boolean True, if its valid or false otherwise.
+	 * @return array Sanitized settings.
 	 */
-	public static function validate_options( $options ) {
-		$options[ self::OPTIONS_KEY_IS_ENABLED ] = 'yes' === $options[ self::OPTIONS_KEY_IS_ENABLED ];
-
-		return $options;
+	public static function validate_options( $options ): array {
+		return [
+			self::OPTIONS_KEY_IS_ENABLED => is_array( $options )
+				&& isset( $options[ self::OPTIONS_KEY_IS_ENABLED ] )
+				&& 'yes' === $options[ self::OPTIONS_KEY_IS_ENABLED ],
+		];
 	}
 
 	/**
@@ -159,9 +168,10 @@ class Settings {
 	 * 
 	 * @access private
 	 */
-	public static function is_enabled() {
-		$options = get_option( self::OPTIONS_KEY );
-		return $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true;
+	public static function is_enabled(): bool {
+		$options = get_option( self::OPTIONS_KEY, [] );
+		$options = is_array( $options ) ? $options : [];
+		return true === ( $options[ self::OPTIONS_KEY_IS_ENABLED ] ?? true );
 	}
 }
 
