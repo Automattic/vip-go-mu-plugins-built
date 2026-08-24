@@ -69,6 +69,7 @@ define( 'HYPERDB_CONNNECTION_ERROR', 2002 ); // Can't connect to local MySQL ser
 define( 'HYPERDB_CONN_HOST_ERROR', 2003 ); // Can't connect to MySQL server on '%s' (%d)
 define( 'HYPERDB_SERVER_GONE_ERROR', 2006 ); // MySQL server has gone away
 
+#[AllowDynamicProperties]
 // phpcs:ignore PEAR.NamingConventions.ValidClassName.StartWithCapital
 class hyperdb extends wpdb {
 	/**
@@ -960,7 +961,8 @@ class hyperdb extends wpdb {
 				$this->ex_mysql_query( $statement_before_query, $this->dbh );
 			}
 
-			$this->result = $this->ex_mysql_query( $query, $this->dbh );
+			$this->result     = $this->ex_mysql_query( $query, $this->dbh );
+			$this->last_error = $this->ex_mysql_error( $this->dbh );
 
 			if ( $statement_after_query ) {
 				$query_for_log = "$query_for_log; $statement_after_query";
@@ -969,11 +971,12 @@ class hyperdb extends wpdb {
 			$elapsed = $this->timer_stop();
 			++$this->num_queries;
 
-			if ( preg_match( '/^\s*SELECT\s+SQL_CALC_FOUND_ROWS\s/i', $query ) ) {
+			if ( preg_match( '/^\s*SELECT\s+SQL_CALC_FOUND_ROWS\s/i', $query ) && false !== $this->result ) {
 				if ( false === strpos( $query, 'NO_SELECT_FOUND_ROWS' ) ) {
 					$this->timer_start();
 					$this->last_found_rows_result = $this->ex_mysql_query( 'SELECT FOUND_ROWS()', $this->dbh );
 					$elapsed                     += $this->timer_stop();
+					$this->last_error             = $this->ex_mysql_error( $this->dbh );
 					++$this->num_queries;
 					$query .= '; SELECT FOUND_ROWS()';
 				}
@@ -995,8 +998,6 @@ class hyperdb extends wpdb {
 				}
 			}
 		}
-
-		$this->last_error = $this->ex_mysql_error( $this->dbh );
 
 		if ( $this->last_error ) {
 			$this->last_errno = $this->ex_mysql_errno( $this->dbh );
@@ -1555,7 +1556,12 @@ class hyperdb extends wpdb {
 			return @mysql_ping( $dbh );
 		}
 
-		return @mysqli_ping( $dbh );
+		// mysqli_ping() is deprecated as of PHP 8.4.
+		if ( PHP_VERSION_ID < 80400 ) {
+			return @mysqli_ping( $dbh );
+		}
+
+		return false !== @$this->ex_mysql_query( 'DO 1', $dbh );
 	}
 
 	public function ex_mysql_affected_rows( $dbh ) {
