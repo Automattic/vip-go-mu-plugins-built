@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array(), 'module_dependencies' => array(array('id' => '@wordpress/route', 'import' => 'static')), 'version' => 'c904aa36d1166e1f4b41');
