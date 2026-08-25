@@ -1,0 +1,7 @@
+/**
+ * Styles loaded into the Editor canvas iframe via `enqueue_block_assets`.
+ *
+ * Assets enqueued through `enqueue_block_editor_assets` only reach the admin
+ * document, so the per-block overlay would otherwise render unstyled.
+ */
+@import "block-overlay";

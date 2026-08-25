@@ -1,0 +1,105 @@
+.traffic-boost-links {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-height: 0;
+	height: 100%;
+
+	.traffic-boost-links-list {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		overflow-y: auto;
+		height: 0;
+		min-height: 0;
+		overscroll-behavior: contain;
+
+		.traffic-boost-single-link {
+			cursor: pointer;
+			flex: 0 0 auto;
+			display: flex;
+			border-bottom: 1px solid var(--gray-350);
+			padding: var(--grid-unit-20) var(--grid-unit-30);
+			align-items: center;
+			gap: var(--grid-unit-15);
+
+			&.active {
+				border-bottom: 1px solid var(--traffic-boost-header-background);
+				background: var(--Scales-Theme-theme-alpha-04, rgba(56, 88, 233, 0.04));
+			}
+
+			&:focus {
+				outline: 2px solid var(--wp-admin-theme-color);
+				outline-offset: -2px;
+				box-shadow: none;
+			}
+
+			.single-link-title {
+				overflow: hidden;
+				color: var(--sidebar-black);
+				text-overflow: ellipsis;
+				font-size: var(--font-size--medium);
+				font-style: normal;
+				font-weight: 400;
+				line-height: var(--grid-unit-30);
+			}
+		}
+	}
+
+	.links-pagination {
+		margin-top: auto;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex: 0 0 auto;
+		color: var(--sidebar-black);
+		font-size: var(--font-size--smaller);
+		font-style: normal;
+		font-weight: 500;
+		line-height: var(--grid-unit-20);
+		text-transform: uppercase;
+		padding: var(--grid-unit-15) var(--grid-unit-30);
+
+		.links-pagination-children {
+			margin-right: auto;
+
+			.traffic-boost-add-suggestion {
+				box-shadow: none;
+			}
+		}
+
+		.page-selector {
+			display: flex;
+			align-items: center;
+			gap: var(--grid-unit-5);
+
+			select {
+				border: none;
+				background-color: transparent;
+				font-size: var(--font-size--smaller);
+				font-weight: 500;
+				cursor: pointer;
+
+				&:focus {
+					outline: 2px solid var(--wp-admin-theme-color);
+					outline-offset: 1px;
+				}
+			}
+		}
+
+		.page-navigation {
+			display: flex;
+			gap: var(--grid-unit-5);
+			margin-left: var(--grid-unit-30);
+		}
+	}
+
+	.traffic-boost-links-list-loading {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		padding: var(--grid-unit-20);
+		gap: var(--grid-unit-10);
+	}
+}

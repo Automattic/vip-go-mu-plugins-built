@@ -1,0 +1,2 @@
+export { VerticalDivider } from './component';
+

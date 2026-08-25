@@ -1,0 +1,62 @@
+@import "../../css/functions";
+
+.parsely-tone-selector-dropdown {
+	width: 100%;
+	overflow-wrap: break-word;
+	word-break: break-word;
+	height: to_rem(36px);
+	align-items: center;
+	align-self: stretch;
+	border-radius: 2px;
+	border: 1px solid var(--Gutenberg-Gray-600, #949494);
+	background: var(--Gutenberg-White, #fff);
+
+	button {
+		height: to_rem(33px);
+	}
+
+	.components-dropdown-menu__toggle.has-icon svg:nth-child(1) {
+		display: none;
+	}
+
+	&.is-disabled {
+		opacity: 0.5;
+		pointer-events: none;
+	}
+
+	.components-dropdown-menu__toggle {
+		display: flex;
+		gap: to_rem(10px);
+		width: 100%;
+
+		svg:first-of-type path {
+			transform: scale(1.4);
+			transform-origin: center;
+		}
+	}
+
+	.parsely-tone-selector-label {
+		flex-grow: 2;
+		text-align: left;
+		padding: 0 var(--grid-unit-10);
+
+		&::first-letter {
+			text-transform: uppercase;
+		}
+	}
+}
+
+.parsely-persona-selector-custom {
+	width: 100%;
+
+	.components-base-control__field input {
+		display: flex;
+		height: to_rem(40px);
+		padding: var(--grid-unit-15) var(--grid-unit-20);
+		align-items: center;
+		align-self: stretch;
+		border-radius: 2px;
+		border: 1px solid var(--Gutenberg-Gray-600, #949494);
+	}
+}
+

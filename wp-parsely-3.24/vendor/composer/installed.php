@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'parsely/wp-parsely',
+        'pretty_version' => 'dev-develop',
+        'version' => 'dev-develop',
+        'reference' => '0a4db53740a2be55442801c83b132a7a865975df',
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => false,
+    ),
+    'versions' => array(
+        'composer/installers' => array(
+            'pretty_version' => 'v2.3.0',
+            'version' => '2.3.0.0',
+            'reference' => '12fb2dfe5e16183de69e784a7b84046c43d97e8e',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/./installers',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'masterminds/html5' => array(
+            'pretty_version' => '2.11.0',
+            'version' => '2.11.0.0',
+            'reference' => 'a1e7a2f88ee13635d86fc61cfbdf2306a76ddfc7',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../masterminds/html5',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'parsely/wp-parsely' => array(
+            'pretty_version' => 'dev-develop',
+            'version' => 'dev-develop',
+            'reference' => '0a4db53740a2be55442801c83b132a7a865975df',
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);
