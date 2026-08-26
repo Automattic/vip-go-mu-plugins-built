@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Parsely\UI;
 
 use Parsely\Content_Helper\Excerpt_Suggestions;
+use Parsely\Content_Helper\Suggestion_Defaults;
 use Parsely\Parsely;
 use Parsely\Permissions;
 use Parsely\Utils\Utils;
@@ -78,7 +79,10 @@ use const Parsely\PARSELY_FILE;
  *
  * @phpstan-type Parsely_Settings_Options_Content_Helper_Feature array{
  *   enabled?: bool,
- *   allowed_user_roles?: array<string, string>|array<string, bool>
+ *   allowed_user_roles?: array<string, string>|array<string, bool>,
+ *   default_length?: mixed,
+ *   default_tone?: mixed,
+ *   default_persona?: mixed
  * }
  *
  * @phpstan-import-type Parsely_Options from Parsely
@@ -109,6 +113,19 @@ final class Settings_Page {
 	 * @var array<string, mixed>
 	 */
 	private $managed_options_badge = array();
+
+	/**
+	 * The Content Intelligence features that expose site-wide generation
+	 * defaults in the settings page.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var string[]
+	 */
+	private const FEATURES_WITH_DEFAULTS = array(
+		'title_suggestions',
+		'excerpt_suggestions',
+	);
 
 	/**
 	 * The Content Intelligence features that can be configured in the settings
@@ -1122,7 +1139,105 @@ final class Settings_Page {
 
 		echo '</fieldset>';
 
+		if ( in_array( $feature_id, self::FEATURES_WITH_DEFAULTS, true ) ) {
+			$this->print_suggestion_defaults( $args, $options, $feature_id );
+		}
+
 		$this->print_filter_text( $args );
+	}
+
+	/**
+	 * Prints out a feature's site-wide generation defaults.
+	 *
+	 * These apply to users who have not yet set their own values in the editor.
+	 * The desired length is printed for Excerpt Suggestions only, as Title
+	 * Suggestions has no equivalent setting.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @param Setting_Arguments $args       The arguments for the fieldset.
+	 * @param Parsely_Options   $options    The plugin's options.
+	 * @param string            $feature_id The feature's name.
+	 */
+	private function print_suggestion_defaults( $args, $options, string $feature_id ): void {
+		/** @var array<string, mixed> $feature_options */
+		$feature_options = $options['content_helper'][ $feature_id ] ?? array();
+		$is_managed      = key_exists( 'content_helper', $this->parsely->managed_options );
+
+		echo '<fieldset class="', esc_attr( str_replace( '_', '-', $feature_id ) ), '-defaults"',
+			$is_managed ? ' disabled>' : '>';
+		echo '<legend class="screen-reader-text"><span>';
+		printf(
+			/* translators: %s: Feature name */
+			esc_html__( '%s Default Settings', 'wp-parsely' ),
+			esc_html( $args['legend'] ?? __( 'Feature', 'wp-parsely' ) )
+		);
+		echo '</span></legend>';
+
+		if ( Excerpt_Suggestions::get_feature_name() === $feature_id ) {
+			$length_key = $args['option_key'] . '[default_length]';
+			printf(
+				'<p><label for="%1$s">%2$s</label><br />' .
+				'<input type="number" name="%3$s" id="%1$s" value="%4$d" min="%5$d" max="%6$d" step="1" class="small-text" /></p>',
+				esc_attr( $length_key ),
+				esc_html__( 'Default length (characters)', 'wp-parsely' ),
+				esc_attr( $this->get_html_name_attribute( $length_key ) ),
+				absint( Suggestion_Defaults::get_default_length( $feature_options ) ),
+				absint( Suggestion_Defaults::MIN_LENGTH ),
+				absint( Suggestion_Defaults::MAX_LENGTH )
+			);
+		}
+
+		$this->print_suggestion_defaults_select(
+			$args['option_key'] . '[default_tone]',
+			__( 'Default tone', 'wp-parsely' ),
+			Suggestion_Defaults::get_tones(),
+			Suggestion_Defaults::get_default_tone( $feature_options )
+		);
+
+		$this->print_suggestion_defaults_select(
+			$args['option_key'] . '[default_persona]',
+			__( 'Default persona', 'wp-parsely' ),
+			Suggestion_Defaults::get_personas(),
+			Suggestion_Defaults::get_default_persona( $feature_options )
+		);
+
+		echo '</fieldset>';
+	}
+
+	/**
+	 * Prints out a select tag for a feature's default generation setting.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @param string                $option_key The nested option key.
+	 * @param string                $label      The visible label.
+	 * @param array<string, string> $choices    The choices, as value => label pairs.
+	 * @param string                $selected   The currently selected value.
+	 */
+	private function print_suggestion_defaults_select(
+		string $option_key,
+		string $label,
+		array $choices,
+		string $selected
+	): void {
+		printf(
+			'<p><label for="%1$s">%2$s</label><br /><select name="%3$s" id="%1$s">',
+			esc_attr( $option_key ),
+			esc_html( $label ),
+			esc_attr( $this->get_html_name_attribute( $option_key ) )
+		);
+
+		foreach ( $choices as $value => $choice_label ) {
+			printf(
+				'<option value="%s"%s>%s</option>',
+				esc_attr( $value ),
+				selected( $selected, $value, false ),
+				esc_html( $choice_label )
+			);
+		}
+
+		echo '</select></p>';
 	}
 
 	/**
@@ -1558,9 +1673,53 @@ final class Settings_Page {
 
 		// Produce the final array.
 		$options = $this->parsely->get_options()['content_helper'];
-		$merged  = array_merge( $options, $input['content_helper'] );
+
+		// Validate the generation defaults separately, as the sanitizer above
+		// coerces every scalar into a boolean. Values that were not submitted
+		// fall back to the stored ones, and anything invalid falls back to the
+		// shipped default.
+		$validated_defaults = array();
+		foreach ( self::FEATURES_WITH_DEFAULTS as $feature_id ) {
+			/** @var array<string, mixed> $submitted */
+			$submitted = $input['content_helper'][ $feature_id ] ?? array();
+			/** @var array<string, mixed> $stored */
+			$stored = $options[ $feature_id ];
+
+			$defaults = array(
+				'default_tone'    => Suggestion_Defaults::get_default_tone(
+					array( 'default_tone' => $submitted['default_tone'] ?? $stored['default_tone'] ?? null )
+				),
+				'default_persona' => Suggestion_Defaults::get_default_persona(
+					array( 'default_persona' => $submitted['default_persona'] ?? $stored['default_persona'] ?? null )
+				),
+			);
+
+			// Only Excerpt Suggestions has a desired length.
+			if ( Excerpt_Suggestions::get_feature_name() === $feature_id ) {
+				$length = $submitted['default_length'] ?? $stored['default_length'] ?? null;
+
+				// Anything that is not an integer is invalid, rather than
+				// something to coerce into one.
+				$length = is_scalar( $length ) ? filter_var( $length, FILTER_VALIDATE_INT ) : false;
+
+				$defaults['default_length'] = Suggestion_Defaults::get_default_length(
+					array( 'default_length' => false === $length ? null : $length )
+				);
+			}
+
+			$validated_defaults[ $feature_id ] = $defaults;
+		}
+
+		$merged = array_merge( $options, $input['content_helper'] );
 
 		$input['content_helper'] = $sanitize( $merged );
+
+		foreach ( $validated_defaults as $feature_id => $defaults ) {
+			$input['content_helper'][ $feature_id ] = array_merge(
+				$input['content_helper'][ $feature_id ],
+				$defaults
+			);
+		}
 
 		return $input;
 	}

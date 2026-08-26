@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace Parsely;
 
+use Parsely\Content_Helper\Suggestion_Defaults;
 use Parsely\REST_API\REST_API_Controller;
 use Parsely\Services\Content_API\Content_API_Service;
 use Parsely\Services\Suggestions_API\Suggestions_API_Service;
@@ -60,6 +61,9 @@ use WP_Post;
  * @phpstan-type Parsely_Options_Content_Helper_Feature array{
  *   enabled: bool,
  *   allowed_user_roles: string[],
+ *   default_length?: int,
+ *   default_tone?: string,
+ *   default_persona?: string,
  * }
  *
  * @phpstan-type Parsely_Options_Headline_Testing array{
@@ -136,10 +140,15 @@ class Parsely {
 			'title_suggestions'   => array(
 				'enabled'            => true,
 				'allowed_user_roles' => array( 'administrator' ),
+				'default_tone'       => Suggestion_Defaults::DEFAULT_TONE,
+				'default_persona'    => Suggestion_Defaults::DEFAULT_PERSONA,
 			),
 			'excerpt_suggestions' => array(
 				'enabled'            => true,
 				'allowed_user_roles' => array( 'administrator' ),
+				'default_length'     => Suggestion_Defaults::DEFAULT_LENGTH,
+				'default_tone'       => Suggestion_Defaults::DEFAULT_TONE,
+				'default_persona'    => Suggestion_Defaults::DEFAULT_PERSONA,
 			),
 			'traffic_boost'       => array(
 				'enabled'            => true,

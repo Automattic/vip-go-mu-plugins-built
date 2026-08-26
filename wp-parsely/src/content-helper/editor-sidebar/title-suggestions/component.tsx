@@ -16,6 +16,8 @@ import { getPersonaLabel, PersonaProp } from '../../common/components/persona-se
 import { getToneLabel, ToneProp } from '../../common/components/tone-selector';
 import { ContentHelperError } from '../../common/content-helper-error';
 import { SidebarSettings, useSettings } from '../../common/settings';
+import { DEFAULT_PERSONA, DEFAULT_TONE } from '../../common/utils/constants';
+import { forGeneration } from '../../common/utils/defaults';
 import { PinnedTitleSuggestions } from './component-pinned';
 import { TitleSuggestionsSettings } from './component-settings';
 import { TitleSuggestions } from './component-suggestions';
@@ -104,7 +106,12 @@ export const TitleSuggestionsPanel = (): React.JSX.Element => {
 		const provider = TitleSuggestionsProvider.getInstance();
 
 		try {
-			const genTitles = await provider.generateTitles( content, 3, selectedTone, selectedPersona );
+			const genTitles = await provider.generateTitles(
+				content,
+				3,
+				forGeneration( selectedTone, 'titleSuggestions', 'tone', DEFAULT_TONE ),
+				forGeneration( selectedPersona, 'titleSuggestions', 'persona', DEFAULT_PERSONA )
+			);
 			await setTitles( titleType, genTitles );
 		} catch ( err: any ) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			setError( err );
@@ -288,7 +295,7 @@ export const TitleSuggestionsPanel = (): React.JSX.Element => {
 					<Button
 						variant="secondary"
 						isBusy={ loading }
-						disabled={ loading || tone === 'custom' || persona === 'custom' }
+						disabled={ loading }
 						onClick={ generateOnClickHandler }
 					>
 						{ loading && __( 'Generating Titles…', 'wp-parsely' ) }

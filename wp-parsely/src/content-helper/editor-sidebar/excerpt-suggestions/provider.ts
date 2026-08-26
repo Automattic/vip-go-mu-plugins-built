@@ -1,12 +1,8 @@
 /**
- * WordPress dependencies
- */
-import { addQueryArgs } from '@wordpress/url';
-
-/**
  * Internal dependencies
  */
 import { BaseProvider } from '../../common/providers/base-provider';
+import { DEFAULT_EXCERPT_LENGTH } from './constants';
 
 /**
  * Provides the generate excerpt functionality to be used in other components.
@@ -39,15 +35,23 @@ export class ExcerptSuggestionsProvider extends BaseProvider {
 	/**
 	 * Generates an excerpt for a given post.
 	 *
-	 * @param {string} title   The title of the post.
-	 * @param {string} content The content of the post.
-	 * @param {string} persona The persona to use for the suggestion.
-	 * @param {string} tone    The tone to use for the suggestion.
+	 * @since 3.16.0
+	 * @since 3.24.0 Added the `maxCharacters` parameter.
+	 *
+	 * @param {string} title         The title of the post.
+	 * @param {string} content       The content of the post.
+	 * @param {string} persona       The persona to use for the suggestion.
+	 * @param {string} tone          The tone to use for the suggestion.
+	 * @param {number} maxCharacters The desired excerpt length, in characters.
 	 *
 	 * @return {Promise<string>} The generated excerpt.
 	 */
 	public async generateExcerpt(
-		title: string, content: string, persona: string, tone: string
+		title: string,
+		content: string,
+		persona: string,
+		tone: string,
+		maxCharacters: number = DEFAULT_EXCERPT_LENGTH
 	): Promise<string> {
 		if ( '' === title ) {
 			title = 'Untitled';
@@ -55,13 +59,13 @@ export class ExcerptSuggestionsProvider extends BaseProvider {
 
 		return await this.fetch<string>( {
 			method: 'POST',
-			path: addQueryArgs( '/wp-parsely/v2/content-helper/excerpt-generator/generate', {
+			path: '/wp-parsely/v2/content-helper/excerpt-generator/generate',
+			data: {
+				text: content,
 				title,
 				persona,
 				style: tone,
-			} ),
-			data: {
-				text: content,
+				max_characters: maxCharacters,
 			},
 		} );
 	}

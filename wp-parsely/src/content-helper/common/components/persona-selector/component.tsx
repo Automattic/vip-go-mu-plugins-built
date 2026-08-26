@@ -17,54 +17,30 @@ import { Icon, pencil } from '@wordpress/icons';
  * Internal dependencies
  */
 import { MoreArrow } from '../../icons/more-arrow';
+import { MAX_CUSTOM_VALUE_LENGTH } from '../../utils/constants';
+import { toMetadata, VocabularyEntry } from '../../utils/vocabulary';
 
 /**
  * Represents a single persona in the PARSELY_PERSONAS list.
  *
  * @since 3.14.0
  */
-type PersonaMetadata = {
-	label: string,
-	icon?: React.JSX.Element,
-};
+type PersonaMetadata = VocabularyEntry;
 
 /**
  * List of the available personas.
  * Each persona has a label and an optional icon.
  *
+ * The predefined personas come from PHP, which is their single source, so that
+ * the plugin's settings page can offer the same choices. The custom persona is
+ * defined here, as it is a UI affordance rather than part of the vocabulary,
+ * and carries an icon that PHP cannot express.
+ *
  * @since 3.13.0
+ * @since 3.24.0 The predefined personas are supplied by PHP.
  */
 export const PARSELY_PERSONAS: Record<string, PersonaMetadata> = {
-	journalist: {
-		label: __( 'Journalist', 'wp-parsely' ),
-	},
-	editorialWriter: {
-		label: __( 'Editorial Writer', 'wp-parsely' ),
-	},
-	investigativeReporter: {
-		label: __( 'Investigative Reporter', 'wp-parsely' ),
-	},
-	techAnalyst: {
-		label: __( 'Tech Analyst', 'wp-parsely' ),
-	},
-	businessAnalyst: {
-		label: __( 'Business Analyst', 'wp-parsely' ),
-	},
-	culturalCommentator: {
-		label: __( 'Cultural Commentator', 'wp-parsely' ),
-	},
-	scienceCorrespondent: {
-		label: __( 'Science Correspondent', 'wp-parsely' ),
-	},
-	politicalAnalyst: {
-		label: __( 'Political Analyst', 'wp-parsely' ),
-	},
-	healthWellnessAdvocate: {
-		label: __( 'Health and Wellness Advocate', 'wp-parsely' ),
-	},
-	environmentalJournalist: {
-		label: __( 'Environmental Journalist', 'wp-parsely' ),
-	},
+	...toMetadata( window.wpParselyContentHelperPersonas ),
 	custom: {
 		label: __( 'Custom Persona', 'wp-parsely' ),
 		icon: pencil,
@@ -147,9 +123,8 @@ const CustomPersona = (
 						setCustomPersona( '' );
 						return;
 					}
-					// Truncate the persona to 32 characters.
-					if ( newPersona.length > 32 ) {
-						newPersona = newPersona.slice( 0, 32 );
+					if ( newPersona.length > MAX_CUSTOM_VALUE_LENGTH ) {
+						newPersona = newPersona.slice( 0, MAX_CUSTOM_VALUE_LENGTH );
 					}
 					debouncedOnChange( newPersona );
 					setCustomPersona( newPersona );

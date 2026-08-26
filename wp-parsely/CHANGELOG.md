@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.24.1](https://github.com/Parsely/wp-parsely/compare/3.24.0...3.24.1) - 2026-08-26
+
+### Fixed
+
+- Inherit site-wide suggestion defaults per setting ([#4556](https://github.com/Parsely/wp-parsely/pull/4556))
+
+## [3.24.0](https://github.com/Parsely/wp-parsely/compare/3.23.7...3.24.0) - 2026-08-25
+
+### Added
+
+- Add site-wide generation defaults for the suggestion features ([#4492](https://github.com/Parsely/wp-parsely/pull/4492))
+
+### Changed
+
+- Redesign Excerpt Suggestions with core-native patterns ([#4489](https://github.com/Parsely/wp-parsely/pull/4489))
+
+### Fixed
+
+- Apply the site-wide suggestion defaults when generating ([#4543](https://github.com/Parsely/wp-parsely/pull/4543))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.24.0+label%3ADeps).
+
+## [3.23.7](https://github.com/Parsely/wp-parsely/compare/3.23.6...3.23.7) - 2026-08-19
+
+### Fixed
+
+- Add remaining per-post permission checks in Content Intelligence ([#4533](https://github.com/Parsely/wp-parsely/pull/4533))
+
+## [3.23.6](https://github.com/Parsely/wp-parsely/compare/3.23.5...3.23.6) - 2026-08-18
+
+### Fixed
+
+- Improve post permission handling in Content Intelligence REST endpoints ([#4526](https://github.com/Parsely/wp-parsely/pull/4526))
+- Fix Engagement Boost sidebar height below 783px ([#4524](https://github.com/Parsely/wp-parsely/pull/4524))
+- Add ambient type declaration for SCSS imports ([#4522](https://github.com/Parsely/wp-parsely/pull/4522))
+- Fix Smart Linking save button selector for WordPress 6.5+ ([#4521](https://github.com/Parsely/wp-parsely/pull/4521))
+- Fix Smart Linking in the iframed Post Editor ([#4520](https://github.com/Parsely/wp-parsely/pull/4520))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.23.6+label%3ADeps).
+
 ## [3.23.5](https://github.com/Parsely/wp-parsely/compare/3.23.4...3.23.5) - 2026-07-28
 
 ### Dependency Updates

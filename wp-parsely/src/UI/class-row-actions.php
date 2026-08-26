@@ -137,7 +137,8 @@ final class Row_Actions {
 	public function row_actions_add_engagement_boost_link( array $actions, WP_Post $post ): array {
 		if ( ! Permissions::current_user_can_use_pch_feature(
 			'traffic_boost',
-			$this->parsely->get_options()['content_helper']
+			$this->parsely->get_options()['content_helper'],
+			$post->ID
 		) ) {
 			return $actions;
 		}

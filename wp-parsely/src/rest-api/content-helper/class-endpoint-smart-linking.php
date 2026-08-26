@@ -533,7 +533,8 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			if ( $post_id > 0 ) {
 				$post = get_post( $post_id );
 
-				if ( null !== $post ) {
+				// URLs resolve by slug, irrespective of the post's status.
+				if ( null !== $post && current_user_can( 'read_post', $post_id ) ) {
 					$post_type_obj  = get_post_type_object( $post->post_type );
 					$post_type_name = $post_type_obj instanceof \WP_Post_Type ? $post_type_obj->labels->singular_name : '';
 

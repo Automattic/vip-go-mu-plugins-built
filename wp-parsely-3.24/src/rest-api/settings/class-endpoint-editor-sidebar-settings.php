@@ -175,6 +175,47 @@ class Endpoint_Editor_Sidebar_Settings extends Base_Settings_Endpoint {
 	}
 
 	/**
+	 * Returns the composite keys of the settings that inherit their default.
+	 *
+	 * These are the settings whose default the plugin's settings page makes
+	 * configurable.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string> The composite keys.
+	 */
+	protected function get_inheritable_keys(): array {
+		return array(
+			'ExcerptSuggestions.Length',
+			'ExcerptSuggestions.Persona',
+			'ExcerptSuggestions.Tone',
+			'TitleSuggestions.Persona',
+			'TitleSuggestions.Tone',
+		);
+	}
+
+	/**
+	 * Returns the defaults that the inheritable settings had before 3.24.0 made
+	 * them configurable.
+	 *
+	 * Spelled out rather than taken from Suggestion_Defaults, whose constants
+	 * describe the present rather than the past. `Length` is absent, as it did
+	 * not exist before it became configurable.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string, mixed> The defaults, as composite key => value pairs.
+	 */
+	protected function get_legacy_defaults(): array {
+		return array(
+			'ExcerptSuggestions.Persona' => 'journalist',
+			'ExcerptSuggestions.Tone'    => 'neutral',
+			'TitleSuggestions.Persona'   => 'journalist',
+			'TitleSuggestions.Tone'      => 'neutral',
+		);
+	}
+
+	/**
 	 * Sanitizes the passed subvalue.
 	 *
 	 * Extends the parent implementation with a range check for the desired

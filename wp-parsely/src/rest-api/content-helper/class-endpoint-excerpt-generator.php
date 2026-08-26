@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Parsely\REST_API\Content_Helper;
 
 use Parsely\REST_API\Base_Endpoint;
+use Parsely\REST_API\Settings\Endpoint_Editor_Sidebar_Settings;
 use Parsely\Services\Suggestions_API\Suggestions_API_Service;
 use WP_Error;
 use WP_REST_Request;
@@ -99,13 +100,13 @@ class Endpoint_Excerpt_Generator extends Base_Endpoint {
 					'description' => __( 'The persona to use for the suggestion.', 'wp-parsely' ),
 					'type'        => 'string',
 					'required'    => false,
-					'default'     => 'journalist',
+					'default'     => Endpoint_Editor_Sidebar_Settings::DEFAULT_EXCERPT_PERSONA,
 				),
 				'style'          => array(
 					'description' => __( 'The style to use for the suggestion.', 'wp-parsely' ),
 					'type'        => 'string',
 					'required'    => false,
-					'default'     => 'neutral',
+					'default'     => Endpoint_Editor_Sidebar_Settings::DEFAULT_EXCERPT_TONE,
 				),
 				'max_items'      => array(
 					'description' => __( 'The maximum number of items to generate.', 'wp-parsely' ),
@@ -117,7 +118,9 @@ class Endpoint_Excerpt_Generator extends Base_Endpoint {
 					'description' => __( 'The maximum number of characters to generate.', 'wp-parsely' ),
 					'type'        => 'integer',
 					'required'    => false,
-					'default'     => 160,
+					'default'     => Endpoint_Editor_Sidebar_Settings::DEFAULT_EXCERPT_LENGTH,
+					'minimum'     => Endpoint_Editor_Sidebar_Settings::MIN_EXCERPT_LENGTH,
+					'maximum'     => Endpoint_Editor_Sidebar_Settings::MAX_EXCERPT_LENGTH,
 				),
 			)
 		);

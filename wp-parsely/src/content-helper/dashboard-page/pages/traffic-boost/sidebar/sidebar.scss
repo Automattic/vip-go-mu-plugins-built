@@ -15,7 +15,8 @@
 	background: var(--white);
 	border-radius: var(--grid-unit-10);
 	border-bottom: 1px solid var(--gray-200);
-	height: calc(100vh - to_rem(65px));
+	// Fallback is 0px because Core only defines the property when the bar renders.
+	height: calc(100vh - var(--wp-admin--admin-bar--height, 0px) - var(--grid-unit-20) * 2 - 1px);
 
 	.traffic-boost-sidebar-header {
 		padding: var(--grid-unit-20) var(--grid-unit-30);

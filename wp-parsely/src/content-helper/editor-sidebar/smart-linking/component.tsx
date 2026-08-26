@@ -65,6 +65,15 @@ export enum SmartLinkingPanelContext {
 const MAX_FETCH_RETRIES = 3;
 
 /**
+ * The Editor header's save buttons. WordPress 6.5 renamed the wrapper from
+ * `edit-post-header__settings` when it unified the Editor's header.
+ *
+ * @since 3.23.6
+ */
+const SAVE_BUTTONS_SELECTOR =
+	'.editor-header__settings>[type="button"], .edit-post-header__settings>[type="button"]';
+
+/**
  * Smart Linking Panel.
  *
  * @since 3.14.0
@@ -611,7 +620,7 @@ export const SmartLinkingPanel = ( {
 		dispatchCoreEditor.lockPostSaving( 'wp-parsely-block-overlay' );
 
 		// Disable save buttons.
-		const saveButtons = document.querySelectorAll( '.edit-post-header__settings>[type="button"]' );
+		const saveButtons = document.querySelectorAll( SAVE_BUTTONS_SELECTOR );
 		saveButtons.forEach( ( button ) => {
 			button.setAttribute( 'disabled', 'disabled' );
 		} );
@@ -624,7 +633,7 @@ export const SmartLinkingPanel = ( {
 	 */
 	const enableSave = (): void => {
 		// Enable save buttons.
-		const saveButtons = document.querySelectorAll( '.edit-post-header__settings>[type="button"]' );
+		const saveButtons = document.querySelectorAll( SAVE_BUTTONS_SELECTOR );
 		saveButtons.forEach( ( button ) => {
 			button.removeAttribute( 'disabled' );
 		} );

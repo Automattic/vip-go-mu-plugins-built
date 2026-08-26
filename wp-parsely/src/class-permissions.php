@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Parsely;
 
+use Parsely\Content_Helper\Suggestion_Defaults;
+
 /**
  * Class implementing user/role permissions functionality.
  *
@@ -201,10 +203,15 @@ class Permissions {
 			'title_suggestions'   => array(
 				'enabled'            => $enabled,
 				'allowed_user_roles' => $allowed_user_roles,
+				'default_tone'       => Suggestion_Defaults::DEFAULT_TONE,
+				'default_persona'    => Suggestion_Defaults::DEFAULT_PERSONA,
 			),
 			'excerpt_suggestions' => array(
 				'enabled'            => $enabled,
 				'allowed_user_roles' => $allowed_user_roles,
+				'default_length'     => Suggestion_Defaults::DEFAULT_LENGTH,
+				'default_tone'       => Suggestion_Defaults::DEFAULT_TONE,
+				'default_persona'    => Suggestion_Defaults::DEFAULT_PERSONA,
 			),
 			'traffic_boost'       => array(
 				'enabled'            => $enabled,

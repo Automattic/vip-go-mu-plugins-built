@@ -185,6 +185,41 @@ class Editor_Sidebar extends Content_Helper_Feature {
 			'before'
 		);
 
+		// Inject the tones and personas, so that PHP stays their single source
+		// and the settings page can offer the same choices as the editor.
+		wp_add_inline_script(
+			static::get_script_id(),
+			'window.wpParselyContentHelperTones = ' .
+				wp_json_encode( Suggestion_Defaults::get_tones() ) . ';' .
+			'window.wpParselyContentHelperPersonas = ' .
+				wp_json_encode( Suggestion_Defaults::get_personas() ) . ';',
+			'before'
+		);
+
+		// Inject the site-wide tone and persona. The stored settings carry them
+		// already, but not once a user's own value is the custom sentinel,
+		// which is exactly when the editor needs them. The desired length has
+		// no sentinel, so it is not needed here.
+		$excerpt_options = Suggestion_Defaults::get_feature_options( $this->parsely, 'excerpt_suggestions' );
+		$title_options   = Suggestion_Defaults::get_feature_options( $this->parsely, 'title_suggestions' );
+
+		wp_add_inline_script(
+			static::get_script_id(),
+			'window.wpParselyContentHelperDefaults = ' . wp_json_encode(
+				array(
+					'excerptSuggestions' => array(
+						'persona' => Suggestion_Defaults::get_default_persona( $excerpt_options ),
+						'tone'    => Suggestion_Defaults::get_default_tone( $excerpt_options ),
+					),
+					'titleSuggestions'   => array(
+						'persona' => Suggestion_Defaults::get_default_persona( $title_options ),
+						'tone'    => Suggestion_Defaults::get_default_tone( $title_options ),
+					),
+				)
+			) . ';',
+			'before'
+		);
+
 		$use_category_slugs_in_searches = apply_filters( 'wp_parsely_use_category_slugs_in_searches', false );
 		wp_add_inline_script(
 			static::get_script_id(),
@@ -195,6 +230,30 @@ class Editor_Sidebar extends Content_Helper_Feature {
 		wp_enqueue_style(
 			static::get_style_id(),
 			$built_assets_url . 'editor-sidebar.css',
+			array(),
+			$asset_php['version']
+		);
+	}
+
+	/**
+	 * Inserts the styles that need to be loaded inside the Editor canvas.
+	 *
+	 * Runs on `enqueue_block_assets`, which is the only hook that reaches the
+	 * iframed Editor canvas. `enqueue_block_editor_assets` only loads assets in
+	 * the admin document.
+	 *
+	 * @since 3.23.6
+	 */
+	public function run_canvas_styles(): void {
+		if ( ! is_admin() || ! $this->can_enable_feature() ) {
+			return;
+		}
+
+		$asset_php = Utils::get_asset_info( 'build/content-helper/block-overlay.asset.php' );
+
+		wp_enqueue_style(
+			static::get_style_id() . '-canvas',
+			plugin_dir_url( PARSELY_FILE ) . 'build/content-helper/block-overlay.css',
 			array(),
 			$asset_php['version']
 		);

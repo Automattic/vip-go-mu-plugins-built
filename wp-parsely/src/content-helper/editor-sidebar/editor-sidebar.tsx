@@ -25,11 +25,13 @@ import {
 	useSettings,
 } from '../common/settings';
 import {
+	DEFAULT_PERSONA,
+	DEFAULT_TONE,
 	Metric,
 	Period,
-	isInEnum,
 } from '../common/utils/constants';
 import { getContentHelperPermissions } from '../common/utils/permissions';
+import { DEFAULT_EXCERPT_LENGTH } from './excerpt-suggestions/constants';
 import { initExcerptSuggestions } from './excerpt-suggestions/excerpt-suggestions';
 import {
 	DEFAULT_MAX_LINKS,
@@ -68,11 +70,11 @@ export interface SidebarPostDataCategory {
 /**
  * Gets the settings from the passed JSON.
  *
- * If missing settings or invalid values are detected, they get set to their
- * defaults. This function prevents crashes when settings cannot be fetched or
- * they happen to be corrupt.
+ * The settings endpoint resolves stored values against its specifications, so
+ * the defaults here only apply when its payload is missing or unparseable.
  *
  * @since 3.13.0
+ * @since 3.24.0 Individual values are resolved by the settings endpoint.
  *
  * @param {string} settingsJson The JSON containing the settings.
  *
@@ -98,13 +100,13 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 		},
 		TitleSuggestions: {
 			Open: false,
-			Tone: 'neutral',
-			Persona: 'journalist',
+			Tone: DEFAULT_TONE,
+			Persona: DEFAULT_PERSONA,
 		},
 		ExcerptSuggestions: {
-			Open: false,
-			Persona: 'journalist',
-			Tone: 'neutral',
+			Length: DEFAULT_EXCERPT_LENGTH,
+			Persona: DEFAULT_PERSONA,
+			Tone: DEFAULT_TONE,
 		},
 	};
 
@@ -121,72 +123,7 @@ export const getSettingsFromJson = ( settingsJson: string = '' ): SidebarSetting
 		return defaultSettings;
 	}
 
-	// Merge parsed settings with default settings.
-	const mergedSettings = { ...defaultSettings, ...parsedSettings };
-
-	// Fix invalid values if any are found.
-	if ( typeof mergedSettings.InitialTabName !== 'string' ) {
-		mergedSettings.InitialTabName = defaultSettings.InitialTabName;
-	}
-	if ( typeof mergedSettings.PerformanceStats !== 'object' ) {
-		mergedSettings.PerformanceStats = defaultSettings.PerformanceStats;
-	}
-	if ( ! isInEnum( mergedSettings.PerformanceStats.Period, Period ) ) {
-		mergedSettings.PerformanceStats.Period = defaultSettings.PerformanceStats.Period;
-	}
-	if ( ! Array.isArray( mergedSettings.PerformanceStats.VisiblePanels ) ) {
-		mergedSettings.PerformanceStats.VisiblePanels = defaultSettings.PerformanceStats.VisiblePanels;
-	}
-	if ( ! Array.isArray( mergedSettings.PerformanceStats.VisibleDataPoints ) ) {
-		mergedSettings.PerformanceStats.VisibleDataPoints = defaultSettings.PerformanceStats.VisibleDataPoints;
-	}
-	if ( typeof mergedSettings.RelatedPosts !== 'object' ) {
-		mergedSettings.RelatedPosts = defaultSettings.RelatedPosts;
-	}
-	if ( ! isInEnum( mergedSettings.RelatedPosts.Metric, Metric ) ) {
-		mergedSettings.RelatedPosts.Metric = defaultSettings.RelatedPosts.Metric;
-	}
-	if ( typeof mergedSettings.RelatedPosts.Open !== 'boolean' ) {
-		mergedSettings.RelatedPosts.Open = defaultSettings.RelatedPosts.Open;
-	}
-	if ( ! isInEnum( mergedSettings.RelatedPosts.Period, Period ) ) {
-		mergedSettings.RelatedPosts.Period = defaultSettings.RelatedPosts.Period;
-	}
-	if ( typeof mergedSettings.SmartLinking !== 'object' ) {
-		mergedSettings.SmartLinking = defaultSettings.SmartLinking;
-	}
-	if ( typeof mergedSettings.SmartLinking.MaxLinks !== 'number' ) {
-		mergedSettings.SmartLinking.MaxLinks = defaultSettings.SmartLinking.MaxLinks;
-	}
-	if ( typeof mergedSettings.SmartLinking.Open !== 'boolean' ) {
-		mergedSettings.SmartLinking.Open = defaultSettings.SmartLinking.Open;
-	}
-	if ( typeof mergedSettings.TitleSuggestions !== 'object' ) {
-		mergedSettings.TitleSuggestions = defaultSettings.TitleSuggestions;
-	}
-	if ( typeof mergedSettings.TitleSuggestions.Open !== 'boolean' ) {
-		mergedSettings.TitleSuggestions.Open = defaultSettings.TitleSuggestions.Open;
-	}
-	if ( typeof mergedSettings.TitleSuggestions.Tone !== 'string' ) {
-		mergedSettings.TitleSuggestions.Tone = defaultSettings.TitleSuggestions.Tone;
-	}
-	if ( typeof mergedSettings.TitleSuggestions.Persona !== 'string' ) {
-		mergedSettings.TitleSuggestions.Persona = defaultSettings.TitleSuggestions.Persona;
-	}
-	if ( typeof mergedSettings.ExcerptSuggestions !== 'object' ) {
-		mergedSettings.ExcerptSuggestions = defaultSettings.ExcerptSuggestions;
-	}
-	if ( typeof mergedSettings.ExcerptSuggestions.Open !== 'boolean' ) {
-		mergedSettings.ExcerptSuggestions.Open = defaultSettings.ExcerptSuggestions.Open;
-	}
-	if ( typeof mergedSettings.ExcerptSuggestions.Tone !== 'string' ) {
-		mergedSettings.ExcerptSuggestions.Tone = defaultSettings.ExcerptSuggestions.Tone;
-	}
-	if ( typeof mergedSettings.ExcerptSuggestions.Persona !== 'string' ) {
-		mergedSettings.ExcerptSuggestions.Persona = defaultSettings.ExcerptSuggestions.Persona;
-	}
-
-	return mergedSettings;
+	return { ...defaultSettings, ...parsedSettings };
 };
 
 /**

@@ -15,7 +15,6 @@ import { PluginDocumentSettingPanel } from '../../../@types/gutenberg/wrapper';
 import { SettingsProvider } from '../../common/settings';
 import { getContentHelperPermissions } from '../../common/utils/permissions';
 import { getSettingsFromJson, PARSELY_SIDEBAR_PLUGIN_ID } from '../editor-sidebar';
-import './excerpt-suggestions.scss';
 import { PostExcerptSuggestions } from './component-panel';
 
 /**
@@ -37,9 +36,7 @@ export const ExcerptDocumentSettingPanel = () => {
 						window.wpParselyContentHelperSettings
 					) }
 				>
-					<PostExcerptSuggestions
-						isDocumentSettingPanel={ true }
-					/>
+					<PostExcerptSuggestions />
 				</SettingsProvider>
 			</PluginDocumentSettingPanel>
 		</PostTypeSupportCheck>

@@ -57,15 +57,15 @@ final class Settings {
 	 * Remove RTC from Gutenberg's experiments schema so this plugin is the only
 	 * place where the feature can be enabled or disabled.
 	 *
-	 * @param array<string, mixed> $args The setting registration arguments.
+	 * @param mixed                $args The setting registration arguments.
 	 * @param array<string, mixed> $_defaults The default registration arguments.
 	 * @param string               $option_group The setting group.
 	 * @param string               $option_name The setting name.
-	 * @return array<string, mixed> The filtered registration arguments.
+	 * @return mixed The filtered registration arguments.
 	 * @psalm-suppress PossiblyUnusedReturnValue Psalm does not detect usage via add_filter.
 	 */
-	public static function hide_gutenberg_rtc_experiment( array $args, array $_defaults, string $option_group, string $option_name ): array {
-		if ( self::GUTENBERG_EXPERIMENTS_OPTION_NAME !== $option_group || self::GUTENBERG_EXPERIMENTS_OPTION_NAME !== $option_name ) {
+	public static function hide_gutenberg_rtc_experiment( mixed $args, array $_defaults, string $option_group, string $option_name ): mixed {
+		if ( self::GUTENBERG_EXPERIMENTS_OPTION_NAME !== $option_group || self::GUTENBERG_EXPERIMENTS_OPTION_NAME !== $option_name || ! is_array( $args ) ) {
 			return $args;
 		}
 

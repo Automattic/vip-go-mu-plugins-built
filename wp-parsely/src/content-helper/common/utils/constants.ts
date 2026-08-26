@@ -7,6 +7,32 @@ export const DASHBOARD_BASE_URL = 'https://dash.parsely.com';
 export const PUBLIC_API_BASE_URL = 'https://api.parsely.com/v2';
 
 /**
+ * The maximum length of a free-text (custom) tone or persona, in characters.
+ *
+ * @since 3.24.0
+ */
+export const MAX_CUSTOM_VALUE_LENGTH = 32;
+
+/**
+ * The key denoting that a free-text (custom) tone or persona is in use.
+ *
+ * @since 3.24.0
+ */
+export const CUSTOM_VALUE = 'custom';
+
+/**
+ * The tone and persona shipped with the plugin, shared by the suggestion
+ * features. Only a last resort: PHP injects the site's own defaults, which
+ * take precedence.
+ *
+ * Kept in sync with DEFAULT_PERSONA and DEFAULT_TONE in Suggestion_Defaults.
+ *
+ * @since 3.24.0
+ */
+export const DEFAULT_PERSONA = 'journalist';
+export const DEFAULT_TONE = 'neutral';
+
+/**
  * Periods that are available in Content Intelligence.
  *
  * @since 3.10.0

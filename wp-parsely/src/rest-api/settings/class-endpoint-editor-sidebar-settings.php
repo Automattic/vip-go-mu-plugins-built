@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Parsely\REST_API\Settings;
 
+use Parsely\Content_Helper\Suggestion_Defaults;
+
 /**
  * Endpoint for saving and retrieving Content Intelligence Editor Sidebar
  * settings.
@@ -19,6 +21,51 @@ namespace Parsely\REST_API\Settings;
  * @phpstan-import-type Subvalue_Spec from Base_Settings_Endpoint
  */
 class Endpoint_Editor_Sidebar_Settings extends Base_Settings_Endpoint {
+	/**
+	 * The minimum desired excerpt length, in characters.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var int
+	 */
+	public const MIN_EXCERPT_LENGTH = Suggestion_Defaults::MIN_LENGTH;
+
+	/**
+	 * The maximum desired excerpt length, in characters.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var int
+	 */
+	public const MAX_EXCERPT_LENGTH = Suggestion_Defaults::MAX_LENGTH;
+
+	/**
+	 * The default desired excerpt length, in characters.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var int
+	 */
+	public const DEFAULT_EXCERPT_LENGTH = Suggestion_Defaults::DEFAULT_LENGTH;
+
+	/**
+	 * The default persona used when generating excerpts.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_EXCERPT_PERSONA = Suggestion_Defaults::DEFAULT_PERSONA;
+
+	/**
+	 * The default tone used when generating excerpts.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @var string
+	 */
+	public const DEFAULT_EXCERPT_TONE = Suggestion_Defaults::DEFAULT_TONE;
+
 	/**
 	 * Returns the endpoint's name.
 	 *
@@ -47,21 +94,29 @@ class Endpoint_Editor_Sidebar_Settings extends Base_Settings_Endpoint {
 	 *
 	 * @since 3.13.0
 	 * @since 3.17.0 Moved from Editor_Sidebar_Settings_Endpoint.
+	 * @since 3.24.0 Added the ExcerptSuggestions `Length` setting.
+	 * @since 3.24.0 Removed the ExcerptSuggestions `Open` setting, as the panel's
+	 *               collapsed state is now persisted by the block editor itself.
+	 * @since 3.24.0 The ExcerptSuggestions and TitleSuggestions defaults come
+	 *               from the site-wide settings of their respective features.
 	 *
 	 * @return array<string, Subvalue_Spec>
 	 */
 	protected function get_subvalues_specs(): array {
+		$excerpt_options = Suggestion_Defaults::get_feature_options( $this->parsely, 'excerpt_suggestions' );
+		$title_options   = Suggestion_Defaults::get_feature_options( $this->parsely, 'title_suggestions' );
+
 		return array(
 			'ExcerptSuggestions' => array(
 				'values'  => array(
-					'Open'    => array( true, false ),
+					'Length'  => array(),
 					'Persona' => array(),
 					'Tone'    => array(),
 				),
 				'default' => array(
-					'Open'    => false,
-					'Persona' => 'journalist',
-					'Tone'    => 'neutral',
+					'Length'  => Suggestion_Defaults::get_default_length( $excerpt_options ),
+					'Persona' => Suggestion_Defaults::get_default_persona( $excerpt_options ),
+					'Tone'    => Suggestion_Defaults::get_default_tone( $excerpt_options ),
 				),
 			),
 			'InitialTabName'     => array(
@@ -112,10 +167,80 @@ class Endpoint_Editor_Sidebar_Settings extends Base_Settings_Endpoint {
 				),
 				'default' => array(
 					'Open'    => false,
-					'Persona' => 'journalist',
-					'Tone'    => 'neutral',
+					'Persona' => Suggestion_Defaults::get_default_persona( $title_options ),
+					'Tone'    => Suggestion_Defaults::get_default_tone( $title_options ),
 				),
 			),
 		);
+	}
+
+	/**
+	 * Returns the composite keys of the settings that inherit their default.
+	 *
+	 * These are the settings whose default the plugin's settings page makes
+	 * configurable.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string> The composite keys.
+	 */
+	protected function get_inheritable_keys(): array {
+		return array(
+			'ExcerptSuggestions.Length',
+			'ExcerptSuggestions.Persona',
+			'ExcerptSuggestions.Tone',
+			'TitleSuggestions.Persona',
+			'TitleSuggestions.Tone',
+		);
+	}
+
+	/**
+	 * Returns the defaults that the inheritable settings had before 3.24.0 made
+	 * them configurable.
+	 *
+	 * Spelled out rather than taken from Suggestion_Defaults, whose constants
+	 * describe the present rather than the past. `Length` is absent, as it did
+	 * not exist before it became configurable.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string, mixed> The defaults, as composite key => value pairs.
+	 */
+	protected function get_legacy_defaults(): array {
+		return array(
+			'ExcerptSuggestions.Persona' => 'journalist',
+			'ExcerptSuggestions.Tone'    => 'neutral',
+			'TitleSuggestions.Persona'   => 'journalist',
+			'TitleSuggestions.Tone'      => 'neutral',
+		);
+	}
+
+	/**
+	 * Sanitizes the passed subvalue.
+	 *
+	 * Extends the parent implementation with a range check for the desired
+	 * excerpt length, which the enumerated valid values cannot express.
+	 *
+	 * @since 3.24.0
+	 *
+	 * @param string $composite_key The subvalue's key.
+	 * @param mixed  $value         The value to sanitize.
+	 * @return mixed The sanitized subvalue.
+	 */
+	protected function sanitize_subvalue( string $composite_key, $value ) {
+		if ( 'ExcerptSuggestions.Length' === $composite_key ) {
+			if ( ! is_int( $value ) ||
+				$value < self::MIN_EXCERPT_LENGTH ||
+				$value > self::MAX_EXCERPT_LENGTH
+			) {
+				return Suggestion_Defaults::get_default_length(
+					Suggestion_Defaults::get_feature_options( $this->parsely, 'excerpt_suggestions' )
+				);
+			}
+
+			return $value;
+		}
+
+		return parent::sanitize_subvalue( $composite_key, $value );
 	}
 }

@@ -52,6 +52,83 @@ export async function isEditorReady(): Promise<void> {
 }
 
 /**
+ * Returns the document holding the Editor canvas.
+ *
+ * The Post Editor is always iframed as of WordPress 7.1, and conditionally
+ * iframed before it. Falls back to the admin document when not iframed.
+ *
+ * @since 3.23.6
+ *
+ * @return {Document} The document holding the Editor canvas.
+ */
+export function getEditorCanvasDocument(): Document {
+	// WordPress 6.5 and later name the canvas iframe.
+	const namedCanvas = document.querySelector<HTMLIFrameElement>(
+		'iframe[name="editor-canvas"]'
+	);
+
+	if ( namedCanvas?.contentDocument ) {
+		return namedCanvas.contentDocument;
+	}
+
+	// WordPress 6.3 and 6.4 iframe the canvas without naming the iframe, so it
+	// gets identified by the Editor markup it holds.
+	const iframes = Array.from(
+		document.querySelectorAll<HTMLIFrameElement>( 'iframe' )
+	);
+
+	for ( const iframe of iframes ) {
+		// Reading contentDocument returns null for cross-origin iframes.
+		const iframeDocument = iframe.contentDocument;
+
+		if ( iframeDocument?.querySelector( '.editor-styles-wrapper, .block-editor-block-list__layout' ) ) {
+			return iframeDocument;
+		}
+	}
+
+	return document;
+}
+
+/**
+ * Waits for an element to exist in the Editor canvas, which is populated
+ * asynchronously after the Editor reports itself as ready.
+ *
+ * @since 3.23.6
+ *
+ * @param {string} selector  The selector to wait for.
+ * @param {number} timeoutMs How long to wait before giving up, in milliseconds.
+ *
+ * @return {Promise<HTMLElement|null>} The matched element, or null on timeout.
+ */
+export function waitForEditorCanvasElement(
+	selector: string,
+	timeoutMs: number = 5000
+): Promise<HTMLElement | null> {
+	return new Promise( ( resolve ) => {
+		const deadline = Date.now() + timeoutMs;
+
+		const poll = (): void => {
+			const element =
+				getEditorCanvasDocument().querySelector<HTMLElement>( selector );
+
+			if ( element ) {
+				resolve( element );
+				return;
+			}
+
+			if ( Date.now() >= deadline ) {
+				resolve( null );
+				return;
+			}
+
+			setTimeout( poll, 100 );
+		};
+
+		poll();
+	} );
+}
+
+/**
  * Adds ITM parameters to a URL.
  *
  * @since 3.19.0

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Parsely\REST_API\Content_Helper;
 
+use Parsely\Content_Helper\Suggestion_Defaults;
 use Parsely\REST_API\Base_Endpoint;
 use Parsely\Services\Suggestions_API\Suggestions_API_Service;
 use WP_Error;
@@ -100,13 +101,13 @@ class Endpoint_Title_Suggestions extends Base_Endpoint {
 					'description' => __( 'The style of the titles to be suggested.', 'wp-parsely' ),
 					'required'    => false,
 					'type'        => 'string',
-					'default'     => 'neutral',
+					'default'     => Suggestion_Defaults::DEFAULT_TONE,
 				),
 				'persona' => array(
 					'description' => __( 'The persona of the titles to be suggested.', 'wp-parsely' ),
 					'required'    => false,
 					'type'        => 'string',
-					'default'     => 'journalist',
+					'default'     => Suggestion_Defaults::DEFAULT_PERSONA,
 				),
 			)
 		);

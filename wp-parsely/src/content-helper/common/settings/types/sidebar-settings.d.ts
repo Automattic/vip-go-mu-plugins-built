@@ -62,9 +62,12 @@ export interface SmartLinkingSettings {
  * Defines the settings structure for the PostExcerptSuggestions component.
  *
  * @since 3.17.0
+ * @since 3.24.0 Added the `Length` setting.
+ * @since 3.24.0 Removed the `Open` setting, as the panel's collapsed state is
+ *               now persisted by the block editor's own preferences store.
  */
 export interface ExcerptSuggestionsSettings {
-	Open: boolean;
+	Length: number;
 	Persona: string;
 	Tone: string;
 }

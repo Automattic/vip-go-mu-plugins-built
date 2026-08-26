@@ -1,63 +1,6 @@
 @import "../../common/css/variables";
 @import "../../common/css/functions";
-
-.wp-parsely-block-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(255, 255, 255, 0.85);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	box-sizing: border-box;
-	font-size: to_rem(18px);
-
-	.wp-parsely-block-overlay-label {
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		pointer-events: none;
-		user-select: none;
-		gap: var(--grid-unit-10);
-		width: var(--grid-unit-10);
-	}
-
-	.wp-parsely-block-overlay-cancel {
-		pointer-events: all;
-		z-index: 10;
-		user-select: none;
-		padding: 0;
-		font-size: to_rem(18px);
-
-		&:focus {
-			outline: none;
-			box-shadow: none;
-		}
-	}
-
-	svg {
-		width: to_rem(25px);
-		height: to_rem(25px);
-	}
-
-	&.full-content-overlay {
-		z-index: 999;
-		font-size: to_rem(20px);
-
-		span {
-			margin-top: to_rem(15px);
-		}
-
-		svg {
-			width: to_rem(50px);
-			height: to_rem(50px);
-		}
-	}
-}
+@import "block-overlay";
 
 // Parse.ly icon appearing in Block settings.
 .wp-parsely-panel .components-panel__icon {

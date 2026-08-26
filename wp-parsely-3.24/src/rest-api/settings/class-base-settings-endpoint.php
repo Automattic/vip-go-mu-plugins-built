@@ -27,6 +27,16 @@ use WP_Error;
  */
 abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	/**
+	 * The format that stored settings are expected to be in. Recorded per user,
+	 * and bumped whenever stored values need converting.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @var int
+	 */
+	protected const STORED_FORMAT_VERSION = 1;
+
+	/**
 	 * The meta entry's default value. Initialized in the constructor.
 	 *
 	 * @since 3.13.0
@@ -76,6 +86,35 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	 * @return array<string, Subvalue_Spec>
 	 */
 	abstract protected function get_subvalues_specs(): array;
+
+	/**
+	 * Returns the composite keys of the settings that inherit their default.
+	 *
+	 * These are stored only once the user deviates from the default, so that a
+	 * later change to it still reaches users who never set them.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string> The composite keys.
+	 */
+	protected function get_inheritable_keys(): array {
+		return array();
+	}
+
+	/**
+	 * Returns the defaults that inheritable settings had before they became
+	 * inheritable, keyed by composite key.
+	 *
+	 * A stored value matching one of these was written when the setting had no
+	 * configurable default, so it cannot be told apart from an untouched one.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string, mixed> The defaults, as composite key => value pairs.
+	 */
+	protected function get_legacy_defaults(): array {
+		return array();
+	}
 
 	/**
 	 * Constructor.
@@ -175,15 +214,14 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	 * @since 3.17.0
 	 * @since 3.24.0 The stored value is resolved against the current
 	 *               specifications.
+	 * @since 3.24.1 A stored value predating the current format is normalized
+	 *               and stored anew.
 	 *
 	 * @return WP_REST_Response The response object.
 	 */
 	public function get_settings(): WP_REST_Response {
-		$meta_key = $this->get_meta_key();
-		$settings = get_user_meta( $this->current_user_id, $meta_key, true );
-
 		return new WP_REST_Response(
-			$this->sanitize_value( is_array( $settings ) ? $settings : array() ),
+			$this->sanitize_value( $this->get_stored_settings() ),
 			200
 		);
 	}
@@ -193,7 +231,12 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	 *
 	 * Updates the settings for the current user.
 	 *
+	 * Settings absent from the request keep their current value, rather than
+	 * being reset to their default.
+	 *
 	 * @since 3.17.0
+	 * @since 3.24.1 The request is merged into the current settings, and
+	 *               inheritable settings are stored only once set.
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response|WP_Error The response object.
@@ -209,18 +252,21 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 			);
 		}
 
-		$sanitized_value = $this->sanitize_value( $meta_value );
+		$stored_settings  = $this->get_stored_settings();
+		$current_settings = $this->sanitize_value( $stored_settings );
+		$sanitized_value  = $this->sanitize_value(
+			$this->merge_settings( $meta_value, $current_settings )
+		);
 
 		// If the current settings are the same as the new settings, return early.
-		$current_settings = $this->get_settings();
-		if ( $current_settings->get_data() === $sanitized_value ) {
-			return $current_settings;
+		if ( $current_settings === $sanitized_value ) {
+			return new WP_REST_Response( $current_settings, 200 );
 		}
 
 		$update_meta = update_user_meta(
 			$this->current_user_id,
 			$this->get_meta_key(),
-			$sanitized_value
+			$this->strip_inherited_values( $sanitized_value, $stored_settings )
 		);
 
 		if ( false === $update_meta ) {
@@ -230,7 +276,160 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 			);
 		}
 
+		$this->record_stored_format();
+
 		return new WP_REST_Response( $sanitized_value, 200 );
+	}
+
+	/**
+	 * Returns the current user's stored settings, normalizing them first if
+	 * they were stored in an earlier format.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return array<string, mixed> The stored settings.
+	 */
+	protected function get_stored_settings(): array {
+		$settings = get_user_meta( $this->current_user_id, $this->get_meta_key(), true );
+		$settings = is_array( $settings ) ? $settings : array();
+
+		return $this->needs_normalizing( $settings )
+			? $this->normalize_stored_settings( $settings )
+			: $settings;
+	}
+
+	/**
+	 * Returns whether the passed stored settings need normalizing before use.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings The stored settings.
+	 * @return bool
+	 */
+	protected function needs_normalizing( array $settings ): bool {
+		if ( 0 === count( $settings ) || 0 === count( $this->get_inheritable_keys() ) ) {
+			return false;
+		}
+
+		$format = get_user_meta( $this->current_user_id, $this->get_format_meta_key(), true );
+
+		return static::STORED_FORMAT_VERSION !== ( is_numeric( $format ) ? (int) $format : 0 );
+	}
+
+	/**
+	 * Drops the stored inheritable settings that cannot be told apart from an
+	 * untouched default, and stores the result.
+	 *
+	 * A value matching the setting's current default was stored by a full-tree
+	 * save; one matching its legacy default was stored when the setting had no
+	 * configurable default. Neither expresses a choice.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings The stored settings.
+	 * @return array<string, mixed> The normalized settings.
+	 */
+	protected function normalize_stored_settings( array $settings ): array {
+		$legacy_defaults = $this->get_legacy_defaults();
+
+		foreach ( $this->get_inheritable_keys() as $composite_key ) {
+			$keys  = explode( '.', $composite_key );
+			$value = $this->get_path_value( $settings, $keys );
+
+			if ( null === $value ) {
+				continue;
+			}
+
+			$defaults = array( $this->get_default( $keys ) );
+			if ( array_key_exists( $composite_key, $legacy_defaults ) ) {
+				$defaults[] = $legacy_defaults[ $composite_key ];
+			}
+
+			if ( in_array( $value, $defaults, true ) ) {
+				$this->unset_path_value( $settings, $keys );
+			}
+		}
+
+		update_user_meta( $this->current_user_id, $this->get_meta_key(), $settings );
+		$this->record_stored_format();
+
+		return $settings;
+	}
+
+	/**
+	 * Removes the inheritable settings that the user has not set, so that they
+	 * keep following their default.
+	 *
+	 * A setting counts as set once it is stored, so that a choice is not undone
+	 * by a later change to the default that happens to match it.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings The settings about to be stored.
+	 * @param array<string, mixed> $stored   The settings as they are stored.
+	 * @return array<string, mixed> The settings to store.
+	 */
+	protected function strip_inherited_values( array $settings, array $stored ): array {
+		foreach ( $this->get_inheritable_keys() as $composite_key ) {
+			$keys = explode( '.', $composite_key );
+
+			if ( $this->is_stored_override( $stored, $composite_key ) ||
+				$this->get_path_value( $settings, $keys ) !== $this->get_default( $keys )
+			) {
+				continue;
+			}
+
+			$this->unset_path_value( $settings, $keys );
+		}
+
+		return $settings;
+	}
+
+	/**
+	 * Returns whether the user set the passed setting.
+	 *
+	 * A value that sanitization rejects resolves to the setting's default on
+	 * read, so treating it as set would pin the user to that default.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $stored        The settings as they are stored.
+	 * @param string               $composite_key The setting's composite key.
+	 * @return bool
+	 */
+	protected function is_stored_override( array $stored, string $composite_key ): bool {
+		$value = $this->get_path_value( $stored, explode( '.', $composite_key ) );
+
+		return null !== $value && $this->sanitize_subvalue( $composite_key, $value ) === $value;
+	}
+
+	/**
+	 * Records that the current user's settings are stored in the current
+	 * format.
+	 *
+	 * @since 3.24.1
+	 */
+	protected function record_stored_format(): void {
+		if ( 0 === count( $this->get_inheritable_keys() ) ) {
+			return;
+		}
+
+		update_user_meta(
+			$this->current_user_id,
+			$this->get_format_meta_key(),
+			static::STORED_FORMAT_VERSION
+		);
+	}
+
+	/**
+	 * Returns the key of the meta entry holding the stored format's version.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @return string The meta entry's key.
+	 */
+	protected function get_format_meta_key(): string {
+		return $this->get_meta_key() . '_format';
 	}
 
 	/**
@@ -296,6 +495,58 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 		}
 
 		return $sanitized_value;
+	}
+
+	/**
+	 * Merges the passed settings into the current ones.
+	 *
+	 * Recursion follows the specifications, so that a setting holding a list of
+	 * values is replaced rather than merged into.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings   The settings to merge in.
+	 * @param array<string, mixed> $current    The settings to merge into.
+	 * @param string               $parent_key The parent key for the current level of the settings.
+	 * @return array<string, mixed> The merged settings.
+	 */
+	protected function merge_settings(
+		array $settings,
+		array $current,
+		string $parent_key = ''
+	): array {
+		/**
+		 * Current level's specifications.
+		 *
+		 * @var array<string, Subvalue_Spec> $current_specs
+		 */
+		$current_specs = ( '' === $parent_key ) ? $this->get_subvalues_specs() : $this->get_nested_specs( $parent_key );
+
+		foreach ( $current_specs as $key => $spec ) {
+			if ( ! array_key_exists( $key, $settings ) ) {
+				continue;
+			}
+
+			$value = $settings[ $key ];
+
+			/**
+			 * Spec for the current key.
+			 *
+			 * @var array{default: mixed, values?: array<mixed>} $spec
+			 */
+			if ( is_array( $value ) && isset( $spec['values'] ) ) {
+				$current_value   = $current[ $key ] ?? null;
+				$current[ $key ] = $this->merge_settings(
+					$value,
+					is_array( $current_value ) ? $current_value : array(),
+					'' === $parent_key ? $key : $parent_key . '.' . $key
+				);
+			} else {
+				$current[ $key ] = $value;
+			}
+		}
+
+		return $current;
 	}
 
 	/**
@@ -414,5 +665,56 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 		}
 
 		return $specs;
+	}
+
+	/**
+	 * Returns the value held at the passed path.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings The settings to look in.
+	 * @param array<string>        $keys     The path to the setting.
+	 * @return mixed The value, or null if the path holds none.
+	 */
+	protected function get_path_value( array $settings, array $keys ) {
+		$current = $settings;
+
+		foreach ( $keys as $key ) {
+			if ( ! is_array( $current ) || ! array_key_exists( $key, $current ) ) {
+				return null;
+			}
+
+			$current = $current[ $key ];
+		}
+
+		return $current;
+	}
+
+	/**
+	 * Removes the value held at the passed path.
+	 *
+	 * @since 3.24.1
+	 *
+	 * @param array<string, mixed> $settings The settings to remove from.
+	 * @param array<string>        $keys     The path to the setting.
+	 */
+	protected function unset_path_value( array &$settings, array $keys ): void {
+		$last_key = array_pop( $keys );
+
+		if ( null === $last_key ) {
+			return;
+		}
+
+		$current = &$settings;
+
+		foreach ( $keys as $key ) {
+			if ( ! isset( $current[ $key ] ) || ! is_array( $current[ $key ] ) ) {
+				return;
+			}
+
+			$current = &$current[ $key ];
+		}
+
+		unset( $current[ $last_key ] );
 	}
 }

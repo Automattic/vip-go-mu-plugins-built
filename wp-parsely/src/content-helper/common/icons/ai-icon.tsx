@@ -7,7 +7,7 @@ export const AiIcon = ( { size = 24, className = 'wp-parsely-icon' }: { size?: n
 			width={ size }
 			height={ size }
 			viewBox="0 0 24 24"
-			fill="none">
+			fill="currentColor">
 			<Path
 				d="M8.18983 5.90381L8.83642 7.54325L10.4758 8.18983L8.83642 8.8364L8.18983 10.4759L7.54324 8.8364L5.90381 8.18983L7.54324 7.54325L8.18983 5.90381Z" />
 			<Path

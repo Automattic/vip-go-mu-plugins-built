@@ -17,54 +17,30 @@ import { Icon, pencil } from '@wordpress/icons';
  * Internal dependencies
  */
 import { MoreArrow } from '../../icons/more-arrow';
+import { MAX_CUSTOM_VALUE_LENGTH } from '../../utils/constants';
+import { toMetadata, VocabularyEntry } from '../../utils/vocabulary';
 
 /**
  * Represents a single tone in the PARSELY_TONES list.
  *
  * @since 3.14.0
  */
-type ToneMetadata = {
-	label: string,
-	icon?: React.JSX.Element,
-};
+type ToneMetadata = VocabularyEntry;
 
 /**
  * List of the available tones.
  * Each tone has a label and an optional icon.
  *
+ * The predefined tones come from PHP, which is their single source, so that
+ * the plugin's settings page can offer the same choices. The custom tone is
+ * defined here, as it is a UI affordance rather than part of the vocabulary,
+ * and carries an icon that PHP cannot express.
+ *
  * @since 3.13.0
+ * @since 3.24.0 The predefined tones are supplied by PHP.
  */
 export const PARSELY_TONES: Record<string, ToneMetadata> = {
-	neutral: {
-		label: __( 'Neutral', 'wp-parsely' ),
-	},
-	formal: {
-		label: __( 'Formal', 'wp-parsely' ),
-	},
-	humorous: {
-		label: __( 'Humorous', 'wp-parsely' ),
-	},
-	confident: {
-		label: __( 'Confident', 'wp-parsely' ),
-	},
-	provocative: {
-		label: __( 'Provocative', 'wp-parsely' ),
-	},
-	serious: {
-		label: __( 'Serious', 'wp-parsely' ),
-	},
-	inspirational: {
-		label: __( 'Inspirational', 'wp-parsely' ),
-	},
-	skeptical: {
-		label: __( 'Skeptical', 'wp-parsely' ),
-	},
-	conversational: {
-		label: __( 'Conversational', 'wp-parsely' ),
-	},
-	analytical: {
-		label: __( 'Analytical', 'wp-parsely' ),
-	},
+	...toMetadata( window.wpParselyContentHelperTones ),
 	custom: {
 		label: __( 'Custom Tone', 'wp-parsely' ),
 		icon: pencil,
@@ -147,9 +123,8 @@ const CustomTone = (
 						setCustomTone( '' );
 						return;
 					}
-					// Truncate the tone to 32 characters.
-					if ( newTone.length > 32 ) {
-						newTone = newTone.slice( 0, 32 );
+					if ( newTone.length > MAX_CUSTOM_VALUE_LENGTH ) {
+						newTone = newTone.slice( 0, MAX_CUSTOM_VALUE_LENGTH );
 					}
 					debouncedOnChange( newTone );
 					setCustomTone( newTone );

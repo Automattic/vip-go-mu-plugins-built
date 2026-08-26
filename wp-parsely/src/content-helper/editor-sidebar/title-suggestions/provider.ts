@@ -6,8 +6,8 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { getPersonaLabel, PersonaProp } from '../../common/components/persona-selector';
-import { getToneLabel, ToneProp } from '../../common/components/tone-selector';
+import { PersonaProp } from '../../common/components/persona-selector';
+import { ToneProp } from '../../common/components/tone-selector';
 import { BaseProvider } from '../../common/providers/base-provider';
 
 /**
@@ -54,8 +54,10 @@ export class TitleSuggestionsProvider extends BaseProvider {
 			method: 'POST',
 			path: addQueryArgs( '/wp-parsely/v2/content-helper/title-suggestions/generate', {
 				limit,
-				tone: getToneLabel( tone ),
-				persona: getPersonaLabel( persona ),
+				// The endpoint registers this as `style`; `tone` would be silently
+				// dropped. Both take the stored key, as the labels are translated.
+				style: tone,
+				persona,
 			} ),
 			data: {
 				text: content,
