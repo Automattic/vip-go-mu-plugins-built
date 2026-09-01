@@ -1,0 +1,840 @@
+<?php
+/**
+ * Source Posts API class
+ *
+ * @package Safe_Publish
+ */
+
+declare(strict_types=1);
+
+namespace Safe_Publish\API;
+
+use Safe_Publish\Admin\Content_Logger;
+use Safe_Publish\Auth\VIP_Safe_Auth;
+use Safe_Publish\Utils\Auth_Credential_Provider;
+use Safe_Publish\Utils\Options;
+use Safe_Publish\Utils\Post_Type_Map;
+use Safe_Publish\Validators\URL_Validator;
+use WP_Error;
+
+// Prevent direct access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/**
+ * Source Posts API Class.
+ */
+class Source_Posts_API {
+
+	/**
+	 * HTTP Client instance.
+	 *
+	 * @var HTTP_Client
+	 */
+	private HTTP_Client $http_client;
+
+	/**
+	 * Logger instance.
+	 *
+	 * @var Content_Logger
+	 */
+	private Content_Logger $logger;
+
+	/**
+	 * Constructs the Source_Posts_API instance.
+	 *
+	 * @param HTTP_Client|null $http_client Optional. HTTP client for making requests.
+	 */
+	public function __construct( ?HTTP_Client $http_client = null ) {
+		$this->http_client = $http_client ?? new HTTP_Client();
+		$this->logger      = new Content_Logger();
+	}
+
+	/**
+	 * Extracts taxonomy terms from an embedded REST API response.
+	 *
+	 * Parses `wp:term` embedded data and groups per-term records by taxonomy.
+	 * Carrying the source term ID lets Meta_Terms_Manager write source-term
+	 * meta on the destination so later block-ID remap can resolve nav-link
+	 * blocks that reference the term.
+	 *
+	 * @param array $response_data Decoded REST API response for a single post.
+	 * @return array<string, list<array{source_term_id:int,slug:string,name:string}>>
+	 *               Term records grouped by taxonomy slug.
+	 */
+	public static function extract_embedded_terms( array $response_data ): array {
+		$terms = array();
+
+		if (
+			! isset( $response_data['_embedded']['wp:term'] ) ||
+			! is_array( $response_data['_embedded']['wp:term'] ) ||
+			count( $response_data['_embedded']['wp:term'] ) === 0
+		) {
+			return $terms;
+		}
+
+		foreach ( $response_data['_embedded']['wp:term'] as $term_group ) {
+			foreach ( $term_group as $term ) {
+				$name = isset( $term['name'] ) ? (string) $term['name'] : '';
+				if ( '' === $name ) {
+					continue;
+				}
+
+				$tax = isset( $term['taxonomy'] )
+					? sanitize_key( (string) $term['taxonomy'] )
+					: 'term';
+
+				if ( '' === $tax ) {
+					continue;
+				}
+
+				if ( ! isset( $terms[ $tax ] ) ) {
+					$terms[ $tax ] = array();
+				}
+
+				$terms[ $tax ][] = array(
+					'source_term_id' => isset( $term['id'] ) ? absint( $term['id'] ) : 0,
+					'slug'           => isset( $term['slug'] )
+						? sanitize_title( (string) $term['slug'] )
+						: '',
+					'name'           => $name,
+				);
+			}
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Fetches a page of posts from the source site's catalog endpoint.
+	 *
+	 * Returns the source's `{ items, has_more }` envelope after each item
+	 * is shape-validated (see normalize_listing_item). HMAC vouches for
+	 * the source's identity, not the content's honesty.
+	 *
+	 * @param string $source_site_url  Source site URL.
+	 * @param array  $auth_credentials Optional. Authentication credentials. Default empty array.
+	 * @param array  $args             Optional. Catalog query args (post_type, page, per_page,
+	 *                                 search, name, status[], published_after, published_before,
+	 *                                 orderby, order, include). `include` (int[]) short-circuits
+	 *                                 the source-side query to a `post__in` lookup, skipping the
+	 *                                 search/date/order/pagination args. Default empty.
+	 * @return array|WP_Error Envelope { items, has_more } or WP_Error on failure.
+	 */
+	public function fetch_posts(
+		string $source_site_url,
+		array $auth_credentials = array(),
+		array $args = array()
+	): array|WP_Error {
+		if ( ! URL_Validator::is_valid_external_url( $source_site_url ) ) {
+			return new WP_Error(
+				'invalid_url',
+				__( 'Invalid URL provided.', 'safe-publish' )
+			);
+		}
+
+		$api_url = $this->build_catalog_url( $source_site_url, $args );
+
+		$response = $this->make_request(
+			$api_url,
+			Request_Actions::LIST_ITEMS,
+			$auth_credentials
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return $this->process_catalog_response( $response );
+	}
+
+	/**
+	 * Builds the source catalog endpoint URL with query arguments.
+	 *
+	 * @param string $source_site_url Source site URL.
+	 * @param array  $args            Catalog query args.
+	 * @return string Final URL.
+	 */
+	private function build_catalog_url(
+		string $source_site_url,
+		array $args
+	): string {
+		$api_endpoint = trailingslashit( $source_site_url )
+			. 'wp-json/safe-publish/v1/catalog/posts';
+
+		$post_type = (string) ( $args['post_type'] ?? 'post' );
+
+		$query_args = array_filter(
+			array(
+				'post_type'        => Post_Type_Map::to_wp_slug( $post_type ),
+				'page'             => $args['page'] ?? null,
+				'per_page'         => $args['per_page'] ?? null,
+				'search'           => $args['search'] ?? null,
+				'name'             => $args['name'] ?? null,
+				'published_after'  => $args['published_after'] ?? null,
+				'published_before' => $args['published_before'] ?? null,
+				'orderby'          => $args['orderby'] ?? null,
+				'order'            => $args['order'] ?? null,
+			),
+			static fn( $v ): bool => null !== $v && '' !== $v
+		);
+
+		if (
+			isset( $args['status'] )
+			&& is_array( $args['status'] )
+			&& array() !== $args['status']
+		) {
+			$query_args['status'] = array_values(
+				array_map( 'strval', $args['status'] )
+			);
+		}
+
+		if (
+			isset( $args['include'] )
+			&& is_array( $args['include'] )
+			&& array() !== $args['include']
+		) {
+			$query_args['include'] = array_values(
+				array_map( 'intval', $args['include'] )
+			);
+		}
+
+		return add_query_arg( $query_args, $api_endpoint );
+	}
+
+	/**
+	 * Makes HTTP request using shared HTTP client.
+	 *
+	 * @param string $url              Request URL.
+	 * @param string $action           Declared request action (see Request_Actions).
+	 * @param array  $auth_credentials Optional. Authentication credentials. Default empty array.
+	 * @return array|WP_Error Response or error.
+	 */
+	private function make_request(
+		string $url,
+		string $action,
+		array $auth_credentials = array()
+	): array|WP_Error {
+		return $this->http_client->make_request( $url, $action, $auth_credentials );
+	}
+
+	/**
+	 * Decodes and validates the source catalog envelope.
+	 *
+	 * @param array $response HTTP response from wp_remote_request.
+	 * @return array|WP_Error { items, has_more } or WP_Error on malformed body.
+	 */
+	private function process_catalog_response( array $response ): array|WP_Error {
+		$body    = wp_remote_retrieve_body( $response );
+		$decoded = json_decode( $body, true );
+
+		if (
+			! is_array( $decoded )
+			|| ! isset( $decoded['items'] )
+			|| ! is_array( $decoded['items'] )
+		) {
+			return new WP_Error(
+				'safe_publish_catalog_invalid_response',
+				__( 'Invalid response from source API.', 'safe-publish' ),
+				array( 'response_body' => $body )
+			);
+		}
+
+		$items = array();
+		foreach ( $decoded['items'] as $item ) {
+			$normalized = self::normalize_listing_item( $item );
+			if ( null !== $normalized ) {
+				$items[] = $normalized;
+			}
+		}
+
+		return array(
+			'items'    => $items,
+			'has_more' => isset( $decoded['has_more'] ) && true === (bool) $decoded['has_more'],
+		);
+	}
+
+	/**
+	 * Shape-validates a single listing item received from the source.
+	 *
+	 * HMAC authenticates the source's identity, not its honesty: A
+	 * compromised source could return malicious fields the destination
+	 * renders. We type-coerce here, and harden two fields a hostile value
+	 * could otherwise weaponize on render:
+	 *
+	 * - `link` is forced through esc_url_raw with an http/https-only
+	 *   protocol allowlist so a hostile `javascript:` URL can't become an
+	 *   active anchor href.
+	 * - `status` is reduced to a `[a-z0-9_-]` slug via sanitize_key —
+	 *   defense in depth, since the client picks the badge class from a fixed
+	 *   table rather than interpolating this value.
+	 *
+	 * Items without an id are dropped for stable listing shape regardless of
+	 * source plugin version; an empty or whitespace-only title is replaced
+	 * with a "(no title)" placeholder so untitled source posts stay visible
+	 * instead of vanishing from the listing.
+	 *
+	 * @param mixed $item Raw item from the catalog response.
+	 * @return array|null Shape-valid item, or null when it has no usable id.
+	 */
+	private static function normalize_listing_item( mixed $item ): ?array {
+		if ( ! is_array( $item ) ) {
+			return null;
+		}
+
+		$id = isset( $item['id'] ) ? absint( $item['id'] ) : 0;
+		if ( 0 === $id ) {
+			return null;
+		}
+
+		$title = isset( $item['title'] ) ? (string) $item['title'] : '';
+		// Empty or whitespace-only, including a non-breaking space.
+		if ( 1 === preg_match( '/^[\p{Z}\s]*$/u', $title ) ) {
+			$title = __( '(no title)', 'safe-publish' );
+		}
+
+		$raw_link  = (string) ( $item['link'] ?? '' );
+		$safe_link = '' === $raw_link
+			? ''
+			: esc_url_raw( $raw_link, array( 'http', 'https' ) );
+
+		$safe_status = sanitize_key( (string) ( $item['status'] ?? '' ) );
+
+		return array(
+			'id'           => $id,
+			'link'         => $safe_link,
+			'title'        => $title,
+			'post_type'    => (string) ( $item['post_type'] ?? 'post' ),
+			'date_gmt'     => (string) ( $item['date_gmt'] ?? '' ),
+			'modified_gmt' => (string) ( $item['modified_gmt'] ?? '' ),
+			'status'       => $safe_status,
+		);
+	}
+
+	/**
+	 * Tests API connection.
+	 *
+	 * Delegates to the shared-secret probe so the result reflects whether the
+	 * connected site actually grants edit context, not just whether a public
+	 * endpoint responds.
+	 *
+	 * @param string $connected_site_url Connected site URL to test.
+	 * @param array  $auth_credentials   Authentication credentials.
+	 * @return array Test results: success, status, response_time, message.
+	 */
+	public function test_connection(
+		string $connected_site_url,
+		array $auth_credentials
+	): array {
+		$start_time = microtime( true );
+		$probe      = VIP_Safe_Auth::test_authorization(
+			$connected_site_url,
+			$auth_credentials
+		);
+		$end_time   = microtime( true );
+
+		$status = $probe['status'] ?? VIP_Safe_Auth::STATUS_UNREACHABLE;
+
+		return array(
+			'success'       => VIP_Safe_Auth::STATUS_AUTHORIZED === $status,
+			'status'        => $status,
+			'response_time' => round( ( $end_time - $start_time ) * 1000, 2 ),
+			'message'       => self::describe_auth_status(
+				$status,
+				$probe['error_code'] ?? ''
+			),
+		);
+	}
+
+	/**
+	 * Returns a human-readable message for an auth probe status.
+	 *
+	 * @param string $status     Status from VIP_Safe_Auth::test_authorization().
+	 * @param string $error_code Optional. Bounded body error code from the probe. Default ''.
+	 * @return string Translated description for display.
+	 */
+	public static function describe_auth_status(
+		string $status,
+		string $error_code = ''
+	): string {
+		switch ( $status ) {
+			case VIP_Safe_Auth::STATUS_AUTHORIZED:
+				return __(
+					'Connected site accepts the shared secret and grants edit context.',
+					'safe-publish'
+				);
+			case VIP_Safe_Auth::STATUS_UNAUTHORIZED:
+				return self::describe_unauthorized( $error_code );
+			case VIP_Safe_Auth::STATUS_BLOCKED:
+				return __(
+					'The connected site blocked the request before Safe Publish could authenticate it. A security plugin, theme, or host rule is restricting the REST API — allowlist the wp/v2 and safe-publish/v1 namespaces for signed requests (they carry the X-Safe-Publish-Signature header).',
+					'safe-publish'
+				);
+			case VIP_Safe_Auth::STATUS_UNREACHABLE:
+				return 0 === strpos( $error_code, 'safe_publish_auth_' )
+					? __(
+						'The connected site was reached but is not fully configured — its Safe Publish shared secret or connected-site URL is not set. Complete the Safe Publish configuration on the connected site and retry.',
+						'safe-publish'
+					)
+					: __(
+						'Connected site could not be reached. Verify the URL and that the site is online.',
+						'safe-publish'
+					);
+			case VIP_Safe_Auth::STATUS_URL_UNSET:
+				return __(
+					'Connected site URL is not configured.',
+					'safe-publish'
+				);
+			default:
+				return __( 'Unknown authentication status.', 'safe-publish' );
+		}
+	}
+
+	/**
+	 * Returns the message for an unauthorized probe, refined by the body error
+	 * code so a connected-URL mismatch or clock skew reads differently from a
+	 * real secret mismatch.
+	 *
+	 * @param string $error_code Bounded body error code from the probe.
+	 * @return string Translated description for display.
+	 */
+	private static function describe_unauthorized( string $error_code ): string {
+		switch ( $error_code ) {
+			case 'safe_publish_auth_site_url_mismatch':
+				return __(
+					"The connected site does not recognize this site's URL. On the connected site, set the connected-site URL to this site's home URL.",
+					'safe-publish'
+				);
+			case 'safe_publish_auth_expired':
+				return __(
+					'The request expired in transit, indicating a clock difference between the two sites. Synchronize their clocks (NTP) and retry.',
+					'safe-publish'
+				);
+			default:
+				return __(
+					'Connected site rejected the shared secret. Verify SAFE_PUBLISH_SHARED_SECRET matches on both sites in wp-config.php.',
+					'safe-publish'
+				);
+		}
+	}
+
+	/**
+	 * Fetches fresh post content from source site.
+	 *
+	 * `content`, `meta`, and `terms` are returned unsanitized. `content` must
+	 * pass through the block processor first, and `meta`/`terms` require
+	 * type-aware sanitization in Meta_Terms_Manager.
+	 *
+	 * @param int    $source_post_id    Source post ID.
+	 * @param string $source_site_url   Source site URL.
+	 * @param array  $auth_credentials  Optional. Authentication credentials. Default empty array.
+	 * @param string $post_type         Optional. Post type slug or REST endpoint. Default 'post'.
+	 * @return array|WP_Error Post data, or a WP_Error describing the failure.
+	 */
+	public function fetch_fresh_post_content(
+		int $source_post_id,
+		string $source_site_url,
+		array $auth_credentials = array(),
+		string $post_type = 'post'
+	): array|WP_Error {
+		// Validate URL first.
+		if ( ! URL_Validator::is_valid_external_url( $source_site_url ) ) {
+			$this->logger->content_fetch_failed(
+				$source_post_id,
+				$source_site_url,
+				'The connected site URL is invalid.'
+			);
+
+			return new WP_Error(
+				'fresh_content_invalid_url',
+				__( 'The connected site URL is invalid.', 'safe-publish' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Build API URL for single post.
+		$endpoint     = Source_Post_Type_Resolver::resolve_rest_base(
+			$post_type,
+			$source_site_url,
+			array( $this->http_client, 'make_request' ),
+			$auth_credentials
+		);
+		$api_endpoint = trailingslashit( $source_site_url ) . 'wp-json/wp/v2/' . $endpoint . '/' . $source_post_id;
+
+		$query_args = array(
+			'_embed' => '1',
+		);
+
+		// Edit context provides raw field values (title, content, excerpt)
+		// needed to preserve data parity during import.
+		if ( VIP_Safe_Auth::has_valid_credential_format( $auth_credentials ) ) {
+			$query_args['context'] = 'edit';
+		}
+
+		$fetch_context = array(
+			'source_post_id'  => $source_post_id,
+			'post_type'       => $post_type,
+			'source_site_url' => $source_site_url,
+		);
+
+		/**
+		 * Filters the query args for the source single-post fetch.
+		 *
+		 * @param array $query_args Query args appended to the fetch URL.
+		 * @param array $context    Fetch context: source_post_id, post_type,
+		 *                          source_site_url.
+		 */
+		$query_args = apply_filters(
+			'safe_publish_source_fetch_query_args',
+			$query_args,
+			$fetch_context
+		);
+
+		$api_url = add_query_arg( $query_args, $api_endpoint );
+
+		// Make request.
+		$response = $this->make_request(
+			$api_url,
+			Request_Actions::IMPORT,
+			$auth_credentials
+		);
+
+		if ( is_wp_error( $response ) ) {
+			$this->logger->content_fetch_failed(
+				$source_post_id,
+				$source_site_url,
+				$response->get_error_message()
+			);
+
+			// Propagate the upstream error so the import UI can explain the
+			// specific transport/HTTP reason instead of a generic message.
+			return $response;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+
+		if ( ! is_array( $data ) || array() === $data ) {
+			$this->logger->content_fetch_invalid_response(
+				$source_post_id,
+				$source_site_url
+			);
+
+			return new WP_Error(
+				'fresh_content_invalid_response',
+				__(
+					'The source site returned an invalid response.',
+					'safe-publish'
+				),
+				array( 'status' => 502 )
+			);
+		}
+
+		$resolved_post_data = Source_Post_Type_Resolver::resolve_post_data(
+			$post_type,
+			$data,
+			$source_site_url,
+			array( $this->http_client, 'make_request' ),
+			$auth_credentials
+		);
+		if ( is_wp_error( $resolved_post_data ) ) {
+			if (
+				'fresh_content_raw_fields_missing'
+				=== $resolved_post_data->get_error_code()
+			) {
+				$this->logger->content_fetch_raw_fields_missing(
+					$source_post_id,
+					$source_site_url
+				);
+			} else {
+				$this->logger->content_fetch_invalid_response(
+					$source_post_id,
+					$source_site_url
+				);
+			}
+
+			return $resolved_post_data;
+		}
+
+		$source_post_type = $resolved_post_data['post_type'];
+		$raw_values       = $resolved_post_data['raw_values'];
+
+		// Extract post data.
+		$post_data = array();
+
+		$post_data['title']          = sanitize_text_field( $raw_values['title'] );
+		$post_data['featured_media'] = absint( $data['featured_media'] ?? 0 );
+		$post_data['slug']           = sanitize_text_field( $data['slug'] ?? '' );
+		$post_data['comment_status'] = sanitize_text_field( $data['comment_status'] ?? '' );
+		$post_data['ping_status']    = sanitize_text_field( $data['ping_status'] ?? '' );
+		$post_data['menu_order']     = absint( $data['menu_order'] ?? 0 );
+		$post_data['password']       = sanitize_text_field( $data['password'] ?? '' );
+		$post_data['parent']         = absint( $data['parent'] ?? 0 );
+		// Carry the resolved WP slug so the bulk sorter can defer dependent
+		// types (wp_navigation runs after the posts/pages it links to).
+		$post_data['post_type'] = $source_post_type;
+
+		if ( isset( $data['link'] ) ) {
+			$post_data['link'] = esc_url_raw( $data['link'] );
+		}
+
+		// HTML fields: Sanitized at the import point with modification
+		// detection to prevent silent data loss during migration.
+		$post_data['content'] = $raw_values['content'];
+		$post_data['excerpt'] = $raw_values['excerpt'];
+
+		/**
+		 * Filters the source post meta before it is persisted.
+		 *
+		 * Receives the full decoded REST response so integrations can read
+		 * additional top-level keys, such as ACF/SCF values under acf.
+		 *
+		 * @param array $meta    Meta from the REST meta object.
+		 * @param array $data    Full decoded REST response for the post.
+		 * @param array $context Fetch context: source_post_id, post_type,
+		 *                       source_site_url.
+		 */
+		$filtered_meta = apply_filters(
+			'safe_publish_source_post_meta',
+			isset( $data['meta'] ) && is_array( $data['meta'] ) ? $data['meta'] : array(),
+			$data,
+			$fetch_context
+		);
+
+		// A filter may return a non-array; downstream needs an array.
+		$post_data['meta'] = is_array( $filtered_meta ) ? $filtered_meta : array();
+
+		// Prefer the safe_publish_terms field; fall back to the embedded
+		// wp:term payload when the source has not upgraded to send it.
+		$source_terms       = self::extract_source_terms( $data );
+		$post_data['terms'] = null !== $source_terms
+			? $source_terms
+			: self::extract_embedded_terms( $data );
+
+		// `null` distinguishes "source did not provide the field" (older plugin
+		// version on the source) from "field present but author cannot be
+		// resolved on the source" (empty strings).
+		$post_data['source_author'] = self::extract_source_author( $data );
+
+		$post_data['source_media'] = self::extract_source_media( $data );
+
+		$post_data['source_attached_media'] = self::extract_source_attached_media(
+			$data
+		);
+
+		return $post_data;
+	}
+
+	/**
+	 * Extracts the safe_publish_author payload from a REST response.
+	 *
+	 * @param array $data Decoded REST response for a single post.
+	 * @return array{email: string, login: string, display_name: string}|null
+	 *         Sanitized author payload, or null when the source did not
+	 *         include the field.
+	 */
+	private static function extract_source_author( array $data ): ?array {
+		if ( ! array_key_exists( 'safe_publish_author', $data ) ) {
+			return null;
+		}
+
+		$author = $data['safe_publish_author'];
+
+		if ( ! is_array( $author ) ) {
+			return null;
+		}
+
+		return array(
+			'email'        => isset( $author['email'] )
+				? sanitize_email( (string) $author['email'] )
+				: '',
+			'login'        => isset( $author['login'] )
+				? sanitize_user( (string) $author['login'], true )
+				: '',
+			'display_name' => isset( $author['display_name'] )
+				? sanitize_text_field( (string) $author['display_name'] )
+				: '',
+		);
+	}
+
+	/**
+	 * Extracts the safe_publish_media map from a REST response. Enforces the
+	 * URL => fields shape only; the values are sanitized at write time by the
+	 * media importer.
+	 *
+	 * @param array $data Decoded REST response for a single post.
+	 * @return array<string, array<string, string>> Source URL => library metadata.
+	 */
+	private static function extract_source_media( array $data ): array {
+		if (
+			! isset( $data['safe_publish_media'] )
+			|| ! is_array( $data['safe_publish_media'] )
+		) {
+			return array();
+		}
+
+		$map = array();
+
+		foreach ( $data['safe_publish_media'] as $url => $fields ) {
+			if ( ! is_string( $url ) || '' === $url || ! is_array( $fields ) ) {
+				continue;
+			}
+
+			$map[ $url ] = array(
+				'alt'         => (string) ( $fields['alt'] ?? '' ),
+				'title'       => (string) ( $fields['title'] ?? '' ),
+				'caption'     => (string) ( $fields['caption'] ?? '' ),
+				'description' => (string) ( $fields['description'] ?? '' ),
+				'parent'      => (string) (int) ( $fields['parent'] ?? 0 ),
+			);
+		}
+
+		return $map;
+	}
+
+	/**
+	 * Extracts the safe_publish_terms map from a REST response, or null when
+	 * the field is absent (an older plugin version on the source), so the
+	 * caller can fall back to the embedded wp:term payload.
+	 *
+	 * The record id and parent are source term IDs; the resolver maps them
+	 * through its source-ID map rather than trusting them as destination IDs.
+	 * A taxonomy the source sent empty is preserved as an empty list, the
+	 * signal to clear it on the destination.
+	 *
+	 * @param array $data Decoded REST response for a single post.
+	 * @return array<string, list<array{source_term_id:int, name:string, slug:string, parent:int, description:string, assigned:bool}>>|null
+	 *         Taxonomy => term records, or null when the field is absent.
+	 */
+	public static function extract_source_terms( array $data ): ?array {
+		if ( ! array_key_exists( 'safe_publish_terms', $data ) ) {
+			return null;
+		}
+
+		$raw = $data['safe_publish_terms'];
+
+		if ( ! is_array( $raw ) ) {
+			return null;
+		}
+
+		$terms = array();
+
+		foreach ( $raw as $taxonomy => $records ) {
+			$tax = is_string( $taxonomy ) ? sanitize_key( $taxonomy ) : '';
+
+			if ( '' === $tax || ! is_array( $records ) ) {
+				continue;
+			}
+
+			// Gated on the raw records: Records that all fail normalization
+			// must drop the taxonomy, not read as a clear.
+			if ( array() === $records ) {
+				$terms[ $tax ] = array();
+				continue;
+			}
+
+			$list = array();
+
+			foreach ( $records as $record ) {
+				$normalized = self::normalize_source_term_record( $record );
+				if ( null !== $normalized ) {
+					$list[] = $normalized;
+				}
+			}
+
+			if ( array() !== $list ) {
+				$terms[ $tax ] = $list;
+			}
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Normalizes one safe_publish_terms record, or null when it carries neither
+	 * a name nor a slug to resolve by.
+	 *
+	 * @param mixed $record Raw term record.
+	 * @return array{source_term_id:int, name:string, slug:string, parent:int, description:string, assigned:bool}|null
+	 */
+	private static function normalize_source_term_record( mixed $record ): ?array {
+		if ( ! is_array( $record ) ) {
+			return null;
+		}
+
+		$name = isset( $record['name'] )
+			? trim( wp_strip_all_tags( (string) $record['name'] ) )
+			: '';
+		$slug = isset( $record['slug'] )
+			? sanitize_title( (string) $record['slug'] )
+			: '';
+
+		if ( '' === $name && '' === $slug ) {
+			return null;
+		}
+
+		return array(
+			'source_term_id' => isset( $record['id'] ) ? absint( $record['id'] ) : 0,
+			'name'           => $name,
+			'slug'           => $slug,
+			'parent'         => isset( $record['parent'] ) ? absint( $record['parent'] ) : 0,
+			'description'    => isset( $record['description'] )
+				? (string) $record['description']
+				: '',
+			'assigned'       => array_key_exists( 'assigned', $record )
+				? (bool) $record['assigned']
+				: true,
+		);
+	}
+
+	/**
+	 * Extracts the safe_publish_attached_media list from a REST response: The
+	 * ordered { id, menu_order } set a bare gallery/playlist renders.
+	 *
+	 * @param array $data Decoded REST response for a single post.
+	 * @return list<array{id: int, menu_order: int}> Ordered attached-media set.
+	 */
+	private static function extract_source_attached_media( array $data ): array {
+		return Source_Media_REST_Field::normalize_menu_order_set(
+			$data['safe_publish_attached_media'] ?? null
+		);
+	}
+
+	/**
+	 * Fetches fresh post content using the configured connected site URL.
+	 *
+	 * Convenience wrapper around fetch_fresh_post_content() that reads the
+	 * connected site URL from options, obtains credentials, and propagates
+	 * the specific WP_Error the underlying fetch returns so callers can abort
+	 * the import and surface the reason.
+	 *
+	 * @param int    $source_post_id Source post ID to fetch.
+	 * @param string $post_type      Post type slug or REST endpoint.
+	 * @return array|WP_Error Fresh post data, or an error on failure.
+	 */
+	public function fetch_fresh_post(
+		int $source_post_id,
+		string $post_type
+	): array|WP_Error {
+		$source_site_url = get_option( Options::OPTION_CONNECTED_SITE_URL, '' );
+
+		if ( '' === $source_site_url ) {
+			return new WP_Error(
+				'fresh_content_fetch_no_connected_site_url',
+				__( 'No connected site URL is configured.', 'safe-publish' )
+			);
+		}
+
+		$auth_credentials = Auth_Credential_Provider::get_credentials();
+
+		$fresh_data = $this->fetch_fresh_post_content(
+			$source_post_id,
+			$source_site_url,
+			$auth_credentials,
+			$post_type
+		);
+
+		return $fresh_data;
+	}
+}
