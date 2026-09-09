@@ -91,11 +91,25 @@ class Settings {
 	 * @access private
 	 */
 	public static function enqueue_scripts(): void {
+		$asset_file_path = WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_DIR . '/build/settings.asset.php';
+		if ( ! is_readable( $asset_file_path ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( 'VIP Block Governance settings asset manifest is not readable: %s', $asset_file_path ) );
+			return;
+		}
+
+		$asset_file = include $asset_file_path;
+		if ( ! is_array( $asset_file ) || ! isset( $asset_file['dependencies'], $asset_file['version'] ) || ! is_array( $asset_file['dependencies'] ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( 'VIP Block Governance settings asset manifest is invalid: %s', $asset_file_path ) );
+			return;
+		}
+
 		wp_enqueue_script(
 			'wpcomvip-governance-settings',
-			plugins_url( '/governance/settings/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
-			/* dependencies */ [ 'wp-api' ],
-			WPCOMVIP__GOVERNANCE__PLUGIN_VERSION,
+			plugins_url( '/build/settings.js', WPCOMVIP_GOVERNANCE_ROOT_PLUGIN_FILE ),
+			$asset_file['dependencies'],
+			$asset_file['version'],
 			/* in footer */ true
 		);
 	}

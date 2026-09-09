@@ -15,7 +15,7 @@ The plugin uses a JSON-based rules system (`governance-rules.json`) with support
 ### Tech Stack
 
 - **PHP 8.2+** — Backend logic, rule parsing, REST API, settings panel
-- **JavaScript/JSX** — Block editor integration via WordPress filters
+- **TypeScript/TSX** — Block editor integration via WordPress filters
 - **WordPress 6.8+** — Target platform
 - **Webpack** — Build system (via `@wordpress/scripts`)
 - **Composer** — PHP dependency management
@@ -39,13 +39,14 @@ governance/
   settings/
     settings.php                # Admin settings page registration
     settings-view.php           # Settings page HTML template
-    settings.js                 # Settings page frontend logic
     settings.css                # Settings page styles
 src/
-  index.js                      # JS entry point — block editor filter setup
-  block-utils.js                # Block name matching, hierarchy validation
-  block-locking.jsx             # React UI for block locking
-  nested-governance-loader.js   # Loads nested governance settings
+  index.ts                      # Frontend entry point
+  editor.ts                     # Block editor filter setup
+  block-utils.ts                # Block name matching, hierarchy validation
+  block-locking.tsx             # React UI for block locking
+  nested-settings-filter.ts     # Resolves nested governance settings
+  settings/                     # Settings page frontend logic
 bin/release                     # Creates and commits major/minor/patch release branches
 build/                          # Compiled JS output (do not edit directly)
 tests/
@@ -67,7 +68,7 @@ WPCOMVIP__GOVERNANCE__RULES_REST_ROUTE     // 'vip-governance/v1'
 WPCOMVIP_GOVERNANCE_RULES_FILENAME         // 'governance-rules.json'
 ```
 
-### JavaScript Global
+### Frontend Global
 
 The plugin exposes `VIP_GOVERNANCE` to the block editor with:
 
@@ -181,7 +182,7 @@ npm run test         # Runs both PHP and JS unit tests
 ### Code Standards
 
 - **PHP**: WordPress-VIP-Go + WordPress-Extra via PHPCS
-- **JS**: `@automattic/eslint-plugin-wpvip`
+- **TypeScript/JavaScript**: `@automattic/eslint-plugin-wpvip`
 - **Formatting**: Prettier with `@automattic/eslint-plugin-wpvip/prettierrc`
 
 ### CI Matrix (GitHub Actions)
@@ -219,17 +220,17 @@ class MyNewTest extends TestCase {
 }
 ```
 
-### JS Unit Tests (Jest)
+### Frontend Unit Tests (Jest)
 
-- **Location**: Co-located with source as `src/foo.test.js` next to `src/foo.js`
+- **Location**: Co-located with source as `src/foo.test.ts` or `src/foo.test.tsx`
 - **Framework**: Jest with `@wordpress/jest-preset-default`
 - **WordPress mocks**: Mock `@wordpress/hooks`, `@wordpress/data`, etc. via `jest.mock()`
 - **Style**: `describe` / `it` blocks
-- **Run one file**: `npx jest src/block-utils.test.js`
+- **Run one file**: `npx jest src/block-utils.test.ts`
 
 Example structure:
 
-```js
+```ts
 import { myFunction } from './my-module';
 
 describe( 'myFunction', () => {
@@ -241,16 +242,16 @@ describe( 'myFunction', () => {
 
 ### E2E Tests (Playwright)
 
-- **Location**: `tests/e2e/*.spec.js`
+- **Location**: `tests/e2e/*.spec.ts`
 - **Framework**: Playwright with `@wordpress/e2e-test-utils-playwright`
-- **Global setup**: `tests/e2e/globalSetup.js` — authenticates as admin, resets posts/blocks/preferences
+- **Global setup**: `tests/e2e/globalSetup.ts` — authenticates as admin, resets posts/blocks/preferences
 - **Auth state**: Saved to `artifacts/storage-states/admin.json`
 - **Fixtures**: Uses WordPress `admin`, `editor`, and `page` fixtures from `@wordpress/e2e-test-utils-playwright`
-- **Run one file**: `npx playwright test tests/e2e/my-test.spec.js`
+- **Run one file**: `npx playwright test tests/e2e/my-test.spec.ts`
 
 Example structure:
 
-```js
+```ts
 import { expect, test } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe( 'My Feature', () => {
@@ -288,7 +289,7 @@ test.describe( 'My Feature', () => {
 
 - **Rules not applying?** Check that `governance-rules.json` is in the private directory and validates against the schema. Use the admin settings page to verify.
 - **Block still visible?** Starting from WordPress 6.8, the block inserter shows all blocks — disallowed ones trigger a snackbar on insert attempt.
-- **JS not updating?** Run `npm run build` or `npm run dev` (watch mode). Check that `build/index.js` was regenerated.
+- **Frontend not updating?** Run `npm run build` or `npm run dev` (watch mode). Check that `build/index.js` was regenerated.
 - **PHP changes not reflecting?** Ensure `wp-env` is running. No build step needed for PHP.
 - **Test failures in CI?** Check the CI matrix — tests run against PHP 8.2–8.5 and WP 6.8/latest. Failures may be version-specific.
 - **Unexpected vendor changes?** Composer regenerates tracked metadata under `vendor/composer`. Only commit those changes when intentionally updating the production dependency bundle.

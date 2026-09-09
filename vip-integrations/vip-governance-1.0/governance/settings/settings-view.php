@@ -79,24 +79,34 @@ $governance_rules_formatted = $governance_rules_json ? implode(
 		<div class="combined-governance-rules">
 			<h2><?php esc_html_e( 'View Governance Rules For A Rule Type', 'vip-governance' ); ?></h2>
 			<p class="description"><?php esc_html_e( 'Rules for a type like roles work by combining the type\'s governance rules with default rules. Use this tool to view rules using the role/post type and debug permissions issues.', 'vip-governance' ); ?></p>
-			<select name="user-role-selector" id="user-role-selector" style="margin: 1rem 0 0.5rem">
-				<option value=""><?php esc_html_e( 'All Roles', 'vip-governance' ); ?></option>
-				<?php foreach ( $user_roles_available as $user_role_available ) { ?>
-					<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
-				<?php } ?>
-			</select>
+			<div class="vip-governance-rule-filters">
+				<label for="user-role-selector">
+					<span><?php esc_html_e( 'User role', 'vip-governance' ); ?></span>
+					<select name="user-role-selector" id="user-role-selector">
+						<option value=""><?php esc_html_e( 'All Roles', 'vip-governance' ); ?></option>
+						<?php foreach ( $user_roles_available as $user_role_available ) { ?>
+							<option value="<?php echo esc_attr( $user_role_available ); ?>"><?php echo esc_html( $user_role_available ); ?></option>
+						<?php } ?>
+					</select>
+				</label>
 
-			<select name="post-type-selector" id="post-type-selector" style="margin: 1rem 0 0.5rem">
-				<option value=""><?php esc_html_e( 'All Post Types', 'vip-governance' ); ?></option>
-				<?php foreach ( $post_types_available as $post_type_available ) { ?>
-					<option value="<?php echo esc_attr( $post_type_available ); ?>"><?php echo esc_html( $post_type_available ); ?></option>
-				<?php } ?>
-			</select>
+				<label for="post-type-selector">
+					<span><?php esc_html_e( 'Post type', 'vip-governance' ); ?></span>
+					<select name="post-type-selector" id="post-type-selector">
+						<option value=""><?php esc_html_e( 'All Post Types', 'vip-governance' ); ?></option>
+						<?php foreach ( $post_types_available as $post_type_available ) { ?>
+							<option value="<?php echo esc_attr( $post_type_available ); ?>"><?php echo esc_html( $post_type_available ); ?></option>
+						<?php } ?>
+					</select>
+				</label>
 
-			<button type="button" class="button button-primary view-rules-button" id="view-rules-button" style="margin: 1rem 0 0.5rem 0.5rem; display: none"><?php esc_html_e( 'View Rules', 'vip-governance' ); ?></button>
+				<button type="button" class="button button-primary" id="view-rules-button" aria-controls="json" hidden><?php esc_html_e( 'View Rules', 'vip-governance' ); ?></button>
 
-			<span class="spinner vip-governance-query-spinner" style="float: none; margin-top: 0.5rem"></span>
-			<pre class="combined-governance-rules-json" id="json" style="margin: 1rem 0" hidden></pre>
+				<span class="spinner vip-governance-query-spinner" role="status" hidden>
+					<span class="screen-reader-text"><?php esc_html_e( 'Loading governance rules…', 'vip-governance' ); ?></span>
+				</span>
+			</div>
+			<pre class="combined-governance-rules-json" id="json" data-error-message="<?php esc_attr_e( 'Unable to load governance rules.', 'vip-governance' ); ?>" aria-live="polite" tabindex="0" hidden></pre>
 		</div>
 	<?php } ?>
 

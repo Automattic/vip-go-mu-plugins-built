@@ -8,10 +8,13 @@ module.exports = [
 	...wpvip.configs.formatting,
 	...wpvip.configs.testing,
 	...wpvip.configs.react,
+	...wpvip.configs.typescript,
 	...wpvip.configs.prettier,
 	{
 		languageOptions: {
 			globals: {
+				document: 'readonly',
+				URLSearchParams: 'readonly',
 				VIP_GOVERNANCE: 'readonly',
 			},
 		},

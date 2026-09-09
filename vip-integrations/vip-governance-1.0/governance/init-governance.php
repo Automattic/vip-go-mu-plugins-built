@@ -75,6 +75,7 @@ class InitGovernance {
 			$asset_file['version'],
 			true /* in_footer */
 		);
+		wp_set_script_translations( 'wpcomvip-governance', 'vip-governance' );
 
 		$nested_settings_and_css = self::$governance_configuration['nestedSettingsAndCss'];
 
