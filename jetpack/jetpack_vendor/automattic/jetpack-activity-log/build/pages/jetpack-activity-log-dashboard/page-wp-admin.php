@@ -146,8 +146,12 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_enqueue_sc
 	// Get all registered routes
 	$routes = jetpack_activity_log_get_jetpack_activity_log_dashboard_wp_admin_routes();
 
-	// Get boot module asset file for dependencies
+	// Get boot module asset file for dependencies. Plugins that build their own
+	// boot module use it; everyone else falls back to the copy bundled with Core.
 	$asset_file = __DIR__ . '/../../modules/boot/index.min.asset.php';
+	if ( ! file_exists( $asset_file ) ) {
+		$asset_file = ABSPATH . WPINC . '/js/dist/script-modules/boot/index.min.asset.php';
+	}
 	if ( file_exists( $asset_file ) ) {
 		$asset = require $asset_file;
 
@@ -289,23 +293,23 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_pag
 		#wpwrap {
 			overflow-y: auto;
 		}
-		body {
+		body.js {
 			background: #fff;
 		}
 
 		/* Reset wp-admin padding */
-		#wpcontent {
+		body.js #wpcontent {
 			padding-inline-start: 0;
 		}
-		#wpbody-content {
+		body.js #wpbody-content {
 			padding-bottom: 0;
 		}
 
 		/* Hide legacy admin elements */
-		#wpbody-content > div:not(.boot-layout-container):not(#screen-meta) {
+		body.js #wpbody-content > div:not(#jetpack-activity-log-dashboard-wp-admin-app):not(#screen-meta) {
 			display: none;
 		}
-		#wpfooter {
+		body.js #wpfooter {
 			display: none;
 		}
 
@@ -334,6 +338,20 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_pag
 			}
 		}
 	</style>
+	<div class="wrap hide-if-js">
+		<h1 class="wp-heading-inline"><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<?php
+		wp_admin_notice(
+			__( 'This screen requires JavaScript. Enable JavaScript in your browser settings and reload the page.' ),
+			array( 'type' => 'error' )
+		);
+		?>
+	</div>
+	<?php
+	// Core's pre-CSS Modules Boot layout uses this class for viewport sizing.
+	// Remove it when the minimum supported WordPress version includes the Boot
+	// changes from Gutenberg #81756.
+	?>
 	<div id="jetpack-activity-log-dashboard-wp-admin-app" class="boot-layout-container"></div>
 	<?php
 }

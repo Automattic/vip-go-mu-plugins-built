@@ -6,16 +6,7 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Line chart", "jetpack-premium-analytics-pkg" );
-__( "Bar chart", "jetpack-premium-analytics-pkg" );
 __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Visitors", "jetpack-premium-analytics-pkg" );
-__( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
-__( "Group by", "jetpack-premium-analytics-pkg" );
-__( "Auto", "jetpack-premium-analytics-pkg" );
-__( "By days", "jetpack-premium-analytics-pkg" );
-__( "By weeks", "jetpack-premium-analytics-pkg" );
-__( "By months", "jetpack-premium-analytics-pkg" );
-__( "Metrics", "jetpack-premium-analytics-pkg" );
-__( "Chart type", "jetpack-premium-analytics-pkg" );
+__( "Likes", "jetpack-premium-analytics-pkg" );

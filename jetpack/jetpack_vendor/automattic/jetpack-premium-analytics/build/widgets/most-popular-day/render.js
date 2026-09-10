@@ -11,5 +11,4 @@ __( "Views", "jetpack-premium-analytics-pkg" );
 /* translators: %s is a percentage, e.g. "0.32%". */
 __( "%s of views", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load your most popular day. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Not enough views yet to pick a most popular day.", "jetpack-premium-analytics-pkg" );

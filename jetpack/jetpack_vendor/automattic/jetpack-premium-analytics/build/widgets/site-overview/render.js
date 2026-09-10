@@ -8,8 +8,8 @@
 
 __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Visitors", "jetpack-premium-analytics-pkg" );
-__( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
+__( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Metrics", "jetpack-premium-analytics-pkg" );
 __( "Sum of daily visitors — a returning visitor is counted once per day, not once for the whole period.", "jetpack-premium-analytics-pkg" );
 __( "Select at least one metric to display.", "jetpack-premium-analytics-pkg" );

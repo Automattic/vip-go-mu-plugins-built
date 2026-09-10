@@ -7,6 +7,8 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 __( "More details follow." );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
@@ -22,8 +24,10 @@ __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: accessibility text */
 __( "(opens in a new tab)", "jetpack-components" );
+__( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
+__( "Dismiss", "jetpack-components" );
 __( "What is GEO?", "jetpack-seo" );
 __( "GEO stands for generative engine optimization. These settings control how AI sees and uses your site.", "jetpack-seo" );
 __( "Overview", "jetpack-seo" );
@@ -188,6 +192,8 @@ __( "Enable site verification", "jetpack-seo" );
 __( "Adds your saved verification codes to the site so supported services can confirm ownership.", "jetpack-seo" );
 __( "Publishes a map of your posts and pages so search engines can find your content.", "jetpack-seo" );
 __( "Allow search engines to index this site to generate a sitemap.", "jetpack-seo" );
+__( "Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.", "jetpack-seo" );
+__( "Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.", "jetpack-seo" );
 __( "View sitemap", "jetpack-seo" );
 __( "Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.", "jetpack-seo" );
 __( "Unable to load settings.", "jetpack-seo" );
@@ -197,7 +203,6 @@ __( "Home page description", "jetpack-seo" );
 _n( "%d character", "%d characters", 1, "jetpack-seo" );
 __( "Site visibility", "jetpack-seo" );
 __( "Allow search engines to index this site", "jetpack-seo" );
-__( "Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.", "jetpack-seo" );
 __( "Generate an XML sitemap", "jetpack-seo" );
 __( "Canonical URLs", "jetpack-seo" );
 __( "Add canonical URLs to archive pages", "jetpack-seo" );

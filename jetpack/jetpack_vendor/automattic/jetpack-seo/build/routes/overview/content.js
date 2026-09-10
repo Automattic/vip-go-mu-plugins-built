@@ -7,6 +7,8 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
 __( "Dismiss" );
@@ -21,8 +23,10 @@ __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: accessibility text */
 __( "(opens in a new tab)", "jetpack-components" );
+__( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
+__( "Dismiss", "jetpack-components" );
 __( "What is GEO?", "jetpack-seo" );
 __( "GEO stands for generative engine optimization. These settings control how AI sees and uses your site.", "jetpack-seo" );
 __( "Overview", "jetpack-seo" );

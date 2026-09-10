@@ -1789,6 +1789,11 @@ To start using the **Jetpack AI Assistant**, type `/AI` in the block editor.',
     array (
       'defaultStylePicker' => false,
       'html' => false,
+      'align' => 
+      array (
+        0 => 'wide',
+        1 => 'full',
+      ),
     ),
     'attributes' => 
     array (

@@ -7,6 +7,8 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
 __( "Dismiss" );
@@ -19,6 +21,7 @@ __( "An Automattic Airline", "jetpack-components" );
 __( "Products", "jetpack-components" );
 __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
+__( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
 __( "What is GEO?", "jetpack-seo" );
@@ -61,3 +64,4 @@ __( "To enable, allow search engines to index this site under <link>Settings</li
 __( "View your llms.txt", "jetpack-seo" );
 __( "AI SEO Enhancer", "jetpack-seo" );
 __( "Automatically generate SEO title, SEO description, and image alt text for new posts", "jetpack-seo" );
+__( "AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.", "jetpack-seo" );

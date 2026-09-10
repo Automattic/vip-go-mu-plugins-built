@@ -9,20 +9,12 @@
 __( "Today", "jetpack-premium-analytics-pkg" );
 __( "Yesterday", "jetpack-premium-analytics-pkg" );
 __( "Last 24 hours", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Last 24 hours". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-_x( "24H", "short date range preset", "jetpack-premium-analytics-pkg" );
 __( "Last 7 days", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Last 7 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-_x( "7D", "short date range preset", "jetpack-premium-analytics-pkg" );
 __( "Last 30 days", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Last 30 days". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-_x( "30D", "short date range preset", "jetpack-premium-analytics-pkg" );
 __( "Last 90 days", "jetpack-premium-analytics-pkg" );
 __( "Last 365 days", "jetpack-premium-analytics-pkg" );
 __( "Last month", "jetpack-premium-analytics-pkg" );
 __( "Last 12 months", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Last 12 months". Shown in a segmented control too narrow for the full label, so keep it as short as the language allows. */
-_x( "12M", "short date range preset", "jetpack-premium-analytics-pkg" );
 __( "Last year", "jetpack-premium-analytics-pkg" );
 __( "The response is not a valid JSON response.", "jetpack-premium-analytics-pkg" );
 /* translators: %d: HTTP status code. */
@@ -38,3 +30,5 @@ _x( "Unsubscribe", "Email link type", "jetpack-premium-analytics-pkg" );
 __( "Other", "jetpack-premium-analytics-pkg" );
 _x( "Other", "Email link type", "jetpack-premium-analytics-pkg" );
 __( "Unknown", "jetpack-premium-analytics-pkg" );
+__( "Widget modules", "jetpack-premium-analytics-pkg" );
+__( "Dashboard sections", "jetpack-premium-analytics-pkg" );

@@ -6,12 +6,10 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Metrics", "jetpack-premium-analytics-pkg" );
 __( "Posts", "jetpack-premium-analytics-pkg" );
 __( "Words", "jetpack-premium-analytics-pkg" );
 __( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
-__( "We couldn't load annual highlights. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "We couldn't load your year in review. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No highlights to show yet.", "jetpack-premium-analytics-pkg" );
-__( "Select at least one metric to display.", "jetpack-premium-analytics-pkg" );
+__( "No highlights for this year.", "jetpack-premium-analytics-pkg" );

@@ -7,8 +7,13 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+__( "Close", "jetpack-videopress-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
+__( "Sections", "jetpack-videopress-pkg" );
 __( "Jetpack Logo", "jetpack-videopress-pkg" );
 __( "An Automattic Airline", "jetpack-videopress-pkg" );
 /* translators: %1$s is button label 1 and %2$s is button label 2 */
@@ -33,11 +38,37 @@ __( "Help", "jetpack-videopress-pkg" );
 __( "Jetpack", "jetpack-videopress-pkg" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
+/* translators: %s: the error. */
+__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
+__( "Loading…", "jetpack-videopress-pkg" );
+__( "Restore Connection", "jetpack-videopress-pkg" );
+__( "A connection check failed.", "jetpack-videopress-pkg" );
+__( "Take Action", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
 __( "Library", "jetpack-videopress-pkg" );
 __( "Stats", "jetpack-videopress-pkg" );
 __( "Settings", "jetpack-videopress-pkg" );
+__( "You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.", "jetpack-videopress-pkg" );
+__( "You’ve reached the free plan’s 1-video limit. Upgrade to upload more.", "jetpack-videopress-pkg" );
+__( "Upgrade", "jetpack-videopress-pkg" );
+__( "Only video files can be uploaded.", "jetpack-videopress-pkg" );
+/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
+_n( "%d video wasn’t uploaded because it exceeds your plan’s limit.", "%d videos weren’t uploaded because they exceed your plan’s limit.", 1, "jetpack-videopress-pkg" );
+__( "What VideoPress does", "jetpack-videopress-pkg" );
+__( "A player you own", "jetpack-videopress-pkg" );
+__( "No ads, no logos, and nothing recommended afterwards.", "jetpack-videopress-pkg" );
+__( "Bring existing videos", "jetpack-videopress-pkg" );
+__( "Move library videos over in one click, no re-uploads.", "jetpack-videopress-pkg" );
+__( "Share it anywhere", "jetpack-videopress-pkg" );
+__( "Every video gets a link and an embed that work off-site.", "jetpack-videopress-pkg" );
+__( "Your Video. Your Player.", "jetpack-videopress-pkg" );
+__( "The same ad-free player every video on your site will use — your visitors stay on your site, and VideoPress handles the hosting and streaming. Upload one to see it live.", "jetpack-videopress-pkg" );
+/* translators: %d: number of local videos in the media library. */
+_n( "Move %d video over", "Move %d videos over", 1, "jetpack-videopress-pkg" );
+__( "Learn more", "jetpack-videopress-pkg" );
+__( "Upload a video", "jetpack-videopress-pkg" );
 __( "Host, manage, customize, and track your videos — all in one place.", "jetpack-videopress-pkg" );
-__( "A connection check failed.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
 __( "Connecting…", "jetpack-videopress-pkg" );
@@ -55,3 +86,5 @@ __( "This follows your site’s Privacy setting. To change who can view your vid
 __( "Private videos won't play for signed-out visitors.", "jetpack-videopress-pkg" );
 __( "Automatically generate subtitles for new videos", "jetpack-videopress-pkg" );
 __( "When enabled, subtitles are generated automatically for videos uploaded to this site. Existing subtitles are not affected.", "jetpack-videopress-pkg" );
+__( "Preload video data when pages load", "jetpack-videopress-pkg" );
+__( "When enabled, embedded videos fetch their metadata and seek-bar preview thumbnails as the page loads. Turn it off to reduce page weight on pages with many videos; each video then loads its data when playback starts.", "jetpack-videopress-pkg" );

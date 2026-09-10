@@ -6,6 +6,27 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-forms" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-forms" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s", "jetpack-forms" );
+__( "Date calendar", "jetpack-forms" );
+__( "Date range calendar", "jetpack-forms" );
+__( "Navigation bar", "jetpack-forms" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s", "jetpack-forms" );
+__( "Next month", "jetpack-forms" );
+__( "Previous month", "jetpack-forms" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected", "jetpack-forms" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected", "jetpack-forms" );
+__( "Required", "jetpack-forms" );
+__( "Optional", "jetpack-forms" );
+__( "More details follow the field.", "jetpack-forms" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-forms" );
 __( "Sort ascending", "jetpack-forms" );
 __( "Sort descending", "jetpack-forms" );
 __( "(no title)", "jetpack-forms" );
@@ -44,6 +65,7 @@ __( "Density", "jetpack-forms" );
 _x( "Comfortable", "Density option for DataView layout", "jetpack-forms" );
 _x( "Balanced", "Density option for DataView layout", "jetpack-forms" );
 _x( "Compact", "Density option for DataView layout", "jetpack-forms" );
+__( "Original aspect ratio", "jetpack-forms" );
 __( "Preview size", "jetpack-forms" );
 __( "Table", "jetpack-forms" );
 __( "Grid", "jetpack-forms" );
@@ -160,8 +182,6 @@ __( "Weeks ago", "jetpack-forms" );
 __( "Months ago", "jetpack-forms" );
 __( "Years ago", "jetpack-forms" );
 __( "Unit", "jetpack-forms" );
-__( "Required", "jetpack-forms" );
-__( "Optional", "jetpack-forms" );
 __( "Date time", "jetpack-forms" );
 __( "Today", "jetpack-forms" );
 __( "Yesterday", "jetpack-forms" );
@@ -179,6 +199,7 @@ __( "To", "jetpack-forms" );
 __( "The max. value must be greater than the min. value.", "jetpack-forms" );
 __( "Min.", "jetpack-forms" );
 __( "Max.", "jetpack-forms" );
+__( "The end time must be later than the start time.", "jetpack-forms" );
 __( "Open color picker", "jetpack-forms" );
 __( "Hide password", "jetpack-forms" );
 __( "Show password", "jetpack-forms" );
@@ -191,10 +212,7 @@ __( "Value must be true, false, or undefined", "jetpack-forms" );
 __( "Value must be an array.", "jetpack-forms" );
 __( "Every value must be a string.", "jetpack-forms" );
 __( "Value must be a valid color.", "jetpack-forms" );
-__( "Loading", "jetpack-forms" );
 __( "Close", "jetpack-forms" );
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-forms" );
 __( "Dismiss", "jetpack-forms" );
 __( "Akismet icon", "jetpack-forms" );
 __( "Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.", "jetpack-forms" );
@@ -244,6 +262,12 @@ __( "Which email list should contacts be added to?", "jetpack-forms" );
 __( "You do not have any MailPoet lists yet. Click the dashboard button below to create one, or contacts will be added to a \"Jetpack Forms Subscribers\" list.", "jetpack-forms" );
 __( "View dashboard", "jetpack-forms" );
 __( "Unknown error", "jetpack-forms" );
+/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
+__( "MM/DD/YYYY", "jetpack-forms" );
+/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
+__( "DD/MM/YYYY", "jetpack-forms" );
+/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
+__( "YYYY-MM-DD", "jetpack-forms" );
 __( "Create Salesforce lead form", "jetpack-forms" );
 __( "Enter a Salesforce Organization ID to enable.", "jetpack-forms" );
 __( "Configured per form", "jetpack-forms" );
@@ -271,10 +295,12 @@ __( "Manage integrations", "jetpack-forms" );
 __( "Untitled Form", "jetpack-forms" );
 __( "Name", "jetpack-forms" );
 __( "Save", "jetpack-forms" );
-__( "Create a form", "jetpack-forms" );
 __( "Create form", "jetpack-forms" );
 __( "Create", "jetpack-forms" );
 __( "Enter form title", "jetpack-forms" );
+__( "Opening the editor…", "jetpack-forms" );
+__( "Could not create the form. Please try again.", "jetpack-forms" );
+__( "Create a form", "jetpack-forms" );
 __( "Try adjusting your search or filters to find what you're looking for.", "jetpack-forms" );
 __( "All", "jetpack-forms" );
 __( "Published", "jetpack-forms" );
@@ -305,13 +331,13 @@ __( "Spam", "jetpack-forms" );
 _x( "Trash", "noun", "jetpack-forms" );
 __( "Forms", "jetpack-forms" );
 __( "Responses", "jetpack-forms" );
-__( "Not seeing all your forms?", "jetpack-forms" );
-__( "The Forms list shows reusable forms, not simple form blocks.", "jetpack-forms" );
-__( "To convert a form block to a reusable form:", "jetpack-forms" );
-__( "Open the page or post where your form block is embedded.", "jetpack-forms" );
-__( "Select the form block.", "jetpack-forms" );
-__( "Click \"Edit Form\" in the block toolbar to convert it.", "jetpack-forms" );
-__( "Save the page or post.", "jetpack-forms" );
+__( "Some forms may not appear here", "jetpack-forms" );
+__( "Forms you already added to pages or posts will continue to work. To add them to this list:", "jetpack-forms" );
+__( "Open the page or post", "jetpack-forms" );
+__( "Select the form", "jetpack-forms" );
+__( "Click <strong>Edit form</strong> in the toolbar", "jetpack-forms" );
+__( "Save the page or post", "jetpack-forms" );
+__( "You only need to do this once per form.", "jetpack-forms" );
 __( "Don't show this again", "jetpack-forms" );
 __( "Got it", "jetpack-forms" );
 __( "An Automattic Airline", "jetpack-forms" );
@@ -319,12 +345,7 @@ __( "Products", "jetpack-forms" );
 __( "Help", "jetpack-forms" );
 __( "Jetpack", "jetpack-forms" );
 __( "Breadcrumbs", "jetpack-forms" );
-/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 12/31/2023). */
-__( "MM/DD/YYYY", "jetpack-forms" );
-/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 31/12/2023). */
-__( "DD/MM/YYYY", "jetpack-forms" );
-/* translators: date format. DD is the day of the month, MM the month, and YYYY the year (e.g., 2023-12-31). */
-__( "YYYY-MM-DD", "jetpack-forms" );
+__( "Sections", "jetpack-forms" );
 __( "Could not load the form to duplicate. Please try again.", "jetpack-forms" );
 /* translators: %s: original form title */
 __( "%s Copy", "jetpack-forms" );
@@ -397,6 +418,7 @@ __( "Duplicate", "jetpack-forms" );
 __( "Form responses", "jetpack-forms" );
 __( "View and manage all your forms.", "jetpack-forms" );
 __( "View and manage all your forms in one place.", "jetpack-forms" );
+__( "Not seeing all your forms?", "jetpack-forms" );
 /* translators: %s: form name */
 __( "View responses for %s.", "jetpack-forms" );
 __( "View responses for this form.", "jetpack-forms" );

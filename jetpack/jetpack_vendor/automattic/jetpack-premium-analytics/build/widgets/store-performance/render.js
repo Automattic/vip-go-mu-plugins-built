@@ -20,5 +20,4 @@ __( "Customers", "jetpack-premium-analytics-pkg" );
 __( "Track the total number of customers (new and returning) who placed orders during the selected time period.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load store performance data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No metric selected. Please select a metric from the metrics list.", "jetpack-premium-analytics-pkg" );
 __( "Store metric", "jetpack-premium-analytics-pkg" );

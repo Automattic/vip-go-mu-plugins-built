@@ -6,5 +6,6 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Average order value", "jetpack-premium-analytics-pkg" );
 __( "No orders in this period.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load average order value. Please try again in a moment.", "jetpack-premium-analytics-pkg" );

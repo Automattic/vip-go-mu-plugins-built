@@ -152,8 +152,12 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_render_page() {
 	$menu_items = jetpack_activity_log_get_jetpack_activity_log_dashboard_menu_items();
 	$routes = jetpack_activity_log_get_jetpack_activity_log_dashboard_routes();
 
-	// Get boot module asset file for dependencies
+	// Get boot module asset file for dependencies. Plugins that build their own
+	// boot module use it; everyone else falls back to the copy bundled with Core.
 	$asset_file = __DIR__ . '/../../modules/boot/index.min.asset.php';
+	if ( ! file_exists( $asset_file ) ) {
+		$asset_file = ABSPATH . WPINC . '/js/dist/script-modules/boot/index.min.asset.php';
+	}
 	if ( file_exists( $asset_file ) ) {
 		$asset = require $asset_file;
 
@@ -278,7 +282,25 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_render_page() {
 	// END see wp-admin/admin-header.php
 	?>
 	</head>
-	<body class="jetpack-activity-log-dashboard">
+	<body class="jetpack-activity-log-dashboard no-js">
+	<?php
+	// BEGIN see wp-admin/admin-header.php
+	?>
+	<script type="text/javascript">
+		document.body.className = document.body.className.replace( 'no-js', 'js' );
+	</script>
+	<?php
+	// END see wp-admin/admin-header.php
+	?>
+		<div class="wrap hide-if-js" style="margin: 20px;">
+			<h1 class="wp-heading-inline"><?php echo esc_html( get_admin_page_title() ); ?></h1>
+			<?php
+			wp_admin_notice(
+				__( 'This screen requires JavaScript. Enable JavaScript in your browser settings and reload the page.' ),
+				array( 'type' => 'error' )
+			);
+			?>
+		</div>
 		<div id="jetpack-activity-log-dashboard-app" style="height: 100vh; box-sizing: border-box;"></div>
 	<?php
 	// BEGIN see wp-admin/admin-footer.php

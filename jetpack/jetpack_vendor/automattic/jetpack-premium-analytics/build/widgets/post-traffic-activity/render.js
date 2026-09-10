@@ -6,8 +6,8 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "No views", "jetpack-premium-analytics-pkg" );
+__( "No data", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this traffic activity. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Open a post or page report to see its traffic activity here.", "jetpack-premium-analytics-pkg" );
-__( "Older activity", "jetpack-premium-analytics-pkg" );
-__( "Newer activity", "jetpack-premium-analytics-pkg" );

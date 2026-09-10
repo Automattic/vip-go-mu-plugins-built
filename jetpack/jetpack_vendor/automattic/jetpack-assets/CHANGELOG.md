@@ -5,9 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.2] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [5.0.1] - 2026-09-01
+### Changed
+- Update dependencies. [#50674]
+
+## [5.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [4.4.11] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
 ## [4.4.10] - 2026-08-06
 ### Fixed
-- Script Data: decode HTML entities in the shared site title so consumers (e.g. the Newsletter Sender Settings panel) don't show literal entities like `&#039;` for site names containing an apostrophe or other special characters. [#50991]
+- Script Data: Decode HTML entities in the shared site title to avoid consumers seeing the encoded entities. [#50991]
 
 ## [4.4.9] - 2026-07-31
 ### Fixed
@@ -916,6 +932,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.2]: https://github.com/Automattic/jetpack-assets/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/Automattic/jetpack-assets/compare/v5.0.0...v5.0.1
+[5.0.0]: https://github.com/Automattic/jetpack-assets/compare/v4.4.11...v5.0.0
+[4.4.11]: https://github.com/Automattic/jetpack-assets/compare/v4.4.10...v4.4.11
 [4.4.10]: https://github.com/Automattic/jetpack-assets/compare/v4.4.9...v4.4.10
 [4.4.9]: https://github.com/Automattic/jetpack-assets/compare/v4.4.8...v4.4.9
 [4.4.8]: https://github.com/Automattic/jetpack-assets/compare/v4.4.7...v4.4.8

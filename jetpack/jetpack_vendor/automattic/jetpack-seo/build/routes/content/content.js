@@ -7,6 +7,8 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
 __( "We couldn’t load this page", "jetpack-seo" );
@@ -18,6 +20,7 @@ __( "An Automattic Airline", "jetpack-components" );
 __( "Products", "jetpack-components" );
 __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
+__( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
 __( "What is GEO?", "jetpack-seo" );
@@ -31,6 +34,22 @@ __( "Could not enable SEO tools. Please try again.", "jetpack-seo" );
 __( "Could not disable SEO tools. Please try again.", "jetpack-seo" );
 __( "Enable SEO tools", "jetpack-seo" );
 __( "SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.", "jetpack-seo" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s" );
+__( "Date calendar" );
+__( "Date range calendar" );
+__( "Navigation bar" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s" );
+__( "Next month" );
+__( "Previous month" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected" );
+__( "Required" );
+__( "Optional" );
+__( "More details follow the field." );
 __( "Sort ascending" );
 __( "Sort descending" );
 __( "(no title)" );
@@ -69,6 +88,7 @@ __( "Density" );
 _x( "Comfortable", "Density option for DataView layout" );
 _x( "Balanced", "Density option for DataView layout" );
 _x( "Compact", "Density option for DataView layout" );
+__( "Original aspect ratio" );
 __( "Preview size" );
 __( "Table" );
 __( "Grid" );
@@ -185,8 +205,6 @@ __( "Weeks ago" );
 __( "Months ago" );
 __( "Years ago" );
 __( "Unit" );
-__( "Required" );
-__( "Optional" );
 __( "Date time" );
 __( "Today" );
 __( "Yesterday" );
@@ -204,6 +222,7 @@ __( "To" );
 __( "The max. value must be greater than the min. value." );
 __( "Min." );
 __( "Max." );
+__( "The end time must be later than the start time." );
 __( "Open color picker" );
 __( "Hide password" );
 __( "Show password" );

@@ -6,5 +6,162 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Widget modules", "jetpack-premium-analytics-pkg" );
-__( "Dashboard sections", "jetpack-premium-analytics-pkg" );
+__( "Previous month", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years covered by the selected date range. */
+_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months covered by the selected date range. */
+_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous hour", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours covered by the selected date range. */
+_n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous day", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days covered by the selected date range. */
+_n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
+__( "Same period from last week", "jetpack-premium-analytics-pkg" );
+/* translators: %s: name of the month the comparison period starts in, e.g. "July". */
+_x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
+/* translators: %s: the year the comparison period starts in, e.g. "2025". */
+_x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. week", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period in <month>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. month", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
+__( "Authors", "jetpack-premium-analytics-pkg" );
+__( "Authors report", "jetpack-premium-analytics-pkg" );
+__( "Posts & Pages", "jetpack-premium-analytics-pkg" );
+__( "Posts & Pages report", "jetpack-premium-analytics-pkg" );
+__( "Countries", "jetpack-premium-analytics-pkg" );
+__( "Countries report", "jetpack-premium-analytics-pkg" );
+__( "Regions", "jetpack-premium-analytics-pkg" );
+__( "Regions report", "jetpack-premium-analytics-pkg" );
+__( "Cities", "jetpack-premium-analytics-pkg" );
+__( "Cities report", "jetpack-premium-analytics-pkg" );
+__( "Archives", "jetpack-premium-analytics-pkg" );
+__( "Archives report", "jetpack-premium-analytics-pkg" );
+__( "Source / Medium", "jetpack-premium-analytics-pkg" );
+__( "Source / Medium report", "jetpack-premium-analytics-pkg" );
+__( "Campaign / Source / Medium", "jetpack-premium-analytics-pkg" );
+__( "Campaign / Source / Medium report", "jetpack-premium-analytics-pkg" );
+__( "Source", "jetpack-premium-analytics-pkg" );
+__( "Source report", "jetpack-premium-analytics-pkg" );
+__( "Medium", "jetpack-premium-analytics-pkg" );
+__( "Medium report", "jetpack-premium-analytics-pkg" );
+__( "Campaign", "jetpack-premium-analytics-pkg" );
+__( "Campaign report", "jetpack-premium-analytics-pkg" );
+__( "Year", "jetpack-premium-analytics-pkg" );
+__( "Total posts", "jetpack-premium-analytics-pkg" );
+__( "Total comments", "jetpack-premium-analytics-pkg" );
+__( "Avg comments per post", "jetpack-premium-analytics-pkg" );
+__( "Total likes", "jetpack-premium-analytics-pkg" );
+__( "Avg likes per post", "jetpack-premium-analytics-pkg" );
+__( "Total words", "jetpack-premium-analytics-pkg" );
+__( "Avg words per post", "jetpack-premium-analytics-pkg" );
+__( "Total images", "jetpack-premium-analytics-pkg" );
+__( "Avg images per post", "jetpack-premium-analytics-pkg" );
+__( "Unable to load annual insights", "jetpack-premium-analytics-pkg" );
+__( "Search annual insights", "jetpack-premium-analytics-pkg" );
+__( "Untracked authors", "jetpack-premium-analytics-pkg" );
+__( "Author / post", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the author name */
+__( "Avatar of %s", "jetpack-premium-analytics-pkg" );
+__( "Views", "jetpack-premium-analytics-pkg" );
+__( "Unable to load authors", "jetpack-premium-analytics-pkg" );
+__( "Search authors", "jetpack-premium-analytics-pkg" );
+__( "Post", "jetpack-premium-analytics-pkg" );
+__( "Subscribers", "jetpack-premium-analytics-pkg" );
+__( "URL", "jetpack-premium-analytics-pkg" );
+__( "Unable to load subscribers", "jetpack-premium-analytics-pkg" );
+__( "All Posts", "jetpack-premium-analytics-pkg" );
+__( "Search posts", "jetpack-premium-analytics-pkg" );
+__( "No subscribers", "jetpack-premium-analytics-pkg" );
+__( "Clicked URL", "jetpack-premium-analytics-pkg" );
+__( "Clicks", "jetpack-premium-analytics-pkg" );
+__( "Group", "jetpack-premium-analytics-pkg" );
+__( "Unable to load clicks", "jetpack-premium-analytics-pkg" );
+__( "Search clicked URLs", "jetpack-premium-analytics-pkg" );
+__( "Name", "jetpack-premium-analytics-pkg" );
+__( "Comments", "jetpack-premium-analytics-pkg" );
+__( "Unable to load comments", "jetpack-premium-analytics-pkg" );
+__( "Search comments", "jetpack-premium-analytics-pkg" );
+__( "File", "jetpack-premium-analytics-pkg" );
+__( "Downloads", "jetpack-premium-analytics-pkg" );
+__( "Unable to load file downloads", "jetpack-premium-analytics-pkg" );
+__( "Search files", "jetpack-premium-analytics-pkg" );
+__( "Email", "jetpack-premium-analytics-pkg" );
+__( "Sent", "jetpack-premium-analytics-pkg" );
+__( "Opens", "jetpack-premium-analytics-pkg" );
+__( "Open rate", "jetpack-premium-analytics-pkg" );
+__( "Click rate", "jetpack-premium-analytics-pkg" );
+__( "Unable to load emails", "jetpack-premium-analytics-pkg" );
+__( "Search emails", "jetpack-premium-analytics-pkg" );
+__( "Country", "jetpack-premium-analytics-pkg" );
+__( "Location", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the country name. */
+__( "Flag of %s", "jetpack-premium-analytics-pkg" );
+__( "Unable to load locations", "jetpack-premium-analytics-pkg" );
+__( "Search locations", "jetpack-premium-analytics-pkg" );
+__( "Title", "jetpack-premium-analytics-pkg" );
+__( "Categories", "jetpack-premium-analytics-pkg" );
+__( "Error", "jetpack-premium-analytics-pkg" );
+__( "Homepage (Latest posts)", "jetpack-premium-analytics-pkg" );
+__( "Searches", "jetpack-premium-analytics-pkg" );
+__( "Tags", "jetpack-premium-analytics-pkg" );
+__( "Taxonomies", "jetpack-premium-analytics-pkg" );
+__( "Dates", "jetpack-premium-analytics-pkg" );
+__( "Aggregated", "jetpack-premium-analytics-pkg" );
+__( "Others", "jetpack-premium-analytics-pkg" );
+__( "Post types", "jetpack-premium-analytics-pkg" );
+__( "Untitled", "jetpack-premium-analytics-pkg" );
+__( "Search archives", "jetpack-premium-analytics-pkg" );
+__( "Unable to load posts", "jetpack-premium-analytics-pkg" );
+__( "Search term", "jetpack-premium-analytics-pkg" );
+__( "Unknown search terms", "jetpack-premium-analytics-pkg" );
+__( "Unable to load search terms", "jetpack-premium-analytics-pkg" );
+__( "Search terms", "jetpack-premium-analytics-pkg" );
+__( "Tag or category", "jetpack-premium-analytics-pkg" );
+__( "Unable to load tags and categories", "jetpack-premium-analytics-pkg" );
+__( "Search tags and categories", "jetpack-premium-analytics-pkg" );
+__( "Untitled video", "jetpack-premium-analytics-pkg" );
+__( "Video", "jetpack-premium-analytics-pkg" );
+__( "Plays", "jetpack-premium-analytics-pkg" );
+__( "Impressions", "jetpack-premium-analytics-pkg" );
+__( "Video ID", "jetpack-premium-analytics-pkg" );
+__( "Watch time (hours)", "jetpack-premium-analytics-pkg" );
+__( "Retention rate (%)", "jetpack-premium-analytics-pkg" );
+__( "Unable to load videos", "jetpack-premium-analytics-pkg" );
+__( "Search videos", "jetpack-premium-analytics-pkg" );
+__( "Unable to load UTM data", "jetpack-premium-analytics-pkg" );
+__( "Search UTM values", "jetpack-premium-analytics-pkg" );
+__( "Referrer", "jetpack-premium-analytics-pkg" );
+__( "Unable to load referrers", "jetpack-premium-analytics-pkg" );
+__( "Search referrers", "jetpack-premium-analytics-pkg" );
+__( "Annual insights", "jetpack-premium-analytics-pkg" );
+__( "Annual insights report", "jetpack-premium-analytics-pkg" );
+__( "Top authors", "jetpack-premium-analytics-pkg" );
+__( "Top authors report", "jetpack-premium-analytics-pkg" );
+__( "Comments Subscribers", "jetpack-premium-analytics-pkg" );
+__( "Comments Subscribers report", "jetpack-premium-analytics-pkg" );
+__( "Clicks report", "jetpack-premium-analytics-pkg" );
+__( "All comments", "jetpack-premium-analytics-pkg" );
+__( "All comments report", "jetpack-premium-analytics-pkg" );
+__( "File downloads", "jetpack-premium-analytics-pkg" );
+__( "File downloads report", "jetpack-premium-analytics-pkg" );
+__( "Emails", "jetpack-premium-analytics-pkg" );
+__( "Emails report", "jetpack-premium-analytics-pkg" );
+__( "All locations", "jetpack-premium-analytics-pkg" );
+__( "All locations report", "jetpack-premium-analytics-pkg" );
+__( "All pages", "jetpack-premium-analytics-pkg" );
+__( "All pages report", "jetpack-premium-analytics-pkg" );
+__( "Search terms report", "jetpack-premium-analytics-pkg" );
+__( "Tags & categories", "jetpack-premium-analytics-pkg" );
+__( "Tags & categories report", "jetpack-premium-analytics-pkg" );
+__( "Videos", "jetpack-premium-analytics-pkg" );
+__( "Videos report", "jetpack-premium-analytics-pkg" );
+__( "All UTM values", "jetpack-premium-analytics-pkg" );
+__( "All UTM values report", "jetpack-premium-analytics-pkg" );
+__( "Referrers", "jetpack-premium-analytics-pkg" );
+__( "Referrers report", "jetpack-premium-analytics-pkg" );

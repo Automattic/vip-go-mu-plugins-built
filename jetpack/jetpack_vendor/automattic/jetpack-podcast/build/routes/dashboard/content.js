@@ -7,10 +7,13 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 __( "More details follow the field." );
 __( "Select" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
+__( "Sections" );
 __( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
 __( "Go back", "jetpack-components" );
@@ -20,10 +23,33 @@ __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s" );
+__( "Date calendar" );
+__( "Date range calendar" );
+__( "Navigation bar" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s" );
+__( "Next month" );
+__( "Previous month" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected" );
 __( "Saving…", "jetpack-podcast" );
 __( "Settings saved.", "jetpack-podcast" );
 __( "Could not save your podcast settings. Please try again.", "jetpack-podcast" );
 __( "Podcast settings", "jetpack-podcast" );
+__( "Choose a post category to use as your podcast feed.", "jetpack-podcast" );
+__( "Add a podcast title.", "jetpack-podcast" );
+__( "Write a short summary so listeners know what your show is about.", "jetpack-podcast" );
+__( "Set the host, artist, or producer name.", "jetpack-podcast" );
+__( "Add an owner email address so podcast directories can reach you.", "jetpack-podcast" );
+__( "Pick at least one podcast topic.", "jetpack-podcast" );
+__( "Upload a cover image at least 1400×1400 pixels.", "jetpack-podcast" );
+__( "Publish at least one episode.", "jetpack-podcast" );
+__( "Cover image must be a PNG or JPG.", "jetpack-podcast" );
+__( "Cover image must be at least 1400×1400 pixels on its smaller side.", "jetpack-podcast" );
 __( "Reach listeners in every app", "jetpack-podcast" );
 __( "One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.", "jetpack-podcast" );
 __( "One home for writing, email, and audio", "jetpack-podcast" );
@@ -73,16 +99,6 @@ __( "Set up your podcast", "jetpack-podcast" );
 __( "Select a post category for your podcast", "jetpack-podcast" );
 __( "Posts in the category you choose become episodes in your podcast feed. You can change this later in Settings.", "jetpack-podcast" );
 __( "Confirm", "jetpack-podcast" );
-__( "Choose a post category to use as your podcast feed.", "jetpack-podcast" );
-__( "Add a podcast title.", "jetpack-podcast" );
-__( "Write a short summary so listeners know what your show is about.", "jetpack-podcast" );
-__( "Set the host, artist, or producer name.", "jetpack-podcast" );
-__( "Add an owner email address so podcast directories can reach you.", "jetpack-podcast" );
-__( "Pick at least one podcast topic.", "jetpack-podcast" );
-__( "Upload a cover image at least 1400×1400 pixels.", "jetpack-podcast" );
-__( "Publish at least one episode.", "jetpack-podcast" );
-__( "Cover image must be a PNG or JPG.", "jetpack-podcast" );
-__( "Cover image must be at least 1400×1400 pixels on its smaller side.", "jetpack-podcast" );
 __( "Change cover", "jetpack-podcast" );
 __( "Set cover image", "jetpack-podcast" );
 __( "No image set", "jetpack-podcast" );
@@ -219,11 +235,15 @@ __( "These topics have subtopics. Picking one helps Apple Podcasts and other dir
 __( "Explicit content", "jetpack-podcast" );
 __( "Owner email address", "jetpack-podcast" );
 __( "Included in your feed so podcast directories can verify ownership. Most require it for submission.", "jetpack-podcast" );
+__( "Episodes in feed", "jetpack-podcast" );
+__( "How many of your most recent episodes the feed includes.", "jetpack-podcast" );
 __( "Stop publishing your podcast", "jetpack-podcast" );
 __( "Stops publishing your podcast feed. Your show details stay saved, so you can set it up again later.", "jetpack-podcast" );
 __( "Stop publishing", "jetpack-podcast" );
 __( "Stop publishing your podcast?", "jetpack-podcast" );
 __( "Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can start publishing again at any time.", "jetpack-podcast" );
+__( "Required" );
+__( "Optional" );
 __( "Sort ascending" );
 __( "Sort descending" );
 __( "(no title)" );
@@ -262,6 +282,7 @@ __( "Density" );
 _x( "Comfortable", "Density option for DataView layout" );
 _x( "Balanced", "Density option for DataView layout" );
 _x( "Compact", "Density option for DataView layout" );
+__( "Original aspect ratio" );
 __( "Preview size" );
 __( "Table" );
 __( "Grid" );
@@ -378,8 +399,6 @@ __( "Days ago" );
 __( "Weeks ago" );
 __( "Months ago" );
 __( "Years ago" );
-__( "Required" );
-__( "Optional" );
 __( "Date time" );
 __( "Custom" );
 __( "Date" );
@@ -397,6 +416,7 @@ __( "Year to date" );
 __( "The max. value must be greater than the min. value." );
 __( "Min." );
 __( "Max." );
+__( "The end time must be later than the start time." );
 __( "Open color picker" );
 __( "Hide password" );
 __( "Show password" );
@@ -439,19 +459,24 @@ __( "Edit", "jetpack-podcast" );
 __( "View", "jetpack-podcast" );
 __( "Set a post category in your podcasting settings to start showing episodes here.", "jetpack-podcast" );
 __( "Couldn't load play counts and duration. The values below may be missing or out of date.", "jetpack-podcast" );
-__( "We couldn’t reach Pocket Casts right now. Please try again.", "jetpack-podcast" );
-__( "Submitted", "jetpack-podcast" );
 __( "Pending", "jetpack-podcast" );
-__( "Submit to Pocket Casts", "jetpack-podcast" );
-/* translators: %s: podcast directory name. */
-__( "Submit to %s", "jetpack-podcast" );
-__( "We’ll send your podcast feed to Pocket Casts. Most submissions go live within a few minutes.", "jetpack-podcast" );
-__( "Set your post category in the Settings tab to generate your RSS feed before submitting.", "jetpack-podcast" );
-__( "View on Pocket Casts", "jetpack-podcast" );
+__( "Submitted", "jetpack-podcast" );
+__( "Set up", "jetpack-podcast" );
+__( "View show", "jetpack-podcast" );
+__( "Status:", "jetpack-podcast" );
+/* translators: %s: directory name (Pocket Casts, Apple Podcasts, etc.). Must start with the button's visible "View show" label so voice control can match it. */
+__( "View show on %s (opens in a new tab)", "jetpack-podcast" );
+/* translators: 1: directory name (Apple Podcasts, Spotify, etc.). 2: reason the Set up button is disabled. */
+__( "Set up %1$s. %2$s", "jetpack-podcast" );
+__( "We couldn’t reach Pocket Casts right now. Please try again.", "jetpack-podcast" );
+__( "Submit", "jetpack-podcast" );
+__( "Connect this site to WordPress.com first", "jetpack-podcast" );
+__( "Your podcast was sent to Pocket Casts.", "jetpack-podcast" );
+/* translators: 1: directory name (Pocket Casts). 2: reason the Submit button is disabled. */
+__( "Submit to %1$s. %2$s", "jetpack-podcast" );
 __( "Connect this site to WordPress.com to submit your podcast to Pocket Casts.", "jetpack-podcast" );
 __( "Connect Jetpack", "jetpack-podcast" );
 __( "Pocket Casts could not accept this feed.", "jetpack-podcast" );
-__( "Submitting…", "jetpack-podcast" );
 /* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 __( "Your %s URL is too long.", "jetpack-podcast" );
 /* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
@@ -460,6 +485,8 @@ __( "Enter a valid %s URL.", "jetpack-podcast" );
 __( "We couldn’t save your %s URL. Please try again.", "jetpack-podcast" );
 __( "Copied!", "jetpack-podcast" );
 __( "Copy link", "jetpack-podcast" );
+/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
+__( "Submit to %s", "jetpack-podcast" );
 __( "Step 1: Copy your RSS feed URL", "jetpack-podcast" );
 /* translators: %s: podcast directory name. */
 __( "Click the button below to copy your RSS feed URL. %s will require this URL to list your podcast.", "jetpack-podcast" );
@@ -484,59 +511,52 @@ __( "Replace", "jetpack-podcast" );
 /* translators: %s: podcast directory name. */
 __( "%s URL", "jetpack-podcast" );
 __( "Save", "jetpack-podcast" );
-__( "Status:", "jetpack-podcast" );
+__( "Checking your podcast setup…", "jetpack-podcast" );
+__( "Set a post category in Settings first", "jetpack-podcast" );
+__( "Add a podcast title in Settings first", "jetpack-podcast" );
 __( "Podcast RSS feed URL", "jetpack-podcast" );
-__( "Almost ready to submit", "jetpack-podcast" );
+/* translators: %d: number of remaining setup steps before podcast directory submission is unlocked. */
+_n( "%d step left before you can submit", "%d steps left before you can submit", 1, "jetpack-podcast" );
+/* translators: %d: number of unfinished podcast setup steps. */
+_n( "%d step left to finish your podcast setup", "%d steps left to finish your podcast setup", 1, "jetpack-podcast" );
 __( "Edit settings", "jetpack-podcast" );
-__( "RSS feed", "jetpack-podcast" );
-__( "Copy this URL, then submit it to each directory below to publish your podcast.", "jetpack-podcast" );
+__( "Submit your podcast to the most popular podcast apps so people can find and follow it.", "jetpack-podcast" );
+__( "Automatic submission", "jetpack-podcast" );
+__( "We submit your feed for you. It usually goes live within a few minutes.", "jetpack-podcast" );
+__( "Manual submission", "jetpack-podcast" );
+__( "Copy this URL, then submit it to each directory below yourself.", "jetpack-podcast" );
 __( "Set your post category to generate the feed URL you can submit to directories.", "jetpack-podcast" );
-__( "Podcast directories", "jetpack-podcast" );
-__( "Submit your podcast to the directories below where you want it to appear. Most take a few days to go live.", "jetpack-podcast" );
-/* translators: %s is the directory name (Apple Podcasts, Spotify, etc.). */
-__( "Submit to %s (finish setting up your podcast first).", "jetpack-podcast" );
-__( "Submit", "jetpack-podcast" );
-__( "Date calendar" );
-__( "Date range calendar" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s" );
-__( "Go to the Next Month" );
-__( "Go to the Previous Month" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "%s, selected" );
-__( "Start date" );
-__( "End date" );
-/* translators: %1$s: start date, %2$s: end date */
-__( "%1$s to %2$s" );
-__( "Last 90 days" );
-__( "Last 12 months" );
-__( "Last 3 years" );
-__( "Date range presets" );
-__( "default range" );
-__( "Date Range" );
-__( "Clear" );
-/* translators: %s is the preset label, e.g. 'Last 30 days' */
-__( "Apply %s" );
-/* translators: %s is the preset label, e.g. 'Last 30 days' */
-__( "Apply" );
-__( "Select a date range" );
-/* Translators: %s: date range label */
-__( "Date range: %s. Activate to open calendar." );
 __( "Last 7 days", "jetpack-podcast" );
 __( "Last 30 days", "jetpack-podcast" );
 __( "Last 90 days", "jetpack-podcast" );
 __( "Last 12 months", "jetpack-podcast" );
 __( "All time", "jetpack-podcast" );
+/* translators: %1$s: start date, %2$s: end date */
+__( "%1$s to %2$s", "jetpack-podcast" );
+__( "Today", "jetpack-podcast" );
+__( "Yesterday", "jetpack-podcast" );
+__( "Month to date", "jetpack-podcast" );
+__( "Year to date", "jetpack-podcast" );
+__( "Select a date range", "jetpack-podcast" );
+__( "Date range presets", "jetpack-podcast" );
 __( "Reset zoom", "jetpack-charts" );
 __( "Current period", "jetpack-charts" );
 __( "Previous period", "jetpack-charts" );
+_x( "%1$s, %2$s", "legend item label and value", "jetpack-charts" );
+_x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-charts" );
+_x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-charts" );
+_x( "%s: hidden", "hidden non-interactive legend item", "jetpack-charts" );
+_x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-charts" );
+_x( "All segments are hidden.", "chart empty state: segments", "jetpack-charts" );
+_x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-charts" );
+_x( "All series are hidden.", "chart empty state: series", "jetpack-charts" );
 __( "View details", "jetpack-charts" );
 __( "Close", "jetpack-charts" );
 __( "Line chart", "jetpack-charts" );
-__( "All series are hidden. Click legend items to show data.", "jetpack-charts" );
 __( "No data available", "jetpack-charts" );
 __( "Invalid data", "jetpack-charts" );
 __( "Area chart", "jetpack-charts" );
+__( "Week of %s", "jetpack-charts" );
 __( "%1$s: %2$s", "jetpack-charts" );
 __( "Bar chart", "jetpack-charts" );
 __( "Loading map", "jetpack-charts" );
@@ -548,7 +568,6 @@ __( "Loading…", "jetpack-charts" );
 __( "Not enough space to display data", "jetpack-charts" );
 __( "Percentage change unavailable", "jetpack-charts" );
 __( "No comparison data", "jetpack-charts" );
-__( "All segments are hidden. Click legend items to show data.", "jetpack-charts" );
 __( "By app", "jetpack-podcast" );
 __( "No app data in this period.", "jetpack-podcast" );
 /* translators: 1: localized download count, 2: localized percentage. */

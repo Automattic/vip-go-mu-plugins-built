@@ -8,6 +8,8 @@
 
 __( "A connection check failed.", "jetpack-newsletter" );
 __( "Loading", "jetpack-newsletter" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-newsletter" );
 __( "OK", "jetpack-newsletter" );
 __( "Cancel", "jetpack-newsletter" );
 __( "Close", "jetpack-newsletter" );
@@ -15,6 +17,7 @@ __( "More details follow.", "jetpack-newsletter" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-newsletter" );
 __( "Dismiss", "jetpack-newsletter" );
+__( "Sections", "jetpack-newsletter" );
 __( "Jetpack Logo", "jetpack-newsletter" );
 __( "An Automattic Airline", "jetpack-newsletter" );
 __( "Edit your profile →", "jetpack-newsletter" );
@@ -57,6 +60,9 @@ _n( "%d subscriber imported.", "%d subscribers imported.", 1, "jetpack-newslette
 /* translators: %d: number of email addresses that were already subscribed. */
 _n( "%d email address is already subscribed.", "%d email addresses are already subscribed.", 1, "jetpack-newsletter" );
 __( "Your subscribers have been imported.", "jetpack-newsletter" );
+__( "Every newsletter starts at one", "jetpack-newsletter" );
+__( "Yours is no exception. Add a few people who already know you: <who>friends, family, coworkers</who>.", "jetpack-newsletter" );
+_x( "Got it", "dismiss button", "jetpack-newsletter" );
 __( "Add subscribers", "jetpack-newsletter" );
 __( "More options", "jetpack-newsletter" );
 __( "Download as CSV", "jetpack-newsletter" );
@@ -65,6 +71,9 @@ _n( "Importing %d subscriber. This may take a few minutes.", "Importing %d subsc
 __( "Import cancelled.", "jetpack-newsletter" );
 __( "Imports of more than 10,000 subscribers will go through a manual review before being added to your site.", "jetpack-newsletter" );
 __( "By clicking “Add subscribers,” you represent that you’ve obtained the appropriate consent to email each person. Spam complaints or high bounce rate from your subscribers may lead to action against your account.", "jetpack-newsletter" );
+__( "Add these subscribers to specific categories", "jetpack-newsletter" );
+__( "Categories", "jetpack-newsletter" );
+__( "Type to add categories", "jetpack-newsletter" );
 /* translators: %s: comma-separated list of invalid email addresses. */
 __( "These entries don’t look like valid email addresses and will be skipped: %s", "jetpack-newsletter" );
 __( "Your subscribers are being imported. This may take a few minutes. You can close this window and we’ll notify you when the import is complete.", "jetpack-newsletter" );
@@ -88,6 +97,22 @@ __( "Open Substack importer", "jetpack-newsletter" );
 __( "Manual", "jetpack-newsletter" );
 __( "Upload CSV", "jetpack-newsletter" );
 __( "Substack", "jetpack-newsletter" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s", "jetpack-newsletter" );
+__( "Date calendar", "jetpack-newsletter" );
+__( "Date range calendar", "jetpack-newsletter" );
+__( "Navigation bar", "jetpack-newsletter" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s", "jetpack-newsletter" );
+__( "Next month", "jetpack-newsletter" );
+__( "Previous month", "jetpack-newsletter" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected", "jetpack-newsletter" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected", "jetpack-newsletter" );
+__( "Required", "jetpack-newsletter" );
+__( "Optional", "jetpack-newsletter" );
+__( "More details follow the field.", "jetpack-newsletter" );
 __( "Sort ascending", "jetpack-newsletter" );
 __( "Sort descending", "jetpack-newsletter" );
 __( "(no title)", "jetpack-newsletter" );
@@ -125,6 +150,7 @@ __( "Density", "jetpack-newsletter" );
 _x( "Comfortable", "Density option for DataView layout", "jetpack-newsletter" );
 _x( "Balanced", "Density option for DataView layout", "jetpack-newsletter" );
 _x( "Compact", "Density option for DataView layout", "jetpack-newsletter" );
+__( "Original aspect ratio", "jetpack-newsletter" );
 __( "Preview size", "jetpack-newsletter" );
 __( "Table", "jetpack-newsletter" );
 __( "Grid", "jetpack-newsletter" );
@@ -241,8 +267,6 @@ __( "Weeks ago", "jetpack-newsletter" );
 __( "Months ago", "jetpack-newsletter" );
 __( "Years ago", "jetpack-newsletter" );
 __( "Unit", "jetpack-newsletter" );
-__( "Required", "jetpack-newsletter" );
-__( "Optional", "jetpack-newsletter" );
 __( "Date time", "jetpack-newsletter" );
 __( "Today", "jetpack-newsletter" );
 __( "Yesterday", "jetpack-newsletter" );
@@ -260,6 +284,7 @@ __( "To", "jetpack-newsletter" );
 __( "The max. value must be greater than the min. value.", "jetpack-newsletter" );
 __( "Min.", "jetpack-newsletter" );
 __( "Max.", "jetpack-newsletter" );
+__( "The end time must be later than the start time.", "jetpack-newsletter" );
 __( "Open color picker", "jetpack-newsletter" );
 __( "Hide password", "jetpack-newsletter" );
 __( "Show password", "jetpack-newsletter" );
@@ -444,16 +469,21 @@ __( "You can use plain text or HTML tags in this textarea for formatting.", "jet
 __( "Welcome email message", "jetpack-newsletter" );
 __( "Sent to your email subscribers when they subscribe to your newsletter.", "jetpack-newsletter" );
 __( "Failed to load settings", "jetpack-newsletter" );
-__( "Settings saved", "jetpack-newsletter" );
 __( "Failed to save settings", "jetpack-newsletter" );
-__( "Sender name saved", "jetpack-newsletter" );
+__( "Newsletter settings saved", "jetpack-newsletter" );
+__( "Email defaults saved", "jetpack-newsletter" );
+__( "Email content saved", "jetpack-newsletter" );
+__( "Email byline saved", "jetpack-newsletter" );
+__( "Reply-to settings saved", "jetpack-newsletter" );
+__( "Sender settings saved", "jetpack-newsletter" );
 __( "Failed to save sender name", "jetpack-newsletter" );
+__( "Subscription settings saved", "jetpack-newsletter" );
 __( "Failed to save subscription settings", "jetpack-newsletter" );
 __( "Newsletter categories saved", "jetpack-newsletter" );
 __( "Failed to save newsletter categories", "jetpack-newsletter" );
-__( "Welcome email message saved", "jetpack-newsletter" );
+__( "Welcome email saved", "jetpack-newsletter" );
 __( "Failed to save welcome email message", "jetpack-newsletter" );
-__( "Subscribe modal heading saved", "jetpack-newsletter" );
+__( "Subscribe modal saved", "jetpack-newsletter" );
 __( "Failed to save subscribe modal heading", "jetpack-newsletter" );
 __( "Connect your WordPress.com account to enable and set up your newsletter. <a>Connect now</a>", "jetpack-newsletter" );
 __( "Emails sent", "jetpack-newsletter" );
@@ -465,6 +495,5 @@ __( "Newsletter subscription details", "jetpack-newsletter" );
 __( "Receives emails for", "jetpack-newsletter" );
 __( "Not subscribed to any newsletter categories", "jetpack-newsletter" );
 __( "Subscriber information", "jetpack-newsletter" );
-__( "Joined", "jetpack-newsletter" );
 __( "Country", "jetpack-newsletter" );
 __( "Site", "jetpack-newsletter" );

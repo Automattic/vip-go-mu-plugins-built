@@ -1,3 +1,8 @@
+/*!
+* tabbable 6.5.0
+* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
+*/
+
 /**
  * @license React
  * use-sync-external-store-shim.production.js

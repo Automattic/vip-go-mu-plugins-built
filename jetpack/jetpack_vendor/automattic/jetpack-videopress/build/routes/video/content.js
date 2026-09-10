@@ -125,6 +125,7 @@ __( "Paste transcript", "jetpack-videopress-pkg" );
 __( "No subtitle tracks have been added to this video yet.", "jetpack-videopress-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-videopress-pkg" );
+__( "Sections", "jetpack-videopress-pkg" );
 __( "Jetpack Logo", "jetpack-videopress-pkg" );
 __( "An Automattic Airline", "jetpack-videopress-pkg" );
 /* translators: %1$s is button label 1 and %2$s is button label 2 */
@@ -150,9 +151,19 @@ __( "Jetpack", "jetpack-videopress-pkg" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
 __( "Loading", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
+/* translators: %s: the error. */
+__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
+__( "Loading…", "jetpack-videopress-pkg" );
+__( "Restore Connection", "jetpack-videopress-pkg" );
+__( "A connection check failed.", "jetpack-videopress-pkg" );
+__( "Take Action", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
 __( "More details follow the field.", "jetpack-videopress-pkg" );
 __( "Breadcrumbs", "jetpack-videopress-pkg" );
-__( "A connection check failed.", "jetpack-videopress-pkg" );
 __( "Host, manage, customize, and track your videos — all in one place.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
@@ -174,6 +185,9 @@ __( "Add at least three chapters entries and as many as you need.", "jetpack-vid
 __( "Add your chapters entries in consecutive order, with at least 10-second intervals between each.", "jetpack-videopress-pkg" );
 __( "Example", "jetpack-videopress-pkg" );
 __( "Got it, thanks", "jetpack-videopress-pkg" );
+__( "Add to a post or page", "jetpack-videopress-pkg" );
+__( "New post", "jetpack-videopress-pkg" );
+__( "New page", "jetpack-videopress-pkg" );
 __( "Save", "jetpack-videopress-pkg" );
 __( "More actions", "jetpack-videopress-pkg" );
 __( "Manage subtitles", "jetpack-videopress-pkg" );
@@ -189,34 +203,31 @@ __( "Display share menu and allow viewers to copy a link or embed this video", "
 __( "Allow downloads", "jetpack-videopress-pkg" );
 __( "Let viewers download this video to their device.", "jetpack-videopress-pkg" );
 __( "Rating", "jetpack-videopress-pkg" );
-__( "G — Suitable for all audiences, including children", "jetpack-videopress-pkg" );
-__( "PG-13 — May include mild language or mature themes", "jetpack-videopress-pkg" );
-__( "R — May include strong language, violence, or adult content", "jetpack-videopress-pkg" );
+__( "G", "jetpack-videopress-pkg" );
+__( "Suitable for all audiences, including children.", "jetpack-videopress-pkg" );
+__( "PG-13", "jetpack-videopress-pkg" );
+__( "May include mild language or mature themes.", "jetpack-videopress-pkg" );
+__( "R", "jetpack-videopress-pkg" );
+__( "May include strong language, violence, or adult content.", "jetpack-videopress-pkg" );
+__( "No subtitles yet.", "jetpack-videopress-pkg" );
+/* translators: 1: list of subtitle language names. 2: how many further languages exist. */
+_n( "%1$s, and %2$d more", "%1$s, and %2$d more", 1, "jetpack-videopress-pkg" );
+__( "Subtitles", "jetpack-videopress-pkg" );
+__( "Thumbnail updated.", "jetpack-videopress-pkg" );
+__( "Failed to update thumbnail.", "jetpack-videopress-pkg" );
 __( "Select thumbnail", "jetpack-videopress-pkg" );
 __( "Use this image as thumbnail", "jetpack-videopress-pkg" );
 __( "We couldn't load this video.", "jetpack-videopress-pkg" );
 __( "Select thumbnail from video", "jetpack-videopress-pkg" );
 __( "Select this frame", "jetpack-videopress-pkg" );
-__( "Update thumbnail", "jetpack-videopress-pkg" );
+__( "Thumbnail", "jetpack-videopress-pkg" );
+__( "Pick the still that represents this video.", "jetpack-videopress-pkg" );
+__( "Current thumbnail", "jetpack-videopress-pkg" );
+__( "No thumbnail yet", "jetpack-videopress-pkg" );
 __( "Updating…", "jetpack-videopress-pkg" );
-__( "Select from video", "jetpack-videopress-pkg" );
 __( "Upload image", "jetpack-videopress-pkg" );
-/* translators: %s: name of the copied field, e.g. "Link to video". */
-__( "%s copied to clipboard.", "jetpack-videopress-pkg" );
-__( "Copy", "jetpack-videopress-pkg" );
-__( "None", "jetpack-videopress-pkg" );
-/* translators: 1: list of subtitle language names. 2: how many further languages exist. */
-_n( "%1$s, and %2$d more", "%1$s, and %2$d more", 1, "jetpack-videopress-pkg" );
-__( "Thumbnail updated.", "jetpack-videopress-pkg" );
-__( "Failed to update thumbnail.", "jetpack-videopress-pkg" );
-__( "Add video to new post", "jetpack-videopress-pkg" );
-__( "Link to video", "jetpack-videopress-pkg" );
-__( "Shortcode", "jetpack-videopress-pkg" );
-__( "File name", "jetpack-videopress-pkg" );
-__( "Uploaded on", "jetpack-videopress-pkg" );
-__( "Subtitles", "jetpack-videopress-pkg" );
-__( "Loading…", "jetpack-videopress-pkg" );
-__( "Manage", "jetpack-videopress-pkg" );
+__( "Select from video", "jetpack-videopress-pkg" );
+__( "Applies immediately — everything else on this page waits for Save.", "jetpack-videopress-pkg" );
 __( "Add at least three chapters.", "jetpack-videopress-pkg" );
 __( "The first chapter must start at 0:00.", "jetpack-videopress-pkg" );
 __( "At least three chapters are required.", "jetpack-videopress-pkg" );
@@ -233,12 +244,22 @@ __( "Learn how chapters work", "jetpack-videopress-pkg" );
 __( "Video details", "jetpack-videopress-pkg" );
 __( "Title", "jetpack-videopress-pkg" );
 __( "Description", "jetpack-videopress-pkg" );
+/* translators: %s: name of the copied field, e.g. "Link to video". */
+__( "%s copied to clipboard.", "jetpack-videopress-pkg" );
+__( "Copy", "jetpack-videopress-pkg" );
+__( "Video info", "jetpack-videopress-pkg" );
+__( "Link to video", "jetpack-videopress-pkg" );
+__( "Shortcode", "jetpack-videopress-pkg" );
+__( "File name", "jetpack-videopress-pkg" );
+__( "Uploaded on", "jetpack-videopress-pkg" );
 __( "English (auto-generated)", "jetpack-videopress-pkg" );
 __( "Video chapters could not be updated.", "jetpack-videopress-pkg" );
 __( "Not found", "jetpack-videopress-pkg" );
 __( "We couldn't find that video.", "jetpack-videopress-pkg" );
 __( "Back to Library", "jetpack-videopress-pkg" );
 __( "You have unsaved changes. Leave this page and discard them?", "jetpack-videopress-pkg" );
+__( "Untitled", "jetpack-videopress-pkg" );
+__( "Video settings", "jetpack-videopress-pkg" );
 __( "Video details saved.", "jetpack-videopress-pkg" );
 __( "Failed to save video details.", "jetpack-videopress-pkg" );
 __( "Deleting video…", "jetpack-videopress-pkg" );

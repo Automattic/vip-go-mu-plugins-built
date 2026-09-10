@@ -8,6 +8,15 @@
 
 /* translators: 1: Start date. 2: End date. */
 __( "%1$s – %2$s", "jetpack-premium-analytics-pkg" );
+__( "Loading…", "jetpack-premium-analytics-pkg" );
+__( "No data in this period.", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the average number of views per day, e.g. "1.4". */
+_n( "%s view per day", "%s views per day", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s is a number of views, e.g. "166.9K". */
+_n( "%s view", "%s views", 1, "jetpack-premium-analytics-pkg" );
+__( "Fewer than %s", "jetpack-premium-analytics-pkg" );
+/* translators: %s is a metric name, e.g. "Views". */
+__( "%s · previous period", "jetpack-premium-analytics-pkg" );
 __( "No data available", "jetpack-premium-analytics-pkg" );
 __( "Current period", "jetpack-premium-analytics-pkg" );
 __( "Previous period", "jetpack-premium-analytics-pkg" );
@@ -32,17 +41,26 @@ __( "Fulfilled", "jetpack-premium-analytics-pkg" );
 __( "Unfulfilled", "jetpack-premium-analytics-pkg" );
 __( "State", "jetpack-premium-analytics-pkg" );
 __( "Country", "jetpack-premium-analytics-pkg" );
+/* translators: %s: the column label, e.g. "Views". */
+__( "%s (Previous Period)", "jetpack-premium-analytics-pkg" );
 __( "Untitled video", "jetpack-premium-analytics-pkg" );
+__( "This data is unavailable right now.", "jetpack-premium-analytics-pkg" );
 __( "You don't have access to this data.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No data in this period.", "jetpack-premium-analytics-pkg" );
+__( "Line chart", "jetpack-premium-analytics-pkg" );
+__( "Bar chart", "jetpack-premium-analytics-pkg" );
+__( "Chart type", "jetpack-premium-analytics-pkg" );
+/* translators: 1: metric name, 2: date. */
+__( "%1$s · %2$s", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Select metric", "jetpack-premium-analytics-pkg" );
 /* translators: %s is a person's name. */
 __( "Avatar of %s", "jetpack-premium-analytics-pkg" );
 /* translators: %s is a country name. */
 __( "Flag of %s", "jetpack-premium-analytics-pkg" );
-__( "See report", "jetpack-premium-analytics-pkg" );
+__( "Older activity", "jetpack-premium-analytics-pkg" );
+__( "Newer activity", "jetpack-premium-analytics-pkg" );
+__( "View all", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the post's publish date, e.g. "Jun 5, 2026". */
 __( "Post published on %s", "jetpack-premium-analytics-pkg" );
 __( "Not available", "jetpack-premium-analytics-pkg" );
@@ -51,6 +69,9 @@ _n( "%d more", "%d more", 1, "jetpack-premium-analytics-pkg" );
 __( "Could not download report.", "jetpack-premium-analytics-pkg" );
 __( "Download CSV", "jetpack-premium-analytics-pkg" );
 __( "Download", "jetpack-premium-analytics-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
+__( "Sections", "jetpack-premium-analytics-pkg" );
 __( "By days", "jetpack-premium-analytics-pkg" );
 __( "By weeks", "jetpack-premium-analytics-pkg" );
 __( "By months", "jetpack-premium-analytics-pkg" );
@@ -64,6 +85,9 @@ __( "Chart options", "jetpack-premium-analytics-pkg" );
 __( "Metrics", "jetpack-premium-analytics-pkg" );
 __( "Show chart", "jetpack-premium-analytics-pkg" );
 __( "Hide chart", "jetpack-premium-analytics-pkg" );
+__( "Customizing", "jetpack-premium-analytics-pkg" );
+__( "Page options", "jetpack-premium-analytics-pkg" );
+__( "Customize", "jetpack-premium-analytics-pkg" );
 __( "Payment is on hold until the end of the current month.", "jetpack-premium-analytics-pkg" );
 __( "Payment has been processed through PayPal.", "jetpack-premium-analytics-pkg" );
 __( "a8c-only", "jetpack-premium-analytics-pkg" );

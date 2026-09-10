@@ -36,13 +36,6 @@ return array(
 		'has_content' => true,
 	),
 	array(
-		'name'        => 'syncing',
-		'path'        => '/syncing',
-		'page'        => 'jetpack-premium-analytics',
-		'has_route'   => true,
-		'has_content' => true,
-	),
-	array(
 		'name'        => 'video-detail',
 		'path'        => '/video/$videoId',
 		'page'        => 'jetpack-premium-analytics',

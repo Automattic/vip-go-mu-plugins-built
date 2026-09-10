@@ -12,4 +12,3 @@ __( "Campaign / Source / Medium", "jetpack-premium-analytics-pkg" );
 __( "Source", "jetpack-premium-analytics-pkg" );
 __( "Medium", "jetpack-premium-analytics-pkg" );
 __( "Campaign", "jetpack-premium-analytics-pkg" );
-__( "Number of results", "jetpack-premium-analytics-pkg" );

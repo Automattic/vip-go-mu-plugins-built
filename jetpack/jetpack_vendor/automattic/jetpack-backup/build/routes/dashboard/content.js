@@ -7,6 +7,30 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading", "jetpack-backup-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-backup-pkg" );
+__( "Close", "jetpack-backup-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-backup-pkg" );
+__( "Something went wrong", "jetpack-backup-pkg" );
+__( "The page ran into an unexpected problem. Your backups are unaffected.", "jetpack-backup-pkg" );
+__( "Reload the page", "jetpack-backup-pkg" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s", "jetpack-backup-pkg" );
+__( "Date calendar", "jetpack-backup-pkg" );
+__( "Date range calendar", "jetpack-backup-pkg" );
+__( "Navigation bar", "jetpack-backup-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s", "jetpack-backup-pkg" );
+__( "Next month", "jetpack-backup-pkg" );
+__( "Previous month", "jetpack-backup-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected", "jetpack-backup-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected", "jetpack-backup-pkg" );
+__( "Required", "jetpack-backup-pkg" );
+__( "Optional", "jetpack-backup-pkg" );
+__( "More details follow the field.", "jetpack-backup-pkg" );
 __( "Sort ascending", "jetpack-backup-pkg" );
 __( "Sort descending", "jetpack-backup-pkg" );
 __( "(no title)", "jetpack-backup-pkg" );
@@ -45,6 +69,7 @@ __( "Density", "jetpack-backup-pkg" );
 _x( "Comfortable", "Density option for DataView layout", "jetpack-backup-pkg" );
 _x( "Balanced", "Density option for DataView layout", "jetpack-backup-pkg" );
 _x( "Compact", "Density option for DataView layout", "jetpack-backup-pkg" );
+__( "Original aspect ratio", "jetpack-backup-pkg" );
 __( "Preview size", "jetpack-backup-pkg" );
 __( "Table", "jetpack-backup-pkg" );
 __( "Grid", "jetpack-backup-pkg" );
@@ -161,8 +186,6 @@ __( "Weeks ago", "jetpack-backup-pkg" );
 __( "Months ago", "jetpack-backup-pkg" );
 __( "Years ago", "jetpack-backup-pkg" );
 __( "Unit", "jetpack-backup-pkg" );
-__( "Required", "jetpack-backup-pkg" );
-__( "Optional", "jetpack-backup-pkg" );
 __( "Date time", "jetpack-backup-pkg" );
 __( "Today", "jetpack-backup-pkg" );
 __( "Yesterday", "jetpack-backup-pkg" );
@@ -180,6 +203,7 @@ __( "To", "jetpack-backup-pkg" );
 __( "The max. value must be greater than the min. value.", "jetpack-backup-pkg" );
 __( "Min.", "jetpack-backup-pkg" );
 __( "Max.", "jetpack-backup-pkg" );
+__( "The end time must be later than the start time.", "jetpack-backup-pkg" );
 __( "Open color picker", "jetpack-backup-pkg" );
 __( "Hide password", "jetpack-backup-pkg" );
 __( "Show password", "jetpack-backup-pkg" );
@@ -192,42 +216,141 @@ __( "Value must be true, false, or undefined", "jetpack-backup-pkg" );
 __( "Value must be an array.", "jetpack-backup-pkg" );
 __( "Every value must be a string.", "jetpack-backup-pkg" );
 __( "Value must be a valid color.", "jetpack-backup-pkg" );
+__( "The site doesn't appear to be connected. Backup requires an active Jetpack connection in order to function properly.", "jetpack-backup-pkg" );
+/* translators: 1: what failed, in our own words. 2: the reason WordPress.com gave, usually in English. */
+__( "%1$s WordPress.com said: %2$s", "jetpack-backup-pkg" );
+__( "Request failed", "jetpack-backup-pkg" );
+__( "Restore in progress", "jetpack-backup-pkg" );
+__( "Restore complete", "jetpack-backup-pkg" );
+__( "Restore didn't finish", "jetpack-backup-pkg" );
+/* translators: %s: date and time of the backup that was restored. */
+__( "Restore to %s", "jetpack-backup-pkg" );
+__( "Try again", "jetpack-backup-pkg" );
+__( "We couldn't load your site's activity.", "jetpack-backup-pkg" );
 __( "Icon", "jetpack-backup-pkg" );
 __( "Title", "jetpack-backup-pkg" );
 __( "When", "jetpack-backup-pkg" );
-__( "Search backups", "jetpack-backup-pkg" );
-__( "Close preview", "jetpack-backup-pkg" );
-__( "Size:", "jetpack-backup-pkg" );
+/* translators: %s: a file size number, e.g. "3.2". */
+_x( "%s KB", "file size in kilobytes", "jetpack-backup-pkg" );
+/* translators: %s: a file size number, e.g. "3.2". */
+_x( "%s MB", "file size in megabytes", "jetpack-backup-pkg" );
+/* translators: %s: a file size number, e.g. "3.2". */
+_x( "%s GB", "file size in gigabytes", "jetpack-backup-pkg" );
+/* translators: %s: a file size number, e.g. "512". */
+_x( "%s B", "file size in bytes", "jetpack-backup-pkg" );
 __( "Modified:", "jetpack-backup-pkg" );
+__( "Size:", "jetpack-backup-pkg" );
+__( "Type:", "jetpack-backup-pkg" );
 __( "Hash:", "jetpack-backup-pkg" );
+__( "This preview is hidden because it contains sensitive information.", "jetpack-backup-pkg" );
+__( "Show preview", "jetpack-backup-pkg" );
 __( "Preview unavailable for this file.", "jetpack-backup-pkg" );
-/* translators: %s file name */
-__( "Download %s", "jetpack-backup-pkg" );
-__( "Download file", "jetpack-backup-pkg" );
-__( "Restore", "jetpack-backup-pkg" );
+__( "Loading preview…", "jetpack-backup-pkg" );
+__( "Preview could not be loaded for this file.", "jetpack-backup-pkg" );
+__( "This file is not text and cannot be previewed.", "jetpack-backup-pkg" );
+__( "Preview truncated: this file is too large to show in full.", "jetpack-backup-pkg" );
+__( "Close preview", "jetpack-backup-pkg" );
+/* translators: %s: file name. */
+__( "Preview of %s", "jetpack-backup-pkg" );
+__( "We couldn't load this backup's files.", "jetpack-backup-pkg" );
 /* translators: %d count of selected items (files + opaque folders) */
 _n( "%d item selected", "%d items selected", 1, "jetpack-backup-pkg" );
+/* translators: %s: file or folder name. */
+__( "Select %s", "jetpack-backup-pkg" );
+/* translators: %s: folder name. */
+__( "Folder: %s", "jetpack-backup-pkg" );
+/* translators: %s: file name. */
+__( "File: %s", "jetpack-backup-pkg" );
+/* translators: shown inside an expanded folder in the backup file browser when its contents could not be fetched. */
+__( "Couldn't load this folder.", "jetpack-backup-pkg" );
 /* translators: shown inside an expanded folder in the backup file browser when the folder contains no files. */
 __( "Empty", "jetpack-backup-pkg" );
 __( "Download backup", "jetpack-backup-pkg" );
 /* translators: %d count of selected items (files + opaque folders) */
 _n( "Download %d selected item", "Download %d selected items", 1, "jetpack-backup-pkg" );
 __( "Restore to this point", "jetpack-backup-pkg" );
-/* translators: %d count of selected items (files + opaque folders) */
-_n( "Restore %d selected item", "Restore %d selected items", 1, "jetpack-backup-pkg" );
-__( "Backup and scan complete", "jetpack-backup-pkg" );
 /* translators: %1$s formatted date+time, %2$s actor name */
 __( "%1$s by %2$s", "jetpack-backup-pkg" );
 __( "Files", "jetpack-backup-pkg" );
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-backup-pkg" );
+__( "Could not start a backup. Please try again.", "jetpack-backup-pkg" );
+__( "Back up now", "jetpack-backup-pkg" );
+__( "Cannot queue backups due to reaching storage limits.", "jetpack-backup-pkg" );
+__( "Backup in progress", "jetpack-backup-pkg" );
+__( "A backup is currently in progress.", "jetpack-backup-pkg" );
+__( "Queueing backup", "jetpack-backup-pkg" );
+__( "Backup enqueued", "jetpack-backup-pkg" );
+__( "A backup has been queued and will start shortly.", "jetpack-backup-pkg" );
+__( "<a>Get in touch with us</a> to get your site backups going again.", "jetpack-backup-pkg" );
+__( "We're having trouble backing up your site", "jetpack-backup-pkg" );
+__( "Your first cloud backup will be ready soon", "jetpack-backup-pkg" );
+__( "Preparing your first cloud backup", "jetpack-backup-pkg" );
+/* translators: %d: how much of the running backup is complete, as a percentage. */
+__( "%d%%", "jetpack-backup-pkg" );
+__( "The first backup usually takes a few minutes, so it will become available soon.", "jetpack-backup-pkg" );
+__( "Your backup will be ready soon", "jetpack-backup-pkg" );
+__( "Backing up your site", "jetpack-backup-pkg" );
+__( "Your latest backup didn't complete. We'll try again shortly.", "jetpack-backup-pkg" );
+/* translators: sentence form of the takeover panel's heading, which is the same words without the full stop. The two render in mutually exclusive situations — this one is a line of body copy, that one a title — so both spellings are wanted. */
+__( "We're having trouble backing up your site.", "jetpack-backup-pkg" );
 __( "Jetpack Logo", "jetpack-backup-pkg" );
 __( "An Automattic Airline", "jetpack-backup-pkg" );
 __( "Products", "jetpack-backup-pkg" );
 __( "Help", "jetpack-backup-pkg" );
 __( "Jetpack", "jetpack-backup-pkg" );
-__( "Dev mode: the backup list below is fixture data ('?jpb-mock=1'). No real requests are being made.", "jetpack-backup-pkg" );
+__( "Sections", "jetpack-backup-pkg" );
+__( "We couldn't load your backup details", "jetpack-backup-pkg" );
+__( "Your backups are unaffected. Try again, and contact support if this keeps happening.", "jetpack-backup-pkg" );
+__( "Use license key", "jetpack-backup-pkg" );
+__( "14 day money back guarantee.", "jetpack-backup-pkg" );
+__( "Special introductory pricing, all renewals are at full price. 14 day money back guarantee.", "jetpack-backup-pkg" );
+__( "per month, billed yearly", "jetpack-backup-pkg" );
+/* translators: %s is the full monthly price the subscription renews at. */
+__( "Renews at %s per month.", "jetpack-backup-pkg" );
+__( "Get VaultPress Backup", "jetpack-backup-pkg" );
+__( "This site doesn't have an active Backup plan", "jetpack-backup-pkg" );
+__( "Add Jetpack Backup to start protecting your site with automatic backups, granular restores, and offsite storage.", "jetpack-backup-pkg" );
+__( "Connect Jetpack to get started", "jetpack-backup-pkg" );
+__( "Backup needs an active Jetpack connection to show your backup history.", "jetpack-backup-pkg" );
+__( "Connect Jetpack", "jetpack-backup-pkg" );
+__( "Link your WordPress.com account", "jetpack-backup-pkg" );
+__( "This site's Jetpack connection is already set up, but your account isn't linked to a WordPress.com user yet.", "jetpack-backup-pkg" );
+__( "Once your account is linked, you'll see any backups this site has. If it doesn't have an active Backup plan yet, you'll be able to add VaultPress Backup to start protecting it.", "jetpack-backup-pkg" );
+__( "Link my account", "jetpack-backup-pkg" );
 __( "Save changes and restore quickly with one-click recovery.", "jetpack-backup-pkg" );
-__( "Back up now", "jetpack-backup-pkg" );
+/* translators: %1$s is the formatted date (e.g. "Oct 22"); %2$s is a time range (e.g. "10:00-10:59 AM"). */
+__( "Next full backup: %1$s, %2$s.", "jetpack-backup-pkg" );
+__( "Modify", "jetpack-backup-pkg" );
+__( "Was it easy to restore your site?", "jetpack-backup-pkg" );
+__( "Do you enjoy the peace of mind of having backups?", "jetpack-backup-pkg" );
+__( "<strong>Please leave a review and help us spread the word!</strong>", "jetpack-backup-pkg" );
+__( "Maybe later", "jetpack-backup-pkg" );
+__( "You are close to reaching your storage limit. Once you do, we will delete your oldest backups to make space for new ones.", "jetpack-backup-pkg" );
+__( "You are very close to reaching your storage limit. Once you do, we will delete your oldest backups to make space for new ones.", "jetpack-backup-pkg" );
+__( "You have reached your storage limit. Backups have been stopped. Please upgrade your storage to resume backups.", "jetpack-backup-pkg" );
+/* translators: %s is a number greater than 0 that means a number of days. */
+__( "You have reached your storage limit with %s day(s) of backups saved. Backups have been stopped. Please upgrade your storage to resume backups.", "jetpack-backup-pkg" );
+/* translators: %s is a number greater than 0 that means a number of days. */
+__( "We removed your oldest backup(s) to make space for new ones. We will continue to remove old backups as needed, up to the last %s days.", "jetpack-backup-pkg" );
+__( "Add %1$s additional storage for <Price />/month, billed monthly", "jetpack-backup-pkg" );
+/* translators: %d: percentage of backup storage used. */
+__( "Backup storage used: %d%%", "jetpack-backup-pkg" );
+/* translators: %d: is number of days of the forecast */
+_n( "Based on the current size of your site, Jetpack will save <strong>%d day of full backup</strong>.", "Based on the current size of your site, Jetpack will save <strong>%d days of full backups</strong>.", 1, "jetpack-backup-pkg" );
+__( "If you need more backup days, try <link>reducing the backup size</link> or adding more storage.", "jetpack-backup-pkg" );
+__( "Backup archive size", "jetpack-backup-pkg" );
+__( "Add more storage", "jetpack-backup-pkg" );
+__( "Using <strong>%1$.1fGB</strong> of %2$fGB", "jetpack-backup-pkg" );
+__( "Using <strong>%1$dGB</strong> of %2$dTB", "jetpack-backup-pkg" );
+__( "<a>1 day of backups saved</a>", "jetpack-backup-pkg" );
+__( "<a>%s days of backups saved</a>", "jetpack-backup-pkg" );
+__( "Cloud storage full", "jetpack-backup-pkg" );
+__( "Cloud storage is almost full", "jetpack-backup-pkg" );
+__( "Cloud storage space", "jetpack-backup-pkg" );
+__( "We couldn't check your site's backup status.", "jetpack-backup-pkg" );
+__( "Backup activity", "jetpack-backup-pkg" );
 __( "Select an item from the list to see details.", "jetpack-backup-pkg" );
-__( "Item not found.", "jetpack-backup-pkg" );
+__( "We couldn't load this item.", "jetpack-backup-pkg" );
+__( "Loading item details…", "jetpack-backup-pkg" );
+__( "That restore isn't among this site's most recent ones any more.", "jetpack-backup-pkg" );
+__( "That item isn't on this page of the activity log. It may be on another page, or no longer available.", "jetpack-backup-pkg" );
+__( "Clear selection", "jetpack-backup-pkg" );

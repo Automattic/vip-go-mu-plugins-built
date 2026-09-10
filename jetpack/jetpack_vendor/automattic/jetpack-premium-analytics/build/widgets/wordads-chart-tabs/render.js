@@ -11,6 +11,5 @@ __( "Average CPM", "jetpack-premium-analytics-pkg" );
 __( "Revenue", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load WordAds data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "Select at least one metric to display.", "jetpack-premium-analytics-pkg" );
 __( "No WordAds data in this period.", "jetpack-premium-analytics-pkg" );
 __( "WordAds metric", "jetpack-premium-analytics-pkg" );

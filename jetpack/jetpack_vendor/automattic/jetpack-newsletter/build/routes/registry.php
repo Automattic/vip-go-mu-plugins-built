@@ -13,12 +13,5 @@ return array(
 		'page'        => 'jetpack-newsletter-dashboard',
 		'has_route'   => true,
 		'has_content' => true,
-	),
-	array(
-		'name'        => 'subscribers-announcement',
-		'path'        => '/',
-		'page'        => 'jetpack-subscribers-announcement',
-		'has_route'   => false,
-		'has_content' => true,
 	)
 );

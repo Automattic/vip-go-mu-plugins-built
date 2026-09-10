@@ -257,6 +257,7 @@ __( "Zambia", "jetpack-forms" );
 __( "Zimbabwe", "jetpack-forms" );
 /* translators: 1: rating value, 2: maximum rating (e.g. "4" and "5" for "4 out of 5") */
 __( "Rating %1$s out of %2$s", "jetpack-forms" );
+__( "No", "jetpack-forms" );
 __( "Edit your profile →", "jetpack-forms" );
 __( "View profile →", "jetpack-forms" );
 __( "Contact", "jetpack-forms" );
@@ -286,17 +287,22 @@ __( "Logged-in user:", "jetpack-forms" );
 __( "Previous", "jetpack-forms" );
 __( "Next", "jetpack-forms" );
 __( "Close", "jetpack-forms" );
+__( "Are you sure you want to mark this response as spam?", "jetpack-forms" );
 __( "An Automattic Airline", "jetpack-forms" );
 __( "Products", "jetpack-forms" );
 __( "Help", "jetpack-forms" );
 __( "Jetpack", "jetpack-forms" );
+__( "Sections", "jetpack-forms" );
 __( "Breadcrumbs", "jetpack-forms" );
 __( "Forms", "jetpack-forms" );
+_x( "Esc", "keyboard shortcut", "jetpack-forms" );
+__( "Escape", "jetpack-forms" );
 __( "Undoing…", "jetpack-forms" );
 __( "An error occurred.", "jetpack-forms" );
 /* translators: %s: the number of responses. */
 _n( "An error occurred for %s response.", "An error occurred for %s responses.", 1, "jetpack-forms" );
 __( "View", "jetpack-forms" );
+__( "Print", "jetpack-forms" );
 __( "Edit form", "jetpack-forms" );
 __( "Spam", "jetpack-forms" );
 /* translators: %s: the number of responses. */
@@ -335,9 +341,12 @@ __( "Mark as unread", "jetpack-forms" );
 __( "Response marked as unread.", "jetpack-forms" );
 /* translators: %s: the number of responses. */
 _n( "%s response marked as unread.", "%s responses marked as unread.", 1, "jetpack-forms" );
-__( "Delete permanently", "jetpack-forms" );
-__( "Mark as spam", "jetpack-forms" );
 __( "Actions", "jetpack-forms" );
+__( "Mark as spam", "jetpack-forms" );
+__( "Delete permanently", "jetpack-forms" );
+__( "Back to responses", "jetpack-forms" );
+_x( "Spam", "response status", "jetpack-forms" );
+_x( "Trash", "response status", "jetpack-forms" );
 __( "Response", "jetpack-forms" );
 __( "Not found", "jetpack-forms" );
 __( "Response not found", "jetpack-forms" );

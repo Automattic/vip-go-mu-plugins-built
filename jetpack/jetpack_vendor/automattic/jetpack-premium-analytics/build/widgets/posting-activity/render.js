@@ -6,8 +6,10 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "We couldn't load posting activity. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "Retry", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of posts published that day, e.g. "3". */
+_n( "%d post", "%d posts", 1, "jetpack-premium-analytics-pkg" );
+__( "No posts", "jetpack-premium-analytics-pkg" );
+/* translators: 1: first date the request covers, e.g. "Aug 9, 2024". 2: last date it covers. */
+__( "No posts published between %1$s and %2$s.", "jetpack-premium-analytics-pkg" );
 __( "No posts published in this period.", "jetpack-premium-analytics-pkg" );
-__( "Fewer Posts", "jetpack-premium-analytics-pkg" );
-__( "More Posts", "jetpack-premium-analytics-pkg" );
+__( "We couldn't load posting activity. Please try again in a moment.", "jetpack-premium-analytics-pkg" );

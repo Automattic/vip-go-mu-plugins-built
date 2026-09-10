@@ -7,10 +7,13 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Loading" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 __( "Close" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
 __( "Dismiss" );
+__( "Sections" );
 __( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
 /* translators: accessibility text */
@@ -47,6 +50,22 @@ __( "Error", "jetpack-scan" );
 _x( "Critical", "Severity label for issues rated 5 or higher.", "jetpack-scan" );
 _x( "High", "Severity label for issues rated between 3 and 5.", "jetpack-scan" );
 _x( "Low", "Severity label for issues rated below 3.", "jetpack-scan" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s" );
+__( "Date calendar" );
+__( "Date range calendar" );
+__( "Navigation bar" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s" );
+__( "Next month" );
+__( "Previous month" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected" );
+__( "Required" );
+__( "Optional" );
+__( "More details follow the field." );
 __( "Sort ascending" );
 __( "Sort descending" );
 __( "(no title)" );
@@ -85,6 +104,7 @@ __( "Density" );
 _x( "Comfortable", "Density option for DataView layout" );
 _x( "Balanced", "Density option for DataView layout" );
 _x( "Compact", "Density option for DataView layout" );
+__( "Original aspect ratio" );
 __( "Preview size" );
 __( "Table" );
 __( "Grid" );
@@ -201,8 +221,6 @@ __( "Weeks ago" );
 __( "Months ago" );
 __( "Years ago" );
 __( "Unit" );
-__( "Required" );
-__( "Optional" );
 __( "Date time" );
 __( "Today" );
 __( "Yesterday" );
@@ -220,6 +238,7 @@ __( "To" );
 __( "The max. value must be greater than the min. value." );
 __( "Min." );
 __( "Max." );
+__( "The end time must be later than the start time." );
 __( "Open color picker" );
 __( "Hide password" );
 __( "Show password" );

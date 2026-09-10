@@ -21,6 +21,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Shield your login page with rate‑limiting and secure authentication safeguards.', 'Module Description', 'jetpack' ),
 			),
 
+			'ai' => array(
+				'name' => _x( 'AI', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Turn your ideas into ready-to-publish content and generate images with the power of AI.', 'Module Description', 'jetpack' ),
+			),
+
 			'blaze' => array(
 				'name' => _x( 'Blaze', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Promote your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.', 'Module Description', 'jetpack' ),
@@ -271,6 +276,18 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/account-protection.php
 			'Account Protection' => _x( 'Account Protection', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Writing` tag:
+			// - modules/ai.php
+			// - modules/copy-post.php
+			// - modules/custom-content-types.php
+			// - modules/json-api.php
+			// - modules/latex.php
+			// - modules/markdown.php
+			// - modules/podcast.php
+			// - modules/post-by-email.php
+			// - modules/shortcodes.php
+			'Writing' => _x( 'Writing', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Traffic` tag:
 			// - modules/blaze.php
 			// - modules/canonical-urls.php
@@ -306,17 +323,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/tiled-gallery.php
 			// - modules/videopress.php
 			'Photos and Videos' => _x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Writing` tag:
-			// - modules/copy-post.php
-			// - modules/custom-content-types.php
-			// - modules/json-api.php
-			// - modules/latex.php
-			// - modules/markdown.php
-			// - modules/podcast.php
-			// - modules/post-by-email.php
-			// - modules/shortcodes.php
-			'Writing' => _x( 'Writing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Fonts` tag:
 			// - modules/google-fonts.php
@@ -402,6 +408,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Account Protection',
 	    'feature' => 'Security',
 	    'additional_search_queries' => '',
+	    'plan_classes' => '',
+	  ),
+	  'ai' => 
+	  array (
+	    'name' => 'AI',
+	    'description' => 'Turn your ideas into ready-to-publish content and generate images with the power of AI.',
+	    'sort' => '40',
+	    'recommendation_order' => '15',
+	    'introduced' => '16.2-a.3',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => 'Yes',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'Writing',
+	    'feature' => 'Writing',
+	    'additional_search_queries' => 'ai, artificial intelligence, jetpack ai, ai assistant, generate, content, images',
 	    'plan_classes' => '',
 	  ),
 	  'blaze' => 
@@ -1255,8 +1279,9 @@ function jetpack_has_no_module_info( $slug ) {
 	  0 => 'module-extras',
 	  1 => 'module-info',
 	  2 => 'plugin-search',
-	  3 => 'simple-payments',
-	  4 => 'theme-tools',
+	  3 => 'reprint-export',
+	  4 => 'simple-payments',
+	  5 => 'theme-tools',
 	);
 
 	return in_array( $slug, $no_info_slugs, true );
