@@ -1,1 +1,0 @@
-<?php return array('dependencies' => array('react'), 'version' => '19.2.7');
