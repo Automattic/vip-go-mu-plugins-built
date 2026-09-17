@@ -300,7 +300,7 @@ class LlmTextGenerator {
 				'content_filtered',
 				sprintf(
 					/* translators: %s: what was being generated, e.g. "AI agent". */
-					__( 'The %s was stopped by the AI provider\'s content filter, so it returned nothing. Re-running it will not help until the wording that triggered the filter changes.', 'vip-workflows' ),
+					__( 'The %s was stopped by the AI provider’s content filter, so it returned nothing. Re-running it will not help until the wording that triggered the filter changes.', 'vip-workflows' ),
 					$context
 				)
 			);

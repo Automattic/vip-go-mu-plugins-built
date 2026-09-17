@@ -90,7 +90,7 @@ class EditorialMentor {
 			$cards = array(
 				array(
 					'type'       => 'mentor-guidance',
-					'title'      => __( 'Editorial Guidance', 'vip-workflows' ),
+					'title'      => __( 'Editorial guidance', 'vip-workflows' ),
 					'guidance'   => $guidance['guidance'],
 					'readiness'  => $guidance['readiness'],
 					'source'     => 'editorial-mentor',

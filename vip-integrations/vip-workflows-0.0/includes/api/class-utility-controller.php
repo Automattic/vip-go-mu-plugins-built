@@ -75,7 +75,7 @@ class UtilityController extends WP_REST_Controller {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to access this endpoint.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to access this endpoint.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
 		}

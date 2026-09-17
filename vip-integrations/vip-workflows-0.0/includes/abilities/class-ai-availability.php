@@ -222,7 +222,7 @@ final class AiAvailability {
 						self::ENVIRONMENT_ID_PREFIX . $provider,
 						sprintf(
 							/* translators: %s: AI provider display name, e.g. "OpenAI". */
-							__( 'The %s provider is not registered with this site\'s WordPress AI Client, so text generation cannot run through it.', 'vip-workflows' ),
+							__( 'The %s provider is not registered with this site’s WordPress AI Client, so text generation cannot run through it.', 'vip-workflows' ),
 							$label
 						),
 						__( 'AI text generation is not available on this site.', 'vip-workflows' ),

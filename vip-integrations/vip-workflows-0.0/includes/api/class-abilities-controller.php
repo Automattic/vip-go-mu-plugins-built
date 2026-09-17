@@ -548,7 +548,7 @@ class AbilitiesController extends WP_REST_Controller {
 		if ( $object_id && ! current_user_can( 'edit_post', $object_id ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to analyze this post.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to analyze this post.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -576,7 +576,7 @@ class AbilitiesController extends WP_REST_Controller {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to view results for this post.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to view results for this post.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -641,7 +641,7 @@ class AbilitiesController extends WP_REST_Controller {
 					'readonly'    => true,
 				),
 				'description'      => array(
-					'description' => __( 'Human-readable description of what the ability does.', 'vip-workflows' ),
+					'description' => __( 'Tool description written for a language model. Not for display — use label and meta.summary.', 'vip-workflows' ),
 					'type'        => 'string',
 					'context'     => array( 'view' ),
 					'readonly'    => true,
@@ -659,7 +659,7 @@ class AbilitiesController extends WP_REST_Controller {
 					'readonly'    => true,
 				),
 				'meta'             => array(
-					'description' => __( 'Ability meta, including supports, stage_eligible and transition_eligible.', 'vip-workflows' ),
+					'description' => __( 'Ability meta, including summary, supports, stage_eligible and transition_eligible.', 'vip-workflows' ),
 					'type'        => 'object',
 					'context'     => array( 'view' ),
 					'readonly'    => true,

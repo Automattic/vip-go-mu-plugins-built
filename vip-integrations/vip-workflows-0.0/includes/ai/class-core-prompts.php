@@ -42,7 +42,7 @@ class CorePrompts {
 				'output'      => 'markdown',
 				'label'       => __( 'Media: image analysis', 'vip-workflows' ),
 				'group'       => __( 'Media', 'vip-workflows' ),
-				'description' => __( 'Vision prompt for analyzing uploaded images during research.', 'vip-workflows' ),
+				'description' => __( 'Analyzes images uploaded during research.', 'vip-workflows' ),
 				'default'     => "Analyze this image for editorial research. Provide:\n\n" .
 					"DESCRIPTION:\n" .
 					"A detailed description of what is shown (people, objects, setting, context).\n\n" .
@@ -63,7 +63,7 @@ class CorePrompts {
 				'output'      => 'markdown',
 				'label'       => __( 'Media: PDF analysis', 'vip-workflows' ),
 				'group'       => __( 'Media', 'vip-workflows' ),
-				'description' => __( 'Prompt for summarizing and extracting text from uploaded PDFs.', 'vip-workflows' ),
+				'description' => __( 'Summarizes and extracts text from uploaded PDFs.', 'vip-workflows' ),
 				'default'     => "Analyze this PDF document for editorial research. Provide:\n\n" .
 					"SUMMARY:\n" .
 					'A concise 2-3 paragraph summary of the document covering the main points, ' .
@@ -84,7 +84,7 @@ class CorePrompts {
 				'output'      => 'markdown',
 				'label'       => __( 'Media: transcript / text summary', 'vip-workflows' ),
 				'group'       => __( 'Media', 'vip-workflows' ),
-				'description' => __( 'Summary prompt for transcripts and extracted text. {content_type} is the kind of content being summarized.', 'vip-workflows' ),
+				'description' => __( 'Summary prompt for transcripts and extracted text.', 'vip-workflows' ),
 				'variables'   => array( 'content_type' ),
 				// The call site appends "\n\nContent:\n{text}" after resolving this template.
 				'default'     => 'Summarize this {content_type} in 2-3 concise paragraphs. ' .
@@ -101,7 +101,7 @@ class CorePrompts {
 				'output'      => 'markdown',
 				'label'       => __( 'Media: image analysis (ideation source)', 'vip-workflows' ),
 				'group'       => __( 'Media', 'vip-workflows' ),
-				'description' => __( 'Shorter image analysis prompt used when analyzing a pinned ideation source image.', 'vip-workflows' ),
+				'description' => __( 'Analyzes images pinned as ideation sources.', 'vip-workflows' ),
 				'default'     => 'Analyze this image for editorial research. Describe what is shown, any text visible, and key details relevant for journalism/editorial use. Be thorough.',
 			)
 		);
@@ -116,7 +116,7 @@ class CorePrompts {
 			array(
 				'label'       => __( 'Ideation: seed analysis', 'vip-workflows' ),
 				'group'       => __( 'Ideation', 'vip-workflows' ),
-				'description' => __( 'Extracts structured metadata (tags, entities, queries) from a story seed. Variables: {seed}, {brand_context}.', 'vip-workflows' ),
+				'description' => __( 'Extracts tags, entities and queries from a seed.', 'vip-workflows' ),
 				'variables'   => array( 'seed', 'brand_context' ),
 				'default'     => <<<'PROMPT'
 Analyze this story idea seed and extract structured metadata.
@@ -151,7 +151,7 @@ PROMPT
 			array(
 				'label'       => __( 'Ideation: editorial mentor', 'vip-workflows' ),
 				'group'       => __( 'Ideation', 'vip-workflows' ),
-				'description' => __( 'Evaluates ideation progress and suggests next steps. Variables: {seed}, {tags}, {news_angle}, {total_cards}, {pinned_count}, {pinned_breakdown}, {dismissed_count}, {pinned_details}, {assistant_list}.', 'vip-workflows' ),
+				'description' => __( 'Suggests next steps for an ideation project.', 'vip-workflows' ),
 				'variables'   => array( 'seed', 'tags', 'news_angle', 'total_cards', 'pinned_count', 'pinned_breakdown', 'dismissed_count', 'pinned_details', 'assistant_list' ),
 				'default'     => <<<'PROMPT'
 You are an editorial mentor guiding a journalist through story ideation. They started with a seed idea and assistants found related sources. The journalist has been curating by pinning sources they find valuable.
@@ -198,7 +198,7 @@ PROMPT
 			array(
 				'label'       => __( 'Ideation: WP search re-ranking', 'vip-workflows' ),
 				'group'       => __( 'Ideation', 'vip-workflows' ),
-				'description' => __( 'Ranks candidate archive articles by relevance to the seed. Variables: {limit}, {seed}, {candidate_text}.', 'vip-workflows' ),
+				'description' => __( 'Ranks archive results by relevance to the seed.', 'vip-workflows' ),
 				'variables'   => array( 'limit', 'seed', 'candidate_text' ),
 				'default'     => <<<'PROMPT'
 Given this story idea seed, rank the following articles by relevance. Return ONLY a JSON array of article indices (numbers) in order of relevance, most relevant first. Return at most {limit} indices.
@@ -225,7 +225,7 @@ PROMPT
 				'output'      => 'markdown',
 				'label'       => __( 'Research: source summary', 'vip-workflows' ),
 				'group'       => __( 'Research', 'vip-workflows' ),
-				'description' => __( 'Summarizes a single research source. Variables: {max_length}, {title}, {content}.', 'vip-workflows' ),
+				'description' => __( 'Summarizes a single research source.', 'vip-workflows' ),
 				'variables'   => array( 'max_length', 'title', 'content' ),
 				'default'     => 'Summarize the following article in approximately {max_length} words. '
 					. 'Focus on the key information, main arguments, and notable findings. '
@@ -241,7 +241,7 @@ PROMPT
 				'output'      => 'markdown',
 				'label'       => __( 'Research: project summary', 'vip-workflows' ),
 				'group'       => __( 'Research', 'vip-workflows' ),
-				'description' => __( 'Synthesizes multiple research sources for a project. Variables: {source_count}, {max_length}, {context}.', 'vip-workflows' ),
+				'description' => __( 'Combines a project’s research sources.', 'vip-workflows' ),
 				'variables'   => array( 'source_count', 'max_length', 'context' ),
 				'default'     => 'You are analyzing {source_count} research sources for an editorial project. '
 					. "Synthesize the information and provide:\n\n"
@@ -273,7 +273,7 @@ PROMPT
 			array(
 				'label'       => __( 'Draft: system instruction', 'vip-workflows' ),
 				'group'       => __( 'Draft', 'vip-workflows' ),
-				'description' => __( 'System instruction for editorial draft generation. Variables: {guideline_context}, {word_count}, {image_placement}.', 'vip-workflows' ),
+				'description' => __( 'System instruction for editorial draft generation.', 'vip-workflows' ),
 				'variables'   => array( 'guideline_context', 'word_count', 'image_placement' ),
 				'default'     => "You are a professional editorial writer.\n\n"
 					. "EDITORIAL GUIDELINES:\n{guideline_context}\n\n"
@@ -294,7 +294,7 @@ PROMPT
 			array(
 				'label'       => __( 'Draft: user prompt', 'vip-workflows' ),
 				'group'       => __( 'Draft', 'vip-workflows' ),
-				'description' => __( 'User prompt for editorial draft generation. Variables: {project_name}, {research_context}, {image_instructions}.', 'vip-workflows' ),
+				'description' => __( 'User prompt for editorial draft generation.', 'vip-workflows' ),
 				'variables'   => array( 'project_name', 'research_context', 'image_instructions' ),
 				'default'     => "Research project: {project_name}\n\n"
 					. "Research Context:\n{research_context}{image_instructions}\n\n"
@@ -308,7 +308,7 @@ PROMPT
 				'output'      => 'markdown',
 				'label'       => __( 'Research: video transcript analysis', 'vip-workflows' ),
 				'group'       => __( 'Research', 'vip-workflows' ),
-				'description' => __( 'Analyzes a fetched video transcript. Variables: {title}, {transcript}.', 'vip-workflows' ),
+				'description' => __( 'Analyzes a fetched video transcript.', 'vip-workflows' ),
 				'variables'   => array( 'title', 'transcript' ),
 				'default'     => "Analyze this video transcript for editorial research.\n\n"
 					. "VIDEO TITLE: \"{title}\"\n\n"

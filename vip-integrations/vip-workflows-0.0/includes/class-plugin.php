@@ -22,9 +22,12 @@ use VIPWorkflows\Workflow\StatusManager;
 use VIPWorkflows\Workflow\WorkflowEvents;
 use VIPWorkflows\Maintenance\Cleanup;
 use VIPWorkflows\Notifications\NotificationDispatcher;
+use VIPWorkflows\Experiments\CalendarExperiment;
 use VIPWorkflows\Experiments\ExperimentCLI;
 use VIPWorkflows\Experiments\ExperimentRegistry;
 use VIPWorkflows\Experiments\IdeationExperiment;
+use VIPWorkflows\Experiments\KanbanExperiment;
+use VIPWorkflows\Experiments\MyQueueExperiment;
 use VIPWorkflows\Sequences\SequenceRepository;
 use VIPWorkflows\Story\Story;
 
@@ -149,6 +152,11 @@ final class Plugin {
 		if ( function_exists( 'wp_register_ability' ) ) {
 			add_action( 'wp_abilities_api_categories_init', array( $this, 'register_ability_categories' ) );
 			add_action( 'wp_abilities_api_init', array( $this, 'register_abilities' ) );
+
+			// Core coerces an unusable permission result to a denial without
+			// saying so. Say so. WP 7.1+; on 7.0 the filter does not fire and
+			// this is simply absent.
+			add_filter( 'wp_ability_permission_result', array( self::class, 'warn_on_unusable_permission_result' ), 10, 4 );
 		}
 
 		// Configurable AI system prompts. Core prompts register on
@@ -168,6 +176,9 @@ final class Plugin {
 
 		$this->experiment_registry = new ExperimentRegistry();
 		$this->experiment_registry->register( new IdeationExperiment() );
+		$this->experiment_registry->register( new KanbanExperiment() );
+		$this->experiment_registry->register( new CalendarExperiment() );
+		$this->experiment_registry->register( new MyQueueExperiment() );
 
 		/**
 		 * Fires when experiments should be registered.
@@ -317,7 +328,7 @@ final class Plugin {
 		 * Use wp_register_ability() to register abilities:
 		 *
 		 * wp_register_ability( 'my-plugin/my-ability', [
-		 *     'label'               => __( 'My Ability', 'my-plugin' ),
+		 *     'label'               => __( 'My ability', 'my-plugin' ),
 		 *     'description'         => __( 'Does something useful.', 'my-plugin' ),
 		 *     'category'            => 'vip-workflows',
 		 *     'input_schema'        => [ ... ],
@@ -570,6 +581,68 @@ final class Plugin {
 		// WP HTTP API defaults to 5s; AI generation needs more headroom, for
 		// every provider (not just OpenAI).
 		add_filter( 'http_request_timeout', array( self::class, 'extend_ai_request_timeout' ), 10, 2 );
+	}
+
+	/**
+	 * Warn when a permission callback returns something that cannot mean yes or no.
+	 *
+	 * `WP_Ability::check_permissions()` coerces anything that is not a bool or a
+	 * WP_Error to `false`. That is the right default — an unusable answer must not
+	 * grant access — but it is silent, and the failure it produces points away from
+	 * the cause: the ability reports "does not have necessary permission" for a
+	 * user who plainly has the capability, and no amount of looking at roles
+	 * explains it.
+	 *
+	 * `null` is the value that gets returned by accident. Several of this plugin's
+	 * own helpers are error-or-nothing accessors — `require_post_edit_permission()`
+	 * returns a WP_Error when the check fails and `null` when it passes — so
+	 * returning one straight out of a `permission_callback` denies every caller.
+	 * The correct use keeps the null:
+	 *
+	 *     $error = require_post_edit_permission( $post_id );
+	 *     if ( $error ) {
+	 *         return $error;
+	 *     }
+	 *     return true;
+	 *
+	 * The shortened version reads as though it says the same thing, and nothing
+	 * anywhere contradicts it until someone tries the feature.
+	 *
+	 * Scoped to this plugin's own abilities. Another plugin's contract is not this
+	 * plugin's business to comment on, and the notice would arrive without the
+	 * context needed to act on it.
+	 *
+	 * The result is passed through untouched: this reports, it does not rescue.
+	 * Coercing an unusable answer to `true` here would turn a broken permission
+	 * check into an open one, which is considerably worse than the silence.
+	 *
+	 * @param  mixed  $permission   Whatever the permission callback returned.
+	 * @param  string $ability_name The ability being checked.
+	 * @param  mixed  $input        Input passed to the permission check.
+	 * @param  mixed  $ability      The ability instance.
+	 * @return mixed The permission result, unchanged.
+	 */
+	public static function warn_on_unusable_permission_result( $permission, $ability_name, $input, $ability ) {
+		if ( is_bool( $permission ) || is_wp_error( $permission ) ) {
+			return $permission;
+		}
+
+		if ( ! $ability instanceof \VIPWorkflows\Abilities\Ability ) {
+			return $permission;
+		}
+
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				/* translators: 1: ability name, 2: the type the permission callback returned. */
+				esc_html__( 'The permission_callback for ability "%1$s" returned %2$s, which cannot mean yes or no, so access was denied. Return true, false, or a WP_Error. Helpers such as require_post_edit_permission() return null on success and must not be returned directly.', 'vip-workflows' ),
+				esc_html( (string) $ability_name ),
+				esc_html( null === $permission ? 'null' : get_debug_type( $permission ) )
+			),
+			'1.0.0'
+		);
+
+		return $permission;
 	}
 
 	/**

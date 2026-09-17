@@ -26,7 +26,7 @@ function require_post_edit_permission( int $post_id ): ?\WP_Error {
 	// to be reported as successful ability results to direct executor callers.
 	return new \WP_Error(
 		'forbidden',
-		__( 'You do not have permission to edit this post.', 'vip-workflows' )
+		__( 'Sorry, you are not allowed to edit this post.', 'vip-workflows' )
 	);
 }
 

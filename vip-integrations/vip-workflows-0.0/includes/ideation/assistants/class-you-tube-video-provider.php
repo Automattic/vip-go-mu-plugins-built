@@ -43,7 +43,7 @@ class YouTubeVideoProvider implements MediaProviderInterface, MediaProviderRequi
 	 * @return string
 	 */
 	public function get_name(): string {
-		return __( 'YouTube Videos', 'vip-workflows' );
+		return __( 'YouTube videos', 'vip-workflows' );
 	}
 
 	/**

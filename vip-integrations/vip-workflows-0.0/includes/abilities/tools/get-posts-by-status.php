@@ -81,7 +81,7 @@ function register_get_posts_by_status(): void {
 	wp_register_ability(
 		'vip-workflows/get-posts-by-status',
 		array(
-			'label'               => __( 'Get Posts By Status', 'vip-workflows' ),
+			'label'               => __( 'Posts by status', 'vip-workflows' ),
 			'description'         => __( 'Query posts filtered by a specific workflow status.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -132,6 +132,7 @@ function register_get_posts_by_status(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Lists posts sitting at a given workflow status.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

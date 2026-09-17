@@ -21,11 +21,10 @@ use VIPWorkflows\Workflow\PostTypeManager;
 class Admin implements ModuleInterface {
 
 	/**
-	 * Top-level menu icon: the `replace` icon from @wordpress/icons, encoded as
-	 * a base64 SVG data URI. Fill is the default admin-menu icon color so it
-	 * sits alongside core icons. Mirrors the AdminPage header icon default.
+	 * Top-level menu icon: the VIP Workflows integration icon, encoded as a
+	 * base64 SVG data URI so WordPress can color it with the admin menu palette.
 	 */
-	private const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cGF0aCBmaWxsPSIjYTdhYWFkIiBkPSJNMTYgMTBoNGMuNiAwIDEtLjQgMS0xVjVjMC0uNi0uNC0xLTEtMWgtNGMtLjYgMC0xIC40LTEgMXY0YzAgLjYuNCAxIDEgMXptLTggNEg0Yy0uNiAwLTEgLjQtMSAxdjRjMCAuNi40IDEgMSAxaDRjLjYgMCAxLS40IDEtMXYtNGMwLS42LS40LTEtMS0xem0xMC0yLjZMMTQuNSAxNWwxLjEgMS4xIDEuNy0xLjdjLS4xIDEuMS0uMyAyLjMtLjkgMi45LS4zLjMtLjcuNS0xLjMuNWgtNC41djEuNUgxNWMuOSAwIDEuNy0uMyAyLjMtLjkgMS0xIDEuMy0yLjcgMS40LTRsMS44IDEuOCAxLjEtMS4xLTMuNi0zLjd6TTYuOCA5LjdjLjEtMS4xLjMtMi4zLjktMi45LjQtLjQuOC0uNiAxLjMtLjZoNC41VjQuOEg5Yy0uOSAwLTEuNy4zLTIuMy45LTEgMS0xLjMgMi43LTEuNCA0TDMuNSA4bC0xIDFMNiAxMi42IDkuNSA5bC0xLTEtMS43IDEuN3oiLz48L3N2Zz4=';
+	private const MENU_ICON = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjk4IiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDI5OCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGZpbHRlcj0idXJsKCNmaWx0ZXIwX2RfOTIzN18xOTU4MCkiPgo8cGF0aCBkPSJNMTk4LjU3NiAxNTYuNTIzTDIwMS44MDcgMTU3Ljg3VjE1Ny44N0wxOTguNTc2IDE1Ni41MjNaTTIyMS4wNzcgMTA4Ljk5M0MyMjAuMzQxIDEwNy4yMDUgMjE4LjI5NiAxMDYuMzUyIDIxNi41MDggMTA3LjA4OEwxODcuMzc4IDExOS4wNzNDMTg1LjU5IDExOS44MDkgMTg0LjczNyAxMjEuODU0IDE4NS40NzMgMTIzLjY0MkMxODYuMjA4IDEyNS40MyAxODguMjU0IDEyNi4yODIgMTkwLjA0MSAxMjUuNTQ3TDIxNS45MzUgMTE0Ljg5M0wyMjYuNTg5IDE0MC43ODdDMjI3LjMyNSAxNDIuNTc0IDIyOS4zNyAxNDMuNDI3IDIzMS4xNTggMTQyLjY5MkMyMzIuOTQ1IDE0MS45NTYgMjMzLjc5OCAxMzkuOTExIDIzMy4wNjIgMTM4LjEyM0wyMjEuMDc3IDEwOC45OTNaTTE4MS41MzggMTY4LjIwNEwxODEuNjMgMTcxLjcwM0wxODEuNTM4IDE2OC4yMDRaTTE5OC41NzYgMTU2LjUyM0wyMDEuODA3IDE1Ny44N0wyMjEuMDcgMTExLjY3MUwyMTcuODQgMTEwLjMyNEwyMTQuNjEgMTA4Ljk3N0wxOTUuMzQ2IDE1NS4xNzZMMTk4LjU3NiAxNTYuNTIzWk0xNjIuMzQgMTY4LjcwOEwxNjIuNDMyIDE3Mi4yMDZMMTgxLjYzIDE3MS43MDNMMTgxLjUzOCAxNjguMjA0TDE4MS40NDYgMTY0LjcwNUwxNjIuMjQ4IDE2NS4yMDlMMTYyLjM0IDE2OC43MDhaTTE5OC41NzYgMTU2LjUyM0wxOTUuMzQ2IDE1NS4xNzZDMTkyLjk5NSAxNjAuODEzIDE4Ny41NTIgMTY0LjU0NSAxODEuNDQ2IDE2NC43MDVMMTgxLjUzOCAxNjguMjA0TDE4MS42MyAxNzEuNzAzQzE5MC40OTQgMTcxLjQ3IDE5OC4zOTQgMTY2LjA1MyAyMDEuODA3IDE1Ny44N0wxOTguNTc2IDE1Ni41MjNaIiBmaWxsPSIjMTMxOTFFIi8+CjwvZz4KPGcgZmlsdGVyPSJ1cmwoI2ZpbHRlcjFfZF85MjM3XzE5NTgwKSI+CjxwYXRoIGQ9Ik0xMTUuODkgNTAuMzI0M1Y0Ni44MjQzVjQ2LjgyNDNWNTAuMzI0M1pNOTcuOTI2MSA2My4xMzUyTDEwMS4yMzUgNjQuMjc1M1Y2NC4yNzUzTDk3LjkyNjEgNjMuMTM1MlpNNzguNjkzOSAxMTEuMzU4Qzc5LjU0MDkgMTEzLjA5NiA4MS42MzYxIDExMy44MTcgODMuMzczNiAxMTIuOTdMMTExLjY4OCA5OS4xNjdDMTEzLjQyNiA5OC4zMiAxMTQuMTQ4IDk2LjIyNDggMTEzLjMwMSA5NC40ODczQzExMi40NTQgOTIuNzQ5NyAxMTAuMzU4IDkyLjAyNzkgMTA4LjYyMSA5Mi44NzQ5TDgzLjQ1MjMgMTA1LjE0NUw3MS4xODI2IDc5Ljk3NkM3MC4zMzU2IDc4LjIzODUgNjguMjQwNCA3Ny41MTY2IDY2LjUwMjkgNzguMzYzN0M2NC43NjUzIDc5LjIxMDcgNjQuMDQzNSA4MS4zMDU5IDY0Ljg5MDUgODMuMDQzNEw3OC42OTM5IDExMS4zNThaTTI0Ny4zNCA1MC4zMjQ0VjQ2LjgyNDRMMTE1Ljg5IDQ2LjgyNDNWNTAuMzI0M1Y1My44MjQzTDI0Ny4zNCA1My44MjQ0VjUwLjMyNDRaTTk3LjkyNjEgNjMuMTM1Mkw5NC42MTcgNjEuOTk1MUw3OC41MzA4IDEwOC42ODRMODEuODM5OSAxMDkuODI0TDg1LjE0OSAxMTAuOTY0TDEwMS4yMzUgNjQuMjc1M0w5Ny45MjYxIDYzLjEzNTJaTTExNS44OSA1MC4zMjQzVjQ2LjgyNDNDMTA2LjI4OCA0Ni44MjQzIDk3Ljc0NDcgNTIuOTE3MiA5NC42MTcgNjEuOTk1MUw5Ny45MjYxIDYzLjEzNTJMMTAxLjIzNSA2NC4yNzUzQzEwMy4zOSA1OC4wMjE3IDEwOS4yNzUgNTMuODI0MyAxMTUuODkgNTMuODI0M1Y1MC4zMjQzWiIgZmlsbD0iIzEzMTkxRSIvPgo8L2c+CjxnIGZpbHRlcj0idXJsKCNmaWx0ZXIyX2RfOTIzN18xOTU4MCkiPgo8cGF0aCBkPSJNMTM3LjI4MiAzMy44MDg1QzE0MC4wMTkgMjYuMzExNyAxNDcuMTQ5IDIxLjMyNDMgMTU1LjEzIDIxLjMyNDNIMjQ2LjE3N0MyNTkuMzcyIDIxLjMyNDMgMjY4LjU1IDM0LjQ0NDggMjY0LjAyNSA0Ni44NDAyTDI1NC44OTggNzEuODQwMkMyNTIuMTYxIDc5LjMzNyAyNDUuMDMxIDg0LjMyNDMgMjM3LjA1IDg0LjMyNDNIMTQ2LjAwM0MxMzIuODA3IDg0LjMyNDMgMTIzLjYzIDcxLjIwMzggMTI4LjE1NSA1OC44MDg1TDEzNy4yODIgMzMuODA4NVoiIGZpbGw9IiMxMzE5MUUiLz4KPHBhdGggZD0iTTE1NS4xMyAyNC44MjQzSDI0Ni4xNzdDMjU2Ljk0MiAyNC44MjQ0IDI2NC40MjggMzUuNTI3OCAyNjAuNzM2IDQ1LjYzOThMMjUxLjYwOSA3MC42Mzk4QzI0OS4zNzcgNzYuNzU1NSAyNDMuNTYgODAuODI0MyAyMzcuMDUgODAuODI0M0gxNDYuMDAzQzEzNS4yMzggODAuODI0MyAxMjcuNzUyIDcwLjEyMDkgMTMxLjQ0MyA2MC4wMDg5TDE0MC41NyAzNS4wMDg5QzE0Mi44MDMgMjguODkzMSAxNDguNjE5IDI0LjgyNDQgMTU1LjEzIDI0LjgyNDNaIiBzdHJva2U9IiMxMzE5MUUiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L2c+CjxnIGZpbHRlcj0idXJsKCNmaWx0ZXIzX2RfOTIzN18xOTU4MCkiPgo8cGF0aCBkPSJNNjAuMTMgMTM3LjgyNEgxNTEuMTc3QzE2MS45NDIgMTM3LjgyNCAxNjkuNDI4IDE0OC41MjggMTY1LjczNiAxNTguNjRMMTU2LjYwOSAxODMuNjRDMTU0LjM3NyAxODkuNzU2IDE0OC41NiAxOTMuODI0IDE0Mi4wNSAxOTMuODI0SDUxLjAwM0M0MC4yMzgyIDE5My44MjQgMzIuNzUxOCAxODMuMTIxIDM2LjQ0MzUgMTczLjAwOUw0NS41NzA0IDE0OC4wMDlDNDcuODAzMiAxNDEuODkzIDUzLjYxOTQgMTM3LjgyNCA2MC4xMyAxMzcuODI0WiIgc3Ryb2tlPSIjMTMxOTFFIiBzdHJva2Utd2lkdGg9IjciIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9nPgo8ZGVmcz4KPGZpbHRlciBpZD0iZmlsdGVyMF9kXzkyMzdfMTk1ODAiIHg9IjEzMC4yNjIiIHk9Ijg1LjQ5OTIiIHdpZHRoPSIxMzUuMDUyIiBoZWlnaHQ9IjEyOS4zNTYiIGZpbHRlclVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj4KPGZlRmxvb2QgZmxvb2Qtb3BhY2l0eT0iMCIgcmVzdWx0PSJCYWNrZ3JvdW5kSW1hZ2VGaXgiLz4KPGZlQ29sb3JNYXRyaXggaW49IlNvdXJjZUFscGhhIiB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMTI3IDAiIHJlc3VsdD0iaGFyZEFscGhhIi8+CjxmZU9mZnNldCBkeT0iMTAuNjYyMiIvPgo8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxNS45OTMyIi8+CjxmZUNvbG9yTWF0cml4IHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwLjA1IDAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbjI9IkJhY2tncm91bmRJbWFnZUZpeCIgcmVzdWx0PSJlZmZlY3QxX2Ryb3BTaGFkb3dfOTIzN18xOTU4MCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluPSJTb3VyY2VHcmFwaGljIiBpbjI9ImVmZmVjdDFfZHJvcFNoYWRvd185MjM3XzE5NTgwIiByZXN1bHQ9InNoYXBlIi8+CjwvZmlsdGVyPgo8ZmlsdGVyIGlkPSJmaWx0ZXIxX2RfOTIzN18xOTU4MCIgeD0iMzIuNTQ5MyIgeT0iMjUuNSIgd2lkdGg9IjI0Ni43NzciIGhlaWdodD0iMTMwLjQ3NCIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxMC42NjIyIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE1Ljk5MzIiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMDUgMCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9ImVmZmVjdDFfZHJvcFNoYWRvd185MjM3XzE5NTgwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iZWZmZWN0MV9kcm9wU2hhZG93XzkyMzdfMTk1ODAiIHJlc3VsdD0ic2hhcGUiLz4KPC9maWx0ZXI+CjxmaWx0ZXIgaWQ9ImZpbHRlcjJfZF85MjM3XzE5NTgwIiB4PSI5NSIgeT0iMS41MjU4OGUtMDUiIHdpZHRoPSIyMDIuMTgiIGhlaWdodD0iMTI2Ljk3MyIgZmlsdGVyVW5pdHM9InVzZXJTcGFjZU9uVXNlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgo8ZmVGbG9vZCBmbG9vZC1vcGFjaXR5PSIwIiByZXN1bHQ9IkJhY2tncm91bmRJbWFnZUZpeCIvPgo8ZmVDb2xvck1hdHJpeCBpbj0iU291cmNlQWxwaGEiIHR5cGU9Im1hdHJpeCIgdmFsdWVzPSIwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAxMjcgMCIgcmVzdWx0PSJoYXJkQWxwaGEiLz4KPGZlT2Zmc2V0IGR5PSIxMC42NjIyIi8+CjxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjE1Ljk5MzIiLz4KPGZlQ29sb3JNYXRyaXggdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAuMDUgMCIvPgo8ZmVCbGVuZCBtb2RlPSJub3JtYWwiIGluMj0iQmFja2dyb3VuZEltYWdlRml4IiByZXN1bHQ9ImVmZmVjdDFfZHJvcFNoYWRvd185MjM3XzE5NTgwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iZWZmZWN0MV9kcm9wU2hhZG93XzkyMzdfMTk1ODAiIHJlc3VsdD0ic2hhcGUiLz4KPC9maWx0ZXI+CjxmaWx0ZXIgaWQ9ImZpbHRlcjNfZF85MjM3XzE5NTgwIiB4PSItNy42MjkzOWUtMDYiIHk9IjExMyIgd2lkdGg9IjIwMi4xOCIgaGVpZ2h0PSIxMjYuOTczIiBmaWx0ZXJVbml0cz0idXNlclNwYWNlT25Vc2UiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CjxmZUZsb29kIGZsb29kLW9wYWNpdHk9IjAiIHJlc3VsdD0iQmFja2dyb3VuZEltYWdlRml4Ii8+CjxmZUNvbG9yTWF0cml4IGluPSJTb3VyY2VBbHBoYSIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDEyNyAwIiByZXN1bHQ9ImhhcmRBbHBoYSIvPgo8ZmVPZmZzZXQgZHk9IjEwLjY2MjIiLz4KPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMTUuOTkzMiIvPgo8ZmVDb2xvck1hdHJpeCB0eXBlPSJtYXRyaXgiIHZhbHVlcz0iMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMC4wNSAwIi8+CjxmZUJsZW5kIG1vZGU9Im5vcm1hbCIgaW4yPSJCYWNrZ3JvdW5kSW1hZ2VGaXgiIHJlc3VsdD0iZWZmZWN0MV9kcm9wU2hhZG93XzkyMzdfMTk1ODAiLz4KPGZlQmxlbmQgbW9kZT0ibm9ybWFsIiBpbj0iU291cmNlR3JhcGhpYyIgaW4yPSJlZmZlY3QxX2Ryb3BTaGFkb3dfOTIzN18xOTU4MCIgcmVzdWx0PSJzaGFwZSIvPgo8L2ZpbHRlcj4KPC9kZWZzPgo8L3N2Zz4K';
 
 	/**
 	 * Get the identifier.
@@ -198,25 +197,29 @@ class Admin implements ModuleInterface {
 				array( $this, 'render_my_dashboard_page' )
 			);
 
-			// Kanban board - available to all who can edit posts.
-			add_submenu_page(
-				'vip-workflows',
-				__( 'Kanban', 'vip-workflows' ),
-				__( 'Kanban', 'vip-workflows' ),
-				'edit_posts',
-				'vip-workflows-kanban',
-				array( $this, 'render_kanban_page' )
-			);
+			// Kanban board - available to all who can edit posts, while enabled.
+			if ( Plugin::experiment_enabled( 'kanban' ) ) {
+				add_submenu_page(
+					'vip-workflows',
+					__( 'Kanban', 'vip-workflows' ),
+					__( 'Kanban', 'vip-workflows' ),
+					'edit_posts',
+					'vip-workflows-kanban',
+					array( $this, 'render_kanban_page' )
+				);
+			}
 
-			// Calendar - available to all who can edit posts.
-			add_submenu_page(
-				'vip-workflows',
-				__( 'Calendar', 'vip-workflows' ),
-				__( 'Calendar', 'vip-workflows' ),
-				'edit_posts',
-				'vip-workflows-calendar',
-				array( $this, 'render_calendar_page' )
-			);
+			// Calendar - available to all who can edit posts, while enabled.
+			if ( Plugin::experiment_enabled( 'calendar' ) ) {
+				add_submenu_page(
+					'vip-workflows',
+					__( 'Calendar', 'vip-workflows' ),
+					__( 'Calendar', 'vip-workflows' ),
+					'edit_posts',
+					'vip-workflows-calendar',
+					array( $this, 'render_calendar_page' )
+				);
+			}
 
 			// Ideation page - the creative workspace for story ideas.
 			if ( Plugin::experiment_enabled( 'ideation' ) ) {
@@ -609,7 +612,7 @@ class Admin implements ModuleInterface {
 		<div class="notice notice-warning">
 			<p>
 				<strong><?php esc_html_e( 'VIP Workflows:', 'vip-workflows' ); ?></strong>
-					<?php esc_html_e( 'This upgrade gave every workflow stage a status region, and made a stage hold at most one transition per target. These sequences had to be changed to fit. The changes are safe, but they change how the sequences behave — please confirm them in the Sequence editor.', 'vip-workflows' ); ?>
+					<?php esc_html_e( 'This upgrade gave every workflow stage a status region, and made a stage hold at most one transition per target. These sequences had to be changed to fit. The changes are safe, but they change how the sequences behave — confirm them in the Sequence editor.', 'vip-workflows' ); ?>
 			</p>
 			<ul style="list-style: disc; margin-left: 2em;">
 				<?php foreach ( $changed as $sequence ) : ?>
@@ -717,7 +720,7 @@ class Admin implements ModuleInterface {
 	public function render_audit_log_page(): void {
 		// Check access.
 		if ( ! Settings::can_user_view_audit_log() ) {
-			wp_die( esc_html__( 'You do not have permission to view the audit log.', 'vip-workflows' ) );
+			wp_die( esc_html__( 'Sorry, you are not allowed to view the audit log.', 'vip-workflows' ) );
 		}
 
 		self::render_app_root();

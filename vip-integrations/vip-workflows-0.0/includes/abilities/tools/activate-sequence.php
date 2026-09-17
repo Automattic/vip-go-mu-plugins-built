@@ -170,7 +170,7 @@ function register_activate_sequence(): void {
 	vip_workflows_register_ability(
 		ACTIVATE_SEQUENCE_ABILITY_ID,
 		array(
-			'label'               => __( 'Activate Sequence', 'vip-workflows' ),
+			'label'               => __( 'Activate sequence', 'vip-workflows' ),
 			'description'         => __( 'Puts a workflow sequence live, or takes it back to draft. This is the only ability that changes a sequence lifecycle state; Update Sequence cannot. Activation is refused when the stored configuration is invalid.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -223,6 +223,7 @@ function register_activate_sequence(): void {
 				return current_user_can( 'manage_options' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Puts a sequence live, or takes it back to draft.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

@@ -104,7 +104,7 @@ class EmailChannel extends NotificationChannel {
 			return new WP_Error( 'no_email', __( 'No admin email configured.', 'vip-workflows' ) );
 		}
 
-		$subject = sprintf( '[%s] %s', get_bloginfo( 'name' ), __( 'Test Email', 'vip-workflows' ) );
+		$subject = sprintf( '[%s] %s', get_bloginfo( 'name' ), __( 'Test email', 'vip-workflows' ) );
 		$body    = '<p>' . esc_html__( 'VIP Workflows email notifications are working!', 'vip-workflows' ) . '</p>';
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 

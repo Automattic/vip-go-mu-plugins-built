@@ -777,7 +777,7 @@ class StageAgent {
 			if ( self::note_has_unmarked_children( $id, $marker ) || self::note_is_resolved( $note ) ) {
 				$index = $anchors[ $id ] ?? null;
 				if ( null !== $index ) {
-					$preserved_blocks[ $index ] = $id;
+					$preserved_blocks[ $index ][ $id ] = trim( wp_strip_all_tags( (string) $note->comment_content ) );
 				}
 				continue;
 			}
@@ -793,8 +793,13 @@ class StageAgent {
 		foreach ( $planned as $note ) {
 			$index = $note['index'];
 
-			if ( null !== $index && isset( $preserved_blocks[ $index ] ) ) {
-				$replied = self::surface_on_preserved_note( $post_id, (int) $preserved_blocks[ $index ], $note['body'], $marker, $inserted, $deletable );
+			// Fold into an existing thread only when this is the same finding
+			// recurring on that block. A different finding gets its own note
+			// rather than being appended to a conversation about something else.
+			$preserved_id = null !== $index ? self::preserved_note_for( $preserved_blocks[ $index ] ?? array(), $note['body'] ) : null;
+
+			if ( null !== $preserved_id ) {
+				$replied = self::surface_on_preserved_note( $post_id, $preserved_id, $note['body'], $marker, $inserted, $deletable );
 				if ( is_wp_error( $replied ) ) {
 					self::delete_notes( $inserted );
 					return $replied;
@@ -810,15 +815,17 @@ class StageAgent {
 
 			$inserted[] = $comment_id;
 			if ( null !== $index ) {
-				$new_anchors[ $index ] = $comment_id;
+				$new_anchors[ $index ][] = $comment_id;
 			}
 		}
 
 		// Rebuild anchors on the block tree: drop the deletable notes' anchors,
 		// leave preserved anchors untouched, set the new ones.
 		$stripped = self::strip_note_ids( $blocks, $deletable );
-		foreach ( $new_anchors as $index => $comment_id ) {
-			self::set_note_anchor( $blocks, $index, $comment_id );
+		foreach ( $new_anchors as $index => $comment_ids ) {
+			foreach ( $comment_ids as $comment_id ) {
+				self::set_note_anchor( $blocks, $index, $comment_id );
+			}
 		}
 
 		// Write the new content BEFORE removing the old notes, so a failed write
@@ -858,8 +865,17 @@ class StageAgent {
 	private static function anchor_index_by_note_id( array $blocks ): array {
 		$map = array();
 		foreach ( $blocks as $index => $block ) {
-			if ( isset( $block['attrs']['metadata']['noteId'] ) ) {
-				$map[ (int) $block['attrs']['metadata']['noteId'] ] = (int) $index;
+			if ( ! isset( $block['attrs']['metadata']['noteId'] ) ) {
+				continue;
+			}
+
+			// A block carries one note as a scalar and several as an array —
+			// that is core's own shape, written by the editor whenever a second
+			// note lands on a paragraph. Reading only scalars made every note in
+			// a shared block invisible here, which meant they could be neither
+			// preserved nor replaced.
+			foreach ( (array) $block['attrs']['metadata']['noteId'] as $note_id ) {
+				$map[ (int) $note_id ] = (int) $index;
 			}
 		}
 
@@ -913,7 +929,11 @@ class StageAgent {
 			);
 		}
 
-		// One note per flagged block, in document order.
+		// One note per finding, in document order. Bundling a block's findings
+		// into a single bulleted note made them inseparable: an editor could not
+		// resolve one and answer another, because resolving closes the note and
+		// a reply addresses whatever the note asked. Blocks carry several notes
+		// natively, so each finding gets its own.
 		ksort( $issue_map );
 		$planned = array();
 
@@ -922,14 +942,34 @@ class StageAgent {
 				continue;
 			}
 
-			$body      = 1 === count( $issues ) ? $issues[0] : self::bullet_list( $issues );
-			$planned[] = array(
-				'body'  => self::label_note_body( $label, $body ),
-				'index' => $number_to_index[ $number ],
-			);
+			foreach ( $issues as $issue ) {
+				$planned[] = array(
+					'body'  => self::label_note_body( $label, $issue ),
+					'index' => $number_to_index[ $number ],
+				);
+			}
 		}
 
 		return $planned;
+	}
+
+	/**
+	 * The preserved note on a block that already says this, if any.
+	 *
+	 * @param  array<int, string> $preserved Note ID => stripped body, for one block.
+	 * @param  string             $body      Planned note body.
+	 * @return int|null Note ID to reply on, or null to write a new note.
+	 */
+	private static function preserved_note_for( array $preserved, string $body ): ?int {
+		$needle = trim( wp_strip_all_tags( $body ) );
+
+		foreach ( $preserved as $note_id => $existing ) {
+			if ( $existing === $needle ) {
+				return (int) $note_id;
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -1055,7 +1095,17 @@ class StageAgent {
 			$blocks[ $index ]['attrs']['metadata'] = array();
 		}
 
-		$blocks[ $index ]['attrs']['metadata']['noteId'] = $comment_id;
+		// Append. Overwriting detached whatever was already anchored here —
+		// including notes a person wrote — leaving them orphaned in the sidebar
+		// with nothing pointing at them.
+		$existing = $blocks[ $index ]['attrs']['metadata']['noteId'] ?? null;
+		$ids      = null === $existing ? array() : array_map( 'intval', (array) $existing );
+
+		if ( ! in_array( $comment_id, $ids, true ) ) {
+			$ids[] = $comment_id;
+		}
+
+		$blocks[ $index ]['attrs']['metadata']['noteId'] = 1 === count( $ids ) ? $ids[0] : $ids;
 	}
 
 	/**
@@ -1069,13 +1119,24 @@ class StageAgent {
 		$stripped = false;
 
 		foreach ( $blocks as &$block ) {
-			if ( isset( $block['attrs']['metadata']['noteId'] )
-				&& in_array( (int) $block['attrs']['metadata']['noteId'], $deleted_ids, true ) ) {
-				unset( $block['attrs']['metadata']['noteId'] );
-				$stripped = true;
+			if ( isset( $block['attrs']['metadata']['noteId'] ) ) {
+				$ids  = array_map( 'intval', (array) $block['attrs']['metadata']['noteId'] );
+				$kept = array_values( array_diff( $ids, $deleted_ids ) );
 
-				if ( empty( $block['attrs']['metadata'] ) ) {
-					unset( $block['attrs']['metadata'] );
+				if ( $kept !== $ids ) {
+					$stripped = true;
+
+					// Remove only the deleted ids. A shared anchor keeps the
+					// notes that are still there.
+					if ( empty( $kept ) ) {
+						unset( $block['attrs']['metadata']['noteId'] );
+
+						if ( empty( $block['attrs']['metadata'] ) ) {
+							unset( $block['attrs']['metadata'] );
+						}
+					} else {
+						$block['attrs']['metadata']['noteId'] = 1 === count( $kept ) ? $kept[0] : $kept;
+					}
 				}
 			}
 

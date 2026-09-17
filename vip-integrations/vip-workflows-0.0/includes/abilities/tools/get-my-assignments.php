@@ -87,7 +87,7 @@ function register_get_my_assignments(): void {
 	wp_register_ability(
 		'vip-workflows/get-my-assignments',
 		array(
-			'label'               => __( 'Get My Assignments', 'vip-workflows' ),
+			'label'               => __( 'My assignments', 'vip-workflows' ),
 			'description'         => __( 'Returns posts assigned to the current user across all workflows.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -128,6 +128,7 @@ function register_get_my_assignments(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Lists the posts assigned to you.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

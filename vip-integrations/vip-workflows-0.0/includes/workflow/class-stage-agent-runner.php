@@ -403,7 +403,7 @@ class StageAgentRunner implements ModuleInterface {
 				$post_id,
 				$stage_key,
 				$ability_id,
-				__( 'This post\'s author cannot edit posts, so the AI agent was not run. Reassign the post to a user who can edit it, or move it back to the previous stage.', 'vip-workflows' ),
+				__( 'This post’s author cannot edit posts, so the AI agent was not run. Reassign the post to a user who can edit it, or move it back to the previous stage.', 'vip-workflows' ),
 				$from_stage
 			);
 			return;
@@ -696,6 +696,45 @@ class StageAgentRunner implements ModuleInterface {
 	}
 
 	/**
+	 * Whether an agent route between two stages is held because it publishes.
+	 *
+	 * Crossing INTO `publish` or `private` from outside them is held unless the
+	 * sequence opts in with `allow_agent_publish`. A move that starts on that side
+	 * publishes nothing new and is not held. The one rule the runner stops on
+	 * (publication_hold) and StatusManager withholds the route from people on
+	 * (agent_routed_targets), so the sequence editor's disabled edge, the offered
+	 * transitions and the run agree.
+	 *
+	 * @param  Sequence $sequence Sequence the stages belong to.
+	 * @param  string   $from_key The AI stage.
+	 * @param  string   $to_key   Stage its outcome routes to.
+	 * @return bool True when the route is held.
+	 * @throws \InvalidArgumentException When the destination's region cannot be read.
+	 */
+	public static function holds_publication( Sequence $sequence, string $from_key, string $to_key ): bool {
+		// Strict `true`: import_sequence() stores config verbatim, and "false" is
+		// truthy in PHP. Waives this policy only — StatusManager evaluates the run's
+		// actor against the same crossing, so an opted-in sequence still cannot
+		// publish for an author who could not.
+		if ( true === ( $sequence->get_settings()['allow_agent_publish'] ?? false ) ) {
+			return false;
+		}
+
+		if ( ! in_array( $sequence->get_stage_status( $to_key ), self::PUBLICATION_REGIONS, true ) ) {
+			return false;
+		}
+
+		try {
+			$from_region = $sequence->get_stage_status( $from_key );
+		} catch ( \InvalidArgumentException $e ) {
+			$from_region = '';
+		}
+
+		// Already readable: this move publishes nothing new.
+		return ! in_array( $from_region, self::PUBLICATION_REGIONS, true );
+	}
+
+	/**
 	 * Why this move has to wait for a person, or '' when the agent may take it.
 	 *
 	 * $target was chosen by a model reading author-controlled content. The verdict
@@ -728,16 +767,8 @@ class StageAgentRunner implements ModuleInterface {
 			return __( 'This post is no longer in a workflow, so the agent could not complete its move.', 'vip-workflows' );
 		}
 
-		// Strict `true`: import_sequence() stores config verbatim, and "false" is
-		// truthy in PHP. Waives this policy only — StatusManager evaluates the run's
-		// actor against the same crossing, so an opted-in sequence still cannot
-		// publish for an author who could not.
-		if ( true === ( $sequence->get_settings()['allow_agent_publish'] ?? false ) ) {
-			return '';
-		}
-
 		try {
-			$to_region = $sequence->get_stage_status( $to_key );
+			$held = self::holds_publication( $sequence, $from_key, $to_key );
 		} catch ( \InvalidArgumentException $e ) {
 			// A destination whose region cannot be read cannot be cleared as
 			// non-publishing. Held rather than passed through: the check belongs to
@@ -752,36 +783,59 @@ class StageAgentRunner implements ModuleInterface {
 			);
 		}
 
-		if ( ! in_array( $to_region, self::PUBLICATION_REGIONS, true ) ) {
+		if ( ! $held ) {
 			return '';
 		}
 
-		try {
-			$from_region = $sequence->get_stage_status( $from_key );
-		} catch ( \InvalidArgumentException $e ) {
-			$from_region = '';
-		}
-
-		// Already readable: this move publishes nothing new.
-		if ( in_array( $from_region, self::PUBLICATION_REGIONS, true ) ) {
-			return '';
-		}
-
+		// Points at the sequence, not at a manual move: a held route is withheld
+		// from people while the agent owns the stage
+		// (StatusManager::agent_routed_targets), so "transition it yourself" named
+		// something nobody could reach.
 		if ( 'error' === $outcome ) {
 			return sprintf(
 				/* translators: 1: destination stage key, 2: the error the run reported. */
-				__( 'The agent run failed and this stage routes errors to "%1$s", which publishes. Publishing is not done automatically; review the post and transition it yourself. The agent reported: %2$s', 'vip-workflows' ),
+				__( 'The agent run failed, and this stage routes errors to "%1$s", which publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to route errors to a stage before publishing. The agent reported: %2$s', 'vip-workflows' ),
 				$to_key,
 				'' !== $error ? $error : __( 'no detail given', 'vip-workflows' )
 			);
 		}
 
+		$routing = $sequence->get_status( $from_key )['agent']['routing'] ?? array();
+
+		if ( is_array( $routing ) && self::publish_setting_fixes_route( $routing, $to_key ) ) {
+			return sprintf(
+				/* translators: 1: agent outcome key (pass or fail), 2: destination stage key. */
+				__( 'The AI agent returned "%1$s", which routes to "%2$s" — a stage that publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to turn on "Let AI stages publish", or route "%1$s" to a stage before publishing.', 'vip-workflows' ),
+				$outcome,
+				$to_key
+			);
+		}
+
 		return sprintf(
 			/* translators: 1: agent outcome key (pass or fail), 2: destination stage key. */
-			__( 'The AI agent returned "%1$s", which routes to "%2$s" — a stage that publishes. Publishing is not done automatically on an agent verdict; review the post and transition it yourself.', 'vip-workflows' ),
+			__( 'The AI agent returned "%1$s", which routes to "%2$s" — a stage that publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to route "%1$s" to a stage before publishing.', 'vip-workflows' ),
 			$outcome,
 			$to_key
 		);
+	}
+
+	/**
+	 * Whether turning on `allow_agent_publish` is advice worth giving for a held route.
+	 *
+	 * Only when a pass verdict is the one thing that reaches the destination. With
+	 * a fail or error route there too — a fail with no route of its own falls back
+	 * to the error route — the setting would publish failed and errored runs, the
+	 * cheap way around the boundary the threat model warns about, so those get the
+	 * reroute advice alone.
+	 *
+	 * @param  array  $routing The AI stage's outcome routing.
+	 * @param  string $to_key  The held destination.
+	 * @return bool
+	 */
+	public static function publish_setting_fixes_route( array $routing, string $to_key ): bool {
+		return ( $routing['pass'] ?? '' ) === $to_key
+			&& ( $routing['fail'] ?? '' ) !== $to_key
+			&& ( $routing['error'] ?? '' ) !== $to_key;
 	}
 
 	/**

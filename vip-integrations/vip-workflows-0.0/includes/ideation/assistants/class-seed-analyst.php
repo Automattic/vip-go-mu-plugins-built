@@ -49,7 +49,7 @@ class SeedAnalyst {
 	 * @return string
 	 */
 	public function get_label(): string {
-		return __( 'Seed Analyst', 'vip-workflows' );
+		return __( 'Seed analyst', 'vip-workflows' );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class SeedAnalyst {
 		if ( ! empty( $analysis['news_angle'] ) ) {
 			$cards[] = array(
 				'type'       => 'news-angle',
-				'title'      => __( 'News Angle', 'vip-workflows' ),
+				'title'      => __( 'News angle', 'vip-workflows' ),
 				'content'    => $analysis['news_angle'],
 				'source'     => 'seed-analyst',
 			);

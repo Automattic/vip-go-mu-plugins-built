@@ -87,7 +87,7 @@ function register_get_stale_posts(): void {
 	wp_register_ability(
 		'vip-workflows/get-stale-posts',
 		array(
-			'label'               => __( 'Get Stale Posts', 'vip-workflows' ),
+			'label'               => __( 'Stale posts', 'vip-workflows' ),
 			'description'         => __( 'Returns posts stuck in a workflow status beyond a configurable number of days.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -133,6 +133,7 @@ function register_get_stale_posts(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Lists posts stuck at one status for longer than a set number of days.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

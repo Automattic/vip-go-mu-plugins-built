@@ -268,17 +268,20 @@ class WorkflowController extends WP_REST_Controller {
 		);
 
 		// GET /workflow/my-queue - Get posts in queue for current user.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/my-queue',
-			array(
+		// My Queue-only surface: the tab is gated behind the 'my_queue' experiment.
+		if ( Plugin::experiment_enabled( 'my_queue' ) ) {
+			register_rest_route(
+				$this->namespace,
+				'/' . $this->rest_base . '/my-queue',
 				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_my_queue' ),
-					'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
-				),
-			)
-		);
+					array(
+						'methods'             => WP_REST_Server::READABLE,
+						'callback'            => array( $this, 'get_my_queue' ),
+						'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
+					),
+				)
+			);
+		}
 
 		// GET /workflow/my-work - Get all active work items for current user.
 		register_rest_route(
@@ -297,60 +300,66 @@ class WorkflowController extends WP_REST_Controller {
 		);
 
 		// GET /workflow/kanban - Get Kanban board data for all active sequences.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/kanban',
-			array(
+		// Kanban-only surface: the board is gated behind the 'kanban' experiment.
+		if ( Plugin::experiment_enabled( 'kanban' ) ) {
+			register_rest_route(
+				$this->namespace,
+				'/' . $this->rest_base . '/kanban',
 				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_kanban_data' ),
-					'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
-					'args'                => array(
-						'sequence_id' => array(
-							'description' => 'Filter by sequence ID, or "none" for posts outside any workflow.',
-							'type'        => 'string',
-							'required'    => false,
-						),
-						'include_hidden' => array(
-							'description' => 'Include hidden statuses (terminal, etc.).',
-							'type'        => 'boolean',
-							'default'     => false,
+					array(
+						'methods'             => WP_REST_Server::READABLE,
+						'callback'            => array( $this, 'get_kanban_data' ),
+						'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
+						'args'                => array(
+							'sequence_id' => array(
+								'description' => 'Filter by sequence ID, or "none" for posts outside any workflow.',
+								'type'        => 'string',
+								'required'    => false,
+							),
+							'include_hidden' => array(
+								'description' => 'Include hidden statuses (terminal, etc.).',
+								'type'        => 'boolean',
+								'default'     => false,
+							),
 						),
 					),
-				),
-			)
-		);
+				)
+			);
+		}
 
 		// GET /workflow/calendar - Get posts for calendar view.
-		register_rest_route(
-			$this->namespace,
-			'/' . $this->rest_base . '/calendar',
-			array(
+		// Calendar-only surface: the view is gated behind the 'calendar' experiment.
+		if ( Plugin::experiment_enabled( 'calendar' ) ) {
+			register_rest_route(
+				$this->namespace,
+				'/' . $this->rest_base . '/calendar',
 				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_calendar_data' ),
-					'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
-					'args'                => array(
-						'start'          => array(
-							'description' => 'Start date (Y-m-d format).',
-							'type'        => 'string',
-							'required'    => true,
-						),
-						'end'            => array(
-							'description' => 'End date (Y-m-d format).',
-							'type'        => 'string',
-							'required'    => true,
-						),
-						'filter'         => array(
-							'description' => 'Filter type: all or published.',
-							'type'        => 'string',
-							'default'     => 'all',
-							'enum'        => array( 'all', 'published' ),
+					array(
+						'methods'             => WP_REST_Server::READABLE,
+						'callback'            => array( $this, 'get_calendar_data' ),
+						'permission_callback' => array( $this, 'get_my_queue_permissions_check' ),
+						'args'                => array(
+							'start'          => array(
+								'description' => 'Start date (Y-m-d format).',
+								'type'        => 'string',
+								'required'    => true,
+							),
+							'end'            => array(
+								'description' => 'End date (Y-m-d format).',
+								'type'        => 'string',
+								'required'    => true,
+							),
+							'filter'         => array(
+								'description' => 'Filter type: all or published.',
+								'type'        => 'string',
+								'default'     => 'all',
+								'enum'        => array( 'all', 'published' ),
+							),
 						),
 					),
-				),
-			)
-		);
+				)
+			);
+		}
 	}
 
 	/**
@@ -969,7 +978,7 @@ class WorkflowController extends WP_REST_Controller {
 				'success'     => true,
 				'post_id'     => $post_id,
 				'assigned_to' => $current_user_id,
-				'message'     => __( 'Post claimed successfully.', 'vip-workflows' ),
+				'message'     => __( 'Post claimed.', 'vip-workflows' ),
 			)
 		);
 	}
@@ -1021,7 +1030,7 @@ class WorkflowController extends WP_REST_Controller {
 			array(
 				'success' => true,
 				'post_id' => $post_id,
-				'message' => __( 'Post released successfully.', 'vip-workflows' ),
+				'message' => __( 'Post released.', 'vip-workflows' ),
 			)
 		);
 	}
@@ -1391,7 +1400,7 @@ class WorkflowController extends WP_REST_Controller {
 
 					// Re-resolve transitions WITH the post context so region-crossing
 					// capability filtering (Sequence::get_transitions_for_user only
-					// filters crossings when a post ID is provided) and assignment
+					// filters crossings when a post ID is provided) and required-field
 					// locks apply per post. A post the user can do nothing with does
 					// not belong in their queue.
 					$post_transitions = $sequence->get_transitions_for_user( $status['key'], 0, $post->ID );
@@ -1399,7 +1408,7 @@ class WorkflowController extends WP_REST_Controller {
 					// On an AI stage only the agent's routed destinations are
 					// anyone's to take — the same filter the editor payload
 					// applies, and the rule transition() enforces.
-					$routed_targets = Plugin::get_instance()->get_status_manager()->agent_routed_targets( $status );
+					$routed_targets = Plugin::get_instance()->get_status_manager()->agent_routed_targets( $sequence, $status, $post->ID );
 					if ( null !== $routed_targets ) {
 						$post_transitions = array_values(
 							array_filter(
@@ -1473,7 +1482,10 @@ class WorkflowController extends WP_REST_Controller {
 	/**
 	 * Get all active work items for current user.
 	 *
-	 * Returns posts where user is assigned (via claim or assignment) and not terminal/published.
+	 * Returns posts where the user is involved (author, claimed, or has a pending
+	 * assignment), at any stage of any sequence — including terminal stages such
+	 * as Published, so a post does not vanish from an author's own work list the
+	 * moment it ships.
 	 *
 	 * Every row carries two independent pairs, as the calendar endpoint does:
 	 * the workflow stage (`status_label` / `status_color`), which is NULL for a
@@ -1481,8 +1493,14 @@ class WorkflowController extends WP_REST_Controller {
 	 * `post_status_label`), which every post has. They are not interchangeable
 	 * — a scheduled post is not at a workflow stage called "Scheduled".
 	 *
+	 * `author` and `assignee` are two different people: `author` is `post_author`,
+	 * `assignee` is whoever currently claims the post via `_vip_workflows_assigned_to`
+	 * (null if unclaimed). Neither is the same as AssignmentManager's per-slot
+	 * assignments, which a sequence transition can define more than one of at a
+	 * time — this row exposes only the single claim, not every pending slot.
+	 *
 	 * @param  WP_REST_Request $request Request.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_my_work( $request ) {
 		$current_user_id = get_current_user_id();
@@ -1490,135 +1508,230 @@ class WorkflowController extends WP_REST_Controller {
 			return new WP_REST_Response( array() );
 		}
 
-		$repository         = new \VIPWorkflows\Sequences\SequenceRepository();
-		$assignment_manager = new \VIPWorkflows\Workflow\AssignmentManager();
-		$items              = array();
+		$involved_post_ids = $this->get_my_work_post_ids( $current_user_id );
+		if ( $involved_post_ids instanceof WP_Error ) {
+			return $involved_post_ids;
+		}
+
+		$repository = new \VIPWorkflows\Sequences\SequenceRepository();
+		$items      = array();
 
 		// Get all sequences.
 		$sequences = $repository->get_all();
 
 		foreach ( $sequences as $sequence ) {
-			// Get all non-terminal, non-published statuses.
+			// Every status, including terminal ones (e.g. Published) — a post an
+			// author is involved with does not stop being their work once it ships.
 			foreach ( $sequence->get_statuses() as $status ) {
-				// Skip terminal statuses.
-				if ( ! empty( $status['is_dead_end'] ) || ! empty( $status['is_terminal'] ) ) {
-					continue;
-				}
-
-				// Query posts in this stage.
-				$query = new \WP_Query(
+				// Query posts in this stage, across every page rather than just the
+				// first — a stage holding more than one page must not silently drop
+				// the rest of an author's posts.
+				$posts = $this->query_all_pages(
 					\VIPWorkflows\Workflow\StageQuery::in_stage(
 						$sequence,
 						$status['key'],
 						array(
 							'posts_per_page' => 100,
+							// An empty post__in would select every post.
+							'post__in'      => $involved_post_ids ? $involved_post_ids : array( 0 ),
 							'orderby'        => 'date',
 							'order'          => 'DESC',
 						)
 					)
 				);
 
-				foreach ( $query->posts as $post ) {
-					   // Check if user is involved with this post.
-					   $claimed_by_id = get_post_meta( $post->ID, '_vip_workflows_assigned_to', true );
-					   $assignments   = $assignment_manager->get_all( $post->ID );
+				if ( $posts instanceof WP_Error ) {
+					return $posts;
+				}
 
-					   $is_claimed  = $claimed_by_id && (int) $claimed_by_id === $current_user_id;
-					   $is_assigned = false;
+				foreach ( $posts as $post ) {
+					$claimed_by_id = get_post_meta( $post->ID, '_vip_workflows_assigned_to', true );
 
-					   // Check if user has a pending assignment.
-					foreach ( $assignments as $assignment ) {
-						if ( 'user' === $assignment['type'] && $current_user_id === (int) $assignment['value'] && 'pending' === $assignment['status'] ) {
-							$is_assigned = true;
-							break;
-						}
-					}
-
-					   // Check if user is the post author.
-						   $is_author = $current_user_id === (int) $post->post_author;
-
-					   // Skip if user is not involved (not author, not claimed, not assigned).
-					if ( ! $is_author && ! $is_claimed && ! $is_assigned ) {
-						continue;
-					}
+					$featured_image_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
 
 					$items[] = array(
-						'post_id'           => $post->ID,
-						'title'             => $post->post_title ? $post->post_title : __( '(no title)', 'vip-workflows' ),
-						'edit_url'          => get_edit_post_link( $post->ID, 'raw' ),
-						'workflow_name'     => $sequence->name,
-						'status_label'      => $status['label'],
-						'status_color'      => $status['color'] ?? StagePalette::DEFAULT_COLOR,
-						'post_status'       => $post->post_status,
-						'post_status_label' => $this->get_core_status_label( $post ),
-						'urgency'           => 'normal',
-						'created_date'      => $post->post_date,
-						'modified_date'     => $post->post_modified,
+						'post_id'             => $post->ID,
+						'title'               => $post->post_title ? $post->post_title : __( '(no title)', 'vip-workflows' ),
+						'edit_url'            => get_edit_post_link( $post->ID, 'raw' ),
+						'workflow_name'       => $sequence->name,
+						'status_label'        => $status['label'],
+						'status_color'        => $status['color'] ?? StagePalette::DEFAULT_COLOR,
+						'post_status'         => $post->post_status,
+						'post_status_label'   => $this->get_core_status_label( $post ),
+						'author'              => Actor::from_user( $post->post_author ),
+						// The single person currently claiming this post — distinct
+						// from AssignmentManager's per-slot pending assignments,
+						// which a sequence transition can define more than one
+						// of at a time (e.g. a legal reviewer
+						// and an editorial approver, independently). That per-slot
+						// model isn't reducible to one assignee per post, so this
+						// column tracks the single claim instead.
+						'assignee'            => Actor::from_user( $claimed_by_id ),
+						'featured_image_url'  => $featured_image_url ? $featured_image_url : null,
+						'created_date'        => $post->post_date,
+						'modified_date'       => $post->post_modified,
 					);
 				}
 			}
 		}
 
 		// Also include non-workflow posts that match criteria. The NOT EXISTS
-		// exclusion is applied at the query level (via StageQuery) so a workflow
-		// post sitting in a terminal draft-visibility stage — absent from $items
-		// because the loop above skips terminal stages — can never leak in here
-		// as a plain non-workflow draft.
-		$query = new \WP_Query(
+		// exclusion is applied at the query level (via StageQuery::not_in_any_workflow),
+		// so a workflow-managed post can never leak in here as a plain non-workflow
+		// post, regardless of what stage it is currently in.
+		//
+		// Keep standard posts and every post type any of this user's sequences
+		// manages (not core's 'any', which would also pull in attachments) so a
+		// post authored under a CPT-based workflow still gets a fallback bucket
+		// when it isn't currently in that workflow. post_status is left unset so
+		// StageQuery defaults it to 'any' real status, matching the main loop
+		// above rather than only draft/pending/future.
+		$workflow_post_types = array( 'post' );
+		foreach ( $sequences as $sequence ) {
+			$workflow_post_types = array_merge( $workflow_post_types, $sequence->get_post_types() );
+		}
+		$workflow_post_types = array_values( array_unique( $workflow_post_types ) );
+
+		$non_workflow_posts = $this->query_all_pages(
 			\VIPWorkflows\Workflow\StageQuery::not_in_any_workflow(
 				array(
-					'post_type'      => 'post',
-					'post_status'    => array( 'draft', 'pending', 'future' ),
+					'post_type'      => $workflow_post_types,
 					'posts_per_page' => 100,
 					'author'         => $current_user_id,
 				)
 			)
 		);
 
-		foreach ( $query->posts as $post ) {
+		if ( $non_workflow_posts instanceof WP_Error ) {
+			return $non_workflow_posts;
+		}
+
+		foreach ( $non_workflow_posts as $post ) {
+			// A post outside any workflow can still be claimed — the claim meta
+			// isn't itself workflow-scoped — so this fallback bucket carries an
+			// assignee too, for the same reason it carries an author.
+			$claimed_by_id      = get_post_meta( $post->ID, '_vip_workflows_assigned_to', true );
+			$featured_image_url = get_the_post_thumbnail_url( $post->ID, 'medium' );
+
 			$items[] = array(
-				'post_id'           => $post->ID,
-				'title'             => $post->post_title ? $post->post_title : __( '(no title)', 'vip-workflows' ),
-				'edit_url'          => get_edit_post_link( $post->ID, 'raw' ),
-				'workflow_name'     => null,
+				'post_id'             => $post->ID,
+				'title'               => $post->post_title ? $post->post_title : __( '(no title)', 'vip-workflows' ),
+				'edit_url'            => get_edit_post_link( $post->ID, 'raw' ),
+				'workflow_name'       => null,
 				// A post in no workflow is at no stage, so it has no stage label and
 				// no stage color. Emitting its core status here put "Scheduled" in a
 				// column headed Stage, tinted like one, and scraped it into the stage
 				// filter — a post that is in no workflow appearing to be in a
 				// workflow stage. The core status travels in its own pair below.
-				'status_label'      => null,
-				'status_color'      => null,
-				'post_status'       => $post->post_status,
-				'post_status_label' => $this->get_core_status_label( $post ),
-				'urgency'           => 'normal',
-				'created_date'      => $post->post_date,
-				'modified_date'     => $post->post_modified,
+				'status_label'        => null,
+				'status_color'        => null,
+				'post_status'         => $post->post_status,
+				'post_status_label'   => $this->get_core_status_label( $post ),
+				'author'              => Actor::from_user( $post->post_author ),
+				'assignee'            => Actor::from_user( $claimed_by_id ),
+				'featured_image_url'  => $featured_image_url ? $featured_image_url : null,
+				'created_date'        => $post->post_date,
+				'modified_date'       => $post->post_modified,
 			);
 		}
 
-		// Sort by urgency (breaking > urgent > normal), then by created date DESC.
-		$urgency_order = array(
-			'breaking' => 1,
-			'urgent'   => 2,
-			'normal'   => 3,
-		);
-
-		usort(
-			$items,
-			function ( $a, $b ) use ( $urgency_order ) {
-				$urgency_a = $urgency_order[ $a['urgency'] ] ?? 3;
-				$urgency_b = $urgency_order[ $b['urgency'] ] ?? 3;
-
-				if ( $urgency_a !== $urgency_b ) {
-					return $urgency_a <=> $urgency_b;
-				}
-
-				// Same urgency - sort by created date DESC.
-				return strtotime( $b['created_date'] ) <=> strtotime( $a['created_date'] );
-			}
-		);
-
 		return new WP_REST_Response( $items );
+	}
+
+	/**
+	 * Find involvement before loading posts or paginating individual stages.
+	 *
+	 * Assignment slots contain serialized data, so inspect their records once
+	 * instead of issuing an assignment query for every post in every stage.
+	 * Actual post reads remain scoped by StageQuery and WP_Query.
+	 *
+	 * @param int $user_id Current user ID.
+	 * @return int[]|WP_Error Involved post IDs, or a database read error.
+	 */
+	private function get_my_work_post_ids( int $user_id ) {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- request-specific involvement lookup before WP_Query pagination.
+		$owned_rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT ID FROM %i WHERE post_author = %d
+				UNION SELECT post_id AS ID FROM %i WHERE meta_key = %s AND meta_value = %s',
+				$wpdb->posts,
+				$user_id,
+				$wpdb->postmeta,
+				'_vip_workflows_assigned_to',
+				(string) $user_id
+			)
+		);
+		if ( null === $owned_rows || '' !== $wpdb->last_error ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( '[VIP Workflows] Could not read My Work authors and claims: ' . $wpdb->last_error );
+			return new WP_Error( 'my_work_read_failed', __( 'Could not load your work.', 'vip-workflows' ), array( 'status' => 500 ) );
+		}
+
+		$assignment_rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT post_id, meta_value FROM %i WHERE meta_key LIKE %s',
+				$wpdb->postmeta,
+				$wpdb->esc_like( '_vip_workflows_assignment_' ) . '%'
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		if ( null === $assignment_rows || '' !== $wpdb->last_error ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( '[VIP Workflows] Could not read My Work assignments: ' . $wpdb->last_error );
+			return new WP_Error( 'my_work_read_failed', __( 'Could not load your work.', 'vip-workflows' ), array( 'status' => 500 ) );
+		}
+
+		$post_ids = array_map( 'intval', array_column( $owned_rows, 'ID' ) );
+		foreach ( $assignment_rows as $row ) {
+			$assignment = maybe_unserialize( $row->meta_value );
+			if ( ! is_array( $assignment ) || ! isset( $assignment['type'], $assignment['value'], $assignment['status'] ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[VIP Workflows] Invalid assignment data on post %d.', $row->post_id ) );
+				return new WP_Error( 'my_work_assignment_invalid', __( 'Could not load your work.', 'vip-workflows' ), array( 'status' => 500 ) );
+			}
+
+			if ( 'user' === $assignment['type'] && $user_id === (int) $assignment['value'] && 'pending' === $assignment['status'] ) {
+				$post_ids[] = (int) $row->post_id;
+			}
+		}
+
+		return array_values( array_unique( $post_ids ) );
+	}
+
+	/**
+	 * Run a WP_Query across every page of results.
+	 *
+	 * @param array $args WP_Query args, including a positive posts_per_page.
+	 * @return \WP_Post[]|WP_Error
+	 */
+	private function query_all_pages( array $args ) {
+		global $wpdb;
+
+		$args['ignore_sticky_posts'] = true;
+		$args['no_found_rows'] = true;
+		$args['orderby']       = array(
+			'date' => 'DESC',
+			'ID'   => 'DESC',
+		);
+		$args['paged']         = 1;
+		$posts                 = array();
+
+		do {
+			$query = new \WP_Query( $args );
+			if ( '' !== $wpdb->last_error ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( '[VIP Workflows] Could not read a My Work page: ' . $wpdb->last_error );
+				return new WP_Error( 'my_work_read_failed', __( 'Could not load your work.', 'vip-workflows' ), array( 'status' => 500 ) );
+			}
+			$page_count = count( $query->posts );
+			$posts      = array_merge( $posts, $query->posts );
+			$args['paged']++;
+		} while ( $page_count === $args['posts_per_page'] );
+
+		return $posts;
 	}
 
 	/**

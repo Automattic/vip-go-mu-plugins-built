@@ -60,7 +60,7 @@ final class RequirementFactory {
 				Requirement::KIND_MISSING_CREDENTIAL,
 				sprintf(
 					/* translators: %s: service display name, e.g. "My Source". */
-					__( '%s is not connected. VIP Workflows does not manage this service\'s credentials, so the plugin that provides it must supply its own configuration.', 'vip-workflows' ),
+					__( '%s is not connected. VIP Workflows does not manage this service’s credentials, so the plugin that provides it must supply its own configuration.', 'vip-workflows' ),
 					$service_label
 				),
 				sprintf(

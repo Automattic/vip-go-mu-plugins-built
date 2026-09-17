@@ -373,7 +373,7 @@ class AuditLogController extends WP_REST_Controller {
 		if ( ! Settings::can_user_view_audit_log() ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You do not have permission to view the audit log.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to view the audit log.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
 		}

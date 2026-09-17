@@ -1551,7 +1551,7 @@ class IdeationController extends WP_REST_Controller {
 		if ( ! $sequence->is_phase_transition_allowed( 'ideation', $to_phase, get_current_user_id() ) ) {
 			return new WP_Error(
 				'transition_forbidden',
-				__( 'You do not have permission for this transition.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to make this transition.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
 		}

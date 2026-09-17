@@ -61,8 +61,8 @@ class Ability extends \WP_Ability {
 		parent::__construct( $name, $args );
 
 		$this->icon                  = $this->meta['icon'] ?? 'tool';
-		$this->thinking_message      = $this->meta['thinking_message'] ?? __( 'Processing...', 'vip-workflows' );
-		$this->success_message       = $this->meta['success_message'] ?? __( 'Completed successfully.', 'vip-workflows' );
+		$this->thinking_message      = $this->meta['thinking_message'] ?? __( 'Processing…', 'vip-workflows' );
+		$this->success_message       = $this->meta['success_message'] ?? __( 'Completed.', 'vip-workflows' );
 		$this->availability_callback = $this->meta['availability_callback'] ?? null;
 	}
 

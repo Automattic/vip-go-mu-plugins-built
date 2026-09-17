@@ -107,7 +107,7 @@ function register_get_available_transitions(): void {
 	wp_register_ability(
 		'vip-workflows/get-available-transitions',
 		array(
-			'label'               => __( 'Get Available Transitions', 'vip-workflows' ),
+			'label'               => __( 'Available transitions', 'vip-workflows' ),
 			'description'         => __( 'Returns what workflow status transitions are available for a given post and user.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -145,7 +145,7 @@ function register_get_available_transitions(): void {
 					),
 					'guard'          => array(
 						'type'        => 'object',
-						'description' => __( 'What performing one of these transitions would set off. `current_region` is the editorial region (draft/pending/private/publish) of the post\'s stage, or null when it cannot be resolved; a move whose target region differs, with either side being publish, is refused for a user whose `can_bypass` is false. `agent_pending` is true when an AI agent is mid-run on this post, in which case any transition out of the stage stops it and must be confirmed with transition-post\'s acknowledge_warnings.', 'vip-workflows' ),
+						'description' => __( 'What performing one of these transitions would set off. `current_region` is the editorial region (draft/pending/private/publish) of the post’s stage, or null when it cannot be resolved; a move whose target region differs, with either side being publish, is refused for a user whose `can_bypass` is false. `agent_pending` is true when an AI agent is mid-run on this post, in which case any transition out of the stage stops it and must be confirmed with transition-post’s acknowledge_warnings.', 'vip-workflows' ),
 					),
 				),
 			),
@@ -154,6 +154,7 @@ function register_get_available_transitions(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Lists the moves a given post and user can make right now.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

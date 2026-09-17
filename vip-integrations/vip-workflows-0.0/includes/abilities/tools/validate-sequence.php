@@ -105,10 +105,9 @@ function execute_validate_sequence( ?array $input = null ) {
 	// A file exported by an older version declares what a transition captures as a
 	// singular `input`. Converted first, exactly as import_sequence() converts it,
 	// because validate_assignment_keys() below reads `inputs` and nothing else: on
-	// the old shape it would see no assignment slots at all, and then report a
-	// `requires_assignment` gate as pointing at a slot nobody declares — or pass a
-	// file whose two transitions assign the same key, which the import it is
-	// predicting would refuse. This ability promises that anything it calls valid
+	// the old shape it would see no assignment slots at all, and pass a file whose
+	// two transitions assign the same key, which the import it is predicting would
+	// refuse. This ability promises that anything it calls valid
 	// is what the repository would accept; that promise is what makes the
 	// conversion belong here too.
 	try {
@@ -258,7 +257,7 @@ function register_validate_sequence(): void {
 	vip_workflows_register_ability(
 		VALIDATE_SEQUENCE_ABILITY_ID,
 		array(
-			'label'               => __( 'Validate Sequence', 'vip-workflows' ),
+			'label'               => __( 'Validate sequence', 'vip-workflows' ),
 			'description'         => __( 'Dry-runs a sequence configuration through the write gate without saving it. Reports whether it is valid, what normalization would change, and which stage/region invariants it breaks. Pass "sequence_id" to inspect a stored sequence, or "config" to check a proposed one.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -335,6 +334,7 @@ function register_validate_sequence(): void {
 				return current_user_can( 'manage_options' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Checks a sequence configuration for problems without saving it.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

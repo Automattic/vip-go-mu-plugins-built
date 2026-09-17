@@ -37,18 +37,18 @@ namespace VIPWorkflows\Workflow;
  * rather than inventing a person to stand in. The word the reader sees for that
  * — "System" — is the view's to choose and the view's to translate; a server
  * that hard-codes it has made a presentation decision in the wrong place. The
- * plugin spells that absence eight different ways ("System", "Unknown",
- * "Unknown user", "?", "another user", "User #4", ""), which is what happens
- * when each caller answers the question for itself.
+ * plugin spells that absence several different ways ("System", "Unknown",
+ * "another user", "User #4", ""), which is what happens when each caller
+ * answers the question for itself.
  *
  * The routes that serve an actor to a view have been moved onto this class;
  * several other callers have not, and still name the absence themselves —
- * `AssignmentManager::describe()`, `StatusManager`'s claim payload, the
- * `get-posts-by-status` and `get-stale-posts` abilities, the notification
- * dispatcher, and the "assigned to another user" transition error. Those are
- * strings inside a sentence or a notification rather than an actor being drawn,
- * so they are not blocked on this shape — but the eight spellings are not gone
- * yet, and this docblock is not the place to claim otherwise.
+ * `StatusManager`'s claim payload, the `get-posts-by-status` and
+ * `get-stale-posts` abilities, the notification dispatcher, and the "assigned
+ * to another user" transition error. Those are strings inside a sentence or a
+ * notification rather than an actor being drawn, so they are not blocked on
+ * this shape — but those spellings are not gone yet, and this docblock is not
+ * the place to claim otherwise.
  *
  * Note what is deliberately NOT built here: the option lists behind a user
  * picker and the audit log's user filter stay `{ id, name }` and

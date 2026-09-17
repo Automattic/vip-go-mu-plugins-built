@@ -75,7 +75,7 @@ function register_get_workflow_summary(): void {
 	wp_register_ability(
 		'vip-workflows/get-workflow-summary',
 		array(
-			'label'               => __( 'Get Workflow Summary', 'vip-workflows' ),
+			'label'               => __( 'Workflow summary', 'vip-workflows' ),
 			'description'         => __( 'Returns post counts grouped by workflow status for each active sequence.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -103,6 +103,7 @@ function register_get_workflow_summary(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Counts posts at each status, for every active sequence.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

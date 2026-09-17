@@ -136,8 +136,9 @@ class Sequence {
 	 * Which matters because this is the one lock a client may re-judge. The gate
 	 * reads post meta, and an open block editor holds meta the database has not
 	 * seen yet — fields typed into the sidebar are editor-store edits until the
-	 * post is saved. Every other lock (role, assignment, capability) is a fact
-	 * only the server can settle. See src/editor/required-metadata.js.
+	 * post is saved. The other lock, a disabled required tool, is a fact only the
+	 * server can settle; a role or capability the user lacks drops the edge
+	 * rather than locking it. See src/editor/required-metadata.js.
 	 */
 	public const CODE_REQUIRED_METADATA = 'required_fields_missing';
 
@@ -381,22 +382,21 @@ class Sequence {
 	}
 
 	/**
-	 * Get transitions filtered by core region-crossing capabilities, user role,
-	 * and assignment requirements.
+	 * Get transitions filtered by core region-crossing capabilities and user role.
 	 *
 	 * Region-crossing edges defer to core capabilities: crossing into the publish
 	 * or private region requires the post type's publish cap, and crossing out of
 	 * publish requires its edit-published cap. An edge the user lacks the cap for
 	 * is not offered — there is no escalation mechanism, and workflow bypass roles
-	 * bypass workflow rules (roles/assignments), never core capabilities. The
-	 * crossing filter needs a post context to resolve the post type, so it only
-	 * applies when $post_id is provided. The per-post `edit_post` baseline is
-	 * enforced by StatusManager::transition(), not here.
+	 * bypass workflow rules (roles), never core capabilities. The crossing
+	 * filter needs a post context to resolve the post type, so it only applies
+	 * when $post_id is provided. The per-post `edit_post` baseline is enforced
+	 * by StatusManager::transition(), not here.
 	 *
 	 * @param  string $from_status Current status key.
 	 * @param  int    $user_id     User ID to check roles for. Default current user.
-	 * @param  int    $post_id     Post ID for capability and assignment checks. Default 0 (skip both).
-	 * @return array Transitions the user is allowed to perform (with _locked flag for assignment blocks).
+	 * @param  int    $post_id     Post ID for capability and required-field checks. Default 0 (skip both).
+	 * @return array Transitions the user is allowed to perform (with _locked flag for held edges).
 	 */
 	public function get_transitions_for_user( string $from_status, int $user_id = 0, int $post_id = 0 ): array {
 		if ( ! $user_id ) {
@@ -427,7 +427,7 @@ class Sequence {
 
 	/**
 	 * Get transitions permitted by WORKFLOW configuration alone — sequence role
-	 * rules and assignment context, WITHOUT the core region-capability filter.
+	 * rules, WITHOUT the core region-capability filter.
 	 *
 	 * The role-only layer beneath get_transitions_for_user(), which applies the
 	 * core region-capability filter on top of this result. Kept separate so the
@@ -440,8 +440,8 @@ class Sequence {
 	 *
 	 * @param  string $from_status Current status key.
 	 * @param  int    $user_id     User ID to check roles for. Default current user.
-	 * @param  int    $post_id     Post ID for assignment checks. Default 0 (skip).
-	 * @return array Transitions the workflow configuration permits (with _locked flag for assignment blocks).
+	 * @param  int    $post_id     Post ID for required-field checks. Default 0 (skip).
+	 * @return array Transitions the workflow configuration permits (with _locked flag for held edges).
 	 */
 	public function get_role_permitted_transitions( string $from_status, int $user_id = 0, int $post_id = 0 ): array {
 		$transitions = $this->get_transitions( $from_status );
@@ -470,7 +470,6 @@ class Sequence {
 			return $can_bypass_tools ? $transitions : $this->lock_disabled_required_tools( $transitions );
 		}
 
-		$assignment_manager = new \VIPWorkflows\Workflow\AssignmentManager();
 		$allowed = array();
 
 		// Missing required fields are a property of the POST, not of any one edge,
@@ -488,8 +487,8 @@ class Sequence {
 		// answer for an edge about to be judged and a pointless risk otherwise —
 		// this method is a read path with no try/catch above it, so a throw here
 		// is a 500 on the editor sidebar, the board and My Queue alike. A post
-		// whose every edge is already locked, or which has no edges at all,
-		// never asks the question and so never pays that risk.
+		// with every required field filled in, or with no edges at all, never
+		// asks the question and so never pays that risk.
 		$from_region = null;
 
 		foreach ( $transitions as $transition ) {
@@ -501,20 +500,7 @@ class Sequence {
 				}
 			}
 
-			// Check requires_assignment (if post_id provided).
-			if ( $post_id && ! empty( $transition['requires_assignment'] ) ) {
-				$requirement = $assignment_manager->normalize_requirement( $transition['requires_assignment'] );
-
-				if ( ! $assignment_manager->user_satisfies_requirement( $post_id, $user_id, $requirement ) ) {
-					$transition['_locked']        = true;
-					$transition['_locked_reason'] = $assignment_manager->get_lock_reason( $post_id, $requirement );
-				}
-			}
-
-			// An already-locked edge keeps the assignment reason: not being the
-			// assignee blocks the move whether or not the fields are filled, so it
-			// is the more useful thing to say.
-			if ( $missing_metadata && empty( $transition['_locked'] ) ) {
+			if ( $missing_metadata ) {
 				$from_region ??= $this->get_stage_status( $from_status );
 
 				if ( self::crosses_into_publish( $from_region, $this->get_stage_status( (string) ( $transition['to'] ?? '' ) ) ) ) {
@@ -544,8 +530,12 @@ class Sequence {
 	 * The transition gate treats a disabled required tool as a hard failure. Its
 	 * read models must therefore carry the same answer so the editor rail, board,
 	 * and My Queue do not offer a move the server will deterministically refuse.
-	 * Existing assignment or metadata locks keep their more immediately useful
-	 * reason.
+	 *
+	 * It replaces a required-metadata lock rather than deferring to one. That
+	 * lock is the one the editor re-judges against unsaved fields and releases
+	 * once they are filled (CODE_REQUIRED_METADATA), so a disabled tool hidden
+	 * under it would enable a move this gate still refuses. The tool lock carries
+	 * no code, and the editor takes it on trust.
 	 *
 	 * @param  array $transitions Transitions already filtered for the user.
 	 * @return array Transitions with disabled-tool locks projected.
@@ -554,10 +544,6 @@ class Sequence {
 		$settings = \VIPWorkflows\Abilities\AbilitySettings::get_instance();
 
 		foreach ( $transitions as &$transition ) {
-			if ( ! empty( $transition['_locked'] ) ) {
-				continue;
-			}
-
 			$disabled_tools = array();
 			foreach ( $transition['required_tools'] ?? array() as $tool_id ) {
 				if ( ! $settings->is_enabled( (string) $tool_id ) ) {
@@ -566,6 +552,7 @@ class Sequence {
 			}
 
 			if ( $disabled_tools ) {
+				unset( $transition['_locked_code'] );
 				$transition['_locked']        = true;
 				$transition['_locked_reason'] = sprintf(
 					/* translators: %s: list of required tool IDs. */
@@ -1584,11 +1571,11 @@ class Sequence {
 	 * this plugin owns, only from hand-written import JSON, and the two disagree
 	 * about what the transition captures — there is no answer to infer.
 	 *
-	 * At most one input may be an assignment. Notes are unbounded, but a
-	 * transition's assignment is the slot `requires_assignment` gates on and the
-	 * one `AssignmentManager` fills, so a second names no distinguishable slot.
-	 * Collapsing it would discard an assignment an author configured, so it is
-	 * refused on write instead.
+	 * At most one input may be an assignment: it is the one slot the editor
+	 * collects an assignee for when the transition is taken. Other inputs — a
+	 * retired note a stored sequence may still carry — are not counted, and the
+	 * editor no longer collects them. Collapsing a second would discard an
+	 * assignment an author configured, so it is refused on write instead.
 	 *
 	 * @param  array  $transition A transition, with `to` already sanitized.
 	 * @param  string $stage_key  The stage holding it, for error messages.

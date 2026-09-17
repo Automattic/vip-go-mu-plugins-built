@@ -39,7 +39,7 @@ class TavilyImageProvider implements MediaProviderInterface, MediaProviderRequir
 	 * @return string
 	 */
 	public function get_name(): string {
-		return __( 'Web Images (Tavily)', 'vip-workflows' );
+		return __( 'Web images (Tavily)', 'vip-workflows' );
 	}
 
 	/**

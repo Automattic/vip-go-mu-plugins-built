@@ -69,7 +69,7 @@ function register_get_transition_history(): void {
 	wp_register_ability(
 		'vip-workflows/get-transition-history',
 		array(
-			'label'               => __( 'Get Transition History', 'vip-workflows' ),
+			'label'               => __( 'Transition history', 'vip-workflows' ),
 			'description'         => __( 'Returns the status transition audit trail for a given post.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -115,6 +115,7 @@ function register_get_transition_history(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Shows a post’s trail through its sequence.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

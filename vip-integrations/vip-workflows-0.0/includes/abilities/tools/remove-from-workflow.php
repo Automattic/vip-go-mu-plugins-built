@@ -82,7 +82,7 @@ function register_remove_from_workflow(): void {
 	wp_register_ability(
 		'vip-workflows/remove-from-workflow',
 		array(
-			'label'               => __( 'Remove From Workflow', 'vip-workflows' ),
+			'label'               => __( 'Remove from workflow', 'vip-workflows' ),
 			'description'         => __( 'Takes a post out of its workflow, leaving its published status exactly as it is. The removal is recorded in the workflow log and cannot be undone: re-assigning a workflow later starts the post at the first stage of its region. This is the audited escape from the publish guard — prefer moving the post through the workflow to a published stage where that is possible.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -131,6 +131,7 @@ function register_remove_from_workflow(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Takes a post out of its sequence, leaving its published status alone. Cannot be undone.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

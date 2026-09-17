@@ -49,7 +49,7 @@ class IdeationExperiment extends Experiment {
 	 * @inheritDoc
 	 */
 	public function get_description(): string {
-		return __( 'Research, discovery, and source management for ideation projects.', 'vip-workflows' );
+		return __( 'Research and source tools for ideation.', 'vip-workflows' );
 	}
 
 	/**

@@ -69,7 +69,7 @@ function register_import_sequence(): void {
 	wp_register_ability(
 		'vip-workflows/import-sequence',
 		array(
-			'label'               => __( 'Import Sequence', 'vip-workflows' ),
+			'label'               => __( 'Import sequence', 'vip-workflows' ),
 			'description'         => __( 'Imports a workflow sequence from an exported JSON definition. The imported sequence is created as a draft.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -130,6 +130,7 @@ function register_import_sequence(): void {
 				return current_user_can( 'manage_options' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Creates a draft sequence from an exported JSON definition.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

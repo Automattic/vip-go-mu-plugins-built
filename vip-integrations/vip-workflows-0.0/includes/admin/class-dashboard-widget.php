@@ -113,7 +113,7 @@ class DashboardWidget {
 		}
 		?>
 		<div class="vip-workflows-dashboard">
-			<h4><?php esc_html_e( 'My Content in Workflow', 'vip-workflows' ); ?></h4>
+			<h4><?php esc_html_e( 'My content in workflow', 'vip-workflows' ); ?></h4>
 		<?php if ( empty( $workflow_posts ) ) : ?>
 				<p class="vip-workflows-dashboard__empty">
 			<?php esc_html_e( 'No content currently in workflow.', 'vip-workflows' ); ?>
@@ -140,7 +140,7 @@ class DashboardWidget {
 		<?php
 		// Show summary by sequence.
 		?>
-			<h4><?php esc_html_e( 'Workflow Summary', 'vip-workflows' ); ?></h4>
+			<h4><?php esc_html_e( 'Workflow summary', 'vip-workflows' ); ?></h4>
 			<div class="vip-workflows-dashboard__summary">
 		<?php foreach ( $sequences as $sequence ) : ?>
 			<?php
@@ -155,7 +155,7 @@ class DashboardWidget {
 
 			<p class="vip-workflows-dashboard__actions">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=vip-workflows' ) ); ?>" class="button">
-		<?php esc_html_e( 'View Dashboard', 'vip-workflows' ); ?>
+		<?php esc_html_e( 'Open dashboard', 'vip-workflows' ); ?>
 				</a>
 			</p>
 		</div>

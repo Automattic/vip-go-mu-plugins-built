@@ -312,7 +312,7 @@ function register_seo_check(): void {
 	wp_register_ability(
 		'vip-workflows/seo-check',
 		array(
-			'label'               => __( 'SEO Check', 'vip-workflows' ),
+			'label'               => __( 'SEO check', 'vip-workflows' ),
 			'description'         => __( 'Analyze content for SEO best practices including meta description, headings, keyword usage, and more.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -388,6 +388,7 @@ function register_seo_check(): void {
 			'execute_callback'    => __NAMESPACE__ . '\\execute_seo_check',
 			'permission_callback' => __NAMESPACE__ . '\\can_execute_seo_check',
 			'meta'                => array(
+				'summary'             => __( 'Checks the post against SEO basics: meta description, headings, keywords and images.', 'vip-workflows' ),
 				'show_in_rest'        => true,
 				'show_in_commands'    => true,
 				'icon'                => 'search',

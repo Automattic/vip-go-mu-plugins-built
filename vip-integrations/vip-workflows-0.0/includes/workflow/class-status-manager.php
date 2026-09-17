@@ -405,17 +405,53 @@ class StatusManager {
 	 * filter (the editor payload does via get_available_transitions(); My Queue
 	 * builds its quick actions from Sequence::get_transitions_for_user directly).
 	 *
-	 * @param  ?array $status The stage's sequence config.
+	 * A route the runner holds because it publishes
+	 * (StageAgentRunner::holds_publication) is left out too while the agent owns
+	 * the stage: the agent will not take it, and the editor draws it disabled.
+	 * Once the stage is released (see agent_owns_stage_exits) it comes back —
+	 * the agent is not going to move the post, and withholding the route would
+	 * strand a post whose only routes publish. Pass the post to get that
+	 * answer; without one the route is always left out.
+	 *
+	 * @param  Sequence $sequence The sequence the stage belongs to.
+	 * @param  ?array   $status   The stage's sequence config.
+	 * @param  int      $post_id  Post sitting in the stage, or 0 to judge the stage alone.
 	 * @return array|null Routed destination keys, or null when the stage has no agent.
 	 */
-	public function agent_routed_targets( ?array $status ): ?array {
+	public function agent_routed_targets( Sequence $sequence, ?array $status, int $post_id = 0 ): ?array {
 		if ( ! is_array( $status ) || empty( $status['agent']['ability_id'] ) ) {
 			return null;
 		}
 
-		$routing = is_array( $status['agent']['routing'] ?? null ) ? $status['agent']['routing'] : array();
+		$routing  = is_array( $status['agent']['routing'] ?? null ) ? $status['agent']['routing'] : array();
+		$targets  = array_unique( array_filter( array_map( 'strval', $routing ) ) );
+		$from_key = (string) $status['key'];
 
-		return array_values( array_filter( array_map( 'strval', $routing ) ) );
+		if ( $post_id && ! $this->agent_owns_stage_exits( $post_id, $from_key, $status ) ) {
+			return array_values( $targets );
+		}
+
+		return array_values(
+			array_filter(
+				$targets,
+				function ( string $to ) use ( $sequence, $from_key ): bool {
+					// The hold is judged on both ends' regions. Where either cannot be
+					// read — a stage the sequence does not define, or one stored without
+					// a region — the target stays in: transition() refuses it on its own
+					// terms (invalid_transition / stage_region_missing), where a throw
+					// here would take down every surface that lists transitions, and
+					// holds_publication()'s fail-closed '' for an unreadable AI stage
+					// stays the runner's alone.
+					try {
+						$sequence->get_stage_status( $from_key );
+
+						return ! StageAgentRunner::holds_publication( $sequence, $from_key, $to );
+					} catch ( \InvalidArgumentException $e ) {
+						return true;
+					}
+				}
+			)
+		);
 	}
 
 	/**
@@ -487,14 +523,14 @@ class StatusManager {
 		// board acting on a stuck post) can still transition and gets asked
 		// first.
 		//
-		// Get transitions filtered by user role and assignment.
+		// Get transitions filtered by user role.
 		$transitions = $sequence->get_transitions_for_user( $current_stage, $user_id, $post_id );
 
 		// On an AI stage, only the agent's routed destinations are anyone's to
 		// take — see agent_routed_targets(). Applied whenever the stage offers
 		// anything at all, so an unrouted transition never appears here in any
 		// job state.
-		$routed_targets = $this->agent_routed_targets( is_array( $stage_config ) ? $stage_config : null );
+		$routed_targets = $this->agent_routed_targets( $sequence, is_array( $stage_config ) ? $stage_config : null, $post_id );
 
 		// Map transitions to include full status info.
 		$result = array();
@@ -517,14 +553,15 @@ class StatusManager {
 					'required_tools' => $transition['required_tools'] ?? array(),
 				);
 
-				// What the transition captures, in the order the author arranged
-				// it — the editor collects them in that order before the move.
+				// What the transition captures, as stored. The editor collects its
+				// assignment before the move and passes over anything else — a
+				// retired note a stored sequence may still carry.
 				if ( ! empty( $transition['inputs'] ) ) {
 					$mapped['inputs'] = $transition['inputs'];
 				}
 
-				// Preserve the lock the sequence projected — assignment or
-				// required metadata. `_locked_code` names the rule and is only
+				// Preserve the lock the sequence projected — required metadata
+				// or a disabled tool. `_locked_code` names the rule and is only
 				// set by the gates that have one; the editor reads it to tell
 				// the lock it may re-judge against unsaved meta from the ones
 				// it must take on trust (see Sequence::CODE_REQUIRED_METADATA).
@@ -595,8 +632,9 @@ class StatusManager {
 		}
 
 		// An agent-driven exit transition (from StageAgentRunner) runs in a
-		// user-less cron context and is trusted: it bypasses the assignment, role,
-		// and capability checks that apply to human callers (but never the trash
+		// user-less cron context and is trusted: it bypasses the role check that
+		// applies to human callers, and its capability checks run against the
+		// actor it names rather than the current user (it never skips the trash
 		// rejection above). This flag is only ever set by the in-process runner —
 		// WorkflowController builds $options explicitly and never forwards it, so
 		// it cannot be injected via REST.
@@ -631,13 +669,23 @@ class StatusManager {
 		// a hand-built REST call cannot take an edge no surface shows. The agent
 		// itself and the go-back are the two sanctioned exceptions.
 		if ( ! $is_agent_actor && ! $is_revert ) {
-			$routed_targets = $this->agent_routed_targets( $sequence->get_status( $current_stage ) );
+			$current_config = $sequence->get_status( $current_stage );
+			$routed_targets = $this->agent_routed_targets( $sequence, $current_config, $post_id );
 			if ( null !== $routed_targets && ! in_array( $to_status, $routed_targets, true ) ) {
-				return new \WP_Error(
-					'unrouted_agent_exit',
-					__( 'This stage belongs to an AI agent; only the destinations its outcomes route to can be taken.', 'vip-workflows' ),
-					array( 'status' => 403 )
-				);
+				// A destination an outcome does route to was withheld because the
+				// route publishes. Saying it is unrouted would point away from the
+				// sequence setting that is the actual cause.
+				$routing = is_array( $current_config['agent']['routing'] ?? null ) ? array_map( 'strval', $current_config['agent']['routing'] ) : array();
+
+				if ( ! in_array( $to_status, $routing, true ) ) {
+					$message = __( 'This stage belongs to an AI agent; only the destinations its outcomes route to can be taken.', 'vip-workflows' );
+				} elseif ( StageAgentRunner::publish_setting_fixes_route( $routing, $to_status ) ) {
+					$message = __( 'This stage belongs to an AI agent, and its route to this destination publishes. This sequence doesn’t allow AI stages to publish, so the route stays closed while the agent owns this stage. Edit the sequence to route that outcome to a stage before publishing, or turn on "Let AI stages publish".', 'vip-workflows' );
+				} else {
+					$message = __( 'This stage belongs to an AI agent, and its route to this destination publishes. This sequence doesn’t allow AI stages to publish, so the route stays closed while the agent owns this stage. Edit the sequence to route that outcome to a stage before publishing.', 'vip-workflows' );
+				}
+
+				return new \WP_Error( 'unrouted_agent_exit', $message, array( 'status' => 403 ) );
 			}
 		}
 
@@ -689,10 +737,8 @@ class StatusManager {
 		}
 
 		// Null for a revert — a go-back has no authored edge, so it carries no
-		// label, tools, inputs or assignment requirement.
-		$transition_config      = $sequence->get_transition( $current_stage, $to_status );
-		$assignment_manager     = new AssignmentManager();
-		$assignment_requirement = null;
+		// label, tools or inputs.
+		$transition_config = $sequence->get_transition( $current_stage, $to_status );
 
 		/*
 		 * An agent run executes at uid 0 under cron, so it names the identity it
@@ -700,8 +746,8 @@ class StatusManager {
 		 * rather than against whoever is current.
 		 *
 		 * `agent_actor` waives the workflow's own configuration rules — the role
-		 * table and requires_assignment — because those describe which *human* may
-		 * push a button. It was never entitled to waive core capabilities.
+		 * table — because those describe which *human* may push a button. It was
+		 * never entitled to waive core capabilities.
 		 */
 		if ( $is_agent_actor ) {
 			$actor_id = (int) ( $options['agent_actor_user'] ?? 0 );
@@ -729,7 +775,7 @@ class StatusManager {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				return new \WP_Error(
 					'cannot_edit_post',
-					__( 'You are not allowed to edit this post.', 'vip-workflows' ),
+					__( 'Sorry, you are not allowed to edit this post.', 'vip-workflows' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -739,7 +785,7 @@ class StatusManager {
 			if ( $from_region !== $to_region && ! $this->current_user_can_cross_region( $post, $from_region, $to_region ) ) {
 				return new \WP_Error(
 					'forbidden_region_crossing',
-					__( 'You do not have permission to change this post to that status.', 'vip-workflows' ),
+					__( 'Sorry, you are not allowed to change this post to that status.', 'vip-workflows' ),
 					array( 'status' => 403 )
 				);
 			}
@@ -752,24 +798,9 @@ class StatusManager {
 		if ( ! $is_agent_actor && ! $is_revert && ! $sequence->can_user_transition( $current_stage, $to_status ) ) {
 			return new \WP_Error(
 				'forbidden_transition',
-				__( 'You do not have permission to perform this transition.', 'vip-workflows' ),
+				__( 'Sorry, you are not allowed to make this transition.', 'vip-workflows' ),
 				array( 'status' => 403 )
 			);
-		}
-
-		// Check requires_assignment.
-		if ( ! $is_agent_actor && ! empty( $transition_config['requires_assignment'] ) ) {
-			$assignment_requirement = $assignment_manager->normalize_requirement( $transition_config['requires_assignment'] );
-
-			if ( ! $assignment_manager->user_satisfies_requirement( $post_id, get_current_user_id(), $assignment_requirement ) ) {
-				if ( ! \VIPWorkflows\Admin\Settings::can_user_bypass_workflow() ) {
-					return new \WP_Error(
-						'assignment_required',
-						$assignment_manager->get_error_message( $post_id, $assignment_requirement ),
-						array( 'status' => 403 )
-					);
-				}
-			}
 		}
 
 		$acknowledge_warnings = ! empty( $options['acknowledge_warnings'] );
@@ -857,12 +888,10 @@ class StatusManager {
 		// the transition: the answer is to type it into the panel that is already
 		// open.
 		//
-		// `bypass_workflow_roles` DOES apply, for the same reason it applies to
-		// requires_assignment a dozen lines above: both are workflow rules about
-		// the person performing the move, and a role that is trusted to move a
-		// post without satisfying its assignment requirement is trusted to move
-		// one without every field filled in. Exempting one and not the other was
-		// an inconsistency, not a decision.
+		// `bypass_workflow_roles` DOES apply: this is a workflow rule about the
+		// person performing the move, and a role trusted to move a post past the
+		// sequence's own rules is trusted to move one without every field filled
+		// in.
 		//
 		// The agent actor and the go-back are exempt for the reason they are exempt
 		// everywhere else: an AI stage's own exit transition IS its run finishing,
@@ -918,8 +947,8 @@ class StatusManager {
 		// the stage this transition validated against.
 		//
 		// Everything above — is_transition_allowed(), the region math, the
-		// capability and assignment checks — was decided from $current_stage, read
-		// at the top of this method. Two concurrent transitions on the same post
+		// capability checks — was decided from $current_stage, read at the top
+		// of this method. Two concurrent transitions on the same post
 		// both read it, both validate, and both write; the second silently
 		// overwrites the first, having validated an edge that no longer starts
 		// where it thought. Passing $current_stage as update_post_meta()'s
@@ -937,15 +966,10 @@ class StatusManager {
 			}
 		}
 
-		// Mark required assignment as completed (keeps audit trail).
-		if ( $assignment_requirement ) {
-			$assignment_manager->mark_completed( $post_id, $assignment_requirement['meta_key'] );
-		}
-
 		// Process new assignment input if present. A revert has no transition
 		// config (see above) and therefore no input to process.
 		if ( is_array( $transition_config ) ) {
-			$assignment_manager->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array() );
+			( new AssignmentManager() )->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array() );
 		}
 
 		// Store transition input data if provided.
@@ -1940,23 +1964,23 @@ class StatusManager {
 	 */
 	public static function event_type_label( string $event_type ): string {
 		$labels = array(
-			'status_transition'     => __( 'Stage Changed', 'vip-workflows' ),
-			'transition_blocked'    => __( 'Transition Blocked', 'vip-workflows' ),
-			'tool_warnings'         => __( 'Tool Warnings', 'vip-workflows' ),
-			'workflow.assigned'     => __( 'Workflow Assigned', 'vip-workflows' ),
-			'workflow.removed'      => __( 'Workflow Removed', 'vip-workflows' ),
-			'post.claimed'          => __( 'Post Claimed', 'vip-workflows' ),
-			'post.released'         => __( 'Post Released', 'vip-workflows' ),
-			'ability.executed'      => __( 'Tool Executed', 'vip-workflows' ),
-			'ability.failed'        => __( 'Tool Failed', 'vip-workflows' ),
+			'status_transition'     => __( 'Stage changed', 'vip-workflows' ),
+			'transition_blocked'    => __( 'Transition blocked', 'vip-workflows' ),
+			'tool_warnings'         => __( 'Tool warnings', 'vip-workflows' ),
+			'workflow.assigned'     => __( 'Workflow assigned', 'vip-workflows' ),
+			'workflow.removed'      => __( 'Workflow removed', 'vip-workflows' ),
+			'post.claimed'          => __( 'Post claimed', 'vip-workflows' ),
+			'post.released'         => __( 'Post released', 'vip-workflows' ),
+			'ability.executed'      => __( 'Tool executed', 'vip-workflows' ),
+			'ability.failed'        => __( 'Tool failed', 'vip-workflows' ),
 			// Configuration events. These carry no post, which the response shape
 			// already allows (`post_id` is a nullable column and `post` is null here).
-			'sequence.updated'     => __( 'Sequence Updated', 'vip-workflows' ),
-			'sequence.activated'   => __( 'Sequence Activated', 'vip-workflows' ),
-			'sequence.deactivated' => __( 'Sequence Deactivated', 'vip-workflows' ),
+			'sequence.updated'     => __( 'Sequence updated', 'vip-workflows' ),
+			'sequence.activated'   => __( 'Sequence activated', 'vip-workflows' ),
+			'sequence.deactivated' => __( 'Sequence deactivated', 'vip-workflows' ),
 			// Maintenance. Carries no post and no actor: the nightly prune runs
 			// on cron and belongs to no one.
-			'maintenance.cleanup'  => __( 'Cleanup Run', 'vip-workflows' ),
+			'maintenance.cleanup'  => __( 'Cleanup run', 'vip-workflows' ),
 		);
 
 		if ( isset( $labels[ $event_type ] ) ) {
@@ -2038,7 +2062,7 @@ class StatusManager {
 				'unmodeled_post_status',
 				sprintf(
 					/* translators: 1: sequence name. 2: post status label, e.g. "Pending Review". */
-					__( 'The "%1$s" sequence has no stage with the %2$s status, so it cannot be started on this post. Change the post\'s status, or choose a sequence that covers it.', 'vip-workflows' ),
+					__( 'The "%1$s" sequence has no stage with the %2$s status, so it cannot be started on this post. Change the post’s status, or choose a sequence that covers it.', 'vip-workflows' ),
 					$sequence->name,
 					$region_label
 				),

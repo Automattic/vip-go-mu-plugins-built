@@ -1266,7 +1266,7 @@ class IdeationOrchestrator {
 
 		return array(
 			array(
-				'title'   => __( 'Content Guidelines', 'vip-workflows' ),
+				'title'   => __( 'Content guidelines', 'vip-workflows' ),
 				'content' => trim( wp_strip_all_tags( $guidelines ) ),
 			),
 		);

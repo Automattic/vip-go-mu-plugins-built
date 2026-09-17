@@ -38,7 +38,7 @@ class AiImageProvider implements MediaProviderInterface, MediaProviderRequiremen
 	 * @return string
 	 */
 	public function get_name(): string {
-		return __( 'AI Generated (OpenAI)', 'vip-workflows' );
+		return __( 'AI generated (OpenAI)', 'vip-workflows' );
 	}
 
 	/**

@@ -102,7 +102,7 @@ function register_transition_post(): void {
 	wp_register_ability(
 		'vip-workflows/transition-post',
 		array(
-			'label'               => __( 'Transition Post', 'vip-workflows' ),
+			'label'               => __( 'Move post', 'vip-workflows' ),
 			'description'         => __( 'Moves a post to a new workflow status. Respects role-based transition rules.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -163,6 +163,7 @@ function register_transition_post(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Moves a post to another status, respecting who is allowed to make the move.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

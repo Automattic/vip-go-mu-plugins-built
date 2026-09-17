@@ -106,9 +106,10 @@ class EditorIntegration implements ModuleInterface {
 
 		// Check workflow enforcement mode for new posts.
 		$enforcement_mode = \VIPWorkflows\Admin\Settings::get_workflow_enforcement_mode();
-		$is_new_post      = in_array( $post->post_status, array( 'auto-draft', 'draft' ), true )
+		// Core sets the Auto Draft title in the default text domain, so match it there.
+		$is_new_post = in_array( $post->post_status, array( 'auto-draft', 'draft' ), true )
 			&& empty( $post->post_content )
-			&& __( 'Auto Draft', 'vip-workflows' ) === $post->post_title;
+			&& __( 'Auto Draft' ) === $post->post_title; // phpcs:ignore WordPress.WP.I18n.MissingArgDomain
 
 		// Determine if we should show the workflow modal.
 		$show_workflow_modal = $enforcement_mode && $is_new_post && ! $sequence;

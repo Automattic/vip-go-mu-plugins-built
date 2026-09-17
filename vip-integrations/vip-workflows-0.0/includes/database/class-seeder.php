@@ -58,19 +58,19 @@ class Seeder {
 			array(
 				'role_key'     => 'author',
 				'display_name' => 'Author',
-				'description'  => 'Creates and writes content',
+				'description'  => 'Creates and writes content.',
 				'capabilities' => wp_json_encode( array( 'create_posts', 'edit_own_posts' ) ),
 			),
 			array(
 				'role_key'     => 'editor',
 				'display_name' => 'Editor',
-				'description'  => 'Reviews and approves content',
+				'description'  => 'Reviews and approves content.',
 				'capabilities' => wp_json_encode( array( 'edit_posts', 'approve_posts', 'transition_status' ) ),
 			),
 			array(
 				'role_key'     => 'reviewer',
 				'display_name' => 'Reviewer',
-				'description'  => 'Reviews content for specific criteria',
+				'description'  => 'Reviews content for specific criteria.',
 				'capabilities' => wp_json_encode( array( 'review_posts', 'add_comments' ) ),
 			),
 		);
@@ -117,21 +117,21 @@ class Seeder {
 				array(
 					'key'          => 'draft',
 					'label'        => 'Draft',
-					'description'  => 'Author is writing the content',
+					'description'  => 'Author is writing the content.',
 					'icon'         => 'pencil',
 					'status'       => 'draft',
 					'region_entry' => true, // Draft-region checkpoint.
 					'transitions'  => array(
 						array(
 							'to' => 'review',
-							'label' => 'Submit for Review',
+							'label' => 'Submit for review',
 						),
 					),
 				),
 				array(
 					'key'         => 'review',
-					'label'       => 'In Review',
-					'description' => 'Editor is reviewing the content',
+					'label'       => 'In review',
+					'description' => 'Editor is reviewing the content.',
 					'icon'        => 'visibility',
 					'status'      => 'draft',
 					'transitions' => array(
@@ -141,31 +141,31 @@ class Seeder {
 						),
 						array(
 							'to' => 'draft',
-							'label' => 'Request Changes',
+							'label' => 'Request changes',
 						),
 					),
 				),
 				array(
 					'key'         => 'ready',
-					'label'       => 'Ready to Publish',
-					'description' => 'Approved and awaiting publication',
+					'label'       => 'Ready to publish',
+					'description' => 'Approved and awaiting publication.',
 					'icon'        => 'yes-alt',
 					'status'      => 'draft',
 					'transitions' => array(
 						array(
 							'to' => 'publish',
-							'label' => 'Publish Now',
+							'label' => 'Publish now',
 						),
 						array(
 							'to' => 'review',
-							'label' => 'Send Back for Review',
+							'label' => 'Send back for review',
 						),
 					),
 				),
 				array(
 					'key'          => 'publish',
 					'label'        => 'Published',
-					'description'  => 'Content is live',
+					'description'  => 'Content is live.',
 					'icon'         => 'megaphone',
 					'status'       => 'publish',
 					'region_entry' => true, // Publish-region checkpoint — where core-driven publishes seat.
@@ -179,7 +179,7 @@ class Seeder {
 				array(
 					'key'         => 'promote',
 					'label'       => 'Promote',
-					'description' => 'Post-publish: amplify the already-live post',
+					'description' => 'Post-publish: amplify the already-live post.',
 					'icon'        => 'share',
 					'status'      => 'publish', // Post-publish stage — the post stays live.
 					'is_terminal' => true,
@@ -249,7 +249,7 @@ class Seeder {
 					'transitions' => array(
 						array(
 							'to'             => 'editorial',
-							'label'          => 'Create Draft',
+							'label'          => 'Create draft',
 							'required_tools' => array(),
 							'allowed_roles'  => array(),
 							'notifications'  => array(),

@@ -87,7 +87,7 @@ function register_get_recent_activity(): void {
 	wp_register_ability(
 		'vip-workflows/get-recent-activity',
 		array(
-			'label'               => __( 'Get Recent Activity', 'vip-workflows' ),
+			'label'               => __( 'Recent activity', 'vip-workflows' ),
 			'description'         => __( 'Returns recent editorial activity across the site (status transitions, assignments, etc.).', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -129,6 +129,7 @@ function register_get_recent_activity(): void {
 				return current_user_can( 'edit_posts' );
 			},
 			'meta'                => array(
+				'summary'             => __( 'Lists recent editorial activity across the site.', 'vip-workflows' ),
 				'show_in_commands'    => false,
 				'transition_eligible' => false,
 				'annotations'         => array(

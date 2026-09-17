@@ -216,7 +216,7 @@ function can_execute_keyword_check() {
 
 	return new \WP_Error(
 		'rest_forbidden',
-		__( 'You do not have permission to execute this ability.', 'vip-workflows' ),
+		__( 'Sorry, you are not allowed to run this tool.', 'vip-workflows' ),
 		array( 'status' => 403 )
 	);
 }
@@ -232,7 +232,7 @@ function register_keyword_check(): void {
 	wp_register_ability(
 		'vip-workflows/keyword-check',
 		array(
-			'label'               => __( 'Keyword Check', 'vip-workflows' ),
+			'label'               => __( 'Keyword check', 'vip-workflows' ),
 			'description'         => __( 'Flag content containing specified keywords (e.g., banned words, competitor names, sensitive terms).', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
@@ -300,6 +300,7 @@ function register_keyword_check(): void {
 			'execute_callback'    => __NAMESPACE__ . '\\execute_keyword_check',
 			'permission_callback' => __NAMESPACE__ . '\\can_execute_keyword_check',
 			'meta'                => array(
+				'summary'             => __( 'Flags banned words, competitor names and other terms you list.', 'vip-workflows' ),
 				'show_in_rest'        => true,
 				'show_in_commands'    => true,
 				'icon'                => 'tag',

@@ -24,7 +24,7 @@ class ArchiveScout {
 		vip_workflows_register_ability(
 			'vip-workflows/archive-scout',
 			array(
-				'label'               => __( 'Archive Scout', 'vip-workflows' ),
+				'label'               => __( 'Archive scout', 'vip-workflows' ),
 				'description'         => __( 'Searches your published archive for related past coverage.', 'vip-workflows' ),
 				'category'            => 'research',
 				'input_schema'        => array(
@@ -55,7 +55,7 @@ class ArchiveScout {
 					'show_in_commands'      => false,
 					'transition_eligible'   => false,
 					'icon'                  => 'archive',
-					'thinking_message'      => __( 'Searching your archive...', 'vip-workflows' ),
+					'thinking_message'      => __( 'Searching your archive…', 'vip-workflows' ),
 					'success_message'       => __( 'Archive search complete.', 'vip-workflows' ),
 				),
 			)

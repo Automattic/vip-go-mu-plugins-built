@@ -144,7 +144,7 @@ class SlackChannel extends NotificationChannel {
 		$notification           = new Notification();
 		$notification->type     = 'test';
 		$notification->severity = 'success';
-		$notification->title    = __( 'Test Message', 'vip-workflows' );
+		$notification->title    = __( 'Test message', 'vip-workflows' );
 		$notification->message  = sprintf(
 		/* translators: %s: destination name */
 			__( 'VIP Workflows → %s is working!', 'vip-workflows' ),
@@ -331,7 +331,7 @@ class SlackChannel extends NotificationChannel {
 				$destinations = array(
 					array(
 						'id'          => 'default',
-						'name'        => __( 'Slack (Default)', 'vip-workflows' ),
+						'name'        => __( 'Slack (default)', 'vip-workflows' ),
 						'webhook_url' => $old_settings['webhook_url'],
 						'bot_name'    => $old_settings['bot_name'] ?? 'Workflow Bot',
 						'bot_icon'    => $old_settings['bot_icon'] ?? ':newspaper:',
@@ -386,7 +386,7 @@ class SlackChannel extends NotificationChannel {
 			$channels[] = new self(
 				'default',
 				array(
-					'name'        => __( 'Slack (Default)', 'vip-workflows' ),
+					'name'        => __( 'Slack (default)', 'vip-workflows' ),
 					'webhook_url' => '',
 					'bot_name'    => 'Workflow Bot',
 					'bot_icon'    => ':newspaper:',

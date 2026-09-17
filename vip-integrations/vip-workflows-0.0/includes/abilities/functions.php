@@ -33,7 +33,60 @@ use VIPWorkflows\Abilities\Ability;
 function vip_workflows_register_ability( string $name, array $args ): ?\WP_Ability {
 	$args['ability_class'] = Ability::class;
 
+	vip_workflows_warn_on_unreadable_list_result( $name, $args );
+
 	return wp_register_ability( $name, $args );
+}
+
+/**
+ * Warn when a list-shaped ability declares rows the UI will never find.
+ *
+ * `result_type => 'list'` is rendered through `resolveToolResult()`, whose
+ * `rowsFrom()` reads `output.suggestions` and no other key. An ability that
+ * returns its rows under a different name is not rendered wrongly — it is
+ * rendered empty, and there is nothing anywhere to say why. The request
+ * succeeds, the console is clean, the result row is stored with its summary
+ * intact, and the modal shows a heading over nothing. For an ability that
+ * writes, the write has already happened by the time the empty box appears, so
+ * it reads as a hang rather than as a mistake.
+ *
+ * That is a contract worth stating out loud at registration, when the author is
+ * looking, rather than leaving to be discovered from an empty modal.
+ *
+ * Checked against the declared `output_schema` rather than a real result: this
+ * runs at registration, where no result exists yet. An ability that declares no
+ * `output_schema` properties at all is left alone — that is a different
+ * omission, and guessing at intent from silence would produce noise.
+ *
+ * @param string               $name Ability identifier.
+ * @param array<string, mixed> $args Ability arguments.
+ * @return void
+ */
+function vip_workflows_warn_on_unreadable_list_result( string $name, array $args ): void {
+	if ( 'list' !== ( $args['meta']['result_type'] ?? '' ) ) {
+		return;
+	}
+
+	$properties = $args['output_schema']['properties'] ?? null;
+
+	if ( ! is_array( $properties ) || array() === $properties ) {
+		return;
+	}
+
+	if ( array_key_exists( 'suggestions', $properties ) ) {
+		return;
+	}
+
+	_doing_it_wrong(
+		__FUNCTION__,
+		sprintf(
+			/* translators: 1: ability name, 2: the list of properties the ability declares instead. */
+			esc_html__( 'Ability "%1$s" declares result_type "list" but no "suggestions" property in its output_schema, so the result will render as an empty list. List rows are read from output.suggestions and nowhere else; each row is an array of label, meta and href. Declared instead: %2$s.', 'vip-workflows' ),
+			esc_html( $name ),
+			esc_html( implode( ', ', array_keys( $properties ) ) )
+		),
+		'1.0.0'
+	);
 }
 
 /**

@@ -45,7 +45,7 @@ class TavilyVideoProvider implements MediaProviderInterface, MediaProviderRequir
 	 * @return string
 	 */
 	public function get_name(): string {
-		return __( 'Web Videos (Tavily)', 'vip-workflows' );
+		return __( 'Web videos (Tavily)', 'vip-workflows' );
 	}
 
 	/**

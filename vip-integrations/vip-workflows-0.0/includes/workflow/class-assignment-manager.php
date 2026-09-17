@@ -10,7 +10,7 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Workflow;
 
 /**
- * Manages assignment storage, validation, and lifecycle.
+ * Manages assignment storage and lifecycle.
  *
  * Used by StatusManager::transition().
  */
@@ -35,19 +35,16 @@ class AssignmentManager {
 				'label'       => __( 'User', 'vip-workflows' ),
 				'description' => __( 'Assign to a specific user', 'vip-workflows' ),
 				'storage'     => 'user_id',
-				'validate'    => array( $this, 'validate_user_assignment' ),
 			),
 			'role'  => array(
 				'label'       => __( 'Role', 'vip-workflows' ),
 				'description' => __( 'Assign to anyone with a specific role', 'vip-workflows' ),
 				'storage'     => 'role_slug',
-				'validate'    => array( $this, 'validate_role_assignment' ),
 			),
 			'agent' => array(
 				'label'       => __( 'Agent', 'vip-workflows' ),
 				'description' => __( 'Assign to an automated agent/bot', 'vip-workflows' ),
 				'storage'     => 'agent_id',
-				'validate'    => array( $this, 'validate_agent_assignment' ),
 			),
 		);
 
@@ -218,155 +215,8 @@ class AssignmentManager {
 	}
 
 	// =========================================================================
-	// Validation
-	// =========================================================================
-
-	/**
-	 * Check if a user satisfies an assignment requirement.
-	 *
-	 * @param  int   $post_id     Post ID.
-	 * @param  int   $user_id     User ID to check.
-	 * @param  array $requirement Normalized requirement with meta_key and match.
-	 * @return bool
-	 */
-	public function user_satisfies_requirement( int $post_id, int $user_id, array $requirement ): bool {
-		$meta_key   = $requirement['meta_key'] ?? '';
-		$match_mode = $requirement['match'] ?? 'current_user';
-
-		$assignment = $this->get( $post_id, $meta_key );
-		if ( ! $assignment ) {
-			return false;
-		}
-
-		// For 'completed' match mode (used by agents), check status only.
-		if ( 'completed' === $match_mode ) {
-			return self::STATUS_COMPLETED === ( $assignment['status'] ?? '' );
-		}
-
-		// Only pending assignments can block/satisfy transitions.
-		if ( self::STATUS_PENDING !== ( $assignment['status'] ?? '' ) ) {
-			return false;
-		}
-
-		// Delegate to type-specific validator.
-		$type_handler = $this->get_assignee_type( $assignment['type'] );
-		if ( isset( $type_handler['validate'] ) && is_callable( $type_handler['validate'] ) ) {
-			return call_user_func( $type_handler['validate'], $assignment['value'], $user_id, $match_mode );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Validate user assignment.
-	 *
-	 * @param  int|string $assigned_user_id Assigned user ID.
-	 * @param  int        $current_user_id  Current user ID.
-	 * @param  string     $match_mode       Match mode.
-	 * @return bool
-	 */
-	public function validate_user_assignment( $assigned_user_id, int $current_user_id, string $match_mode ): bool {
-		if ( 'current_user' === $match_mode ) {
-			return (int) $assigned_user_id === $current_user_id;
-		}
-		return false;
-	}
-
-	/**
-	 * Validate role assignment.
-	 *
-	 * @param  string $assigned_role   Assigned role slug.
-	 * @param  int    $current_user_id Current user ID.
-	 * @param  string $match_mode      Match mode.
-	 * @return bool
-	 */
-	public function validate_role_assignment( $assigned_role, int $current_user_id, string $match_mode ): bool {
-		if ( 'current_user_role' === $match_mode || 'current_user' === $match_mode ) {
-			$user = get_userdata( $current_user_id );
-			return $user && in_array( $assigned_role, $user->roles, true );
-		}
-		return false;
-	}
-
-	/**
-	 * Validate agent assignment.
-	 *
-	 * Agents don't validate by user - they validate by task completion status.
-	 *
-	 * @param  string $agent_id   Agent ID.
-	 * @param  int    $user_id    User ID (unused for agents).
-	 * @param  string $match_mode Match mode.
-	 * @return bool
-	 */
-	public function validate_agent_assignment( $agent_id, int $user_id, string $match_mode ): bool {
-		// Agent validation is status-based (checked via 'completed' match mode).
-		return false;
-	}
-
-	// =========================================================================
 	// Shared Helpers (used by StatusManager)
 	// =========================================================================
-
-	/**
-	 * Normalize requires_assignment config to array format.
-	 *
-	 * Allows shorthand: "legal_reviewer" → { meta_key: "legal_reviewer", match: "current_user" }
-	 *
-	 * @param  string|array $requirement The requires_assignment config.
-	 * @return array Normalized requirement with meta_key and match.
-	 */
-	public function normalize_requirement( $requirement ): array {
-		if ( is_string( $requirement ) ) {
-			return array(
-				'meta_key' => $requirement,
-				'match'    => 'current_user',
-			);
-		}
-		return $requirement;
-	}
-
-	/**
-	 * Get user-friendly error message for assignment failure.
-	 *
-	 * @param  int   $post_id     Post ID.
-	 * @param  array $requirement Normalized requirement.
-	 * @return string Error message.
-	 */
-	public function get_error_message( int $post_id, array $requirement ): string {
-		$assignment = $this->get( $post_id, $requirement['meta_key'] );
-
-		if ( ! $assignment ) {
-			return __( 'This transition requires an assignment that has not been made.', 'vip-workflows' );
-		}
-
-		if ( self::STATUS_COMPLETED === ( $assignment['status'] ?? '' ) ) {
-			return __( 'This assignment has already been completed.', 'vip-workflows' );
-		}
-
-		if ( 'user' === $assignment['type'] ) {
-			$user = get_userdata( $assignment['value'] );
-			$name = $user ? $user->display_name : __( 'Unknown user', 'vip-workflows' );
-			return sprintf(
-			/* translators: %s: user name */
-				__( 'This transition can only be performed by %s.', 'vip-workflows' ),
-				$name
-			);
-		}
-
-		if ( 'role' === $assignment['type'] ) {
-			return sprintf(
-			/* translators: %s: role name */
-				__( 'This transition requires the %s role.', 'vip-workflows' ),
-				$assignment['value']
-			);
-		}
-
-		if ( 'agent' === $assignment['type'] ) {
-			return __( 'This transition is waiting for an automated check to complete.', 'vip-workflows' );
-		}
-
-		return __( 'You do not have permission to perform this transition.', 'vip-workflows' );
-	}
 
 	/**
 	 * Process assignment input from a transition.
@@ -387,8 +237,8 @@ class AssignmentManager {
 		// A transition captures a list, and at most one entry in it assigns work —
 		// the cap Sequence::prepare_config_for_write() enforces, so the loop finds
 		// one slot or none. Walked as a list rather than reached for by index
-		// because an assignment is not required to lead the list: an author can put
-		// a note ahead of it, and the note's position is not this method's business.
+		// because an assignment is not required to lead the list: a stored note can
+		// sit ahead of it, and the note's position is not this method's business.
 		foreach ( $inputs as $input_config ) {
 			if ( ! is_array( $input_config ) || 'assignment' !== ( $input_config['type'] ?? '' ) ) {
 				continue;
@@ -408,52 +258,6 @@ class AssignmentManager {
 
 			$this->assign( $post_id, $meta_key, $assigned_value, $assignee_type, $input_config );
 		}
-	}
-
-	/**
-	 * Get lock reason for UI display.
-	 *
-	 * Shorter than get_error_message() - used for transition button tooltips.
-	 *
-	 * @param  int   $post_id     Post ID.
-	 * @param  array $requirement Normalized requirement.
-	 * @return string Short lock reason.
-	 */
-	public function get_lock_reason( int $post_id, array $requirement ): string {
-		$assignment = $this->get( $post_id, $requirement['meta_key'] );
-
-		if ( ! $assignment ) {
-			return __( 'No assignee', 'vip-workflows' );
-		}
-
-		if ( 'user' === $assignment['type'] ) {
-			$user = get_userdata( $assignment['value'] );
-			return sprintf(
-			/* translators: %s: user name */
-				__( 'Assigned to %s', 'vip-workflows' ),
-				$user ? $user->display_name : '?'
-			);
-		}
-
-		if ( 'agent' === $assignment['type'] ) {
-			$status = $assignment['status'] ?? 'pending';
-			if ( self::STATUS_PENDING === $status ) {
-				return __( 'Waiting for automated check', 'vip-workflows' );
-			}
-			if ( self::STATUS_EXPIRED === $status ) {
-				return __( 'Automated check timed out', 'vip-workflows' );
-			}
-		}
-
-		if ( 'role' === $assignment['type'] ) {
-			return sprintf(
-			/* translators: %s: role name */
-				__( 'Requires %s role', 'vip-workflows' ),
-				$assignment['value']
-			);
-		}
-
-		return __( 'Assignment required', 'vip-workflows' );
 	}
 
 	// =========================================================================
