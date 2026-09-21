@@ -338,7 +338,7 @@ export class Pointers extends Component {
 		const searchResults = searchResultsFromState[searchText]
 			? searchResultsFromState[searchText].filter(
 					(item) => renderedIds.indexOf(item.ID) === -1,
-			  )
+				)
 			: false;
 
 		return (
@@ -376,7 +376,7 @@ export class Pointers extends Component {
 											: __(
 													'Remove custom result from results list',
 													'elasticpress',
-											  );
+												);
 
 									return (
 										<Fragment key={item.ID}>

@@ -66,12 +66,12 @@ export default () => {
 								),
 								totalResults,
 								searchedTerm,
-						  )
+							)
 						: sprintf(
 								/* translators: %d: results count. */
 								_n('%d result', '%d results', totalResults, 'elasticpress'),
 								totalResults,
-						  )}
+							)}
 				</h1>
 
 				<Sort />

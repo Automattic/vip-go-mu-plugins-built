@@ -232,7 +232,7 @@ export default ({ disabled, label, options, onChange, selected, sortBy }) => {
 									'elasticpress',
 								),
 								options.length - optionsLimit,
-						  )}
+							)}
 				</SmallButton>
 			)}
 		</>

@@ -158,7 +158,7 @@ const App = () => {
 						isEpio
 							? __('ElasticPress.io', 'elasticpress')
 							: __('Elasticsearch', 'elasticpress'),
-				  )
+					)
 				: __('Sync interrupted by WP-CLI command.', 'elasticpress');
 
 			logMessage(message, 'info');

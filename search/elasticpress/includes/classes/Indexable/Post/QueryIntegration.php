@@ -309,6 +309,20 @@ class QueryIntegration {
 				// @codeCoverageIgnoreEnd
 			}
 
+			$is_cross_site_query = 'all' === $scope;
+			if ( is_numeric( $scope ) || is_array( $scope ) ) {
+				$is_cross_site_query = (bool) array_diff( array_map( 'intval', (array) $scope ), [ get_current_blog_id() ] );
+			}
+
+			/**
+			 * Disable the post cache when using a persistent object cache or querying
+			 * across sites, where identical post IDs can cause cache collisions.
+			 * VIP: Without persistent caching, preserve opt-ins for current-blog-only scopes.
+			 */
+			if ( wp_using_ext_object_cache() || $is_cross_site_query ) {
+				$query->set( 'cache_results', false );
+			}
+
 			$index = null;
 
 			if ( 'all' === $scope ) {
