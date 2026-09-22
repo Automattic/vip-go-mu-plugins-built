@@ -3,7 +3,7 @@
  * Plugin Name: VIP Workflows
  * Plugin URI: https://wpvip.com/
  * Description: Enterprise workflows and automation platform for WordPress VIP
- * Version: 0.0.3
+ * Version: 0.0.4
  * Author: WordPress VIP
  * Author URI: https://wpvip.com/
  * License: GPL-2.0-or-later
@@ -34,7 +34,7 @@ if ( defined( 'VIP_WORKFLOWS_LOADED' ) ) {
 
 // Plugin constants.
 define( 'VIP_WORKFLOWS_LOADED', true );
-define( 'VIP_WORKFLOWS_VERSION', '0.0.3' );
+define( 'VIP_WORKFLOWS_VERSION', '0.0.4' );
 define( 'VIP_WORKFLOWS_PLUGIN_FILE', __FILE__ );
 define( 'VIP_WORKFLOWS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'VIP_WORKFLOWS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

@@ -15,6 +15,7 @@ use function wp_add_inline_script;
 use function wp_create_nonce;
 use function wp_die;
 use function wp_enqueue_script;
+use function wp_script_is;
 
 /**
  * Enqueues the necessary JavaScript and CSS assets for the plugin.
@@ -54,7 +55,16 @@ final class Assets {
 		 */
 		$asset = include $asset_file;
 
-		$dependencies = array_unique( array_merge( $asset['dependencies'], [ 'wp-sync' ] ) );
+		$dependencies = $asset['dependencies'];
+
+		// Gutenberg versions before WordPress/gutenberg#81999 expose the editor's
+		// Yjs instance on the `wp.sync` global, which our bundle reads at load
+		// time. Newer versions no longer register the `wp-sync` script handle and
+		// pass Yjs to the provider creator instead, so only depend on the handle
+		// when it exists. An unregistered dependency would block the enqueue.
+		if ( wp_script_is( 'wp-sync', 'registered' ) ) {
+			$dependencies = array_unique( array_merge( $dependencies, [ 'wp-sync' ] ) );
+		}
 
 		wp_enqueue_script(
 			'vip-real-time-collaboration',

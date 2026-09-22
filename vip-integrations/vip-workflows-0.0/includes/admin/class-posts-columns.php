@@ -221,7 +221,7 @@ class PostsColumns {
 				<span class="vip-workflows-column__dot" style="--vip-workflows-stage-color: %s"></span>
 				<span class="vip-workflows-column__label">%s [%s]</span>%s
 			</span>',
-			esc_attr( $color ),
+			esc_attr( StagePalette::normalize( $color ) ),
 			esc_html( $sequence->name ),
 			esc_html( $current_status['label'] ?? $current_status['key'] ),
 			$live_pill // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- pre-escaped above.
@@ -338,7 +338,7 @@ class PostsColumns {
 			esc_attr( $sequence_name ),
 			esc_attr( $current_status['key'] ?? '' ),
 			esc_attr( $current_status['label'] ?? $current_status['key'] ?? '' ),
-			esc_attr( $color ),
+			esc_attr( StagePalette::normalize( $color ) ),
 			esc_attr( $stage_region ),
 			esc_attr( $seated_region ),
 			// Cast so an empty map renders as an object rather than PHP's `[]`:

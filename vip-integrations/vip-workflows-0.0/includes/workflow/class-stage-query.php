@@ -164,15 +164,31 @@ class StageQuery {
 	}
 
 	/**
+	 * The author scope to pass to counts_by_stage() for the current user.
+	 *
+	 * A user who can edit others' posts gets the site-wide aggregate (null); any
+	 * other user is scoped to their own posts, so the per-stage counts never
+	 * reveal how many of another author's unpublished posts sit at each stage.
+	 * Callers reachable below edit_others_posts pass this so the three of them
+	 * share one rule.
+	 *
+	 * @return int|null Current user id when they cannot edit others' posts, else null.
+	 */
+	public static function author_scope_for_current_user(): ?int {
+		return current_user_can( 'edit_others_posts' ) ? null : get_current_user_id();
+	}
+
+	/**
 	 * Count posts per stage for a sequence.
 	 *
 	 * Owns the one raw-SQL GROUP BY aggregation that a "return WP_Query args"
 	 * helper cannot express, so even that swaps in a single place.
 	 *
-	 * @param  Sequence $sequence Sequence.
+	 * @param  Sequence $sequence     Sequence.
+	 * @param  int|null $author_scope Restrict the count to this author's posts, or null to count every author's posts.
 	 * @return array<string, int> Map of stage key => count (every defined stage present, 0 if none).
 	 */
-	public static function counts_by_stage( Sequence $sequence ): array {
+	public static function counts_by_stage( Sequence $sequence, ?int $author_scope = null ): array {
 		global $wpdb;
 
 		$post_types = $sequence->get_post_types();
@@ -184,6 +200,12 @@ class StageQuery {
 
 		$type_placeholders = implode( ',', array_fill( 0, count( $post_types ), '%s' ) );
 
+		// Callers reached by a user who cannot edit others' posts pass that user's
+		// id here, so the aggregate is scoped to their own posts — matching how
+		// core scopes the edit.php per-status counts for such a user. A null scope
+		// (the default) counts every author's posts, for trusted/admin callers.
+		$author_clause = null === $author_scope ? '' : ' AND p.post_author = %d';
+
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- aggregate stage counts; the only interpolation is a %s placeholder list built via array_fill.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
@@ -192,11 +214,12 @@ class StageQuery {
 				INNER JOIN {$wpdb->postmeta} bp ON bp.post_id = p.ID AND bp.meta_key = %s AND bp.meta_value = %d
 				INNER JOIN {$wpdb->postmeta} stage ON stage.post_id = p.ID AND stage.meta_key = %s
 				WHERE p.post_type IN ({$type_placeholders})
-				AND p.post_status NOT IN ( 'trash', 'auto-draft', 'inherit' )
+				AND p.post_status NOT IN ( 'trash', 'auto-draft', 'inherit' ){$author_clause}
 				GROUP BY stage.meta_value",
 				...array_merge(
 					array( StatusManager::SEQUENCE_META_KEY, $sequence->id, StatusManager::STAGE_META_KEY ),
-					$post_types
+					$post_types,
+					null === $author_scope ? array() : array( $author_scope )
 				)
 			)
 		);

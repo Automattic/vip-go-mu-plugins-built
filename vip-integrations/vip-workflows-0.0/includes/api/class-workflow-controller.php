@@ -95,6 +95,9 @@ class WorkflowController extends WP_REST_Controller {
 						'input_data' => array(
 							'description'       => 'Key-value data collected from transition inputs.',
 							'type'              => 'object',
+							// Validate raw values before sanitization can coerce them into IDs or empty selections.
+							'additionalProperties' => array( 'type' => array( 'string', 'integer', 'null' ) ),
+							'validate_callback' => 'rest_validate_request_arg',
 							'default'           => array(),
 							'sanitize_callback' => function ( $data ) {
 								if ( ! is_array( $data ) ) {
@@ -451,19 +454,24 @@ class WorkflowController extends WP_REST_Controller {
 		$assignment_manager = new \VIPWorkflows\Workflow\AssignmentManager();
 		$assignments        = $assignment_manager->get_all( $post_id );
 		$assigned_to        = null;
-		// Find the first pending user assignment to show as primary assignee.
-		foreach ( $assignments as $key => $assignment ) {
-			if ( 'user' === $assignment['type'] && 'pending' === $assignment['status'] ) {
-				$assigned_to = Actor::from_user( $assignment['value'] );
-				if ( $assigned_to ) {
-					$assigned_to['is_current'] = get_current_user_id() === $assigned_to['id'];
-					// Which assignment slot this came from. Served but not yet
-					// read: the sidebar's Release button posts to /unclaim,
-					// which clears the claim meta rather than an assignment, so
-					// nothing consumes this today.
-					$assigned_to['slot'] = $key;
-				}
-				break;
+		// The post's current assignment — whichever pending assignment (of
+		// any assignee type) was made most recently — is the one shown as
+		// the primary assignee.
+		$current_assignment = $assignment_manager->get_current( $post_id );
+		if ( $current_assignment ) {
+			$assigned_to = $assignment_manager->describe_assignee(
+				$current_assignment['assignment']['type'],
+				$current_assignment['assignment']['value']
+			);
+			if ( $assigned_to ) {
+				// "Is this me" only means something for a person.
+				$assigned_to['is_current'] = 'user' === $current_assignment['assignment']['type']
+					&& get_current_user_id() === $assigned_to['id'];
+				// Which assignment slot this came from. Served but not yet
+				// read: the sidebar's Release button posts to /unclaim,
+				// which clears the claim meta rather than an assignment, so
+				// nothing consumes this today.
+				$assigned_to['slot'] = $current_assignment['meta_key'];
 			}
 		}
 
@@ -1866,14 +1874,16 @@ class WorkflowController extends WP_REST_Controller {
 
 					$claimed_by_id = get_post_meta( $post->ID, '_vip_workflows_assigned_to', true );
 
-					// Get assignment info.
-					$assignments = $assignment_manager->get_all( $post->ID );
-					$assigned_to = null;
-					foreach ( $assignments as $assignment ) {
-						if ( 'user' === $assignment['type'] && 'pending' === $assignment['status'] ) {
-							$assigned_to = Actor::from_user( $assignment['value'] );
-							break;
-						}
+					// Get assignment info — the most recently made pending
+					// assignment, of any assignee type; see get_current()'s
+					// docblock for why "first user-type found" was wrong.
+					$assigned_to        = null;
+					$current_assignment = $assignment_manager->get_current( $post->ID );
+					if ( $current_assignment ) {
+						$assigned_to = $assignment_manager->describe_assignee(
+							$current_assignment['assignment']['type'],
+							$current_assignment['assignment']['value']
+						);
 					}
 
 					// Get due date if set.

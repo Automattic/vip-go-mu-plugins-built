@@ -3,7 +3,7 @@
         'name' => 'vip-workflows/vip-workflows',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'e38396f2a60874207706a01b1c7d780348cf7425',
+        'reference' => '6115d8e43e3a7dcce880826e303705265c7f72e3',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -37,7 +37,7 @@
         'vip-workflows/vip-workflows' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'e38396f2a60874207706a01b1c7d780348cf7425',
+            'reference' => '6115d8e43e3a7dcce880826e303705265c7f72e3',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

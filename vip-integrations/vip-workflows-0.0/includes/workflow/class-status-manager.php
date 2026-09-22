@@ -736,8 +736,8 @@ class StatusManager {
 			);
 		}
 
-		// Null for a revert — a go-back has no authored edge, so it carries no
-		// label, tools or inputs.
+		// A failed-agent revert may have no matching authored edge and does not
+		// collect assignment inputs.
 		$transition_config = $sequence->get_transition( $current_stage, $to_status );
 
 		/*
@@ -803,7 +803,26 @@ class StatusManager {
 			);
 		}
 
+		// Reject incomplete assignments before tools run or any post state changes.
+		// A failed-agent revert does not collect inputs, even if an authored edge
+		// happens to connect the same stages.
+		$assignment_manager = new AssignmentManager();
+		if ( ! $is_revert && is_array( $transition_config ) ) {
+			$assignment_validation = $assignment_manager->validate_transition_input( $transition_config, $options['input_data'] ?? array() );
+			if ( is_wp_error( $assignment_validation ) ) {
+				return $assignment_validation;
+			}
+		}
+
 		$acknowledge_warnings = ! empty( $options['acknowledge_warnings'] );
+
+		// Reject invalid targets before tools run or post/stage changes commit.
+		if ( is_array( $transition_config ) ) {
+			$assignee_validation = ( new AssignmentManager() )->validate_transition_assignees( $transition_config, $options['input_data'] ?? array() );
+			if ( is_wp_error( $assignee_validation ) ) {
+				return $assignee_validation;
+			}
+		}
 
 		// Interrupting a running stage agent is a confirm, not a block.
 		//
@@ -966,10 +985,10 @@ class StatusManager {
 			}
 		}
 
-		// Process new assignment input if present. A revert has no transition
-		// config (see above) and therefore no input to process.
+		// Process submitted assignment input for an authored edge. A failed-agent
+		// revert supplies no inputs, so existing assignments remain untouched.
 		if ( is_array( $transition_config ) ) {
-			( new AssignmentManager() )->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array() );
+			$assignment_manager->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array() );
 		}
 
 		// Store transition input data if provided.
@@ -987,7 +1006,7 @@ class StatusManager {
 		);
 
 		// Log the transition.
-		$this->log_transition( $post_id, $current_stage, $to_status, $options, $context );
+		$this->log_transition( $post_id, $current_stage, $to_status, $options, $context, $transition_config );
 
 		// Dispatch the stage-change events. Fired here (after any region-status
 		// write is committed and stage meta is written) rather than from
@@ -1727,20 +1746,60 @@ class StatusManager {
 	}
 
 	/**
+	 * Resolve an assignment input's raw value to the display name it had at
+	 * the moment of the transition.
+	 *
+	 * Delegates to `AssignmentManager::describe_assignee()` — the one place
+	 * that knows how each assignee type's stored value maps to a display
+	 * name — rather than re-deciding by type here too.
+	 *
+	 * @param  string|null $assignee_type 'user', 'role', or 'agent'; null when
+	 *                                    the transition declares no assignment
+	 *                                    input.
+	 * @param  mixed       $value         The raw stored value.
+	 * @return string|null Display name, or null when it cannot be resolved
+	 *                      (unknown type, deleted user, retired role/ability).
+	 */
+	private static function resolve_assignee_display_name( ?string $assignee_type, $value ): ?string {
+		if ( null === $assignee_type || '' === (string) $value ) {
+			return null;
+		}
+
+		$assignee = ( new AssignmentManager() )->describe_assignee( $assignee_type, $value );
+
+		return $assignee['display_name'] ?? null;
+	}
+
+	/**
 	 * Log a status transition.
 	 *
-	 * @param int    $post_id     Post ID.
-	 * @param string $from_status From status.
-	 * @param string $to_status   To status.
-	 * @param array  $options     Additional options.
-	 * @param array  $context     Stage-change context ('cause', 'committed_status', 'previous_status') — the same array passed to dispatch_stage_change().
+	 * @param int        $post_id           Post ID.
+	 * @param string     $from_status       From status.
+	 * @param string     $to_status         To status.
+	 * @param array      $options           Additional options.
+	 * @param array      $context           Stage-change context ('cause', 'committed_status', 'previous_status') — the same array passed to dispatch_stage_change().
+	 * @param array|null $transition_config The edge's authored config, when there is one — used to resolve the assignment input's assignee to a display name. Null for a revert, which carries no input to resolve.
 	 */
-	private function log_transition( int $post_id, string $from_status, string $to_status, array $options, array $context ): void {
+	private function log_transition( int $post_id, string $from_status, string $to_status, array $options, array $context, ?array $transition_config = null ): void {
 		global $wpdb;
 
 		$sequence = $this->get_sequence_for_post( $post_id );
 
 		$post = get_post( $post_id );
+
+		// The transition's assignment input, if it declares one — identifies
+		// which input_data key holds the assignee and what kind of value it
+		// stores (user id, role slug, agent id), so its raw value below can be
+		// resolved to a display name.
+		$assignment_meta_key = null;
+		$assignee_type       = null;
+		foreach ( ( $transition_config['inputs'] ?? array() ) as $candidate_input ) {
+			if ( isset( $candidate_input['type'] ) && 'assignment' === $candidate_input['type'] ) {
+				$assignment_meta_key = $candidate_input['meta_key'] ?? null;
+				$assignee_type       = $candidate_input['assignee_type'] ?? null;
+				break;
+			}
+		}
 
 		// Extract note content from input_data.
 		$notes = array();
@@ -1750,10 +1809,26 @@ class StatusManager {
 				if ( strpos( $key, '__name' ) !== false ) {
 					continue;
 				}
-				// Skip assignment metadata (if there's a corresponding _notes key, this is just the assignment value).
-				if ( isset( $options['input_data'][ $key . '_notes' ] ) ) {
-					continue;
+
+				// The assignee is a raw id/slug; resolve it to the name it
+				// had at the moment of the transition — the same reasoning
+				// as snapshot_stage_label(): a later rename or role edit
+				// must not rewrite what this entry says. An explicit empty
+				// value is a clear rather than an assignment (see
+				// AssignmentManager::unassign()) — named outright rather
+				// than left to resolve to nothing and print as a blank
+				// value next to the field's label.
+				if ( $assignment_meta_key && $key === $assignment_meta_key ) {
+					if ( ! $value ) {
+						$value = __( 'Unassigned', 'vip-workflows' );
+					} else {
+						$display_name = self::resolve_assignee_display_name( $assignee_type, $value );
+						if ( null !== $display_name ) {
+							$value = $display_name;
+						}
+					}
 				}
+
 				// Get the display name if available.
 				$name_key = $key . '__name';
 				$label = isset( $options['input_data'][ $name_key ] ) ? $options['input_data'][ $name_key ] : $key;

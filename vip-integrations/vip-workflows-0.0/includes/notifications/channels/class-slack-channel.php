@@ -265,7 +265,12 @@ class SlackChannel extends NotificationChannel {
 	 */
 	private function format_message( Notification $notification ): array {
 		$message = array(
-			'text' => sprintf( '%s *%s*: %s', $notification->icon, $notification->title, $notification->message ),
+			'text' => sprintf(
+				'%s *%s*: %s',
+				$notification->icon,
+				self::escape_mrkdwn( (string) $notification->title ),
+				self::escape_mrkdwn( (string) $notification->message )
+			),
 		);
 
 		$bot_name = $this->destination_config['bot_name'] ?? 'Workflow Bot';
@@ -285,8 +290,8 @@ class SlackChannel extends NotificationChannel {
 					'color'  => $notification->color,
 					'fields' => array_map(
 						fn( $field ) => array(
-							'title' => $field['title'],
-							'value' => $field['value'],
+							'title' => self::escape_mrkdwn( (string) $field['title'] ),
+							'value' => self::format_mrkdwn_value( (string) $field['value'] ),
 							'short' => $field['short'] ?? true,
 						),
 						$fields
@@ -296,6 +301,38 @@ class SlackChannel extends NotificationChannel {
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Escape text for Slack mrkdwn.
+	 *
+	 * Slack treats `<`, `>` and `&` as control characters (links, mentions and
+	 * entities), so user-supplied text such as a post title or author name is
+	 * encoded before it is placed in a message.
+	 *
+	 * @param  string $text Text to escape.
+	 * @return string
+	 */
+	private static function escape_mrkdwn( string $text ): string {
+		return str_replace( array( '&', '<', '>' ), array( '&amp;', '&lt;', '&gt;' ), $text );
+	}
+
+	/**
+	 * Escape a field value for Slack mrkdwn, preserving a composed link.
+	 *
+	 * A field value may already be a `<url|label>` link built from a trusted URL
+	 * and a user-supplied label; only the label is escaped, mirroring how the
+	 * email channel renders the same value. Any other value is escaped whole.
+	 *
+	 * @param  string $value Field value.
+	 * @return string
+	 */
+	private static function format_mrkdwn_value( string $value ): string {
+		if ( preg_match( '/^<([^|>]+)\\|(.*)>$/s', $value, $matches ) ) {
+			return '<' . $matches[1] . '|' . self::escape_mrkdwn( $matches[2] ) . '>';
+		}
+
+		return self::escape_mrkdwn( $value );
 	}
 
 	/**

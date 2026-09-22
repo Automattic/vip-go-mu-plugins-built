@@ -407,13 +407,16 @@ final class Plugin {
 		$repository = new SequenceRepository();
 		$sequences = $repository->get_all( array( 'status' => 'active' ) );
 
+		$targeted_post_types = array();
+
 		foreach ( $sequences as $sequence ) {
 			$metadata_fields = $sequence->get_metadata_fields();
 			if ( empty( $metadata_fields ) ) {
 				continue;
 			}
 
-			$post_types = $sequence->get_post_types();
+			$post_types          = $sequence->get_post_types();
+			$targeted_post_types = array_merge( $targeted_post_types, $post_types );
 
 			foreach ( $metadata_fields as $field ) {
 				$meta_key = 'wf_meta_' . $sequence->id . '_' . $field['key'];
@@ -455,6 +458,48 @@ final class Plugin {
 				}
 			}
 		}
+
+		// These fields set show_in_rest so the block editor can read and write
+		// them, but core applies the auth_callback only to writes. Filter the
+		// read response per targeted post type so the values are withheld from a
+		// caller who cannot edit the post; the capability-checked
+		// MetadataController remains the gated way to read them.
+		foreach ( array_unique( $targeted_post_types ) as $post_type ) {
+			add_filter( "rest_prepare_{$post_type}", array( $this, 'restrict_metadata_in_rest_response' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Withhold sequence metadata field values from a REST post response for a
+	 * caller who cannot edit the post.
+	 *
+	 * @param  mixed    $response The response object (\WP_REST_Response when core built it).
+	 * @param  \WP_Post $post     The post the response describes.
+	 * @return mixed
+	 */
+	public function restrict_metadata_in_rest_response( $response, $post ) {
+		if ( ! $response instanceof \WP_REST_Response ) {
+			return $response;
+		}
+
+		$data = $response->get_data();
+		if ( empty( $data['meta'] ) || ! is_array( $data['meta'] ) ) {
+			return $response;
+		}
+
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			return $response;
+		}
+
+		foreach ( array_keys( $data['meta'] ) as $key ) {
+			if ( is_string( $key ) && str_starts_with( $key, 'wf_meta_' ) ) {
+				unset( $data['meta'][ $key ] );
+			}
+		}
+
+		$response->set_data( $data );
+
+		return $response;
 	}
 
 	/**

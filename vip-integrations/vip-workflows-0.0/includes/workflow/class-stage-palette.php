@@ -108,4 +108,24 @@ final class StagePalette {
 
 		return $colors[ $status ] ?? self::DEFAULT_COLOR;
 	}
+
+	/**
+	 * Normalize a stored color to a valid hex value, or the default.
+	 *
+	 * Guards inline-style and data-attribute sinks: sanitize_hex_color() returns
+	 * an empty value for anything that is not a #rgb / #rrggbb token, so a color
+	 * that reached storage without normalization cannot inject CSS.
+	 *
+	 * @param  string|null $color Stored color value.
+	 * @return string Hex color.
+	 */
+	public static function normalize( ?string $color ): string {
+		$hex = (string) sanitize_hex_color( (string) $color );
+
+		if ( '' === $hex ) {
+			return self::DEFAULT_COLOR;
+		}
+
+		return $hex;
+	}
 }

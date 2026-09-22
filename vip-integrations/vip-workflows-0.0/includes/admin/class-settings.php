@@ -305,8 +305,9 @@ class Settings {
 			return false;
 		}
 
-		// Admins and editors can see all logs.
-		$full_access_roles = self::get_settings()['audit_log_full_access_roles'] ?? array( 'administrator', 'editor' );
+		// Default matches the value sanitize_settings() writes for this key, so an
+		// unwritten option and a saved-but-untouched option resolve identically.
+		$full_access_roles = self::get_settings()['audit_log_full_access_roles'] ?? array( 'administrator' );
 
 		foreach ( $user->roles as $role ) {
 			if ( in_array( $role, $full_access_roles, true ) ) {

@@ -83,11 +83,12 @@ class AssignmentManager {
 	public function assign( int $post_id, string $meta_key, $value, string $assignee_type, array $config = array() ): void {
 		$storage_key = $this->get_storage_key( $meta_key );
 
+		// Preserve ordering when multiple assignments occur within one second.
 		$assignment = array(
 			'value'       => $value,
 			'type'        => $assignee_type,
 			'status'      => self::STATUS_PENDING,
-			'assigned_at' => current_time( 'mysql' ),
+			'assigned_at' => current_time( 'Y-m-d H:i:s.u' ),
 			'assigned_by' => get_current_user_id(),
 		);
 
@@ -104,6 +105,38 @@ class AssignmentManager {
 		 * @param array  $config     Sequence input config.
 		 */
 		do_action( 'vip_workflows_assignment_created', $post_id, $meta_key, $assignment, $config );
+	}
+
+	/**
+	 * Clear an assignment slot.
+	 *
+	 * The caller decides whether the slot may be empty. Transitions validate
+	 * required assignments before committing any changes.
+	 *
+	 * A no-op, not an error, when the slot was never assigned: this is
+	 * "reach a state with nothing here", not "undo a specific assignment".
+	 *
+	 * @param int    $post_id  Post ID.
+	 * @param string $meta_key Assignment slot key.
+	 */
+	public function unassign( int $post_id, string $meta_key ): void {
+		$storage_key = $this->get_storage_key( $meta_key );
+		$existing    = get_post_meta( $post_id, $storage_key, true );
+
+		if ( ! is_array( $existing ) ) {
+			return;
+		}
+
+		delete_post_meta( $post_id, $storage_key );
+
+		/**
+		 * Fires when an assignment is cleared.
+		 *
+		 * @param int    $post_id           Post ID.
+		 * @param string $meta_key          Assignment slot key.
+		 * @param array  $former_assignment The assignment that was in the slot before it was cleared.
+		 */
+		do_action( 'vip_workflows_assignment_removed', $post_id, $meta_key, $existing );
 	}
 
 	/**
@@ -148,6 +181,96 @@ class AssignmentManager {
 		}
 
 		return $assignments;
+	}
+
+	/**
+	 * The post's current assignment — whichever pending assignment, across
+	 * every slot and every assignee type, was made most recently.
+	 *
+	 * A post can carry several assignment slots at once (one per transition
+	 * that has asked for one), and only one deserves the "Assigned to"
+	 * spotlight in the sidebar and the board. Picking "the first pending
+	 * USER assignment found" — the previous rule — discarded every role or
+	 * agent assignment outright and did not even track recency among users;
+	 * a post with three assignments could show the oldest one forever.
+	 *
+	 * @param  int $post_id Post ID.
+	 * @return array{meta_key: string, assignment: array}|null The slot key and its
+	 *                      assignment, or null when nothing is pending.
+	 */
+	public function get_current( int $post_id ): ?array {
+		$current = null;
+
+		foreach ( $this->get_all( $post_id ) as $meta_key => $assignment ) {
+			if ( self::STATUS_PENDING !== ( $assignment['status'] ?? null ) ) {
+				continue;
+			}
+
+			$assigned_at = $assignment['assigned_at'] ?? '';
+			if ( null === $current || $assigned_at > ( $current['assignment']['assigned_at'] ?? '' ) ) {
+				$current = array(
+					'meta_key'   => $meta_key,
+					'assignment' => $assignment,
+				);
+			}
+		}
+
+		return $current;
+	}
+
+	/**
+	 * Describe an assignment's stored value as the client-facing shape every
+	 * route already serves an actor in.
+	 *
+	 * A user resolves through `Actor::from_user()` — the same shape a post's
+	 * author or an event's actor gets. A role or an agent has no single
+	 * person behind it, so each gets a parallel shape naming what it is
+	 * rather than borrowing a person's. This is a display description of an
+	 * assignment's target, not a claim about who acted — `Actor`'s own,
+	 * narrower job, which is deliberately not asked to answer this.
+	 *
+	 * @param  string $assignee_type 'user', 'role', or 'agent'.
+	 * @param  mixed  $value         The raw stored value.
+	 * @return array|null The description, or null when it cannot be
+	 *                     resolved (unknown type, deleted user, retired
+	 *                     role/agent).
+	 */
+	public function describe_assignee( string $assignee_type, $value ): ?array {
+		if ( 'user' === $assignee_type ) {
+			return Actor::from_user( $value );
+		}
+
+		if ( 'role' === $assignee_type ) {
+			$roles = wp_roles()->roles;
+			if ( ! isset( $roles[ $value ]['name'] ) ) {
+				return null;
+			}
+
+			return array(
+				'id'           => 0,
+				'type'         => 'role',
+				'display_name' => translate_user_role( $roles[ $value ]['name'] ),
+				'agent_actor'  => null,
+				'avatar'       => null,
+			);
+		}
+
+		if ( 'agent' === $assignee_type ) {
+			$agents = ( new AgentRunner() )->get_registered_agents();
+			if ( ! isset( $agents[ $value ] ) ) {
+				return null;
+			}
+
+			return array(
+				'id'           => 0,
+				'type'         => 'agent',
+				'display_name' => $agents[ $value ]['label'] ?? (string) $value,
+				'agent_actor'  => (string) $value,
+				'avatar'       => null,
+			);
+		}
+
+		return null;
 	}
 
 	/**
@@ -219,9 +342,60 @@ class AssignmentManager {
 	// =========================================================================
 
 	/**
+	 * Validate required assignment input before a transition has side effects.
+	 *
+	 * An existing assignment does not satisfy a required input: the caller must
+	 * explicitly submit the assignee it wants to keep or select.
+	 *
+	 * @param  array $transition Transition config from sequence.
+	 * @param  array $input_data User-provided input data.
+	 * @return true|\WP_Error True when required assignments are supplied.
+	 */
+	public function validate_transition_input( array $transition, array $input_data ) {
+		$inputs = $transition['inputs'] ?? array();
+
+		if ( ! is_array( $inputs ) ) {
+			return true;
+		}
+
+		foreach ( $inputs as $input_config ) {
+			if ( ! is_array( $input_config ) || 'assignment' !== ( $input_config['type'] ?? '' ) || empty( $input_config['required'] ) ) {
+				continue;
+			}
+
+			$meta_key = $input_config['meta_key'] ?? '';
+
+			if ( empty( $input_data[ $meta_key ] ) ) {
+				return new \WP_Error(
+					'required_assignment_missing',
+					sprintf(
+						/* translators: %s: Assignment field label. */
+						__( 'Choose an assignee for “%s” in the post editor before continuing.', 'vip-workflows' ),
+						$input_config['label'] ?? $meta_key
+					),
+					array(
+						'status'   => 422,
+						'meta_key' => $meta_key,
+					)
+				);
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Process assignment input from a transition.
 	 *
-	 * Called by StatusManager::transition().
+	 * Called by StatusManager::transition() after validate_transition_input().
+	 *
+	 * A slot's key ABSENT from `$input_data` is left untouched — the caller
+	 * (a REST client, an ability, a revert) simply had nothing to say about
+	 * it, most commonly because the transition carries no assignment input
+	 * at all. A slot's key PRESENT but empty is an explicit instruction to
+	 * clear it — the one way an optional assignment popover has to submit
+	 * "no one" after a prior assignment, which `array_key_exists()` is what
+	 * tells apart from "nothing submitted".
 	 *
 	 * @param int   $post_id    Post ID.
 	 * @param array $transition Transition config from sequence.
@@ -247,12 +421,14 @@ class AssignmentManager {
 			$meta_key      = $input_config['meta_key'] ?? null;
 			$assignee_type = $input_config['assignee_type'] ?? 'user';
 
-			if ( ! $meta_key ) {
+			if ( ! $meta_key || ! array_key_exists( $meta_key, $input_data ) ) {
 				continue;
 			}
 
-			$assigned_value = $input_data[ $meta_key ] ?? null;
+			$assigned_value = $input_data[ $meta_key ];
+
 			if ( ! $assigned_value ) {
+				$this->unassign( $post_id, $meta_key );
 				continue;
 			}
 
@@ -260,9 +436,100 @@ class AssignmentManager {
 		}
 	}
 
+	/**
+	 * Validate supplied assignees before a transition changes any post state.
+	 *
+	 * StatusManager calls this before tools, publishing, and process_transition_input().
+	 *
+	 * Missing values and explicit empty selections are handled by the transition's
+	 * required/optional input rules. Other values must identify a valid assignee.
+	 *
+	 * @param  array $transition Transition config from sequence.
+	 * @param  array $input_data User-provided input data.
+	 * @return true|\WP_Error True when all supplied assignees are valid.
+	 */
+	public function validate_transition_assignees( array $transition, array $input_data ) {
+		$inputs = $transition['inputs'] ?? array();
+		if ( ! is_array( $inputs ) ) {
+			return true;
+		}
+
+		foreach ( $inputs as $input_config ) {
+			if ( ! is_array( $input_config ) || 'assignment' !== ( $input_config['type'] ?? '' ) ) {
+				continue;
+			}
+
+			$meta_key = $input_config['meta_key'] ?? null;
+			if ( ! $meta_key || ! array_key_exists( $meta_key, $input_data ) ) {
+				continue;
+			}
+
+			$value = $input_data[ $meta_key ];
+			if ( null === $value || '' === $value ) {
+				continue;
+			}
+
+			$assignee_type = $input_config['assignee_type'] ?? 'user';
+			if ( $this->is_valid_assignee( $assignee_type, $value ) ) {
+				continue;
+			}
+
+			switch ( $assignee_type ) {
+				case 'user':
+					/* translators: %s: Assignment field label. */
+					$message = __( 'Choose an existing user for “%s” before continuing.', 'vip-workflows' );
+					break;
+				case 'role':
+					/* translators: %s: Assignment field label. */
+					$message = __( 'Choose a registered role for “%s” before continuing.', 'vip-workflows' );
+					break;
+				default:
+					/* translators: %s: Assignment field label. */
+					$message = __( 'Enter a valid assignee identifier for “%s” before continuing.', 'vip-workflows' );
+			}
+
+			return new \WP_Error(
+				'invalid_assignee',
+				sprintf( $message, $input_config['label'] ?? $meta_key ),
+				array(
+					'status'        => 422,
+					'meta_key'      => $meta_key,
+					'assignee_type' => $assignee_type,
+				)
+			);
+		}
+
+		return true;
+	}
+
 	// =========================================================================
 	// Private Helpers
 	// =========================================================================
+
+	/**
+	 * Whether an assignee value resolves to a real target for its type.
+	 *
+	 * @param  string $assignee_type Assignee type (user, role, agent, ...).
+	 * @param  mixed  $value         Assignee value from the transition input.
+	 * @return bool
+	 */
+	private function is_valid_assignee( string $assignee_type, $value ): bool {
+		switch ( $assignee_type ) {
+			case 'user':
+				// Casting first would turn values such as "7invalid" into user 7.
+				if ( ! ( is_int( $value ) || is_string( $value ) ) || ! preg_match( '/^[1-9][0-9]*$/D', (string) $value ) ) {
+					return false;
+				}
+				$user_id = filter_var( $value, FILTER_VALIDATE_INT, array( 'options' => array( 'min_range' => 1 ) ) );
+				return false !== $user_id && (bool) get_userdata( $user_id );
+			case 'role':
+				return is_string( $value ) && wp_roles()->is_role( $value );
+			default:
+				// Other types (e.g. agent) resolve through their registered
+				// handler; require a non-empty string or integer identifier.
+				return ( is_string( $value ) || is_int( $value ) ) && ! empty( $value ) && '' !== trim( (string) $value );
+		}
+	}
 
 	/**
 	 * Get the storage meta key for an assignment.

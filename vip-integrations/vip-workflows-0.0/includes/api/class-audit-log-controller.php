@@ -248,10 +248,21 @@ class AuditLogController extends WP_REST_Controller {
 		// choices that always come back empty.
 		$exclusion = StatusManager::bus_bookkeeping_exclusion( 'event_type' );
 
+		// A viewer without full access only ever saw their own events in
+		// get_events(); the filter options must not reveal more than the stream.
+		$clauses = array();
+		$values  = array();
+		if ( ! Settings::can_user_view_all_audit_logs() ) {
+			$clauses[] = 'actor_id = %d';
+			$values[]  = get_current_user_id();
+		}
+		$clauses[] = $exclusion['sql'];
+		$values    = array_merge( $values, $exclusion['values'] );
+
 		$types = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT event_type FROM {$table} WHERE {$exclusion['sql']} ORDER BY event_type", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$exclusion['values']
+				"SELECT DISTINCT event_type FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY event_type', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				$values
 			)
 		);
 
@@ -283,10 +294,21 @@ class AuditLogController extends WP_REST_Controller {
 		// stream will never serve.
 		$exclusion = StatusManager::bus_bookkeeping_exclusion( 'event_type' );
 
+		// Mirror get_events(): a viewer without full access is scoped to their
+		// own activity, so the actor filter options are too.
+		$clauses = array( 'actor_id > 0' );
+		$values  = array();
+		if ( ! Settings::can_user_view_all_audit_logs() ) {
+			$clauses[] = 'actor_id = %d';
+			$values[]  = get_current_user_id();
+		}
+		$clauses[] = $exclusion['sql'];
+		$values    = array_merge( $values, $exclusion['values'] );
+
 		$user_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT actor_id FROM {$table} WHERE actor_id > 0 AND {$exclusion['sql']} ORDER BY actor_id", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-				$exclusion['values']
+				"SELECT DISTINCT actor_id FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY actor_id', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				$values
 			)
 		);
 
@@ -328,12 +350,24 @@ class AuditLogController extends WP_REST_Controller {
 
 		$post = null;
 		if ( $event->post_id ) {
-			$post_obj = get_post( $event->post_id );
-			if ( $post_obj ) {
+			$post_id = (int) $event->post_id;
+
+			// The post's title and edit link are only included for a viewer who
+			// can read that post; otherwise the row keeps its post reference but
+			// not the derived content.
+			if ( current_user_can( 'read_post', $post_id ) ) {
+				$post_obj = get_post( $post_id );
+				if ( $post_obj ) {
+					$post = array(
+						'id'        => $post_id,
+						'title'     => $post_obj->post_title ? $post_obj->post_title : __( '(no title)', 'vip-workflows' ),
+						'edit_link' => get_edit_post_link( $post_id, 'raw' ),
+					);
+				}
+			} else {
 				$post = array(
-					'id'        => (int) $event->post_id,
-					'title'     => $post_obj->post_title ? $post_obj->post_title : __( '(no title)', 'vip-workflows' ),
-					'edit_link' => get_edit_post_link( $event->post_id, 'raw' ),
+					'id'    => $post_id,
+					'title' => __( '(restricted)', 'vip-workflows' ),
 				);
 			}
 		}

@@ -41,7 +41,7 @@ function execute_get_workflow_summary( ?array $input = null ) {
 		$status_counts = array();
 
 		// One aggregate query per sequence (StageQuery owns the stage storage).
-		$counts = \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence );
+		$counts = \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence, \VIPWorkflows\Workflow\StageQuery::author_scope_for_current_user() );
 
 		foreach ( $statuses as $status ) {
 			$status_key = $status['key'];

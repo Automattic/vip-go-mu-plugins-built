@@ -100,7 +100,6 @@ class IdeationAdmin implements ModuleInterface {
 			fn( $user ) => array(
 				'id'     => $user->ID,
 				'name'   => $user->display_name,
-				'email'  => $user->user_email,
 				'avatar' => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
 			),
 			$users

@@ -128,7 +128,7 @@ class DashboardWidget {
 							<?php // The pill's text and its wash are both the stage's own color; the stylesheet owns everything else. ?>
 							<span
 								class="vip-workflows-dashboard__status"
-								style="--vip-workflows-stage-color: <?php echo esc_attr( $item['status']['color'] ?? StagePalette::DEFAULT_COLOR ); ?>"
+								style="--vip-workflows-stage-color: <?php echo esc_attr( StagePalette::normalize( $item['status']['color'] ?? '' ) ); ?>"
 							>
 					<?php echo esc_html( $item['status']['label'] ?? $item['status']['key'] ); ?>
 							</span>
@@ -144,7 +144,7 @@ class DashboardWidget {
 			<div class="vip-workflows-dashboard__summary">
 		<?php foreach ( $sequences as $sequence ) : ?>
 			<?php
-			$total = array_sum( \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence ) );
+			$total = array_sum( \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence, \VIPWorkflows\Workflow\StageQuery::author_scope_for_current_user() ) );
 			?>
 					<div class="vip-workflows-dashboard__sequence">
 						<strong><?php echo esc_html( $sequence->name ); ?></strong>

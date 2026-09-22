@@ -1302,7 +1302,7 @@ class SequencesController extends WP_REST_Controller {
 		}
 
 		// StageQuery owns the (now stage-meta) aggregation.
-		$stats = \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence );
+		$stats = \VIPWorkflows\Workflow\StageQuery::counts_by_stage( $sequence, \VIPWorkflows\Workflow\StageQuery::author_scope_for_current_user() );
 
 		return new WP_REST_Response( $stats );
 	}
