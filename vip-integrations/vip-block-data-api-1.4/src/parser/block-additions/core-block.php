@@ -103,11 +103,11 @@ class CoreBlock {
 	 * phpcs:disable Generic.Commenting.DocComment.LongNotCapital
 	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/blocks/block.php#L73
 	 *
-	 * @param array  $sourced_block Sourced block result.
-	 * @param string $block_name    Block name.
+	 * @param array       $sourced_block Sourced block result.
+	 * @param string|null $block_name    Block name, or null for parsed non-block content.
 	 * @return array
 	 */
-	public static function remove_content_array( array $sourced_block, string $block_name ): array {
+	public static function remove_content_array( array $sourced_block, string|null $block_name ): array {
 		if ( self::$block_name !== $block_name ) {
 			return $sourced_block;
 		}

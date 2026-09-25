@@ -4,8 +4,8 @@
 
 VIP Block Data API is a WordPress plugin that converts Gutenberg block editor content into structured JSON data. It provides both a REST API and a WPGraphQL integration. Primarily designed for decoupled/headless WordPress on the WordPress VIP platform. See `vip-block-data-api.php` for the current version.
 
-- **Language:** PHP (8.1+)
-- **WordPress:** 6.0+
+- **Language:** PHP (8.2+)
+- **WordPress:** 6.8+
 - **Namespace:** `WPCOMVIP\BlockDataApi`
 - **License:** GPL-2.0-or-later per `composer.json` (note: the plugin header in `vip-block-data-api.php` says GPL-3)
 - **Repository:** https://github.com/Automattic/vip-block-data-api
@@ -127,7 +127,7 @@ These are the plugin's extension points:
 ### Prerequisites
 - Node.js + npm (for `@wordpress/env`)
 - Docker (for `wp-env`)
-- PHP 8.1+
+- PHP 8.2+
 - Composer
 
 ### Local Environment
@@ -155,14 +155,14 @@ composer phpcs             # Run PHP CodeSniffer
 composer phpcs-fix         # Auto-fix with phpcbf
 ```
 
-**Coding standards:** WordPress-Extra, WordPress-VIP-Go, WordPress-Docs (docs excluded from tests/), PHPCompatibilityWP (PHP 8.1+).
+**Coding standards:** WordPress-Extra, WordPress-VIP-Go, WordPress-Docs (docs excluded from tests/), PHPCompatibilityWP (PHP 8.2+).
 
 ## CI/CD
 
 GitHub Actions workflows (trigger on PRs):
 
-- **`phpcs.yml`** — Runs `composer phpcs` on PHP 8.1
-- **`phpunit.yml`** — Test matrix: PHP 8.1 + WP 6.0, PHP 8.1 + WP latest, PHP 8.3 + WP latest. Runs both standard and multisite tests.
+- **`phpcs.yml`** — Runs `composer phpcs` on PHP 8.2
+- **`phpunit.yml`** — Tests WordPress 6.8, 6.9, 7.0, 7.1, and master against supported PHP versions 8.2 through 8.5 (excluding WP 6.8 with PHP 8.5). Runs both standard and multisite tests.
 - **`release.yml`** — On push to `trunk`: detects version changes, validates version consistency between plugin header and `WPCOMVIP__BLOCK_DATA_API__PLUGIN_VERSION` constant, creates GitHub Release with ZIP.
 
 ## Release Process

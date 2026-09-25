@@ -96,7 +96,8 @@ class ContentParser {
 		 * Filter out blocks from the blocks output
 		 *
 		 * @param bool   $is_block_included True if the block should be included, or false to filter it out.
-		 * @param string $block_name    Name of the parsed block, e.g. 'core/paragraph'.
+		 * @param string|null $block_name Name of the parsed block, or null when parse_blocks() returns
+		 *                                content found outside block delimiters.
 		 * @param array  $block         Result of parse_blocks() for this block.
 		 *                              Contains 'blockName', 'attrs', 'innerHTML', and 'innerBlocks' keys.
 		 */
@@ -291,7 +292,7 @@ class ContentParser {
 			return null;
 		}
 
-		if ( ! $this->block_registry->is_registered( $block_name ) ) {
+		if ( null !== $block_name && ! $this->block_registry->is_registered( $block_name ) ) {
 			$this->add_missing_block_warning( $block_name );
 		}
 
@@ -311,7 +312,7 @@ class ContentParser {
 		 * Filters a block's inner blocks before recursive iteration.
 		 *
 		 * @param array  $inner_blocks An array of inner block (WP_Block) instances.
-		 * @param string $block_name   Name of the parsed block, e.g. 'core/paragraph'.
+		 * @param string|null $block_name Name of the parsed block, or null for non-block content.
 		 * @param int    $post_id      Post ID associated with the parsed block.
 		 * @param array  $parsed_block Result of parse_blocks() for this block.
 		 */
@@ -331,7 +332,7 @@ class ContentParser {
 		 * Filters a block when parsing is complete.
 		 *
 		 * @param array  $sourced_block An associative array of parsed block data with keys 'name' and 'attribute'.
-		 * @param string $block_name    Name of the parsed block, e.g. 'core/paragraph'.
+		 * @param string|null $block_name Name of the parsed block, or null for non-block content.
 		 * @param int    $post_id       Post ID associated with the parsed block.
 		 * @param array  $block         Result of parse_blocks() for this block. Contains 'blockName', 'attrs', 'innerHTML', and 'innerBlocks' keys.
 		 */
@@ -370,6 +371,11 @@ class ContentParser {
 
 				if ( isset( $block_attributes[ $block_attribute_name ] ) ) {
 					// Attribute is already set in the block's delimiter attributes, skip.
+					continue;
+				} elseif ( 'core/html' === $block->name && 'content' === $block_attribute_name && 'local' === ( $block_attribute_definition['role'] ?? null ) ) {
+					// WordPress 6.8 uses the 'raw' source and follows the sourced-attribute path below.
+					// Newer core/html definitions use role 'local' and keep the value in inner HTML.
+					$block_attributes[ $block_attribute_name ] = trim( $block->inner_html );
 					continue;
 				} elseif ( null !== $attribute_default_value ) {
 					// Attribute is unset and has a default value, use default value.
@@ -501,6 +507,12 @@ class ContentParser {
 
 		if ( $crawler->count() > 0 ) {
 			$attribute_value = $crawler->attr( $attribute );
+			if ( 'boolean' === ( $block_attribute_definition['type'] ?? null ) ) {
+				// HTML boolean attributes are true when present, even if written as
+				// controls="false". Omit the attribute to mean false; preserve that false
+				// instead of replacing it with the block's default.
+				$attribute_value = null !== $attribute_value;
+			}
 		}
 
 		return $attribute_value;
@@ -679,8 +691,9 @@ class ContentParser {
 	 * @access private
 	 */
 	protected function source_block_raw( $crawler ) {
-		// The only current usage of the 'raw' attribute in Gutenberg core is the 'core/html' block:
-		// https://github.com/WordPress/gutenberg/blob/6517008/packages/block-library/src/html/block.json#L13
+		// Older core/html definitions, including WordPress 6.8, use the 'raw' source.
+		// Newer core/html definitions use role 'local', handled in apply_sourced_attributes().
+		// core/shortcode, core/freeform, and core/missing also use this raw parser.
 		// Also see tag attribute parsing in Gutenberg:
 		// https://github.com/WordPress/gutenberg/blob/6517008/packages/blocks/src/api/parser/get-block-attributes.js#L131
 
