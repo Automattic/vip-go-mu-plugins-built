@@ -1,0 +1,4699 @@
+<?php
+
+/**
+ * This file is generated. Do not edit it directly.
+ */
+
+declare(strict_types=1);
+
+namespace WP\McpSchema\Internal\Catalog;
+
+final class V2026_07_28
+{
+    public const VERSION = '2026-07-28';
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function document(): array
+    {
+        return [
+            '$defs' => [
+                'Annotations' => [
+                    'description' => 'Optional annotations for the client. The client can use annotations to inform how objects are used or displayed',
+                    'properties' => [
+                        'audience' => [
+                            'description' => 'Describes who the intended audience of this object or data is.
+
+It can include multiple entries to indicate content useful for multiple audiences (e.g., `["user", "assistant"]`).',
+                            'items' => [
+                                '$ref' => '#/$defs/Role',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'lastModified' => [
+                            'description' => 'The moment the resource was last modified, as an ISO 8601 formatted string.
+
+Should be an ISO 8601 formatted string (e.g., "2025-01-12T15:00:58Z").
+
+Examples: last activity timestamp in an open file, timestamp when the resource
+was attached, etc.',
+                            'type' => 'string',
+                        ],
+                        'priority' => [
+                            'description' => 'Describes how important this data is for operating the server.
+
+A value of 1 means "most important," and indicates that the data is
+effectively required, while 0 means "least important," and indicates that
+the data is entirely optional.',
+                            'maximum' => 1,
+                            'minimum' => 0,
+                            'type' => 'number',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'AudioContent' => [
+                    'description' => 'Audio provided to or from an LLM.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'data' => [
+                            'description' => 'The base64-encoded audio data.',
+                            'format' => 'byte',
+                            'type' => 'string',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of the audio. Different providers may support different audio types.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'audio',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'data',
+                        'mimeType',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'BaseMetadata' => [
+                    'description' => 'Base interface for metadata with name (identifier) and title (display name) properties.',
+                    'properties' => [
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'BlobResourceContents' => [
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'blob' => [
+                            'description' => 'A base64-encoded string representing the binary data of the item.',
+                            'format' => 'byte',
+                            'type' => 'string',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of this resource, if known.',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of this resource.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'blob',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'BooleanSchema' => [
+                    'properties' => [
+                        'default' => [
+                            'type' => 'boolean',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'boolean',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'CacheableResult' => [
+                    'description' => 'A result that supports a time-to-live (TTL) hint for client-side caching.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'resultType',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'CallToolRequest' => [
+                    'description' => 'Used by the client to invoke a tool provided by the server.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'tools/call',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/CallToolRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'CallToolRequestParams' => [
+                    'description' => 'Parameters for a `tools/call` request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'arguments' => [
+                            'additionalProperties' => [],
+                            'description' => 'Arguments to use for the tool call.',
+                            'type' => 'object',
+                        ],
+                        'inputResponses' => [
+                            '$ref' => '#/$defs/InputResponses',
+                        ],
+                        'name' => [
+                            'description' => 'The name of the tool.',
+                            'type' => 'string',
+                        ],
+                        'requestState' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'CallToolResult' => [
+                    'description' => 'The result returned by the server for a {@link CallToolRequesttools/call} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'content' => [
+                            'description' => 'A list of content objects that represent the unstructured result of the tool call.',
+                            'items' => [
+                                '$ref' => '#/$defs/ContentBlock',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'isError' => [
+                            'description' => 'Whether the tool call ended in an error.
+
+If not set, this is assumed to be false (the call was successful).
+
+Any errors that originate from the tool SHOULD be reported inside the result
+object, with `isError` set to true, _not_ as an MCP protocol-level error
+response. Otherwise, the LLM would not be able to see that an error occurred
+and self-correct.
+
+However, any errors in _finding_ the tool, an error indicating that the
+server does not support tool calls, or any other exceptional conditions,
+should be reported as an MCP error response.',
+                            'type' => 'boolean',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'structuredContent' => [
+                            'description' => 'An optional JSON value that represents the structured result of the tool call.
+
+This can be any JSON value (object, array, string, number, boolean, or null)
+that conforms to the tool\'s outputSchema if one is defined.',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'CallToolResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link CallToolRequesttools/call} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/InputRequiredResult',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/CallToolResult',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'CancelledNotification' => [
+                    'description' => 'This notification is sent by the client to indicate that it is cancelling a request it previously issued.
+
+On stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.
+
+The request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.
+
+This notification indicates that the result will be unused, so any associated processing SHOULD cease.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/cancelled',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/CancelledNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'CancelledNotificationParams' => [
+                    'description' => 'Parameters for a `notifications/cancelled` notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                        'reason' => [
+                            'description' => 'An optional string describing the reason for the cancellation. This MAY be logged or presented to the user.',
+                            'type' => 'string',
+                        ],
+                        'requestId' => [
+                            '$ref' => '#/$defs/RequestId',
+                            'description' => 'The ID of the request to cancel.
+
+This MUST correspond to the ID of a request the client previously issued.',
+                        ],
+                    ],
+                    'required' => [
+                        'requestId',
+                    ],
+                    'type' => 'object',
+                ],
+                'ClientCapabilities' => [
+                    'description' => 'Capabilities a client may support. Known capabilities are defined here, in this schema, but this is not a closed set: any client can define its own, additional capabilities.',
+                    'properties' => [
+                        'elicitation' => [
+                            'description' => 'Present if the client supports elicitation from the server.',
+                            'properties' => [
+                                'form' => [
+                                    '$ref' => '#/$defs/JSONObject',
+                                ],
+                                'url' => [
+                                    '$ref' => '#/$defs/JSONObject',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                        'experimental' => [
+                            'additionalProperties' => [
+                                '$ref' => '#/$defs/JSONObject',
+                            ],
+                            'description' => 'Experimental, non-standard capabilities that the client supports.',
+                            'type' => 'object',
+                        ],
+                        'extensions' => [
+                            'additionalProperties' => [
+                                '$ref' => '#/$defs/JSONObject',
+                            ],
+                            'description' => 'Optional MCP extensions that the client supports. Keys are extension identifiers
+(e.g., "io.modelcontextprotocol/oauth-client-credentials"), and values are
+per-extension settings objects. An empty object indicates support with no settings.
+
+Keys MUST follow the {@link MetaObject`_meta` key naming rules}, with a
+mandatory prefix.',
+                            'type' => 'object',
+                        ],
+                        'roots' => [
+                            'description' => 'Present if the client supports listing roots.',
+                            'properties' => [],
+                            'type' => 'object',
+                        ],
+                        'sampling' => [
+                            'description' => 'Present if the client supports sampling from an LLM.',
+                            'properties' => [
+                                'context' => [
+                                    '$ref' => '#/$defs/JSONObject',
+                                    'description' => 'Whether the client supports context inclusion via `includeContext` parameter.
+If not declared, servers SHOULD only use `includeContext: "none"` (or omit it).',
+                                ],
+                                'tools' => [
+                                    '$ref' => '#/$defs/JSONObject',
+                                    'description' => 'Whether the client supports tool use via `tools` and `toolChoice` parameters.',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ClientNotification' => [
+                    'description' => 'This notification is sent by the client to indicate that it is cancelling a request it previously issued.
+
+On stdio, the server also sends this notification, solely to terminate a {@link SubscriptionsListenRequestsubscriptions/listen} stream: it references the ID of the `subscriptions/listen` request that opened the stream. Servers MUST NOT use this notification to cancel any other request.
+
+The request SHOULD still be in-flight, but due to communication latency, it is always possible that this notification MAY arrive after the request has already finished.
+
+This notification indicates that the result will be unused, so any associated processing SHOULD cease.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/cancelled',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/CancelledNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ClientRequest' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/DiscoverRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListResourcesRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListResourceTemplatesRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ReadResourceRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/SubscriptionsListenRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListPromptsRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/GetPromptRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListToolsRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/CallToolRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/CompleteRequest',
+                        ],
+                    ],
+                ],
+                'ClientResult' => [
+                    '$ref' => '#/$defs/Result',
+                    'description' => 'Common result fields.',
+                ],
+                'CompleteRequest' => [
+                    'description' => 'A request from the client to the server, to ask for completion options.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'completion/complete',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/CompleteRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'CompleteRequestParams' => [
+                    'description' => 'Parameters for a `completion/complete` request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'argument' => [
+                            'description' => 'The argument\'s information',
+                            'properties' => [
+                                'name' => [
+                                    'description' => 'The name of the argument',
+                                    'type' => 'string',
+                                ],
+                                'value' => [
+                                    'description' => 'The value of the argument to use for completion matching.',
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'required' => [
+                                'name',
+                                'value',
+                            ],
+                            'type' => 'object',
+                        ],
+                        'context' => [
+                            'description' => 'Additional, optional context for completions',
+                            'properties' => [
+                                'arguments' => [
+                                    'additionalProperties' => [
+                                        'type' => 'string',
+                                    ],
+                                    'description' => 'Previously-resolved variables in a URI template or prompt.',
+                                    'type' => 'object',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                        'ref' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/PromptReference',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ResourceTemplateReference',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'argument',
+                        'ref',
+                    ],
+                    'type' => 'object',
+                ],
+                'CompleteResult' => [
+                    'description' => 'The result returned by the server for a {@link CompleteRequestcompletion/complete} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'completion' => [
+                            'properties' => [
+                                'hasMore' => [
+                                    'description' => 'Indicates whether there are additional completion options beyond those provided in the current response, even if the exact total is unknown.',
+                                    'type' => 'boolean',
+                                ],
+                                'total' => [
+                                    'description' => 'The total number of completion options available. This can exceed the number of values actually sent in the response.',
+                                    'type' => 'integer',
+                                ],
+                                'values' => [
+                                    'description' => 'An array of completion values. Must not exceed 100 items.',
+                                    'items' => [
+                                        'type' => 'string',
+                                    ],
+                                    'maxItems' => 100,
+                                    'type' => 'array',
+                                ],
+                            ],
+                            'required' => [
+                                'values',
+                            ],
+                            'type' => 'object',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'completion',
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'CompleteResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link CompleteRequestcompletion/complete} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/CompleteResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'ContentBlock' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/TextContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ImageContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/AudioContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ResourceLink',
+                        ],
+                        [
+                            '$ref' => '#/$defs/EmbeddedResource',
+                        ],
+                    ],
+                ],
+                'CreateMessageRequest' => [
+                    'description' => 'A request from the server to sample an LLM via the client. The client has full discretion over which model to select. The client should also inform the user before beginning sampling, to allow them to inspect the request (human in the loop) and decide whether to approve it.',
+                    'properties' => [
+                        'method' => [
+                            'const' => 'sampling/createMessage',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/CreateMessageRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'CreateMessageRequestParams' => [
+                    'description' => 'Parameters for a `sampling/createMessage` request.',
+                    'properties' => [
+                        'includeContext' => [
+                            'description' => 'A request to include context from one or more MCP servers (including the caller), to be attached to the prompt.
+The client MAY ignore this request.
+
+Default is `"none"`. The values `"thisServer"` and `"allServers"` are deprecated (SEP-2596): servers SHOULD
+omit this field or use `"none"`, and SHOULD only use the deprecated values if the client declares
+{@link ClientCapabilities.sampling.context}.',
+                            'enum' => [
+                                'allServers',
+                                'none',
+                                'thisServer',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'maxTokens' => [
+                            'description' => 'The requested maximum number of tokens to sample (to prevent runaway completions).
+
+The client MAY choose to sample fewer tokens than the requested maximum.',
+                            'type' => 'integer',
+                        ],
+                        'messages' => [
+                            'items' => [
+                                '$ref' => '#/$defs/SamplingMessage',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'metadata' => [
+                            '$ref' => '#/$defs/JSONObject',
+                            'description' => 'Optional metadata to pass through to the LLM provider. The format of this metadata is provider-specific.',
+                        ],
+                        'modelPreferences' => [
+                            '$ref' => '#/$defs/ModelPreferences',
+                            'description' => 'The server\'s preferences for which model to select. The client MAY ignore these preferences.',
+                        ],
+                        'stopSequences' => [
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'systemPrompt' => [
+                            'description' => 'An optional system prompt the server wants to use for sampling. The client MAY modify or omit this prompt.',
+                            'type' => 'string',
+                        ],
+                        'temperature' => [
+                            'type' => 'number',
+                        ],
+                        'toolChoice' => [
+                            '$ref' => '#/$defs/ToolChoice',
+                            'description' => 'Controls how the model uses tools.
+The client MUST return an error if this field is provided but {@link ClientCapabilities.sampling.tools} is not declared.
+Default is `{ mode: "auto" }`.',
+                        ],
+                        'tools' => [
+                            'description' => 'Tools that the model may use during generation.
+The client MUST return an error if this field is provided but {@link ClientCapabilities.sampling.tools} is not declared.',
+                            'items' => [
+                                '$ref' => '#/$defs/Tool',
+                            ],
+                            'type' => 'array',
+                        ],
+                    ],
+                    'required' => [
+                        'maxTokens',
+                        'messages',
+                    ],
+                    'type' => 'object',
+                ],
+                'CreateMessageResult' => [
+                    'description' => 'The result returned by the client for a {@link CreateMessageRequestsampling/createMessage} request.
+The client should inform the user before returning the sampled message, to allow them
+to inspect the response (human in the loop) and decide whether to allow the server to see it.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'content' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/TextContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ImageContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/AudioContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ToolUseContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ToolResultContent',
+                                ],
+                                [
+                                    'items' => [
+                                        '$ref' => '#/$defs/SamplingMessageContentBlock',
+                                    ],
+                                    'type' => 'array',
+                                ],
+                            ],
+                        ],
+                        'model' => [
+                            'description' => 'The name of the model that generated the message.',
+                            'type' => 'string',
+                        ],
+                        'role' => [
+                            '$ref' => '#/$defs/Role',
+                        ],
+                        'stopReason' => [
+                            'description' => 'The reason why sampling stopped, if known.
+
+Standard values:
+- `"endTurn"`: Natural end of the assistant\'s turn
+- `"stopSequence"`: A stop sequence was encountered
+- `"maxTokens"`: Maximum token limit was reached
+- `"toolUse"`: The model wants to use one or more tools
+
+This field is an open string to allow for provider-specific stop reasons.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                        'model',
+                        'role',
+                    ],
+                    'type' => 'object',
+                ],
+                'Cursor' => [
+                    'description' => 'An opaque token used to represent a cursor for pagination.',
+                    'type' => 'string',
+                ],
+                'DiscoverRequest' => [
+                    'description' => 'A request from the client asking the server to advertise its supported
+protocol versions, capabilities, and other metadata. Servers **MUST**
+implement `server/discover`. Clients **MAY** call it but are not required
+to — version negotiation can also happen inline via per-request `_meta`.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'server/discover',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/RequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'DiscoverResult' => [
+                    'description' => 'The result returned by the server for a {@link DiscoverRequestserver/discover} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'capabilities' => [
+                            '$ref' => '#/$defs/ServerCapabilities',
+                            'description' => 'The capabilities of the server.',
+                        ],
+                        'instructions' => [
+                            'description' => 'Natural-language guidance describing the server and its features.
+
+This can be used by clients to improve an LLM\'s understanding of
+available tools (e.g., by including it in a system prompt). It should
+focus on information that helps the model use the server effectively
+and should not duplicate information already in tool descriptions.',
+                            'type' => 'string',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'supportedVersions' => [
+                            'description' => 'MCP Protocol Versions this server supports. The client should choose a
+version from this list for use in subsequent requests.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'capabilities',
+                        'resultType',
+                        'supportedVersions',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'DiscoverResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link DiscoverRequestserver/discover} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/DiscoverResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'ElicitRequest' => [
+                    'description' => 'A request from the server to elicit additional information from the user via the client.',
+                    'properties' => [
+                        'method' => [
+                            'const' => 'elicitation/create',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/ElicitRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ElicitRequestFormParams' => [
+                    'description' => 'The parameters for a request to elicit non-sensitive information from the user via a form in the client.',
+                    'properties' => [
+                        'message' => [
+                            'description' => 'The message to present to the user describing what information is being requested.',
+                            'type' => 'string',
+                        ],
+                        'mode' => [
+                            'const' => 'form',
+                            'description' => 'The elicitation mode.',
+                            'type' => 'string',
+                        ],
+                        'requestedSchema' => [
+                            'description' => 'A restricted subset of JSON Schema.
+Only top-level properties are allowed, without nesting.',
+                            'properties' => [
+                                '$schema' => [
+                                    'type' => 'string',
+                                ],
+                                'properties' => [
+                                    'additionalProperties' => [
+                                        '$ref' => '#/$defs/PrimitiveSchemaDefinition',
+                                    ],
+                                    'type' => 'object',
+                                ],
+                                'required' => [
+                                    'items' => [
+                                        'type' => 'string',
+                                    ],
+                                    'type' => 'array',
+                                ],
+                                'type' => [
+                                    'const' => 'object',
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'required' => [
+                                'properties',
+                                'type',
+                            ],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'message',
+                        'requestedSchema',
+                    ],
+                    'type' => 'object',
+                ],
+                'ElicitRequestParams' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/ElicitRequestFormParams',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ElicitRequestURLParams',
+                        ],
+                    ],
+                    'description' => 'The parameters for a request to elicit additional information from the user via the client.',
+                ],
+                'ElicitRequestURLParams' => [
+                    'description' => 'The parameters for a request to elicit information from the user via a URL in the client.',
+                    'properties' => [
+                        'message' => [
+                            'description' => 'The message to present to the user explaining why the interaction is needed.',
+                            'type' => 'string',
+                        ],
+                        'mode' => [
+                            'const' => 'url',
+                            'description' => 'The elicitation mode.',
+                            'type' => 'string',
+                        ],
+                        'url' => [
+                            'description' => 'The URL that the user should navigate to.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'message',
+                        'mode',
+                        'url',
+                    ],
+                    'type' => 'object',
+                ],
+                'ElicitResult' => [
+                    'description' => 'The result returned by the client for an {@link ElicitRequestelicitation/create} request.',
+                    'properties' => [
+                        'action' => [
+                            'description' => 'The user action in response to the elicitation.
+- `"accept"`: User submitted the form/confirmed the action
+- `"decline"`: User explicitly declined the action
+- `"cancel"`: User dismissed without making an explicit choice',
+                            'enum' => [
+                                'accept',
+                                'cancel',
+                                'decline',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'content' => [
+                            'additionalProperties' => [
+                                'anyOf' => [
+                                    [
+                                        'items' => [
+                                            'type' => 'string',
+                                        ],
+                                        'type' => 'array',
+                                    ],
+                                    [
+                                        'type' => [
+                                            'string',
+                                            'number',
+                                            'boolean',
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            'description' => 'The submitted form data, only present when action is `"accept"` and mode was `"form"`.
+Contains values matching the requested schema.
+Omitted for out-of-band mode responses.',
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'action',
+                    ],
+                    'type' => 'object',
+                ],
+                'EmbeddedResource' => [
+                    'description' => 'The contents of a resource, embedded into a prompt or tool call result.
+
+It is up to the client how best to render embedded resources for the benefit
+of the LLM and/or the user.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'resource' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/TextResourceContents',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/BlobResourceContents',
+                                ],
+                            ],
+                        ],
+                        'type' => [
+                            'const' => 'resource',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'resource',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'EmptyResult' => [
+                    '$ref' => '#/$defs/Result',
+                    'description' => 'Common result fields.',
+                ],
+                'EnumSchema' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/UntitledSingleSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledSingleSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/UntitledMultiSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledMultiSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/LegacyTitledEnumSchema',
+                        ],
+                    ],
+                ],
+                'Error' => [
+                    'properties' => [
+                        'code' => [
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'GetPromptRequest' => [
+                    'description' => 'Used by the client to get a prompt provided by the server.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'prompts/get',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/GetPromptRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'GetPromptRequestParams' => [
+                    'description' => 'Parameters for a `prompts/get` request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'arguments' => [
+                            'additionalProperties' => [
+                                'type' => 'string',
+                            ],
+                            'description' => 'Arguments to use for templating the prompt.',
+                            'type' => 'object',
+                        ],
+                        'inputResponses' => [
+                            '$ref' => '#/$defs/InputResponses',
+                        ],
+                        'name' => [
+                            'description' => 'The name of the prompt or prompt template.',
+                            'type' => 'string',
+                        ],
+                        'requestState' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'GetPromptResult' => [
+                    'description' => 'The result returned by the server for a {@link GetPromptRequestprompts/get} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'description' => [
+                            'description' => 'An optional description for the prompt.',
+                            'type' => 'string',
+                        ],
+                        'messages' => [
+                            'items' => [
+                                '$ref' => '#/$defs/PromptMessage',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'messages',
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'GetPromptResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link GetPromptRequestprompts/get} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/InputRequiredResult',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/GetPromptResult',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'HeaderMismatchError' => [
+                    'description' => 'Returned when a server rejects a request because the values in the HTTP
+headers do not match the corresponding values in the request body, or
+because required headers are missing or malformed. For HTTP, the response
+status code MUST be `400 Bad Request`.',
+                    'properties' => [
+                        'error' => [
+                            'allOf' => [
+                                [
+                                    '$ref' => '#/$defs/Error',
+                                ],
+                                [
+                                    'properties' => [
+                                        'code' => [
+                                            'const' => -32020,
+                                            'type' => 'integer',
+                                        ],
+                                    ],
+                                    'required' => [
+                                        'code',
+                                    ],
+                                    'type' => 'object',
+                                ],
+                            ],
+                        ],
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'error',
+                        'jsonrpc',
+                    ],
+                    'type' => 'object',
+                ],
+                'Icon' => [
+                    'description' => 'An optionally-sized icon that can be displayed in a user interface.',
+                    'properties' => [
+                        'mimeType' => [
+                            'description' => 'Optional MIME type override if the source MIME type is missing or generic.
+For example: `"image/png"`, `"image/jpeg"`, or `"image/svg+xml"`.',
+                            'type' => 'string',
+                        ],
+                        'sizes' => [
+                            'description' => 'Optional array of strings that specify sizes at which the icon can be used.
+Each string should be in WxH format (e.g., `"48x48"`, `"96x96"`) or `"any"` for scalable formats like SVG.
+
+If not provided, the client should assume that the icon can be used at any size.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'src' => [
+                            'description' => 'A standard URI pointing to an icon resource. May be an HTTP/HTTPS URL or a
+`data:` URI with Base64-encoded image data.
+
+Consumers SHOULD take steps to ensure URLs serving icons are from the
+same domain as the client/server or a trusted domain.
+
+Consumers SHOULD take appropriate precautions when consuming SVGs as they can contain
+executable JavaScript.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                        'theme' => [
+                            'description' => 'Optional specifier for the theme this icon is designed for. `"light"` indicates
+the icon is designed to be used with a light background, and `"dark"` indicates
+the icon is designed to be used with a dark background.
+
+If not provided, the client should assume the icon can be used with any theme.',
+                            'enum' => [
+                                'dark',
+                                'light',
+                            ],
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'src',
+                    ],
+                    'type' => 'object',
+                ],
+                'Icons' => [
+                    'description' => 'Base interface to add `icons` property.',
+                    'properties' => [
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ImageContent' => [
+                    'description' => 'An image provided to or from an LLM.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'data' => [
+                            'description' => 'The base64-encoded image data.',
+                            'format' => 'byte',
+                            'type' => 'string',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of the image. Different providers may support different image types.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'image',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'data',
+                        'mimeType',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'Implementation' => [
+                    'description' => 'Describes the MCP implementation.',
+                    'properties' => [
+                        'description' => [
+                            'description' => 'An optional human-readable description of what this implementation does.
+
+This can be used by clients or servers to provide context about their purpose
+and capabilities. For example, a server might describe the types of resources
+or tools it provides, while a client might describe its intended use case.',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                        'version' => [
+                            'description' => 'The version of this implementation.',
+                            'type' => 'string',
+                        ],
+                        'websiteUrl' => [
+                            'description' => 'An optional URL of the website for this implementation.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                        'version',
+                    ],
+                    'type' => 'object',
+                ],
+                'InputRequest' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/CreateMessageRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListRootsRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ElicitRequest',
+                        ],
+                    ],
+                ],
+                'InputRequests' => [
+                    'additionalProperties' => [
+                        '$ref' => '#/$defs/InputRequest',
+                    ],
+                    'description' => 'A map of server-initiated requests that the client must fulfill.
+Keys are server-assigned identifiers; values are the request objects.',
+                    'type' => 'object',
+                ],
+                'InputRequiredResult' => [
+                    'description' => 'An InputRequiredResult sent by the server to indicate that additional input is needed
+before the request can be completed.
+
+At least one of `inputRequests` or `requestState` MUST be present.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'inputRequests' => [
+                            '$ref' => '#/$defs/InputRequests',
+                        ],
+                        'requestState' => [
+                            'type' => 'string',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'InputResponse' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/CreateMessageResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListRootsResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ElicitResult',
+                        ],
+                    ],
+                ],
+                'InputResponseRequestParams' => [
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'inputResponses' => [
+                            '$ref' => '#/$defs/InputResponses',
+                        ],
+                        'requestState' => [
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                    ],
+                    'type' => 'object',
+                ],
+                'InputResponses' => [
+                    'additionalProperties' => [
+                        '$ref' => '#/$defs/InputResponse',
+                    ],
+                    'description' => 'A map of client responses to server-initiated requests.
+Keys correspond to the keys in the {@link InputRequests} map;
+values are the client\'s result for each request.',
+                    'type' => 'object',
+                ],
+                'InternalError' => [
+                    'description' => 'A JSON-RPC error indicating that an internal error occurred on the receiver. This error is returned when the receiver encounters an unexpected condition that prevents it from fulfilling the request.',
+                    'properties' => [
+                        'code' => [
+                            'const' => -32603,
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'InvalidParamsError' => [
+                    'description' => 'A JSON-RPC error indicating that the method parameters are invalid or malformed.
+
+In MCP, this error is returned in various contexts when request parameters fail validation:
+
+- **Tools**: Unknown tool name or invalid tool arguments
+- **Prompts**: Unknown prompt name or missing required arguments
+- **Pagination**: Invalid or expired cursor values
+- **Logging**: Invalid log level
+- **Elicitation**: Server requests an elicitation mode not declared in client capabilities
+- **Sampling**: Missing tool result or tool results mixed with other content',
+                    'properties' => [
+                        'code' => [
+                            'const' => -32602,
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'InvalidRequestError' => [
+                    'description' => 'A JSON-RPC error indicating that the request is not a valid request object. This error is returned when the message structure does not conform to the JSON-RPC 2.0 specification requirements for a request (e.g., missing required fields like `jsonrpc` or `method`, or using invalid types for these fields).',
+                    'properties' => [
+                        'code' => [
+                            'const' => -32600,
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONArray' => [
+                    'items' => [
+                        '$ref' => '#/$defs/JSONValue',
+                    ],
+                    'type' => 'array',
+                ],
+                'JSONObject' => [
+                    'additionalProperties' => [
+                        '$ref' => '#/$defs/JSONValue',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONRPCErrorResponse' => [
+                    'description' => 'A response to a request that indicates an error occurred.',
+                    'properties' => [
+                        'error' => [
+                            '$ref' => '#/$defs/Error',
+                        ],
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'error',
+                        'jsonrpc',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONRPCMessage' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/JSONRPCRequest',
+                        ],
+                        [
+                            '$ref' => '#/$defs/JSONRPCNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/JSONRPCResultResponse',
+                        ],
+                        [
+                            '$ref' => '#/$defs/JSONRPCErrorResponse',
+                        ],
+                    ],
+                    'description' => 'Refers to any valid JSON-RPC object that can be decoded off the wire, or encoded to be sent.',
+                ],
+                'JSONRPCNotification' => [
+                    'description' => 'A notification which does not expect a response.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            'additionalProperties' => [],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONRPCRequest' => [
+                    'description' => 'A request that expects a response.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            'additionalProperties' => [],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONRPCResponse' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/JSONRPCResultResponse',
+                        ],
+                        [
+                            '$ref' => '#/$defs/JSONRPCErrorResponse',
+                        ],
+                    ],
+                    'description' => 'A response to a request, containing either the result or error.',
+                ],
+                'JSONRPCResultResponse' => [
+                    'description' => 'A successful (non-error) response to a request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/Result',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'JSONValue' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/JSONObject',
+                        ],
+                        [
+                            'items' => [
+                                '$ref' => '#/$defs/JSONValue',
+                            ],
+                            'type' => 'array',
+                        ],
+                        [
+                            'type' => [
+                                'string',
+                                'number',
+                                'boolean',
+                                'null',
+                            ],
+                        ],
+                    ],
+                ],
+                'LegacyTitledEnumSchema' => [
+                    'description' => 'Use {@link TitledSingleSelectEnumSchema} instead.
+This interface will be removed in a future version.',
+                    'properties' => [
+                        'default' => [
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                        ],
+                        'enum' => [
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'enumNames' => [
+                            'description' => '(Legacy) Display names for enum values.
+Non-standard according to JSON schema 2020-12.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'title' => [
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'string',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'enum',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListPromptsRequest' => [
+                    'description' => 'Sent from the client to request a list of prompts and prompt templates the server has.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'prompts/list',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/PaginatedRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListPromptsResult' => [
+                    'description' => 'The result returned by the server for a {@link ListPromptsRequestprompts/list} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'nextCursor' => [
+                            'description' => 'An opaque token representing the pagination position after the last returned result.
+If present, there may be more results available.',
+                            'type' => 'string',
+                        ],
+                        'prompts' => [
+                            'items' => [
+                                '$ref' => '#/$defs/Prompt',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'prompts',
+                        'resultType',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListPromptsResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link ListPromptsRequestprompts/list} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/ListPromptsResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourceTemplatesRequest' => [
+                    'description' => 'Sent from the client to request a list of resource templates the server has.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'resources/templates/list',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/PaginatedRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourceTemplatesResult' => [
+                    'description' => 'The result returned by the server for a {@link ListResourceTemplatesRequestresources/templates/list} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'nextCursor' => [
+                            'description' => 'An opaque token representing the pagination position after the last returned result.
+If present, there may be more results available.',
+                            'type' => 'string',
+                        ],
+                        'resourceTemplates' => [
+                            'items' => [
+                                '$ref' => '#/$defs/ResourceTemplate',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'resourceTemplates',
+                        'resultType',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourceTemplatesResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link ListResourceTemplatesRequestresources/templates/list} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/ListResourceTemplatesResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourcesRequest' => [
+                    'description' => 'Sent from the client to request a list of resources the server has.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'resources/list',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/PaginatedRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourcesResult' => [
+                    'description' => 'The result returned by the server for a {@link ListResourcesRequestresources/list} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'nextCursor' => [
+                            'description' => 'An opaque token representing the pagination position after the last returned result.
+If present, there may be more results available.',
+                            'type' => 'string',
+                        ],
+                        'resources' => [
+                            'items' => [
+                                '$ref' => '#/$defs/Resource',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'resources',
+                        'resultType',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListResourcesResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link ListResourcesRequestresources/list} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/ListResourcesResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListRootsRequest' => [
+                    'description' => 'Sent from the server to request a list of root URIs from the client. Roots allow
+servers to ask for specific directories or files to operate on. A common example
+for roots is providing a set of repositories or directories a server should operate
+on.
+
+This request is typically used when the server needs to understand the file system
+structure or access specific locations that the client has permission to read from.',
+                    'properties' => [
+                        'method' => [
+                            'const' => 'roots/list',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            'properties' => [
+                                '_meta' => [
+                                    '$ref' => '#/$defs/MetaObject',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListRootsResult' => [
+                    'description' => 'The result returned by the client for a {@link ListRootsRequestroots/list} request.
+This result contains an array of {@link Root} objects, each representing a root directory
+or file that the server can operate on.',
+                    'properties' => [
+                        'roots' => [
+                            'items' => [
+                                '$ref' => '#/$defs/Root',
+                            ],
+                            'type' => 'array',
+                        ],
+                    ],
+                    'required' => [
+                        'roots',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListToolsRequest' => [
+                    'description' => 'Sent from the client to request a list of tools the server has.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'tools/list',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/PaginatedRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListToolsResult' => [
+                    'description' => 'The result returned by the server for a {@link ListToolsRequesttools/list} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'nextCursor' => [
+                            'description' => 'An opaque token representing the pagination position after the last returned result.
+If present, there may be more results available.',
+                            'type' => 'string',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'tools' => [
+                            'items' => [
+                                '$ref' => '#/$defs/Tool',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'resultType',
+                        'tools',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'ListToolsResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link ListToolsRequesttools/list} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/ListToolsResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'LoggingLevel' => [
+                    'description' => 'The severity of a log message.
+
+These map to syslog message severities, as specified in RFC-5424:
+https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1',
+                    'enum' => [
+                        'alert',
+                        'critical',
+                        'debug',
+                        'emergency',
+                        'error',
+                        'info',
+                        'notice',
+                        'warning',
+                    ],
+                    'type' => 'string',
+                ],
+                'LoggingMessageNotification' => [
+                    'description' => 'JSONRPCNotification of a log message passed from server to client. The client opts in by setting `"io.modelcontextprotocol/logLevel"` in a request\'s `_meta`.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/message',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/LoggingMessageNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'LoggingMessageNotificationParams' => [
+                    'description' => 'Parameters for a `notifications/message` notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                        'data' => [
+                            'description' => 'The data to be logged, such as a string message or an object. Any JSON serializable type is allowed here.',
+                        ],
+                        'level' => [
+                            '$ref' => '#/$defs/LoggingLevel',
+                            'description' => 'The severity of this log message.',
+                        ],
+                        'logger' => [
+                            'description' => 'An optional name of the logger issuing this message.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'data',
+                        'level',
+                    ],
+                    'type' => 'object',
+                ],
+                'MetaObject' => [
+                    'description' => 'Represents the contents of a `_meta` field, which clients and servers use to attach additional metadata to their interactions.
+
+Certain key names are reserved by MCP for protocol-level metadata; implementations MUST NOT make assumptions about values at these keys. Additionally, specific schema definitions may reserve particular names for purpose-specific metadata, as declared in those definitions.
+
+Valid keys have two segments:
+
+**Prefix:**
+- Optional — if specified, MUST be a series of _labels_ separated by dots (`.`), followed by a slash (`/`).
+- Labels MUST start with a letter and end with a letter or digit. Interior characters may be letters, digits, or hyphens (`-`).
+- Implementations SHOULD use reverse DNS notation (e.g., `com.example/` rather than `example.com/`).
+- Any prefix where the second label is `modelcontextprotocol` or `mcp` is **reserved** for MCP use. For example: `io.modelcontextprotocol/`, `dev.mcp/`, `org.modelcontextprotocol.api/`, and `com.mcp.tools/` are all reserved. However, `com.example.mcp/` is NOT reserved, as the second label is `example`.
+
+**Name:**
+- Unless empty, MUST start and end with an alphanumeric character (`[a-z0-9A-Z]`).
+- Interior characters may be alphanumeric, hyphens (`-`), underscores (`_`), or dots (`.`).',
+                    'type' => 'object',
+                ],
+                'MethodNotFoundError' => [
+                    'description' => 'A JSON-RPC error indicating that the requested method does not exist or is not available.
+
+In MCP, a server returns this error when a client invokes a method the server does not implement — either a genuinely unknown method, or one gated behind a server capability the server did not advertise (e.g., calling `prompts/list` when the `prompts` capability was not advertised).
+
+A request that requires a client capability the client did not declare is signalled instead by {@link MissingRequiredClientCapabilityError} (`-32021`).',
+                    'properties' => [
+                        'code' => [
+                            'const' => -32601,
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'MissingRequiredClientCapabilityError' => [
+                    'description' => 'Returned when processing a request requires a capability the client did not
+declare in `clientCapabilities`. For HTTP, the response status code MUST be
+`400 Bad Request`.',
+                    'properties' => [
+                        'error' => [
+                            'allOf' => [
+                                [
+                                    '$ref' => '#/$defs/Error',
+                                ],
+                                [
+                                    'properties' => [
+                                        'code' => [
+                                            'const' => -32021,
+                                            'type' => 'integer',
+                                        ],
+                                        'data' => [
+                                            'properties' => [
+                                                'requiredCapabilities' => [
+                                                    '$ref' => '#/$defs/ClientCapabilities',
+                                                    'description' => 'The capabilities the server requires from the client to process this request.',
+                                                ],
+                                            ],
+                                            'required' => [
+                                                'requiredCapabilities',
+                                            ],
+                                            'type' => 'object',
+                                        ],
+                                    ],
+                                    'required' => [
+                                        'code',
+                                        'data',
+                                    ],
+                                    'type' => 'object',
+                                ],
+                            ],
+                        ],
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'error',
+                        'jsonrpc',
+                    ],
+                    'type' => 'object',
+                ],
+                'ModelHint' => [
+                    'description' => 'Hints to use for model selection.
+
+Keys not declared here are currently left unspecified by the spec and are up
+to the client to interpret.',
+                    'properties' => [
+                        'name' => [
+                            'description' => 'A hint for a model name.
+
+The client SHOULD treat this as a substring of a model name; for example:
+ - `claude-3-5-sonnet` should match `claude-3-5-sonnet-20241022`
+ - `sonnet` should match `claude-3-5-sonnet-20241022`, `claude-3-sonnet-20240229`, etc.
+ - `claude` should match any Claude model
+
+The client MAY also map the string to a different provider\'s model name or a different model family, as long as it fills a similar niche; for example:
+ - `gemini-1.5-flash` could match `claude-3-haiku-20240307`',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ModelPreferences' => [
+                    'description' => 'The server\'s preferences for model selection, requested of the client during sampling.
+
+Because LLMs can vary along multiple dimensions, choosing the "best" model is
+rarely straightforward.  Different models excel in different areas—some are
+faster but less capable, others are more capable but more expensive, and so
+on. This interface allows servers to express their priorities across multiple
+dimensions to help clients make an appropriate selection for their use case.
+
+These preferences are always advisory. The client MAY ignore them. It is also
+up to the client to decide how to interpret these preferences and how to
+balance them against other considerations.',
+                    'properties' => [
+                        'costPriority' => [
+                            'description' => 'How much to prioritize cost when selecting a model. A value of 0 means cost
+is not important, while a value of 1 means cost is the most important
+factor.',
+                            'maximum' => 1,
+                            'minimum' => 0,
+                            'type' => 'number',
+                        ],
+                        'hints' => [
+                            'description' => 'Optional hints to use for model selection.
+
+If multiple hints are specified, the client MUST evaluate them in order
+(such that the first match is taken).
+
+The client SHOULD prioritize these hints over the numeric priorities, but
+MAY still use the priorities to select from ambiguous matches.',
+                            'items' => [
+                                '$ref' => '#/$defs/ModelHint',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'intelligencePriority' => [
+                            'description' => 'How much to prioritize intelligence and capabilities when selecting a
+model. A value of 0 means intelligence is not important, while a value of 1
+means intelligence is the most important factor.',
+                            'maximum' => 1,
+                            'minimum' => 0,
+                            'type' => 'number',
+                        ],
+                        'speedPriority' => [
+                            'description' => 'How much to prioritize sampling speed (latency) when selecting a model. A
+value of 0 means speed is not important, while a value of 1 means speed is
+the most important factor.',
+                            'maximum' => 1,
+                            'minimum' => 0,
+                            'type' => 'number',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'MultiSelectEnumSchema' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/UntitledMultiSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledMultiSelectEnumSchema',
+                        ],
+                    ],
+                ],
+                'Notification' => [
+                    'properties' => [
+                        'method' => [
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            'additionalProperties' => [],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'NotificationMetaObject' => [
+                    'description' => 'Extends {@link MetaObject} with additional notification-specific fields. All key naming rules from `MetaObject` apply.',
+                    'properties' => [
+                        'io.modelcontextprotocol/subscriptionId' => [
+                            '$ref' => '#/$defs/RequestId',
+                            'description' => 'Identifies the subscription stream a notification was delivered on. The
+server MUST include this key on every notification delivered via a
+{@link SubscriptionsListenRequestsubscriptions/listen} stream, so the
+client can correlate the notification with the originating subscription.
+The key is absent on notifications not delivered via a subscription
+stream (e.g. progress notifications for an in-flight request), which is
+why it is optional here.
+
+The value is the JSON-RPC ID of the `subscriptions/listen` request that
+opened the stream.',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'NotificationParams' => [
+                    'description' => 'Common params for any notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'NumberSchema' => [
+                    'properties' => [
+                        'default' => [
+                            'type' => 'number',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                        ],
+                        'maximum' => [
+                            'type' => 'number',
+                        ],
+                        'minimum' => [
+                            'type' => 'number',
+                        ],
+                        'title' => [
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'enum' => [
+                                'integer',
+                                'number',
+                            ],
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'PaginatedRequest' => [
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/PaginatedRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'PaginatedRequestParams' => [
+                    'description' => 'Common params for paginated requests.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'cursor' => [
+                            'description' => 'An opaque token representing the current pagination position.
+If provided, the server should return results starting after this cursor.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                    ],
+                    'type' => 'object',
+                ],
+                'PaginatedResult' => [
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'nextCursor' => [
+                            'description' => 'An opaque token representing the pagination position after the last returned result.
+If present, there may be more results available.',
+                            'type' => 'string',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'ParseError' => [
+                    'description' => 'A JSON-RPC error indicating that invalid JSON was received by the server. This error is returned when the server cannot parse the JSON text of a message.',
+                    'properties' => [
+                        'code' => [
+                            'const' => -32700,
+                            'description' => 'The error type that occurred.',
+                            'type' => 'integer',
+                        ],
+                        'data' => [
+                            'description' => 'Additional information about the error. The value of this member is defined by the sender (e.g. detailed error information, nested errors etc.).',
+                        ],
+                        'message' => [
+                            'description' => 'A short description of the error. The message SHOULD be limited to a concise single sentence.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'code',
+                        'message',
+                    ],
+                    'type' => 'object',
+                ],
+                'PrimitiveSchemaDefinition' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/StringSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/NumberSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/BooleanSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/UntitledSingleSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledSingleSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/UntitledMultiSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledMultiSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/LegacyTitledEnumSchema',
+                        ],
+                    ],
+                    'description' => 'Restricted schema definitions that only allow primitive types
+without nested objects or arrays.',
+                ],
+                'ProgressNotification' => [
+                    'description' => 'An out-of-band notification used to inform the receiver of a progress update for a long-running request.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/progress',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/ProgressNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ProgressNotificationParams' => [
+                    'description' => 'Parameters for a {@link ProgressNotificationnotifications/progress} notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                        'message' => [
+                            'description' => 'An optional message describing the current progress.',
+                            'type' => 'string',
+                        ],
+                        'progress' => [
+                            'description' => 'The progress thus far. This should increase every time progress is made, even if the total is unknown.',
+                            'type' => 'number',
+                        ],
+                        'progressToken' => [
+                            '$ref' => '#/$defs/ProgressToken',
+                            'description' => 'The progress token which was given in the initial request, used to associate this notification with the request that is proceeding.',
+                        ],
+                        'total' => [
+                            'description' => 'Total number of items to process (or total progress required), if known.',
+                            'type' => 'number',
+                        ],
+                    ],
+                    'required' => [
+                        'progress',
+                        'progressToken',
+                    ],
+                    'type' => 'object',
+                ],
+                'ProgressToken' => [
+                    'description' => 'A progress token, used to associate progress notifications with the original request.',
+                    'type' => [
+                        'string',
+                        'integer',
+                    ],
+                ],
+                'Prompt' => [
+                    'description' => 'A prompt or prompt template that the server offers.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'arguments' => [
+                            'description' => 'A list of arguments to use for templating the prompt.',
+                            'items' => [
+                                '$ref' => '#/$defs/PromptArgument',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'description' => [
+                            'description' => 'An optional description of what this prompt provides',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'PromptArgument' => [
+                    'description' => 'Describes an argument that a prompt can accept.',
+                    'properties' => [
+                        'description' => [
+                            'description' => 'A human-readable description of the argument.',
+                            'type' => 'string',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'required' => [
+                            'description' => 'Whether this argument must be provided.',
+                            'type' => 'boolean',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'PromptListChangedNotification' => [
+                    'description' => 'An optional notification from the server to the client, informing it that the list of prompts it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `promptsListChanged` filter field.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/prompts/list_changed',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/NotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'PromptMessage' => [
+                    'description' => 'Describes a message returned as part of a prompt.
+
+This is similar to {@link SamplingMessage}, but also supports the embedding of
+resources from the MCP server.',
+                    'properties' => [
+                        'content' => [
+                            '$ref' => '#/$defs/ContentBlock',
+                        ],
+                        'role' => [
+                            '$ref' => '#/$defs/Role',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                        'role',
+                    ],
+                    'type' => 'object',
+                ],
+                'PromptReference' => [
+                    'description' => 'Identifies a prompt.',
+                    'properties' => [
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'ref/prompt',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'ReadResourceRequest' => [
+                    'description' => 'Sent from the client to the server, to read a specific resource URI.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'resources/read',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/ReadResourceRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ReadResourceRequestParams' => [
+                    'description' => 'Parameters for a `resources/read` request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'inputResponses' => [
+                            '$ref' => '#/$defs/InputResponses',
+                        ],
+                        'requestState' => [
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ReadResourceResult' => [
+                    'description' => 'The result returned by the server for a {@link ReadResourceRequestresources/read} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'cacheScope' => [
+                            'description' => 'Indicates the intended scope of the cached response, analogous to HTTP
+`Cache-Control: public` vs `Cache-Control: private`.
+
+- `"public"`: The response does not contain user-specific data. Any
+  client or intermediary (e.g., shared gateway, caching proxy) MAY cache
+  the response and serve it across authorization contexts.
+- `"private"`: The response MAY be cached and reused only within the
+  same authorization context. Caches MUST NOT be shared across
+  authorization contexts (e.g., a different access token requires a
+  different cache).',
+                            'enum' => [
+                                'private',
+                                'public',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'contents' => [
+                            'items' => [
+                                'anyOf' => [
+                                    [
+                                        '$ref' => '#/$defs/TextResourceContents',
+                                    ],
+                                    [
+                                        '$ref' => '#/$defs/BlobResourceContents',
+                                    ],
+                                ],
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                        'ttlMs' => [
+                            'description' => 'A hint from the server indicating how long (in milliseconds) the
+client MAY cache this response before re-fetching. Semantics are
+analogous to HTTP Cache-Control max-age.
+
+- If 0, The response SHOULD be considered immediately stale,
+  The client MAY re-fetch every time the result is needed.
+- If positive, the client SHOULD consider the result fresh for this many
+  milliseconds after receiving the response.',
+                            'minimum' => 0,
+                            'type' => 'integer',
+                        ],
+                    ],
+                    'required' => [
+                        'cacheScope',
+                        'contents',
+                        'resultType',
+                        'ttlMs',
+                    ],
+                    'type' => 'object',
+                ],
+                'ReadResourceResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link ReadResourceRequestresources/read} request.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/InputRequiredResult',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ReadResourceResult',
+                                ],
+                            ],
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'Request' => [
+                    'properties' => [
+                        'method' => [
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            'additionalProperties' => [],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'required' => [
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'RequestId' => [
+                    'description' => 'A uniquely identifying ID for a request in JSON-RPC.',
+                    'type' => [
+                        'string',
+                        'integer',
+                    ],
+                ],
+                'RequestMetaObject' => [
+                    'description' => 'Extends {@link MetaObject} with additional request-specific fields. All key naming rules from `MetaObject` apply.',
+                    'properties' => [
+                        'io.modelcontextprotocol/clientCapabilities' => [
+                            '$ref' => '#/$defs/ClientCapabilities',
+                            'description' => 'The client\'s capabilities for this specific request. Required.
+
+Capabilities are declared per-request rather than once at initialization;
+an empty object means the client supports no optional capabilities.
+Servers MUST NOT infer capabilities from prior requests.',
+                        ],
+                        'io.modelcontextprotocol/clientInfo' => [
+                            '$ref' => '#/$defs/Implementation',
+                            'description' => 'Identifies the client software making the request. Clients SHOULD
+include this field on every request unless specifically configured not
+to do so.
+
+The {@link Implementation} schema requires `name` and `version`; other
+fields are optional.
+
+The value is self-reported by the client and is not verified by the
+protocol. It is intended for display, logging, and debugging. Servers
+SHOULD NOT use it to change their behavior, and SHOULD NOT rely on it for
+security decisions.',
+                        ],
+                        'io.modelcontextprotocol/logLevel' => [
+                            '$ref' => '#/$defs/LoggingLevel',
+                            'description' => 'The desired log level for this request. Optional.
+
+If absent, the server MUST NOT send any {@link LoggingMessageNotificationnotifications/message}
+notifications for this request. The client opts in to log messages by
+explicitly setting a level. Replaces the former `logging/setLevel` RPC.',
+                        ],
+                        'io.modelcontextprotocol/protocolVersion' => [
+                            'description' => 'The MCP Protocol Version being used for this request. Required.
+
+For the HTTP transport, this value MUST match the `MCP-Protocol-Version`
+header; otherwise the server MUST return a `400 Bad Request`. If the
+server does not support the requested version, it MUST return an
+{@link UnsupportedProtocolVersionError}.',
+                            'type' => 'string',
+                        ],
+                        'progressToken' => [
+                            '$ref' => '#/$defs/ProgressToken',
+                            'description' => 'If specified, the caller is requesting out-of-band progress notifications for this request (as represented by {@link ProgressNotificationnotifications/progress}). The value of this parameter is an opaque token that will be attached to any subsequent notifications. The receiver is not obligated to provide these notifications.',
+                        ],
+                    ],
+                    'required' => [
+                        'io.modelcontextprotocol/clientCapabilities',
+                        'io.modelcontextprotocol/protocolVersion',
+                    ],
+                    'type' => 'object',
+                ],
+                'RequestParams' => [
+                    'description' => 'Common params for any request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                    ],
+                    'type' => 'object',
+                ],
+                'Resource' => [
+                    'description' => 'A known resource that the server is capable of reading.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'description' => [
+                            'description' => 'A description of what this resource represents.
+
+This can be used by clients to improve the LLM\'s understanding of available resources. It can be thought of like a "hint" to the model.',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of this resource, if known.',
+                            'type' => 'string',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'size' => [
+                            'description' => 'The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
+
+This can be used by Hosts to display file sizes and estimate context window usage.',
+                            'type' => 'integer',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of this resource.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceContents' => [
+                    'description' => 'The contents of a specific resource or sub-resource.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of this resource, if known.',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of this resource.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceLink' => [
+                    'description' => 'A resource that the server is capable of reading, included in a prompt or tool call result.
+
+Note: resource links returned by tools are not guaranteed to appear in the results of {@link ListResourcesRequestresources/list} requests.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'description' => [
+                            'description' => 'A description of what this resource represents.
+
+This can be used by clients to improve the LLM\'s understanding of available resources. It can be thought of like a "hint" to the model.',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of this resource, if known.',
+                            'type' => 'string',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'size' => [
+                            'description' => 'The size of the raw resource content, in bytes (i.e., before base64 encoding or any tokenization), if known.
+
+This can be used by Hosts to display file sizes and estimate context window usage.',
+                            'type' => 'integer',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'resource_link',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of this resource.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                        'type',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceListChangedNotification' => [
+                    'description' => 'An optional notification from the server to the client, informing it that the list of resources it can read from has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `resourcesListChanged` filter field.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/resources/list_changed',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/NotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceRequestParams' => [
+                    'description' => 'Common params for resource-related requests.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of the resource. The URI can use any protocol; it is up to the server how to interpret it.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceTemplate' => [
+                    'description' => 'A template description for resources available on the server.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'description' => [
+                            'description' => 'A description of what this template is for.
+
+This can be used by clients to improve the LLM\'s understanding of available resources. It can be thought of like a "hint" to the model.',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type for all resources that match this template. This should only be included if all resources matching this template have the same type.',
+                            'type' => 'string',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                        'uriTemplate' => [
+                            'description' => 'A URI template (according to RFC 6570) that can be used to construct resource URIs.',
+                            'format' => 'uri-template',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'name',
+                        'uriTemplate',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceTemplateReference' => [
+                    'description' => 'A reference to a resource or resource template definition.',
+                    'properties' => [
+                        'type' => [
+                            'const' => 'ref/resource',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI or URI template of the resource.',
+                            'format' => 'uri-template',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'type',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceUpdatedNotification' => [
+                    'description' => 'A notification from the server to the client, informing it that a resource has changed and may need to be read again. This is only sent for resources the client opted in to via the `resourceSubscriptions` field of a {@link SubscriptionsListenRequestsubscriptions/listen} request.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/resources/updated',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/ResourceUpdatedNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResourceUpdatedNotificationParams' => [
+                    'description' => 'Parameters for a `notifications/resources/updated` notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of the resource that has been updated. This might be a sub-resource of the one that the client actually subscribed to.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'Result' => [
+                    'additionalProperties' => [],
+                    'description' => 'Common result fields.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/ResultMetaObject',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'ResultMetaObject' => [
+                    'description' => 'Extends {@link MetaObject} with additional result-specific fields. All key naming rules from `MetaObject` apply.',
+                    'properties' => [
+                        'io.modelcontextprotocol/serverInfo' => [
+                            '$ref' => '#/$defs/Implementation',
+                            'description' => 'Identifies the server software producing the response. Servers SHOULD
+include this field on every response unless specifically configured not
+to do so.
+
+The {@link Implementation} schema requires `name` and `version`; other
+fields are optional.
+
+The value is self-reported by the server and is not verified by the
+protocol. It is intended for display, logging, and debugging. Clients
+SHOULD NOT use it to change their behavior, and SHOULD NOT rely on it for
+security decisions.',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ResultType' => [
+                    'description' => 'Indicates the type of a {@link Result} object, allowing the client to
+determine how to parse the response.
+
+complete - the request completed successfully and the result contains the final content.
+input_required - the request requires additional input and the result contains an {@link InputRequiredResult} object with instructions for the client to provide additional input before retrying the original request.',
+                    'type' => 'string',
+                ],
+                'Role' => [
+                    'description' => 'The sender or recipient of messages and data in a conversation.',
+                    'enum' => [
+                        'assistant',
+                        'user',
+                    ],
+                    'type' => 'string',
+                ],
+                'Root' => [
+                    'description' => 'Represents a root directory or file that the server can operate on.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'name' => [
+                            'description' => 'An optional name for the root. This can be used to provide a human-readable
+identifier for the root, which may be useful for display purposes or for
+referencing the root in other parts of the application.',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI identifying the root. This *must* start with `file://` for now.
+This restriction may be relaxed in future versions of the protocol to allow
+other URI schemes.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'SamplingMessage' => [
+                    'description' => 'Describes a message issued to or received from an LLM API.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'content' => [
+                            'anyOf' => [
+                                [
+                                    '$ref' => '#/$defs/TextContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ImageContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/AudioContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ToolUseContent',
+                                ],
+                                [
+                                    '$ref' => '#/$defs/ToolResultContent',
+                                ],
+                                [
+                                    'items' => [
+                                        '$ref' => '#/$defs/SamplingMessageContentBlock',
+                                    ],
+                                    'type' => 'array',
+                                ],
+                            ],
+                        ],
+                        'role' => [
+                            '$ref' => '#/$defs/Role',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                        'role',
+                    ],
+                    'type' => 'object',
+                ],
+                'SamplingMessageContentBlock' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/TextContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ImageContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/AudioContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ToolUseContent',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ToolResultContent',
+                        ],
+                    ],
+                ],
+                'ServerCapabilities' => [
+                    'description' => 'Capabilities that a server may support. Known capabilities are defined here, in this schema, but this is not a closed set: any server can define its own, additional capabilities.',
+                    'properties' => [
+                        'completions' => [
+                            '$ref' => '#/$defs/JSONObject',
+                            'description' => 'Present if the server supports argument autocompletion suggestions.',
+                        ],
+                        'experimental' => [
+                            'additionalProperties' => [
+                                '$ref' => '#/$defs/JSONObject',
+                            ],
+                            'description' => 'Experimental, non-standard capabilities that the server supports.',
+                            'type' => 'object',
+                        ],
+                        'extensions' => [
+                            'additionalProperties' => [
+                                '$ref' => '#/$defs/JSONObject',
+                            ],
+                            'description' => 'Optional MCP extensions that the server supports. Keys are extension identifiers
+(e.g., "io.modelcontextprotocol/tasks"), and values are per-extension settings
+objects. An empty object indicates support with no settings.
+
+Keys MUST follow the {@link MetaObject`_meta` key naming rules}, with a
+mandatory prefix.',
+                            'type' => 'object',
+                        ],
+                        'logging' => [
+                            '$ref' => '#/$defs/JSONObject',
+                            'description' => 'Present if the server supports sending log messages to the client.',
+                        ],
+                        'prompts' => [
+                            'description' => 'Present if the server offers any prompt templates.',
+                            'properties' => [
+                                'listChanged' => [
+                                    'description' => 'Whether this server supports notifications for changes to the prompt list.',
+                                    'type' => 'boolean',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                        'resources' => [
+                            'description' => 'Present if the server offers any resources to read.',
+                            'properties' => [
+                                'listChanged' => [
+                                    'description' => 'Whether this server supports notifications for changes to the resource list.',
+                                    'type' => 'boolean',
+                                ],
+                                'subscribe' => [
+                                    'description' => 'Whether this server supports subscribing to resource updates.',
+                                    'type' => 'boolean',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                        'tools' => [
+                            'description' => 'Present if the server offers any tools to call.',
+                            'properties' => [
+                                'listChanged' => [
+                                    'description' => 'Whether this server supports notifications for changes to the tool list.',
+                                    'type' => 'boolean',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ServerNotification' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/CancelledNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ProgressNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ResourceListChangedNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/SubscriptionsAcknowledgedNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ResourceUpdatedNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/PromptListChangedNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ToolListChangedNotification',
+                        ],
+                        [
+                            '$ref' => '#/$defs/LoggingMessageNotification',
+                        ],
+                    ],
+                ],
+                'ServerResult' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/Result',
+                        ],
+                        [
+                            '$ref' => '#/$defs/InputRequiredResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/DiscoverResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListResourcesResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListResourceTemplatesResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ReadResourceResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/SubscriptionsListenResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListPromptsResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/GetPromptResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/ListToolsResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/CallToolResult',
+                        ],
+                        [
+                            '$ref' => '#/$defs/CompleteResult',
+                        ],
+                    ],
+                ],
+                'SingleSelectEnumSchema' => [
+                    'anyOf' => [
+                        [
+                            '$ref' => '#/$defs/UntitledSingleSelectEnumSchema',
+                        ],
+                        [
+                            '$ref' => '#/$defs/TitledSingleSelectEnumSchema',
+                        ],
+                    ],
+                ],
+                'StringSchema' => [
+                    'properties' => [
+                        'default' => [
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'type' => 'string',
+                        ],
+                        'format' => [
+                            'enum' => [
+                                'date',
+                                'date-time',
+                                'email',
+                                'uri',
+                            ],
+                            'type' => 'string',
+                        ],
+                        'maxLength' => [
+                            'type' => 'integer',
+                        ],
+                        'minLength' => [
+                            'type' => 'integer',
+                        ],
+                        'title' => [
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'string',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionFilter' => [
+                    'description' => 'The set of notification types a client may opt in to on a
+{@link SubscriptionsListenRequestsubscriptions/listen} request.
+
+Each notification type is **opt-in**; the server **MUST NOT** send
+notification types the client has not explicitly requested here.',
+                    'properties' => [
+                        'promptsListChanged' => [
+                            'description' => 'If true, receive {@link PromptListChangedNotificationnotifications/prompts/list_changed}.',
+                            'type' => 'boolean',
+                        ],
+                        'resourceSubscriptions' => [
+                            'description' => 'Subscribe to {@link ResourceUpdatedNotificationnotifications/resources/updated} for these resource URIs.
+Replaces the former `resources/subscribe` RPC.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'resourcesListChanged' => [
+                            'description' => 'If true, receive {@link ResourceListChangedNotificationnotifications/resources/list_changed}.',
+                            'type' => 'boolean',
+                        ],
+                        'toolsListChanged' => [
+                            'description' => 'If true, receive {@link ToolListChangedNotificationnotifications/tools/list_changed}.',
+                            'type' => 'boolean',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsAcknowledgedNotification' => [
+                    'description' => 'Sent by the server to acknowledge that a
+{@link SubscriptionsListenRequestsubscriptions/listen} subscription has been
+established and to report which notification types it agreed to honor.
+
+This notification MUST be the first message the server sends carrying the
+subscription\'s ID in `io.modelcontextprotocol/subscriptionId`. The server MUST
+NOT send any notification on the subscription before acknowledging it. On
+stdio, where every subscription shares one channel, this ordering is defined
+per subscription ID and not per channel: messages belonging to other
+subscriptions MAY be interleaved before it.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/subscriptions/acknowledged',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/SubscriptionsAcknowledgedNotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsAcknowledgedNotificationParams' => [
+                    'description' => 'Parameters for a {@link SubscriptionsAcknowledgedNotificationnotifications/subscriptions/acknowledged} notification.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/NotificationMetaObject',
+                        ],
+                        'notifications' => [
+                            '$ref' => '#/$defs/SubscriptionFilter',
+                            'description' => 'The subset of requested notification types the server agreed to honor.
+Only includes notification types the server actually supports; if the
+client requested an unsupported type (e.g., `promptsListChanged` when
+the server has no prompts), it is omitted from this set.',
+                        ],
+                    ],
+                    'required' => [
+                        'notifications',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsListenRequest' => [
+                    'description' => 'Sent from the client to open a long-lived channel for receiving notifications
+outside the context of a specific request. Replaces the previous HTTP GET
+endpoint and ensures consistent behavior between HTTP and STDIO.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'subscriptions/listen',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/SubscriptionsListenRequestParams',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'method',
+                        'params',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsListenRequestParams' => [
+                    'description' => 'Parameters for a {@link SubscriptionsListenRequestsubscriptions/listen} request.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/RequestMetaObject',
+                        ],
+                        'notifications' => [
+                            '$ref' => '#/$defs/SubscriptionFilter',
+                            'description' => 'The notifications the client opts in to on this stream. The server
+**MUST NOT** send notification types the client has not explicitly
+requested.',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'notifications',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsListenResult' => [
+                    'description' => 'The response to a {@link SubscriptionsListenRequestsubscriptions/listen}
+request, signalling that the subscription has ended gracefully (for example,
+during server shutdown). Because the listen stream is long-lived, this result
+is sent only when the server tears the subscription down; an abrupt transport
+close carries no response. The result body is otherwise empty.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/SubscriptionsListenResultMetaObject',
+                        ],
+                        'resultType' => [
+                            'description' => 'Indicates the type of the result, which allows the client to determine
+how to parse the result object.
+
+Servers implementing this protocol version MUST include this field.
+For backward compatibility, when a client receives a result from a
+server implementing an earlier protocol version (which does not include
+`resultType`), the client MUST treat the absent field as `"complete"`.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        '_meta',
+                        'resultType',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsListenResultMetaObject' => [
+                    'description' => 'Extends {@link ResultMetaObject} with the subscription-stream identifier carried by a
+{@link SubscriptionsListenResult}. All key naming rules from `MetaObject` apply.',
+                    'properties' => [
+                        'io.modelcontextprotocol/serverInfo' => [
+                            '$ref' => '#/$defs/Implementation',
+                            'description' => 'Identifies the server software producing the response. Servers SHOULD
+include this field on every response unless specifically configured not
+to do so.
+
+The {@link Implementation} schema requires `name` and `version`; other
+fields are optional.
+
+The value is self-reported by the server and is not verified by the
+protocol. It is intended for display, logging, and debugging. Clients
+SHOULD NOT use it to change their behavior, and SHOULD NOT rely on it for
+security decisions.',
+                        ],
+                        'io.modelcontextprotocol/subscriptionId' => [
+                            '$ref' => '#/$defs/RequestId',
+                            'description' => 'Identifies the subscription stream this response closes, so the client can
+correlate it with the originating subscription — mirroring the same key on
+the stream\'s notifications. The value is the JSON-RPC ID of the
+`subscriptions/listen` request that opened the stream (and equals this
+response\'s `id`).',
+                        ],
+                    ],
+                    'required' => [
+                        'io.modelcontextprotocol/subscriptionId',
+                    ],
+                    'type' => 'object',
+                ],
+                'SubscriptionsListenResultResponse' => [
+                    'description' => 'A successful response from the server for a {@link SubscriptionsListenRequestsubscriptions/listen}
+request, sent when the server tears the subscription down gracefully.',
+                    'properties' => [
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'result' => [
+                            '$ref' => '#/$defs/SubscriptionsListenResult',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'jsonrpc',
+                        'result',
+                    ],
+                    'type' => 'object',
+                ],
+                'TextContent' => [
+                    'description' => 'Text provided to or from an LLM.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/Annotations',
+                            'description' => 'Optional annotations for the client.',
+                        ],
+                        'text' => [
+                            'description' => 'The text content of the message.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'text',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'text',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'TextResourceContents' => [
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'mimeType' => [
+                            'description' => 'The MIME type of this resource, if known.',
+                            'type' => 'string',
+                        ],
+                        'text' => [
+                            'description' => 'The text of the item. This must only be set if the item can actually be represented as text (not binary data).',
+                            'type' => 'string',
+                        ],
+                        'uri' => [
+                            'description' => 'The URI of this resource.',
+                            'format' => 'uri',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'text',
+                        'uri',
+                    ],
+                    'type' => 'object',
+                ],
+                'TitledMultiSelectEnumSchema' => [
+                    'description' => 'Schema for multiple-selection enumeration with display titles for each option.',
+                    'properties' => [
+                        'default' => [
+                            'description' => 'Optional default value.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'description' => [
+                            'description' => 'Optional description for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'items' => [
+                            'description' => 'Schema for array items with enum options and display labels.',
+                            'properties' => [
+                                'anyOf' => [
+                                    'description' => 'Array of enum options with values and display labels.',
+                                    'items' => [
+                                        'properties' => [
+                                            'const' => [
+                                                'description' => 'The constant enum value.',
+                                                'type' => 'string',
+                                            ],
+                                            'title' => [
+                                                'description' => 'Display title for this option.',
+                                                'type' => 'string',
+                                            ],
+                                        ],
+                                        'required' => [
+                                            'const',
+                                            'title',
+                                        ],
+                                        'type' => 'object',
+                                    ],
+                                    'type' => 'array',
+                                ],
+                            ],
+                            'required' => [
+                                'anyOf',
+                            ],
+                            'type' => 'object',
+                        ],
+                        'maxItems' => [
+                            'description' => 'Maximum number of items to select.',
+                            'type' => 'integer',
+                        ],
+                        'minItems' => [
+                            'description' => 'Minimum number of items to select.',
+                            'type' => 'integer',
+                        ],
+                        'title' => [
+                            'description' => 'Optional title for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'array',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'items',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'TitledSingleSelectEnumSchema' => [
+                    'description' => 'Schema for single-selection enumeration with display titles for each option.',
+                    'properties' => [
+                        'default' => [
+                            'description' => 'Optional default value.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Optional description for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'oneOf' => [
+                            'description' => 'Array of enum options with values and display labels.',
+                            'items' => [
+                                'properties' => [
+                                    'const' => [
+                                        'description' => 'The enum value.',
+                                        'type' => 'string',
+                                    ],
+                                    'title' => [
+                                        'description' => 'Display label for this option.',
+                                        'type' => 'string',
+                                    ],
+                                ],
+                                'required' => [
+                                    'const',
+                                    'title',
+                                ],
+                                'type' => 'object',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'title' => [
+                            'description' => 'Optional title for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'string',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'oneOf',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'Tool' => [
+                    'description' => 'Definition for a tool the client can call.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                        ],
+                        'annotations' => [
+                            '$ref' => '#/$defs/ToolAnnotations',
+                            'description' => 'Optional additional tool information.
+
+Display name precedence order is: `title`, `annotations.title`, then `name`.',
+                        ],
+                        'description' => [
+                            'description' => 'A human-readable description of the tool.
+
+This can be used by clients to improve the LLM\'s understanding of available tools. It can be thought of like a "hint" to the model.',
+                            'type' => 'string',
+                        ],
+                        'icons' => [
+                            'description' => 'Optional set of sized icons that the client can display in a user interface.
+
+Clients that support rendering icons MUST support at least the following MIME types:
+- `image/png` - PNG images (safe, universal compatibility)
+- `image/jpeg` (and `image/jpg`) - JPEG images (safe, universal compatibility)
+
+Clients that support rendering icons SHOULD also support:
+- `image/svg+xml` - SVG images (scalable but requires security precautions)
+- `image/webp` - WebP images (modern, efficient format)',
+                            'items' => [
+                                '$ref' => '#/$defs/Icon',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'inputSchema' => [
+                            'additionalProperties' => [],
+                            'description' => 'A JSON Schema object defining the expected parameters for the tool.
+
+Tool arguments are always JSON objects, so `type: "object"` is required at the root.
+Beyond that, any JSON Schema 2020-12 keyword may appear alongside `type` — including
+composition keywords (`oneOf`, `anyOf`, `allOf`, `not`), conditional keywords
+(`if`/`then`/`else`), reference keywords (`$ref`, `$defs`, `$anchor`), and any other
+standard validation or annotation keywords.
+
+Property schemas may carry an `x-mcp-header` annotation to mirror the
+argument value into an HTTP header on the Streamable HTTP transport. See
+the Streamable HTTP transport specification for the validity and
+extraction rules.
+
+Defaults to JSON Schema 2020-12 when no explicit `$schema` is provided.',
+                            'properties' => [
+                                '$schema' => [
+                                    'type' => 'string',
+                                ],
+                                'type' => [
+                                    'const' => 'object',
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'required' => [
+                                'type',
+                            ],
+                            'type' => 'object',
+                        ],
+                        'name' => [
+                            'description' => 'Intended for programmatic or logical use, but used as a display name in past specs or fallback (if title isn\'t present).',
+                            'type' => 'string',
+                        ],
+                        'outputSchema' => [
+                            'additionalProperties' => [],
+                            'description' => 'An optional JSON Schema object defining the structure of the tool\'s output returned in
+the structuredContent field of a {@link CallToolResult}. This can be any valid JSON Schema 2020-12.
+
+Defaults to JSON Schema 2020-12 when no explicit `$schema` is provided.',
+                            'properties' => [
+                                '$schema' => [
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'type' => 'object',
+                        ],
+                        'title' => [
+                            'description' => 'Intended for UI and end-user contexts — optimized to be human-readable and easily understood,
+even by those unfamiliar with domain-specific terminology.
+
+If not provided, the name should be used for display (except for {@link Tool},
+where `annotations.title` should be given precedence over using `name`,
+if present).',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'inputSchema',
+                        'name',
+                    ],
+                    'type' => 'object',
+                ],
+                'ToolAnnotations' => [
+                    'description' => 'Additional properties describing a {@link Tool} to clients.
+
+NOTE: all properties in `ToolAnnotations` are **hints**.
+They are not guaranteed to provide a faithful description of
+tool behavior (including descriptive properties like `title`).
+
+Clients should never make tool use decisions based on `ToolAnnotations`
+received from untrusted servers.',
+                    'properties' => [
+                        'destructiveHint' => [
+                            'description' => 'If true, the tool may perform destructive updates to its environment.
+If false, the tool performs only additive updates.
+
+(This property is meaningful only when `readOnlyHint == false`)
+
+Default: true',
+                            'type' => 'boolean',
+                        ],
+                        'idempotentHint' => [
+                            'description' => 'If true, calling the tool repeatedly with the same arguments
+will have no additional effect on its environment.
+
+(This property is meaningful only when `readOnlyHint == false`)
+
+Default: false',
+                            'type' => 'boolean',
+                        ],
+                        'openWorldHint' => [
+                            'description' => 'If true, this tool may interact with an "open world" of external
+entities. If false, the tool\'s domain of interaction is closed.
+For example, the world of a web search tool is open, whereas that
+of a memory tool is not.
+
+Default: true',
+                            'type' => 'boolean',
+                        ],
+                        'readOnlyHint' => [
+                            'description' => 'If true, the tool does not modify its environment.
+
+Default: false',
+                            'type' => 'boolean',
+                        ],
+                        'title' => [
+                            'description' => 'A human-readable title for the tool.',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ToolChoice' => [
+                    'description' => 'Controls tool selection behavior for sampling requests.',
+                    'properties' => [
+                        'mode' => [
+                            'description' => 'Controls the tool use ability of the model:
+- `"auto"`: Model decides whether to use tools (default)
+- `"required"`: Model MUST use at least one tool before completing
+- `"none"`: Model MUST NOT use any tools',
+                            'enum' => [
+                                'auto',
+                                'none',
+                                'required',
+                            ],
+                            'type' => 'string',
+                        ],
+                    ],
+                    'type' => 'object',
+                ],
+                'ToolListChangedNotification' => [
+                    'description' => 'An optional notification from the server to the client, informing it that the list of tools it offers has changed. This is only delivered on a {@link SubscriptionsListenRequestsubscriptions/listen} stream when the client requested it via the `toolsListChanged` filter field.',
+                    'properties' => [
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                        'method' => [
+                            'const' => 'notifications/tools/list_changed',
+                            'type' => 'string',
+                        ],
+                        'params' => [
+                            '$ref' => '#/$defs/NotificationParams',
+                        ],
+                    ],
+                    'required' => [
+                        'jsonrpc',
+                        'method',
+                    ],
+                    'type' => 'object',
+                ],
+                'ToolResultContent' => [
+                    'description' => 'The result of a tool use, provided by the user back to the assistant.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                            'description' => 'Optional metadata about the tool result. Clients SHOULD preserve this field when
+including tool results in subsequent sampling requests to enable caching optimizations.',
+                        ],
+                        'content' => [
+                            'description' => 'The unstructured result content of the tool use.
+
+This has the same format as {@link CallToolResult.content} and can include text, images,
+audio, resource links, and embedded resources.',
+                            'items' => [
+                                '$ref' => '#/$defs/ContentBlock',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'isError' => [
+                            'description' => 'Whether the tool use resulted in an error.
+
+If true, the content typically describes the error that occurred.
+Default: false',
+                            'type' => 'boolean',
+                        ],
+                        'structuredContent' => [
+                            'description' => 'An optional structured result value.
+
+This can be any JSON value (object, array, string, number, boolean, or null).
+If the tool defined an {@link Tool.outputSchema}, this SHOULD conform to that schema.',
+                        ],
+                        'toolUseId' => [
+                            'description' => 'The ID of the tool use this result corresponds to.
+
+This MUST match the ID from a previous {@link ToolUseContent}.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'tool_result',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'content',
+                        'toolUseId',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'ToolUseContent' => [
+                    'description' => 'A request from the assistant to call a tool.',
+                    'properties' => [
+                        '_meta' => [
+                            '$ref' => '#/$defs/MetaObject',
+                            'description' => 'Optional metadata about the tool use. Clients SHOULD preserve this field when
+including tool uses in subsequent sampling requests to enable caching optimizations.',
+                        ],
+                        'id' => [
+                            'description' => 'A unique identifier for this tool use.
+
+This ID is used to match tool results to their corresponding tool uses.',
+                            'type' => 'string',
+                        ],
+                        'input' => [
+                            'additionalProperties' => [],
+                            'description' => 'The arguments to pass to the tool, conforming to the tool\'s input schema.',
+                            'type' => 'object',
+                        ],
+                        'name' => [
+                            'description' => 'The name of the tool to call.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'tool_use',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'id',
+                        'input',
+                        'name',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'UnsupportedProtocolVersionError' => [
+                    'description' => 'Returned when the request\'s protocol version is unknown to the server or
+unsupported (e.g., a known experimental or draft version the server has
+chosen not to implement). For HTTP, the response status code MUST be
+`400 Bad Request`.',
+                    'properties' => [
+                        'error' => [
+                            'allOf' => [
+                                [
+                                    '$ref' => '#/$defs/Error',
+                                ],
+                                [
+                                    'properties' => [
+                                        'code' => [
+                                            'const' => -32022,
+                                            'type' => 'integer',
+                                        ],
+                                        'data' => [
+                                            'properties' => [
+                                                'requested' => [
+                                                    'description' => 'The protocol version that was requested by the client.',
+                                                    'type' => 'string',
+                                                ],
+                                                'supported' => [
+                                                    'description' => 'Protocol versions the server supports. The client should choose a
+mutually supported version from this list and retry.',
+                                                    'items' => [
+                                                        'type' => 'string',
+                                                    ],
+                                                    'type' => 'array',
+                                                ],
+                                            ],
+                                            'required' => [
+                                                'requested',
+                                                'supported',
+                                            ],
+                                            'type' => 'object',
+                                        ],
+                                    ],
+                                    'required' => [
+                                        'code',
+                                        'data',
+                                    ],
+                                    'type' => 'object',
+                                ],
+                            ],
+                        ],
+                        'id' => [
+                            '$ref' => '#/$defs/RequestId',
+                        ],
+                        'jsonrpc' => [
+                            'const' => '2.0',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'error',
+                        'jsonrpc',
+                    ],
+                    'type' => 'object',
+                ],
+                'UntitledMultiSelectEnumSchema' => [
+                    'description' => 'Schema for multiple-selection enumeration without display titles for options.',
+                    'properties' => [
+                        'default' => [
+                            'description' => 'Optional default value.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'description' => [
+                            'description' => 'Optional description for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'items' => [
+                            'description' => 'Schema for the array items.',
+                            'properties' => [
+                                'enum' => [
+                                    'description' => 'Array of enum values to choose from.',
+                                    'items' => [
+                                        'type' => 'string',
+                                    ],
+                                    'type' => 'array',
+                                ],
+                                'type' => [
+                                    'const' => 'string',
+                                    'type' => 'string',
+                                ],
+                            ],
+                            'required' => [
+                                'enum',
+                                'type',
+                            ],
+                            'type' => 'object',
+                        ],
+                        'maxItems' => [
+                            'description' => 'Maximum number of items to select.',
+                            'type' => 'integer',
+                        ],
+                        'minItems' => [
+                            'description' => 'Minimum number of items to select.',
+                            'type' => 'integer',
+                        ],
+                        'title' => [
+                            'description' => 'Optional title for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'array',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'items',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+                'UntitledSingleSelectEnumSchema' => [
+                    'description' => 'Schema for single-selection enumeration without display titles for options.',
+                    'properties' => [
+                        'default' => [
+                            'description' => 'Optional default value.',
+                            'type' => 'string',
+                        ],
+                        'description' => [
+                            'description' => 'Optional description for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'enum' => [
+                            'description' => 'Array of enum values to choose from.',
+                            'items' => [
+                                'type' => 'string',
+                            ],
+                            'type' => 'array',
+                        ],
+                        'title' => [
+                            'description' => 'Optional title for the enum field.',
+                            'type' => 'string',
+                        ],
+                        'type' => [
+                            'const' => 'string',
+                            'type' => 'string',
+                        ],
+                    ],
+                    'required' => [
+                        'enum',
+                        'type',
+                    ],
+                    'type' => 'object',
+                ],
+            ],
+            '$schema' => 'https://json-schema.org/draft/2020-12/schema',
+        ];
+    }
+
+    /**
+     * @return array{
+     *   clientToServer: array{requests: array<string, string>, notifications: array<string, string>},
+     *   serverToClient: array{requests: array<string, string>, notifications: array<string, string>},
+     *   embeddedInputs: array<string, string>
+     * }
+     */
+    public static function messageAvailability(): array
+    {
+        return [
+            'clientToServer' => [
+                'notifications' => [
+                    'notifications/cancelled' => 'ClientNotification',
+                ],
+                'requests' => [
+                    'completion/complete' => 'CompleteRequest',
+                    'prompts/get' => 'GetPromptRequest',
+                    'prompts/list' => 'ListPromptsRequest',
+                    'resources/list' => 'ListResourcesRequest',
+                    'resources/read' => 'ReadResourceRequest',
+                    'resources/templates/list' => 'ListResourceTemplatesRequest',
+                    'server/discover' => 'DiscoverRequest',
+                    'subscriptions/listen' => 'SubscriptionsListenRequest',
+                    'tools/call' => 'CallToolRequest',
+                    'tools/list' => 'ListToolsRequest',
+                ],
+            ],
+            'embeddedInputs' => [
+                'elicitation/create' => 'ElicitRequest',
+                'roots/list' => 'ListRootsRequest',
+                'sampling/createMessage' => 'CreateMessageRequest',
+            ],
+            'serverToClient' => [
+                'notifications' => [
+                    'notifications/cancelled' => 'CancelledNotification',
+                    'notifications/message' => 'LoggingMessageNotification',
+                    'notifications/progress' => 'ProgressNotification',
+                    'notifications/prompts/list_changed' => 'PromptListChangedNotification',
+                    'notifications/resources/list_changed' => 'ResourceListChangedNotification',
+                    'notifications/resources/updated' => 'ResourceUpdatedNotification',
+                    'notifications/subscriptions/acknowledged' => 'SubscriptionsAcknowledgedNotification',
+                    'notifications/tools/list_changed' => 'ToolListChangedNotification',
+                ],
+                'requests' => [],
+            ],
+        ];
+    }
+}

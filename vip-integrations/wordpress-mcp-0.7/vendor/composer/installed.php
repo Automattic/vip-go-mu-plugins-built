@@ -1,0 +1,41 @@
+<?php return array(
+    'root' => array(
+        'name' => 'wordpress/mcp-adapter',
+        'pretty_version' => 'v0.7.0',
+        'version' => '0.7.0.0',
+        'reference' => null,
+        'type' => 'wordpress-plugin',
+        'install_path' => __DIR__ . '/../../',
+        'aliases' => array(),
+        'dev' => false,
+    ),
+    'versions' => array(
+        'automattic/jetpack-autoloader' => array(
+            'pretty_version' => 'v6.0.1',
+            'version' => '6.0.1.0',
+            'reference' => 'a399be1b3e6eb198abbb5bea481161d7a6c09b1e',
+            'type' => 'composer-plugin',
+            'install_path' => __DIR__ . '/../automattic/jetpack-autoloader',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'wordpress/mcp-adapter' => array(
+            'pretty_version' => 'v0.7.0',
+            'version' => '0.7.0.0',
+            'reference' => null,
+            'type' => 'wordpress-plugin',
+            'install_path' => __DIR__ . '/../../',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'wordpress/php-mcp-schema' => array(
+            'pretty_version' => 'v0.2.0',
+            'version' => '0.2.0.0',
+            'reference' => 'f6119d9520e462afd0e42d431c9815b55c6b8d28',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../wordpress/php-mcp-schema',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+    ),
+);

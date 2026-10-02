@@ -1,0 +1,410 @@
+<?php
+/**
+ * Tools method handlers for MCP requests.
+ *
+ * @package McpAdapter
+ */
+
+declare( strict_types=1 );
+
+namespace WP\MCP\Handlers\Tools;
+
+use WP\MCP\Core\McpRequestContext;
+use WP\MCP\Core\McpServer;
+use WP\MCP\Domain\Tools\McpInputRequired;
+use WP\MCP\Domain\Tools\McpToolCallContext;
+use WP\MCP\Domain\Utils\ContentBlockHelper;
+use WP\MCP\Handlers\HandlerHelperTrait;
+use WP\MCP\Infrastructure\ErrorHandling\McpErrorFactory;
+use WP\MCP\Infrastructure\Observability\FailureReason;
+use WP\McpSchema\Record\CallToolRequest;
+use WP\McpSchema\Record\InputRequests;
+use WP\McpSchema\Record\ListToolsRequest;
+use WP\McpSchema\Schemas;
+
+/**
+ * Handles tools-related MCP methods.
+ */
+class ToolsHandler {
+	use HandlerHelperTrait;
+
+	/**
+	 * Default MIME type for image results when none is specified.
+	 *
+	 * @var string
+	 */
+	private const DEFAULT_IMAGE_MIME_TYPE = 'image/png';
+
+	/**
+	 * The WordPress MCP instance.
+	 *
+	 * @var \WP\MCP\Core\McpServer
+	 */
+	private McpServer $mcp;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param \WP\MCP\Core\McpServer $mcp The WordPress MCP instance.
+	 */
+	public function __construct( McpServer $mcp ) {
+		$this->mcp = $mcp;
+	}
+
+	/**
+	 * Handles the tools/list request.
+	 *
+	 * Returns logical data for exact revision projection.
+	 * Tool records are protocol-only; internal adapter metadata is stored in McpTool instances and is never exposed
+	 * to MCP clients.
+	 *
+	 * @param \WP\McpSchema\Record\ListToolsRequest $request Validated request.
+	 * @param \WP\MCP\Core\McpRequestContext $request_context Exact request context.
+	 * @return array<string, mixed> Logical tools-list result.
+	 * @since 0.7.0
+	 */
+	public function list_tools( ListToolsRequest $request, McpRequestContext $request_context ): array {
+		unset( $request );
+		$schema = $request_context->schema();
+		$tools  = array_values( $this->mcp->get_tools( $schema ) );
+
+		/**
+		 * Filters the list of tools before returning to the client.
+		 *
+		 * Use this filter to hide tools per user/role, add dynamic tools,
+		 * or reorder the tools list.
+		 *
+		 * @since 0.5.0
+		 *
+		 * @param array<\WP\McpSchema\Record\Tool> $tools  Array of Tool records.
+		 * @param \WP\MCP\Core\McpServer                     $server The MCP server instance.
+		 * @param \WP\McpSchema\Schema                        $schema Selected schema.
+		 */
+		$tools = $this->validate_filtered_list(
+			apply_filters( 'mcp_adapter_tools_list', $tools, $this->mcp, $schema ),
+			$tools,
+			'mcp_adapter_tools_list',
+			$this->mcp->get_error_handler()
+		);
+
+		return array( 'tools' => $tools );
+	}
+
+	/**
+	 * Handles the tools/call request.
+	 *
+	 * Returns either logical tool-result data or a protocol error array.
+	 *
+	 * The MCP spec distinguishes between:
+	 * 1. **Protocol errors** (tool not found, server error) → JSONRPCErrorResponse
+	 * 2. **Tool execution errors** (permission denied, runtime error) → CallToolResult with isError=true
+	 *
+	 * This distinction is critical for LLM self-correction - execution errors are
+	 * visible to the LLM, while protocol errors indicate infrastructure issues.
+	 *
+	 * @param \WP\McpSchema\Record\CallToolRequest $request Validated request.
+	 * @param \WP\MCP\Core\McpRequestContext $request_context Exact request context.
+	 *
+	 * @return array<string, mixed>
+	 * @since 0.7.0
+	 */
+	public function call_tool( CallToolRequest $request, McpRequestContext $request_context ): array {
+		$request_params = $request->getParams();
+		$request_id     = $request->getId();
+
+		try {
+			$tool_name = $request_params->getName();
+			$args      = $this->callback_arguments( $request_params->getArguments() );
+
+			$mcp_tool = $this->mcp->get_mcp_tool( $tool_name );
+			if ( ! $mcp_tool || ! $mcp_tool->is_available_for( $request_context->schema() ) ) {
+				$this->mcp->get_error_handler()->log(
+					'Tool not found',
+					array(
+						'tool_name' => $tool_name,
+					),
+					'warning'
+				);
+
+				return McpErrorFactory::tool_not_found( $request_id, $tool_name );
+			}
+
+			$has_continuation = $request_params->has( 'requestState' ) || $request_params->has( 'inputResponses' );
+			if ( $has_continuation && ( $mcp_tool->is_ability_backed() || Schemas::V2026_07_28 !== $request_context->revision() ) ) {
+				return McpErrorFactory::invalid_params( $request_id, 'Continuation parameters require a direct MCP 2026-07-28 tool.' );
+			}
+
+			$call_context = null;
+			if ( ! $mcp_tool->is_ability_backed() ) {
+				$responses    = $request_params->getInputResponses();
+				$call_context = new McpToolCallContext(
+					$request_context,
+					null === $responses ? new \stdClass() : json_decode( json_encode( $responses, JSON_THROW_ON_ERROR ), false, 512, JSON_THROW_ON_ERROR ), // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Preserve exact client input without normalization.
+					$request_params->getRequestState(),
+					$has_continuation
+				);
+			}
+
+			$permission = $mcp_tool->check_permission( $args );
+			if ( true !== $permission ) {
+				$error_message = __( 'Permission denied', 'mcp-adapter' );
+				if ( is_wp_error( $permission ) ) {
+					$error_message = $permission->get_error_message();
+
+					$this->mcp->get_error_handler()->log(
+						'Tool permission check failed',
+						array(
+							'tool_name'      => $tool_name,
+							'error_code'     => $permission->get_error_code(),
+							'error_message'  => $permission->get_error_message(),
+							'error_data'     => $permission->get_error_data(),
+							'failure_reason' => FailureReason::PERMISSION_CHECK_FAILED,
+						)
+					);
+				}
+
+				return $this->create_error_result( $error_message );
+			}
+
+			/**
+			 * Filters tool arguments before execution, or short-circuits execution entirely.
+			 *
+			 * Return the (optionally modified) arguments array to proceed with execution,
+			 * or return a WP_Error to block execution and return an error to the client.
+			 *
+			 * @since 0.5.0
+			 *
+			 * @param array                        $args      The tool arguments.
+			 * @param string                       $tool_name The tool name being called.
+			 * @param \WP\MCP\Domain\Tools\McpTool $mcp_tool  The MCP tool instance.
+			 * @param \WP\MCP\Core\McpServer       $server    The MCP server instance.
+			 */
+			$args = apply_filters( 'mcp_adapter_pre_tool_call', $args, $tool_name, $mcp_tool, $this->mcp );
+
+			// Allow pre-filter to short-circuit execution by returning WP_Error.
+			if ( is_wp_error( $args ) ) {
+				return $this->create_error_result( $args->get_error_message() );
+			}
+
+			$result = $mcp_tool->execute( $args, $call_context );
+
+			/**
+			 * Filters the tool execution result before response assembly.
+			 *
+			 * Use this filter for result transformation, PII redaction,
+			 * audit logging, or content enrichment.
+			 *
+			 * @since 0.5.0
+			 * @since 0.7.0 `$result` may be a `McpInputRequired` when a direct tool requests more client input.
+			 *
+			 * @param mixed|\WP_Error|\WP\MCP\Domain\Tools\McpInputRequired $result The raw execution result (may be WP_Error or McpInputRequired).
+			 * @param array                        $args      The tool arguments used.
+			 * @param string                       $tool_name The tool name that was called.
+			 * @param \WP\MCP\Domain\Tools\McpTool $mcp_tool  The MCP tool instance.
+			 * @param \WP\MCP\Core\McpServer       $server    The MCP server instance.
+			 */
+			$result = apply_filters( 'mcp_adapter_tool_call_result', $result, $args, $tool_name, $mcp_tool, $this->mcp );
+
+			if ( $result instanceof McpInputRequired ) {
+				if ( null === $call_context || Schemas::V2026_07_28 !== $request_context->revision() ) {
+					return McpErrorFactory::internal_error( $request_id, 'Input-required results require a direct MCP 2026-07-28 tool.' );
+				}
+				$requests = $request_context->schema()->fromArray( InputRequests::class, $result->input_requests() );
+				$values   = json_decode( json_encode( $requests, JSON_THROW_ON_ERROR ), false, 512, JSON_THROW_ON_ERROR ); // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode -- Inspect validated protocol values without normalization.
+				foreach ( get_object_vars( $values ) as $input_request ) {
+					if ( 'elicitation/create' !== $input_request->method ) {
+						return McpErrorFactory::internal_error( $request_id, 'Only elicitation input requests are supported.' );
+					}
+					$mode = $input_request->params->mode ?? 'form';
+					if ( ! $call_context->client_supports_elicitation( $mode ) ) {
+						$required = (object) array( 'elicitation' => (object) array( $mode => new \stdClass() ) );
+						return McpErrorFactory::create_error_response( $request_id, McpErrorFactory::MISSING_CAPABILITY, 'The client has not declared the capabilities required for this input request.', array( 'requiredCapabilities' => $required ) );
+					}
+				}
+				$data = array( 'resultType' => 'input_required' );
+				if ( array() !== $result->input_requests() ) {
+					$data['inputRequests'] = $requests;
+				}
+				if ( null !== $result->request_state() ) {
+					$data['requestState'] = $result->request_state();
+				}
+				return $data;
+			}
+
+			if ( is_wp_error( $result ) ) {
+				$this->mcp->get_error_handler()->log(
+					'Tool execution returned WP_Error',
+					array(
+						'tool_name'     => $tool_name,
+						'error_code'    => $result->get_error_code(),
+						'error_message' => $result->get_error_message(),
+						'error_data'    => $result->get_error_data(),
+					)
+				);
+
+				return $this->create_error_result( $result->get_error_message() );
+			}
+
+			// Expose top-level content markers before handling binary image data.
+			if ( $result instanceof \JsonSerializable ) {
+				$result = $result->jsonSerialize();
+			}
+			$structured_content = $result;
+			if ( is_object( $result ) ) {
+				$result = get_object_vars( $result );
+			} elseif ( ! is_array( $result ) ) {
+				$result             = array( 'result' => $result );
+				$structured_content = $result;
+			}
+
+			// Backward compatibility: treat `{ success: false, error: string }` as tool execution error.
+			if (
+				array_key_exists( 'success', $result )
+				&& false === $result['success']
+				&& isset( $result['error'] )
+				&& is_string( $result['error'] )
+				&& '' !== trim( $result['error'] )
+			) {
+				return $this->create_error_result( $result['error'] );
+			}
+
+			// Successful tool execution - build logical result data.
+
+			// Handle embedded resource results (MCP ContentBlock type: "resource").
+			// This allows tools to return text/blob resources using the MCP schema's EmbeddedResource content block.
+			//
+			// Two shapes are accepted, and they place `_meta` differently:
+			//
+			// - Nested `{ type, resource: { uri, text, _meta }, _meta }` maps one-to-one onto
+			//   the record tree, so the outer `_meta` belongs to the content block and the inner
+			//   one to the resource contents.
+			// - Flat `{ type, uri, mimeType, text, _meta }` is a resource-contents literal
+			//   carrying a `type` tag: every key beside `type` is a `ResourceContents` field,
+			//   and `_meta` is declared there alongside them. Its `_meta` therefore describes
+			//   the resource, which is what the same literal already means to
+			//   `ResourcesHandler::create_content_data()`. A caller who needs block-level
+			//   `_meta` writes the nested form, which exists to express that distinction.
+			if ( isset( $result['type'] ) && 'resource' === $result['type'] ) {
+				$is_nested     = isset( $result['resource'] ) && ( is_array( $result['resource'] ) || $result['resource'] instanceof \stdClass );
+				$resource_item = $is_nested ? (array) $result['resource'] : $result;
+
+				$uri       = $resource_item['uri'] ?? null;
+				$mime_type = $resource_item['mimeType'] ?? null;
+
+				if ( is_string( $uri ) ) {
+					$uri = trim( $uri );
+				}
+
+				// Only return an EmbeddedResource if we have a valid URI and some content.
+				$has_text = isset( $resource_item['text'] ) && is_string( $resource_item['text'] );
+				$has_blob = isset( $resource_item['blob'] ) && is_string( $resource_item['blob'] );
+
+				if ( is_string( $uri ) && '' !== $uri && ( $has_text || $has_blob ) ) {
+					$block_meta    = $is_nested
+						? ( $result['_meta'] ?? null )
+						: null;
+					$resource_meta = $resource_item['_meta'] ?? null;
+
+					if ( $has_text ) {
+						return array(
+							'content' => array(
+								ContentBlockHelper::embedded_text_resource(
+									$uri,
+									$resource_item['text'],
+									$mime_type,
+									null,
+									$block_meta,
+									$resource_meta
+								),
+							),
+							'isError' => false,
+						);
+					}
+
+					if ( $has_blob ) {
+						return array(
+							'content' => array(
+								ContentBlockHelper::embedded_blob_resource(
+									$uri,
+									$resource_item['blob'],
+									$mime_type,
+									null,
+									$block_meta,
+									$resource_meta
+								),
+							),
+							'isError' => false,
+						);
+					}
+				}
+			}
+
+			// Handle image results.
+			//
+			// `type` marks this result as a description of a content block rather than tool
+			// data, so its sibling `_meta` is the block's, which is the reading the `resource`
+			// branch above already applies to the same key.
+			if ( isset( $result['type'] ) && 'image' === $result['type'] && isset( $result['results'] ) ) {
+				$image_data = base64_encode( $result['results'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				$mime_type  = $result['mimeType'] ?? self::DEFAULT_IMAGE_MIME_TYPE;
+
+				return array(
+					'content' => array(
+						ContentBlockHelper::image(
+							$image_data,
+							$mime_type,
+							null,
+							$result['_meta'] ?? null
+						),
+					),
+					'isError' => false,
+				);
+			}
+
+			// The generic fallback carries no `type` marker, so every key it holds is tool
+			// data: the result is JSON-encoded into the text block and returned verbatim as
+			// `structuredContent`. Reading `_meta` off it would give one key two meanings,
+			// with nothing to tell metadata from a domain field.
+
+			// Standard result - JSON-encode for text content, include as structuredContent.
+			// Throw before WordPress's repair retry can change invalid serializer output.
+			$json_text = wp_json_encode( $structured_content, JSON_THROW_ON_ERROR );
+			if ( false === $json_text ) {
+				throw new \RuntimeException( 'Tool result cannot be JSON encoded.' );
+			}
+
+			// Reuse the encoded value so nested serializers run once and JSON objects remain objects.
+			return array(
+				'content'           => array( ContentBlockHelper::text( $json_text ) ),
+				'isError'           => false,
+				'structuredContent' => json_decode( $json_text, false, 512, JSON_THROW_ON_ERROR ),
+			);
+		} catch ( \Throwable $exception ) {
+			$this->mcp->get_error_handler()->log(
+				'Error calling tool',
+				array(
+					'tool'      => $request_params->getName(),
+					'exception' => $exception->getMessage(),
+				)
+			);
+
+			return McpErrorFactory::internal_error( $request_id, 'Failed to execute tool' );
+		}
+	}
+
+	/**
+	 * Create logical tool-execution error data from a message string.
+	 *
+	 * @since 0.5.0
+	 *
+	 * @param string $message The error message.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function create_error_result( string $message ): array {
+		return array(
+			'content' => array( ContentBlockHelper::text( $message ) ),
+			'isError' => true,
+		);
+	}
+}

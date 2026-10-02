@@ -1,0 +1,411 @@
+<?php
+/**
+ * WordPress MCP Registry - Main class for managing multiple MCP servers.
+ *
+ * @package WP\MCP\Core
+ */
+
+declare( strict_types=1 );
+
+namespace WP\MCP\Core;
+
+use WP\MCP\Abilities\DiscoverAbilitiesAbility;
+use WP\MCP\Abilities\ExecuteAbilityAbility;
+use WP\MCP\Abilities\GetAbilityInfoAbility;
+use WP\MCP\Cli\McpCommand;
+use WP\MCP\Infrastructure\ErrorHandling\Contracts\McpErrorHandlerInterface;
+use WP\MCP\Infrastructure\ErrorHandling\NullMcpErrorHandler;
+use WP\MCP\Infrastructure\Observability\Contracts\McpObservabilityHandlerInterface;
+use WP\MCP\Infrastructure\Observability\NullMcpObservabilityHandler;
+use WP\MCP\Servers\DefaultServerFactory;
+use WP_Error;
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * WordPress MCP Registry - Main class for managing multiple MCP servers.
+ */
+final class McpAdapter {
+
+	public const VERSION = '0.7.0';
+
+	/**
+	 * Directory of this copy of the class.
+	 *
+	 * The autoloader checks it to tell this plugin's classes apart from a copy that another plugin bundles.
+	 *
+	 * @internal
+	 *
+	 * @since 0.7.0
+	 */
+	public const DIR = __DIR__;
+
+	/**
+	 * Registry instance
+	 *
+	 * @var \WP\MCP\Core\McpAdapter
+	 */
+	private static self $instance;
+	/**
+	 * Track if the adapter has been initialized to prevent duplicate initialization
+	 *
+	 * @var bool
+	 */
+	private static bool $initialized = false;
+	/**
+	 * Registered servers
+	 *
+	 * @var \WP\MCP\Core\McpServer[]
+	 */
+	private array $servers = array();
+
+	/**
+	 * Get the registry instance
+	 *
+	 * @return \WP\MCP\Core\McpAdapter
+	 */
+	public static function instance(): self {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new self();
+
+			// Subscribe before `init`, the earliest point the Abilities API registries can initialize.
+			add_action( 'wp_abilities_api_categories_init', array( self::$instance, 'register_default_category' ) );
+			add_action( 'wp_abilities_api_init', array( self::$instance, 'register_default_abilities' ) );
+
+			// In WP-CLI context, initialize immediately so commands have access to servers
+			if ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) {
+				add_action( 'init', array( self::$instance, 'init' ), 20 );
+			} else {
+				// Initialize for REST API requests with reasonable priority
+				add_action( 'rest_api_init', array( self::$instance, 'init' ), 15 );
+			}
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Initialize the registry
+	 *
+	 * @internal For use by instance initialization only.
+	 */
+	public function init(): void {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		$this->check_plugin_loaded();
+
+		$this->maybe_create_default_server();
+
+		/**
+		 * Fires after the MCP Adapter has been initialized.
+		 *
+		 * Use this action to register custom MCP servers. The adapter instance
+		 * provides methods to create and configure additional servers beyond
+		 * the default server.
+		 *
+		 * @since 0.1.0
+		 *
+		 * @param \WP\MCP\Core\McpAdapter $adapter The MCP Adapter singleton instance.
+		 */
+		do_action( 'mcp_adapter_init', $this );
+		$this->register_wp_cli_commands();
+		self::$initialized = true;
+	}
+
+	/**
+	 * Checks whether the MCP Adapter plugin is loaded and logs a deprecation notice if not.
+	 *
+	 * @internal
+	 */
+	private function check_plugin_loaded(): void {
+		// The constant is defined in Plugin::constants() and will not exist if McpAdapter is only loaded as a library.
+		if ( defined( 'WP_MCP_VERSION' ) ) {
+			return;
+		}
+
+		_deprecated_function(
+			self::class,
+			'0.7.0',
+			sprintf(
+				// translators: %s: class name
+				esc_html__( '%s is currently loaded as a bundled dependency instead of via the canonical MCP Adapter plugin. This is not recommended and may not be supported in future versions. Please install the MCP Adapter plugin and migrate accordingly.', 'mcp-adapter' ),
+				self::class
+			)
+		);
+
+		// @todo Add an admin notice with an installation link once the plugin is on w.org.
+
+		// Redefine the version constant so bad plugins don't break those that follow best practices.
+		define( 'WP_MCP_VERSION', self::VERSION );
+	}
+
+	/**
+	 * Conditionally create the default server based on filter.
+	 *
+	 * @internal For use by adapter initialization only.
+	 */
+	private function maybe_create_default_server(): void {
+		if ( ! $this->is_default_server_enabled() ) {
+			return;
+		}
+
+		add_action( 'mcp_adapter_init', array( DefaultServerFactory::class, 'create' ) );
+	}
+
+	/**
+	 * Whether the default server and its abilities are enabled.
+	 *
+	 * @internal For use by adapter initialization only.
+	 */
+	private function is_default_server_enabled(): bool {
+		/**
+		 * Filters whether the default MCP server should be created.
+		 *
+		 * Return false to prevent the default server from being created.
+		 * This is useful when you want to define custom servers only.
+		 *
+		 * @since 0.3.0
+		 *
+		 * @param bool $create_default Whether to create the default server. Default true.
+		 */
+		return (bool) apply_filters( 'mcp_adapter_create_default_server', true );
+	}
+
+	/**
+	 * Register WP-CLI commands if WP-CLI is available
+	 *
+	 * @internal For use by adapter initialization only.
+	 */
+	private function register_wp_cli_commands(): void {
+		// Only register if WP-CLI is available
+		if ( ! defined( 'WP_CLI' ) || ! constant( 'WP_CLI' ) ) {
+			return;
+		}
+
+		if ( ! class_exists( '\WP_CLI' ) ) {
+			return;
+		}
+
+		\WP_CLI::add_command(
+			'mcp-adapter',
+			McpCommand::class,
+			array(
+				'shortdesc' => 'Manage MCP servers via WP-CLI.',
+				'longdesc'  => 'Commands for managing and serving MCP servers, including STDIO transport.',
+			)
+		);
+	}
+
+	/**
+	 * Create and register a new MCP server.
+	 *
+	 * @param string $server_id Unique identifier for the server.
+	 * @param non-falsy-string $server_route_namespace Server route namespace.
+	 * @param non-falsy-string $server_route Server route.
+	 * @param string $server_name Server name.
+	 * @param string $server_description Server description.
+	 * @param string $server_version Server version.
+	 * @param array<class-string<\WP\MCP\Transport\Contracts\McpTransportInterface>> $mcp_transports Array of MCP transport class names to initialize.
+	 * @param class-string<\WP\MCP\Infrastructure\ErrorHandling\Contracts\McpErrorHandlerInterface>|null $error_handler The error handler class name. If null, NullMcpErrorHandler will be used.
+	 * @param class-string<\WP\MCP\Infrastructure\Observability\Contracts\McpObservabilityHandlerInterface>|null $observability_handler The observability handler class name. If null, NullMcpObservabilityHandler will be used.
+	 * @param list<string|\WP\MCP\Domain\Tools\McpTool> $tools Ability names or MCP tools to register.
+	 * @param list<string|\WP\MCP\Domain\Resources\McpResource> $resources Ability names or MCP resources to register.
+	 * @param list<string|\WP\MCP\Domain\Prompts\McpPrompt|\WP\MCP\Domain\Prompts\Contracts\McpPromptBuilderInterface> $prompts Ability names, MCP prompts, or prompt builders to register.
+	 * @param callable|null $transport_permission_callback Optional custom permission callback for transport-level authentication. If null, defaults to is_user_logged_in().
+	 *
+	 * @return \WP\MCP\Core\McpAdapter|\WP_Error McpAdapter instance on success, WP_Error on failure.
+	 */
+	public function create_server( string $server_id, string $server_route_namespace, string $server_route, string $server_name, string $server_description, string $server_version, array $mcp_transports, ?string $error_handler, ?string $observability_handler = null, array $tools = array(), array $resources = array(), array $prompts = array(), ?callable $transport_permission_callback = null ) {
+		// Use NullMcpErrorHandler if no error handler is provided.
+		if ( ! $error_handler ) {
+			$error_handler = NullMcpErrorHandler::class;
+		}
+
+		// Validate error handler class exists and implements McpErrorHandlerInterface.
+		if ( ! class_exists( $error_handler ) ) {
+			return new WP_Error(
+				'invalid_error_handler',
+				sprintf(
+					/* translators: %s: error handler class name */
+					esc_html__( 'Error handler class "%s" does not exist.', 'mcp-adapter' ),
+					esc_html( $error_handler )
+				)
+			);
+		}
+
+		if ( ! in_array( McpErrorHandlerInterface::class, class_implements( $error_handler ) ?: array(), true ) ) {
+			return new WP_Error(
+				'invalid_error_handler',
+				sprintf(
+				/* translators: %s: error handler class name */
+					esc_html__( 'Error handler class "%s" must implement the McpErrorHandlerInterface.', 'mcp-adapter' ),
+					esc_html( $error_handler )
+				)
+			);
+		}
+
+		// Use NullMcpObservabilityHandler if no observability handler is provided.
+		if ( ! $observability_handler ) {
+			$observability_handler = NullMcpObservabilityHandler::class;
+		}
+
+		// Validate observability handler class exists and implements McpObservabilityHandlerInterface.
+		if ( ! class_exists( $observability_handler ) ) {
+			return new WP_Error(
+				'invalid_observability_handler',
+				sprintf(
+				/* translators: %s: observability handler class name */
+					esc_html__( 'Observability handler class "%s" does not exist.', 'mcp-adapter' ),
+					esc_html( $observability_handler )
+				)
+			);
+		}
+
+		if ( ! in_array( McpObservabilityHandlerInterface::class, class_implements( $observability_handler ) ?: array(), true ) ) {
+			return new WP_Error(
+				'invalid_observability_handler',
+				sprintf(
+				/* translators: %s: observability handler class name */
+					esc_html__( 'Observability handler class "%s" must implement the McpObservabilityHandlerInterface interface.', 'mcp-adapter' ),
+					esc_html( $observability_handler )
+				)
+			);
+		}
+
+		if ( ! doing_action( 'mcp_adapter_init' ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				esc_html__( 'MCP Servers must be created during the "mcp_adapter_init" action. Hook into "mcp_adapter_init" to register your server.', 'mcp-adapter' ),
+				'0.1.0'
+			);
+
+			return new WP_Error(
+				'invalid_timing',
+				esc_html__( 'MCP Server creation must be done during mcp_adapter_init action.', 'mcp-adapter' )
+			);
+		}
+
+		if ( isset( $this->servers[ $server_id ] ) ) {
+			_doing_it_wrong(
+				__FUNCTION__,
+				sprintf(
+				// translators: %s: server ID
+					esc_html__( 'Server with ID "%s" already exists. Each server must have a unique ID.', 'mcp-adapter' ),
+					esc_html( $server_id )
+				),
+				'0.1.0'
+			);
+
+			return new WP_Error(
+				'duplicate_server_id',
+				// translators: %s: server ID.
+				sprintf( esc_html__( 'Server with ID "%s" already exists.', 'mcp-adapter' ), esc_html( $server_id ) )
+			);
+		}
+
+		// Create server with tools, resources, and prompts - let server handle all registration logic.
+		try {
+			$server = new McpServer(
+				$server_id,
+				$server_route_namespace,
+				$server_route,
+				$server_name,
+				$server_description,
+				$server_version,
+				$mcp_transports,
+				$error_handler,
+				$observability_handler,
+				$tools,
+				$resources,
+				$prompts,
+				$transport_permission_callback
+			);
+		} catch ( \Throwable $e ) {
+			return new WP_Error(
+				'server_creation_failed',
+				sprintf(
+					/* translators: 1: server ID, 2: error message */
+					esc_html__( 'Failed to create server "%1$s": %2$s', 'mcp-adapter' ),
+					esc_html( $server_id ),
+					esc_html( $e->getMessage() )
+				)
+			);
+		}
+
+		// Track server creation.
+		$server->get_observability_handler()->record_event(
+			'mcp.server.created',
+			array(
+				'status'          => 'success',
+				'server_id'       => $server_id,
+				'transport_count' => count( $mcp_transports ),
+				'tools_count'     => count( $tools ),
+				'resources_count' => count( $resources ),
+				'prompts_count'   => count( $prompts ),
+			)
+		);
+
+		// Add server to registry.
+		$this->servers[ $server_id ] = $server;
+
+		return $this;
+	}
+
+	/**
+	 * Get a server by ID.
+	 *
+	 * @param string $server_id Server ID.
+	 *
+	 * @return \WP\MCP\Core\McpServer|null
+	 */
+	public function get_server( string $server_id ): ?McpServer {
+		return $this->servers[ $server_id ] ?? null;
+	}
+
+	/**
+	 * Get all registered servers
+	 *
+	 * @return \WP\MCP\Core\McpServer[]
+	 */
+	public function get_servers(): array {
+		return $this->servers;
+	}
+
+	/**
+	 * Register the default MCP category.
+	 *
+	 * @return void
+	 */
+	public function register_default_category(): void {
+		if ( ! $this->is_default_server_enabled() ) {
+			return;
+		}
+
+		wp_register_ability_category(
+			'mcp-adapter',
+			array(
+				'label'       => 'MCP Adapter',
+				'description' => 'Abilities for the MCP Adapter',
+			)
+		);
+	}
+
+	/**
+	 * Register the default MCP abilities.
+	 *
+	 * @return void
+	 */
+	public function register_default_abilities(): void {
+		if ( ! $this->is_default_server_enabled() ) {
+			return;
+		}
+
+		// Register the three core MCP abilities
+		DiscoverAbilitiesAbility::register();
+		GetAbilityInfoAbility::register();
+		ExecuteAbilityAbility::register();
+	}
+}

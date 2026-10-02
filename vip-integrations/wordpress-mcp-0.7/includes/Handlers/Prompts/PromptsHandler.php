@@ -1,0 +1,277 @@
+<?php
+/**
+ * Prompt method handlers.
+ *
+ * @package McpAdapter
+ */
+
+declare( strict_types=1 );
+
+namespace WP\MCP\Handlers\Prompts;
+
+use WP\MCP\Core\McpRequestContext;
+use WP\MCP\Core\McpServer;
+use WP\MCP\Handlers\HandlerHelperTrait;
+use WP\MCP\Infrastructure\ErrorHandling\McpErrorFactory;
+use WP\McpSchema\Record\GetPromptRequest;
+use WP\McpSchema\Record\ListPromptsRequest;
+use WP\McpSchema\Record\Prompt;
+
+/**
+ * Lists projected prompts and executes prompts through their domain models.
+ *
+ * Returns logical result data for final revision-specific schema validation.
+ */
+class PromptsHandler {
+	use HandlerHelperTrait;
+
+	/** @var string */
+	private static string $default_role = 'user';
+
+	/**
+	 * Server used for prompt lookup, execution diagnostics, and observability.
+	 *
+	 * @var \WP\MCP\Core\McpServer
+	 */
+	private McpServer $mcp;
+
+	/**
+	 * Initialize the handler for one server.
+	 *
+	 * @param \WP\MCP\Core\McpServer $mcp Server providing prompt lookup and diagnostics.
+	 */
+	public function __construct( McpServer $mcp ) {
+		$this->mcp = $mcp;
+	}
+
+	/**
+	 * Handle prompts/list.
+	 *
+	 * @param \WP\McpSchema\Record\ListPromptsRequest $request Validated request.
+	 * @param \WP\MCP\Core\McpRequestContext $request_context Exact request context.
+	 * @return array<string, mixed> Logical prompts-list result.
+	 * @since 0.7.0
+	 */
+	public function list_prompts( ListPromptsRequest $request, McpRequestContext $request_context ): array {
+		unset( $request );
+		$schema  = $request_context->schema();
+		$prompts = array_values( $this->mcp->get_prompts( $schema ) );
+
+		/**
+		 * Filters the list of prompts before returning to the client.
+		 *
+		 * @since 0.5.0
+		 *
+		 * @param array<\WP\McpSchema\Record\Prompt> $prompts Prompt records.
+		 * @param \WP\MCP\Core\McpServer             $server  MCP server.
+		 * @param \WP\McpSchema\Schema                $schema  Selected schema.
+		 */
+		$prompts = $this->validate_filtered_list(
+			apply_filters( 'mcp_adapter_prompts_list', $prompts, $this->mcp, $schema ),
+			$prompts,
+			'mcp_adapter_prompts_list',
+			$this->mcp->get_error_handler()
+		);
+
+		return array( 'prompts' => $prompts );
+	}
+
+	/**
+	 * Handle prompts/get.
+	 *
+	 * @param \WP\McpSchema\Record\GetPromptRequest $request Validated request.
+	 * @param \WP\MCP\Core\McpRequestContext $request_context Exact context.
+	 * @return array<string, mixed>
+	 * @since 0.7.0
+	 */
+	public function get_prompt( GetPromptRequest $request, McpRequestContext $request_context ): array {
+		$request_params = $request->getParams();
+		$request_id     = $request->getId();
+		$prompt_name    = trim( $request_params->getName() );
+
+		$mcp_prompt = $this->mcp->get_mcp_prompt( $prompt_name );
+		if ( ! $mcp_prompt || ! $mcp_prompt->is_available_for( $request_context->schema() ) ) {
+			return McpErrorFactory::prompt_not_found( $request_id, $prompt_name );
+		}
+
+		$prompt    = $mcp_prompt->get_protocol_record( $request_context->schema() );
+		$arguments = $this->callback_arguments( $request_params->getArguments() );
+
+		try {
+			$permission = $mcp_prompt->check_permission( $arguments );
+			if ( true !== $permission ) {
+				$message = is_wp_error( $permission ) ? $permission->get_error_message() : 'Access denied for prompt: ' . $prompt_name;
+				return McpErrorFactory::permission_denied( $request_id, $message );
+			}
+
+			/**
+			 * Filters prompt arguments before execution.
+			 *
+			 * @since 0.5.0
+			 *
+			 * @param array $arguments Prompt arguments; return WP_Error to stop execution.
+			 * @param string $prompt_name Requested prompt name.
+			 * @param \WP\MCP\Domain\Prompts\McpPrompt $mcp_prompt Prompt execution component.
+			 * @param \WP\MCP\Core\McpServer $server Server owning the prompt.
+			 */
+			$arguments = apply_filters( 'mcp_adapter_pre_prompt_get', $arguments, $prompt_name, $mcp_prompt, $this->mcp );
+			if ( is_wp_error( $arguments ) ) {
+				return McpErrorFactory::internal_error( $request_id, $arguments->get_error_message() );
+			}
+
+			$result = $mcp_prompt->execute( $arguments );
+
+			/**
+			 * Filters the prompt execution result before normalization.
+			 *
+			 * @since 0.5.0
+			 *
+			 * @param mixed|\WP_Error $result Raw execution result or error.
+			 * @param array $arguments Arguments used for execution.
+			 * @param string $prompt_name Requested prompt name.
+			 * @param \WP\MCP\Domain\Prompts\McpPrompt $mcp_prompt Prompt execution component.
+			 * @param \WP\MCP\Core\McpServer $server Server owning the prompt.
+			 */
+			$result = apply_filters( 'mcp_adapter_prompt_get_result', $result, $arguments, $prompt_name, $mcp_prompt, $this->mcp );
+			if ( is_wp_error( $result ) ) {
+				$this->mcp->get_error_handler()->log(
+					'Prompt execution returned WP_Error',
+					array(
+						'prompt_name'   => $prompt_name,
+						'error_code'    => $result->get_error_code(),
+						'error_message' => $result->get_error_message(),
+					)
+				);
+
+				return McpErrorFactory::internal_error( $request_id, $result->get_error_message() );
+			}
+
+			$result = is_array( $result ) ? $result : array( 'result' => $result );
+			return $this->normalize_result( $result, $prompt, $prompt_name );
+		} catch ( \Throwable $throwable ) {
+			$this->mcp->get_error_handler()->log(
+				'Prompt execution failed',
+				array(
+					'prompt_name' => $prompt_name,
+					'arguments'   => $arguments,
+					'error'       => $throwable->getMessage(),
+				)
+			);
+
+			return McpErrorFactory::internal_error( $request_id, 'Prompt execution failed' );
+		}
+	}
+
+	/**
+	 * Convert supported prompt result forms into logical message data.
+	 *
+	 * Only the shape is normalized, and the shape is chosen by which key is set:
+	 * `messages`, `text`, `role` with `content`, or `texts`. The value under that
+	 * key is carried as given, so a wrong-typed value reaches the schema instead
+	 * of falling through to the JSON fallback. Roles, content types, description,
+	 * annotations and metadata are carried as given whenever they are set; an
+	 * explicit null counts as absent, as everywhere else in the adapter. The
+	 * schema decides whether the result fits, and a result that does not fit
+	 * fails the request instead of being repaired. The registered prompt
+	 * description fills in only when the result has none. An empty message list
+	 * is emitted as given; the schema and the official client both accept it.
+	 *
+	 * @throws \UnexpectedValueException When a result with none of the known keys cannot be JSON-encoded.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function normalize_result( array $result, Prompt $prompt, string $prompt_name ): array {
+		$description = isset( $result['description'] ) ? $result['description'] : $prompt->getDescription();
+		$messages    = array();
+
+		if ( isset( $result['messages'] ) ) {
+			// A list is re-indexed so it serializes as a JSON array; anything else is
+			// carried as given for the schema to reject.
+			$messages = $result['messages'];
+			if ( is_array( $messages ) ) {
+				$messages = array();
+				foreach ( $result['messages'] as $message ) {
+					$messages[] = is_array( $message ) ? $this->normalize_message( $message ) : $message;
+				}
+			}
+		} elseif ( isset( $result['text'] ) ) {
+			$content = array(
+				'type' => 'text',
+				'text' => $result['text'],
+			);
+			if ( isset( $result['annotations'] ) ) {
+				$content['annotations'] = $result['annotations'];
+			}
+			$messages[] = array(
+				'role'    => self::$default_role,
+				'content' => $content,
+			);
+		} elseif ( isset( $result['role'], $result['content'] ) ) {
+			$messages[] = $this->normalize_message( $result );
+		} elseif ( isset( $result['texts'] ) ) {
+			$messages = $result['texts'];
+			if ( is_array( $messages ) ) {
+				$messages = array();
+				$role     = $result['role'] ?? self::$default_role;
+				foreach ( $result['texts'] as $text ) {
+					$messages[] = array(
+						'role'    => $role,
+						'content' => array(
+							'type' => 'text',
+							'text' => $text,
+						),
+					);
+				}
+			}
+		} else {
+			$this->mcp->get_observability_handler()->record_event(
+				'prompt_result_fallback_normalization',
+				array(
+					'prompt_name' => $prompt_name,
+					'result_keys' => array_keys( $result ),
+				)
+			);
+			$text = wp_json_encode( $result, JSON_PRETTY_PRINT );
+			if ( false === $text ) {
+				// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception text is internal protocol diagnostics, not HTML output.
+				throw new \UnexpectedValueException( 'Prompt result could not be JSON-encoded: ' . json_last_error_msg() );
+			}
+			$messages[] = array(
+				'role'    => self::$default_role,
+				'content' => array(
+					'type' => 'text',
+					'text' => $text,
+				),
+			);
+		}
+
+		$data = array( 'messages' => $messages );
+		if ( null !== $description ) {
+			$data['description'] = $description;
+		}
+		if ( isset( $result['_meta'] ) ) {
+			$data['_meta'] = $result['_meta'];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Fill in the message defaults: an absent role is `user`, and a plain string
+	 * content is a text block. Every other key is carried as given.
+	 *
+	 * @param array<string, mixed> $message The message as returned by the ability.
+	 * @return array<string, mixed>
+	 */
+	private function normalize_message( array $message ): array {
+		$message['role'] = $message['role'] ?? self::$default_role;
+		if ( isset( $message['content'] ) && is_string( $message['content'] ) ) {
+			$message['content'] = array(
+				'type' => 'text',
+				'text' => $message['content'],
+			);
+		}
+
+		return $message;
+	}
+}
