@@ -146,8 +146,8 @@ trait Post_Data_Trait {
 			$post_id  = Utils::get_post_id_by_url( $item['url'] );
 			$post_url = Parsely::get_url_with_itm_source( $item['url'], null );
 
-			// If we have a post ID, update the post canonical URL.
-			if ( 0 !== $post_id ) {
+			// Only updates the canonical URL of posts the current user can edit.
+			if ( 0 !== $post_id && current_user_can( 'edit_post', $post_id ) ) {
 				Parsely::set_canonical_url( $post_id, $post_url );
 			}
 

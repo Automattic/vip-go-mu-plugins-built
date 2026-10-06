@@ -175,16 +175,24 @@ class Endpoint_Post extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function get_post_details( WP_REST_Request $request ) {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post      = $request->get_param( 'post' );
+		$post = $this->get_request_post( $request );
+
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		$permalink = get_permalink( $post->ID );
 
 		if ( ! is_string( $permalink ) ) {
-			return new WP_Error( 'invalid_post', __( 'Invalid post.', 'wp-parsely' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Set the itm_source parameter.
@@ -212,10 +220,7 @@ class Endpoint_Post extends Base_Endpoint {
 			$post_data[] = $this->extract_post_data( $data );
 		}
 
-		$response_data = array(
-			'params' => $request->get_params(),
-			'data'   => $post_data,
-		);
+		$response_data = array( 'data' => $post_data );
 
 		return new WP_REST_Response( $response_data, 200 );
 	}
@@ -231,16 +236,24 @@ class Endpoint_Post extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function get_post_referrers( WP_REST_Request $request ) {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post      = $request->get_param( 'post' );
+		$post = $this->get_request_post( $request );
+
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		$permalink = get_permalink( $post->ID );
 
 		if ( ! is_string( $permalink ) ) {
-			return new WP_Error( 'invalid_post', __( 'Invalid post.', 'wp-parsely' ), array( 'status' => 404 ) );
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
 		}
 
 		// Set the itm_source parameter.
@@ -278,8 +291,7 @@ class Endpoint_Post extends Base_Endpoint {
 		$referrers_top   = $this->generate_referrers_data( 5, $analytics_request, $direct_views );
 
 		$response_data = array(
-			'params' => $request->get_params(),
-			'data'   => array(
+			'data' => array(
 				'top'   => $referrers_top,
 				'types' => $referrers_types,
 			),
@@ -299,28 +311,33 @@ class Endpoint_Post extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response data.
 	 */
 	public function get_related_posts( WP_REST_Request $request ) {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post = $request->get_param( 'post' );
+		$post = $this->get_request_post( $request );
 
-		/**
-		 * The post permalink.
-		 *
-		 * @var string $permalink
-		 */
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
+
 		$permalink = get_permalink( $post->ID );
+
+		if ( ! is_string( $permalink ) ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		$related_posts = $this->get_related_posts_of_url( $request, $permalink );
 
-		$response_data = array(
-			'params' => $request->get_params(),
-			'data'   => $related_posts,
-		);
+		if ( is_wp_error( $related_posts ) ) {
+			return $related_posts;
+		}
 
-		return new WP_REST_Response( $response_data, 200 );
+		return new WP_REST_Response( array( 'data' => $related_posts ), 200 );
 	}
 
 	/**

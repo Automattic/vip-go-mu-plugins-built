@@ -305,12 +305,15 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function generate_link_suggestions( WP_REST_Request $request ) {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post = $request->get_param( 'post' );
+		$post = $this->get_request_post( $request );
+
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		/**
 		 * The maximum number of suggestions to return.
@@ -402,12 +405,16 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function generate_placement_suggestions( WP_REST_Request $request ) {
-		/**
-		 * The destination post, that the inbound link links to.
-		 *
-		 * @var WP_Post $destination_post
-		 */
-		$destination_post = $request->get_param( 'post' );
+		// The destination post, that the inbound link links to.
+		$destination_post = $this->get_request_post( $request );
+
+		if ( ! $destination_post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		/**
 		 * The source post ID, where the inbound link will be placed.

@@ -12,9 +12,6 @@ namespace Parsely\Endpoints;
 
 use Parsely\Metadata;
 use WP_Post;
-use Parsely\Models\Smart_Link;
-use Parsely\Models\Smart_Link_Status;
-use Parsely\Models\Inbound_Smart_Link;
 
 /**
  * Injects Parse.ly Metadata to WordPress REST API.
@@ -64,6 +61,7 @@ class Rest_Metadata extends Metadata_Endpoint {
 	 *
 	 * @since 3.1.0
 	 * @since 3.19.0 Added the `canonical_url` field.
+	 * @since 3.24.2 Removed the `smart_links` and `traffic_boost_suggestions_count` fields.
 	 *
 	 * @param array<string, mixed> $object_data The data of the object to render the metadata for,
 	 *                                          usually a post or a page.
@@ -79,13 +77,8 @@ class Rest_Metadata extends Metadata_Endpoint {
 		$options = $this->parsely->get_options();
 
 		$response = array(
-			'version'                         => self::REST_VERSION,
-			'canonical_url'                   => \Parsely\Parsely::get_canonical_url_from_post( $post_id ),
-			'smart_links'                     => array(
-				'inbound'  => 0,
-				'outbound' => 0,
-			),
-			'traffic_boost_suggestions_count' => 0,
+			'version'       => self::REST_VERSION,
+			'canonical_url' => \Parsely\Parsely::get_canonical_url_from_post( $post_id ),
 		);
 
 		if ( false === $post ) {
@@ -119,12 +112,6 @@ class Rest_Metadata extends Metadata_Endpoint {
 		if ( apply_filters( 'wp_parsely_enable_tracker_url', true, $post ) ) {
 			$response['tracker_url'] = $this->parsely->get_tracker_url();
 		}
-
-		// Fetch Smart Link data.
-		$response['smart_links'] = Smart_Link::get_link_counts( $post_id, Smart_Link_Status::APPLIED );
-
-		// Fetch Traffic Boost data.
-		$response['traffic_boost_suggestions_count'] = Inbound_Smart_Link::get_suggestions_count( $post_id );
 
 		return $response;
 	}

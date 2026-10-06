@@ -63,6 +63,7 @@ class Endpoint_Related extends Base_Endpoint {
 	 * Registers the routes for the endpoint.
 	 *
 	 * @since 3.17.0
+	 * @since 3.24.2 Registered the related posts arguments, and required an HTTP(S) URL with a host.
 	 */
 	public function register_routes(): void {
 		/**
@@ -73,13 +74,17 @@ class Endpoint_Related extends Base_Endpoint {
 			'/',
 			array( 'GET' ),
 			array( $this, 'get_related_posts' ),
-			array(
-				'url' => array(
-					'description' => __( 'The URL of the post.', 'wp-parsely' ),
-					'type'        => 'string',
-					'required'    => true,
+			array_merge(
+				array(
+					'url' => array(
+						'description'       => __( 'The URL of the post.', 'wp-parsely' ),
+						'type'              => 'string',
+						'pattern'           => '^https?://\S+$',
+						'required'          => true,
+						'validate_callback' => array( $this, 'validate_url' ),
+					),
 				),
-				$this->get_related_posts_param_args(),
+				$this->get_related_posts_param_args()
 			)
 		);
 	}
@@ -104,6 +109,22 @@ class Endpoint_Related extends Base_Endpoint {
 		}
 
 		return new WP_REST_Response( array( 'data' => $related_posts ), 200 );
+	}
+
+	/**
+	 * Validates that the URL has a host. The `pattern` argument checks the scheme.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param mixed $url The raw parameter value, as validation runs before type checks.
+	 * @return true|WP_Error
+	 */
+	public function validate_url( $url ) {
+		if ( ! is_string( $url ) || '' === (string) wp_parse_url( $url, PHP_URL_HOST ) ) {
+			return new WP_Error( 'invalid_param', __( 'The parameter must be a URL with a host.', 'wp-parsely' ) );
+		}
+
+		return true;
 	}
 
 	/**

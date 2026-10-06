@@ -16,7 +16,6 @@ use Parsely\Services\Content_API\Content_API_Service;
 use Parsely\Services\Suggestions_API\Suggestions_API_Service;
 use Parsely\UI\Metadata_Renderer;
 use Parsely\UI\Settings_Page;
-use Parsely\Utils\Utils;
 use WP_Post;
 
 /**
@@ -1203,6 +1202,7 @@ class Parsely {
 	 * This is needed for environments, such as wp-now, that block remote requests.
 	 *
 	 * @since 3.13.0
+	 * @since 3.24.2 Matches the Parse.ly hosts exactly, over HTTPS.
 	 * @access private
 	 */
 	private function allow_parsely_remote_requests(): void {
@@ -1215,12 +1215,18 @@ class Parsely {
 		add_filter(
 			'http_request_host_is_external',
 			function ( bool $external, string $host, string $url ) use ( $allowed_urls ) {
-				// Check if the URL matches any URLs on the allowed list.
-				foreach ( $allowed_urls as $allowed_url ) {
-					if ( Utils::str_starts_with( $url, $allowed_url ) ) {
-						return true;
-					}
+				$scheme        = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
+				$allowed_hosts = array_map(
+					static function ( string $allowed_url ): string {
+						return (string) wp_parse_url( $allowed_url, PHP_URL_HOST );
+					},
+					$allowed_urls
+				);
+
+				if ( 'https' === $scheme && in_array( strtolower( $host ), $allowed_hosts, true ) ) {
+					return true;
 				}
+
 				return $external;
 			},
 			10,

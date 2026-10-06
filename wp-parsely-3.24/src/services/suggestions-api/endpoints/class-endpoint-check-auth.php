@@ -53,6 +53,7 @@ class Endpoint_Check_Auth extends Suggestions_API_Base_Endpoint {
 	 * Sends a request to the remote API.
 	 *
 	 * @since 3.19.0
+	 * @since 3.24.2 Strips the credentials from errors.
 	 *
 	 * @param string       $method The HTTP method to use for the request.
 	 * @param array<mixed> $query_args The query arguments to send to the remote API.
@@ -71,7 +72,13 @@ class Endpoint_Check_Auth extends Suggestions_API_Base_Endpoint {
 		/** @var WP_HTTP_Response|WP_Error $response */
 		$response = wp_safe_remote_request( $request_url, $request_options );
 
-		return $this->process_response( $response );
+		if ( is_wp_error( $response ) ) {
+			return $this->get_relayable_transport_error( $response );
+		}
+
+		$result = $this->process_response( $response );
+
+		return is_wp_error( $result ) ? $this->strip_credentials_from_error( $result ) : $result;
 	}
 
 	/**

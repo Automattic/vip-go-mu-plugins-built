@@ -77,6 +77,7 @@ final class Recommended_Widget extends WP_Widget {
 	 * Gets the URL for the Recommendations API (GET /related).
 	 *
 	 * @since 2.5.0
+	 * @since 3.24.2 Includes only the arguments that /related uses.
 	 *
 	 * @see https://docs.parse.ly/content-recommendations/
 	 *
@@ -92,7 +93,8 @@ final class Recommended_Widget extends WP_Widget {
 	 * @return string API URL.
 	 */
 	private function get_api_url( string $site_id, ?int $published_within, ?string $sort, int $return_limit ): string {
-		$related_api_endpoint = $this->parsely->get_content_api()->get_endpoint( '/related' );
+		$content_api          = $this->parsely->get_content_api();
+		$related_api_endpoint = $content_api->get_endpoint( '/related' );
 
 		$query_args = array(
 			'apikey' => $site_id,
@@ -104,7 +106,11 @@ final class Recommended_Widget extends WP_Widget {
 			$query_args['pub_date_start'] = $published_within . 'd';
 		}
 
-		return $related_api_endpoint->get_endpoint_url( $query_args );
+		// Only the arguments that /related uses.
+		return add_query_arg(
+			$query_args,
+			$content_api->get_api_url() . $related_api_endpoint->get_endpoint()
+		);
 	}
 
 	/**

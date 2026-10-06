@@ -420,8 +420,12 @@ class Utils {
 	/**
 	 * Returns the post ID for the passed URL.
 	 *
+	 * Posts the current user can neither view publicly nor read resolve to 0.
+	 *
 	 * @since 3.16.0
 	 * @since 3.18.0 Moved from `Models/class-smart-link.php`.
+	 * @since 3.24.2 Resolves only to posts visible to the current user, and
+	 *               matches slugs only of this site's URLs, unambiguously.
 	 *
 	 * @param string $url The URL to get the post ID for.
 	 * @return int The post ID of the URL, 0 if not found.
@@ -431,7 +435,7 @@ class Utils {
 		$cache     = wp_cache_get( $cache_key, PARSELY_CACHE_GROUP );
 
 		if ( false !== $cache && is_numeric( $cache ) ) {
-			return (int) $cache;
+			return self::get_visible_post_id( (int) $cache );
 		}
 
 		if ( function_exists( 'wpcom_vip_url_to_postid' ) ) {
@@ -444,7 +448,12 @@ class Utils {
 
 		// A post ID was found, return it.
 		if ( 0 !== $post_id ) {
-			return $post_id;
+			return self::get_visible_post_id( $post_id );
+		}
+
+		// A slug can only identify a post in this site's URLs.
+		if ( ! self::is_site_url( $url ) ) {
+			return 0;
 		}
 
 		// No post ID was found, try to find it from the slug.
@@ -454,20 +463,141 @@ class Utils {
 		}
 		$post_slug = basename( $clean_url );
 
+		// Public posts take precedence over other posts with the same slug.
+		$post_ids = array_values(
+			array_filter(
+				self::get_top_level_post_ids_by_slug( $post_slug, array( 'publish', 'inherit' ) ),
+				'is_post_publicly_viewable'
+			)
+		);
+
+		// Visibility is checked on return, so the resolution can be cached for all users.
+		if ( 0 === count( $post_ids ) ) {
+			$post_ids = self::get_top_level_post_ids_by_slug( $post_slug, array( 'any' ) );
+		}
+
+		// A slug shared by several posts identifies none of them.
+		if ( 1 === count( $post_ids ) ) {
+			wp_cache_set( $cache_key, $post_ids[0], PARSELY_CACHE_GROUP, WEEK_IN_SECONDS );
+			return self::get_visible_post_id( $post_ids[0] );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Returns up to 2 IDs of top-level posts of public post types with the
+	 * passed slug, enough to tell whether the slug is ambiguous.
+	 *
+	 * Like get_page_by_path() given a single slug, child posts don't match.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param string        $slug          The post slug.
+	 * @param array<string> $post_statuses The post statuses to match.
+	 * @return array<int> The post IDs.
+	 */
+	private static function get_top_level_post_ids_by_slug( string $slug, array $post_statuses ): array {
 		$public_post_types = get_post_types(
 			array(
 				'public'       => true,
 				'show_in_rest' => true,
 			)
 		);
-		$post              = get_page_by_path( $post_slug, OBJECT, array_keys( $public_post_types ) );
 
-		if ( null !== $post ) {
-			wp_cache_set( $cache_key, $post->ID, PARSELY_CACHE_GROUP, WEEK_IN_SECONDS );
-			return $post->ID;
+		$query = new \WP_Query(
+			array(
+				'name'           => $slug,
+				'post_type'      => array_keys( $public_post_types ),
+				'post_status'    => $post_statuses,
+				'post_parent'    => 0,
+				'fields'         => 'ids',
+				'posts_per_page' => 2,
+				'no_found_rows'  => true,
+			)
+		);
+
+		$post_ids = array();
+		foreach ( $query->posts as $post_id ) {
+			if ( is_int( $post_id ) ) {
+				$post_ids[] = $post_id;
+			}
+		}
+
+		return $post_ids;
+	}
+
+	/**
+	 * Returns the passed post ID, or 0 if the current user can neither view
+	 * the post publicly nor read it.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param int $post_id The post ID.
+	 * @return int The post ID, or 0.
+	 */
+	private static function get_visible_post_id( int $post_id ): int {
+		if ( is_post_publicly_viewable( $post_id ) || current_user_can( 'read_post', $post_id ) ) {
+			return $post_id;
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Returns whether the passed URL is relative, or has the host of the home
+	 * URL, the site URL, the Site ID or the canonical URL domain.
+	 *
+	 * A leading `www.` is ignored, as `url_to_postid()` does.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool Whether the URL belongs to this site.
+	 */
+	private static function is_site_url( string $url ): bool {
+		$url_host = wp_parse_url( $url, PHP_URL_HOST );
+
+		if ( ! is_string( $url_host ) ) {
+			return true;
+		}
+
+		$site_addresses = array(
+			home_url(),
+			site_url(),
+			\Parsely\get_parsely()->get_site_id(),
+			apply_filters( 'wp_parsely_canonical_url_domain', null ),
+		);
+
+		foreach ( $site_addresses as $site_address ) {
+			if ( ! is_string( $site_address ) || '' === trim( $site_address ) ) {
+				continue;
+			}
+
+			// Domain-only addresses need a scheme to be parsed.
+			$site_host = wp_parse_url(
+				'http://' . preg_replace( '#^https?://#i', '', trim( $site_address ) ),
+				PHP_URL_HOST
+			);
+
+			if ( is_string( $site_host ) && self::strip_www( $site_host ) === self::strip_www( $url_host ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Lowercases a host and removes its leading `www.`.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param string $host The host.
+	 * @return string The host, without its leading `www.`.
+	 */
+	private static function strip_www( string $host ): string {
+		return (string) preg_replace( '/^www\./', '', strtolower( $host ) );
 	}
 
 	/**

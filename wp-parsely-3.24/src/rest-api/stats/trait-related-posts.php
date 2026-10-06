@@ -44,6 +44,7 @@ trait Related_Posts_Trait {
 	 * Returns the API arguments for the related posts endpoint.
 	 *
 	 * @since 3.17.0
+	 * @since 3.24.2 Accepted the `score` sort, and bounded `limit` and `page`.
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -53,15 +54,18 @@ trait Related_Posts_Trait {
 				'sort'           => array(
 					'description' => __( 'The sort order.', 'wp-parsely' ),
 					'type'        => 'string',
-					'enum'        => array( '_score', 'pub_date' ),
+					// `score` is what the Recommendations Block and Widget send.
+					'enum'        => array( 'score', '_score', 'pub_date' ),
 					'required'    => false,
-					'default'     => '_score',
+					'default'     => 'score',
 				),
 				'limit'          => array(
 					'description' => __( 'The number of related posts to return.', 'wp-parsely' ),
 					'type'        => 'integer',
 					'required'    => false,
 					'default'     => 10,
+					'minimum'     => 1,
+					'maximum'     => 100,
 				),
 				'pub_date_start' => array(
 					'description' => __( 'The start of the publication date.', 'wp-parsely' ),
@@ -78,6 +82,7 @@ trait Related_Posts_Trait {
 					'type'        => 'integer',
 					'required'    => false,
 					'default'     => 1,
+					'minimum'     => 1,
 				),
 				'section'        => array(
 					'description' => __( 'The section of the post.', 'wp-parsely' ),
@@ -103,6 +108,7 @@ trait Related_Posts_Trait {
 	 * Get related posts for a given URL.
 	 *
 	 * @since 3.17.0
+	 * @since 3.24.2 Skips upstream items without a URL, and replaces non-string fields with empty strings.
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @param string          $url The URL to get related posts for.
@@ -115,7 +121,7 @@ trait Related_Posts_Trait {
 		/**
 		 * The raw related posts data, received by the API.
 		 *
-		 * @var array<array<string, string>>|WP_Error $related_posts_request
+		 * @var array<mixed>|WP_Error $related_posts_request
 		 */
 		$related_posts_request = $this->content_api->get_related_posts_with_url(
 			$url,
@@ -136,19 +142,21 @@ trait Related_Posts_Trait {
 			return $related_posts_request;
 		}
 
-		$itm_source = $this->itm_source;
+		$related_posts = array();
 
-		$related_posts = array_map(
-			static function ( array $item ) use ( $itm_source ) {
-				return array(
-					'image_url'        => $item['image_url'],
-					'thumb_url_medium' => $item['thumb_url_medium'],
-					'title'            => $item['title'],
-					'url'              => Parsely::get_url_with_itm_source( $item['url'], $itm_source ),
-				);
-			},
-			$related_posts_request
-		);
+		foreach ( $related_posts_request as $item ) {
+			// Partial upstream replies can omit any key.
+			if ( ! is_array( $item ) || ! isset( $item['url'] ) || ! is_string( $item['url'] ) || '' === $item['url'] ) {
+				continue;
+			}
+
+			$related_posts[] = array(
+				'image_url'        => is_string( $item['image_url'] ?? null ) ? $item['image_url'] : '',
+				'thumb_url_medium' => is_string( $item['thumb_url_medium'] ?? null ) ? $item['thumb_url_medium'] : '',
+				'title'            => is_string( $item['title'] ?? null ) ? $item['title'] : '',
+				'url'              => Parsely::get_url_with_itm_source( $item['url'], $this->itm_source ),
+			);
+		}
 
 		return $related_posts;
 	}

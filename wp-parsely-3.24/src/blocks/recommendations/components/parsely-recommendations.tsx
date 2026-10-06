@@ -47,7 +47,7 @@ export function ParselyRecommendations( {
 		} else if ( message.startsWith( 'Error: {"code":"parsely_site_id_not_set"' ) ) {
 			message = __( 'To use this Block, a Parse.ly Site ID must be set in the plugin\'s options', 'wp-parsely' );
 		} else if ( typeof error === 'object' && error?.code === 'rest_no_route' ) {
-			message = __( 'The REST route is unavailable. To use it, wp_parsely_enable_related_api_proxy should be true.', 'wp-parsely' );
+			message = __( 'The REST route is unavailable. To use it, wp_parsely_api_related_endpoint_enabled should be true.', 'wp-parsely' );
 		}
 
 		return message;

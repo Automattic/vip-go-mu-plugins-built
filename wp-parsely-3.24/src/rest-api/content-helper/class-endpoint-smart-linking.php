@@ -197,6 +197,8 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 				'urls' => array(
 					'required'    => true,
 					'type'        => 'array',
+					'items'       => array( 'type' => 'string' ),
+					'maxItems'    => 500,
 					'description' => __( 'The URLs to get meta information for.', 'wp-parsely' ),
 				),
 			)
@@ -266,24 +268,28 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 * Gets the smart links for a post.
 	 *
 	 * @since 3.16.0
+	 * @since 3.24.2 Inbound links of non-visible source posts are omitted.
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response The response object.
+	 * @return WP_REST_Response|WP_Error The response object.
 	 */
-	public function get_smart_links( WP_REST_Request $request ): WP_REST_Response {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post = $request->get_param( 'post' );
+	public function get_smart_links( WP_REST_Request $request ) {
+		$post = $this->get_request_post( $request );
+
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		$outbound_links = Smart_Link::get_outbound_smart_links( $post->ID, Smart_Link_Status::APPLIED );
 		$inbound_links  = Smart_Link::get_inbound_smart_links( $post->ID, Smart_Link_Status::APPLIED );
 
 		$response = array(
 			'outbound' => $this->serialize_smart_links( $outbound_links ),
-			'inbound'  => $this->serialize_smart_links( $inbound_links ),
+			'inbound'  => $this->serialize_visible_inbound_links( $inbound_links ),
 		);
 
 		return new WP_REST_Response( array( 'data' => $response ), 200 );
@@ -441,15 +447,18 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 * @since 3.16.0
 	 *
 	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response The response object.
+	 * @return WP_REST_Response|WP_Error The response object.
 	 */
-	public function set_smart_links( WP_REST_Request $request ): WP_REST_Response {
-		/**
-		 * The post object.
-		 *
-		 * @var WP_Post $post
-		 */
-		$post = $request->get_param( 'post' );
+	public function set_smart_links( WP_REST_Request $request ) {
+		$post = $this->get_request_post( $request );
+
+		if ( ! $post instanceof WP_Post ) {
+			return new WP_Error(
+				'invalid_post',
+				__( 'Invalid post.', 'wp-parsely' ),
+				array( 'status' => 404 )
+			);
+		}
 
 		/**
 		 * Array of Smart Link models provided in the request.
@@ -560,13 +569,18 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 * The callback sets the smart link object in the request object if the parameters are valid.
 	 *
 	 * @since 3.16.0
+	 * @since 3.24.2 Rejects non-arrays.
 	 * @access private
 	 *
-	 * @param array<mixed>    $params  The parameters.
+	 * @param mixed           $params  The raw parameter value, as validation runs before type checks.
 	 * @param WP_REST_Request $request The request object.
 	 * @return bool Whether the parameters are valid.
 	 */
-	public function validate_smart_link_params( array $params, WP_REST_Request $request ): bool {
+	public function validate_smart_link_params( $params, WP_REST_Request $request ): bool {
+		if ( ! is_array( $params ) ) {
+			return false;
+		}
+
 		$required_params = array( 'uid', 'href', 'title', 'text', 'offset' );
 
 		foreach ( $required_params as $param ) {
@@ -594,6 +608,10 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 		}
 
 		if ( ! is_string( $params['href']['raw'] ) ) {
+			return false;
+		}
+
+		if ( ! Smart_Link::is_valid_href( $params['href']['raw'] ) ) {
 			return false;
 		}
 
@@ -632,13 +650,18 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 * The callback sets the smart links object in the request object if the parameters are valid.
 	 *
 	 * @since 3.16.0
+	 * @since 3.24.2 Rejects non-arrays.
 	 * @access private
 	 *
-	 * @param array<array<mixed>> $param   The parameter value.
-	 * @param WP_REST_Request     $request The request object.
+	 * @param mixed           $param   The raw parameter value, as validation runs before type checks.
+	 * @param WP_REST_Request $request The request object.
 	 * @return bool Whether the parameter is valid.
 	 */
-	public function validate_multiple_smart_links( array $param, WP_REST_Request $request ): bool {
+	public function validate_multiple_smart_links( $param, WP_REST_Request $request ): bool {
+		if ( ! is_array( $param ) ) {
+			return false;
+		}
+
 		$smart_links = array();
 
 		foreach ( $param as $link ) {
@@ -653,6 +676,48 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 		$request->set_param( 'smart_links', $smart_links );
 
 		return true;
+	}
+
+	/**
+	 * Serializes inbound Smart Links, dropping the ones whose source post the
+	 * current user cannot see.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param Smart_Link[] $links The inbound Smart Links to serialize.
+	 * @return array<mixed> The serialized Smart Links.
+	 */
+	private function serialize_visible_inbound_links( array $links ): array {
+		$serialized = array();
+
+		foreach ( $links as $link ) {
+			$source_post_id = $link->source_post_id;
+			$can_edit       = current_user_can( 'edit_post', $source_post_id );
+
+			if ( ! $can_edit && ! is_post_publicly_viewable( $source_post_id ) ) {
+				continue;
+			}
+
+			$data = json_decode( $link->serialize(), true );
+
+			if ( ! is_array( $data ) ) {
+				continue;
+			}
+
+			// WordPress withholds a protected post's content; the anchor text
+			// and the paragraph are both drawn from it.
+			if ( ! $can_edit && post_password_required( $source_post_id ) ) {
+				$data['text'] = '';
+
+				if ( isset( $data['post_data'] ) && is_array( $data['post_data'] ) ) {
+					$data['post_data']['paragraph'] = '';
+				}
+			}
+
+			$serialized[] = $data;
+		}
+
+		return $serialized;
 	}
 
 	/**
