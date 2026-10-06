@@ -834,31 +834,6 @@ abstract class Indexable {
 		];
 
 		foreach ( $meta_queries as $single_meta_query ) {
-
-			/**
-			 * There is a strange case where meta_query looks like this:
-			 * array(
-			 *  "something" => array(
-			 *   array(
-			 *      'key' => ...
-			 *      ...
-			 *   )
-			 *  )
-			 * )
-			 *
-			 * Somehow WordPress (WooCommerce) handles that case so we need to as well.
-			 *
-			 * @since  2.1
-			 */
-			if ( is_array( $single_meta_query ) && empty( $single_meta_query['key'] ) ) {
-				reset( $single_meta_query );
-				$first_key = key( $single_meta_query );
-
-				if ( is_array( $single_meta_query[ $first_key ] ) ) {
-					$single_meta_query = $single_meta_query[ $first_key ];
-				}
-			}
-
 			if ( ! empty( $single_meta_query['key'] ) ) {
 
 				$terms_obj = false;
@@ -1094,7 +1069,7 @@ abstract class Indexable {
 				if ( false !== $terms_obj ) {
 					$meta_filter[] = $terms_obj;
 				}
-			} elseif ( is_array( $single_meta_query ) && isset( $single_meta_query[0] ) && is_array( $single_meta_query[0] ) ) {
+			} elseif ( is_array( $single_meta_query ) ) {
 				/**
 				 * Handle multidimensional array. Something like:
 				 *
