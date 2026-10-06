@@ -10,7 +10,7 @@
  * Author URI: https://wpvip.com
  * Text Domain: safe-publish
  * Domain Path: /languages
- * Version: 1.4.0
+ * Version: 1.4.1
  * Requires at least: 6.9
  * Requires PHP: 8.2
  */
@@ -28,7 +28,7 @@ if ( defined( 'SAFE_PUBLISH_LOADED' ) ) {
 
 // Define plugin constants.
 define( 'SAFE_PUBLISH_LOADED', true );
-define( 'SAFE_PUBLISH_VERSION', '1.4.0' );
+define( 'SAFE_PUBLISH_VERSION', '1.4.1' );
 define( 'SAFE_PUBLISH_PLUGIN_FILE', __FILE__ );
 define( 'SAFE_PUBLISH_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'SAFE_PUBLISH_PLUGIN_URL', plugin_dir_url( __FILE__ ) );

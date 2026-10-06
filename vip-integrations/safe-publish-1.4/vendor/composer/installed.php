@@ -3,7 +3,7 @@
         'name' => 'automattic/safe-publish',
         'pretty_version' => 'dev-trunk',
         'version' => 'dev-trunk',
-        'reference' => '1d6933bb811affee2928bfbfd34868b76afef964',
+        'reference' => '5ebc956642905fca0d20e8ee06a0c72fcea4efa7',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'automattic/safe-publish' => array(
             'pretty_version' => 'dev-trunk',
             'version' => 'dev-trunk',
-            'reference' => '1d6933bb811affee2928bfbfd34868b76afef964',
+            'reference' => '5ebc956642905fca0d20e8ee06a0c72fcea4efa7',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
