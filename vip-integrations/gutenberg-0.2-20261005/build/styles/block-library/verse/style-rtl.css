@@ -1,0 +1,15 @@
+pre.wp-block-verse {
+  box-sizing: border-box;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+:root :where(pre.wp-block-verse) {
+  min-width: 1em;
+}
+
+:where(pre.wp-block-verse) {
+  font-family: inherit;
+}
