@@ -85,7 +85,14 @@ class CoreBlock {
 		$parser = new ContentParser();
 		$post   = get_post( $parsed_block['attrs']['ref'] );
 
-		if ( ! $post instanceof WP_Post ) {
+		// Match core's synced pattern rendering restrictions. Only published,
+		// unprotected wp_block posts may be expanded into public parent content.
+		if (
+			! $post instanceof WP_Post ||
+			'wp_block' !== $post->post_type ||
+			'publish' !== $post->post_status ||
+			! empty( $post->post_password )
+		) {
 			return [];
 		}
 

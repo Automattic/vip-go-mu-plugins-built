@@ -7,7 +7,9 @@
 
 namespace WPCOMVIP\BlockDataApi;
 
+use Throwable;
 use WP_Error;
+use WP_REST_Request;
 
 defined( 'ABSPATH' ) || die();
 
@@ -59,18 +61,24 @@ class RestApi {
 				'id'      => [
 					'required'          => true,
 					'validate_callback' => function ( $param ) {
-						$post_id  = intval( $param );
-						$is_valid = self::is_post_readable( $post_id );
+						$post_id     = intval( $param );
+						$is_readable = self::is_post_readable( $post_id );
 
 						/**
 						 * Validates that a post can be queried via the Block Data API REST endpoint.
 						 * Return false to disable access to a post.
 						 *
-						 * @param boolean $is_valid Whether the post ID is valid for querying. Defaults to true
-						 *                          when a post is available via the WordPress REST API.
+						 * This filter can restrict access or intentionally override the default access
+						 * decision when an integration provides its own authorization logic.
+						 *
+						 * @param boolean $is_readable Whether the post ID is valid for querying. Defaults to true
+						 *                             when the post's REST controller permits access and the
+						 *                             post is not password-protected for the current user.
 						 * @param int $post_id The queried post ID.
 						 */
-						return apply_filters( 'vip_block_data_api__rest_validate_post_id', $is_valid, $post_id );
+						$is_allowed = apply_filters( 'vip_block_data_api__rest_validate_post_id', $is_readable, $post_id );
+
+						return $is_allowed;
 					},
 					'sanitize_callback' => function ( $param ) {
 						return intval( $param );
@@ -172,17 +180,15 @@ class RestApi {
 	 * Validates that a post is valid or not, based on:
 	 *
 	 * - That it exists.
-	 * - Is a post type that is REST-accessible
-	 * - Is readable by the current user.
+	 * - Is a post type that is REST-accessible.
+	 * - Is readable by the current user according to that post type's REST controller.
+	 * - Is not password-protected, unless the current user can edit the post.
 	 *
 	 * @param int $post_id the post ID to validate.
 	 *
 	 * @return bool true if it is, false otherwise.
 	 */
 	private static function is_post_readable( $post_id ) {
-		// Borrow logic from WP_REST_Posts_Controller->check_read_permission()
-		// to only allow REST-accessible posts by default.
-
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) || empty( $post->ID ) ) {
@@ -194,29 +200,33 @@ class RestApi {
 			return false;
 		}
 
-		if ( 'publish' === $post->post_status || current_user_can( 'read_post', $post->ID ) ) {
-			return true;
+		// The REST posts controller permits the item itself, then redacts password-protected
+		// content while preparing the response. Since this endpoint parses raw post_content,
+		// require edit access before returning password-protected content.
+		if ( ! empty( $post->post_password ) && ! current_user_can( 'edit_post', $post->ID ) ) {
+			return false;
 		}
 
-		$post_status_obj = get_post_status_object( $post->post_status );
-		if ( $post_status_obj && $post_status_obj->public ) {
-			return true;
-		}
+		// Use the registered controller rather than copying the base posts controller's
+		// permission logic. Post types such as wp_block add stricter checks in subclasses.
+		// Custom controllers can throw during construction or permission checks, so fail
+		// closed instead of letting the exception reach the REST server.
+		try {
+			$rest_controller = $post_type->get_rest_controller();
+			if ( empty( $rest_controller ) || ! is_callable( [ $rest_controller, 'get_item_permissions_check' ] ) ) {
+				return false;
+			}
 
-		// Use parent status if inheriting.
-		if ( 'inherit' === $post->post_status && $post->post_parent > 0 ) {
-			return self::is_post_readable( $post->post_parent );
-		}
+			$request = new WP_REST_Request( 'GET' );
+			$request->set_param( 'id', $post->ID );
+			$request->set_param( 'context', 'view' );
 
-		/*
-		 * If there isn't a parent, but the status is set to inherit, assume
-		 * it's published (as per get_post_status()).
-		 */
-		if ( 'inherit' === $post->post_status ) {
-			return true;
-		}
+			return true === $rest_controller->get_item_permissions_check( $request );
+		} catch ( Throwable $error ) {
+			Analytics::record_error( new WP_Error( 'vip-block-data-api-rest-controller-error', sprintf( 'REST controller for post ID %d failed during permission check: %s', $post->ID, $error->getMessage() ) ) );
 
-		return false;
+			return false;
+		}
 	}
 }
 

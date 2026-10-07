@@ -1,0 +1,37 @@
+<!-- wp:group {"metadata":{"name":"Intro Desktop Root"},"lock":{"move":true,"remove":true},"className":"clipisode-introd-root","style":{"spacing":{"padding":{"top":"0","right":"0","bottom":"0","left":"0"},"blockGap":"0"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group clipisode-introd-root" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
+<!-- wp:group {"metadata":{"name":"Intro Desktop Card"},"lock":{"move":true,"remove":true},"className":"clipisode-introd-card","style":{"spacing":{"padding":{"top":"0","right":"0","bottom":"0","left":"0"},"blockGap":"0"}},"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"center","verticalAlignment":"stretch"}} -->
+<div class="wp-block-group clipisode-introd-card" style="padding-top:0;padding-right:0;padding-bottom:0;padding-left:0">
+<!-- wp:group {"metadata":{"name":"Intro Desktop Left (Video)"},"lock":{"move":true,"remove":true},"className":"clipisode-introd-left","layout":{"type":"default"}} -->
+<div class="wp-block-group clipisode-introd-left"><!-- wp:spacer {"height":"0px","lock":{"move":true,"remove":true},"className":"clipisode-introd-slot-filler"} -->
+<div style="height:0px" aria-hidden="true" class="wp-block-spacer clipisode-introd-slot-filler"></div>
+<!-- /wp:spacer --></div>
+<!-- /wp:group -->
+<!-- wp:group {"metadata":{"name":"Intro Desktop Right"},"lock":{"move":true,"remove":true},"className":"clipisode-introd-right","style":{"spacing":{"padding":{"top":"40px","right":"40px","bottom":"40px","left":"40px"},"blockGap":"16px"}},"layout":{"type":"default"}} -->
+<div class="wp-block-group clipisode-introd-right" style="padding-top:40px;padding-right:40px;padding-bottom:40px;padding-left:40px">
+<!-- wp:image {"id":{logo_id},"width":"64px","sizeSlug":"full","linkDestination":"none","align":"center"} -->
+<figure class="wp-block-image aligncenter size-full is-resized"><img src="{logo_url}" alt="Clipisode" class="wp-image-{logo_id}" style="width:64px"/></figure>
+<!-- /wp:image -->
+<!-- wp:heading {"metadata":{"name":"Desktop Topic Title"},"lock":{"move":true,"remove":true},"textAlign":"center","level":2,"className":"clipisode-introd-title"} -->
+<h2 class="wp-block-heading has-text-align-center clipisode-introd-title">{topic_title}</h2>
+<!-- /wp:heading -->
+<!-- wp:paragraph {"metadata":{"name":"Desktop Instructions"},"lock":{"move":true,"remove":true},"align":"center","style":{"typography":{"fontSize":"16px"}},"className":"clipisode-introd-instructions"} -->
+<p class="has-text-align-center clipisode-introd-instructions" style="font-size:16px">Open this link on your mobile device to reply to <strong>{host_name}'s</strong> video.</p>
+<!-- /wp:paragraph -->
+<!-- wp:group {"metadata":{"name":"Desktop URL Slot"},"lock":{"move":true,"remove":true},"templateLock":"all","className":"clipisode-introd-url-slot","layout":{"type":"default"}} -->
+<div class="wp-block-group clipisode-introd-url-slot"><!-- wp:spacer {"height":"0px","lock":{"move":true,"remove":true},"className":"clipisode-introd-slot-filler"} -->
+<div style="height:0px" aria-hidden="true" class="wp-block-spacer clipisode-introd-slot-filler"></div>
+<!-- /wp:spacer --></div>
+<!-- /wp:group -->
+<!-- wp:paragraph {"metadata":{"name":"Desktop QR Helper"},"lock":{"move":true,"remove":true},"align":"center","style":{"typography":{"fontSize":"16px"}},"className":"clipisode-introd-qr-helper"} -->
+<p class="has-text-align-center clipisode-introd-qr-helper" style="font-size:16px">Point your camera at our QR code to open this link on your phone.</p>
+<!-- /wp:paragraph -->
+<!-- wp:image {"id":{qr_id},"width":"150px","sizeSlug":"full","linkDestination":"none","align":"center","className":"clipisode-introd-qr-image","lock":{"remove":true}} -->
+<figure class="wp-block-image aligncenter size-full is-resized clipisode-introd-qr-image"><img src="{qr_url}" alt="QR code" class="wp-image-{qr_id}" style="width:150px"/></figure>
+<!-- /wp:image -->
+</div>
+<!-- /wp:group -->
+</div>
+<!-- /wp:group -->
+</div>
+<!-- /wp:group -->
