@@ -13,17 +13,25 @@ __( "Last 7 days", "jetpack-premium-analytics-pkg" );
 __( "Last 30 days", "jetpack-premium-analytics-pkg" );
 __( "Last 90 days", "jetpack-premium-analytics-pkg" );
 __( "Last 365 days", "jetpack-premium-analytics-pkg" );
+__( "Month to date", "jetpack-premium-analytics-pkg" );
 __( "Last month", "jetpack-premium-analytics-pkg" );
+__( "Year to date", "jetpack-premium-analytics-pkg" );
 __( "Last 12 months", "jetpack-premium-analytics-pkg" );
 __( "Last year", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. period (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. week", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period in <month>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. month", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period last year (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
+_x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
 __( "Previous month", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of years covered by the selected date range. */
 _n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
@@ -40,15 +48,31 @@ __( "Same period from last week", "jetpack-premium-analytics-pkg" );
 _x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the year the comparison period starts in, e.g. "2025". */
 _x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
+__( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
 __( "Sections", "jetpack-premium-analytics-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-premium-analytics-pkg" );
 __( "Loading", "jetpack-premium-analytics-pkg" );
+/* translators: 1: Calendar type. 2: Current month and year. */
+__( "%1$s, %2$s", "jetpack-premium-analytics-pkg" );
+__( "Date calendar", "jetpack-premium-analytics-pkg" );
+__( "Date range calendar", "jetpack-premium-analytics-pkg" );
+__( "Navigation bar", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s", "jetpack-premium-analytics-pkg" );
+__( "Next month", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s, selected", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected", "jetpack-premium-analytics-pkg" );
 __( "OK", "jetpack-premium-analytics-pkg" );
 __( "Cancel", "jetpack-premium-analytics-pkg" );
 __( "Close", "jetpack-premium-analytics-pkg" );
+__( "Required", "jetpack-premium-analytics-pkg" );
+__( "Optional", "jetpack-premium-analytics-pkg" );
+__( "More details follow the field.", "jetpack-premium-analytics-pkg" );
 __( "Dismiss", "jetpack-premium-analytics-pkg" );
 __( "More options", "jetpack-premium-analytics-pkg" );
 __( "Reset to default", "jetpack-premium-analytics-pkg" );
@@ -75,21 +99,6 @@ __( "More information", "jetpack-premium-analytics-pkg" );
 __( "This widget encountered an error.", "jetpack-premium-analytics-pkg" );
 __( "Widget is no longer available.", "jetpack-premium-analytics-pkg" );
 __( "Missing widget", "jetpack-premium-analytics-pkg" );
-/* translators: 1: Calendar type. 2: Current month and year. */
-__( "%1$s, %2$s", "jetpack-premium-analytics-pkg" );
-__( "Date calendar", "jetpack-premium-analytics-pkg" );
-__( "Date range calendar", "jetpack-premium-analytics-pkg" );
-__( "Navigation bar", "jetpack-premium-analytics-pkg" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s", "jetpack-premium-analytics-pkg" );
-__( "Next month", "jetpack-premium-analytics-pkg" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s, selected", "jetpack-premium-analytics-pkg" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "%s, selected", "jetpack-premium-analytics-pkg" );
-__( "Required", "jetpack-premium-analytics-pkg" );
-__( "Optional", "jetpack-premium-analytics-pkg" );
-__( "More details follow the field.", "jetpack-premium-analytics-pkg" );
 __( "Sort ascending", "jetpack-premium-analytics-pkg" );
 __( "Sort descending", "jetpack-premium-analytics-pkg" );
 __( "(no title)", "jetpack-premium-analytics-pkg" );
@@ -249,8 +258,6 @@ __( "Timezone: %s", "jetpack-premium-analytics-pkg" );
 __( "Date time", "jetpack-premium-analytics-pkg" );
 __( "Past week", "jetpack-premium-analytics-pkg" );
 __( "Past month", "jetpack-premium-analytics-pkg" );
-__( "Month to date", "jetpack-premium-analytics-pkg" );
-__( "Year to date", "jetpack-premium-analytics-pkg" );
 __( "Custom", "jetpack-premium-analytics-pkg" );
 __( "Date", "jetpack-premium-analytics-pkg" );
 __( "From", "jetpack-premium-analytics-pkg" );
@@ -304,31 +311,14 @@ __( "Widget options", "jetpack-premium-analytics-pkg" );
 __( "Width", "jetpack-premium-analytics-pkg" );
 __( "Use available width", "jetpack-premium-analytics-pkg" );
 __( "Make full width", "jetpack-premium-analytics-pkg" );
-__( "Much worse", "jetpack-premium-analytics-pkg" );
-__( "A bit worse", "jetpack-premium-analytics-pkg" );
-__( "About the same", "jetpack-premium-analytics-pkg" );
-__( "A bit better", "jetpack-premium-analytics-pkg" );
-__( "Much better", "jetpack-premium-analytics-pkg" );
-__( "Compared with the existing Traffic tab in Stats, the new Traffic tab is:", "jetpack-premium-analytics-pkg" );
-__( "What's the one thing we'd need to fix before this replaces the old Stats?", "jetpack-premium-analytics-pkg" );
-__( "Share your feedback", "jetpack-premium-analytics-pkg" );
-__( "Thank you. This helps.", "jetpack-premium-analytics-pkg" );
-__( "Send feedback", "jetpack-premium-analytics-pkg" );
-__( "Switch off the new Traffic tab?", "jetpack-premium-analytics-pkg" );
-__( "You'll go back to your current Stats. You can switch the new Traffic tab on again from the banner there.", "jetpack-premium-analytics-pkg" );
-__( "What made you switch it off?", "jetpack-premium-analytics-pkg" );
-__( "We couldn't switch it off. Please try again.", "jetpack-premium-analytics-pkg" );
-__( "Switching it off…", "jetpack-premium-analytics-pkg" );
-__( "Switch it off", "jetpack-premium-analytics-pkg" );
-__( "Page options", "jetpack-premium-analytics-pkg" );
-__( "Any feedback?", "jetpack-premium-analytics-pkg" );
-__( "Switch off the preview", "jetpack-premium-analytics-pkg" );
+__( "Tell us what's better, what's worse, and what you miss about the new Stats.", "jetpack-premium-analytics-pkg" );
+__( "Leave feedback", "jetpack-premium-analytics-pkg" );
 __( "Everything is a widget", "jetpack-premium-analytics-pkg" );
 __( "Each block of data is a widget you can move and resize to suit how you read your site.", "jetpack-premium-analytics-pkg" );
 __( "A better date picker", "jetpack-premium-analytics-pkg" );
 __( "Compare any period with the one before it, and change the chart interval to suit the range you're looking at.", "jetpack-premium-analytics-pkg" );
 __( "Rearrange it your way", "jetpack-premium-analytics-pkg" );
-__( "Select Customize to move and resize widgets. Your layout is saved to your profile.", "jetpack-premium-analytics-pkg" );
+__( "Select Customize in this menu to move and resize widgets. Your layout is saved to your profile.", "jetpack-premium-analytics-pkg" );
 __( "One last thing", "jetpack-premium-analytics-pkg" );
 __( "This menu is where you can share feedback and switch the preview off if you want. It's an early version, so do tell us what's working and what isn't.", "jetpack-premium-analytics-pkg" );
 __( "Your store data is still syncing. The numbers below are incomplete until it finishes.", "jetpack-premium-analytics-pkg" );

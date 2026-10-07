@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('react-jsx-runtime', 'wp-i18n'), 'module_dependencies' => array(array('id' => '@jetpack-premium-analytics/externals', 'import' => 'static')), 'version' => '9dc531404704224226e8');
+<?php return array('dependencies' => array('react-jsx-runtime', 'wp-i18n'), 'module_dependencies' => array(array('id' => '@jetpack-premium-analytics/externals', 'import' => 'static')), 'version' => 'fa2452cc9b87d1141d9a');

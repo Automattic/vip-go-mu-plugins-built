@@ -14,18 +14,26 @@ __( "Last 7 days", "jetpack-premium-analytics-pkg" );
 __( "Last 30 days", "jetpack-premium-analytics-pkg" );
 __( "Last 90 days", "jetpack-premium-analytics-pkg" );
 __( "Last 365 days", "jetpack-premium-analytics-pkg" );
+__( "Month to date", "jetpack-premium-analytics-pkg" );
 __( "Last month", "jetpack-premium-analytics-pkg" );
+__( "Year to date", "jetpack-premium-analytics-pkg" );
 __( "Last 12 months", "jetpack-premium-analytics-pkg" );
 __( "Last year", "jetpack-premium-analytics-pkg" );
 __( "All time", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. period (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. week", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period in <month>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. month", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period last year (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
+_x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
 __( "Previous month", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of years covered by the selected date range. */
 _n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
@@ -42,6 +50,7 @@ __( "Same period from last week", "jetpack-premium-analytics-pkg" );
 _x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the year the comparison period starts in, e.g. "2025". */
 _x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
+__( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
 /* translators: 1: Start date. 2: End date. */
 __( "%1$s – %2$s", "jetpack-premium-analytics-pkg" );
 __( "No comparison", "jetpack-premium-analytics-pkg" );
@@ -62,11 +71,11 @@ __( "Cancel", "jetpack-premium-analytics-pkg" );
 __( "Apply", "jetpack-premium-analytics-pkg" );
 __( "Period", "jetpack-premium-analytics-pkg" );
 __( "Custom range", "jetpack-premium-analytics-pkg" );
-__( "Previous period", "jetpack-premium-analytics-pkg" );
-__( "Next period", "jetpack-premium-analytics-pkg" );
+/* translators: %s: the applied period, e.g. "July 2026" */
+__( "Date range updated to %s.", "jetpack-premium-analytics-pkg" );
 __( "Time period", "jetpack-premium-analytics-pkg" );
 __( "Select period", "jetpack-premium-analytics-pkg" );
-__( "Welcome to the new Traffic page", "jetpack-premium-analytics-pkg" );
+__( "Welcome to the new Stats", "jetpack-premium-analytics-pkg" );
 __( "It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.", "jetpack-premium-analytics-pkg" );
 __( "Take a quick tour", "jetpack-premium-analytics-pkg" );
 /* translators: 1: the current step number, 2: the number of steps in the tour. */

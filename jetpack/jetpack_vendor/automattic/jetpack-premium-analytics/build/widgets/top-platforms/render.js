@@ -27,4 +27,3 @@ __( "iPadOS", "jetpack-premium-analytics-pkg" );
 __( "Chrome OS", "jetpack-premium-analytics-pkg" );
 __( "Android Tablet", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load platform data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "No platform data in this period.", "jetpack-premium-analytics-pkg" );

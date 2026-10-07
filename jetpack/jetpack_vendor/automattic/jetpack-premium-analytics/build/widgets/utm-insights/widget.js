@@ -7,8 +7,3 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "UTM parameter", "jetpack-premium-analytics-pkg" );
-__( "Source / Medium", "jetpack-premium-analytics-pkg" );
-__( "Campaign / Source / Medium", "jetpack-premium-analytics-pkg" );
-__( "Source", "jetpack-premium-analytics-pkg" );
-__( "Medium", "jetpack-premium-analytics-pkg" );
-__( "Campaign", "jetpack-premium-analytics-pkg" );

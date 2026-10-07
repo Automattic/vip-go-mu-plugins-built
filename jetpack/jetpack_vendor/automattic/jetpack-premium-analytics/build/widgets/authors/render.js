@@ -13,4 +13,3 @@ __( "All authors", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load authors. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "This author has no posts with views for the selected period.", "jetpack-premium-analytics-pkg" );
-__( "No author views in this period.", "jetpack-premium-analytics-pkg" );

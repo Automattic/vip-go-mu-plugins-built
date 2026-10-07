@@ -35,12 +35,21 @@
   --jp-gray-off: #e2e2df;
   --jp-yellow-5: #f5e6b3;
   --jp-yellow-10: #f2cf75;
+  --jp-yellow-20: #f0c930;
+  --jp-yellow-30: #deb100;
   --jp-yellow-40: #c08c00;
+  --jp-yellow-50: #9d6e00;
+  --jp-yellow-60: #7d5600;
   --jp-orange-20: #faa754;
   --jp-blue-5: #ced9f2;
+  --jp-blue-20: #68b3e8;
+  --jp-blue-40: #1689db;
   --jp-red-0: #f7ebec;
+  --jp-red-5: #facfd2;
+  --jp-red-40: #e65054;
   --jp-red-50: #d63638;
   --jp-red-60: #b32d2e;
+  --jp-red-70: #8a2424;
   --jp-red-80: #8a2424;
   --jp-red: #d63639;
   --jp-pink: #c9356e;
@@ -58,8 +67,8 @@
   --jp-green-100: #001c09;
   --jp-green: #069e08;
   --jp-green-mint: #d3f6d5;
-  --jp-green-primary: var(--jp-green-40);
-  --jp-green-secondary: var(--jp-green-30);
+  --jp-green-primary: var(--jp-green-40, #069e08);
+  --jp-green-secondary: var(--jp-green-30, #2fb41f);
   --jp-border-radius: 4px;
   --jp-border-radius-rna: 8px;
   --jp-menu-border-height: 1px;
@@ -85,7 +94,9 @@
 }
 #jetpack_summary_widget h2.hndle svg {
   height: 20px;
-  margin: 0.15em 0 0 0.5em;
+  margin-block: 0.15em 0;
+  margin-inline-start: 0.5em;
+  margin-inline-end: 0;
 }
 #jetpack_summary_widget pre.stats-widget-error {
   overflow: scroll;
@@ -108,7 +119,7 @@
   overflow: hidden;
 }
 #jetpack_summary_widget .inside #stats_dashboard_widget_control .button-primary {
-  float: right;
+  float: inline-end;
 }
 #jetpack_summary_widget .inside #dashboard_stats {
   box-sizing: border-box;
@@ -131,7 +142,7 @@
   background: none !important;
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-info {
-  background: var(--jp-white-off);
+  background: var(--jp-white-off, #f9f9f6);
   padding: 1.5em 1em;
   padding-bottom: 0;
   border-top: 1px solid #dcdcde;
@@ -151,17 +162,17 @@
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-info p {
   margin: 0 0 0.25em;
-  color: var(--jp-gray-40);
+  color: var(--jp-gray-40, #787c82);
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-info p.nothing {
-  color: var(--jp-gray-60);
+  color: var(--jp-gray-60, #50575e);
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-info p.widget-loading {
   margin: 1em 0 0;
   color: #333;
 }
 #jetpack_summary_widget .inside #dashboard_stats #stats-info p a {
-  color: var(--jp-black);
+  color: var(--jp-black, #000);
   display: block;
   text-decoration: none;
 }
@@ -172,7 +183,7 @@
   text-decoration: underline;
 }
 #jetpack_summary_widget #stats-info-container {
-  background: var(--jp-white);
+  background: var(--jp-white, #fff);
   border-radius: 5px;
   box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.04);
   padding: 1em 1.5em 1em 1.5em;
@@ -206,9 +217,9 @@
   align-self: center;
 }
 .wp-core-ui #jetpack_summary_widget #stats-info .stats-info-header .stats-info-header-right .button-primary {
-  background: var(--jp-black);
-  border-color: var(--jp-black);
-  color: var(--jp-white);
+  background: var(--jp-black, #000);
+  border-color: var(--jp-black, #000);
+  color: var(--jp-white, #fff);
 }
 #jetpack_summary_widget #top-posts {
   grid-area: posts;
@@ -233,7 +244,7 @@
   padding: 0.75em;
 }
 #jetpack_summary_widget .wpcom-connect {
-  background: var(--jp-gray-0);
+  background: var(--jp-gray-0, #f6f7f7);
   text-align: center;
 }
 #jetpack_summary_widget .wpcom-connect .jp-emblem {
@@ -271,11 +282,11 @@
   color: #999;
 }
 #jetpack_summary_widget footer {
-  background: var(--jp-white-off);
+  background: var(--jp-white-off, #f9f9f6);
   overflow: hidden;
 }
 #jetpack_summary_widget footer .blocked-container {
-  background: var(--jp-white-off);
+  background: var(--jp-white-off, #f9f9f6);
   padding: 1.5em 1em;
   display: grid;
   gap: 0 1em;
@@ -283,7 +294,7 @@
 }
 #jetpack_summary_widget footer .protect,
 #jetpack_summary_widget footer .akismet {
-  background: var(--jp-white);
+  background: var(--jp-white, #fff);
   border-radius: 5px;
   box-shadow: 0 4px 40px 0 rgba(0, 0, 0, 0.04);
   padding: 1em 1.5em 1em 1.5em;
@@ -297,7 +308,7 @@
 #jetpack_summary_widget footer p.blocked-count {
   margin-top: 0;
   margin-bottom: 6px;
-  margin-right: 8px;
+  margin-inline-end: 8px;
   font-weight: 500;
   font-size: 2rem;
   display: inline-block;
@@ -315,18 +326,20 @@
   text-align: center;
 }
 #jetpack_summary_widget footer .footer-links {
-  margin: 0 0 1.5em 1.5em;
+  margin-block: 0 1.5em;
+  margin-inline-start: 1.5em;
+  margin-inline-end: 0;
 }
 #jetpack_summary_widget footer .footer-links svg {
   height: 20px;
 }
 #jetpack_summary_widget footer .footer-links span {
-  float: right;
+  float: inline-end;
 }
 #jetpack_summary_widget footer .button {
-  background: var(--jp-black);
-  border-color: var(--jp-black);
-  color: var(--jp-white);
+  background: var(--jp-black, #000);
+  border-color: var(--jp-black, #000);
+  color: var(--jp-white, #fff);
   margin-top: 8px;
 }
 

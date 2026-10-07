@@ -358,4 +358,3 @@ function jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page() {
 
 // Hook the enqueue function to admin_enqueue_scripts
 add_action( 'admin_enqueue_scripts', 'jetpack_backup_jetpack_backup_dashboard_wp_admin_enqueue_scripts' );
-

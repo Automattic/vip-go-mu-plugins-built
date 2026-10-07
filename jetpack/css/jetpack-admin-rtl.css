@@ -975,7 +975,7 @@
   background-repeat: no-repeat;
   background-position: left top;
   background-size: 380px auto;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 8px;
 }
 
@@ -991,7 +991,7 @@
   margin: 0;
   font-size: 0.875rem;
   line-height: 1.5;
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 .jetpack-offline-notice__text a {
   color: #3858e9;
@@ -1020,7 +1020,7 @@
 }
 .jetpack-module-list .manage-right p.search-box input[type=search] {
   box-sizing: border-box;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 4px;
   padding-block: 8px;
   padding-inline: 40px 16px;
@@ -1071,7 +1071,7 @@
 }
 .jetpack-module-list .manage-right .subsubsub li .count,
 .jetpack-module-list .manage-right .purpose-filter li .count {
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 .jetpack-module-list .manage-right .subsubsub li.current a,
 .jetpack-module-list .manage-right .purpose-filter li.current a {
@@ -1131,7 +1131,7 @@
 }
 .filter-search .button {
   background: #fff;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 4px;
   font-size: var(--wpds-typography-font-size-md, 13px);
   color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
@@ -1146,7 +1146,7 @@
   box-shadow: none;
   padding-inline: 16px;
   min-inline-size: 72px;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
   height: 36px;
   font-size: 13px;
@@ -1177,7 +1177,7 @@
 
 .jetpack-modules-card {
   background: #fff;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -1191,7 +1191,7 @@
   padding-block: 12px;
   padding-inline: 16px;
   background: #f6f7f7;
-  border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border-block-end: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
 }
 .jetpack-modules-card__bulk .jetpack-modules-card__checkall {
   display: inline-flex;
@@ -1226,7 +1226,7 @@
 .jetpack-modules-card__bulk .tablenav.top .alignleft.actions.bulkactions select {
   min-inline-size: 140px;
   height: 36px;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 4px;
   padding-block: 0;
   padding-inline: 12px 28px;
@@ -1235,7 +1235,7 @@
 }
 .jetpack-modules-card__bulk .tablenav.top .alignleft.actions.bulkactions .button {
   height: 36px;
-  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
   border-radius: 4px;
   background: #fff;
   color: var(--wpds-color-foreground-content-neutral, #1e1e1e);
@@ -1275,7 +1275,7 @@ tr.jetpack-module-group-header:first-child td {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 
 tr.jetpack-module {
@@ -1287,7 +1287,7 @@ tr.jetpack-module {
   width: 100%;
   padding: 16px;
   background: #fff;
-  border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+  border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #f0f0f0);
 }
 .jetpack-module-group-header + tr.jetpack-module {
   border-block-start: 0;
@@ -1342,7 +1342,7 @@ tr.jetpack-module.unavailable {
 .jetpack-module__description {
   font-size: var(--wpds-typography-font-size-md, 13px);
   line-height: 1.5;
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 
 .jetpack-module__meta {
@@ -1376,7 +1376,7 @@ tr.jetpack-module.unavailable {
 }
 .jetpack-module__badge.is-inactive {
   background: #f6f7f7;
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 .jetpack-module__badge.is-recommended {
   background: #f0f4ff;
@@ -1407,7 +1407,7 @@ tr.jetpack-module.unavailable {
   max-inline-size: 220px;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 
 .jetpack-module__toggle {

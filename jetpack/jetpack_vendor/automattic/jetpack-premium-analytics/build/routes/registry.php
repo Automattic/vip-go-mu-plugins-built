@@ -8,6 +8,13 @@
 
 return array(
 	array(
+		'name'        => 'author-detail',
+		'path'        => '/author/$authorId',
+		'page'        => 'jetpack-premium-analytics',
+		'has_route'   => true,
+		'has_content' => true,
+	),
+	array(
 		'name'        => 'connect',
 		'path'        => '/connect',
 		'page'        => 'jetpack-premium-analytics',

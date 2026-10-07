@@ -6,12 +6,12 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s" );
-__( "More details follow." );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
+__( "Loading" );
+__( "More details follow." );
 __( "Dismiss" );
 __( "We couldn’t load this page", "jetpack-seo" );
 __( "This is usually temporary. Give it another try.", "jetpack-seo" );
@@ -39,6 +39,25 @@ __( "Could not enable SEO tools. Please try again.", "jetpack-seo" );
 __( "Could not disable SEO tools. Please try again.", "jetpack-seo" );
 __( "Enable SEO tools", "jetpack-seo" );
 __( "SEO tools help your content get found: customize titles and meta descriptions, generate a sitemap, verify your site with search engines, and control how pages look when shared. Turn it on to manage all of it from here.", "jetpack-seo" );
+__( "Site name", "jetpack-seo" );
+__( "Tagline", "jetpack-seo" );
+__( "Post title", "jetpack-seo" );
+__( "Page title", "jetpack-seo" );
+__( "Tag or category name", "jetpack-seo" );
+__( "Date", "jetpack-seo" );
+__( "Archive title", "jetpack-seo" );
+__( "Front page", "jetpack-seo" );
+__( "Posts", "jetpack-seo" );
+__( "Pages", "jetpack-seo" );
+__( "Tags", "jetpack-seo" );
+__( "Archives", "jetpack-seo" );
+__( "Your site", "jetpack-seo" );
+__( "Your tagline", "jetpack-seo" );
+__( "Hello World", "jetpack-seo" );
+__( "Sample Page", "jetpack-seo" );
+__( "News", "jetpack-seo" );
+__( "January 2025", "jetpack-seo" );
+__( "Sample Archive", "jetpack-seo" );
 __( "Updating settings…", "jetpack-seo" );
 __( "Settings saved.", "jetpack-seo" );
 __( "Could not save settings. Please try again.", "jetpack-seo" );
@@ -144,25 +163,6 @@ __( "How your home page looks in search results and social shares. Updates as yo
 __( "Google search result", "jetpack-seo" );
 __( "Facebook", "jetpack-seo" );
 __( "X (Twitter)", "jetpack-seo" );
-__( "Site name", "jetpack-seo" );
-__( "Tagline", "jetpack-seo" );
-__( "Post title", "jetpack-seo" );
-__( "Page title", "jetpack-seo" );
-__( "Tag or category name", "jetpack-seo" );
-__( "Date", "jetpack-seo" );
-__( "Archive title", "jetpack-seo" );
-__( "Front page", "jetpack-seo" );
-__( "Posts", "jetpack-seo" );
-__( "Pages", "jetpack-seo" );
-__( "Tags", "jetpack-seo" );
-__( "Archives", "jetpack-seo" );
-__( "Your site", "jetpack-seo" );
-__( "Your tagline", "jetpack-seo" );
-__( "Hello World", "jetpack-seo" );
-__( "Sample Page", "jetpack-seo" );
-__( "News", "jetpack-seo" );
-__( "January 2025", "jetpack-seo" );
-__( "Sample Archive", "jetpack-seo" );
 __( "Preview", "jetpack-seo" );
 __( "Insert a title part", "jetpack-seo" );
 __( "How your titles appear in search results and browser tabs. Each page type keeps the default until you set a format; parts your site has no value for show as empty.", "jetpack-seo" );

@@ -10,14 +10,22 @@ __( "Net sales", "jetpack-premium-analytics-pkg" );
 __( "Monitor your total revenue — after any discounts, returns, or adjustments — over a set period of time.", "jetpack-premium-analytics-pkg" );
 __( "Orders", "jetpack-premium-analytics-pkg" );
 __( "See a breakdown of when orders are placed to identify peak selling periods.", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of orders. */
+_n( "%s Order", "%s Orders", 1, "jetpack-premium-analytics-pkg" );
 __( "Bookings", "jetpack-premium-analytics-pkg" );
 __( "See a breakdown of when bookings are placed to identify peak selling periods.", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of bookings. */
+_n( "%s Booking", "%s Bookings", 1, "jetpack-premium-analytics-pkg" );
 __( "Visitors", "jetpack-premium-analytics-pkg" );
 __( "Track website visitor trends and monitor traffic patterns over time.", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of visitors. */
+_n( "%s Visitor", "%s Visitors", 1, "jetpack-premium-analytics-pkg" );
 __( "Store conversion rate", "jetpack-premium-analytics-pkg" );
 __( "Track your store's conversion funnel from sessions to completed orders.", "jetpack-premium-analytics-pkg" );
 __( "Customers", "jetpack-premium-analytics-pkg" );
 __( "Track the total number of customers (new and returning) who placed orders during the selected time period.", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of customers. */
+_n( "%s Customer", "%s Customers", 1, "jetpack-premium-analytics-pkg" );
 __( "We couldn't load store performance data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Store metric", "jetpack-premium-analytics-pkg" );

@@ -12,4 +12,3 @@ __( "Tablet", "jetpack-premium-analytics-pkg" );
 __( "Phone", "jetpack-premium-analytics-pkg" );
 __( "Unknown", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load device data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "No device data in this period.", "jetpack-premium-analytics-pkg" );

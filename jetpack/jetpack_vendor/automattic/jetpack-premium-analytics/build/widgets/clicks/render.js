@@ -12,4 +12,3 @@ __( "All clicks", "jetpack-premium-analytics-pkg" );
 __( "View all clicks", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load clicks. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No clicks in this period.", "jetpack-premium-analytics-pkg" );

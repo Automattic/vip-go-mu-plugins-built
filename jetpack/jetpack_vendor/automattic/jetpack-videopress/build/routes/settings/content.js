@@ -6,12 +6,12 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading", "jetpack-videopress-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
-__( "Close", "jetpack-videopress-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+__( "Loading", "jetpack-videopress-pkg" );
+__( "Close", "jetpack-videopress-pkg" );
 __( "Dismiss", "jetpack-videopress-pkg" );
 __( "Sections", "jetpack-videopress-pkg" );
 __( "Jetpack Logo", "jetpack-videopress-pkg" );
@@ -40,12 +40,34 @@ __( "Jetpack", "jetpack-videopress-pkg" );
 __( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
 /* translators: %s: the error. */
 __( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Your account (connection owner)", "jetpack-videopress-pkg" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-videopress-pkg" );
+__( "Connection owner's account", "jetpack-videopress-pkg" );
+__( "Your account", "jetpack-videopress-pkg" );
+__( "Another user's account", "jetpack-videopress-pkg" );
+__( "User connection", "jetpack-videopress-pkg" );
+__( "Site connection", "jetpack-videopress-pkg" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-videopress-pkg" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-videopress-pkg" );
+__( "Jetpack Connection error", "jetpack-videopress-pkg" );
+__( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-videopress-pkg" );
 __( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
 __( "Loading…", "jetpack-videopress-pkg" );
 __( "Restore Connection", "jetpack-videopress-pkg" );
-__( "A connection check failed.", "jetpack-videopress-pkg" );
 __( "Take Action", "jetpack-videopress-pkg" );
 __( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
+__( "Add at least three chapters.", "jetpack-videopress-pkg" );
+__( "The first chapter must start at 0:00.", "jetpack-videopress-pkg" );
+__( "At least three chapters are required.", "jetpack-videopress-pkg" );
+__( "Every chapter needs a title.", "jetpack-videopress-pkg" );
+__( "Chapters must be in ascending order without repeated timestamps.", "jetpack-videopress-pkg" );
+__( "Chapters must be at least 10 seconds apart.", "jetpack-videopress-pkg" );
+__( "Chapters cannot start after the video ends.", "jetpack-videopress-pkg" );
+__( "English (auto-generated)", "jetpack-videopress-pkg" );
+__( "Video chapters could not be updated.", "jetpack-videopress-pkg" );
 __( "Library", "jetpack-videopress-pkg" );
 __( "Stats", "jetpack-videopress-pkg" );
 __( "Settings", "jetpack-videopress-pkg" );
@@ -68,7 +90,7 @@ __( "The same ad-free player every video on your site will use — your visitors
 _n( "Move %d video over", "Move %d videos over", 1, "jetpack-videopress-pkg" );
 __( "Learn more", "jetpack-videopress-pkg" );
 __( "Upload a video", "jetpack-videopress-pkg" );
-__( "Host, manage, customize, and track your videos — all in one place.", "jetpack-videopress-pkg" );
+__( "Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
 __( "Connecting…", "jetpack-videopress-pkg" );
@@ -84,7 +106,11 @@ __( "Video settings", "jetpack-videopress-pkg" );
 __( "Only logged-in users can play your videos", "jetpack-videopress-pkg" );
 __( "This follows your site’s Privacy setting. To change who can view your videos, update your site’s visibility in Settings → General.", "jetpack-videopress-pkg" );
 __( "Private videos won't play for signed-out visitors.", "jetpack-videopress-pkg" );
+__( "Allow sharing", "jetpack-videopress-pkg" );
+__( "When enabled, each video’s own Share setting decides whether viewers can share the video link. Turn it off to hide the share menu on every video and stop it from being turned on for individual videos.", "jetpack-videopress-pkg" );
 __( "Automatically generate subtitles for new videos", "jetpack-videopress-pkg" );
 __( "When enabled, subtitles are generated automatically for videos uploaded to this site. Existing subtitles are not affected.", "jetpack-videopress-pkg" );
 __( "Preload video data when pages load", "jetpack-videopress-pkg" );
 __( "When enabled, embedded videos fetch their metadata and seek-bar preview thumbnails as the page loads. Turn it off to reduce page weight on pages with many videos; each video then loads its data when playback starts.", "jetpack-videopress-pkg" );
+__( "Load the player once per page instead of once per video", "jetpack-videopress-pkg" );
+__( "Renders every video directly in your page from one shared player script instead of a separate embedded frame per video, so page-speed tools stop counting the player once for each video. Playlists and videos with hover previews keep using frames.", "jetpack-videopress-pkg" );

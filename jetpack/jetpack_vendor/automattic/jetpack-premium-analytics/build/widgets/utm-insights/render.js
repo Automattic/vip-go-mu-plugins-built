@@ -11,4 +11,3 @@ __( "View posts for %s", "jetpack-premium-analytics-pkg" );
 __( "All UTM insights", "jetpack-premium-analytics-pkg" );
 __( "View all UTM insights", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load UTM data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "No UTM data in this period.", "jetpack-premium-analytics-pkg" );

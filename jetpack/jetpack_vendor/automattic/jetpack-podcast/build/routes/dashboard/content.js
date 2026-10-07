@@ -6,13 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s" );
-__( "More details follow the field." );
-__( "Select" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
+__( "Loading" );
+__( "More details follow the field." );
+__( "Select" );
 __( "Sections" );
 __( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
@@ -23,6 +21,8 @@ __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s" );
 __( "Date calendar" );
@@ -399,6 +399,9 @@ __( "Days ago" );
 __( "Weeks ago" );
 __( "Months ago" );
 __( "Years ago" );
+__( "Coordinated Universal Time" );
+/* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
+__( "Timezone: %s" );
 __( "Date time" );
 __( "Custom" );
 __( "Date" );
@@ -539,6 +542,7 @@ __( "Month to date", "jetpack-podcast" );
 __( "Year to date", "jetpack-podcast" );
 __( "Select a date range", "jetpack-podcast" );
 __( "Date range presets", "jetpack-podcast" );
+__( "Comparison period", "jetpack-charts" );
 __( "Reset zoom", "jetpack-charts" );
 __( "Current period", "jetpack-charts" );
 __( "Previous period", "jetpack-charts" );
@@ -546,15 +550,16 @@ _x( "%1$s, %2$s", "legend item label and value", "jetpack-charts" );
 _x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-charts" );
 _x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-charts" );
 _x( "%s: hidden", "hidden non-interactive legend item", "jetpack-charts" );
+__( "No data", "jetpack-charts" );
 _x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-charts" );
 _x( "All segments are hidden.", "chart empty state: segments", "jetpack-charts" );
 _x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-charts" );
 _x( "All series are hidden.", "chart empty state: series", "jetpack-charts" );
 __( "View details", "jetpack-charts" );
 __( "Close", "jetpack-charts" );
-__( "Line chart", "jetpack-charts" );
 __( "No data available", "jetpack-charts" );
 __( "Invalid data", "jetpack-charts" );
+__( "Line chart", "jetpack-charts" );
 __( "Area chart", "jetpack-charts" );
 __( "Week of %s", "jetpack-charts" );
 __( "%1$s: %2$s", "jetpack-charts" );
@@ -562,7 +567,6 @@ __( "Bar chart", "jetpack-charts" );
 __( "Loading map", "jetpack-charts" );
 __( "Less", "jetpack-charts" );
 __( "More", "jetpack-charts" );
-__( "No data", "jetpack-charts" );
 __( "Heatmap chart", "jetpack-charts" );
 __( "Loading…", "jetpack-charts" );
 __( "Not enough space to display data", "jetpack-charts" );

@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('react', 'react-jsx-runtime'), 'module_dependencies' => array(array('id' => '@jetpack-premium-analytics/data', 'import' => 'static')), 'version' => '7405fba3d861bd854507');
+<?php return array('dependencies' => array('react', 'react-jsx-runtime'), 'module_dependencies' => array(array('id' => '@jetpack-premium-analytics/data', 'import' => 'static')), 'version' => 'cbe5e57bef9728ff0f2e');

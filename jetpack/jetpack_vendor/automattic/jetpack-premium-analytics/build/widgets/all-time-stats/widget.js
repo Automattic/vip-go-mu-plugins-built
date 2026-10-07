@@ -10,4 +10,3 @@ __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Visitors", "jetpack-premium-analytics-pkg" );
 __( "Posts", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
-__( "Metrics", "jetpack-premium-analytics-pkg" );

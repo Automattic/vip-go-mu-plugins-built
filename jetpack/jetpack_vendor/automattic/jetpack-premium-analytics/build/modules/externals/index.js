@@ -6,13 +6,15 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading", "jetpack-premium-analytics-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-premium-analytics-pkg" );
+__( "Loading", "jetpack-premium-analytics-pkg" );
 _x( "%1$s, %2$s", "legend item label and value", "jetpack-premium-analytics-pkg" );
 _x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-premium-analytics-pkg" );
 _x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-premium-analytics-pkg" );
 _x( "%s: hidden", "hidden non-interactive legend item", "jetpack-premium-analytics-pkg" );
+__( "Comparison period", "jetpack-premium-analytics-pkg" );
+__( "No data", "jetpack-premium-analytics-pkg" );
 _x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-premium-analytics-pkg" );
 _x( "All segments are hidden.", "chart empty state: segments", "jetpack-premium-analytics-pkg" );
 _x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-premium-analytics-pkg" );
@@ -20,9 +22,9 @@ _x( "All series are hidden.", "chart empty state: series", "jetpack-premium-anal
 __( "Reset zoom", "jetpack-premium-analytics-pkg" );
 __( "View details", "jetpack-premium-analytics-pkg" );
 __( "Close", "jetpack-premium-analytics-pkg" );
-__( "Line chart", "jetpack-premium-analytics-pkg" );
 __( "No data available", "jetpack-premium-analytics-pkg" );
 __( "Invalid data", "jetpack-premium-analytics-pkg" );
+__( "Line chart", "jetpack-premium-analytics-pkg" );
 __( "Area chart", "jetpack-premium-analytics-pkg" );
 __( "Week of %s", "jetpack-premium-analytics-pkg" );
 __( "%1$s: %2$s", "jetpack-premium-analytics-pkg" );
@@ -30,7 +32,6 @@ __( "Bar chart", "jetpack-premium-analytics-pkg" );
 __( "Loading map", "jetpack-premium-analytics-pkg" );
 __( "Less", "jetpack-premium-analytics-pkg" );
 __( "More", "jetpack-premium-analytics-pkg" );
-__( "No data", "jetpack-premium-analytics-pkg" );
 __( "Heatmap chart", "jetpack-premium-analytics-pkg" );
 __( "Current period", "jetpack-premium-analytics-pkg" );
 __( "Previous period", "jetpack-premium-analytics-pkg" );
@@ -38,27 +39,27 @@ __( "Loading…", "jetpack-premium-analytics-pkg" );
 __( "Not enough space to display data", "jetpack-premium-analytics-pkg" );
 __( "Percentage change unavailable", "jetpack-premium-analytics-pkg" );
 __( "No comparison data", "jetpack-premium-analytics-pkg" );
-__( "Date calendar", "jetpack-premium-analytics-pkg" );
-__( "Date range calendar", "jetpack-premium-analytics-pkg" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s", "jetpack-premium-analytics-pkg" );
-__( "Go to the Next Month", "jetpack-premium-analytics-pkg" );
-__( "Go to the Previous Month", "jetpack-premium-analytics-pkg" );
-/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "%s, selected", "jetpack-premium-analytics-pkg" );
-__( "More details follow the field.", "jetpack-premium-analytics-pkg" );
-__( "More details follow.", "jetpack-premium-analytics-pkg" );
-__( "Select", "jetpack-premium-analytics-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
-__( "Dismiss", "jetpack-premium-analytics-pkg" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s", "jetpack-premium-analytics-pkg" );
+__( "Date calendar", "jetpack-premium-analytics-pkg" );
+__( "Date range calendar", "jetpack-premium-analytics-pkg" );
 __( "Navigation bar", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "Today, %s", "jetpack-premium-analytics-pkg" );
 __( "Next month", "jetpack-premium-analytics-pkg" );
 __( "Previous month", "jetpack-premium-analytics-pkg" );
 /* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
 __( "Today, %s, selected", "jetpack-premium-analytics-pkg" );
+/* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
+__( "%s, selected", "jetpack-premium-analytics-pkg" );
+__( "OK", "jetpack-premium-analytics-pkg" );
+__( "Cancel", "jetpack-premium-analytics-pkg" );
+__( "More details follow the field.", "jetpack-premium-analytics-pkg" );
+__( "More details follow.", "jetpack-premium-analytics-pkg" );
+__( "Select", "jetpack-premium-analytics-pkg" );
+__( "Dismiss", "jetpack-premium-analytics-pkg" );
 __( "Required", "jetpack-premium-analytics-pkg" );
 __( "Optional", "jetpack-premium-analytics-pkg" );
 __( "Sort ascending", "jetpack-premium-analytics-pkg" );
@@ -73,7 +74,6 @@ _n( "%d Item", "%d Items", 1, "jetpack-premium-analytics-pkg" );
 _n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack-premium-analytics-pkg" );
 __( "Deselect all", "jetpack-premium-analytics-pkg" );
 __( "Select all", "jetpack-premium-analytics-pkg" );
-__( "Cancel", "jetpack-premium-analytics-pkg" );
 __( "Add filter", "jetpack-premium-analytics-pkg" );
 __( "Move left", "jetpack-premium-analytics-pkg" );
 __( "Move right", "jetpack-premium-analytics-pkg" );

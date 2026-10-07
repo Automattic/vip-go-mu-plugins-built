@@ -6,24 +6,31 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading", "jetpack-publicize-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-publicize-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-publicize-pkg" );
+__( "Loading", "jetpack-publicize-pkg" );
 __( "OK", "jetpack-publicize-pkg" );
 __( "Cancel", "jetpack-publicize-pkg" );
 __( "Close", "jetpack-publicize-pkg" );
 __( "More details follow the field.", "jetpack-publicize-pkg" );
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-publicize-pkg" );
 __( "Dismiss", "jetpack-publicize-pkg" );
 /* translators: %s: the error. */
 __( "There was an error reconnecting Jetpack. Error: %s", "jetpack-publicize-pkg" );
-__( "Reconnecting Jetpack", "jetpack-publicize-pkg" );
-__( "Loading…", "jetpack-publicize-pkg" );
-__( "Restore Connection", "jetpack-publicize-pkg" );
-__( "A connection check failed.", "jetpack-publicize-pkg" );
-__( "Take Action", "jetpack-publicize-pkg" );
-__( "Reconnecting Jetpack…", "jetpack-publicize-pkg" );
+__( "Your account (connection owner)", "jetpack-publicize-pkg" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-publicize-pkg" );
+__( "Connection owner's account", "jetpack-publicize-pkg" );
+__( "Your account", "jetpack-publicize-pkg" );
+__( "Another user's account", "jetpack-publicize-pkg" );
+__( "User connection", "jetpack-publicize-pkg" );
+__( "Site connection", "jetpack-publicize-pkg" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-publicize-pkg" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-publicize-pkg" );
+__( "Jetpack Connection error", "jetpack-publicize-pkg" );
 __( "Jetpack Logo", "jetpack-publicize-pkg" );
 __( "An Automattic Airline", "jetpack-publicize-pkg" );
 __( "Products", "jetpack-publicize-pkg" );
@@ -32,16 +39,22 @@ __( "Jetpack", "jetpack-publicize-pkg" );
 __( "Sections", "jetpack-publicize-pkg" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-publicize-pkg" );
+__( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-publicize-pkg" );
+__( "Reconnecting Jetpack", "jetpack-publicize-pkg" );
+__( "Loading…", "jetpack-publicize-pkg" );
+__( "Restore Connection", "jetpack-publicize-pkg" );
+__( "Take Action", "jetpack-publicize-pkg" );
+__( "Reconnecting Jetpack…", "jetpack-publicize-pkg" );
 __( "Error verifying the connection.", "jetpack-publicize-pkg" );
 __( "Account disconnected successfully.", "jetpack-publicize-pkg" );
 __( "Error disconnecting account.", "jetpack-publicize-pkg" );
 /* translators: %s is the name of the social media platform e.g. "Facebook" */
 __( "%s account connected successfully.", "jetpack-publicize-pkg" );
 __( "Error connecting account.", "jetpack-publicize-pkg" );
+__( "Error updating account.", "jetpack-publicize-pkg" );
 __( "Account reconnected successfully.", "jetpack-publicize-pkg" );
 __( "The account could not be reconnected. Please try again.", "jetpack-publicize-pkg" );
 __( "Account updated successfully.", "jetpack-publicize-pkg" );
-__( "Error updating account.", "jetpack-publicize-pkg" );
 __( "There was an error scheduling the post.", "jetpack-publicize-pkg" );
 __( "There was an error deleting the item.", "jetpack-publicize-pkg" );
 __( "You must publish your post before you can schedule it.", "jetpack-publicize-pkg" );
@@ -83,6 +96,7 @@ _x( "Page", "social account type", "jetpack-publicize-pkg" );
 __( "Share to your pages", "jetpack-publicize-pkg" );
 __( "<strong>Connect</strong> to automatically share posts on your Facebook page.", "jetpack-publicize-pkg" );
 __( "Add Facebook connection", "jetpack-publicize-pkg" );
+__( "Learn how to convert & link your Instagram account.", "jetpack-publicize-pkg" );
 __( "Instagram", "jetpack-publicize-pkg" );
 _x( "Business", "social account type", "jetpack-publicize-pkg" );
 __( "Share to your Instagram Business account.", "jetpack-publicize-pkg" );
@@ -91,7 +105,6 @@ __( "Requirements for connecting Instagram:", "jetpack-publicize-pkg" );
 __( "You must have an Instagram Business account.", "jetpack-publicize-pkg" );
 __( "Your Instagram Business account must be linked to a Facebook page.", "jetpack-publicize-pkg" );
 __( "<i>When you click “connect” you'll be asked to <strong>log into Facebook</strong>. If your Instagram Business account isn't listed, ensure it's linked to a Facebook page.</i>", "jetpack-publicize-pkg" );
-__( "Learn how to convert & link your Instagram account.", "jetpack-publicize-pkg" );
 __( "Add Instagram photo", "jetpack-publicize-pkg" );
 _x( "Profile / Company", "social account type", "jetpack-publicize-pkg" );
 __( "Share with your LinkedIn community.", "jetpack-publicize-pkg" );
@@ -164,7 +177,9 @@ __( "We couldn't check your Instagram account just now. Please try again.", "jet
 __( "Facebook didn't respond. Please try again in a few minutes.", "jetpack-publicize-pkg" );
 __( "No accounts/pages found.", "jetpack-publicize-pkg" );
 __( "Please select an account to connect.", "jetpack-publicize-pkg" );
+__( "No Page or account is available for this connection. Disconnect it, then connect again and choose the Page or account to share to.", "jetpack-publicize-pkg" );
 _x( "No more accounts/pages found.", "Message shown when there are no connections found to connect", "jetpack-publicize-pkg" );
+_x( "This connection has no Page or account to share to. Select one to finish reconnecting.", "Shown when reconnecting a connection that has no Page or account saved", "jetpack-publicize-pkg" );
 __( "Select the account you'd like to connect. All your new blog posts will be automatically shared to this account. You'll be able to change this option in the editor sidebar when you're writing a post.", "jetpack-publicize-pkg" );
 __( "We could not retrieve which company pages you have access to. This is a known issue with the LinkedIn API. If you would like to connect a company page, please retry after 5 minutes.", "jetpack-publicize-pkg" );
 __( "Learn more", "jetpack-publicize-pkg" );
@@ -182,15 +197,17 @@ _x( "%1$s, %2$s", "legend item label and value", "jetpack-publicize-pkg" );
 _x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-publicize-pkg" );
 _x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-publicize-pkg" );
 _x( "%s: hidden", "hidden non-interactive legend item", "jetpack-publicize-pkg" );
+__( "Comparison period", "jetpack-publicize-pkg" );
+__( "No data", "jetpack-publicize-pkg" );
 _x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-publicize-pkg" );
 _x( "All segments are hidden.", "chart empty state: segments", "jetpack-publicize-pkg" );
 _x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-publicize-pkg" );
 _x( "All series are hidden.", "chart empty state: series", "jetpack-publicize-pkg" );
 __( "Reset zoom", "jetpack-publicize-pkg" );
 __( "View details", "jetpack-publicize-pkg" );
-__( "Line chart", "jetpack-publicize-pkg" );
 __( "No data available", "jetpack-publicize-pkg" );
 __( "Invalid data", "jetpack-publicize-pkg" );
+__( "Line chart", "jetpack-publicize-pkg" );
 __( "Area chart", "jetpack-publicize-pkg" );
 __( "Week of %s", "jetpack-publicize-pkg" );
 __( "%1$s: %2$s", "jetpack-publicize-pkg" );
@@ -198,7 +215,6 @@ __( "Bar chart", "jetpack-publicize-pkg" );
 __( "Loading map", "jetpack-publicize-pkg" );
 __( "Less", "jetpack-publicize-pkg" );
 __( "More", "jetpack-publicize-pkg" );
-__( "No data", "jetpack-publicize-pkg" );
 __( "Heatmap chart", "jetpack-publicize-pkg" );
 __( "Current period", "jetpack-publicize-pkg" );
 __( "Previous period", "jetpack-publicize-pkg" );

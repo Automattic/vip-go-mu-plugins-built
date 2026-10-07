@@ -15,4 +15,3 @@ __( "Sum of daily visitors — a returning visitor is counted once per day, not 
 __( "Select at least one metric to display.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load the site overview. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No stats recorded for this period.", "jetpack-premium-analytics-pkg" );

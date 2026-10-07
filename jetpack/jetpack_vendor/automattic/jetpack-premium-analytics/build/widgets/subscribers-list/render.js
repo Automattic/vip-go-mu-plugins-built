@@ -9,3 +9,4 @@
 __( "We couldn't load subscribers. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "No subscribers yet.", "jetpack-premium-analytics-pkg" );
+__( "Manage subscribers", "jetpack-premium-analytics-pkg" );

@@ -6,12 +6,13 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading", "jetpack-videopress-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
-__( "Close", "jetpack-videopress-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+__( "Loading", "jetpack-videopress-pkg" );
+__( "Close", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
 __( "Add at least three chapters.", "jetpack-videopress-pkg" );
 __( "The first chapter must start at 0:00.", "jetpack-videopress-pkg" );
 __( "At least three chapters are required.", "jetpack-videopress-pkg" );
@@ -51,9 +52,11 @@ __( "The video could not be downloaded.", "jetpack-videopress-pkg" );
 __( "The browser could not decode this video.", "jetpack-videopress-pkg" );
 __( "This video format is not supported by the browser.", "jetpack-videopress-pkg" );
 __( "The video failed to load.", "jetpack-videopress-pkg" );
-_x( "Playback could not be started.", "chapters preview player error", "jetpack-videopress-pkg" );
+_x( "Playback could not be started.", "video preview player error", "jetpack-videopress-pkg" );
 __( "This video has no playable source.", "jetpack-videopress-pkg" );
-__( "A connection check failed.", "jetpack-videopress-pkg" );
+__( "Trim & cut", "jetpack-videopress-pkg" );
+__( "Edit", "jetpack-videopress-pkg" );
+__( "Editing tools", "jetpack-videopress-pkg" );
 __( "Sections", "jetpack-videopress-pkg" );
 __( "Jetpack Logo", "jetpack-videopress-pkg" );
 __( "An Automattic Airline", "jetpack-videopress-pkg" );
@@ -79,7 +82,73 @@ __( "Help", "jetpack-videopress-pkg" );
 __( "Jetpack", "jetpack-videopress-pkg" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
-__( "Host, manage, customize, and track your videos — all in one place.", "jetpack-videopress-pkg" );
+/* translators: %s: the error. */
+__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Your account (connection owner)", "jetpack-videopress-pkg" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-videopress-pkg" );
+__( "Connection owner's account", "jetpack-videopress-pkg" );
+__( "Your account", "jetpack-videopress-pkg" );
+__( "Another user's account", "jetpack-videopress-pkg" );
+__( "User connection", "jetpack-videopress-pkg" );
+__( "Site connection", "jetpack-videopress-pkg" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-videopress-pkg" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-videopress-pkg" );
+__( "Jetpack Connection error", "jetpack-videopress-pkg" );
+__( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
+__( "Loading…", "jetpack-videopress-pkg" );
+__( "Restore Connection", "jetpack-videopress-pkg" );
+__( "Take Action", "jetpack-videopress-pkg" );
+__( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
+__( "Breadcrumbs", "jetpack-videopress-pkg" );
+__( "Details", "jetpack-videopress-pkg" );
+__( "Editor", "jetpack-videopress-pkg" );
+__( "Cancel", "jetpack-videopress-pkg" );
+__( "Undo", "jetpack-videopress-pkg" );
+__( "Redo", "jetpack-videopress-pkg" );
+__( "Discard changes", "jetpack-videopress-pkg" );
+__( "Save", "jetpack-videopress-pkg" );
+__( "More actions", "jetpack-videopress-pkg" );
+__( "Restore original…", "jetpack-videopress-pkg" );
+__( "This video is processing. You can leave this page and come back later.", "jetpack-videopress-pkg" );
+__( "The original video is unavailable.", "jetpack-videopress-pkg" );
+__( "The private video could not be loaded.", "jetpack-videopress-pkg" );
+__( "Retry", "jetpack-videopress-pkg" );
+__( "Something went wrong applying your edits.", "jetpack-videopress-pkg" );
+__( "This video was edited somewhere else since you opened the editor.", "jetpack-videopress-pkg" );
+__( "Reload latest", "jetpack-videopress-pkg" );
+__( "Applying edits…", "jetpack-videopress-pkg" );
+__( "Cut start", "jetpack-videopress-pkg" );
+__( "Cut end", "jetpack-videopress-pkg" );
+__( "Cut", "jetpack-videopress-pkg" );
+__( "Remove cut", "jetpack-videopress-pkg" );
+__( "Trim start", "jetpack-videopress-pkg" );
+__( "Trim end", "jetpack-videopress-pkg" );
+/* translators: %s: removed duration in seconds, e.g. "3.4". */
+__( "%ss removed", "jetpack-videopress-pkg" );
+__( "New cut", "jetpack-videopress-pkg" );
+__( "The video was edited elsewhere; reload the latest revision.", "jetpack-videopress-pkg" );
+__( "Video edits applied.", "jetpack-videopress-pkg" );
+__( "Unable to apply video edits. Please try again.", "jetpack-videopress-pkg" );
+__( "Unable to retry processing. Please try again.", "jetpack-videopress-pkg" );
+__( "You have unsaved edits. Leave the editor and discard them?", "jetpack-videopress-pkg" );
+__( "Update video?", "jetpack-videopress-pkg" );
+__( "Viewers will see the edited video. Your original is kept and can be restored. Existing chapters may need to be adjusted after the video finishes processing.", "jetpack-videopress-pkg" );
+__( "Update video", "jetpack-videopress-pkg" );
+__( "Discard changes?", "jetpack-videopress-pkg" );
+__( "Your unsaved edits will be discarded and the editor will return to the last saved version.", "jetpack-videopress-pkg" );
+__( "Restore original?", "jetpack-videopress-pkg" );
+__( "All saved and unsaved video edits will be removed. Viewers will see the original video again.", "jetpack-videopress-pkg" );
+__( "Restore original", "jetpack-videopress-pkg" );
+__( "Reload latest edits?", "jetpack-videopress-pkg" );
+__( "Your unsaved edits will be replaced with the latest saved version.", "jetpack-videopress-pkg" );
+__( "The original video does not match the editing timeline. Reload the editor before making changes.", "jetpack-videopress-pkg" );
+__( "Video edits could not be loaded. Please try again.", "jetpack-videopress-pkg" );
+__( "Try again", "jetpack-videopress-pkg" );
+__( "Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
 __( "Connecting…", "jetpack-videopress-pkg" );
@@ -90,32 +159,13 @@ __( "/month, billed yearly", "jetpack-videopress-pkg" );
 __( "Get VideoPress", "jetpack-videopress-pkg" );
 __( "Start for free", "jetpack-videopress-pkg" );
 __( "Upload one video", "jetpack-videopress-pkg" );
-__( "Dismiss", "jetpack-videopress-pkg" );
-/* translators: %s: the error. */
-__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
-__( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
-__( "Loading…", "jetpack-videopress-pkg" );
-__( "Restore Connection", "jetpack-videopress-pkg" );
-__( "Take Action", "jetpack-videopress-pkg" );
-__( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
-__( "Breadcrumbs", "jetpack-videopress-pkg" );
-__( "Details", "jetpack-videopress-pkg" );
-__( "Editor", "jetpack-videopress-pkg" );
 __( "English (auto-generated)", "jetpack-videopress-pkg" );
 __( "Video chapters could not be updated.", "jetpack-videopress-pkg" );
-__( "Edit", "jetpack-videopress-pkg" );
-__( "Editing tools", "jetpack-videopress-pkg" );
-__( "Undo", "jetpack-videopress-pkg" );
-__( "Redo", "jetpack-videopress-pkg" );
-__( "Discard changes", "jetpack-videopress-pkg" );
-__( "Save", "jetpack-videopress-pkg" );
-__( "Discard changes?", "jetpack-videopress-pkg" );
 __( "Your unsaved chapter changes will be discarded and the chapters will return to the last saved version.", "jetpack-videopress-pkg" );
-__( "Cancel", "jetpack-videopress-pkg" );
 __( "We couldn't find that video.", "jetpack-videopress-pkg" );
 __( "Back to Library", "jetpack-videopress-pkg" );
 __( "You have unsaved chapter changes. Leave this page and discard them?", "jetpack-videopress-pkg" );
 __( "Failed to save chapters.", "jetpack-videopress-pkg" );
 __( "Chapters saved.", "jetpack-videopress-pkg" );
 _x( "Chapters saved to the description, but they won’t appear in the player until they meet the requirements.", "chapters save outcome", "jetpack-videopress-pkg" );
-__( "This video is still processing. Chapters will be available once it finishes.", "jetpack-videopress-pkg" );
+__( "This video is still processing. The editor will be available once it finishes.", "jetpack-videopress-pkg" );

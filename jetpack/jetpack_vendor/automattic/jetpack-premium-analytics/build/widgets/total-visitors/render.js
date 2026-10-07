@@ -7,4 +7,3 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "We couldn't load your visitors. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "No visitors in this period.", "jetpack-premium-analytics-pkg" );

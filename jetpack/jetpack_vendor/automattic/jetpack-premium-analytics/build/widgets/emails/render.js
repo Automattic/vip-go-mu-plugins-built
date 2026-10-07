@@ -6,6 +6,18 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+/* translators: %s: number of email opens, e.g. "1,287". */
+_n( "%s open", "%s opens", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of email link clicks, e.g. "190". */
+_n( "%s click", "%s clicks", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of email opens, e.g. "1,287". */
+_n( "%s open, open rate unknown", "%s opens, open rate unknown", 1, "jetpack-premium-analytics-pkg" );
+/* translators: 1: number of email opens, e.g. "1,287". 2: open rate, e.g. "41.2%". */
+_n( "%1$s open, %2$s open rate", "%1$s opens, %2$s open rate", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of email link clicks, e.g. "190". */
+_n( "%s click, click rate unknown", "%s clicks, click rate unknown", 1, "jetpack-premium-analytics-pkg" );
+/* translators: 1: number of email link clicks, e.g. "190". 2: click rate, e.g. "5.98%". */
+_n( "%1$s click, %2$s click rate", "%1$s clicks, %2$s click rate", 1, "jetpack-premium-analytics-pkg" );
 __( "We couldn't load email stats. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Your latest emails will appear here once you send a newsletter.", "jetpack-premium-analytics-pkg" );

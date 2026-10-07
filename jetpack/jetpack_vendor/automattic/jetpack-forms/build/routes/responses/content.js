@@ -23,9 +23,11 @@ __( "Work phone", "jetpack-forms" );
 __( "Cell phone", "jetpack-forms" );
 __( "Contact form", "jetpack-forms" );
 __( "Calendar", "jetpack-forms" );
-__( "Loading", "jetpack-forms" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-forms" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-forms" );
+__( "Loading", "jetpack-forms" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s", "jetpack-forms" );
 __( "Date calendar", "jetpack-forms" );
@@ -42,8 +44,6 @@ __( "%s, selected", "jetpack-forms" );
 __( "Required", "jetpack-forms" );
 __( "Optional", "jetpack-forms" );
 __( "More details follow the field.", "jetpack-forms" );
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-forms" );
 __( "Sort ascending", "jetpack-forms" );
 __( "Sort descending", "jetpack-forms" );
 __( "(no title)", "jetpack-forms" );
@@ -199,6 +199,9 @@ __( "Weeks ago", "jetpack-forms" );
 __( "Months ago", "jetpack-forms" );
 __( "Years ago", "jetpack-forms" );
 __( "Unit", "jetpack-forms" );
+__( "Coordinated Universal Time", "jetpack-forms" );
+/* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
+__( "Timezone: %s", "jetpack-forms" );
 __( "Date time", "jetpack-forms" );
 __( "Today", "jetpack-forms" );
 __( "Yesterday", "jetpack-forms" );
@@ -229,6 +232,7 @@ __( "Value must be true, false, or undefined", "jetpack-forms" );
 __( "Value must be an array.", "jetpack-forms" );
 __( "Every value must be a string.", "jetpack-forms" );
 __( "Value must be a valid color.", "jetpack-forms" );
+__( "OK", "jetpack-forms" );
 __( "Dismiss", "jetpack-forms" );
 __( "Akismet icon", "jetpack-forms" );
 __( "Add one-click spam protection for your forms with <a>Akismet</a>. Simply install the plugin and you're set.", "jetpack-forms" );
@@ -597,22 +601,38 @@ __( "Help", "jetpack-forms" );
 __( "Jetpack", "jetpack-forms" );
 __( "Breadcrumbs", "jetpack-forms" );
 __( "Sections", "jetpack-forms" );
+__( "This will permanently delete this form. This action cannot be undone.", "jetpack-forms" );
+/* translators: %d: number of forms */
+_n( "This will permanently delete %d form. This action cannot be undone.", "This will permanently delete %d forms. This action cannot be undone.", 1, "jetpack-forms" );
+__( "Delete permanently", "jetpack-forms" );
 __( "Edit form", "jetpack-forms" );
+/* translators: 1: Responses deleted once the current batch finishes. 2: Total responses being deleted. */
+__( "Deleting %1$s of %2$s…", "jetpack-forms" );
 __( "Could not empty spam.", "jetpack-forms" );
 __( "Could not empty trash.", "jetpack-forms" );
+/* translators: 1: Responses deleted once the current batch finishes. 2: Total responses being deleted. */
+__( "Deleting %1$s of %2$s responses… Keep this page open.", "jetpack-forms" );
 __( "Response deleted permanently.", "jetpack-forms" );
 /* translators: %s: The number of responses. */
 _n( "%s response deleted permanently.", "%s responses deleted permanently.", 1, "jetpack-forms" );
-__( "Delete", "jetpack-forms" );
+/* translators: %s: The number of responses deleted before the error. */
+_n( "%s response was deleted, then an error stopped the rest.", "%s responses were deleted, then an error stopped the rest.", 1, "jetpack-forms" );
+/* translators: %s: The number of selected spam responses. */
+_n( "Delete %s selected spam response?", "Delete %s selected spam responses?", 1, "jetpack-forms" );
+/* translators: %s: The number of spam responses matching the current filter. */
+_n( "Delete %s matching spam response?", "Delete %s matching spam responses?", 1, "jetpack-forms" );
+/* translators: %s: The total number of spam responses. */
+_n( "Delete %s spam response?", "Delete %s spam responses?", 1, "jetpack-forms" );
+__( "This action cannot be undone.", "jetpack-forms" );
 __( "Delete forever", "jetpack-forms" );
-/* translators: %s: the number of responses in spam */
-_n( "%s response in spam will be deleted forever. This action cannot be undone.", "All %s responses in spam will be deleted forever. This action cannot be undone.", 1, "jetpack-forms" );
-__( "All responses in spam will be deleted forever. This action cannot be undone.", "jetpack-forms" );
-__( "Spam is already empty.", "jetpack-forms" );
 __( "Delete spam", "jetpack-forms" );
+/* translators: %s: The number of spam responses that will be deleted. */
+__( "Delete spam (%s)", "jetpack-forms" );
+__( "Spam is already empty.", "jetpack-forms" );
 /* translators: %s: the number of responses in the trash. */
 _n( "%s response in trash will be deleted forever. This action cannot be undone.", "All %s responses in trash will be deleted forever. This action cannot be undone.", 1, "jetpack-forms" );
 __( "All responses in trash will be deleted forever. This action cannot be undone.", "jetpack-forms" );
+__( "Delete", "jetpack-forms" );
 __( "Trash is already empty.", "jetpack-forms" );
 __( "Empty trash", "jetpack-forms" );
 __( "Export", "jetpack-forms" );
@@ -620,7 +640,6 @@ __( "Export spam", "jetpack-forms" );
 __( "Export trash", "jetpack-forms" );
 __( "Upgrade your plan to use video covers", "jetpack-forms" );
 __( "Upgrade your plan to upload audio", "jetpack-forms" );
-__( "A connection check failed.", "jetpack-forms" );
 __( "CSV File", "jetpack-forms" );
 __( "Download your form response data as a CSV file.", "jetpack-forms" );
 __( "Download", "jetpack-forms" );
@@ -661,7 +680,6 @@ __( "Failed to move form to trash.", "jetpack-forms" );
 __( "Form deleted permanently.", "jetpack-forms" );
 __( "Could not delete form.", "jetpack-forms" );
 __( "Restore", "jetpack-forms" );
-__( "Delete permanently", "jetpack-forms" );
 __( "Preview", "jetpack-forms" );
 __( "Copy embed", "jetpack-forms" );
 __( "Copy shortcode", "jetpack-forms" );
@@ -679,7 +697,6 @@ __( "View responses for this form.", "jetpack-forms" );
 __( "View and manage all your form responses in one place.", "jetpack-forms" );
 __( "More actions", "jetpack-forms" );
 __( "Rename form", "jetpack-forms" );
-__( "This will permanently delete this form. This action cannot be undone.", "jetpack-forms" );
 __( "Undoing…", "jetpack-forms" );
 __( "An error occurred.", "jetpack-forms" );
 /* translators: %s: the number of responses. */
@@ -757,7 +774,9 @@ __( "IP address:", "jetpack-forms" );
 __( "Lookup IP address", "jetpack-forms" );
 __( "Browser:", "jetpack-forms" );
 __( "Logged-in user:", "jetpack-forms" );
+__( "Mark as spam", "jetpack-forms" );
 __( "Are you sure you want to mark this response as spam?", "jetpack-forms" );
+__( "Could not mark the response as spam. Please try again.", "jetpack-forms" );
 __( "Previous", "jetpack-forms" );
 __( "Next", "jetpack-forms" );
 __( "Close", "jetpack-forms" );

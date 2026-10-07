@@ -16,16 +16,29 @@ __( "Jetpack", "jetpack-activity-log" );
 __( "Sections", "jetpack-activity-log" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-activity-log" );
-__( "Loading", "jetpack-activity-log" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-activity-log" );
+__( "Loading", "jetpack-activity-log" );
 __( "Dismiss", "jetpack-activity-log" );
 /* translators: %s: the error. */
 __( "There was an error reconnecting Jetpack. Error: %s", "jetpack-activity-log" );
+__( "Your account (connection owner)", "jetpack-activity-log" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-activity-log" );
+__( "Connection owner's account", "jetpack-activity-log" );
+__( "Your account", "jetpack-activity-log" );
+__( "Another user's account", "jetpack-activity-log" );
+__( "User connection", "jetpack-activity-log" );
+__( "Site connection", "jetpack-activity-log" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-activity-log" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-activity-log" );
+__( "Jetpack Connection error", "jetpack-activity-log" );
+__( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-activity-log" );
 __( "Reconnecting Jetpack", "jetpack-activity-log" );
 __( "Loading…", "jetpack-activity-log" );
 __( "Restore Connection", "jetpack-activity-log" );
-__( "A connection check failed.", "jetpack-activity-log" );
 __( "Take Action", "jetpack-activity-log" );
 __( "Reconnecting Jetpack…", "jetpack-activity-log" );
 /* translators: 1: Calendar type. 2: Current month and year. */
@@ -199,6 +212,9 @@ __( "Weeks ago", "jetpack-activity-log" );
 __( "Months ago", "jetpack-activity-log" );
 __( "Years ago", "jetpack-activity-log" );
 __( "Unit", "jetpack-activity-log" );
+__( "Coordinated Universal Time", "jetpack-activity-log" );
+/* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
+__( "Timezone: %s", "jetpack-activity-log" );
 __( "Date time", "jetpack-activity-log" );
 __( "Today", "jetpack-activity-log" );
 __( "Yesterday", "jetpack-activity-log" );
@@ -229,8 +245,6 @@ __( "Value must be true, false, or undefined", "jetpack-activity-log" );
 __( "Value must be an array.", "jetpack-activity-log" );
 __( "Every value must be a string.", "jetpack-activity-log" );
 __( "Value must be a valid color.", "jetpack-activity-log" );
-__( "Go to the Next Month", "jetpack-activity-log" );
-__( "Go to the Previous Month", "jetpack-activity-log" );
 __( "Start date", "jetpack-activity-log" );
 __( "End date", "jetpack-activity-log" );
 __( "Last 12 months", "jetpack-activity-log" );

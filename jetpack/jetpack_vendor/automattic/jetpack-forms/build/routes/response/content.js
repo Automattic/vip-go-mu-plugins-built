@@ -9,6 +9,9 @@
 __( "Jetpack Logo", "jetpack-forms" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-forms" );
+__( "Loading", "jetpack-forms" );
+__( "OK", "jetpack-forms" );
+__( "Cancel", "jetpack-forms" );
 __( "Loading preview…", "jetpack-forms" );
 __( "Copied!", "jetpack-forms" );
 __( "Copy", "jetpack-forms" );
@@ -287,7 +290,9 @@ __( "Logged-in user:", "jetpack-forms" );
 __( "Previous", "jetpack-forms" );
 __( "Next", "jetpack-forms" );
 __( "Close", "jetpack-forms" );
+__( "Mark as spam", "jetpack-forms" );
 __( "Are you sure you want to mark this response as spam?", "jetpack-forms" );
+__( "Could not mark the response as spam. Please try again.", "jetpack-forms" );
 __( "An Automattic Airline", "jetpack-forms" );
 __( "Products", "jetpack-forms" );
 __( "Help", "jetpack-forms" );
@@ -342,7 +347,6 @@ __( "Response marked as unread.", "jetpack-forms" );
 /* translators: %s: the number of responses. */
 _n( "%s response marked as unread.", "%s responses marked as unread.", 1, "jetpack-forms" );
 __( "Actions", "jetpack-forms" );
-__( "Mark as spam", "jetpack-forms" );
 __( "Delete permanently", "jetpack-forms" );
 __( "Back to responses", "jetpack-forms" );
 _x( "Spam", "response status", "jetpack-forms" );

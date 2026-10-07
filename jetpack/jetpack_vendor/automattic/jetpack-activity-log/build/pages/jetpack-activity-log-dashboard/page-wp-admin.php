@@ -358,4 +358,3 @@ function jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_pag
 
 // Hook the enqueue function to admin_enqueue_scripts
 add_action( 'admin_enqueue_scripts', 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_enqueue_scripts' );
-

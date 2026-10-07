@@ -21,9 +21,19 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Shield your login page with rate‑limiting and secure authentication safeguards.', 'Module Description', 'jetpack' ),
 			),
 
+			'activity-log' => array(
+				'name' => _x( 'Activity Log', 'Module Name', 'jetpack' ),
+				'description' => _x( 'A record of every event on your site, so you can see what happened and roll back when something goes wrong.', 'Module Description', 'jetpack' ),
+			),
+
 			'ai' => array(
 				'name' => _x( 'AI', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Turn your ideas into ready-to-publish content and generate images with the power of AI.', 'Module Description', 'jetpack' ),
+			),
+
+			'backup' => array(
+				'name' => _x( 'Backup', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Browse your backups and restore your site right from your dashboard.', 'Module Description', 'jetpack' ),
 			),
 
 			'blaze' => array(
@@ -276,6 +286,21 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/account-protection.php
 			'Account Protection' => _x( 'Account Protection', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Recommended` tag:
+			// - modules/activity-log.php
+			// - modules/google-fonts.php
+			// - modules/monitor.php
+			// - modules/photon-cdn.php
+			// - modules/photon.php
+			// - modules/protect.php
+			// - modules/publicize.php
+			// - modules/related-posts.php
+			// - modules/sharedaddy.php
+			// - modules/sitemaps.php
+			// - modules/stats.php
+			// - modules/woocommerce-analytics.php
+			'Recommended' => _x( 'Recommended', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Writing` tag:
 			// - modules/ai.php
 			// - modules/copy-post.php
@@ -327,20 +352,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// Modules with `Fonts` tag:
 			// - modules/google-fonts.php
 			'Fonts' => _x( 'Fonts', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Recommended` tag:
-			// - modules/google-fonts.php
-			// - modules/monitor.php
-			// - modules/photon-cdn.php
-			// - modules/photon.php
-			// - modules/protect.php
-			// - modules/publicize.php
-			// - modules/related-posts.php
-			// - modules/sharedaddy.php
-			// - modules/sitemaps.php
-			// - modules/stats.php
-			// - modules/woocommerce-analytics.php
-			'Recommended' => _x( 'Recommended', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Appearance` tag:
 			// - modules/gravatar-hovercards.php
@@ -410,6 +421,24 @@ function jetpack_get_module_info( $key ) {
 	    'additional_search_queries' => '',
 	    'plan_classes' => '',
 	  ),
+	  'activity-log' => 
+	  array (
+	    'name' => 'Activity Log',
+	    'description' => 'A record of every event on your site, so you can see what happened and roll back when something goes wrong.',
+	    'sort' => '38',
+	    'recommendation_order' => '12',
+	    'introduced' => '16.3-a.3',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => 'Yes',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'Recommended',
+	    'feature' => 'Security',
+	    'additional_search_queries' => 'activity, log, activity log, history, events, audit, audit log, rewind, restore, roll back, rollback',
+	    'plan_classes' => '',
+	  ),
 	  'ai' => 
 	  array (
 	    'name' => 'AI',
@@ -426,6 +455,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Writing',
 	    'feature' => 'Writing',
 	    'additional_search_queries' => 'ai, artificial intelligence, jetpack ai, ai assistant, generate, content, images',
+	    'plan_classes' => '',
+	  ),
+	  'backup' => 
+	  array (
+	    'name' => 'Backup',
+	    'description' => 'Browse your backups and restore your site right from your dashboard.',
+	    'sort' => '33',
+	    'recommendation_order' => '',
+	    'introduced' => '16.3-a.8',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => 'Yes',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => '',
+	    'feature' => 'Security',
+	    'additional_search_queries' => 'backup, backups, restore, vaultpress, rewind, cloud backup, off-site backup',
 	    'plan_classes' => '',
 	  ),
 	  'blaze' => 

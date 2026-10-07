@@ -6,9 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Open an author to see their latest post here.", "jetpack-premium-analytics-pkg" );
 __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load your latest post. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
+__( "This author has not published a post yet.", "jetpack-premium-analytics-pkg" );
 __( "Publish a post to see its stats here.", "jetpack-premium-analytics-pkg" );

@@ -1,1 +1,1 @@
-<?php return array('dependencies' => array('jetpack-script-data', 'wp-api-fetch', 'wp-data', 'wp-polyfill'), 'version' => '4ea0f2e997893ca9c569');
+<?php return array('dependencies' => array('jetpack-script-data', 'wp-api-fetch', 'wp-data', 'wp-polyfill'), 'version' => '72df91768c6a52e5bc3b');

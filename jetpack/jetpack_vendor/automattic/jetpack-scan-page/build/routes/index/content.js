@@ -6,12 +6,12 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s" );
-__( "Close" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s" );
+__( "Loading" );
+__( "Close" );
 __( "Dismiss" );
 __( "Sections" );
 __( "Jetpack Logo", "jetpack-components" );
@@ -221,6 +221,9 @@ __( "Weeks ago" );
 __( "Months ago" );
 __( "Years ago" );
 __( "Unit" );
+__( "Coordinated Universal Time" );
+/* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
+__( "Timezone: %s" );
 __( "Date time" );
 __( "Today" );
 __( "Yesterday" );

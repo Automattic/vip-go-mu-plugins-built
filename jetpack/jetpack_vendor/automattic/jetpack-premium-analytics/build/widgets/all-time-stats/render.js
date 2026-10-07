@@ -10,8 +10,5 @@ __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Visitors", "jetpack-premium-analytics-pkg" );
 __( "Posts", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
-__( "Metrics", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load all-time stats. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "Select at least one metric to display.", "jetpack-premium-analytics-pkg" );
-__( "No stats recorded yet.", "jetpack-premium-analytics-pkg" );

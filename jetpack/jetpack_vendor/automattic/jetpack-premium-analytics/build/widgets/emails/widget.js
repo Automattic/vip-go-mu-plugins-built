@@ -7,5 +7,5 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "View by", "jetpack-premium-analytics-pkg" );
-__( "By open rate", "jetpack-premium-analytics-pkg" );
-__( "By click rate", "jetpack-premium-analytics-pkg" );
+__( "Opened", "jetpack-premium-analytics-pkg" );
+__( "Clicked", "jetpack-premium-analytics-pkg" );

@@ -14,4 +14,3 @@ __( "Back to %s", "jetpack-premium-analytics-pkg" );
 __( "View all referrers", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load referrers. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No referrers in this period.", "jetpack-premium-analytics-pkg" );

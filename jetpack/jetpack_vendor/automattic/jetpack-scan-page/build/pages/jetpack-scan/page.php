@@ -332,6 +332,22 @@ function jetpack_scan_jetpack_scan_render_page() {
 function jetpack_scan_jetpack_scan_intercept_render() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( isset( $_GET['page'] ) && 'jetpack-scan' === $_GET['page'] ) {
+		// The page renders outside the menu page callback flow, so it must
+		// enforce authentication and capability checks itself. Without this,
+		// any admin entry point firing `admin_init` (such as admin-post.php,
+		// which serves logged-out requests) would render the page for
+		// unauthenticated visitors.
+		if ( ! is_user_logged_in() ) {
+			auth_redirect();
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die(
+				__( 'Sorry, you are not allowed to access this page.' ),
+				403
+			);
+		}
+
 		jetpack_scan_jetpack_scan_render_page();
 		exit;
 	}

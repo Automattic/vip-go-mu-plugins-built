@@ -5,16 +5,6 @@
  * Licensed MIT © Zeno Rocha
  */
 
-/*!
-* focus-trap 6.3.0
-* @license MIT, https://github.com/focus-trap/focus-trap/blob/master/LICENSE
-*/
-
-/*!
-* tabbable 5.3.3
-* @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
-*/
-
 /**
  * @license React
  * use-sync-external-store-shim.production.js
@@ -43,17 +33,6 @@
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
- */
-
-/**
- * This test is for touch events.
- * It may not accurately detect a touch screen, but may be close enough depending on the use case.
- *
- * @copyright Modernizr © 2009-2015.
- * @license MIT
- * @see https://github.com/Modernizr/Modernizr/blob/d5f881a4de0d5fc1af85921ce9c7dc3919c6d335/feature-detects/touchevents.js
- *
- * @return {boolean} whether touch screen is available
  */
 
 /**

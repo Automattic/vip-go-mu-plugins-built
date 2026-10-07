@@ -28,6 +28,11 @@ return array(
 		'asset' => 'init/index.min.asset.php',
 	),
 	array(
+		'id' => '@jetpack-premium-analytics/sdk',
+		'path' => 'sdk/index',
+		'asset' => 'sdk/index.min.asset.php',
+	),
+	array(
 		'id' => '@jetpack-premium-analytics/site-sync',
 		'path' => 'site-sync/index',
 		'asset' => 'site-sync/index.min.asset.php',

@@ -8,8 +8,8 @@
 
 /* translators: %d: number of posts published that day, e.g. "3". */
 _n( "%d post", "%d posts", 1, "jetpack-premium-analytics-pkg" );
-__( "No posts", "jetpack-premium-analytics-pkg" );
-/* translators: 1: first date the request covers, e.g. "Aug 9, 2024". 2: last date it covers. */
-__( "No posts published between %1$s and %2$s.", "jetpack-premium-analytics-pkg" );
-__( "No posts published in this period.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load posting activity. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "Monthly posting activity", "jetpack-premium-analytics-pkg" );
+__( "No posts", "jetpack-premium-analytics-pkg" );
+__( "Fewer posts", "jetpack-premium-analytics-pkg" );
+__( "More posts", "jetpack-premium-analytics-pkg" );

@@ -7,4 +7,3 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "We couldn't load search terms. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "No search terms in this period.", "jetpack-premium-analytics-pkg" );

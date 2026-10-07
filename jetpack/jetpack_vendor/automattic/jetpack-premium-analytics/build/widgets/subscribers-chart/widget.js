@@ -7,4 +7,8 @@
 // loaders are pinned to the .min.js sibling.
 
 __( "Subscribers", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of subscribers. */
+_n( "%s Subscriber", "%s Subscribers", 1, "jetpack-premium-analytics-pkg" );
 __( "Paid subscribers", "jetpack-premium-analytics-pkg" );
+/* translators: %s: number of paid subscribers. */
+_n( "%s Paid subscriber", "%s Paid subscribers", 1, "jetpack-premium-analytics-pkg" );

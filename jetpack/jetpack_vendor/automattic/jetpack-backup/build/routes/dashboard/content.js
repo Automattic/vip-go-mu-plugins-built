@@ -6,12 +6,12 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Loading", "jetpack-backup-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-backup-pkg" );
-__( "Close", "jetpack-backup-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-backup-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-backup-pkg" );
+__( "Loading", "jetpack-backup-pkg" );
+__( "Close", "jetpack-backup-pkg" );
 __( "Something went wrong", "jetpack-backup-pkg" );
 __( "The page ran into an unexpected problem. Your backups are unaffected.", "jetpack-backup-pkg" );
 __( "Reload the page", "jetpack-backup-pkg" );
@@ -186,6 +186,9 @@ __( "Weeks ago", "jetpack-backup-pkg" );
 __( "Months ago", "jetpack-backup-pkg" );
 __( "Years ago", "jetpack-backup-pkg" );
 __( "Unit", "jetpack-backup-pkg" );
+__( "Coordinated Universal Time", "jetpack-backup-pkg" );
+/* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
+__( "Timezone: %s", "jetpack-backup-pkg" );
 __( "Date time", "jetpack-backup-pkg" );
 __( "Today", "jetpack-backup-pkg" );
 __( "Yesterday", "jetpack-backup-pkg" );
@@ -292,11 +295,34 @@ __( "Backing up your site", "jetpack-backup-pkg" );
 __( "Your latest backup didn't complete. We'll try again shortly.", "jetpack-backup-pkg" );
 /* translators: sentence form of the takeover panel's heading, which is the same words without the full stop. The two render in mutually exclusive situations — this one is a line of body copy, that one a title — so both spellings are wanted. */
 __( "We're having trouble backing up your site.", "jetpack-backup-pkg" );
+__( "Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.", "jetpack-backup-pkg" );
 __( "Jetpack Logo", "jetpack-backup-pkg" );
 __( "An Automattic Airline", "jetpack-backup-pkg" );
 __( "Products", "jetpack-backup-pkg" );
 __( "Help", "jetpack-backup-pkg" );
 __( "Jetpack", "jetpack-backup-pkg" );
+__( "Dismiss", "jetpack-backup-pkg" );
+/* translators: %s: the error. */
+__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-backup-pkg" );
+__( "Your account (connection owner)", "jetpack-backup-pkg" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-backup-pkg" );
+__( "Connection owner's account", "jetpack-backup-pkg" );
+__( "Your account", "jetpack-backup-pkg" );
+__( "Another user's account", "jetpack-backup-pkg" );
+__( "User connection", "jetpack-backup-pkg" );
+__( "Site connection", "jetpack-backup-pkg" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-backup-pkg" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-backup-pkg" );
+__( "Jetpack Connection error", "jetpack-backup-pkg" );
+__( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-backup-pkg" );
+__( "Reconnecting Jetpack", "jetpack-backup-pkg" );
+__( "Loading…", "jetpack-backup-pkg" );
+__( "Restore Connection", "jetpack-backup-pkg" );
+__( "Take Action", "jetpack-backup-pkg" );
+__( "Reconnecting Jetpack…", "jetpack-backup-pkg" );
 __( "Sections", "jetpack-backup-pkg" );
 __( "We couldn't load your backup details", "jetpack-backup-pkg" );
 __( "Your backups are unaffected. Try again, and contact support if this keeps happening.", "jetpack-backup-pkg" );

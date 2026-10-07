@@ -9,24 +9,8 @@
 /* translators: %s is an archive category label, e.g. "Searches". */
 __( "View %s archive pages", "jetpack-premium-analytics-pkg" );
 __( "Untitled", "jetpack-premium-analytics-pkg" );
-__( "Title", "jetpack-premium-analytics-pkg" );
-__( "Views", "jetpack-premium-analytics-pkg" );
-__( "Type", "jetpack-premium-analytics-pkg" );
-__( "URL", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load posts and pages. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "No views in this period.", "jetpack-premium-analytics-pkg" );
-__( "Authors", "jetpack-premium-analytics-pkg" );
-__( "Categories", "jetpack-premium-analytics-pkg" );
-__( "Error", "jetpack-premium-analytics-pkg" );
-__( "Homepage (Latest posts)", "jetpack-premium-analytics-pkg" );
-__( "Searches", "jetpack-premium-analytics-pkg" );
-__( "Tags", "jetpack-premium-analytics-pkg" );
-__( "Taxonomies", "jetpack-premium-analytics-pkg" );
-__( "Dates", "jetpack-premium-analytics-pkg" );
-__( "Aggregated", "jetpack-premium-analytics-pkg" );
-__( "Others", "jetpack-premium-analytics-pkg" );
-__( "Post types", "jetpack-premium-analytics-pkg" );
 __( "All archives", "jetpack-premium-analytics-pkg" );
 __( "Back to the previous archive list", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load archives. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
