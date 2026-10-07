@@ -1636,7 +1636,8 @@ class Elasticsearch {
 		 */
 		$disable_query_logging = apply_filters( 'ep_disable_query_logging', false );
 
-		// VIP: Search Dev Tools relies on this backtrace
+		// VIP: Search Dev Tools relies on this backtrace. Each frame keeps its file, line and call apart, e.g.
+		// [ 'file' => 'wp-includes/class-wp.php', 'line' => 704, 'call' => 'WP_Query->query()' ].
 		if ( ! $disable_query_logging && ( $wp_debug || $wp_ep_debug ) ) {
 			$backtrace = debug_backtrace( 0 );
 			$call_path = array();
@@ -1650,34 +1651,33 @@ class Elasticsearch {
 					continue;
 				}
 
-				$path = '';
-
-				$path  = isset( $call['file'] ) ? str_replace( ABSPATH, '', $call['file'] ) : '';
-				$path .= isset( $call['line'] ) ? ':' . $call['line'] : '';
-
 				if ( isset( $call['class'] ) ) {
-					$call_type = $call['type'] ?? '???';
-					$path     .= " {$call['class']}{$call_type}{$call['function']}()";
+					$call_type  = $call['type'] ?? '???';
+					$call_label = "{$call['class']}{$call_type}{$call['function']}()";
 				} elseif ( in_array( $call['function'], array( 'do_action', 'apply_filters', 'do_action_ref_array', 'apply_filters_ref_array' ) ) ) {
 					if ( is_object( $call['args'][0] ) && ! method_exists( $call['args'][0], '__toString' ) ) {
-						$path .= " {$call['function']}(Object)";
+						$call_label = "{$call['function']}(Object)";
 					} elseif ( is_array( $call['args'][0] ) ) {
-						$path .= " {$call['function']}(Array)";
+						$call_label = "{$call['function']}(Array)";
 					} else {
-						$path .= " {$call['function']}('{$call['args'][0]}')";
+						$call_label = "{$call['function']}('{$call['args'][0]}')";
 					}
 				} elseif ( in_array( $call['function'], array( 'include', 'include_once', 'require', 'require_once' ) ) ) {
-					$file  = 0 == $bt_key ? '' : $call['args'][0];
-					$path .= " {$call['function']}('" . str_replace( ABSPATH, '', $file ) . "')";
+					$file       = 0 == $bt_key ? '' : $call['args'][0];
+					$call_label = "{$call['function']}('" . str_replace( ABSPATH, '', $file ) . "')";
 				} else {
-					$path .= " {$call['function']}()";
+					$call_label = "{$call['function']}()";
 				}
 
-				$call_path[] = trim( $path );
-				$query['backtrace'] = $call_path;
+				$call_path[] = array(
+					'file' => isset( $call['file'] ) ? str_replace( ABSPATH, '', $call['file'] ) : '',
+					'line' => isset( $call['line'] ) ? (int) $call['line'] : null,
+					'call' => $call_label,
+				);
 			}
 
-			$this->queries[] = $query;
+			$query['backtrace'] = $call_path;
+			$this->queries[]    = $query;
 		}
 
 		/**
