@@ -10,8 +10,8 @@ class Clipisode_Invitation {
 	}
 
 	public static function sanitize_prefix( string $value ): string {
-		$value = sanitize_title( trim( $value, '/' ) );
-		return $value ?: 'invitation';
+		$segments = array_filter( array_map( 'sanitize_title', explode( '/', trim( $value, '/' ) ) ) );
+		return $segments ? implode( '/', $segments ) : 'invitation';
 	}
 
 	/**
@@ -44,11 +44,9 @@ class Clipisode_Invitation {
 	 *
 	 * One rule, one query var, one template. The URL prefix is
 	 * stored in the `clipisode_invitation_prefix` site option
-	 * (default "invitation") so non-English sites can serve the
-	 * flow at locale-appropriate paths (`/invitasjon/`, `/邀請/`,
-	 * etc.). Changing the option requires a rewrite-rules flush;
-	 * the Settings page does that automatically when the value
-	 * changes.
+	 * (default "invitation") so sites can serve the flow at paths
+	 * such as `/clipisode/invitation/`. Changing the option requires
+	 * a rewrite-rules flush; the Settings page does that automatically.
 	 *
 	 * Earlier versions of the plugin ran a parallel "v2" flow on a
 	 * hardcoded /clipisode-flow/ prefix while the new

@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=./vip-manifest.schema.json
+#
+# Handoff manifest for Share a Draft.
+#
+# This is the single file WordPress VIP reads to register and load the
+# integration — VIP never sees the repo. Keep it in sync with the plugin, then
+# check it with `npx @automattic/vip-integration validate`.
+#
+# See docs/manifest.md for a field-by-field guide, and vip-manifest.schema.json
+# for the full schema (fields, types, and constraints).
+
+manifest_version: 1
+manifest_kind: vip-integration-handoff
+
+integration:
+  slug: shareadraft
+  display_name: Share a Draft
+  summary: Safe-to-share, time- and usage-limited preview links that let reviewers without a WordPress account view a draft.
+  partner:
+    name: Automattic
+    support_contact: support@wpvip.com
+
+documentation:
+  public_url: https://github.com/Automattic/shareadraft/blob/main/docs/README.md
+  support_url: https://wpvip.com/support/
+
+runtime:
+  wordpress_plugin:
+    folder: shareadraft
+    entry_file: shareadraft.php
+    php_namespace: 'Automattic\ShareADraft'
+    scope: site
+
+runtime_config:
+  # Defining the constant is the signal that matters: it tells the platform this
+  # integration is enabled for the site, and the plugin works with nothing in it.
+  # The schema requires at least one field to be declared, so the one below is
+  # optional and read through Config — never declare a field nothing reads.
+  constant_name: VIP_SHAREADRAFT_CONFIG
+  fields:
+    - key: dead_link_grace_period
+      label: Expired link retention
+      type: number
+      required: false
+      default: 1814400
+      help: >-
+        How long an expired or revoked preview link is kept, in seconds, so a
+        reviewer who returns to a stale link is told why it stopped working
+        rather than seeing a "not found" page. Defaults to 21 days.
+    - key: ip_allowlist
+      label: Trusted IP ranges
+      type: text
+      required: false
+      help: >-
+        IP addresses or CIDR ranges (IPv4 or IPv6, comma- or newline-separated),
+        such as your office networks. Once set, every preview link opens only
+        from these ranges. An author can let a link open from further ranges
+        of its own when they create it, which widens where that one link
+        opens. Leave empty to apply no site-wide IP restriction. IP
+        restrictions limit where a link opens from, not who opens it. Links
+        made with Share a Draft 1.x ignore these ranges.
+
+telemetry:
+  # Single word, no underscores: the leading token is the Tracks source, which
+  # must be registered for events to be accepted. `share_a_draft_` would not be.
+  prefix: shareadraft_
+  default_properties:
+    - plugin_version
+  events:
+    - name: shareadraft_link_created
+      type: tracks
+      trigger: A preview link is minted, via REST, WP-CLI, or the Abilities API.
+      properties:
+        - expiration
+        - is_capped
+        - max_uses
+        - channel
+        - has_ip_allowlist
+        - has_recipients
+        - recipient_count
+      note: Usage metadata only — never the token, content, or PII. `channel` records how the link was requested (`rest`, `ability`, or `cli`). `has_ip_allowlist` records only whether per-link IP ranges were set, never the ranges themselves. `has_recipients`/`recipient_count` record whether and how many reviewer emails a link is bound to, never the addresses.
+
+release:
+  plugin_version: 2.0.0
+  version_strategy: latest
+  migration_required: false
+  changelog: Initial release.

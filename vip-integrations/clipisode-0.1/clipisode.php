@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Clipisode
  * Description: Collect, curate, and publish user-generated video content.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Clipisode
  * Text Domain: clipisode
  * Requires at least: 6.6
@@ -11,7 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CLIPISODE_VERSION', '0.1.0' );
+define( 'CLIPISODE_VERSION', '0.1.1' );
 define( 'CLIPISODE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CLIPISODE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 

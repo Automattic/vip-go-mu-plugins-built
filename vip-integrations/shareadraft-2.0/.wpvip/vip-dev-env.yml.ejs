@@ -1,0 +1,48 @@
+configuration-version: 1
+slug: shareadraft
+title: Just another WordPress site
+php: 8.2
+wordpress: 7.0
+app-code: demo
+# Update to the local path of MU-plugins when working on the integration loader code.
+mu-plugins: demo
+multisite: false
+phpmyadmin: false
+elasticsearch: false
+xdebug: true
+mailpit: false
+photon: false
+cron: false
+overrides: |
+  services:
+    # nginx serves the plugin's static assets (e.g. build/index.js for the block
+    # editor) directly, so it needs the same bind-mount as php. Without it those
+    # assets 404 while PHP still runs, and the editor script never loads.
+    nginx:
+      services:
+        volumes:
+          - <%= configDir %>/..:/wp/wp-content/plugins/shareadraft
+    php:
+      services:
+        environment:
+          WP_TESTS_DIR: /wp/wp-content/wordpress-tests-lib
+        volumes:
+          - <%= configDir %>/..:/wp/wp-content/plugins/shareadraft
+          - <%= configDir %>/plugin-loader.php:/wp/wp-content/client-mu-plugins/plugin-loader.php
+          - <%= configDir %>/empty:/wp/wp-content/empty
+  tooling:
+    dev-shell:
+      service: php
+      cmd:
+        - /bin/bash -i
+      dir: /wp/wp-content/plugins/shareadraft
+      user: www-data
+      description: Run a development shell
+
+    unit-tests:
+      service: php
+      cmd:
+        - composer test:unit
+      dir: /wp/wp-content/plugins/shareadraft
+      user: www-data
+      description: Run unit tests

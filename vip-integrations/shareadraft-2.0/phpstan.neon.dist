@@ -1,0 +1,32 @@
+includes:
+	- phar://phpstan.phar/conf/bleedingEdge.neon
+
+parameters:
+	level: 10
+	treatPhpDocTypesAsCertain: false
+	phpVersion: 80200
+	paths:
+		- shareadraft.php
+		- vestigial.php
+		- uninstall.php
+		- inc
+		- tests/unit
+		- tests/integration
+	bootstrapFiles:
+		- tests/phpstan/constants.php
+	scanFiles:
+		- vendor/wildwolf/wordpress-test-library-stubs/wordpress-test-library-stubs.php
+		- tests/phpstan/wp-cli.stubs
+	stubFiles:
+		- tests/phpstan/wordpress-tests.stubs
+	ignoreErrors:
+		-
+			# The test double's signature mirrors the real VIP Telemetry API.
+			identifier: constructor.unusedParameter
+			path: tests/integration/stubs/class-vip-telemetry.php
+
+services:
+	-
+		class: Automattic\ShareADraft\PHPStan\WpListTableUsageProvider
+		tags:
+			- shipmonk.deadCode.memberUsageProvider

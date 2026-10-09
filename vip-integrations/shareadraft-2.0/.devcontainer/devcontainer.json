@@ -1,0 +1,128 @@
+{
+    "name": "WordPress VIP Codespace",
+    "image": "ghcr.io/automattic/vip-codespaces/wpvip-integrations-base:latest",
+    "overrideCommand": false,
+    "forwardPorts": [80, 81, 5800, 8025],
+    "portsAttributes": {
+        "80": {
+            "label": "Application",
+            "onAutoForward": "notify",
+            "elevateIfNeeded": true
+        },
+        "81": {
+            "label": "phpMyAdmin",
+            "onAutoForward": "silent",
+            "elevateIfNeeded": true
+        },
+        "2222": {
+            "label": "SSH",
+            "onAutoForward": "silent"
+        },
+        "5800": {
+            "label": "NoVNC",
+            "onAutoForward": "notify"
+        },
+        "8025": {
+            "label": "Mailpit",
+            "onAutoForward": "silent"
+        }
+    },
+    "otherPortsAttributes": {
+        "onAutoForward": "ignore"
+    },
+    "updateContentCommand": ".devcontainer/update-content.sh",
+    "features": {
+        "ghcr.io/automattic/vip-codespaces/wordpress:latest": {
+            // WordPress version: Accepts 'latest', 'nightly', or a version number.
+            "version": "latest",
+            // Set to false to prevent wp-content/uploads content from persisting between rebuilds.
+            "moveUploadsToWorkspaces": true,
+            // Set to true to create the environment as a WordPress multisite.
+            "multisite": false,
+            // GitHub Codespaces only supports the subdirectory network type for multisite; subdomain cannot be used.
+            "multisiteStyle": "subdirectory"
+        },
+        "ghcr.io/automattic/vip-codespaces/vip-go-mu-plugins:latest": {
+            // Set to false to disable VIP MU plugins (not recommended).
+            "enabled": true,
+            // Which branch of VIP MU plugins to load. Accepts 'staging', 'production', or 'develop'.
+            "branch": "staging",
+            // Set to true to load all files necessary for the development of VIP MU plugins.
+            "development_mode": false
+        },
+        "ghcr.io/automattic/vip-codespaces/dev-tools:latest": {},
+        "ghcr.io/automattic/vip-codespaces/elasticsearch:latest": {
+            // Set to true to enable Elasticsearch.
+            // This feature requires the local machine to have at least 8 GB RAM.
+            "enabled": false,
+            // Set to false to prevent Elasticsearch data from persisting between rebuilds.
+            "installDataToWorkspaces": true
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "github.vscode-github-actions"
+            ],
+            "settings": {
+                "launch": {
+                    "version": "0.2.0",
+                    "configurations": [
+                        {
+                            "name": "Listen for Xdebug",
+                            "type": "php",
+                            "request": "launch",
+                            "port": 9003
+                        },
+                        {
+                            "name": "Launch currently open script",
+                            "type": "php",
+                            "request": "launch",
+                            "program": "${file}",
+                            "cwd": "${fileDirname}",
+                            "port": 0,
+                            "runtimeArgs": [
+                                "-dxdebug.start_with_request=yes"
+                            ],
+                            "env": {
+                                "XDEBUG_MODE": "debug,develop",
+                                "XDEBUG_CONFIG": "client_port=${port}"
+                            }
+                        },
+                        {
+                            "name": "Launch Built-in web server",
+                            "type": "php",
+                            "request": "launch",
+                            "runtimeArgs": [
+                                "-dxdebug.mode=debug,develop",
+                                "-dxdebug.start_with_request=yes",
+                                "-S",
+                                "0.0.0.0:0"
+                            ],
+                            "program": "",
+                            "cwd": "/wp",
+                            "port": 9003,
+                            "serverReadyAction": {
+                                "pattern": "Development Server \\(http://0.0.0.0:([0-9]+)\\) started",
+                                "uriFormat": "http://localhost:%s",
+                                "action": "openExternally"
+                            }
+                        },
+                        {
+                            "name": "Debug PHP Unit Tests",
+                            "type": "php",
+                            "request": "launch",
+                            "program": "/usr/local/bin/composer",
+                            "args": ["test"],
+                            "cwd": "${workspaceRoot}",
+                            "env": {
+                                "XDEBUG_MODE": "debug,develop",
+                                "XDEBUG_CONFIG": "client_port=${port}"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

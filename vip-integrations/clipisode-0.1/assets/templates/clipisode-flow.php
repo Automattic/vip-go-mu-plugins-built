@@ -112,7 +112,7 @@ Clipisode_Post_Types::set_flow_intro_video_url( $intro_video_url );
 //                     (e.g. "{theme_asset_url}/images/logo.png")
 //
 // Looked up once per request and threaded through the render_block filter.
-$invitation_url = home_url( add_query_arg( null, null ) );
+$invitation_url = home_url( trailingslashit( Clipisode_Invitation::get_prefix() . '/' . $slug ) );
 $theme_asset_url = plugins_url(
 	'assets/themes/default',
 	CLIPISODE_PLUGIN_DIR . 'clipisode.php'
@@ -534,7 +534,7 @@ if ( $name_progress_pin === 'top' ) {
 //   intro video heartbeats        → drive scrim fade + play icon visibility
 //   terms / reply file fields     → modal + handoff to Name screen
 //   upload* / submit* / replyName → Name-screen form + background upload
-//   restUrl / uploadNonce         → endpoint + nonce read by upload XHR
+//   restUrl / uploadNonce / restNonce → endpoint and request nonces
 //   labels                        → submit-button label set, see Pattern B above
 wp_interactivity_state( 'clipisode/flow', [
 	'slug'           => $slug,
@@ -564,6 +564,7 @@ wp_interactivity_state( 'clipisode/flow', [
 	'uploadProgressTemplate' => $upload_progress_template,
 	'restUrl'        => $rest_url,
 	'uploadNonce'    => $upload_nonce,
+	'restNonce'      => wp_create_nonce( 'wp_rest' ),
 	'labels'         => $labels,
 	'hasEmailScreen' => isset( $screens['email'] ) && $screens['email'] !== '',
 ] );
@@ -1519,6 +1520,11 @@ $close_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width=
 		body.clipisode-flow .clipisode-introd-instructions strong {
 			color: #111827;
 		}
+		body.clipisode-flow .clipisode-introd-continue .wp-block-button__link {
+			background: #1d4ed8;
+			color: #ffffff;
+			text-decoration: none;
+		}
 		/* URL slot. PHP fills with the bare host+path of the invite   */
 		/* link in a bold, click-to-select-friendly chunk of text.     */
 		body.clipisode-flow .clipisode-introd-url-slot {
@@ -1911,7 +1917,7 @@ $close_svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width=
 			);
 		}
 		if ( $st === 'intro_desktop' ) {
-			$current_url = home_url( add_query_arg( null, null ) );
+			$current_url = $invitation_url;
 			$display_url = preg_replace( '#^https?://#', '', $current_url );
 
 			$url_html = '<a class="clipisode-introd-url" href="'

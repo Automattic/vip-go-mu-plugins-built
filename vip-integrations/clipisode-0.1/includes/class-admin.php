@@ -83,6 +83,7 @@ class Clipisode_Admin {
 
 		$config = [
 			'page'                  => isset( $_GET['page'] ) ? sanitize_text_field( $_GET['page'] ) : 'clipisode',
+			'home_url'              => esc_url_raw( home_url( '/' ) ),
 			'rest_root'             => esc_url_raw( rest_url() ),
 			'nonce'                 => wp_create_nonce( 'wp_rest' ),
 			'invitation_prefix'     => Clipisode_Invitation::get_prefix(),

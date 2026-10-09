@@ -1,0 +1,78 @@
+/*
+ * Shared typography/theme stylesheet for the default invitation screens.
+ *
+ * Loaded in BOTH:
+ *   1) guest-facing /clipisode-flow/{slug} pages
+ *   2) clipisode_screen block-editor canvas
+ *
+ * Font registry source of truth:
+ *   plugin/clipisode/includes/class-post-types.php :: FONT_REGISTRY
+ * Layout registry source of truth:
+ *   plugin/clipisode/includes/class-post-types.php :: LAYOUT_REGISTRY
+ *
+ * Add/update custom fonts in one place:
+ *   1) Update FONT_REGISTRY entries (slug, label, font_family, font_weight).
+ *      Note: font_weight is one default CSS weight value (e.g. 400 or 500).
+ *   2) Add google_css2_family if loading from Google Fonts.
+ *      (If self-hosted, add @font-face rules here instead.)
+ *   3) Keep the selectors below using the injected CSS variables.
+ *   4) Mirror the same family names/weights in video renderer config.
+ *
+ * Variables injected from FONT_REGISTRY at enqueue time:
+ *   --clipisode-invite-heading-font-family
+ *   --clipisode-invite-heading-font-weight
+ *   --clipisode-invite-body-font-family
+ *   --clipisode-invite-body-font-weight
+ *
+ * Variables injected from LAYOUT_REGISTRY at enqueue time:
+ *   --clipisode-mobile-gutter
+ *   --clipisode-mobile-content-max
+ */
+
+/*
+ * Guest-facing invitation flow typography.
+ */
+
+ body.clipisode-flow .clipisode-flow-screen h1,
+ body.clipisode-flow .clipisode-flow-screen h2,
+ body.clipisode-flow .clipisode-flow-screen h3 {
+	 font-family: var(--clipisode-invite-heading-font-family);
+	 font-weight: var(--clipisode-invite-heading-font-weight);
+ }
+ body.clipisode-flow .clipisode-flow-screen,
+ body.clipisode-flow .clipisode-flow-screen p,
+ body.clipisode-flow .clipisode-flow-screen button,
+ body.clipisode-flow .clipisode-flow-screen input,
+ body.clipisode-flow .clipisode-flow-screen a {
+	 font-family: var(--clipisode-invite-body-font-family);
+	 font-weight: var(--clipisode-invite-body-font-weight);
+ }
+body.clipisode-flow .clipisode-flow-screen em,
+body.clipisode-flow .clipisode-flow-screen i {
+	font-family: var(--clipisode-invite-body-font-family);
+	font-style: italic;
+}
+
+/*
+ * Block-editor canvas typography for clipisode_screen posts.
+ */
+
+body.editor-styles-wrapper .wp-block h1,
+body.editor-styles-wrapper .wp-block h2,
+body.editor-styles-wrapper .wp-block h3 {
+	font-family: var(--clipisode-invite-heading-font-family);
+	font-weight: var(--clipisode-invite-heading-font-weight);
+}
+body.editor-styles-wrapper .wp-block,
+body.editor-styles-wrapper .wp-block p,
+body.editor-styles-wrapper .wp-block button,
+body.editor-styles-wrapper .wp-block input,
+body.editor-styles-wrapper .wp-block a {
+	font-family: var(--clipisode-invite-body-font-family);
+	font-weight: var(--clipisode-invite-body-font-weight);
+}
+body.editor-styles-wrapper .wp-block em,
+body.editor-styles-wrapper .wp-block i {
+	font-family: var(--clipisode-invite-body-font-family);
+	font-style: italic;
+}

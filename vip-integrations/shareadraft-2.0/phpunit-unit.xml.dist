@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Fast unit suite: pure PHP, no WordPress, no database.
+
+  These tests cover the domain layer (inc/class-token.php, class-preview-link.php,
+  class-access-policy.php, class-preview-link-service.php and friends) in
+  milliseconds. The WordPress-coupled adapters are covered by the integration
+  suite in phpunit.xml.dist, which boots a real WP test environment.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd" bootstrap="tests/unit/bootstrap.php" colors="true" testdox="true" forceCoversAnnotation="true" beStrictAboutCoversAnnotation="true" beStrictAboutOutputDuringTests="true" beStrictAboutTodoAnnotatedTests="true">
+  <coverage>
+    <include>
+      <directory suffix=".php">inc</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="unit">
+      <directory suffix="Test.php">./tests/unit</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
