@@ -58,16 +58,6 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	protected $valid_subvalues = array();
 
 	/**
-	 * The current user's ID.
-	 *
-	 * @since 3.14.0
-	 * @since 3.17.0 Moved from Base_Endpoint_User_Meta.
-	 *
-	 * @var int
-	 */
-	protected $current_user_id = 0;
-
-	/**
 	 * Returns the meta entry's key.
 	 *
 	 * @since 3.13.0
@@ -133,16 +123,6 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 			$this->default_value[ $key ]   = $value['default'];
 			$this->valid_subvalues[ $key ] = $value['values'];
 		}
-	}
-
-	/**
-	 * Initializes the endpoint and sets the current user ID.
-	 *
-	 * @since 3.17.0
-	 */
-	public function init(): void {
-		parent::init();
-		$this->current_user_id = get_current_user_id();
 	}
 
 	/**
@@ -264,7 +244,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 		}
 
 		$update_meta = update_user_meta(
-			$this->current_user_id,
+			get_current_user_id(),
 			$this->get_meta_key(),
 			$this->strip_inherited_values( $sanitized_value, $stored_settings )
 		);
@@ -290,7 +270,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	 * @return array<string, mixed> The stored settings.
 	 */
 	protected function get_stored_settings(): array {
-		$settings = get_user_meta( $this->current_user_id, $this->get_meta_key(), true );
+		$settings = get_user_meta( get_current_user_id(), $this->get_meta_key(), true );
 		$settings = is_array( $settings ) ? $settings : array();
 
 		return $this->needs_normalizing( $settings )
@@ -311,7 +291,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 			return false;
 		}
 
-		$format = get_user_meta( $this->current_user_id, $this->get_format_meta_key(), true );
+		$format = get_user_meta( get_current_user_id(), $this->get_format_meta_key(), true );
 
 		return static::STORED_FORMAT_VERSION !== ( is_numeric( $format ) ? (int) $format : 0 );
 	}
@@ -350,7 +330,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 			}
 		}
 
-		update_user_meta( $this->current_user_id, $this->get_meta_key(), $settings );
+		update_user_meta( get_current_user_id(), $this->get_meta_key(), $settings );
 		$this->record_stored_format();
 
 		return $settings;
@@ -415,7 +395,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 		}
 
 		update_user_meta(
-			$this->current_user_id,
+			get_current_user_id(),
 			$this->get_format_meta_key(),
 			static::STORED_FORMAT_VERSION
 		);
@@ -444,7 +424,7 @@ abstract class Base_Settings_Endpoint extends Base_Endpoint {
 	 * @return bool
 	 */
 	public function is_available_to_current_user( ?WP_REST_Request $request = null ): bool {
-		return current_user_can( 'edit_user', $this->current_user_id );
+		return current_user_can( 'edit_user', get_current_user_id() );
 	}
 
 	/**

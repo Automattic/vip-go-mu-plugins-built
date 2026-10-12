@@ -107,6 +107,7 @@ type InboundLinkDetailsProps = {
  * Displays the inbound smart link details.
  *
  * @since 3.16.0
+ * @since 3.24.3 Links without a paragraph show no stale paragraph or ellipses.
  *
  * @param {InboundLinkDetailsProps} props The component's props.
  */
@@ -127,6 +128,8 @@ ${ paragraph ?? '<p></p>' }
 <!-- /wp:paragraph -->`;
 
 		if ( ! paragraph ) {
+			// The instance is reused across links, so drop the previous paragraph.
+			setBlocks( [] );
 			return;
 		}
 
@@ -145,9 +148,9 @@ ${ paragraph ?? '<p></p>' }
 			/>
 			<div className="review-suggestion-post-title">{ link.post_data?.title }</div>
 			<div className="review-suggestion-preview">
-				{ ! link.post_data?.is_first_paragraph && <ThreeDots topOrBottom="top" /> }
+				{ blocks.length > 0 && ! link.post_data?.is_first_paragraph && <ThreeDots topOrBottom="top" /> }
 				<BlockPreview block={ blocks[ 0 ] } link={ link } useOriginalBlock />
-				{ ! link.post_data?.is_last_paragraph && <ThreeDots topOrBottom="bottom" /> }
+				{ blocks.length > 0 && ! link.post_data?.is_last_paragraph && <ThreeDots topOrBottom="bottom" /> }
 			</div>
 			<Divider />
 			<LinkingPostDetails link={ link } />

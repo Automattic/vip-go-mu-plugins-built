@@ -188,16 +188,18 @@ abstract class Base_Service_Endpoint {
 	/**
 	 * Sends a request to the remote API.
 	 *
-	 * Any error returned has its credentials stripped.
+	 * Any error returned has its credentials stripped. Endpoints customize the
+	 * request through the methods called here, rather than by overriding it.
 	 *
 	 * @since 3.17.0
+	 * @since 3.24.3 Made final.
 	 *
 	 * @param string       $method The HTTP method to use for the request.
 	 * @param array<mixed> $query_args The query arguments to send to the remote API.
 	 * @param array<mixed> $data The data to send in the request body.
 	 * @return WP_Error|array<mixed> The response from the remote API.
 	 */
-	protected function request( string $method, array $query_args = array(), array $data = array() ) {
+	final protected function request( string $method, array $query_args = array(), array $data = array() ) {
 		// Get the URL to send the request to.
 		$request_url = $this->get_endpoint_url( $query_args );
 
@@ -235,11 +237,12 @@ abstract class Base_Service_Endpoint {
 	 * filters can attach anything to it, including the request headers.
 	 *
 	 * @since 3.24.2
+	 * @since 3.24.3 Made final.
 	 *
 	 * @param WP_Error $error The transport error.
 	 * @return WP_Error The error to relay to the caller.
 	 */
-	protected function get_relayable_transport_error( WP_Error $error ): WP_Error {
+	final protected function get_relayable_transport_error( WP_Error $error ): WP_Error {
 		return $this->strip_credentials_from_error(
 			new WP_Error(
 				$error->get_error_code(),
@@ -292,11 +295,12 @@ abstract class Base_Service_Endpoint {
 	 * the URL builder are covered too.
 	 *
 	 * @since 3.24.2
+	 * @since 3.24.3 Made final.
 	 *
 	 * @param string $message The message to strip.
 	 * @return string The message, without the credentials.
 	 */
-	protected function strip_credentials( string $message ): string {
+	final protected function strip_credentials( string $message ): string {
 		if ( '' === $message ) {
 			return $message;
 		}
@@ -361,11 +365,12 @@ abstract class Base_Service_Endpoint {
 	 * Removes the credentials from every message held by an error.
 	 *
 	 * @since 3.24.2
+	 * @since 3.24.3 Made final.
 	 *
 	 * @param WP_Error $error The error to strip.
 	 * @return WP_Error The error, without the credentials.
 	 */
-	protected function strip_credentials_from_error( WP_Error $error ): WP_Error {
+	final protected function strip_credentials_from_error( WP_Error $error ): WP_Error {
 		$codes = $error->get_error_codes();
 
 		if ( 0 === count( $codes ) ) {

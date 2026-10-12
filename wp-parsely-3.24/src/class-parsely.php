@@ -79,7 +79,7 @@ use WP_Post;
  *   timeout?: float,
  *   blocking?: bool,
  *   headers?: array<string, string>,
- *   body?: string,
+ *   body?: string|array<mixed>,
  *   data_format?: string,
  * }
  *

@@ -1,0 +1,21 @@
+/* Runtime controls inherit the site's typography; blocks keep their global
+ * styles, presets, and authored styles in both the guest flow and editor. */
+:where(body.clipisode-flow > [data-wp-interactive="clipisode/flow"],
+	body.editor-styles-wrapper > .is-root-container,
+	body.editor-styles-wrapper > .wp-block-post-content,
+	body.editor-styles-wrapper > .block-editor-block-list__layout) {
+	color: var(--clipisode-invitation-text);
+}
+
+:where(body.clipisode-flow input, body.clipisode-flow button) {
+	font: inherit;
+}
+
+:where(body.editor-styles-wrapper .clipisode-name-input-preview,
+	body.editor-styles-wrapper .clipisode-name-handle-input-preview,
+	body.editor-styles-wrapper .clipisode-email-input-preview) {
+	background: var(--clipisode-invitation-background);
+	color: var(--clipisode-invitation-text);
+	border-color: var(--clipisode-invitation-border);
+	border-radius: var(--clipisode-invitation-radius);
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "clipisode/_qr-bundle-anchor",
+  "title": "Clipisode QR bundle anchor (do not register)",
+  "category": "widgets",
+  "description": "Placeholder block.json that exists ONLY to opt this folder into the wp-scripts auto-build pipeline. Nothing in PHP calls register_block_type() for this name — its sole purpose is to point wp-scripts at view.ts so we get a built build/qr/view.js that ships the qrcode npm package as a window.clipisodeQr global. Used by the desktop intro screen to render the phone-handoff QR locally instead of via api.qrserver.com.",
+  "supports": {
+    "inserter": false,
+    "html": false,
+    "multiple": false
+  },
+  "viewScript": "file:./view.js"
+}

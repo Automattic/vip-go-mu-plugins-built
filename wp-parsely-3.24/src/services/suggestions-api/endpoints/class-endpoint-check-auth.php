@@ -18,6 +18,7 @@ use Parsely\Services\Base_Service_Endpoint;
  *
  * @since 3.19.0
  *
+ * @phpstan-import-type WP_HTTP_Request_Args from Base_Service_Endpoint
  * @phpstan-import-type WP_HTTP_Response from Base_Service_Endpoint
  */
 class Endpoint_Check_Auth extends Suggestions_API_Base_Endpoint {
@@ -50,35 +51,20 @@ class Endpoint_Check_Auth extends Suggestions_API_Base_Endpoint {
 	}
 
 	/**
-	 * Sends a request to the remote API.
+	 * Returns the request options for the remote API request.
 	 *
-	 * @since 3.19.0
-	 * @since 3.24.2 Strips the credentials from errors.
+	 * @since 3.24.3
 	 *
-	 * @param string       $method The HTTP method to use for the request.
-	 * @param array<mixed> $query_args The query arguments to send to the remote API.
-	 * @param array<mixed> $data The data to send in the request body.
-	 * @return WP_Error|array<mixed> The response from the remote API.
+	 * @param string $method The HTTP method to use for the request.
+	 * @return WP_HTTP_Request_Args The request options for the remote API request.
 	 */
-	protected function request( string $method, array $query_args = array(), array $data = array() ) {
-		// Get the URL to send the request to.
-		$request_url = $this->get_endpoint_url( $query_args );
+	protected function get_request_options( string $method ): array {
+		$options = parent::get_request_options( $method );
 
-		// Build the request options.
-		$request_options = $this->get_request_options( $method );
 		// Set the body to an empty array, as leaving it to '{}' causes errors.
-		$request_options['body'] = array();
+		$options['body'] = array();
 
-		/** @var WP_HTTP_Response|WP_Error $response */
-		$response = wp_safe_remote_request( $request_url, $request_options );
-
-		if ( is_wp_error( $response ) ) {
-			return $this->get_relayable_transport_error( $response );
-		}
-
-		$result = $this->process_response( $response );
-
-		return is_wp_error( $result ) ? $this->strip_credentials_from_error( $result ) : $result;
+		return $options;
 	}
 
 	/**

@@ -212,6 +212,7 @@ class Inbound_Smart_Link extends Smart_Link {
 	 * Gets the post data for the smart link.
 	 *
 	 * @since 3.16.0
+	 * @since 3.24.3 Uses the display name of the source post's author.
 	 *
 	 * @return SmartLinkPostData The post data.
 	 */
@@ -268,12 +269,6 @@ class Inbound_Smart_Link extends Smart_Link {
 			$paragraph       = $error_paragraph;
 		}
 
-		$author_name = get_the_author();
-		if ( '' === $author_name ) {
-			// If the author name is empty, use the author login name.
-			$author_name = get_the_author_meta( 'user_login', intval( $post->post_author ) );
-		}
-
 		$post_type = get_post_type_object( $post->post_type );
 		if ( null === $post_type ) {
 			return $empty_post_data;
@@ -299,7 +294,7 @@ class Inbound_Smart_Link extends Smart_Link {
 			'edit_link'             => get_edit_post_link( $post, 'html' ) !== null ? get_edit_post_link( $post, 'html' ) : '',
 			'is_first_paragraph'    => $paragraph['is_first_paragraph'],
 			'is_last_paragraph'     => $paragraph['is_last_paragraph'],
-			'author'                => $author_name,
+			'author'                => get_the_author_meta( 'display_name', (int) $post->post_author ),
 			'date'                  => (string) ( get_the_date( '', $post ) !== false ? get_the_date( '', $post ) : '' ),
 			'image'                 => get_the_post_thumbnail_url( $post, 'medium' ) !== false ? get_the_post_thumbnail_url( $post, 'medium' ) : '',
 		);
