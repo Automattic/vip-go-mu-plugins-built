@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'wordpress/mcp-adapter',
-        'pretty_version' => 'v0.7.0',
-        'version' => '0.7.0.0',
+        'pretty_version' => 'v0.7.1',
+        'version' => '0.7.1.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -20,8 +20,8 @@
             'dev_requirement' => false,
         ),
         'wordpress/mcp-adapter' => array(
-            'pretty_version' => 'v0.7.0',
-            'version' => '0.7.0.0',
+            'pretty_version' => 'v0.7.1',
+            'version' => '0.7.1.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',

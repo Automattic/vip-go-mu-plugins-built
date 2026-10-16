@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace WP\MCP\Transport\Infrastructure;
 
 use WP\MCP\Infrastructure\ErrorHandling\Contracts\McpErrorHandlerInterface;
+use WP\MCP\Infrastructure\ErrorHandling\ErrorLogMcpErrorHandler;
 use WP\MCP\Infrastructure\ErrorHandling\McpErrorFactory;
 
 /**
@@ -101,6 +102,7 @@ class HttpSessionValidator {
 	 * Create a session and report storage failures to an error handler.
 	 *
 	 * @since 0.6.0
+	 * @since 0.6.2 Omits client icons from stored parameters and rejects oversized parameters.
 	 * @internal
 	 *
 	 * @param array                                                 $params        The client parameters from initialize request.
@@ -112,6 +114,31 @@ class HttpSessionValidator {
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
 			return McpErrorFactory::unauthorized( null, 'User authentication required for session creation' )->toArray();
+		}
+
+		// Adapter storage policy: MCP permits large data URI icons but does not require retention.
+		// Only this stored copy changes; the inbound request remains available to the transport.
+		if ( isset( $params['clientInfo'] ) && is_array( $params['clientInfo'] ) ) {
+			unset( $params['clientInfo']['icons'] );
+		}
+
+		// Oversized parameters are a client error, not a storage failure.
+		$validation = SessionManager::validate_client_params( $params );
+		if ( is_wp_error( $validation ) ) {
+			$error_handler = $error_handler ?? new ErrorLogMcpErrorHandler();
+			$error_handler->log(
+				'Rejected MCP initialization parameters that exceed the session storage limit.',
+				array_merge(
+					array(
+						'component' => self::class,
+						'method'    => 'create_session_with_error_handler',
+						'user_id'   => $user_id,
+					),
+					(array) $validation->get_error_data()
+				)
+			);
+
+			return McpErrorFactory::invalid_params( null, $validation->get_error_message() )->toArray();
 		}
 
 		$session_id = SessionManager::create_session( $user_id, $params, $error_handler );

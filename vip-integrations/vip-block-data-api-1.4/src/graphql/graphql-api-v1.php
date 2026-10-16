@@ -8,6 +8,7 @@
 namespace WPCOMVIP\BlockDataApi;
 
 use GraphQLRelay\Relay;
+use WP_Post;
 
 defined( 'ABSPATH' ) || die();
 
@@ -29,11 +30,17 @@ class GraphQLApiV1 {
 	 *
 	 * @param  \WPGraphQL\Model\Post $post_model Post model for post.
 	 *
-	 * @return array
+	 * @return array|\Exception|null Block data, an exception for parser errors, or null when the
+	 *                               current user is not allowed to read the post's content.
 	 */
 	public static function get_blocks_data( $post_model ) {
-		$post_id = $post_model->ID;
-		$post    = get_post( $post_id );
+		$post = self::get_readable_post( $post_model );
+
+		if ( null === $post ) {
+			return null;
+		}
+
+		$post_id = $post->ID;
 
 		$content_parser = new ContentParser();
 
@@ -52,6 +59,42 @@ class GraphQLApiV1 {
 		}, $parser_results['blocks'] );
 
 		return $parser_results;
+	}
+
+	/**
+	 * Resolve the WP_Post behind a GraphQL post model when the current user is allowed to
+	 * read its raw content.
+	 *
+	 * @param \WPGraphQL\Model\Post $post_model Post model for post.
+	 *
+	 * @return WP_Post|null The post, or null if its content must not be returned.
+	 */
+	private static function get_readable_post( $post_model ) {
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- WPGraphQL field name.
+		if ( isset( $post_model->isRestricted ) && true === $post_model->isRestricted ) {
+			return null;
+		}
+
+		$post_id = $post_model->ID;
+
+		if ( empty( $post_id ) ) {
+			return null;
+		}
+
+		$post = get_post( intval( $post_id ) );
+
+		if ( ! $post instanceof WP_Post ) {
+			return null;
+		}
+
+		// WPGraphQL withholds the content field for password-protected posts. Since this
+		// resolver parses raw post_content, require edit access before returning that content.
+		// This matches the REST endpoint's password-protected post handling.
+		if ( ! empty( $post->post_password ) && ! current_user_can( 'edit_post', $post->ID ) ) {
+			return null;
+		}
+
+		return $post;
 	}
 
 	/**

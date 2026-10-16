@@ -5,10 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [8.3.0.1] - 2026-10-06
-### Security
-- Improve escaping of form attributes.
-- Improve sanitization of submitted form values.
+## [8.3.2] - 2026-10-12
+### Changed
+- Internal updates.
+
+## [8.3.1] - 2026-10-12
+### Fixed
+- Restore scrolling on the standalone single response page.
 
 ## [8.3.0] - 2026-10-05
 ### Added
@@ -2791,7 +2794,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
-[8.3.0.1]: https://github.com/automattic/jetpack-forms/compare/v8.3.0...v8.3.0.1
+[8.3.2]: https://github.com/automattic/jetpack-forms/compare/v8.3.1...v8.3.2
+[8.3.1]: https://github.com/automattic/jetpack-forms/compare/v8.3.0...v8.3.1
 [8.3.0]: https://github.com/automattic/jetpack-forms/compare/v8.2.2...v8.3.0
 [8.2.2]: https://github.com/automattic/jetpack-forms/compare/v8.2.1...v8.2.2
 [8.2.1]: https://github.com/automattic/jetpack-forms/compare/v8.2.0...v8.2.1

@@ -135,7 +135,8 @@ These are the plugin's extension points:
 ```bash
 npm -g install @wordpress/env
 composer install
-wp-env start
+wp-env start                                  # Development site from .wp-env.json
+wp-env start --config=.wp-env.tests.json      # Separate test environment
 ```
 
 ### Running Tests
@@ -146,7 +147,7 @@ composer test-multisite    # Run tests in multisite mode
 composer test-watch        # Watch mode (requires nodemon)
 ```
 
-Tests use PHPUnit 9.5 inside a WordPress environment via `@wordpress/env`. The base test class `RegistryTestCase` (in `tests/registry-test-case.php`) extends `WP_UnitTestCase` and auto-unregisters non-core blocks after each test.
+Tests use PHPUnit 9.5 inside a WordPress environment via `@wordpress/env`. The test environment is a separate wp-env instance started from `.wp-env.tests.json` (port 8889), with its own containers and database. The WordPress test suite resets the database it runs against, which is why it is kept apart from the development site. `.wp-env.json` sets `testsEnvironment` to `false` because wp-env has deprecated its built-in dual development/tests setup in favor of separate config files. The base test class `RegistryTestCase` (in `tests/registry-test-case.php`) extends `WP_UnitTestCase` and auto-unregisters non-core blocks after each test.
 
 ### Linting
 

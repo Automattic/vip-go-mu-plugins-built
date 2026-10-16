@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.55.0.1] - 2026-10-06
+## [0.55.0.3] - 2026-10-12
 ### Security
 - Playback: Strengthen authorization for private videos.
+
+## [0.55.0.2] - 2026-10-12
+### Changed
+- Update dependencies.
 
 ## [0.55.0] - 2026-10-05
 ### Added
@@ -2320,7 +2324,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
-[0.55.0.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0...v0.55.0.1
+[0.55.0.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0.2...v0.55.0.3
+[0.55.0.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.55.0...v0.55.0.2
 [0.55.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.53.0...v0.54.0
 [0.53.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.52.0...v0.53.0

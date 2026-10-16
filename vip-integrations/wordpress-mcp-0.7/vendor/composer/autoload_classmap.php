@@ -12,6 +12,7 @@ return array(
     'Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin' => $vendorDir . '/automattic/jetpack-autoloader/src/CustomAutoloaderPlugin.php',
     'Automattic\\Jetpack\\Autoloader\\ManifestGenerator' => $vendorDir . '/automattic/jetpack-autoloader/src/ManifestGenerator.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',
+    'WP\\MCP\\Abilities\\AbilityNameSuggester' => $baseDir . '/includes/Abilities/AbilityNameSuggester.php',
     'WP\\MCP\\Abilities\\DiscoverAbilitiesAbility' => $baseDir . '/includes/Abilities/DiscoverAbilitiesAbility.php',
     'WP\\MCP\\Abilities\\ExecuteAbilityAbility' => $baseDir . '/includes/Abilities/ExecuteAbilityAbility.php',
     'WP\\MCP\\Abilities\\GetAbilityInfoAbility' => $baseDir . '/includes/Abilities/GetAbilityInfoAbility.php',

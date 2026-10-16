@@ -82,260 +82,264 @@ return array(
 		'version' => '6.0.1',
 		'path'    => $vendorDir . '/automattic/jetpack-autoloader/src/class-version-selector.php'
 	),
+	'WP\\MCP\\Abilities\\AbilityNameSuggester' => array(
+		'version' => '0.7.1.0',
+		'path'    => $baseDir . '/includes/Abilities/AbilityNameSuggester.php'
+	),
 	'WP\\MCP\\Abilities\\DiscoverAbilitiesAbility' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Abilities/DiscoverAbilitiesAbility.php'
 	),
 	'WP\\MCP\\Abilities\\ExecuteAbilityAbility' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Abilities/ExecuteAbilityAbility.php'
 	),
 	'WP\\MCP\\Abilities\\GetAbilityInfoAbility' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Abilities/GetAbilityInfoAbility.php'
 	),
 	'WP\\MCP\\Abilities\\McpAbilityExposure' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Abilities/McpAbilityExposure.php'
 	),
 	'WP\\MCP\\Abilities\\McpAbilityHelperTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Abilities/McpAbilityHelperTrait.php'
 	),
 	'WP\\MCP\\Autoloader' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Autoloader.php'
 	),
 	'WP\\MCP\\Cli\\McpCommand' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Cli/McpCommand.php'
 	),
 	'WP\\MCP\\Cli\\StdioServerBridge' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Cli/StdioServerBridge.php'
 	),
 	'WP\\MCP\\Core\\McpAdapter' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpAdapter.php'
 	),
 	'WP\\MCP\\Core\\McpComponentRegistry' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpComponentRegistry.php'
 	),
 	'WP\\MCP\\Core\\McpRequestContext' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpRequestContext.php'
 	),
 	'WP\\MCP\\Core\\McpServer' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpServer.php'
 	),
 	'WP\\MCP\\Core\\McpTransportFactory' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpTransportFactory.php'
 	),
 	'WP\\MCP\\Core\\McpVersionNegotiator' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Core/McpVersionNegotiator.php'
 	),
 	'WP\\MCP\\Domain\\Contracts\\McpComponentInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Contracts/McpComponentInterface.php'
 	),
 	'WP\\MCP\\Domain\\Prompts\\Contracts\\McpPromptBuilderInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Prompts/Contracts/McpPromptBuilderInterface.php'
 	),
 	'WP\\MCP\\Domain\\Prompts\\McpPrompt' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Prompts/McpPrompt.php'
 	),
 	'WP\\MCP\\Domain\\Prompts\\McpPromptBuilder' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Prompts/McpPromptBuilder.php'
 	),
 	'WP\\MCP\\Domain\\Prompts\\RegisterAbilityAsMcpPrompt' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Prompts/RegisterAbilityAsMcpPrompt.php'
 	),
 	'WP\\MCP\\Domain\\Resources\\McpResource' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Resources/McpResource.php'
 	),
 	'WP\\MCP\\Domain\\Resources\\RegisterAbilityAsMcpResource' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Resources/RegisterAbilityAsMcpResource.php'
 	),
 	'WP\\MCP\\Domain\\Tools\\McpInputRequired' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Tools/McpInputRequired.php'
 	),
 	'WP\\MCP\\Domain\\Tools\\McpTool' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Tools/McpTool.php'
 	),
 	'WP\\MCP\\Domain\\Tools\\McpToolCallContext' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Tools/McpToolCallContext.php'
 	),
 	'WP\\MCP\\Domain\\Tools\\RegisterAbilityAsMcpTool' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Tools/RegisterAbilityAsMcpTool.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\AbilityArgumentNormalizer' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/AbilityArgumentNormalizer.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\ContentBlockHelper' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/ContentBlockHelper.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\McpAbilityMeta' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/McpAbilityMeta.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\McpAnnotationMapper' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/McpAnnotationMapper.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\McpNameSanitizer' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/McpNameSanitizer.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\McpValidator' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/McpValidator.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\RevisionProjectionTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/RevisionProjectionTrait.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\SchemaTransformer' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/SchemaTransformer.php'
 	),
 	'WP\\MCP\\Domain\\Utils\\ThrowableGuardTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Domain/Utils/ThrowableGuardTrait.php'
 	),
 	'WP\\MCP\\Handlers\\HandlerHelperTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/HandlerHelperTrait.php'
 	),
 	'WP\\MCP\\Handlers\\Initialize\\InitializeHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/Initialize/InitializeHandler.php'
 	),
 	'WP\\MCP\\Handlers\\Prompts\\PromptsHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/Prompts/PromptsHandler.php'
 	),
 	'WP\\MCP\\Handlers\\Resources\\ResourcesHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/Resources/ResourcesHandler.php'
 	),
 	'WP\\MCP\\Handlers\\System\\SystemHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/System/SystemHandler.php'
 	),
 	'WP\\MCP\\Handlers\\Tools\\ToolsHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Handlers/Tools/ToolsHandler.php'
 	),
 	'WP\\MCP\\Infrastructure\\ErrorHandling\\Contracts\\McpErrorHandlerInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/ErrorHandling/Contracts/McpErrorHandlerInterface.php'
 	),
 	'WP\\MCP\\Infrastructure\\ErrorHandling\\ErrorLogMcpErrorHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/ErrorHandling/ErrorLogMcpErrorHandler.php'
 	),
 	'WP\\MCP\\Infrastructure\\ErrorHandling\\McpErrorFactory' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/ErrorHandling/McpErrorFactory.php'
 	),
 	'WP\\MCP\\Infrastructure\\ErrorHandling\\NullMcpErrorHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/ErrorHandling/NullMcpErrorHandler.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\ConsoleObservabilityHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/ConsoleObservabilityHandler.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\Contracts\\McpObservabilityHandlerInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/Contracts/McpObservabilityHandlerInterface.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\ErrorLogMcpObservabilityHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/ErrorLogMcpObservabilityHandler.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\FailureReason' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/FailureReason.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\McpObservabilityHelperTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/McpObservabilityHelperTrait.php'
 	),
 	'WP\\MCP\\Infrastructure\\Observability\\NullMcpObservabilityHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Infrastructure/Observability/NullMcpObservabilityHandler.php'
 	),
 	'WP\\MCP\\Plugin' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Plugin.php'
 	),
 	'WP\\MCP\\Servers\\DefaultServerFactory' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Servers/DefaultServerFactory.php'
 	),
 	'WP\\MCP\\Transport\\Contracts\\McpRestTransportInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Contracts/McpRestTransportInterface.php'
 	),
 	'WP\\MCP\\Transport\\Contracts\\McpTransportInterface' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Contracts/McpTransportInterface.php'
 	),
 	'WP\\MCP\\Transport\\HttpTransport' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/HttpTransport.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\HttpRequestContext' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/HttpRequestContext.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\HttpRequestHandler' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/HttpRequestHandler.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\HttpSessionValidator' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/HttpSessionValidator.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\JsonRpcRequestDecoder' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/JsonRpcRequestDecoder.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\McpTransportContext' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/McpTransportContext.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\McpTransportHelperTrait' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/McpTransportHelperTrait.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\McpWireOrchestrator' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/McpWireOrchestrator.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\RequestRouter' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/RequestRouter.php'
 	),
 	'WP\\MCP\\Transport\\Infrastructure\\SessionManager' => array(
-		'version' => '0.7.0.0',
+		'version' => '0.7.1.0',
 		'path'    => $baseDir . '/includes/Transport/Infrastructure/SessionManager.php'
 	),
 	'WP\\McpSchema\\Contract\\ClientNotification' => array(
