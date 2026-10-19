@@ -11,7 +11,7 @@
  * Plugin Name:       Parse.ly
  * Plugin URI:        https://docs.parse.ly/wordpress
  * Description:       This plugin makes it a snap to add Parse.ly tracking code and metadata to your WordPress blog.
- * Version:           3.24.1
+ * Version:           3.24.3
  * Author:            Parse.ly
  * Author URI:        https://www.parse.ly
  * Text Domain:       wp-parsely
@@ -50,7 +50,7 @@ if ( class_exists( Parsely::class ) ) {
 	return;
 }
 
-const PARSELY_VERSION             = '3.24.1';
+const PARSELY_VERSION             = '3.24.3';
 const PARSELY_FILE                = __FILE__;
 const PARSELY_DATA_SCHEMA_VERSION = '1';
 const PARSELY_CACHE_GROUP         = 'wp-parsely';
@@ -119,7 +119,7 @@ function parsely_admin_init_register(): void {
 	( new Dashboard_Widget( $parsely ) )->run();
 }
 
-add_action( 'admin_init', __NAMESPACE__ . '\\create_engagement_boost_changeset_post' );
+add_action( 'load-toplevel_page_parsely-dashboard-page', __NAMESPACE__ . '\\create_engagement_boost_changeset_post' );
 /**
  * Creates a predefined changeset post in order to make the Engagement Boost
  * preview work for non-administrator user roles.
@@ -133,9 +133,11 @@ add_action( 'admin_init', __NAMESPACE__ . '\\create_engagement_boost_changeset_p
  *
  * By creating a predefined changeset post with a known UUID that we use in
  * `iFrameSrc()`, we guarantee that the preview will work for all authorized
- * user roles.
+ * user roles. The preview only appears on the Engagement Boost page, so the
+ * post is created when that page loads.
  *
  * @since 3.20.7
+ * @since 3.24.3 Runs only when the Engagement Boost page loads.
  */
 function create_engagement_boost_changeset_post(): void {
 	if ( ! function_exists( 'post_exists' ) ) {

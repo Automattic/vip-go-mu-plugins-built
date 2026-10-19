@@ -72,9 +72,13 @@ class Endpoint_Validate extends Content_API_Base_Endpoint {
 		}
 
 		if ( false === $response['success'] ) {
+			// Built from a successful response, so request() didn't strip it.
 			return new WP_Error(
 				$response['code'] ?? 403,
-				$response['message'] ?? __( 'Unable to validate the API credentials', 'wp-parsely' )
+				$this->strip_credentials(
+					(string) ( $response['message'] ??
+						__( 'Unable to validate the API credentials', 'wp-parsely' ) )
+				)
 			);
 		}
 

@@ -91,7 +91,7 @@ class Smart_Link extends Base_Model {
 	 * @since 3.16.0
 	 * @var string The URL of the suggested link.
 	 */
-	protected $href;
+	protected $href = '';
 
 	/**
 	 * The title of the suggested link.
@@ -730,19 +730,46 @@ class Smart_Link extends Base_Model {
 	}
 
 	/**
+	 * Determines whether an href is valid for a Smart Link.
+	 *
+	 * Only web URLs are accepted. Scheme-less references such as `/path/` or
+	 * `#anchor` also pass, unless they contain a colon, which WordPress reads
+	 * as a scheme delimiter. `esc_url_raw()` is used instead of a scheme
+	 * comparison, as it also catches case and whitespace variations.
+	 *
+	 * @since 3.24.2
+	 *
+	 * @param string $href The href to check.
+	 * @return bool Whether the href is valid.
+	 */
+	public static function is_valid_href( string $href ): bool {
+		return '' !== esc_url_raw( $href, array( 'http', 'https' ) );
+	}
+
+	/**
 	 * Sets the href of the smart link.
 	 *
+	 * Invalid hrefs are ignored. Callers accepting user input should validate
+	 * with `is_valid_href()` first, to report the rejection.
+	 *
+	 * No canonical URL is stored, as this runs during REST argument
+	 * validation, which must not have side effects.
+	 *
 	 * @since 3.16.0
+	 * @since 3.24.2 Invalid hrefs are ignored, and no canonical URL is stored.
 	 *
 	 * @param string $href The href of the smart link.
 	 */
 	public function set_href( string $href ): void {
+		if ( ! self::is_valid_href( $href ) ) {
+			return;
+		}
+
 		$this->href          = $href;
 		$destination_post_id = Utils::get_post_id_by_url( $href );
 
 		if ( 0 !== $destination_post_id ) {
-			// Set the destination post ID, and update the canonical URL.
-			$this->set_destination_post_id( $destination_post_id, $href );
+			$this->set_destination_post_id( $destination_post_id );
 		}
 	}
 

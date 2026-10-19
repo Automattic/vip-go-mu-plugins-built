@@ -61,11 +61,6 @@ export interface Post extends CorePost {
 	parsely?: {
 		version: string;
 		canonical_url: string;
-		smart_links: {
-			inbound: number;
-			outbound: number;
-		};
-		traffic_boost_suggestions_count: number;
 	};
 }
 

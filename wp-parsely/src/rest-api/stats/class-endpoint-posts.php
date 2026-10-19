@@ -22,6 +22,9 @@ use stdClass;
  *
  * Provides an endpoint for retrieving posts.
  *
+ * It returns site-wide analytics, so it's available to any user with the
+ * default `publish_posts` capability, whoever authored the posts.
+ *
  * @since 3.17.0
  */
 class Endpoint_Posts extends Base_Endpoint {
@@ -29,6 +32,7 @@ class Endpoint_Posts extends Base_Endpoint {
 
 	public const TOP_POSTS_DEFAULT_LIMIT = 5;
 	public const SORT_DEFAULT            = 'views';
+	public const MAX_URLS                = 500;
 
 	/**
 	 * The metrics that can be sorted by.
@@ -179,6 +183,8 @@ class Endpoint_Posts extends Base_Endpoint {
 					'urls'             => array(
 						'description'       => 'The URLs to fetch data for.',
 						'type'              => 'array',
+						'items'             => array( 'type' => 'string' ),
+						'maxItems'          => self::MAX_URLS,
 						'sanitize_callback' => array( $this, 'sanitize_urls' ),
 						'validate_callback' => array( $this, 'validate_urls' ),
 						'required'          => false,
@@ -247,11 +253,27 @@ class Endpoint_Posts extends Base_Endpoint {
 	 * Validates if the provided array is a list of URLs.
 	 *
 	 * @since 3.19.0
+	 * @since 3.24.2 Rejects non-arrays and more than `MAX_URLS` items.
 	 *
-	 * @param array<string> $urls The array to validate.
+	 * @param mixed $urls The raw parameter value, as validation runs before type checks.
 	 * @return true|WP_Error
 	 */
-	public function validate_urls( array $urls ) {
+	public function validate_urls( $urls ) {
+		if ( ! is_array( $urls ) ) {
+			return new WP_Error( 'invalid_param', __( 'The parameter must be a list of URLs.', 'wp-parsely' ) );
+		}
+
+		if ( count( $urls ) > self::MAX_URLS ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* translators: %d: The maximum number of items. */
+					__( 'The parameter must have at most %d items.', 'wp-parsely' ),
+					self::MAX_URLS
+				)
+			);
+		}
+
 		foreach ( $urls as $url ) {
 			if ( false === filter_var( $url, FILTER_VALIDATE_URL ) ) {
 				return new WP_Error( 'invalid_param', __( 'The parameter must be a list of URLs.', 'wp-parsely' ) );

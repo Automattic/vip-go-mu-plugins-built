@@ -111,6 +111,7 @@ This suite is meant to simulate actual user actions as they interact with the pl
   - To run all E2E tests: `npm run test:e2e`.
   - To run a specific test: `npm run test:e2e activation-flow.spec.js`.
   - For debugging purposes, you might want to run tests visually: `npm run test:e2e:debug`.
+  - By default, the tests run against the wp-env tests site, on the port set by `WP_ENV_TESTS_PORT` or `.wp-env.override.json` (8889 otherwise). To target another site, set `WP_BASE_URL`, for example `WP_BASE_URL=http://localhost:8080 npm run test:e2e`.
 - Finish:
   - When you're finished testing, the WordPress environment can be stopped using `npm run dev:stop`.
 
