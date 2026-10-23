@@ -5,11 +5,11 @@ namespace Automattic\ShareADraft;
 /**
  * Tells VIP-hosted installs apart from everywhere else.
  *
- * The preview feature itself is pure WordPress and runs anywhere, but a few
- * pieces of the plugin only make sense on the VIP platform: runtime config
- * injected by the VIP Dashboard, and help links pointing at VIP support. Off
- * platform those become noise at best and misdirection at worst, so each is
- * gated on this check rather than shown unconditionally.
+ * The preview feature itself is pure WordPress and runs anywhere, but the help
+ * links pointing at VIP support only make sense on the VIP platform. Off
+ * platform they would be misdirection, so they are gated on this check rather
+ * than shown unconditionally. Runtime config is not gated here: it is read
+ * wherever its constant is defined.
  *
  * `VIP_GO_APP_ENVIRONMENT` is defined on every VIP environment, including the
  * local `vip dev-env` (where it is `local`), which is exactly the set of places
@@ -27,9 +27,9 @@ final class Platform {
 		/**
 		 * Filters whether the plugin treats this install as VIP-hosted.
 		 *
-		 * Controls the VIP-only surfaces: the runtime-config admin notice and the
-		 * VIP support links in contextual help. It does not change how preview
-		 * links themselves behave.
+		 * Controls the VIP-only surface: the VIP support links in contextual
+		 * help. It does not change how preview links themselves behave, nor
+		 * whether runtime config is read.
 		 *
 		 * @param bool $is_vip Whether a VIP platform constant was detected.
 		 */

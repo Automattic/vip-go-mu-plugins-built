@@ -17,10 +17,10 @@ namespace Automattic\ShareADraft;
  * learn nothing, not even that the link once existed or has expired, so it is
  * checked before the reasons the gate is willing to explain. Revocation and
  * expiry are absolute and come next, so holding a slot never resurrects a link
- * the author killed or one that simply ran out of time. The recipient check
- * follows them, so a visitor is only invited to verify their email for a link
- * that is still alive. Only the viewer cap is relaxed for an existing
- * slot-holder.
+ * the author killed or one that simply ran out of time. The viewer cap follows,
+ * relaxed only for an existing slot-holder. The recipient check comes last, so
+ * a visitor is only invited to verify their email (and sent a code) for a link
+ * that could still let them in.
  */
 final class AccessPolicy {
 	/**
@@ -87,12 +87,12 @@ final class AccessPolicy {
 			return AccessDecision::deny( AccessDecision::REASON_EXPIRED );
 		}
 
-		if ( [] !== $link->recipients() && ( null === $verified_email || ! $link->is_recipient( $verified_email ) ) ) {
-			return AccessDecision::deny( AccessDecision::REASON_EMAIL_UNVERIFIED );
-		}
-
 		if ( $link->is_exhausted() && ! $viewer_holds_slot ) {
 			return AccessDecision::deny( AccessDecision::REASON_EXHAUSTED );
+		}
+
+		if ( [] !== $link->recipients() && ( null === $verified_email || ! $link->is_recipient( $verified_email ) ) ) {
+			return AccessDecision::deny( AccessDecision::REASON_EMAIL_UNVERIFIED );
 		}
 
 		return AccessDecision::allow();

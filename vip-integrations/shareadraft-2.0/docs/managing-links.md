@@ -1,6 +1,6 @@
 # Managing preview links
 
-Every preview link can limit how many people open it and can be revoked on its own, and administrators can also pause every link on the site at once, revoke links in bulk, and make sure links do not outlive the people who created them. This page covers each of those. Everything here can also be done from the shell with [WP-CLI](wp-cli.md), or by AI assistants through the [Abilities API](abilities.md).
+Every preview link can limit how many people open it and can be revoked on its own. Editors and administrators can also revoke links in bulk and make sure links do not outlive the people who created them, and administrators can pause every link on the site at once. This page covers each of those. Everything here can also be done from the shell with [WP-CLI](wp-cli.md), or by AI assistants through the [Abilities API](abilities.md).
 
 None of this applies to links made with Share a Draft 1.x. Each of those keeps working until it expires, and only the person who made it can delete it, under Posts → Share a Draft (Old). Support for 1.x links is removed in 2.1.0.
 
@@ -26,7 +26,7 @@ If you expect a reviewer to switch devices, allow for it when you set the limit.
 
 A revoked link stops working immediately. There are two places to do it:
 
-- **In the block editor.** Choose **Manage preview links** in the draft's Share a Draft panel to see each of its links, with how often it has been used and when it expires, and revoke any of them.
+- **In the post editor.** Choose **Manage preview links** in the draft's Share a Draft panel (or, on the classic editing screen, the Share a Draft box) to see each of its links, with how often it has been used and when it expires, and revoke any of them.
 - **On the Preview Links screen.** Every link on the site is listed under **Preview Links** in the admin menu, with the post it belongs to, who created it, its usage, reviewers, IP restrictions, and expiry. Revoke a link from its row, or select several and use the **Revoke** bulk action.
 
 A reviewer who opens a revoked link is told it has been revoked, rather than seeing a bare "not found". Links are also discarded automatically when their draft is published, made private, or moved to the trash, and none can be made for a post in those states.
@@ -45,11 +45,11 @@ To revoke more than one page of links at once, select the checkbox at the top of
 
 To revoke everything one person created, click their name in the **Created by** column first, so the table shows only their links, then select all. Revoking every link on the whole site, for a confirmed leak, is limited to administrators.
 
-Bulk revoking works through links in batches. On a site with a very large number of shared posts, the remainder is finished in the background within a few minutes, and links not yet reached keep working until then.
+Bulk revoking works through links in batches. On a site with a very large number of shared posts, the remainder is finished in the background within a few minutes, and links not yet reached keep working until then. A bulk revoke covers the links that existed when it started, so a link created while it is still finishing is not revoked.
 
 ## When someone leaves
 
-When a user account is deleted, every link that person created is revoked automatically.
+When a user account is deleted, every link that person created is revoked automatically. On a multisite network, deleting the account from the network revokes their links on every site they belong to. A super admin's links on sites they are not a member of are not revoked this way, so revoke those on each site before deleting the account.
 
 Changing someone's role deliberately does not revoke their links: moving an editor to author should not necessarily cut off reviews already under way. If your process should revoke links on other events, such as a role change or a user being removed from a site on a multisite network, a few lines of code can [revoke a person's links on other events](customizing.md#revoke-a-persons-links-on-other-events). Another hook lets you [record when a person's links are revoked](customizing.md#record-when-a-persons-links-are-revoked), for example in an audit log.
 

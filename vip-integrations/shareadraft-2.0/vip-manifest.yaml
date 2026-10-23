@@ -9,7 +9,7 @@
 # See docs/manifest.md for a field-by-field guide, and vip-manifest.schema.json
 # for the full schema (fields, types, and constraints).
 
-manifest_version: 1
+manifest_version: 2
 manifest_kind: vip-integration-handoff
 
 integration:
@@ -36,7 +36,8 @@ runtime_config:
   # integration is enabled for the site, and the plugin works with nothing in it.
   # The schema requires at least one field to be declared, so the one below is
   # optional and read through Config — never declare a field nothing reads.
-  constant_name: VIP_SHAREADRAFT_CONFIG
+  # The constant itself isn't declared: VIP derives it from the slug as
+  # VIP_SHAREADRAFT_CONFIG.
   fields:
     - key: dead_link_grace_period
       label: Expired link retention
@@ -81,7 +82,7 @@ telemetry:
       note: Usage metadata only — never the token, content, or PII. `channel` records how the link was requested (`rest`, `ability`, or `cli`). `has_ip_allowlist` records only whether per-link IP ranges were set, never the ranges themselves. `has_recipients`/`recipient_count` record whether and how many reviewer emails a link is bound to, never the addresses.
 
 release:
-  plugin_version: 2.0.0
+  plugin_version: 2.0.1
   version_strategy: latest
   migration_required: false
-  changelog: Initial release.
+  changelog: Preview links on the classic editing screen, network-wide revoking of a deleted user's links, and fixes to the Preview Links screen and link cleanup.

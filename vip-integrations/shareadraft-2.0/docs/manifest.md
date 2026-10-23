@@ -13,18 +13,18 @@ and the schema it is validated against
 npx @automattic/vip-integration validate
 ```
 
-The runtime fields — slug, folder, entry file, namespace, and config constant —
-identify how VIP loads the plugin and rarely change. The identity fields and the
-config schema are the parts you actively maintain.
+The runtime fields — slug, folder, entry file, and namespace — identify how VIP
+loads the plugin and rarely change. The identity fields and the config schema
+are the parts you actively maintain.
 
 ## Fields
 
 ### Top level
 
-| Field              | Required | Notes                                |
-| ------------------ | -------- | ------------------------------------ |
-| `manifest_version` | yes      | Manifest format version. Always `1`. |
-| `manifest_kind`    | yes      | Always `vip-integration-handoff`.    |
+| Field              | Required | Notes                                                                                            |
+| ------------------ | -------- | ------------------------------------------------------------------------------------------------ |
+| `manifest_version` | yes      | Manifest format version. Always `2`. Version `1` declared the config constant and is deprecated. |
+| `manifest_kind`    | yes      | Always `vip-integration-handoff`.                                                                |
 
 ### `integration` — catalog identity
 
@@ -59,14 +59,15 @@ These identify how VIP loads the plugin and rarely change.
 ### `runtime_config` — the config the platform manages for you
 
 VIP defines a single PHP constant (a config array) before your plugin loads, and
-renders a form in the Dashboard from the fields you declare here. See
+renders a form in the Dashboard from the fields you declare here. The constant
+is not declared here — VIP derives it from the slug as `VIP_<SLUG>_CONFIG` (slug
+upper-cased, `-` → `_`), so `shareadraft` reads `VIP_SHAREADRAFT_CONFIG`. See
 [vip-integration.md](vip-integration.md#runtime-config) for how the plugin reads
 it.
 
-| Field           | Required | Notes                                                                                        |
-| --------------- | -------- | -------------------------------------------------------------------------------------------- |
-| `constant_name` | yes      | The constant your plugin reads. Must match `VIP_*_CONFIG`, e.g. `VIP_MY_INTEGRATION_CONFIG`. |
-| `fields`        | yes      | At least one config field (below).                                                           |
+| Field    | Required | Notes                              |
+| -------- | -------- | ---------------------------------- |
+| `fields` | yes      | At least one config field (below). |
 
 Each entry in `fields`:
 

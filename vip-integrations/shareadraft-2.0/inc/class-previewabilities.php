@@ -35,6 +35,12 @@ final class PreviewAbilities {
 	/** Fully-qualified name of the prune-links ability. */
 	public const PRUNE_LINKS = 'shareadraft/prune-preview-links';
 
+	/**
+	 * Batches of posts one prune call walks before stopping: 1,000 posts, well
+	 * inside a web request. Anything past that is left to the scheduled sweep.
+	 */
+	private const PRUNE_BATCH_LIMIT = 10;
+
 	/** Fully-qualified name of the site-wide enable/disable ability. */
 	public const SET_ENABLED = 'shareadraft/set-preview-links-enabled';
 
@@ -326,9 +332,13 @@ final class PreviewAbilities {
 				'output_schema'       => [
 					'type'       => 'object',
 					'properties' => [
-						'pruned' => [
+						'pruned'  => [
 							'type'        => 'integer',
 							'description' => __( 'How many dead links were deleted.', 'shareadraft' ),
+						],
+						'pending' => [
+							'type'        => 'boolean',
+							'description' => __( 'True when the site had too many posts with links to check in one run. The daily sweep will prune the rest using the configured retention period, so running this again will not reach them sooner.', 'shareadraft' ),
 						],
 					],
 				],
@@ -688,14 +698,14 @@ final class PreviewAbilities {
 
 	/**
 	 * @param mixed $input The schema-validated ability input.
-	 * @return array{pruned: int}
+	 * @return array{pruned: int, pending: bool}
 	 */
 	public function prune_links( $input ): array {
 		$grace = is_array( $input ) && isset( $input['grace'] ) && is_numeric( $input['grace'] ) && (int) $input['grace'] >= 0
 			? (int) $input['grace']
 			: null;
 
-		return [ 'pruned' => $this->collector->sweep_all( $grace ) ];
+		return $this->collector->sweep_all( $grace, self::PRUNE_BATCH_LIMIT );
 	}
 
 	/**

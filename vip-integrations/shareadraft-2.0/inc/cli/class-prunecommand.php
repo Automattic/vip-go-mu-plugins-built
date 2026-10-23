@@ -58,7 +58,7 @@ final class PruneCommand {
 			$grace = (int) $assoc_args['grace'];
 		}
 
-		$deleted = $this->collector->sweep_all( $grace );
+		$deleted = $this->collector->sweep_all( $grace )['pruned'];
 
 		WP_CLI::success(
 			1 === $deleted ? 'Pruned 1 preview link.' : sprintf( 'Pruned %d preview links.', $deleted )

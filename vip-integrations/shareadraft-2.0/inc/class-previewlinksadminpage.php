@@ -78,6 +78,30 @@ final class PreviewLinksAdminPage {
 		return $creator > 0 ? $creator : null;
 	}
 
+	/**
+	 * The creator filter and page being viewed, so a revoke lands back on the
+	 * same view instead of page 1 of the whole site's list.
+	 *
+	 * @return array<string, int>
+	 */
+	public static function view_args(): array {
+		$args    = [];
+		$creator = self::requested_creator();
+
+		if ( null !== $creator ) {
+			$args['creator'] = $creator;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display state, as above.
+		$paged = isset( $_REQUEST['paged'] ) && is_scalar( $_REQUEST['paged'] ) ? (int) $_REQUEST['paged'] : 0;
+
+		if ( $paged > 1 ) {
+			$args['paged'] = $paged;
+		}
+
+		return $args;
+	}
+
 	public function register(): void {
 		add_action( 'admin_menu', [ $this, 'add_menu' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_assets' ] );
@@ -176,7 +200,7 @@ final class PreviewLinksAdminPage {
 			return;
 		}
 
-		$args = [ 'shareadraft_revoked' => $revoked ];
+		$args = [ 'shareadraft_revoked' => $revoked ] + self::view_args();
 
 		if ( $this->revoker->has_pending_work() ) {
 			// A sweep overflowed this run and continues on cron; say so rather
@@ -251,7 +275,7 @@ final class PreviewLinksAdminPage {
 			// "Select all across pages" upgrades the bulk revoke from the ticked
 			// rows to the whole filtered set, the way Gmail's select-all does.
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verified above.
-			if ( isset( $_POST['shareadraft_all'] ) && '' !== $_POST['shareadraft_all'] ) {
+			if ( isset( $_POST['shareadraft_all'] ) && '1' === $_POST['shareadraft_all'] ) {
 				$creator = self::requested_creator();
 
 				// Deliberately not scoped to posts the viewer can edit: this is
@@ -324,7 +348,6 @@ final class PreviewLinksAdminPage {
 			.shareadraft-switch input:checked ~ .shareadraft-track { background: #2271b1; }
 			.shareadraft-switch input:checked ~ .shareadraft-track::before { transform: translateX(16px); }
 			.shareadraft-switch input:focus-visible ~ .shareadraft-track { outline: 2px solid #2271b1; outline-offset: 2px; }
-			#shareadraft-select-all { background: #f6f7f7; border: 1px solid #c3c4c7; padding: 8px 12px; margin: 4px 0 8px; }
 		</style>';
 
 		echo '<form method="post" id="shareadraft-toggle" action="' . esc_url( $this->page_url() ) . '">';
@@ -369,8 +392,10 @@ final class PreviewLinksAdminPage {
 			$active = sprintf( __( 'All %d links across the whole site are selected.', 'shareadraft' ), $total );
 		}
 
+		// Styled here rather than with the toggle's rules, which editors never get.
 		printf(
-			'<div id="shareadraft-select-all" hidden>
+			'<style>#shareadraft-select-all { background: #f6f7f7; border: 1px solid #c3c4c7; padding: 8px 12px; margin: 4px 0 8px; }</style>
+			<div id="shareadraft-select-all" hidden>
 				<span id="shareadraft-select-all-offer">%s <button type="button" class="button-link" id="shareadraft-select-all-btn">%s</button></span>
 				<span id="shareadraft-select-all-active" hidden>%s <button type="button" class="button-link" id="shareadraft-clear-selection-btn">%s</button></span>
 			</div>',
@@ -412,7 +437,7 @@ final class PreviewLinksAdminPage {
 			$who  = false !== $user ? $user->display_name : null;
 		}
 
-		$when = null !== $since ? wp_date( PreviewLinksListTable::datetime_format(), $since ) : false;
+		$when = null !== $since ? wp_date( self::datetime_format(), $since ) : false;
 
 		if ( null !== $who && false !== $when ) {
 			/* translators: 1: user display name, 2: date and time */
@@ -656,7 +681,7 @@ final class PreviewLinksAdminPage {
 			]
 		);
 
-		$reading  = '<p>' . esc_html__( 'The table identifies a link by the last four characters of its token and can revoke it, but it never shows or re-copies the shareable URL: only a hash of the token is stored, never the token itself. If a link is lost, revoke it and generate a fresh one from the post editor.', 'shareadraft' ) . '</p>';
+		$reading  = '<p>' . esc_html__( 'The table identifies a link by the last four characters of its token and can revoke it, but it never shows or re-copies the shareable URL: only a hash of the token and its last four characters are stored, never the whole token. If a link is lost, revoke it and generate a fresh one from the post editor.', 'shareadraft' ) . '</p>';
 		$reading .= '<p>' . esc_html__( 'A link on a post you cannot edit is listed without its title, reviewers, or IP ranges, and cannot be revoked from its row.', 'shareadraft' ) . '</p>';
 		$reading .= '<p><strong>' . esc_html__( 'Status', 'shareadraft' ) . '</strong></p><ul>';
 		$reading .= '<li>' . esc_html__( 'Active: the link works.', 'shareadraft' ) . '</li>';
@@ -665,6 +690,7 @@ final class PreviewLinksAdminPage {
 		$reading .= '<li>' . esc_html__( 'Revoked: switched off by hand.', 'shareadraft' ) . '</li>';
 		$reading .= '</ul><p>' . esc_html__( 'Uses counts how many people have opened the link, against its maximum; an infinity sign means no maximum.', 'shareadraft' ) . '</p>';
 		$reading .= '<p>' . esc_html__( 'Each browser counts as one person. A reviewer who opens the link in another browser, on another device, or in a private window, or who clears their cookies, counts again, while people sharing one browser count once. A browser is remembered for a week, so on a link that lasts longer, a reviewer returning after a week counts again.', 'shareadraft' ) . '</p>';
+		$reading .= '<p>' . esc_html__( 'People who can edit a post never count: they get WordPress\'s own preview of the draft, whatever the state of the link they open, so a link that is exhausted, expired, or revoked still shows them the draft.', 'shareadraft' ) . '</p>';
 
 		// The optional restriction columns only exist while their feature is
 		// enabled, so their explanations come and go with them.
@@ -736,6 +762,18 @@ final class PreviewLinksAdminPage {
 		}
 
 		return $sidebar;
+	}
+
+	/**
+	 * The site's date and time formats joined, as the admin screens show them.
+	 * Lives here rather than on {@see PreviewLinksListTable} so callers outside
+	 * wp-admin (the personal data exporter) need not load `WP_List_Table`.
+	 */
+	public static function datetime_format(): string {
+		$date = get_option( 'date_format' );
+		$time = get_option( 'time_format' );
+
+		return ( is_string( $date ) ? $date : '' ) . ' ' . ( is_string( $time ) ? $time : '' );
 	}
 
 	private function table(): PreviewLinksListTable {

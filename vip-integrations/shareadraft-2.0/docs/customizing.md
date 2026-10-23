@@ -100,7 +100,24 @@ add_filter(
 
 When a link has expired, been revoked, or been used up, the reviewer sees a short notice on a simple page carrying your site's name and icon. The same page hosts the email-verification steps.
 
-To change the text inside that page, filter `shareadraft_notice_content`. It receives the page's HTML content and its title and HTTP status, and whatever you return is output as it is, so escape anything you add. To replace the whole page rather than its content, hook WordPress's `wp_die_handler`, because every notice is shown through `wp_die()`.
+To change the text inside that page, filter `shareadraft_notice_content`. It receives two arguments: the page's HTML content, and an array holding the page's `title` and HTTP `status`. Whatever you return is output as it is, so escape anything you add:
+
+```php
+add_filter(
+	'shareadraft_notice_content',
+	function ( string $content, array $context ): string {
+		if ( 410 !== $context['status'] ) {
+			return $content;
+		}
+
+		return $content . '<p>' . esc_html__( 'Ask the author for a new link.', 'my-plugin' ) . '</p>';
+	},
+	10,
+	2
+);
+```
+
+To replace the whole page rather than its content, hook WordPress's `wp_die_handler`, because every notice is shown through `wp_die()`.
 
 To say less about why a link stopped working, return `false` from `shareadraft_disclose_denial_reason`, and every reason collapses into one general message. It also receives the reason (`expired`, `revoked`, `exhausted`, or `links_disabled`), so you can hide only some:
 

@@ -119,6 +119,12 @@ final class PreviewLinksListTable extends WP_List_Table {
 	}
 
 	public function no_items(): void {
+		if ( null !== PreviewLinksAdminPage::requested_creator() ) {
+			esc_html_e( 'This user has not created any preview links.', 'shareadraft' );
+
+			return;
+		}
+
 		esc_html_e( 'No preview links have been created yet.', 'shareadraft' );
 	}
 
@@ -140,16 +146,6 @@ final class PreviewLinksListTable extends WP_List_Table {
 		);
 
 		$this->_column_headers = [ $this->get_columns(), get_hidden_columns( $this->screen ), [] ];
-	}
-
-	/**
-	 * The site's date and time formats joined, as the admin screens show them.
-	 */
-	public static function datetime_format(): string {
-		$date = get_option( 'date_format' );
-		$time = get_option( 'time_format' );
-
-		return ( is_string( $date ) ? $date : '' ) . ' ' . ( is_string( $time ) ? $time : '' );
 	}
 
 	/**
@@ -280,7 +276,7 @@ final class PreviewLinksListTable extends WP_List_Table {
 
 	public function column_expiry( PreviewLink $item ): string {
 		$expires  = $item->expires_at();
-		$absolute = wp_date( self::datetime_format(), $expires );
+		$absolute = wp_date( PreviewLinksAdminPage::datetime_format(), $expires );
 
 		if ( $item->is_expired( $this->now ) ) {
 			/* translators: %s: human-readable duration, e.g. "2 hours" */
@@ -338,7 +334,7 @@ final class PreviewLinksListTable extends WP_List_Table {
 					'action' => 'revoke',
 					'post'   => $item->post_id(),
 					'token'  => $item->token_hash(),
-				],
+				] + PreviewLinksAdminPage::view_args(),
 				admin_url( 'admin.php' )
 			),
 			'shareadraft_revoke_' . $item->post_id() . '_' . $item->token_hash()

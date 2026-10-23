@@ -3,7 +3,7 @@
  * Plugin Name: Share a Draft
  * Plugin URI: https://wordpress.org/plugins/shareadraft/
  * Description: Generate safe-to-share, time- and usage-limited preview links so reviewers without a WordPress account can review a draft.
- * Version: 2.0.0
+ * Version: 2.0.1
  * Requires at least: 6.9
  * Requires PHP: 8.2
  * Author: Automattic
@@ -27,7 +27,7 @@ if ( defined( 'VIP_SHAREADRAFT_LOADED' ) ) {
 }
 
 define( 'VIP_SHAREADRAFT_LOADED', true );
-define( 'VIP_SHAREADRAFT_VERSION', '2.0.0' );
+define( 'VIP_SHAREADRAFT_VERSION', '2.0.1' );
 define( 'VIP_SHAREADRAFT_FILE', __FILE__ );
 
 require_once __DIR__ . '/inc/autoload.php';

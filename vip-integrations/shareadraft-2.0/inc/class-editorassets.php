@@ -3,14 +3,18 @@
 namespace Automattic\ShareADraft;
 
 /**
- * Enqueues the block-editor script that adds the "Generate preview link" panel.
+ * Enqueues the editor scripts that add the "Generate preview link" controls:
+ * the block-editor sidebar panel, and the classic edit screen's meta box
+ * (enqueued by {@see ClassicEditorMetaBox} when it renders).
  *
- * The script is built by @wordpress/scripts into build/. If it has not been
- * built yet, enqueuing is skipped rather than fatal, so the plugin still loads
- * cleanly in an unbuilt checkout.
+ * The scripts are built by @wordpress/scripts into build/. If they have not
+ * been built yet, enqueuing is skipped rather than fatal, so the plugin still
+ * loads cleanly in an unbuilt checkout.
  */
 final class EditorAssets {
 	private const HANDLE = 'shareadraft-editor';
+
+	private const CLASSIC_HANDLE = 'shareadraft-classic';
 
 	/**
 	 * Whether central IP ranges are configured in the VIP Dashboard, so the
@@ -34,11 +38,32 @@ final class EditorAssets {
 	}
 
 	public function enqueue(): void {
+		$this->enqueue_entry( self::HANDLE, 'index' );
+	}
+
+	/**
+	 * The classic edit screen has no block-editor styles loaded, so the shared
+	 * modals also need the components stylesheet there.
+	 */
+	public function enqueue_classic(): void {
+		if ( $this->enqueue_entry( self::CLASSIC_HANDLE, 'classic' ) ) {
+			wp_enqueue_style( 'wp-components' );
+		}
+	}
+
+	/**
+	 * Enqueue one built entry point with its translations and settings.
+	 *
+	 * @param non-empty-string $handle The script handle.
+	 * @param string           $entry  The entry's build/ filename, without extension.
+	 * @return bool Whether it was enqueued (false in an unbuilt checkout).
+	 */
+	private function enqueue_entry( string $handle, string $entry ): bool {
 		$base       = plugin_dir_path( VIP_SHAREADRAFT_FILE );
-		$asset_file = $base . 'build/index.asset.php';
+		$asset_file = $base . "build/{$entry}.asset.php";
 
 		if ( ! file_exists( $asset_file ) ) {
-			return;
+			return false;
 		}
 
 		// $asset_file is derived solely from the plugin's own directory and a
@@ -47,7 +72,7 @@ final class EditorAssets {
 		/** @var mixed $asset */
 		$asset = require $asset_file; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingVariable
 		if ( ! is_array( $asset ) ) {
-			return;
+			return false;
 		}
 
 		/** @var list<non-empty-string> $dependencies */
@@ -59,8 +84,8 @@ final class EditorAssets {
 			: VIP_SHAREADRAFT_VERSION;
 
 		wp_enqueue_script(
-			self::HANDLE,
-			plugins_url( 'build/index.js', VIP_SHAREADRAFT_FILE ),
+			$handle,
+			plugins_url( "build/{$entry}.js", VIP_SHAREADRAFT_FILE ),
 			$dependencies,
 			$version,
 			true
@@ -70,7 +95,7 @@ final class EditorAssets {
 		// wp-content/languages/plugins/, and this plugin ships its catalogues
 		// itself. The JSON filenames hash the enqueued path (build/index.js),
 		// which is why `composer i18n` scans build/ rather than src/.
-		wp_set_script_translations( self::HANDLE, 'shareadraft', $base . 'languages' );
+		wp_set_script_translations( $handle, 'shareadraft', $base . 'languages' );
 
 		// Hand the editor the same expiration options the endpoint validates,
 		// and which optional restrictions this site offers, so the modals only
@@ -88,7 +113,9 @@ final class EditorAssets {
 		);
 
 		if ( false !== $data ) {
-			wp_add_inline_script( self::HANDLE, 'window.shareADraft = ' . $data . ';', 'before' );
+			wp_add_inline_script( $handle, 'window.shareADraft = ' . $data . ';', 'before' );
 		}
+
+		return true;
 	}
 }

@@ -76,7 +76,9 @@ final class Plugin {
 		( new PreviewGate( $service, new RecipientVerifier(), $toggle ) )->register();
 		( new PublishCleanup( $service ) )->register();
 		$collector->register();
-		( new EditorAssets( [] !== $central_ip_ranges, $toggle->is_disabled() ) )->register();
+		$editor_assets = new EditorAssets( [] !== $central_ip_ranges, $toggle->is_disabled() );
+		$editor_assets->register();
+		( new ClassicEditorMetaBox( $editor_assets ) )->register();
 
 		// Bulk revocation: the break-glass sweep, offboarding on user deletion,
 		// and the customer-facing revoke-user-links action.

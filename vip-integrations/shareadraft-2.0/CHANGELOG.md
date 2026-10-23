@@ -5,6 +5,33 @@ All notable changes to Share a Draft are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-10-23
+
+### Changed
+
+- Explain that people who can edit a post skip a link's limits and see WordPress's own preview instead, so a link that has expired, been revoked, or reached its viewing limit still shows them the draft, and their visits never use up a view. The note appears in the Generate preview link modal, the Preview Links screen's contextual help, and the readme FAQ. ([#87](https://github.com/Automattic/shareadraft/pull/87))
+
+### Fixed
+
+- Create and manage preview links from the classic edit screen, through a Share a Draft meta box with the same Generate and Manage controls as the block editor panel. This restores link creation for sites running the Classic Editor plugin, and for post types that don't use the block editor. ([#84](https://github.com/Automattic/shareadraft/pull/84))
+- Ship the built editor scripts in the VIP package. The 2.0.0 package included the repository's `.gitignore`, which made VIP's deployment drop the `build/` directory and show the "JavaScript assets have not been built" notice. ([#86](https://github.com/Automattic/shareadraft/pull/86))
+- Revoke a deleted user's preview links on every site in a multisite network they belong to, not just the site the deletion was started from. ([#82](https://github.com/Automattic/shareadraft/pull/82))
+- Tell a named reviewer straight away when a link has reached its viewing limit, rather than emailing them a verification code first. ([#75](https://github.com/Automattic/shareadraft/pull/75))
+- List every link in `wp shareadraft list` and the list-preview-links ability even when a stored link is malformed. Previously, one corrupt row could hide every older link. ([#78](https://github.com/Automattic/shareadraft/pull/78))
+- Stop the personal data exporter failing with `Class "WP_List_Table" not found` when it runs outside wp-admin and WP-CLI. ([#76](https://github.com/Automattic/shareadraft/pull/76))
+- Keep the creator filter and page on the Preview Links screen after revoking a link, and say when a creator's filtered view has no links rather than claiming the site has none. ([#81](https://github.com/Automattic/shareadraft/pull/81))
+- Bound the `shareadraft/prune-preview-links` ability to 1,000 posts per call, reporting `pending: true` when more remain, so it answers rather than timing out on large sites. Site Health's cleanup check now reflects when the sweep last completed, not when it last started, so a sweep that keeps failing no longer shows as healthy. ([#80](https://github.com/Automattic/shareadraft/pull/80))
+- Stop a bulk revoke on the Preview Links screen from sweeping the whole filtered set when the browser restores a stale select-all value on Back, and style the select-all banner for editors as well as administrators. A bulk revoke now leaves alone links created after it started. The `shareadraft_notice_content` filter is documented with its two arguments and a working example. ([#79](https://github.com/Automattic/shareadraft/pull/79))
+
+### Maintenance
+
+- Move the VIP integration manifest to version 2 and validate it with `@automattic/vip-integration` 0.2.0. The plugin still reads its settings from `VIP_SHAREADRAFT_CONFIG`. ([#107](https://github.com/Automattic/shareadraft/pull/107))
+- Summarize recent releases in the readme's changelog, which WordPress shows in the plugin details modal. ([#104](https://github.com/Automattic/shareadraft/pull/104))
+- Add a security policy that points vulnerability reports to Automattic's HackerOne program. ([#85](https://github.com/Automattic/shareadraft/pull/85))
+- Pin the command-line tools CI installs, upload release assets from a separate job, and refuse to deploy a release tag that isn't on `main`. ([#77](https://github.com/Automattic/shareadraft/pull/77))
+- Bump CodeQL's init and analyze actions together, and assert the contextual help tabs strictly. ([#98](https://github.com/Automattic/shareadraft/pull/98), [#99](https://github.com/Automattic/shareadraft/pull/99))
+- Update development dependencies and GitHub Actions. ([#66](https://github.com/Automattic/shareadraft/pull/66), [#67](https://github.com/Automattic/shareadraft/pull/67), [#71](https://github.com/Automattic/shareadraft/pull/71), [#72](https://github.com/Automattic/shareadraft/pull/72), [#73](https://github.com/Automattic/shareadraft/pull/73), [#74](https://github.com/Automattic/shareadraft/pull/74), [#88](https://github.com/Automattic/shareadraft/pull/88), [#89](https://github.com/Automattic/shareadraft/pull/89), [#90](https://github.com/Automattic/shareadraft/pull/90), [#91](https://github.com/Automattic/shareadraft/pull/91), [#94](https://github.com/Automattic/shareadraft/pull/94), [#95](https://github.com/Automattic/shareadraft/pull/95), [#97](https://github.com/Automattic/shareadraft/pull/97), [#100](https://github.com/Automattic/shareadraft/pull/100), [#101](https://github.com/Automattic/shareadraft/pull/101), [#102](https://github.com/Automattic/shareadraft/pull/102), [#105](https://github.com/Automattic/shareadraft/pull/105), [#106](https://github.com/Automattic/shareadraft/pull/106), [#108](https://github.com/Automattic/shareadraft/pull/108), [#109](https://github.com/Automattic/shareadraft/pull/109))
+
 ## [2.0.0] - 2026-10-07
 
 **Requires WordPress 6.9 or later and PHP 8.2 or later.**
@@ -211,7 +238,8 @@ bulk revoking, WP-CLI and the Abilities API all cover 2.0 links only, and a
 
 - First public release: share a time-limited link to a draft with anyone, with internationalization support.
 
-[Unreleased]: https://github.com/Automattic/shareadraft/compare/2.0.0...develop
+[Unreleased]: https://github.com/Automattic/shareadraft/compare/2.0.1...develop
+[2.0.1]: https://github.com/Automattic/shareadraft/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/Automattic/shareadraft/compare/1.7...2.0.0
 [1.7]: https://github.com/Automattic/shareadraft/compare/1.6...1.7
 [1.6]: https://github.com/Automattic/shareadraft/compare/1.5...1.6

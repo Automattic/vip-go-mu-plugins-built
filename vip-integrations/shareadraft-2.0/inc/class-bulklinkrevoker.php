@@ -14,9 +14,12 @@ namespace Automattic\ShareADraft;
  * A sweep reuses the garbage collector's post-ID cursor: bounded batches, and a
  * scheduled continuation when a site overflows one run. While a sweep runs,
  * links on not-yet-swept posts still work for a short window — an accepted
- * trade rather than an oversight.
+ * trade rather than an oversight. A sweep covers only the links that existed
+ * when it started: one created while it runs survives, wherever its post falls
+ * relative to the cursor.
  *
- * Offboarding is default-on for hard deletion only (`deleted_user`). Role
+ * Offboarding is default-on for hard deletion only (`deleted_user`, plus
+ * `wpmu_delete_user` for the user's other sites on a network). Role
  * changes are deliberately not automatic — demoting an editor should not
  * necessarily kill in-flight reviews — but customers can wire any hook to the
  * `shareadraft_revoke_user_links` action; see the README recipe.
@@ -36,7 +39,7 @@ final class BulkLinkRevoker {
 	public const REVOKED_USER_ACTION = 'shareadraft_revoked_user_links';
 
 	/** Queue of unfinished sweeps, oldest first. */
-	private const JOBS_OPTION = 'shareadraft_bulk_revoke_jobs';
+	public const JOBS_OPTION = 'shareadraft_bulk_revoke_jobs';
 
 	/** Posts examined per run; mirrors the garbage collector's batch size. */
 	private const BATCH_SIZE = 100;
@@ -53,6 +56,7 @@ final class BulkLinkRevoker {
 
 		// Offboarding hygiene: a hard-deleted user's links stop working.
 		add_action( 'deleted_user', [ $this, 'handle_user_hook' ] );
+		add_action( 'wpmu_delete_user', [ $this, 'handle_network_deletion' ] );
 
 		// The documented extension point for customer-wired offboarding.
 		add_action( self::REVOKE_USER_ACTION, [ $this, 'handle_user_hook' ] );
@@ -98,6 +102,36 @@ final class BulkLinkRevoker {
 	}
 
 	/**
+	 * Revoke a network-deleted user's links on every other site they belong to.
+	 *
+	 * `deleted_user` fires once, on the site the deletion started from, so that
+	 * site is skipped here rather than swept twice (which would also fire the
+	 * completion event twice). This hook runs before core removes the user from
+	 * any site, so their memberships are still readable. A super admin's links
+	 * on sites they are not a member of are not reached.
+	 *
+	 * @param mixed $user_id The user being deleted from the network.
+	 */
+	public function handle_network_deletion( $user_id ): void {
+		if ( ! is_numeric( $user_id ) || (int) $user_id <= 0 ) {
+			return;
+		}
+
+		// Archived and spam sites too: their links work again if they are restored.
+		foreach ( array_keys( get_blogs_of_user( (int) $user_id, true ) ) as $site_id ) {
+			if ( get_current_blog_id() === $site_id ) {
+				continue;
+			}
+
+			// ponytail: one synchronous batch per site; queue without running if
+			// a leaver on hundreds of sites ever makes deletion time out.
+			switch_to_blog( $site_id );
+			$this->revoke_by_creator( (int) $user_id );
+			restore_current_blog();
+		}
+	}
+
+	/**
 	 * Revoke every live link on the site. The break-glass switch for incident
 	 * response: callers gate it hard ({@see PreviewLinksAdminPage} requires
 	 * `manage_options` plus a confirmation).
@@ -135,6 +169,7 @@ final class BulkLinkRevoker {
 			'cursor'  => 0,
 			'count'   => 0,
 			'actor'   => get_current_user_id(),
+			'started' => time(),
 		];
 		$this->save_jobs( $jobs );
 
@@ -167,8 +202,8 @@ final class BulkLinkRevoker {
 
 		foreach ( $post_ids as $post_id ) {
 			$revoked += null === $job['creator']
-				? $this->service->revoke_all_for_post( $post_id )
-				: $this->service->revoke_for_post_by_creator( $post_id, $job['creator'] );
+				? $this->service->revoke_all_for_post( $post_id, $job['started'] )
+				: $this->service->revoke_for_post_by_creator( $post_id, $job['creator'], $job['started'] );
 		}
 
 		$done = count( $post_ids ) < self::BATCH_SIZE;
@@ -219,7 +254,7 @@ final class BulkLinkRevoker {
 	 * `creator` is dropped rather than read as a null creator, which would turn
 	 * it into a revoke-all.
 	 *
-	 * @return list<array{id: string, creator: int|null, cursor: int, count: int, actor: int}>
+	 * @return list<array{id: string, creator: int|null, cursor: int, count: int, actor: int, started: int}>
 	 */
 	private function jobs(): array {
 		/** @var mixed $stored */
@@ -248,6 +283,8 @@ final class BulkLinkRevoker {
 				'cursor'  => isset( $job['cursor'] ) && is_numeric( $job['cursor'] ) ? (int) $job['cursor'] : 0,
 				'count'   => isset( $job['count'] ) && is_numeric( $job['count'] ) ? (int) $job['count'] : 0,
 				'actor'   => isset( $job['actor'] ) && is_numeric( $job['actor'] ) ? (int) $job['actor'] : 0,
+				// A sweep queued before this field existed keeps its old reach.
+				'started' => isset( $job['started'] ) && is_numeric( $job['started'] ) ? (int) $job['started'] : PHP_INT_MAX,
 			];
 		}
 
@@ -255,7 +292,7 @@ final class BulkLinkRevoker {
 	}
 
 	/**
-	 * @param list<array{id: string, creator: int|null, cursor: int, count: int, actor: int}> $jobs
+	 * @param list<array{id: string, creator: int|null, cursor: int, count: int, actor: int, started: int}> $jobs
 	 */
 	private function save_jobs( array $jobs ): void {
 		if ( [] === $jobs ) {

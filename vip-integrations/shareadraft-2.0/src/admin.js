@@ -7,11 +7,20 @@
  * than one page of links to offer, so bail quietly when it is absent.
  */
 document.addEventListener( 'DOMContentLoaded', function () {
-	const form = document.getElementById( 'shareadraft-links' );
 	const all = document.getElementById( 'shareadraft-all' );
+
+	if ( ! all ) {
+		return;
+	}
+
+	// A browser restoring form state on Back would otherwise bring back a
+	// select-all the hidden banner no longer shows.
+	all.value = '';
+
+	const form = document.getElementById( 'shareadraft-links' );
 	const banner = document.getElementById( 'shareadraft-select-all' );
 
-	if ( ! form || ! all || ! banner ) {
+	if ( ! form || ! banner ) {
 		return;
 	}
 

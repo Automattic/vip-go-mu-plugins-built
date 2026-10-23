@@ -16,8 +16,8 @@
   ],
   "properties": {
     "manifest_version": {
-      "const": 1,
-      "description": "Manifest format version. Only \"1\" exists today."
+      "enum": [1, 2],
+      "description": "Manifest format version. Version 2 derives the config constant from the slug. Version 1 is deprecated and accepted during the deprecation window, with a warning only when runtime_config.constant_name declares the matching derived name. Omitting constant_name produces no warning."
     },
     "manifest_kind": {
       "const": "vip-integration-handoff",
@@ -120,12 +120,13 @@
     "runtime_config": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["constant_name", "fields"],
+      "required": ["fields"],
+      "description": "Runtime configuration for the integration in the VIP Vault. The config constant is not declared here — the platform defines it from the slug as VIP_<SLUG>_CONFIG (slug upper-cased, - replaced by _), e.g. VIP_CONTENT_SYNC_CONFIG for content-sync.",
       "properties": {
         "constant_name": {
           "type": "string",
           "pattern": "^VIP_[A-Z0-9_]+_CONFIG$",
-          "description": "The VIP-defined config constant the plugin reads, e.g. VIP_ACME_CONFIG."
+          "description": "Deprecated. The constant is derived from the slug (VIP_<SLUG>_CONFIG); accepted only in a version 1 manifest and only when it matches the derived name."
         },
         "fields": {
           "type": "array",
@@ -188,6 +189,16 @@
       }
     }
   },
+  "allOf": [
+    {
+      "$comment": "\"runtime_config.constant_name\" is derived from the slug (VIP_<SLUG>_CONFIG); declaring it needs a deprecated version 1 manifest.",
+      "if": {
+        "required": ["runtime_config"],
+        "properties": { "runtime_config": { "type": "object", "required": ["constant_name"] } }
+      },
+      "then": { "properties": { "manifest_version": { "const": 1 } } }
+    }
+  ],
   "$defs": {
     "configField": {
       "type": "object",

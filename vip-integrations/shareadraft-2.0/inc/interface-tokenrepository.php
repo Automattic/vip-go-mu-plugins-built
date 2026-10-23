@@ -75,16 +75,19 @@ interface TokenRepository {
 	 * Revoke every not-yet-revoked link on a post, returning how many were
 	 * revoked. The per-post building block the bulk-revoke sweep drives; each row
 	 * keeps its own `revoked_at` so it stays the source of truth and the gate can
-	 * still explain "this link was revoked".
+	 * still explain "this link was revoked". Links created after
+	 * `$created_until` are left alone, so a sweep covers only the links that
+	 * existed when it started.
 	 */
-	public function revoke_all_for_post( int $post_id, int $revoked_at ): int;
+	public function revoke_all_for_post( int $post_id, int $revoked_at, int $created_until ): int;
 
 	/**
 	 * Revoke every not-yet-revoked link on a post that the given user created,
 	 * returning how many were revoked. Backs offboarding: when a user is removed,
-	 * the links they issued stop working.
+	 * the links they issued stop working. Links created after `$created_until`
+	 * are left alone, as for {@see TokenRepository::revoke_all_for_post()}.
 	 */
-	public function revoke_by_creator_for_post( int $post_id, int $created_by, int $revoked_at ): int;
+	public function revoke_by_creator_for_post( int $post_id, int $created_by, int $revoked_at, int $created_until ): int;
 
 	/**
 	 * Delete every link for a post, live or not. Used when a post is published or

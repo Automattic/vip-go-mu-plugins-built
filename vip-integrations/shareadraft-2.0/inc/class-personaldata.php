@@ -130,7 +130,7 @@ final class PersonalData {
 	 * @return array{group_id: string, group_label: string, group_description: string, item_id: string, data: list<array{name: string, value: string}>}
 	 */
 	private function export_item( PreviewLink $link ): array {
-		$format     = PreviewLinksListTable::datetime_format();
+		$format     = PreviewLinksAdminPage::datetime_format();
 		$title      = get_the_title( $link->post_id() );
 		$revoked_at = $link->revoked_at();
 

@@ -24,7 +24,7 @@ validate with `vip-integration validate` before shipping.
 | `inc/`                                            | Runtime code (autoloaded via `inc/autoload.php`). `class-config.php`, `class-telemetry.php`, REST handlers. |
 | `inc/cli/`                                        | WP-CLI commands (`wp shareadraft`), one class per subcommand. Loaded by explicit `require` under WP-CLI only — the flat autoloader does not map this directory. |
 | `features/`                                       | Behat feature tests, one `.feature` per WP-CLI command, run against wp-env (`composer behat`).              |
-| `src/`                                            | Block-editor JavaScript, compiled into `build/` by `npm run build`.                                        |
+| `src/`                                            | Editor JavaScript (block-editor panel, classic meta box), compiled into `build/` by `npm run build`.        |
 | `languages/`                                      | Translation catalogues. Regenerate the POT with `composer i18n` after changing any translatable string.    |
 | `fixtures/`                                       | Mock runtime configs for local dev and tests — see `fixtures/README.md`.                                   |
 | `tests/unit/`, `tests/integration/`, `tests/e2e/` | PHPUnit unit (pure PHP) and integration (boot WordPress) tests, plus Playwright e2e.                       |
@@ -113,8 +113,10 @@ VIP, so anything platform-specific is gated:
 - **Platform-only APIs** (VIP Telemetry, the Abilities API) go behind
   `class_exists()` / `function_exists()` and no-op when absent.
 - **Nothing renders on the front end, and nothing nags.** No footer signature, no
-  branding, and no `admin_notices` at all today. Anything the plugin needs to say
-  belongs on its own screen (`PreviewLinksAdminPage::SCREEN_ID`).
+  branding, and no `admin_notices` beyond one dev-only exception: the missing-build
+  warning in `inc/class-buildnotice.php`, which can only fire in a development
+  checkout because releases always ship `build/`. Anything else the plugin needs
+  to say belongs on its own screen (`PreviewLinksAdminPage::SCREEN_ID`).
 - Do not assume anything the platform guarantees but a standalone host does not
   — object caching, cron actually firing, or preview requests bypassing a page
   cache. Where the plugin depends on one, make the dependency observable
@@ -141,9 +143,11 @@ event in the `telemetry` section of `vip-manifest.yaml`.
 
 ### Manifest
 
-`vip-manifest.yaml` must stay in sync with the code: the constant name, the
-plugin folder/entry file/namespace, every config `key` the plugin reads, and the
-telemetry events it records. The schema (`vip-manifest.schema.json`) rejects
+`vip-manifest.yaml` must stay in sync with the code: the plugin folder/entry
+file/namespace, every config `key` the plugin reads, and the telemetry events it
+records. The config constant is not a manifest field — VIP derives it from the
+slug as `VIP_<SLUG>_CONFIG`, so `Config::CONSTANT_NAME` must stay
+`VIP_SHAREADRAFT_CONFIG`. The schema (`vip-manifest.schema.json`) rejects
 unknown keys, so a typo fails validation — run `vip-integration validate` after
 editing it. See `docs/manifest.md` for the field-by-field guide.
 

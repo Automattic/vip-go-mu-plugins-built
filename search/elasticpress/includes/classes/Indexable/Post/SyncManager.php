@@ -11,6 +11,7 @@ namespace ElasticPress\Indexable\Post;
 use ElasticPress\Elasticsearch as Elasticsearch;
 use ElasticPress\Indexables as Indexables;
 use ElasticPress\SyncManager as SyncManagerAbstract;
+use ElasticPress\Utils as Utils;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	// @codeCoverageIgnoreStart
@@ -456,8 +457,6 @@ class SyncManager extends SyncManagerAbstract {
 	 * @since  4.0.0
 	 */
 	public function action_edited_term( $term_id, $tt_id, $taxonomy ) {
-		global $wpdb;
-
 		if ( $this->kill_sync() ) {
 			return;
 		}
@@ -480,10 +479,8 @@ class SyncManager extends SyncManagerAbstract {
 			}
 		}
 
-		// Find ID of all attached posts (query lifted from wp_delete_term())
-		$object_ids = (array) $wpdb->get_col( // phpcs:disable WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT object_id FROM {$wpdb->term_relationships} WHERE term_taxonomy_id = %d", $tt_id )
-		);
+		// Find ID of all attached posts
+		$object_ids = Utils\get_term_object_ids( [ $term_id ], $taxonomy );
 
 		if ( ! count( $object_ids ) ) {
 			return;

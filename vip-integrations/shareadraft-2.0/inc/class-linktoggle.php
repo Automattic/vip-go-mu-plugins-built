@@ -23,7 +23,7 @@ final class LinkToggle {
 	 * links are disabled; absent while enabled. Who flipped it and when matters
 	 * for incident response, so the switch records both.
 	 */
-	private const OPTION = 'shareadraft_disabled';
+	public const OPTION = 'shareadraft_disabled';
 
 	public function is_disabled(): bool {
 		return [] !== $this->state();

@@ -11,7 +11,7 @@ All six abilities are public, in the `shareadraft` category:
 | `shareadraft/create-preview-link` | Create a link for a draft, with the same options as the editor (how long it lasts, how many people can open it, named reviewers, and allowed IP ranges), and return its shareable URL. | Anyone who can edit the post |
 | `shareadraft/list-preview-links` | List a post's links that still work, or, without a post, every working link on the site, optionally only those one person created. Each entry shows its usage, expiry, and the last four characters of its token, but never the URL: a link's URL is only ever shown once, when it is created. | Anyone who can edit the post; editors and administrators for the whole site |
 | `shareadraft/revoke-preview-link` | Revoke one link, all of a post's links, everything one person created, or every link on the site. | Anyone who can edit the post; editors for one person's links; administrators for the whole site |
-| `shareadraft/prune-preview-links` | Delete expired and revoked links once their retention period is over, straight away rather than waiting for the daily cleanup. | Administrators |
+| `shareadraft/prune-preview-links` | Delete expired and revoked links once their retention period is over, straight away rather than waiting for the daily cleanup. One run checks up to 1,000 posts; on a larger site it says so, and the daily cleanup handles the rest. | Administrators |
 | `shareadraft/set-preview-links-enabled` | Pause every link on the site, or let them work again. See [pausing every link](managing-links.md#pausing-every-link). | Administrators |
 | `shareadraft/get-preview-links-status` | Report whether links currently work and, if they are paused, who paused them and when. | Anyone who can edit posts |
 
