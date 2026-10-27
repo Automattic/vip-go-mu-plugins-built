@@ -1024,8 +1024,10 @@ class Inbound_Smart_Link extends Smart_Link {
 		$reflection_class   = new ReflectionClass( $smart_link );
 
 		foreach ( $reflection_class->getProperties() as $property ) {
-			// Make the property accessible.
-			$property->setAccessible( true );
+			// Required below PHP 8.1, and deprecated since PHP 8.5.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
 			$value = $property->getValue( $smart_link );
 			// Copy the property value.
 			$property->setValue( $inbound_smart_link, $value );
