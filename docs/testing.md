@@ -22,6 +22,12 @@ npm run test            # full PHPUnit suite in Docker
 - runs tests in `ghcr.io/automattic/vip-container-images/wp-test-runner`
 - uses `tests/bootstrap.php` to load MU plugin stack
 
+Run `php bin/test-runner-resource-ownership.php` to check both shell runners
+with recording Docker and a fixed clock. It checks distinct resource names,
+cleanup after successful and failed test runs, and caller-owned network/database
+overrides. The check does not create Docker resources or establish live Docker
+interference.
+
 `tests/class-vip-test-listener.php` restores `$_SERVER` and clears
 `Constant_Mocker` around every test, so tests don't need to do either in `setUp()`/`tearDown()`.
 `tests/bootstrap.php` lowers the bcrypt cost everywhere, so users created in
@@ -65,6 +71,11 @@ counter operation and retain their increments until both admission results are
 reported. The test requires exactly one admitted request at limit one, then
 reads the shared counter from a fresh process and requires zero.
 
+The dedicated `shared-cache-contention` CI job provisions Memcached, enables the
+PHP extension, and runs this test with `VIP_TEST_REQUIRE_SHARED_CACHE=1`. Missing
+prerequisites fail that job instead of skipping the test. Each test uses a random
+cache namespace and deletes its counter after the final read.
+
 `CI=1` is recommended in non-interactive shells.
 
 ## e2e tests
@@ -95,6 +106,7 @@ Current workflows cover:
 - Lint: `.github/workflows/lint.yml`
 - Typecheck + e2e lint/test: `.github/workflows/e2e.yml`
 - Unit/integration tests: `.github/workflows/ci.yml`, `.github/workflows/core-tests.yml`, `.github/workflows/parsely.yml`
+- Shared-cache worker contention: the dedicated `shared-cache-contention` job in `.github/workflows/ci.yml`
 
 `ci.yml` runs PHP 8.2 against every tested WordPress version, plus nightly. Newer PHP
 versions run only against the oldest and the latest WordPress version tested with them.
