@@ -108,7 +108,6 @@ final class AuthApiController extends WP_REST_Controller {
 		// Generate a short-lived token with sync object information
 		$token = WebSocketAuth::generate_token( $sync_object_type, $sync_object_id, $wp_client_id );
 
-		/** @psalm-suppress RedundantCondition -- Keep the WordPress API type guard at this boundary. */
 		if ( is_wp_error( $token ) ) {
 			// Log error for debugging
 			/** @psalm-suppress TypeDoesNotContainType */

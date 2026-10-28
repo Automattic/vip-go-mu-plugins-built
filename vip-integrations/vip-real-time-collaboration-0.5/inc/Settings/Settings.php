@@ -140,7 +140,7 @@ final class Settings {
 		add_settings_field(
 			self::ENABLED_SETTING_NAME,
 			__( 'Real-Time Collaboration', 'vip-real-time-collaboration' ),
-			[ __CLASS__, 'display_settings_radio' ],
+			self::display_settings_radio( ... ),
 			self::SETTINGS_PAGE_SLUG,
 			'plugin-settings'
 		);
@@ -288,7 +288,19 @@ final class Settings {
 		$reflection = new \ReflectionFunction( $function_name );
 		$file_name = $reflection->getFileName();
 
-		return is_string( $file_name ) ? wp_normalize_path( $file_name ) : 'Unknown';
+		if ( ! is_string( $file_name ) ) {
+			return 'Unknown';
+		}
+
+		$file_name = wp_normalize_path( $file_name );
+		$wp_root = trailingslashit( wp_normalize_path( ABSPATH ) );
+
+		if ( str_starts_with( $file_name, $wp_root ) ) {
+			return substr( $file_name, strlen( $wp_root ) );
+		}
+
+		// Preserve the loaded location for external or symlinked Gutenberg installs.
+		return $file_name;
 	}
 
 	public static function get_gutenberg_commit_hash(): string {

@@ -49,7 +49,7 @@ final class Assets {
 
 		/**
 		 * @var array{
-		 *   dependencies: array{string},
+		 *   dependencies: list<non-empty-string>,
 		 *   version: string,
 		 * }
 		 */

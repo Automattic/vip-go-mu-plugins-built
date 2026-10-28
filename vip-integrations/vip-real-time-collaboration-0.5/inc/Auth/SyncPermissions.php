@@ -30,7 +30,6 @@ final class SyncPermissions {
 		string $sync_object_id,
 	): WP_Error|bool {
 		$user_check_result = self::check_current_user();
-		/** @psalm-suppress RedundantCondition -- Keep the WordPress API type guard at this boundary. */
 		if ( is_wp_error( $user_check_result ) ) {
 			return $user_check_result;
 		}
