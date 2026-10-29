@@ -124,12 +124,10 @@ final class AuthApiController extends WP_REST_Controller {
 				default => 500,
 			};
 
-			return new WP_REST_Response(
-				[
-					'code' => $token->get_error_code(),
-					'message' => $token->get_error_message(),
-				],
-				$status
+			return new WP_Error(
+				$error_code,
+				$token->get_error_message(),
+				[ 'status' => $status ]
 			);
 		}
 
@@ -156,7 +154,8 @@ final class AuthApiController extends WP_REST_Controller {
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You must be logged in to access this endpoint.', 'vip-real-time-collaboration' )
+				__( 'You must be logged in to access this endpoint.', 'vip-real-time-collaboration' ),
+				[ 'status' => rest_authorization_required_code() ]
 			);
 		}
 
