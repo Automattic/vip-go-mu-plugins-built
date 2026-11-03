@@ -6,11 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)" );
+__( "Loading" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s" );
-__( "Loading" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)" );
 __( "More details follow." );
 __( "Dismiss" );
 __( "We couldn’t load this page", "jetpack-seo" );
@@ -19,7 +19,7 @@ __( "Try again", "jetpack-seo" );
 __( "Loading…", "jetpack-seo" );
 __( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
-__( "Products", "jetpack-components" );
+__( "Features", "jetpack-components" );
 __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: accessibility text */
@@ -28,12 +28,10 @@ __( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
 __( "Dismiss", "jetpack-components" );
-__( "What is GEO?", "jetpack-seo" );
-__( "GEO stands for generative engine optimization. These settings control how AI sees and uses your site.", "jetpack-seo" );
 __( "Overview", "jetpack-seo" );
-__( "Settings", "jetpack-seo" );
 __( "Content", "jetpack-seo" );
 _x( "GEO", "Generative Engine Optimization; the SEO dashboard tab label", "jetpack-seo" );
+__( "Settings", "jetpack-seo" );
 __( "Make your site discoverable in search and social, and control AI access.", "jetpack-seo" );
 __( "Could not enable SEO tools. Please try again.", "jetpack-seo" );
 __( "Could not disable SEO tools. Please try again.", "jetpack-seo" );
@@ -90,19 +88,24 @@ __( "Profile URL", "jetpack-seo" );
 __( "Remove profile", "jetpack-seo" );
 __( "Add profile", "jetpack-seo" );
 __( "Save", "jetpack-seo" );
-__( "Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.", "jetpack-seo" );
-__( "Name", "jetpack-seo" );
-__( "Name is required.", "jetpack-seo" );
-__( "Bio", "jetpack-seo" );
-__( "Website", "jetpack-seo" );
-__( "Avatar", "jetpack-seo" );
 __( "Author avatar", "jetpack-seo" );
 __( "Change your photo on Gravatar", "jetpack-seo" );
+__( "Adds Person schema to your articles and author archive.", "jetpack-seo" );
+__( "Adds Person schema to your articles and author archive. Name, bio, and website also update your WordPress profile.", "jetpack-seo" );
+__( "From your WordPress.com profile", "jetpack-seo" );
+__( "Edit on WordPress.com", "jetpack-seo" );
+__( "Name", "jetpack-seo" );
+__( "Bio", "jetpack-seo" );
+__( "Website", "jetpack-seo" );
+__( "Not set", "jetpack-seo" );
+__( "Avatar", "jetpack-seo" );
+__( "Name is required.", "jetpack-seo" );
 __( "Job title", "jetpack-seo" );
 __( "Social profiles", "jetpack-seo" );
 __( "Links to your public profiles — Facebook, X, LinkedIn.", "jetpack-seo" );
 __( "Save author profile", "jetpack-seo" );
 __( "Author profile", "jetpack-seo" );
+__( "Author profile settings", "jetpack-seo" );
 __( "Schema settings saved.", "jetpack-seo" );
 __( "Could not save schema settings. Please try again.", "jetpack-seo" );
 __( "Saving breadcrumbs…", "jetpack-seo" );
@@ -152,6 +155,7 @@ __( "Links to the organization’s official profiles — Facebook, X, LinkedIn, 
 __( "Contact email", "jetpack-seo" );
 __( "A public contact email for the organization.", "jetpack-seo" );
 __( "Schema", "jetpack-seo" );
+__( "Schema settings", "jetpack-seo" );
 __( "Structured data that tells search engines and AI assistants what your site is and who runs it. Add the details below and Jetpack adds the right markup automatically.", "jetpack-seo" );
 __( "Breadcrumbs", "jetpack-seo" );
 __( "Add breadcrumb markup so search results can show where a page sits in your site (for example Home › Blog › Post).", "jetpack-seo" );
@@ -159,7 +163,7 @@ __( "Organization details", "jetpack-seo" );
 __( "Fix the highlighted fields to save.", "jetpack-seo" );
 __( "Save schema settings", "jetpack-seo" );
 __( "Search & social previews", "jetpack-seo" );
-__( "How your home page looks in search results and social shares. Updates as you edit the front-page description above.", "jetpack-seo" );
+__( "How your home page looks in search results and social shares. Updates as you edit the front-page title structure and description above.", "jetpack-seo" );
 __( "Google search result", "jetpack-seo" );
 __( "Facebook", "jetpack-seo" );
 __( "X (Twitter)", "jetpack-seo" );
@@ -194,16 +198,32 @@ __( "Publishes a map of your posts and pages so search engines can find your con
 __( "Allow search engines to index this site to generate a sitemap.", "jetpack-seo" );
 __( "Turning this off asks search engines to stop indexing your site — Google and Bing honor it, others ignore it. Same setting as Settings → Reading.", "jetpack-seo" );
 __( "Your site is private, so search engines cannot see it at all. Make it public in your site visibility settings to change this.", "jetpack-seo" );
+__( "Your site is in Coming Soon mode, so search engines cannot see it yet. Launch it in your site visibility settings to change this.", "jetpack-seo" );
+__( "Managed in your site visibility settings", "jetpack-seo" );
 __( "View sitemap", "jetpack-seo" );
+__( "This setting is managed by your hosting platform and cannot be changed here.", "jetpack-seo" );
+__( "WordPress.com manages sitemap generation for this site. Additional hosting features let you turn sitemap generation on or off.", "jetpack-seo" );
+__( "Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.", "jetpack-seo" );
+__( "Another SEO plugin is active, so Jetpack won't add canonical URLs to avoid conflicts. Deactivate that plugin to use this setting.", "jetpack-seo" );
 __( "Shown under your site name in search results and social shares. About the first 155 characters display in search, or 120 on mobile.", "jetpack-seo" );
+__( "Locked while Jetpack SEO is disabled. Your saved description is retained.", "jetpack-seo" );
 __( "Unable to load settings.", "jetpack-seo" );
-__( "Front-page description", "jetpack-seo" );
-__( "Home page description", "jetpack-seo" );
 /* translators: %d: number of characters currently in the front-page description. */
 _n( "%d character", "%d characters", 1, "jetpack-seo" );
+/* translators: %s: name of the SEO plugin that controls the site's SEO output, e.g. Yoast SEO. */
+__( "%s is managing your SEO output, so Jetpack’s title, description, schema and author profile settings are locked while it’s active.", "jetpack-seo" );
+__( "Jetpack SEO is disabled on this site, so its title, description, schema and author profile settings are locked.", "jetpack-seo" );
+/* translators: %1$s: name of the active SEO plugin. */
+__( "%1$s is managing your structured data. Your saved Jetpack settings are shown here but are not being used. Deactivate %1$s to edit these settings in Jetpack.", "jetpack-seo" );
+__( "Jetpack SEO is disabled on this site. Your saved settings are shown here but are not being used. Editing is unavailable while SEO tools are disabled.", "jetpack-seo" );
+__( "Front-page description", "jetpack-seo" );
+__( "Home page description", "jetpack-seo" );
+/* translators: %s: the character count, e.g. "300 characters". */
+__( "%s — Maximum characters reached.", "jetpack-seo" );
 __( "Site visibility", "jetpack-seo" );
 __( "Allow search engines to index this site", "jetpack-seo" );
+__( "Manage site visibility", "jetpack-seo" );
 __( "Generate an XML sitemap", "jetpack-seo" );
+__( "Explore hosting options", "jetpack-seo" );
 __( "Canonical URLs", "jetpack-seo" );
 __( "Add canonical URLs to archive pages", "jetpack-seo" );
-__( "Points search engines to one preferred URL for archive pages, so duplicates aren't indexed separately.", "jetpack-seo" );

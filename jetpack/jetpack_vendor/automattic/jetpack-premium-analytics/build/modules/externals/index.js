@@ -6,9 +6,9 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-premium-analytics-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-premium-analytics-pkg" );
-__( "Loading", "jetpack-premium-analytics-pkg" );
 _x( "%1$s, %2$s", "legend item label and value", "jetpack-premium-analytics-pkg" );
 _x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-premium-analytics-pkg" );
 _x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-premium-analytics-pkg" );
@@ -29,7 +29,14 @@ __( "Area chart", "jetpack-premium-analytics-pkg" );
 __( "Week of %s", "jetpack-premium-analytics-pkg" );
 __( "%1$s: %2$s", "jetpack-premium-analytics-pkg" );
 __( "Bar chart", "jetpack-premium-analytics-pkg" );
+__( "Bar list chart", "jetpack-premium-analytics-pkg" );
+_n( "%s item", "%s items", 1, "jetpack-premium-analytics-pkg" );
+__( "Conversion rate", "jetpack-premium-analytics-pkg" );
+__( "Conversion funnel chart", "jetpack-premium-analytics-pkg" );
+__( "Funnel steps", "jetpack-premium-analytics-pkg" );
+__( "%1$s, %2$s", "jetpack-premium-analytics-pkg" );
 __( "Loading map", "jetpack-premium-analytics-pkg" );
+__( "Geo chart", "jetpack-premium-analytics-pkg" );
 __( "Less", "jetpack-premium-analytics-pkg" );
 __( "More", "jetpack-premium-analytics-pkg" );
 __( "Heatmap chart", "jetpack-premium-analytics-pkg" );
@@ -37,12 +44,13 @@ __( "Current period", "jetpack-premium-analytics-pkg" );
 __( "Previous period", "jetpack-premium-analytics-pkg" );
 __( "Loading…", "jetpack-premium-analytics-pkg" );
 __( "Not enough space to display data", "jetpack-premium-analytics-pkg" );
+__( "Leaderboard chart", "jetpack-premium-analytics-pkg" );
 __( "Percentage change unavailable", "jetpack-premium-analytics-pkg" );
 __( "No comparison data", "jetpack-premium-analytics-pkg" );
+__( "Pie chart", "jetpack-premium-analytics-pkg" );
+__( "Semi-circle chart", "jetpack-premium-analytics-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
-/* translators: 1: Calendar type. 2: Current month and year. */
-__( "%1$s, %2$s", "jetpack-premium-analytics-pkg" );
 __( "Date calendar", "jetpack-premium-analytics-pkg" );
 __( "Date range calendar", "jetpack-premium-analytics-pkg" );
 __( "Navigation bar", "jetpack-premium-analytics-pkg" );
@@ -56,22 +64,34 @@ __( "Today, %s, selected", "jetpack-premium-analytics-pkg" );
 __( "%s, selected", "jetpack-premium-analytics-pkg" );
 __( "OK", "jetpack-premium-analytics-pkg" );
 __( "Cancel", "jetpack-premium-analytics-pkg" );
+__( "Required", "jetpack-premium-analytics-pkg" );
+__( "Optional", "jetpack-premium-analytics-pkg" );
+__( "Remove", "jetpack-premium-analytics-pkg" );
+__( "Press Backspace or Delete to remove.", "jetpack-premium-analytics-pkg" );
+__( "Clear", "jetpack-premium-analytics-pkg" );
 __( "More details follow the field.", "jetpack-premium-analytics-pkg" );
 __( "More details follow.", "jetpack-premium-analytics-pkg" );
 __( "Select", "jetpack-premium-analytics-pkg" );
+_n( "Selected item", "Selected items", 1, "jetpack-premium-analytics-pkg" );
+/* translators: 1: number of selected items. 2: arrow key name ("Left Arrow" or "Right Arrow"). */
+_n( "%1$d item selected. From the start of the input, press %2$s to move to the selected item.", "%1$d items selected. From the start of the input, press %2$s to move to the selected items.", 1, "jetpack-premium-analytics-pkg" );
+__( "Right Arrow", "jetpack-premium-analytics-pkg" );
+__( "Left Arrow", "jetpack-premium-analytics-pkg" );
+__( "No results found.", "jetpack-premium-analytics-pkg" );
+__( "Search", "jetpack-premium-analytics-pkg" );
+__( "Clear all", "jetpack-premium-analytics-pkg" );
 __( "Dismiss", "jetpack-premium-analytics-pkg" );
-__( "Required", "jetpack-premium-analytics-pkg" );
-__( "Optional", "jetpack-premium-analytics-pkg" );
+__( "In progress", "jetpack-premium-analytics-pkg" );
 __( "Sort ascending", "jetpack-premium-analytics-pkg" );
 __( "Sort descending", "jetpack-premium-analytics-pkg" );
 __( "(no title)", "jetpack-premium-analytics-pkg" );
 __( "Actions", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack-premium-analytics-pkg" );
 __( "Deselect all", "jetpack-premium-analytics-pkg" );
 __( "Select all", "jetpack-premium-analytics-pkg" );
 __( "Add filter", "jetpack-premium-analytics-pkg" );
@@ -106,7 +126,6 @@ __( "Activity", "jetpack-premium-analytics-pkg" );
 /* translators: List of items for a filter. 1: Filter name. e.g.: "List of: Author". */
 __( "List of: %1$s", "jetpack-premium-analytics-pkg" );
 __( "Search items", "jetpack-premium-analytics-pkg" );
-__( "Search", "jetpack-premium-analytics-pkg" );
 __( "No results found", "jetpack-premium-analytics-pkg" );
 __( "No elements found", "jetpack-premium-analytics-pkg" );
 /* translators: DataViews operator name */
@@ -193,7 +212,6 @@ __( "Not on", "jetpack-premium-analytics-pkg" );
 __( "Unknown status for %1$s", "jetpack-premium-analytics-pkg" );
 __( "Conditions", "jetpack-premium-analytics-pkg" );
 __( "Reset", "jetpack-premium-analytics-pkg" );
-__( "Remove", "jetpack-premium-analytics-pkg" );
 /* translators: 1: Filter name. */
 __( "Filter by: %1$s", "jetpack-premium-analytics-pkg" );
 _x( "Filter", "verb", "jetpack-premium-analytics-pkg" );
@@ -247,3 +265,28 @@ __( "Value must be true, false, or undefined", "jetpack-premium-analytics-pkg" )
 __( "Value must be an array.", "jetpack-premium-analytics-pkg" );
 __( "Every value must be a string.", "jetpack-premium-analytics-pkg" );
 __( "Value must be a valid color.", "jetpack-premium-analytics-pkg" );
+__( "Apply", "jetpack-premium-analytics-pkg" );
+/* translators: %s: Field name. */
+_x( "Edit %s (has errors)", "field", "jetpack-premium-analytics-pkg" );
+/* translators: %s: Field name. */
+_x( "Edit %s", "field", "jetpack-premium-analytics-pkg" );
+__( "Could not validate elements.", "jetpack-premium-analytics-pkg" );
+__( "Value must be one of the elements.", "jetpack-premium-analytics-pkg" );
+__( "Unknown error when running elements validation asynchronously.", "jetpack-premium-analytics-pkg" );
+__( "Validation could not be processed.", "jetpack-premium-analytics-pkg" );
+__( "Unknown error when running custom validation asynchronously.", "jetpack-premium-analytics-pkg" );
+__( "Value does not match the required pattern.", "jetpack-premium-analytics-pkg" );
+__( "Value is below the minimum.", "jetpack-premium-analytics-pkg" );
+__( "Value is above the maximum.", "jetpack-premium-analytics-pkg" );
+__( "Value is too short.", "jetpack-premium-analytics-pkg" );
+__( "Value is too long.", "jetpack-premium-analytics-pkg" );
+__( "Unknown error when running custom validation.", "jetpack-premium-analytics-pkg" );
+__( "Validating…", "jetpack-premium-analytics-pkg" );
+/* translators: %d: Number of fields that need attention */
+_n( "%d field needs attention", "%d fields need attention", 1, "jetpack-premium-analytics-pkg" );
+__( "More details", "jetpack-premium-analytics-pkg" );
+__( "An Automattic Airline", "jetpack-premium-analytics-pkg" );
+__( "Jetpack Logo", "jetpack-premium-analytics-pkg" );
+__( "Features", "jetpack-premium-analytics-pkg" );
+__( "Help", "jetpack-premium-analytics-pkg" );
+__( "Jetpack", "jetpack-premium-analytics-pkg" );

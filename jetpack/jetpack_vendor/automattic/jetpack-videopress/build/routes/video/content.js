@@ -127,8 +127,32 @@ __( "No subtitle tracks have been added to this video yet.", "jetpack-videopress
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-videopress-pkg" );
 __( "Sections", "jetpack-videopress-pkg" );
-__( "Jetpack Logo", "jetpack-videopress-pkg" );
 __( "An Automattic Airline", "jetpack-videopress-pkg" );
+__( "Jetpack Logo", "jetpack-videopress-pkg" );
+__( "Features", "jetpack-videopress-pkg" );
+__( "Help", "jetpack-videopress-pkg" );
+__( "Jetpack", "jetpack-videopress-pkg" );
+/* translators: %s: an error message. */
+__( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Loading", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
+/* translators: %s: the error. */
+__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
+__( "Your account (connection owner)", "jetpack-videopress-pkg" );
+/* translators: %s is the display name of the Jetpack connection owner. */
+__( "Connection owner's account (%s)", "jetpack-videopress-pkg" );
+__( "Connection owner's account", "jetpack-videopress-pkg" );
+__( "Your account", "jetpack-videopress-pkg" );
+__( "Another user's account", "jetpack-videopress-pkg" );
+__( "User connection", "jetpack-videopress-pkg" );
+__( "Site connection", "jetpack-videopress-pkg" );
+/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
+__( "Jetpack Connection error: %s", "jetpack-videopress-pkg" );
+/* translators: %d is the number of connection errors found. */
+_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-videopress-pkg" );
+__( "Jetpack Connection error", "jetpack-videopress-pkg" );
 /* translators: %1$s is button label 1 and %2$s is button label 2 */
 __( "By clicking <strong>%1$s</strong> or <strong>%2$s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.", "jetpack-videopress-pkg" );
 __( "By clicking the buttons above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.", "jetpack-videopress-pkg" );
@@ -146,30 +170,6 @@ __( "Reduced pricing is a limited offer for the first year and renews at regular
 __( "/month, paid yearly", "jetpack-videopress-pkg" );
 __( "% off", "jetpack-videopress-pkg" );
 __( "% off the first year", "jetpack-videopress-pkg" );
-__( "Products", "jetpack-videopress-pkg" );
-__( "Help", "jetpack-videopress-pkg" );
-__( "Jetpack", "jetpack-videopress-pkg" );
-/* translators: %s: an error message. */
-__( "There was an error testing Jetpack. Error: %s", "jetpack-videopress-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
-__( "Loading", "jetpack-videopress-pkg" );
-__( "Dismiss", "jetpack-videopress-pkg" );
-/* translators: %s: the error. */
-__( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
-__( "Your account (connection owner)", "jetpack-videopress-pkg" );
-/* translators: %s is the display name of the Jetpack connection owner. */
-__( "Connection owner's account (%s)", "jetpack-videopress-pkg" );
-__( "Connection owner's account", "jetpack-videopress-pkg" );
-__( "Your account", "jetpack-videopress-pkg" );
-__( "Another user's account", "jetpack-videopress-pkg" );
-__( "User connection", "jetpack-videopress-pkg" );
-__( "Site connection", "jetpack-videopress-pkg" );
-/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
-__( "Jetpack Connection error: %s", "jetpack-videopress-pkg" );
-/* translators: %d is the number of connection errors found. */
-_n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-videopress-pkg" );
-__( "Jetpack Connection error", "jetpack-videopress-pkg" );
 __( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-videopress-pkg" );
 __( "Reconnecting Jetpack", "jetpack-videopress-pkg" );
 __( "Loading…", "jetpack-videopress-pkg" );
@@ -177,16 +177,59 @@ __( "Restore Connection", "jetpack-videopress-pkg" );
 __( "Take Action", "jetpack-videopress-pkg" );
 __( "Reconnecting Jetpack…", "jetpack-videopress-pkg" );
 __( "More details follow the field.", "jetpack-videopress-pkg" );
-__( "Breadcrumbs", "jetpack-videopress-pkg" );
+_x( "Breadcrumbs", "aria label", "jetpack-videopress-pkg" );
 __( "This action cannot be undone.", "jetpack-videopress-pkg" );
 __( "Delete video", "jetpack-videopress-pkg" );
 /* translators: %d: number of videos being deleted. */
 __( "Delete %d videos", "jetpack-videopress-pkg" );
+__( "Unavailable in <a>Offline Mode</a>", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site at %s. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t reach your site at %s to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com reached your site at %s, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-videopress-pkg" );
+__( "WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-videopress-pkg" );
+/* translators: %1$d is an HTTP status code, e.g. 500; %2$s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com got an error (HTTP %1$d) when it tried to verify your site at %2$s. Your site’s error log may show the cause.", "jetpack-videopress-pkg" );
+/* translators: %d is an HTTP status code, e.g. 500. */
+__( "WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.", "jetpack-videopress-pkg" );
+/* translators: %1$s is the site URL WordPress.com tried, e.g. https://example.com; %2$d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site at %1$s (HTTP %2$d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-videopress-pkg" );
+/* translators: %d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-videopress-pkg" );
+__( "Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.", "jetpack-videopress-pkg" );
+__( "Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.", "jetpack-videopress-pkg" );
+__( "This site has been suspended.", "jetpack-videopress-pkg" );
+__( "There have been too many connection attempts from this site. Please wait an hour and try again.", "jetpack-videopress-pkg" );
+__( "Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn it off while you connect.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site.", "jetpack-videopress-pkg" );
+__( "WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.", "jetpack-videopress-pkg" );
+__( "Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.", "jetpack-videopress-pkg" );
+__( "PHP’s XML extension isn’t available on your site, and Jetpack needs it to connect. Ask your hosting provider to enable it.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins.", "jetpack-videopress-pkg" );
+__( "The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t register your site right now. Please try again in a few minutes, and contact support if it keeps happening.", "jetpack-videopress-pkg" );
+__( "The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.", "jetpack-videopress-pkg" );
+__( "Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.", "jetpack-videopress-pkg" );
+__( "Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.", "jetpack-videopress-pkg" );
+__( "Your session expired. Reload the page and try again.", "jetpack-videopress-pkg" );
+__( "A critical error stopped the connection. Your site’s error log has the details.", "jetpack-videopress-pkg" );
+__( "Only site administrators can connect this site. Ask an administrator to connect it.", "jetpack-videopress-pkg" );
+__( "Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com is temporarily unavailable. Please try again in a minute.", "jetpack-videopress-pkg" );
+__( "Your site got an unexpected response from WordPress.com. If your hosting provider filters outgoing connections, ask them to allow jetpack.wordpress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com returned an unexpected response when registering your site. Please try again in a minute.", "jetpack-videopress-pkg" );
 __( "Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
 __( "Connecting…", "jetpack-videopress-pkg" );
 __( "Connect", "jetpack-videopress-pkg" );
+__( "Checkout could not start. Please try again.", "jetpack-videopress-pkg" );
+__( "An error occurred. Please try again.", "jetpack-videopress-pkg" );
 /* translators: %1$s: the discount amount */
 __( "%1$s%% off", "jetpack-videopress-pkg" );
 __( "/month, billed yearly", "jetpack-videopress-pkg" );
@@ -210,6 +253,7 @@ __( "Save", "jetpack-videopress-pkg" );
 __( "More actions", "jetpack-videopress-pkg" );
 __( "Manage subtitles", "jetpack-videopress-pkg" );
 __( "Download file", "jetpack-videopress-pkg" );
+__( "Conversion failed. Delete this video and upload it again.", "jetpack-videopress-pkg" );
 __( "Site default", "jetpack-videopress-pkg" );
 __( "Public", "jetpack-videopress-pkg" );
 __( "Private", "jetpack-videopress-pkg" );

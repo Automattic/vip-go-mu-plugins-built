@@ -23,11 +23,11 @@ __( "Work phone", "jetpack-forms" );
 __( "Cell phone", "jetpack-forms" );
 __( "Contact form", "jetpack-forms" );
 __( "Calendar", "jetpack-forms" );
+__( "Loading", "jetpack-forms" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-forms" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-forms" );
-__( "Loading", "jetpack-forms" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s", "jetpack-forms" );
 __( "Date calendar", "jetpack-forms" );
@@ -44,16 +44,17 @@ __( "%s, selected", "jetpack-forms" );
 __( "Required", "jetpack-forms" );
 __( "Optional", "jetpack-forms" );
 __( "More details follow the field.", "jetpack-forms" );
+__( "Select", "jetpack-forms" );
 __( "Sort ascending", "jetpack-forms" );
 __( "Sort descending", "jetpack-forms" );
 __( "(no title)", "jetpack-forms" );
 __( "Actions", "jetpack-forms" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1, "jetpack-forms" );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1, "jetpack-forms" );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack-forms" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack-forms" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack-forms" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack-forms" );
 __( "Deselect all", "jetpack-forms" );
 __( "Select all", "jetpack-forms" );
 __( "Cancel", "jetpack-forms" );
@@ -596,10 +597,10 @@ _x( "Trash", "noun", "jetpack-forms" );
 __( "Forms", "jetpack-forms" );
 __( "Responses", "jetpack-forms" );
 __( "An Automattic Airline", "jetpack-forms" );
-__( "Products", "jetpack-forms" );
+__( "Features", "jetpack-forms" );
 __( "Help", "jetpack-forms" );
 __( "Jetpack", "jetpack-forms" );
-__( "Breadcrumbs", "jetpack-forms" );
+_x( "Breadcrumbs", "aria label", "jetpack-forms" );
 __( "Sections", "jetpack-forms" );
 __( "This will permanently delete this form. This action cannot be undone.", "jetpack-forms" );
 /* translators: %d: number of forms */

@@ -9,9 +9,9 @@
 return array(
 	array(
 		'name'        => 'dashboard',
-		'path'        => '/',
+		'path'        => '/$',
 		'page'        => 'my-jetpack-dashboard',
-		'has_route'   => false,
+		'has_route'   => true,
 		'has_content' => true,
 	)
 );

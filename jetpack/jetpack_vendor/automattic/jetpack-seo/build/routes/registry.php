@@ -8,15 +8,15 @@
 
 return array(
 	array(
-		'name'        => 'ai',
-		'path'        => '/ai',
+		'name'        => 'content',
+		'path'        => '/content',
 		'page'        => 'jetpack-seo-dashboard',
 		'has_route'   => true,
 		'has_content' => true,
 	),
 	array(
-		'name'        => 'content',
-		'path'        => '/content',
+		'name'        => 'geo',
+		'path'        => '/geo',
 		'page'        => 'jetpack-seo-dashboard',
 		'has_route'   => true,
 		'has_content' => true,

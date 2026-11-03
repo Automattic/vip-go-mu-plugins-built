@@ -52,7 +52,7 @@ function jetpack_social_override_script( $scripts, $handle, $src, $deps = array(
 function jetpack_social_register_package_scripts( $scripts ) {
 	// Load build constants
 	$build_constants = require __DIR__ . '/constants.php';
-	$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
+	$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
 	$extension       = '.min.js';
 
 	$scripts_dir  = __DIR__ . '/scripts';

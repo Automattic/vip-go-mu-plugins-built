@@ -6,5 +6,96 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-videopress-pkg" );
+__( "More details follow the field.", "jetpack-videopress-pkg" );
+__( "Select", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
+__( "Original", "jetpack-videopress-pkg" );
+__( "Vivid", "jetpack-videopress-pkg" );
+__( "Warm", "jetpack-videopress-pkg" );
+__( "Cool", "jetpack-videopress-pkg" );
+__( "Mono", "jetpack-videopress-pkg" );
+__( "Vintage", "jetpack-videopress-pkg" );
+__( "Cancel", "jetpack-videopress-pkg" );
+__( "Filters", "jetpack-videopress-pkg" );
+__( "Video effects", "jetpack-videopress-pkg" );
+/* translators: %s: video effect name. */
+__( "%s effect", "jetpack-videopress-pkg" );
+__( "The video could not be downloaded.", "jetpack-videopress-pkg" );
+__( "The browser could not decode this video.", "jetpack-videopress-pkg" );
+__( "This video format is not supported by the browser.", "jetpack-videopress-pkg" );
+__( "The video failed to load.", "jetpack-videopress-pkg" );
+_x( "Playback could not be started.", "video preview player error", "jetpack-videopress-pkg" );
+__( "Playhead", "jetpack-videopress-pkg" );
+__( "Cut start", "jetpack-videopress-pkg" );
+__( "Cut end", "jetpack-videopress-pkg" );
+__( "Cut", "jetpack-videopress-pkg" );
+__( "Remove cut", "jetpack-videopress-pkg" );
+__( "Trim start", "jetpack-videopress-pkg" );
+__( "Trim end", "jetpack-videopress-pkg" );
+__( "Playhead time", "jetpack-videopress-pkg" );
+_x( "Pause", "button: pause timeline preview playback", "jetpack-videopress-pkg" );
+__( "Play", "jetpack-videopress-pkg" );
+__( "Fit", "jetpack-videopress-pkg" );
+__( "Timeline zoom", "jetpack-videopress-pkg" );
+/* translators: 1: current zoom level (1 = fully zoomed out), 2: number of zoom levels. */
+__( "Zoom level %1$d of %2$d", "jetpack-videopress-pkg" );
+/* translators: %s: removed duration in seconds, e.g. "3.4". */
+__( "%ss removed", "jetpack-videopress-pkg" );
+__( "New cut", "jetpack-videopress-pkg" );
+__( "The recording could not be prepared. Keep this tab visible and try again.", "jetpack-videopress-pkg" );
+__( "Recording preview", "jetpack-videopress-pkg" );
+_x( "Pause preview", "button: pause recording preview", "jetpack-videopress-pkg" );
+_x( "Play preview", "button: play recording preview", "jetpack-videopress-pkg" );
+/* translators: %d: video preparation progress percentage. */
+__( "Preparing video… %d%%. Keep this tab visible.", "jetpack-videopress-pkg" );
+__( "Record again", "jetpack-videopress-pkg" );
+__( "Upload recording", "jetpack-videopress-pkg" );
+__( "Video recording is unavailable in this browser. Try a browser that supports MP4 recording and allow camera access on a secure connection.", "jetpack-videopress-pkg" );
+__( "The camera or microphone could not be accessed. Check your browser permissions and try again.", "jetpack-videopress-pkg" );
+__( "Recording failed. Please try again.", "jetpack-videopress-pkg" );
+__( "Record a video", "jetpack-videopress-pkg" );
+__( "Camera preview", "jetpack-videopress-pkg" );
+__( "Recording", "jetpack-videopress-pkg" );
+__( "Mirror preview", "jetpack-videopress-pkg" );
+__( "Waiting for camera and microphone access…", "jetpack-videopress-pkg" );
+__( "Try again", "jetpack-videopress-pkg" );
+_x( "Stop recording", "button: stop camera recording", "jetpack-videopress-pkg" );
+_x( "Start recording", "button: start camera recording", "jetpack-videopress-pkg" );
+__( "Discard this recording?", "jetpack-videopress-pkg" );
+__( "Discard recording", "jetpack-videopress-pkg" );
 __( "Untitled video", "jetpack-videopress-pkg" );
+__( "You’ve reached the free plan’s 1-video limit. Upgrade to upload more.", "jetpack-videopress-pkg" );
+__( "Only video files can be uploaded.", "jetpack-videopress-pkg" );
+__( "That video format can’t be uploaded. Convert your video to MP4 or MOV, then try again.", "jetpack-videopress-pkg" );
+/* translators: %s: an upper-cased video file extension, e.g. "WEBM". */
+__( "%s files can’t be uploaded. Convert your video to MP4 or MOV, then try again.", "jetpack-videopress-pkg" );
+__( "Upgrade", "jetpack-videopress-pkg" );
+__( "Select videos to upload", "jetpack-videopress-pkg" );
+__( "Select a video to upload", "jetpack-videopress-pkg" );
+__( "Drag and drop your videos here", "jetpack-videopress-pkg" );
+__( "Drag and drop your video here", "jetpack-videopress-pkg" );
+__( "Add one or several. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.", "jetpack-videopress-pkg" );
+__( "Add one video. Each upload gets automatic captions, a player you fully own, and a link to share anywhere. No ads, no algorithm.", "jetpack-videopress-pkg" );
+__( "The upload failed. Please try again.", "jetpack-videopress-pkg" );
+__( "Uploading…", "jetpack-videopress-pkg" );
+__( "Finishing upload…", "jetpack-videopress-pkg" );
+/* translators: %d: upload progress percentage. */
+__( "Uploading %d%%", "jetpack-videopress-pkg" );
+__( "Retry upload", "jetpack-videopress-pkg" );
+__( "Upload progress", "jetpack-videopress-pkg" );
+__( "Your video was uploaded, but it couldn’t be processed.", "jetpack-videopress-pkg" );
+__( "Your video is uploaded and being processed. Plays will show up here once people watch it.", "jetpack-videopress-pkg" );
+__( "Your video is ready. Plays will show up here once people watch it.", "jetpack-videopress-pkg" );
+__( "View video", "jetpack-videopress-pkg" );
+__( "Upload a video to start tracking its plays here.", "jetpack-videopress-pkg" );
+__( "Uploading the first video. Add the rest from the VideoPress dashboard.", "jetpack-videopress-pkg" );
+__( "Top videos", "jetpack-videopress-pkg" );
+__( "Videos", "jetpack-videopress-pkg" );
 __( "We couldn't load video plays. Please try again in a moment.", "jetpack-videopress-pkg" );
+__( "No video plays in this period yet.", "jetpack-videopress-pkg" );
+__( "Manage videos", "jetpack-videopress-pkg" );

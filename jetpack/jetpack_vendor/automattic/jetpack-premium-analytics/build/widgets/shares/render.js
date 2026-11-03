@@ -12,4 +12,7 @@ __( "Press This", "jetpack-premium-analytics-pkg" );
 __( "Custom share buttons", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load shares. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "Learn where your content has been shared the most.", "jetpack-premium-analytics-pkg" );
+__( "You don’t have shares recorded yet. Social can help you reach readers where they already are.", "jetpack-premium-analytics-pkg" );
+__( "Learn more", "jetpack-premium-analytics-pkg" );
+__( "All-time top social media shares", "jetpack-premium-analytics-pkg" );
+__( "Platforms", "jetpack-premium-analytics-pkg" );

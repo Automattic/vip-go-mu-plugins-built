@@ -18,7 +18,7 @@ function jetpack_get_module_i18n( $key ) {
 		$modules = array(
 			'account-protection' => array(
 				'name' => _x( 'Account Protection', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Shield your login page with rate‑limiting and secure authentication safeguards.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Detect compromised passwords at login and flag weak ones when users set a new password.', 'Module Description', 'jetpack' ),
 			),
 
 			'activity-log' => array(
@@ -148,7 +148,12 @@ function jetpack_get_module_i18n( $key ) {
 
 			'post-list' => array(
 				'name' => _x( 'Post List', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display a customizable list of your latest posts anywhere on your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Show featured images and a copy link action in your WP Admin post and page lists.', 'Module Description', 'jetpack' ),
+			),
+
+			'protect-dashboard' => array(
+				'name' => _x( 'Protect Dashboard', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Security tools that keep your site safe and sound, from posts to plugins.', 'Module Description', 'jetpack' ),
 			),
 
 			'protect' => array(
@@ -374,6 +379,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			// - modules/post-list.php
 			'Admin' => _x( 'Admin', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Security` tag:
+			// - modules/protect-dashboard.php
+			'Security' => _x( 'Security', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Jetpack Stats` tag:
 			// - modules/stats.php
 			'Jetpack Stats' => _x( 'Jetpack Stats', 'Module Tag', 'jetpack' ),
@@ -406,7 +415,7 @@ function jetpack_get_module_info( $key ) {
 	  'account-protection' => 
 	  array (
 	    'name' => 'Account Protection',
-	    'description' => 'Shield your login page with rate‑limiting and secure authentication safeguards.',
+	    'description' => 'Detect compromised passwords at login and flag weak ones when users set a new password.',
 	    'sort' => '4',
 	    'recommendation_order' => '',
 	    'introduced' => '14.5',
@@ -415,7 +424,7 @@ function jetpack_get_module_info( $key ) {
 	    'free' => '',
 	    'requires_connection' => 'Yes',
 	    'requires_user_connection' => 'No',
-	    'auto_activate' => 'Yes',
+	    'auto_activate' => 'No',
 	    'module_tags' => 'Account Protection',
 	    'feature' => 'Security',
 	    'additional_search_queries' => '',
@@ -874,7 +883,7 @@ function jetpack_get_module_info( $key ) {
 	  'post-list' => 
 	  array (
 	    'name' => 'Post List',
-	    'description' => 'Display a customizable list of your latest posts anywhere on your site.',
+	    'description' => 'Show featured images and a copy link action in your WP Admin post and page lists.',
 	    'sort' => '31',
 	    'recommendation_order' => '12',
 	    'introduced' => '11.3',
@@ -887,6 +896,24 @@ function jetpack_get_module_info( $key ) {
 	    'module_tags' => 'Admin',
 	    'feature' => 'Appearance',
 	    'additional_search_queries' => 'post, admin, list',
+	    'plan_classes' => '',
+	  ),
+	  'protect-dashboard' => 
+	  array (
+	    'name' => 'Protect Dashboard',
+	    'description' => 'Security tools that keep your site safe and sound, from posts to plugins.',
+	    'sort' => '4',
+	    'recommendation_order' => '',
+	    'introduced' => '16.4-a.4',
+	    'changed' => '',
+	    'deactivate' => '',
+	    'free' => '',
+	    'requires_connection' => 'Yes',
+	    'requires_user_connection' => '',
+	    'auto_activate' => 'Yes',
+	    'module_tags' => 'Security',
+	    'feature' => 'Security',
+	    'additional_search_queries' => '',
 	    'plan_classes' => '',
 	  ),
 	  'protect' => 

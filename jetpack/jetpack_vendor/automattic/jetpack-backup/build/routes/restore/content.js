@@ -6,20 +6,22 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-backup-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-backup-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-backup-pkg" );
-__( "Loading", "jetpack-backup-pkg" );
+__( "More details follow the field.", "jetpack-backup-pkg" );
+__( "More details follow.", "jetpack-backup-pkg" );
+__( "Dismiss", "jetpack-backup-pkg" );
 __( "Something went wrong", "jetpack-backup-pkg" );
 __( "The page ran into an unexpected problem. Your backups are unaffected.", "jetpack-backup-pkg" );
 __( "Reload the page", "jetpack-backup-pkg" );
-__( "Jetpack Logo", "jetpack-backup-pkg" );
 __( "An Automattic Airline", "jetpack-backup-pkg" );
-__( "Products", "jetpack-backup-pkg" );
+__( "Jetpack Logo", "jetpack-backup-pkg" );
+__( "Features", "jetpack-backup-pkg" );
 __( "Help", "jetpack-backup-pkg" );
 __( "Jetpack", "jetpack-backup-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-backup-pkg" );
-__( "Dismiss", "jetpack-backup-pkg" );
 /* translators: %s: the error. */
 __( "There was an error reconnecting Jetpack. Error: %s", "jetpack-backup-pkg" );
 __( "Your account (connection owner)", "jetpack-backup-pkg" );
@@ -47,59 +49,111 @@ __( "The site doesn't appear to be connected. Backup requires an active Jetpack 
 /* translators: 1: what failed, in our own words. 2: the reason WordPress.com gave, usually in English. */
 __( "%1$s WordPress.com said: %2$s", "jetpack-backup-pkg" );
 __( "Request failed", "jetpack-backup-pkg" );
+__( "Restore ID: %s", "jetpack-backup-pkg" );
+__( "Download ID: %s", "jetpack-backup-pkg" );
+__( "Backup attempt ID: %s", "jetpack-backup-pkg" );
+__( "Backup ID: %s", "jetpack-backup-pkg" );
+__( "Error code: %s", "jetpack-backup-pkg" );
+__( "%1$s · %2$s", "jetpack-backup-pkg" );
+__( "Copied", "jetpack-backup-pkg" );
+__( "Copy error reference", "jetpack-backup-pkg" );
 __( "We couldn't load your backup details", "jetpack-backup-pkg" );
-__( "Your backups are unaffected. Try again, and contact support if this keeps happening.", "jetpack-backup-pkg" );
+__( "We couldn't check this site's Backup plan. Your backups are unaffected. Reload the page or try again. If it keeps happening, <a>contact support</a>.", "jetpack-backup-pkg" );
 __( "Try again", "jetpack-backup-pkg" );
 __( "Use license key", "jetpack-backup-pkg" );
-__( "14 day money back guarantee.", "jetpack-backup-pkg" );
-__( "Special introductory pricing, all renewals are at full price. 14 day money back guarantee.", "jetpack-backup-pkg" );
+__( "per month for the first year, billed yearly", "jetpack-backup-pkg" );
 __( "per month, billed yearly", "jetpack-backup-pkg" );
 /* translators: %s is the full monthly price the subscription renews at. */
 __( "Renews at %s per month.", "jetpack-backup-pkg" );
 __( "Get VaultPress Backup", "jetpack-backup-pkg" );
-__( "This site doesn't have an active Backup plan", "jetpack-backup-pkg" );
-__( "Add Jetpack Backup to start protecting your site with automatic backups, granular restores, and offsite storage.", "jetpack-backup-pkg" );
+__( "Real-time cloud backups", "jetpack-backup-pkg" );
+__( "Starts with 10GB of backup storage", "jetpack-backup-pkg" );
+__( "30-day archive & activity log", "jetpack-backup-pkg" );
+__( "One-click restores", "jetpack-backup-pkg" );
+__( "Add a Jetpack Backup plan", "jetpack-backup-pkg" );
+__( "Save every change with real-time backups and get back online with one-click restores.", "jetpack-backup-pkg" );
+__( "What's included?", "jetpack-backup-pkg" );
 __( "Connect Jetpack to get started", "jetpack-backup-pkg" );
 __( "Backup needs an active Jetpack connection to show your backup history.", "jetpack-backup-pkg" );
 __( "Connect Jetpack", "jetpack-backup-pkg" );
+__( "Backup is unavailable in Offline Mode", "jetpack-backup-pkg" );
+__( "Jetpack is in Offline Mode on this site, so backups can't be viewed or restored here. If this site is a copy of a live site, manage its backups from the live site. <a>Learn about Offline Mode</a>", "jetpack-backup-pkg" );
 __( "Link your WordPress.com account", "jetpack-backup-pkg" );
 __( "This site's Jetpack connection is already set up, but your account isn't linked to a WordPress.com user yet.", "jetpack-backup-pkg" );
 __( "Once your account is linked, you'll see any backups this site has. If it doesn't have an active Backup plan yet, you'll be able to add VaultPress Backup to start protecting it.", "jetpack-backup-pkg" );
 __( "Link my account", "jetpack-backup-pkg" );
+__( "Loading your backup details…", "jetpack-backup-pkg" );
 __( "Save changes and restore quickly with one-click recovery.", "jetpack-backup-pkg" );
 __( "Back to overview", "jetpack-backup-pkg" );
+/* translators: 1: a date, 2: a time of day. */
+_x( "%1$s %2$s", "date and time", "jetpack-backup-pkg" );
+__( "Database threat", "jetpack-backup-pkg" );
+__( "Malware", "jetpack-backup-pkg" );
+/* translators: %s: the date the threat was fixed. */
+__( "Fixed %s", "jetpack-backup-pkg" );
+__( "Fixed", "jetpack-backup-pkg" );
+__( "Ignored", "jetpack-backup-pkg" );
+__( "Open", "jetpack-backup-pkg" );
+/* translators: 1: the date Scan first detected a threat, 2: its status now, such as "Open" or "Fixed Oct 17, 2026". */
+__( "First detected %1$s · %2$s", "jetpack-backup-pkg" );
+__( "It's the most recent backup with no known security threats.", "jetpack-backup-pkg" );
+/* translators: %d: number of known security threats in the backup. */
+_n( "This backup is known to contain %d security threat. Restoring it may bring malware back to your site.", "This backup is known to contain %d security threats. Restoring it may bring malware back to your site.", 1, "jetpack-backup-pkg" );
+__( "This backup is known to contain security threats. Acknowledge them to restore it.", "jetpack-backup-pkg" );
+__( "Hide threats", "jetpack-backup-pkg" );
+__( "Show threats", "jetpack-backup-pkg" );
+__( "Known threats in this backup", "jetpack-backup-pkg" );
+/* translators: %d: number of threats listed above. */
+_n( "Showing the first %d threat.", "Showing the first %d threats.", 1, "jetpack-backup-pkg" );
+/* translators: %d: number of vulnerable plugin or theme versions in the backup. */
+_n( "Also: %d vulnerable plugin or theme version.", "Also: %d vulnerable plugin or theme versions.", 1, "jetpack-backup-pkg" );
+/* translators: %s: a backup's date and time. */
+__( "Restore %s backup instead", "jetpack-backup-pkg" );
+__( "Restore the latest backup without known threats instead", "jetpack-backup-pkg" );
+__( "I understand this backup contains known threats and want to restore it anyway.", "jetpack-backup-pkg" );
 __( "WordPress themes", "jetpack-backup-pkg" );
 __( "WordPress plugins", "jetpack-backup-pkg" );
 __( "WordPress root", "jetpack-backup-pkg" );
-__( "Includes wp-config.php and any non-WordPress files.", "jetpack-backup-pkg" );
+__( "includes wp-config.php and any non-WordPress files", "jetpack-backup-pkg" );
 __( "WP-content directory", "jetpack-backup-pkg" );
-__( "Excludes themes, plugins, and uploads.", "jetpack-backup-pkg" );
+__( "excludes themes, plugins, and uploads", "jetpack-backup-pkg" );
 __( "Site database", "jetpack-backup-pkg" );
-__( "Includes pages and posts.", "jetpack-backup-pkg" );
+__( "includes pages and posts", "jetpack-backup-pkg" );
 __( "Media uploads", "jetpack-backup-pkg" );
-__( "You must also select Site database for restored media uploads to appear.", "jetpack-backup-pkg" );
+__( "you must also select Site database for restored media uploads to appear", "jetpack-backup-pkg" );
+/* translators: 1: item name, e.g. "Media uploads". 2: short note about what it covers, e.g. "includes pages and posts". */
+__( "<strong>%1$s</strong> (%2$s)", "jetpack-backup-pkg" );
 __( "Restore failed.", "jetpack-backup-pkg" );
 __( "Your restore didn't start, so nothing on your site has changed.", "jetpack-backup-pkg" );
+__( "No known threats found in this backup.", "jetpack-backup-pkg" );
+__( "You can now restore this backup.", "jetpack-backup-pkg" );
+__( "Select at least one item to restore.", "jetpack-backup-pkg" );
+__( "Checking this backup for known threats…", "jetpack-backup-pkg" );
+__( "To restore this backup, confirm that you understand it contains known threats.", "jetpack-backup-pkg" );
+__( "We've lost track of this restore. It may still be running — you'll get an email when it finishes.", "jetpack-backup-pkg" );
 __( "This restore link isn't valid.", "jetpack-backup-pkg" );
 __( "The address is missing a valid restore point. Go back to the overview and choose a backup to restore.", "jetpack-backup-pkg" );
-__( "Restore backup", "jetpack-backup-pkg" );
-__( "Restore point:", "jetpack-backup-pkg" );
 __( "Checking for a restore in progress…", "jetpack-backup-pkg" );
-/* translators: %s is a date, e.g. "Aug 12, 2026". */
-__( "A restore of your %s backup is already running. You can't start another from here until it finishes.", "jetpack-backup-pkg" );
-__( "A restore is already running for this site. You can't start another from here until it finishes.", "jetpack-backup-pkg" );
-__( "Restoring will overwrite the matching parts of your live site with the contents of this backup. This cannot be undone.", "jetpack-backup-pkg" );
-__( "Choose the items you wish to restore:", "jetpack-backup-pkg" );
-__( "Select at least one item to restore.", "jetpack-backup-pkg" );
-__( "Confirm restore", "jetpack-backup-pkg" );
 __( "Your restore is queued and will begin automatically.", "jetpack-backup-pkg" );
+__( "Restoring from backup…", "jetpack-backup-pkg" );
+__( "Restore complete.", "jetpack-backup-pkg" );
+__( "Restore finished with errors", "jetpack-backup-pkg" );
+__( "Restore backup", "jetpack-backup-pkg" );
+/* translators: %s: date and time of the backup. */
+__( "Restore point: %s", "jetpack-backup-pkg" );
+__( "Restoring replaces the items you select below with their versions from this backup. Everything else stays as it is. This cannot be undone.", "jetpack-backup-pkg" );
+__( "Choose the items you wish to restore:", "jetpack-backup-pkg" );
+__( "Confirm restore", "jetpack-backup-pkg" );
 __( "Waiting for your restore to begin", "jetpack-backup-pkg" );
-__( "Restoring…", "jetpack-backup-pkg" );
 __( "Restoring your site", "jetpack-backup-pkg" );
 /* translators: %d is a completion percentage, e.g. "50% complete". */
 __( "%d%% complete", "jetpack-backup-pkg" );
-__( "Restore complete.", "jetpack-backup-pkg" );
-__( "Restore finished, but some items could not be restored.", "jetpack-backup-pkg" );
+__( "Reconnecting…", "jetpack-backup-pkg" );
+/* translators: %s is a date, e.g. "Aug 12, 2026". */
+__( "A restore of your %s backup is already running. You can't start another from here until it finishes.", "jetpack-backup-pkg" );
+__( "A restore is already running for this site. You can't start another from here until it finishes.", "jetpack-backup-pkg" );
+__( "Some items could not be restored.", "jetpack-backup-pkg" );
+__( "Learn more", "jetpack-backup-pkg" );
 __( "We didn't hear back from WordPress.com. Checking whether your restore started…", "jetpack-backup-pkg" );
 __( "Checking whether your restore started", "jetpack-backup-pkg" );
-__( "We've lost track of this restore. It may still be running — you'll get an email when it finishes.", "jetpack-backup-pkg" );
+__( "Restore failed", "jetpack-backup-pkg" );

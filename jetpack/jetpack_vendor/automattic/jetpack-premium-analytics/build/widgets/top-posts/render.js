@@ -8,9 +8,12 @@
 
 /* translators: %s is an archive category label, e.g. "Searches". */
 __( "View %s archive pages", "jetpack-premium-analytics-pkg" );
+__( "Top pages", "jetpack-premium-analytics-pkg" );
 __( "Untitled", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load posts and pages. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
+__( "Pages", "jetpack-premium-analytics-pkg" );
 __( "All archives", "jetpack-premium-analytics-pkg" );
 __( "Back to the previous archive list", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load archives. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "Archives", "jetpack-premium-analytics-pkg" );

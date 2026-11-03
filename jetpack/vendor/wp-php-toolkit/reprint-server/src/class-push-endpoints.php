@@ -1,16 +1,14 @@
 <?php
 
+namespace WordPress\Reprint\Server;
+
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped,WordPress.Security.EscapeOutput.OutputNotEscaped -- Authenticated protocol responses are JSON, never HTML output.
 // phpcs:disable WordPress.Security.ValidatedSanitizedInput -- Multipart parsing and request-body byte accounting require the request bytes unchanged.
 
-use function WordPress\Reprint\Server\assert_valid_path;
-use function WordPress\Reprint\Server\normalize_excluded_paths;
-use function WordPress\Reprint\Server\normalize_path;
-use function WordPress\Reprint\Server\parse_size;
-use function WordPress\Reprint\Server\path_is_same_as_or_descendant_of;
-use function WordPress\Reprint\Server\realpath_with_missing_tail;
-
-require_once __DIR__ . '/utils.php';
+use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
+use Throwable;
 
 /**
  * Exposes push-session operations through the exporter HTTP dispatcher.
@@ -20,12 +18,12 @@ require_once __DIR__ . '/utils.php';
  * maximum multipart part size, and bounded commit work for every request.
  * Authentication happens in the embedding router before these methods run.
  *
- * Upload requests pass php://input directly to Site_Export_Push_Session. The
+ * Upload requests pass php://input directly to PushSession. The
  * endpoint retains only the latest accepted change while the receiver reads
  * each multipart part in bounded fragments; it never buffers the request body
  * or a list of all parts.
  */
-final class Site_Export_Push_Endpoints {
+final class PushEndpoints {
 
     private const DEFAULT_MAXIMUM_PART_BYTES = 4194304;
     private const DEFAULT_MAXIMUM_COMMIT_ENTRIES = 256;
@@ -103,18 +101,18 @@ final class Site_Export_Push_Endpoints {
         if (!is_array($excluded_paths)) {
             throw new InvalidArgumentException('Push endpoints require an excluded_paths array.');
         }
-        $excluded_paths = normalize_excluded_paths($excluded_paths);
+        $excluded_paths = Utils::normalize_excluded_paths($excluded_paths);
 
-        assert_valid_path($reprint_directory, 'Push endpoint reprint_directory');
-        assert_valid_path($docroot, 'Push endpoint docroot');
-        $canonical_reprint_directory = realpath_with_missing_tail(
+        Utils::assert_valid_path($reprint_directory, Utils::native_path_format(), 'Push endpoint reprint_directory');
+        Utils::assert_valid_path($docroot, Utils::native_path_format(), 'Push endpoint docroot');
+        $canonical_reprint_directory = Utils::realpath_with_missing_tail(
             $reprint_directory
         );
         $canonical_docroot = realpath($docroot);
         if ($canonical_docroot === false) {
-            $canonical_docroot = normalize_path($docroot);
+            $canonical_docroot = Utils::normalize_path($docroot, Utils::native_path_format());
         }
-        if (path_is_same_as_or_descendant_of($canonical_reprint_directory, $canonical_docroot)) {
+        if (Utils::path_is_same_as_or_descendant_of($canonical_reprint_directory, $canonical_docroot)) {
             throw new InvalidArgumentException(
                 'Push endpoints require reprint_directory ' . json_encode($reprint_directory)
                 . ' to be outside docroot ' . json_encode($docroot) . '; observed it inside that document root.'
@@ -139,7 +137,7 @@ final class Site_Export_Push_Endpoints {
         } else {
             $post_max_size = ini_get('post_max_size');
             $parsed_post_max_bytes = is_string($post_max_size) && $post_max_size !== ''
-                ? parse_size($post_max_size)
+                ? Utils::parse_size($post_max_size)
                 : 0;
             $this->post_max_bytes = $parsed_post_max_bytes > 0 ? $parsed_post_max_bytes : null;
         }
@@ -188,7 +186,7 @@ final class Site_Export_Push_Endpoints {
         try {
             $this->assert_request_method('POST');
             $push_session_id = $this->read_push_session_id($config);
-            Site_Export_Push_Session::create(
+            PushSession::create(
                 $this->reprint_directory,
                 $this->docroot,
                 $this->excluded_paths,
@@ -240,7 +238,7 @@ final class Site_Export_Push_Endpoints {
             $this->assert_request_method('POST');
             $push_session_id = $this->read_push_session_id($config);
             $content_type = (string) ( $_SERVER['CONTENT_TYPE'] ?? '' );
-            $boundary = Site_Export_Multipart_Processor::boundary_from_content_type($content_type);
+            $boundary = MultipartProcessor::boundary_from_content_type($content_type);
             $declared_request_bytes = $_SERVER['CONTENT_LENGTH'] ?? null;
             if (
                 $this->post_max_bytes !== null
@@ -258,12 +256,12 @@ final class Site_Export_Push_Endpoints {
             }
             $input = fopen('php://input', 'rb');
             if ($input === false) {
-                throw new Site_Export_Push_Exception(
-                    Site_Export_Push_Session::ERROR_FILESYSTEM,
+                throw new PushException(
+                    PushSession::ERROR_FILESYSTEM,
                     'Could not open the multipart upload request body.'
                 );
             }
-            $push_session = Site_Export_Push_Session::open(
+            $push_session = PushSession::open(
                 $this->reprint_directory,
                 $this->docroot,
                 $push_session_id,
@@ -271,7 +269,7 @@ final class Site_Export_Push_Endpoints {
             );
             $push_session->accept_upload(
                 $input,
-                new Site_Export_Multipart_Processor($boundary),
+                new MultipartProcessor($boundary),
                 $this->maximum_part_bytes,
                 $this->post_max_bytes ?? PHP_INT_MAX
             );
@@ -303,7 +301,7 @@ final class Site_Export_Push_Endpoints {
                 'last_change' => $last_change,
             ]);
         } catch (Throwable $exception) {
-            if ($upload_open && $push_session instanceof Site_Export_Push_Session) {
+            if ($upload_open && $push_session instanceof PushSession) {
                 $push_session->finish_upload();
             }
             if (is_resource($input)) {
@@ -355,7 +353,7 @@ final class Site_Export_Push_Endpoints {
                     throw new InvalidArgumentException('path_b64 must be valid base64 text.');
                 }
             }
-            $push_session = Site_Export_Push_Session::open(
+            $push_session = PushSession::open(
                 $this->reprint_directory,
                 $this->docroot,
                 $push_session_id,
@@ -408,7 +406,7 @@ final class Site_Export_Push_Endpoints {
         try {
             $this->assert_request_method('POST');
             $push_session_id = $this->read_push_session_id($config);
-            $push_session = Site_Export_Push_Session::open(
+            $push_session = PushSession::open(
                 $this->reprint_directory,
                 $this->docroot,
                 $push_session_id,
@@ -428,12 +426,12 @@ final class Site_Export_Push_Endpoints {
         } catch (Throwable $exception) {
             if (
                 $this->commit_start_denial_detail !== null
-                && $exception instanceof Site_Export_Push_Exception
-                && $exception->get_error_code() === Site_Export_Push_Session::ERROR_PUSH_NOT_FOUND
+                && $exception instanceof PushException
+                && $exception->get_error_code() === PushSession::ERROR_PUSH_NOT_FOUND
             ) {
                 $this->respond(403, [
                     'status' => 'rejected',
-                    'reason' => Site_Export_Push_Session::ERROR_PUSH_DISABLED,
+                    'reason' => PushSession::ERROR_PUSH_DISABLED,
                     'detail' => $this->commit_start_denial_detail,
                 ]);
                 return;
@@ -462,7 +460,7 @@ final class Site_Export_Push_Endpoints {
         try {
             $this->assert_request_method('POST');
             $push_session_id = $this->read_push_session_id($config);
-            $remove_complete = Site_Export_Push_Session::remove(
+            $remove_complete = PushSession::remove(
                 $this->reprint_directory,
                 $this->docroot,
                 $push_session_id,
@@ -497,7 +495,7 @@ final class Site_Export_Push_Endpoints {
     /**
      * Reads the required push session identity from request parameters.
      *
-     * Site_Export_Push_Session performs the canonical 32-character lowercase
+     * PushSession performs the canonical 32-character lowercase
      * hexadecimal grammar check. This method only rejects missing or non-string
      * values before a factory method is selected.
      *
@@ -531,20 +529,20 @@ final class Site_Export_Push_Endpoints {
      * @param Throwable $exception Failure raised while handling an endpoint.
      */
     private function respond_to_failure(Throwable $exception): void {
-        if ($exception instanceof Site_Export_Push_Exception) {
+        if ($exception instanceof PushException) {
             $reason = $exception->get_error_code();
             $http_code = 409;
-            if ($reason === Site_Export_Push_Session::ERROR_PUSH_NOT_FOUND) {
+            if ($reason === PushSession::ERROR_PUSH_NOT_FOUND) {
                 $http_code = 404;
-            } elseif ($reason === Site_Export_Push_Session::ERROR_PUSH_DISABLED) {
+            } elseif ($reason === PushSession::ERROR_PUSH_DISABLED) {
                 $http_code = 403;
-            } elseif ($reason === Site_Export_Push_Session::ERROR_LOCK_ACQUISITION_FAILURE) {
+            } elseif ($reason === PushSession::ERROR_LOCK_ACQUISITION_FAILURE) {
                 $http_code = 423;
-            } elseif ($reason === Site_Export_Push_Session::ERROR_REQUEST_TOO_LARGE) {
+            } elseif ($reason === PushSession::ERROR_REQUEST_TOO_LARGE) {
                 $http_code = 413;
             } elseif (
-                $reason === Site_Export_Push_Session::ERROR_FILESYSTEM
-                || $reason === Site_Export_Push_Session::ERROR_CORRUPTED_PUSH_STATE
+                $reason === PushSession::ERROR_FILESYSTEM
+                || $reason === PushSession::ERROR_CORRUPTED_PUSH_STATE
             ) {
                 $http_code = 500;
             }
@@ -553,13 +551,13 @@ final class Site_Export_Push_Endpoints {
                 'reason' => $reason,
                 'detail' => $exception->getMessage(),
             ];
-            if ($reason === Site_Export_Push_Session::ERROR_COMMIT_REQUIRED) {
+            if ($reason === PushSession::ERROR_COMMIT_REQUIRED) {
                 $context = $exception->get_context();
                 if (is_string($context['blocking_push_session_id'] ?? null)) {
                     $response['blocking_push_session_id'] = $context['blocking_push_session_id'];
                 }
             }
-            if ($reason === Site_Export_Push_Session::ERROR_REQUEST_TOO_LARGE) {
+            if ($reason === PushSession::ERROR_REQUEST_TOO_LARGE) {
                 $context = $exception->get_context();
                 if (is_int($context['observed_request_body_bytes'] ?? null)) {
                     $response['observed_request_body_bytes'] = $context['observed_request_body_bytes'];
@@ -582,7 +580,7 @@ final class Site_Export_Push_Endpoints {
         }
         $this->respond(500, [
             'status' => 'rejected',
-            'reason' => Site_Export_Push_Session::ERROR_FILESYSTEM,
+            'reason' => PushSession::ERROR_FILESYSTEM,
             'detail' => 'The push endpoint failed while processing the request.',
         ]);
     }
@@ -600,7 +598,11 @@ final class Site_Export_Push_Endpoints {
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         header('Pragma: no-cache');
         header('Expires: 0');
-        header('Content-Type: application/json');
+        // Hosts such as Hostinger rewrite domains so links and assets stay on a
+        // preview domain while the stored site URL still uses the real domain.
+        // This lets users preview a site before changing DNS, but also rewrites
+        // application/json bodies. Octet-stream bypasses Hostinger's filter.
+        header('Content-Type: application/octet-stream');
         $json = json_encode($body);
         if ($json === false) {
             http_response_code(500);
@@ -609,4 +611,8 @@ final class Site_Export_Push_Endpoints {
         }
         echo $json;
     }
+}
+
+if (!class_exists('Site_Export_Push_Endpoints', false)) {
+    class_alias(PushEndpoints::class, 'Site_Export_Push_Endpoints');
 }

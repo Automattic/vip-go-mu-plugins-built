@@ -1345,6 +1345,12 @@ tr.jetpack-module.unavailable {
   color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 
+.jetpack-module__note {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+}
+
 .jetpack-module__meta {
   display: flex;
   align-items: center;

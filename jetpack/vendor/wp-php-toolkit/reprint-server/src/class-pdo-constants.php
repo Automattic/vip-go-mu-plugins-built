@@ -16,6 +16,16 @@ class PdoConstants {
         return defined('PDO::FETCH_COLUMN') ? constant('PDO::FETCH_COLUMN') : 7;
     }
 
+    public static function param_int(): int
+    {
+        return defined('PDO::PARAM_INT') ? constant('PDO::PARAM_INT') : 1;
+    }
+
+    public static function param_null(): int
+    {
+        return defined('PDO::PARAM_NULL') ? constant('PDO::PARAM_NULL') : 0;
+    }
+
     public static function param_str(): int
     {
         return defined('PDO::PARAM_STR') ? constant('PDO::PARAM_STR') : 2;

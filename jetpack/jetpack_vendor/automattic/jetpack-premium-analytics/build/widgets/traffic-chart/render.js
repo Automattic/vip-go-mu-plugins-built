@@ -6,37 +6,7 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. period (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. week", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Same period in <month>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. month", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: abbreviation for "Same period last year (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
-_x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
-/* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
-_x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
-__( "Previous month", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of years covered by the selected date range. */
-_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of months covered by the selected date range. */
-_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
-__( "Previous hour", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of hours covered by the selected date range. */
-_n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
-__( "Previous day", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of days covered by the selected date range. */
-_n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
-__( "Same period from last week", "jetpack-premium-analytics-pkg" );
-/* translators: %s: name of the month the comparison period starts in, e.g. "July". */
-_x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
-/* translators: %s: the year the comparison period starts in, e.g. "2025". */
-_x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
-__( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
+__( "Switch to the line chart to see each day.", "jetpack-premium-analytics-pkg" );
 /* translators: %s: number of posts published. */
 _n( "%s Post published", "%s Posts published", 1, "jetpack-premium-analytics-pkg" );
 __( "Views per visitor", "jetpack-premium-analytics-pkg" );
@@ -57,3 +27,6 @@ __( "Hourly data isn't available for this metric.", "jetpack-premium-analytics-p
 __( "Traffic metric", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load traffic data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
+__( "Traffic summary", "jetpack-premium-analytics-pkg" );
+__( "You haven't published any posts yet. Get started by creating your first one.", "jetpack-premium-analytics-pkg" );
+__( "Create post", "jetpack-premium-analytics-pkg" );

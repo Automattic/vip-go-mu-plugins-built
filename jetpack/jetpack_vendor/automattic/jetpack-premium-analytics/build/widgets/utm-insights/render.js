@@ -10,4 +10,8 @@
 __( "View posts for %s", "jetpack-premium-analytics-pkg" );
 __( "All UTM insights", "jetpack-premium-analytics-pkg" );
 __( "View all UTM insights", "jetpack-premium-analytics-pkg" );
+__( "Build URL", "jetpack-premium-analytics-pkg" );
+__( "You don’t have UTM visits for this period. Build a URL to start tracking a campaign.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load UTM data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "Top UTM", "jetpack-premium-analytics-pkg" );
+__( "Posts", "jetpack-premium-analytics-pkg" );

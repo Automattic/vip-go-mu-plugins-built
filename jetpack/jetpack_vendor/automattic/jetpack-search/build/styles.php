@@ -42,8 +42,8 @@ function jetpack_search_override_style( $styles, $handle, $src, $deps = array(),
 function jetpack_search_register_package_styles( $styles ) {
 	// Load build constants
 	$build_constants = require __DIR__ . '/constants.php';
-	$default_version = ! SCRIPT_DEBUG ? $build_constants['version'] : time();
-	$suffix          = '.min';
+	$default_version = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? time() : $build_constants['version'];
+	$suffix          = defined( 'SCRIPT_DEBUG' ) && '.min';
 
 	$styles_dir  = __DIR__ . '/styles';
 	$styles_file = $styles_dir . '/registry.php';

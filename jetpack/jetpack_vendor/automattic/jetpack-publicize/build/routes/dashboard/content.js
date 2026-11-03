@@ -6,11 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-publicize-pkg" );
+__( "Loading", "jetpack-publicize-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-publicize-pkg" );
-__( "Loading", "jetpack-publicize-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-publicize-pkg" );
 __( "OK", "jetpack-publicize-pkg" );
 __( "Cancel", "jetpack-publicize-pkg" );
 __( "Close", "jetpack-publicize-pkg" );
@@ -33,12 +33,17 @@ _n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-p
 __( "Jetpack Connection error", "jetpack-publicize-pkg" );
 __( "Jetpack Logo", "jetpack-publicize-pkg" );
 __( "An Automattic Airline", "jetpack-publicize-pkg" );
-__( "Products", "jetpack-publicize-pkg" );
+__( "Features", "jetpack-publicize-pkg" );
 __( "Help", "jetpack-publicize-pkg" );
 __( "Jetpack", "jetpack-publicize-pkg" );
 __( "Sections", "jetpack-publicize-pkg" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-publicize-pkg" );
+__( "Select period", "jetpack-publicize-pkg" );
+/* translators: %1$s: What the control picks, such as "Date range". %2$s: The selected period, such as "Last 30 days". */
+__( "%1$s: %2$s", "jetpack-publicize-pkg" );
+__( "Previous period", "jetpack-publicize-pkg" );
+__( "Next period", "jetpack-publicize-pkg" );
 __( "Still having trouble? <link>Contact Jetpack Support</link>.", "jetpack-publicize-pkg" );
 __( "Reconnecting Jetpack", "jetpack-publicize-pkg" );
 __( "Loading…", "jetpack-publicize-pkg" );
@@ -210,17 +215,25 @@ __( "Invalid data", "jetpack-publicize-pkg" );
 __( "Line chart", "jetpack-publicize-pkg" );
 __( "Area chart", "jetpack-publicize-pkg" );
 __( "Week of %s", "jetpack-publicize-pkg" );
-__( "%1$s: %2$s", "jetpack-publicize-pkg" );
 __( "Bar chart", "jetpack-publicize-pkg" );
+__( "Bar list chart", "jetpack-publicize-pkg" );
+_n( "%s item", "%s items", 1, "jetpack-publicize-pkg" );
+__( "Conversion rate", "jetpack-publicize-pkg" );
+__( "Conversion funnel chart", "jetpack-publicize-pkg" );
+__( "Funnel steps", "jetpack-publicize-pkg" );
+__( "%1$s, %2$s", "jetpack-publicize-pkg" );
 __( "Loading map", "jetpack-publicize-pkg" );
+__( "Geo chart", "jetpack-publicize-pkg" );
 __( "Less", "jetpack-publicize-pkg" );
 __( "More", "jetpack-publicize-pkg" );
 __( "Heatmap chart", "jetpack-publicize-pkg" );
 __( "Current period", "jetpack-publicize-pkg" );
-__( "Previous period", "jetpack-publicize-pkg" );
 __( "Not enough space to display data", "jetpack-publicize-pkg" );
+__( "Leaderboard chart", "jetpack-publicize-pkg" );
 __( "Percentage change unavailable", "jetpack-publicize-pkg" );
 __( "No comparison data", "jetpack-publicize-pkg" );
+__( "Pie chart", "jetpack-publicize-pkg" );
+__( "Semi-circle chart", "jetpack-publicize-pkg" );
 __( "Last 7 days", "jetpack-publicize-pkg" );
 __( "Last 30 days", "jetpack-publicize-pkg" );
 __( "Last 90 days", "jetpack-publicize-pkg" );
@@ -229,8 +242,8 @@ __( "Visits from social media networks over the last %d days.", "jetpack-publici
 __( "Upgrade to see which social networks are driving visits to your site, day by day.", "jetpack-publicize-pkg" );
 /* translators: %s: name of the plan that unlocks the feature, e.g. "Business". */
 __( "Upgrade to the %s plan to see which social networks are driving visits to your site, day by day.", "jetpack-publicize-pkg" );
-__( "Traffic from social media", "jetpack-publicize-pkg" );
 __( "Date range", "jetpack-publicize-pkg" );
+__( "Traffic from social media", "jetpack-publicize-pkg" );
 __( "Available with a paid plan", "jetpack-publicize-pkg" );
 __( "Couldn’t load traffic data", "jetpack-publicize-pkg" );
 __( "Something went wrong fetching your social traffic. Refresh the page to try again.", "jetpack-publicize-pkg" );
@@ -280,6 +293,47 @@ __( "Turn on Social", "jetpack-publicize-pkg" );
 __( "Auto-share to social media", "jetpack-publicize-pkg" );
 __( "Automatically share your posts to your connected social accounts", "jetpack-publicize-pkg" );
 __( "When off, the Social tools stay available here but your posts won’t be shared automatically.", "jetpack-publicize-pkg" );
+__( "Unavailable in <a>Offline Mode</a>", "jetpack-publicize-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site at %s. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-publicize-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t reach your site at %s to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-publicize-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com reached your site at %s, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-publicize-pkg" );
+__( "WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-publicize-pkg" );
+/* translators: %1$d is an HTTP status code, e.g. 500; %2$s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com got an error (HTTP %1$d) when it tried to verify your site at %2$s. Your site’s error log may show the cause.", "jetpack-publicize-pkg" );
+/* translators: %d is an HTTP status code, e.g. 500. */
+__( "WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.", "jetpack-publicize-pkg" );
+/* translators: %1$s is the site URL WordPress.com tried, e.g. https://example.com; %2$d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site at %1$s (HTTP %2$d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-publicize-pkg" );
+/* translators: %d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-publicize-pkg" );
+__( "Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.", "jetpack-publicize-pkg" );
+__( "Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.", "jetpack-publicize-pkg" );
+__( "This site has been suspended.", "jetpack-publicize-pkg" );
+__( "There have been too many connection attempts from this site. Please wait an hour and try again.", "jetpack-publicize-pkg" );
+__( "Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn it off while you connect.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site.", "jetpack-publicize-pkg" );
+__( "WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.", "jetpack-publicize-pkg" );
+__( "Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.", "jetpack-publicize-pkg" );
+__( "PHP’s XML extension isn’t available on your site, and Jetpack needs it to connect. Ask your hosting provider to enable it.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins.", "jetpack-publicize-pkg" );
+__( "The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.", "jetpack-publicize-pkg" );
+__( "WordPress.com couldn’t register your site right now. Please try again in a few minutes, and contact support if it keeps happening.", "jetpack-publicize-pkg" );
+__( "The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.", "jetpack-publicize-pkg" );
+__( "Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.", "jetpack-publicize-pkg" );
+__( "Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.", "jetpack-publicize-pkg" );
+__( "Your session expired. Reload the page and try again.", "jetpack-publicize-pkg" );
+__( "A critical error stopped the connection. Your site’s error log has the details.", "jetpack-publicize-pkg" );
+__( "Only site administrators can connect this site. Ask an administrator to connect it.", "jetpack-publicize-pkg" );
+__( "Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.", "jetpack-publicize-pkg" );
+__( "WordPress.com is temporarily unavailable. Please try again in a minute.", "jetpack-publicize-pkg" );
+__( "Your site got an unexpected response from WordPress.com. If your hosting provider filters outgoing connections, ask them to allow jetpack.wordpress.com.", "jetpack-publicize-pkg" );
+__( "WordPress.com returned an unexpected response when registering your site. Please try again in a minute.", "jetpack-publicize-pkg" );
 __( "Share your posts with your social media network and increase your site’s traffic.", "jetpack-publicize-pkg" );
 __( "An error occurred. Please try again.", "jetpack-publicize-pkg" );
 __( "Registering…", "jetpack-publicize-pkg" );

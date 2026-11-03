@@ -8,3 +8,5 @@
 
 __( "We couldn't load this author's posts. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Open an author to see their top posts here.", "jetpack-premium-analytics-pkg" );
+__( "Top viewed posts", "jetpack-premium-analytics-pkg" );
+__( "Posts", "jetpack-premium-analytics-pkg" );

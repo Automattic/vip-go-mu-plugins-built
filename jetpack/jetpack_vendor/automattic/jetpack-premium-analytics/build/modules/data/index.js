@@ -18,13 +18,55 @@ __( "Last month", "jetpack-premium-analytics-pkg" );
 __( "Year to date", "jetpack-premium-analytics-pkg" );
 __( "Last 12 months", "jetpack-premium-analytics-pkg" );
 __( "Last year", "jetpack-premium-analytics-pkg" );
-__( "The response is not a valid JSON response.", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. period (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period from last week". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. week", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period in <month>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. month", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period in <year>". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: abbreviation for "Same period last year (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
+_x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
+/* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
+_x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
+__( "Previous hour", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours covered by the selected date range. */
+_n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous month", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months covered by the selected date range. */
+_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years covered by the selected date range. */
+_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous day", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days covered by the selected date range. */
+_n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
+_x( "Prev. hour", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d hour", "Prev. %d hours", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. month", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d month", "Prev. %d months", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d year", "Prev. %d years", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. day", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d day", "Prev. %d days", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+__( "Same period from last week", "jetpack-premium-analytics-pkg" );
+/* translators: %s: name of the month the comparison period starts in, e.g. "July". */
+_x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
+/* translators: %s: the year the comparison period starts in, e.g. "2025". */
+_x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
+__( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
+_x( "Prev. week", "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. year, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %s: an abbreviated previous period, e.g. "Prev. 8 days". The suffix says it starts on the same weekday. */
+_x( "%s, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
 /* translators: %d: HTTP status code. */
 __( "Report download failed with status %d.", "jetpack-premium-analytics-pkg" );
-__( "Sessions", "jetpack-premium-analytics-pkg" );
-__( "Cart", "jetpack-premium-analytics-pkg" );
-__( "Checkout", "jetpack-premium-analytics-pkg" );
-__( "Purchase", "jetpack-premium-analytics-pkg" );
+__( "The response is not a valid JSON response.", "jetpack-premium-analytics-pkg" );
 __( "Unknown", "jetpack-premium-analytics-pkg" );
 _x( "Post URL", "Email link type", "jetpack-premium-analytics-pkg" );
 _x( "Like", "Email link type", "jetpack-premium-analytics-pkg" );

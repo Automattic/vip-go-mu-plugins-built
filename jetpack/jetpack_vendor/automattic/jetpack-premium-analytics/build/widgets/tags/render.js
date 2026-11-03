@@ -11,4 +11,6 @@ __( "View the tags and categories in %s", "jetpack-premium-analytics-pkg" );
 __( "All tags & categories", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load tags & categories. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
-__( "Learn about your most visited tags & categories to track engaging topics.", "jetpack-premium-analytics-pkg" );
+__( "You don’t have tags or categories recorded yet.", "jetpack-premium-analytics-pkg" );
+__( "Top tags & categories", "jetpack-premium-analytics-pkg" );
+__( "Tags & categories", "jetpack-premium-analytics-pkg" );

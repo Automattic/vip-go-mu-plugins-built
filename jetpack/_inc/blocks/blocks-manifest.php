@@ -2891,6 +2891,13 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
       'reusable' => false,
       'html' => false,
     ),
+    'example' => 
+    array (
+      'attributes' => 
+      array (
+        'service' => 'facebook',
+      ),
+    ),
     'viewScript' => 'file:./view.js',
     'editorScript' => 'jetpack-blocks-editor',
   ),
@@ -2995,6 +3002,7 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
       ),
       'anchor' => true,
       '__experimentalExposeControlsToChildren' => true,
+      'listView' => true,
       'layout' => 
       array (
         'allowSwitching' => false,
@@ -3039,6 +3047,13 @@ Markdown is a text formatting syntax that is converted into HTML. You can _empha
           'blockGap' => true,
           'margin' => true,
           'padding' => false,
+        ),
+      ),
+      '__experimentalStyle' => 
+      array (
+        'spacing' => 
+        array (
+          'blockGap' => '0',
         ),
       ),
     ),

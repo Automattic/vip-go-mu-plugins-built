@@ -11,3 +11,4 @@ __( "No data", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this traffic activity. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Open a post or page report to see its traffic activity here.", "jetpack-premium-analytics-pkg" );
+__( "Traffic activity", "jetpack-premium-analytics-pkg" );

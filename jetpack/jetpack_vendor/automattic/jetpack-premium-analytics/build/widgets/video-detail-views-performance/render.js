@@ -17,3 +17,4 @@ __( "Retention rate", "jetpack-premium-analytics-pkg" );
 __( "Video metric", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this video's performance. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Open a video report to see its performance here.", "jetpack-premium-analytics-pkg" );
+__( "Video performance", "jetpack-premium-analytics-pkg" );

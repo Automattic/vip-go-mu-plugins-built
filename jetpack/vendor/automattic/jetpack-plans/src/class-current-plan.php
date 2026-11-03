@@ -163,6 +163,10 @@ class Current_Plan {
 				'social-image-generator',
 			),
 		),
+		'pro'      => array(
+			'plans'    => array( 'jetpack_pro_yearly', 'jetpack_pro_bi_yearly', 'jetpack_pro_monthly' ),
+			'supports' => array(),
+		),
 	);
 
 	/**
@@ -339,7 +343,7 @@ class Current_Plan {
 			if ( ! isset( $module ) || ! is_array( $module ) ) {
 				continue;
 			}
-			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) ) {
+			if ( in_array( 'free', $module['plan_classes'], true ) || in_array( $plan['class'], $module['plan_classes'], true ) || ( 'pro' === $plan['class'] && in_array( 'complete', $module['plan_classes'], true ) ) ) {
 				$supports[] = $module_slug;
 			}
 		}
@@ -458,10 +462,11 @@ class Current_Plan {
 	 *
 	 * See Jetpack_Gutenberg::get_site_specific_features()
 	 *
+	 * @param bool $include_available Whether to include upgradeable features, which requires a billing catalog lookup.
 	 * @return array
 	 */
-	public static function get_simple_site_specific_features() {
-		$is_simple_site = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+	public static function get_simple_site_specific_features( $include_available = true ) {
+		$is_simple_site = Constants::is_true( 'IS_WPCOM' );
 
 		if ( ! $is_simple_site ) {
 			return array(
@@ -471,19 +476,24 @@ class Current_Plan {
 		}
 
 		$current_blog_id = get_current_blog_id();
+		$cache_key       = $include_available ? 'full' : 'active_only';
 
-		// Return the cached value if it exists.
-		if ( isset( self::$simple_site_specific_features[ $current_blog_id ] ) ) {
-			return self::$simple_site_specific_features[ $current_blog_id ];
+		// Return the cached value if it exists. A full result answers an active-only
+		// request too, so that one is reused rather than recomputed.
+		if ( isset( self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ] ) ) {
+			return self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ];
+		}
+		if ( ! $include_available && isset( self::$simple_site_specific_features[ $current_blog_id ]['full'] ) ) {
+			return self::$simple_site_specific_features[ $current_blog_id ]['full'];
 		}
 
 		if ( ! class_exists( '\Store_Product_List' ) ) {
 			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 		}
 
-		$simple_site_specific_features = \Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		$simple_site_specific_features = \Store_Product_List::get_site_specific_features_data( $current_blog_id, $include_available );
 
-		self::$simple_site_specific_features[ $current_blog_id ] = $simple_site_specific_features;
+		self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ] = $simple_site_specific_features;
 
 		return $simple_site_specific_features;
 	}

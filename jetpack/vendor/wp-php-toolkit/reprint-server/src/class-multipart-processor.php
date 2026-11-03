@@ -1,5 +1,11 @@
 <?php
 
+namespace WordPress\Reprint\Server;
+
+use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
+
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Protocol errors become CLI or authenticated API values, never HTML output.
 
 /**
@@ -12,7 +18,7 @@
  *
  *     $multipart->append_bytes($bytes);
  *     while ($multipart->next_token()) {
- *         if ($multipart->get_token_type() === Site_Export_Multipart_Processor::TOKEN_BODY) {
+ *         if ($multipart->get_token_type() === MultipartProcessor::TOKEN_BODY) {
  *             fwrite($output, $multipart->get_current_body_piece());
  *         }
  *     }
@@ -39,7 +45,7 @@
  * The processor retains only one bounded input fragment, one bounded header
  * block, and one current body token. It never accumulates a complete part.
  */
-final class Site_Export_Multipart_Processor {
+final class MultipartProcessor {
 
     /** Token which exposes the normalized headers of a newly opened part. */
     public const TOKEN_PART_START = 'part-start';
@@ -747,4 +753,8 @@ final class Site_Export_Multipart_Processor {
         $json = json_encode($bytes);
         return $json === false ? '0x' . bin2hex($bytes) : $json;
     }
+}
+
+if (!class_exists('Site_Export_Multipart_Processor', false)) {
+    class_alias(MultipartProcessor::class, 'Site_Export_Multipart_Processor');
 }

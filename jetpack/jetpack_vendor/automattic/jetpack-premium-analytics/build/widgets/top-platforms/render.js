@@ -26,4 +26,8 @@ __( "iPhone", "jetpack-premium-analytics-pkg" );
 __( "iPadOS", "jetpack-premium-analytics-pkg" );
 __( "Chrome OS", "jetpack-premium-analytics-pkg" );
 __( "Android Tablet", "jetpack-premium-analytics-pkg" );
+__( "You don’t have platforms recorded yet.", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load platform data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "Top platforms", "jetpack-premium-analytics-pkg" );
+__( "Operating systems", "jetpack-premium-analytics-pkg" );
+__( "Browsers", "jetpack-premium-analytics-pkg" );

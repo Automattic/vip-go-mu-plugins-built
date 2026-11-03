@@ -6,5 +6,45 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-__( "Connect your site", "jetpack-premium-analytics-pkg" );
-__( "This site isn't connected to WordPress.com yet. Connect it to start syncing your store data and view your analytics.", "jetpack-premium-analytics-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
+__( "Sections", "jetpack-premium-analytics-pkg" );
+/* translators: %1$s is button label 1 and %2$s is button label 2 */
+__( "By clicking <strong>%1$s</strong> or <strong>%2$s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.", "jetpack-premium-analytics-pkg" );
+__( "By clicking the buttons above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.", "jetpack-premium-analytics-pkg" );
+/* translators: %s is a button label */
+__( "By clicking <strong>%s</strong>, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site‘s data</shareDetailsLink> with us.", "jetpack-premium-analytics-pkg" );
+__( "By continuing you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>sync your site’s data</shareDetailsLink> with us. We’ll check if that email is linked to an existing WordPress.com account or create a new one instantly.", "jetpack-premium-analytics-pkg" );
+__( "Included", "jetpack-premium-analytics-pkg" );
+__( "Not included", "jetpack-premium-analytics-pkg" );
+__( "Coming soon", "jetpack-premium-analytics-pkg" );
+/* translators: %s: Name of the current feature */
+__( "%s coming soon", "jetpack-premium-analytics-pkg" );
+/* translators: %s: Name of the current feature */
+__( "%s not included", "jetpack-premium-analytics-pkg" );
+__( "Reduced pricing is a limited offer for the first year and renews at regular price.", "jetpack-premium-analytics-pkg" );
+__( "/month, paid yearly", "jetpack-premium-analytics-pkg" );
+__( "% off", "jetpack-premium-analytics-pkg" );
+__( "% off the first year", "jetpack-premium-analytics-pkg" );
+__( "UTM tracking", "jetpack-premium-analytics-pkg" );
+__( "Device stats", "jetpack-premium-analytics-pkg" );
+__( "Locations", "jetpack-premium-analytics-pkg" );
+__( "Region and city", "jetpack-premium-analytics-pkg" );
+__( "Country-level", "jetpack-premium-analytics-pkg" );
+__( "Priority support", "jetpack-premium-analytics-pkg" );
+__( "Views and visitors", "jetpack-premium-analytics-pkg" );
+__( "Top posts and pages", "jetpack-premium-analytics-pkg" );
+__( "Referrers and clicks", "jetpack-premium-analytics-pkg" );
+__( "Search terms", "jetpack-premium-analytics-pkg" );
+__( "Authors", "jetpack-premium-analytics-pkg" );
+__( "Downloads and video plays", "jetpack-premium-analytics-pkg" );
+__( "Insights and subscribers", "jetpack-premium-analytics-pkg" );
+__( "Full history", "jetpack-premium-analytics-pkg" );
+__( "GDPR-compliant", "jetpack-premium-analytics-pkg" );
+__( "per month, from 10k monthly views, billed yearly", "jetpack-premium-analytics-pkg" );
+__( "Choose your Stats plan", "jetpack-premium-analytics-pkg" );
+__( "Get Paid Stats", "jetpack-premium-analytics-pkg" );
+__( "Start for free", "jetpack-premium-analytics-pkg" );
+__( "Jetpack could not connect this site to WordPress.com. Please try again.", "jetpack-premium-analytics-pkg" );
+__( "This site is in offline mode, so it cannot be connected to WordPress.com. Stats will be available once the site is publicly reachable.", "jetpack-premium-analytics-pkg" );
+__( "I already have a plan", "jetpack-premium-analytics-pkg" );

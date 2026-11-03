@@ -6,6 +6,15 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-videopress-pkg" );
+/* translators: %s: keyboard shortcut. */
+__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack-videopress-pkg" );
+__( "Close", "jetpack-videopress-pkg" );
+__( "More details follow the field.", "jetpack-videopress-pkg" );
+__( "Select", "jetpack-videopress-pkg" );
+__( "Dismiss", "jetpack-videopress-pkg" );
 __( "Auto-generated", "jetpack-videopress-pkg" );
 __( "Manual", "jetpack-videopress-pkg" );
 /* translators: %s: caption processing failure reason. */
@@ -113,7 +122,6 @@ __( "VideoPress video", "jetpack-videopress-pkg" );
 __( "Manage subtitles for %1$s: %2$s", "jetpack-videopress-pkg" );
 /* translators: %s: video title. */
 __( "Manage subtitles for %s", "jetpack-videopress-pkg" );
-__( "Close", "jetpack-videopress-pkg" );
 __( "Drop a subtitle file to upload", "jetpack-videopress-pkg" );
 __( "Subtitle tracks", "jetpack-videopress-pkg" );
 __( "Loading subtitle content…", "jetpack-videopress-pkg" );
@@ -124,12 +132,59 @@ __( "Publish", "jetpack-videopress-pkg" );
 __( "Add track", "jetpack-videopress-pkg" );
 __( "Paste transcript", "jetpack-videopress-pkg" );
 __( "No subtitle tracks have been added to this video yet.", "jetpack-videopress-pkg" );
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack-videopress-pkg" );
-/* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s", "jetpack-videopress-pkg" );
-__( "Loading", "jetpack-videopress-pkg" );
-__( "Dismiss", "jetpack-videopress-pkg" );
+__( "Original", "jetpack-videopress-pkg" );
+__( "Vivid", "jetpack-videopress-pkg" );
+__( "Warm", "jetpack-videopress-pkg" );
+__( "Cool", "jetpack-videopress-pkg" );
+__( "Mono", "jetpack-videopress-pkg" );
+__( "Vintage", "jetpack-videopress-pkg" );
+__( "Filters", "jetpack-videopress-pkg" );
+__( "Video effects", "jetpack-videopress-pkg" );
+/* translators: %s: video effect name. */
+__( "%s effect", "jetpack-videopress-pkg" );
+__( "The video could not be downloaded.", "jetpack-videopress-pkg" );
+__( "The browser could not decode this video.", "jetpack-videopress-pkg" );
+__( "This video format is not supported by the browser.", "jetpack-videopress-pkg" );
+__( "The video failed to load.", "jetpack-videopress-pkg" );
+_x( "Playback could not be started.", "video preview player error", "jetpack-videopress-pkg" );
+__( "Playhead", "jetpack-videopress-pkg" );
+__( "Cut start", "jetpack-videopress-pkg" );
+__( "Cut end", "jetpack-videopress-pkg" );
+__( "Cut", "jetpack-videopress-pkg" );
+__( "Remove cut", "jetpack-videopress-pkg" );
+__( "Trim start", "jetpack-videopress-pkg" );
+__( "Trim end", "jetpack-videopress-pkg" );
+__( "Playhead time", "jetpack-videopress-pkg" );
+_x( "Pause", "button: pause timeline preview playback", "jetpack-videopress-pkg" );
+__( "Play", "jetpack-videopress-pkg" );
+__( "Fit", "jetpack-videopress-pkg" );
+__( "Timeline zoom", "jetpack-videopress-pkg" );
+/* translators: 1: current zoom level (1 = fully zoomed out), 2: number of zoom levels. */
+__( "Zoom level %1$d of %2$d", "jetpack-videopress-pkg" );
+/* translators: %s: removed duration in seconds, e.g. "3.4". */
+__( "%ss removed", "jetpack-videopress-pkg" );
+__( "New cut", "jetpack-videopress-pkg" );
+__( "The recording could not be prepared. Keep this tab visible and try again.", "jetpack-videopress-pkg" );
+__( "Recording preview", "jetpack-videopress-pkg" );
+_x( "Pause preview", "button: pause recording preview", "jetpack-videopress-pkg" );
+_x( "Play preview", "button: play recording preview", "jetpack-videopress-pkg" );
+/* translators: %d: video preparation progress percentage. */
+__( "Preparing video… %d%%. Keep this tab visible.", "jetpack-videopress-pkg" );
+__( "Record again", "jetpack-videopress-pkg" );
+__( "Upload recording", "jetpack-videopress-pkg" );
+__( "Video recording is unavailable in this browser. Try a browser that supports MP4 recording and allow camera access on a secure connection.", "jetpack-videopress-pkg" );
+__( "The camera or microphone could not be accessed. Check your browser permissions and try again.", "jetpack-videopress-pkg" );
+__( "Recording failed. Please try again.", "jetpack-videopress-pkg" );
+__( "Record a video", "jetpack-videopress-pkg" );
+__( "Camera preview", "jetpack-videopress-pkg" );
+__( "Recording", "jetpack-videopress-pkg" );
+__( "Mirror preview", "jetpack-videopress-pkg" );
+__( "Waiting for camera and microphone access…", "jetpack-videopress-pkg" );
+__( "Try again", "jetpack-videopress-pkg" );
+_x( "Stop recording", "button: stop camera recording", "jetpack-videopress-pkg" );
+_x( "Start recording", "button: start camera recording", "jetpack-videopress-pkg" );
+__( "Discard this recording?", "jetpack-videopress-pkg" );
+__( "Discard recording", "jetpack-videopress-pkg" );
 /* translators: %s: the error. */
 __( "There was an error reconnecting Jetpack. Error: %s", "jetpack-videopress-pkg" );
 __( "Your account (connection owner)", "jetpack-videopress-pkg" );
@@ -147,7 +202,7 @@ _n( "%d Jetpack Connection error", "%d Jetpack Connection errors", 1, "jetpack-v
 __( "Jetpack Connection error", "jetpack-videopress-pkg" );
 __( "Jetpack Logo", "jetpack-videopress-pkg" );
 __( "An Automattic Airline", "jetpack-videopress-pkg" );
-__( "Products", "jetpack-videopress-pkg" );
+__( "Features", "jetpack-videopress-pkg" );
 __( "Help", "jetpack-videopress-pkg" );
 __( "Jetpack", "jetpack-videopress-pkg" );
 /* translators: %1$s is button label 1 and %2$s is button label 2 */
@@ -191,17 +246,16 @@ __( "Today, %s, selected", "jetpack-videopress-pkg" );
 __( "%s, selected", "jetpack-videopress-pkg" );
 __( "Required", "jetpack-videopress-pkg" );
 __( "Optional", "jetpack-videopress-pkg" );
-__( "More details follow the field.", "jetpack-videopress-pkg" );
 __( "Sort ascending", "jetpack-videopress-pkg" );
 __( "Sort descending", "jetpack-videopress-pkg" );
 __( "(no title)", "jetpack-videopress-pkg" );
 __( "Actions", "jetpack-videopress-pkg" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1, "jetpack-videopress-pkg" );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1, "jetpack-videopress-pkg" );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack-videopress-pkg" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack-videopress-pkg" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack-videopress-pkg" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack-videopress-pkg" );
 __( "Deselect all", "jetpack-videopress-pkg" );
 __( "Select all", "jetpack-videopress-pkg" );
 __( "Add filter", "jetpack-videopress-pkg" );
@@ -391,13 +445,12 @@ __( "Video chapters could not be updated.", "jetpack-videopress-pkg" );
 __( "Library", "jetpack-videopress-pkg" );
 __( "Stats", "jetpack-videopress-pkg" );
 __( "Settings", "jetpack-videopress-pkg" );
-__( "You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.", "jetpack-videopress-pkg" );
 __( "You’ve reached the free plan’s 1-video limit. Upgrade to upload more.", "jetpack-videopress-pkg" );
-__( "Upgrade", "jetpack-videopress-pkg" );
 __( "Only video files can be uploaded.", "jetpack-videopress-pkg" );
 __( "That video format can’t be uploaded. Convert your video to MP4 or MOV, then try again.", "jetpack-videopress-pkg" );
 /* translators: %s: an upper-cased video file extension, e.g. "WEBM". */
 __( "%s files can’t be uploaded. Convert your video to MP4 or MOV, then try again.", "jetpack-videopress-pkg" );
+__( "Upgrade", "jetpack-videopress-pkg" );
 /* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
 _n( "%d video wasn’t uploaded because it exceeds your plan’s limit.", "%d videos weren’t uploaded because they exceed your plan’s limit.", 1, "jetpack-videopress-pkg" );
 __( "What VideoPress does", "jetpack-videopress-pkg" );
@@ -415,6 +468,7 @@ __( "Learn more", "jetpack-videopress-pkg" );
 __( "Upload a video", "jetpack-videopress-pkg" );
 __( "Host, manage, customize, and track your videos — all in one place. <link>Learn more</link>.", "jetpack-videopress-pkg" );
 __( "Retry", "jetpack-videopress-pkg" );
+__( "You’re on the free plan, which allows 1 video upload. Upgrade for more storage and unlimited uploads.", "jetpack-videopress-pkg" );
 __( "This action cannot be undone.", "jetpack-videopress-pkg" );
 __( "Delete video", "jetpack-videopress-pkg" );
 /* translators: %d: number of videos being deleted. */
@@ -428,6 +482,8 @@ __( "Upload to VideoPress", "jetpack-videopress-pkg" );
 __( "Details weren’t saved", "jetpack-videopress-pkg" );
 __( "Upload failed", "jetpack-videopress-pkg" );
 __( "Jetpack connection issue", "jetpack-videopress-pkg" );
+__( "Conversion failed", "jetpack-videopress-pkg" );
+__( "Delete this video and upload it again.", "jetpack-videopress-pkg" );
 /* translators: %d: transcoding progress percentage */
 __( "Processing %d%%", "jetpack-videopress-pkg" );
 /* translators: %s: video title. */
@@ -451,10 +507,53 @@ __( "Duration", "jetpack-videopress-pkg" );
 __( "Orientation", "jetpack-videopress-pkg" );
 __( "Privacy", "jetpack-videopress-pkg" );
 __( "File size", "jetpack-videopress-pkg" );
+__( "Unavailable in <a>Offline Mode</a>", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site at %s. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t reach your site at %s to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-videopress-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com reached your site at %s, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-videopress-pkg" );
+__( "WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-videopress-pkg" );
+/* translators: %1$d is an HTTP status code, e.g. 500; %2$s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com got an error (HTTP %1$d) when it tried to verify your site at %2$s. Your site’s error log may show the cause.", "jetpack-videopress-pkg" );
+/* translators: %d is an HTTP status code, e.g. 500. */
+__( "WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.", "jetpack-videopress-pkg" );
+/* translators: %1$s is the site URL WordPress.com tried, e.g. https://example.com; %2$d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site at %1$s (HTTP %2$d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-videopress-pkg" );
+/* translators: %d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-videopress-pkg" );
+__( "Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.", "jetpack-videopress-pkg" );
+__( "Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.", "jetpack-videopress-pkg" );
+__( "This site has been suspended.", "jetpack-videopress-pkg" );
+__( "There have been too many connection attempts from this site. Please wait an hour and try again.", "jetpack-videopress-pkg" );
+__( "Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn it off while you connect.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site.", "jetpack-videopress-pkg" );
+__( "WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.", "jetpack-videopress-pkg" );
+__( "Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.", "jetpack-videopress-pkg" );
+__( "PHP’s XML extension isn’t available on your site, and Jetpack needs it to connect. Ask your hosting provider to enable it.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins.", "jetpack-videopress-pkg" );
+__( "The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.", "jetpack-videopress-pkg" );
+__( "WordPress.com couldn’t register your site right now. Please try again in a few minutes, and contact support if it keeps happening.", "jetpack-videopress-pkg" );
+__( "The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.", "jetpack-videopress-pkg" );
+__( "Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.", "jetpack-videopress-pkg" );
+__( "Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.", "jetpack-videopress-pkg" );
+__( "Your session expired. Reload the page and try again.", "jetpack-videopress-pkg" );
+__( "A critical error stopped the connection. Your site’s error log has the details.", "jetpack-videopress-pkg" );
+__( "Only site administrators can connect this site. Ask an administrator to connect it.", "jetpack-videopress-pkg" );
+__( "Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com is temporarily unavailable. Please try again in a minute.", "jetpack-videopress-pkg" );
+__( "Your site got an unexpected response from WordPress.com. If your hosting provider filters outgoing connections, ask them to allow jetpack.wordpress.com.", "jetpack-videopress-pkg" );
+__( "WordPress.com returned an unexpected response when registering your site. Please try again in a minute.", "jetpack-videopress-pkg" );
 __( "Connect to set up VideoPress", "jetpack-videopress-pkg" );
 __( "VideoPress needs a connection to WordPress.com before you can upload and manage your videos.", "jetpack-videopress-pkg" );
 __( "Connecting…", "jetpack-videopress-pkg" );
 __( "Connect", "jetpack-videopress-pkg" );
+__( "Checkout could not start. Please try again.", "jetpack-videopress-pkg" );
+__( "An error occurred. Please try again.", "jetpack-videopress-pkg" );
 /* translators: %1$s: the discount amount */
 __( "%1$s%% off", "jetpack-videopress-pkg" );
 __( "/month, billed yearly", "jetpack-videopress-pkg" );

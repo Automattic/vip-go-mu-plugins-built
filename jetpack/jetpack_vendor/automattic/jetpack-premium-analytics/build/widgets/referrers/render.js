@@ -8,6 +8,9 @@
 
 /* translators: %s is the referrer group or domain label. */
 __( "View referrers for %s", "jetpack-premium-analytics-pkg" );
+__( "Top referrers", "jetpack-premium-analytics-pkg" );
+__( "Referrers", "jetpack-premium-analytics-pkg" );
+__( "You don’t have referrers recorded yet.", "jetpack-premium-analytics-pkg" );
 __( "All referrers", "jetpack-premium-analytics-pkg" );
 /* translators: %s is the parent referrer group or source label. */
 __( "Back to %s", "jetpack-premium-analytics-pkg" );

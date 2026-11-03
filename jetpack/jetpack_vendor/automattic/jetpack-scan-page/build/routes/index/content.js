@@ -6,19 +6,17 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)" );
+__( "Loading" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s" );
-__( "Loading" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)" );
 __( "Close" );
 __( "Dismiss" );
 __( "Sections" );
-__( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
-/* translators: accessibility text */
-__( "(opens in a new tab)", "jetpack-components" );
-__( "Products", "jetpack-components" );
+__( "Jetpack Logo", "jetpack-components" );
+__( "Features", "jetpack-components" );
 __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 /* translators: %s: an error message. */
@@ -43,6 +41,8 @@ __( "Replace the modified core WordPress file with the original clean version fr
 __( "Replace the infected file with a previously backed up version that is clean.", "jetpack-scan" );
 __( "Replace the default salt keys in wp-config.php with unique ones.", "jetpack-scan" );
 __( "Jetpack will auto-fix the threat.", "jetpack-scan" );
+/* translators: accessibility text */
+__( "(opens in a new tab)", "jetpack-components" );
 __( "An error occurred auto-fixing this threat.", "jetpack-scan" );
 __( "The auto-fixer is taking longer than expected.", "jetpack-scan" );
 __( "An auto-fixer is in progress.", "jetpack-scan" );
@@ -66,16 +66,17 @@ __( "%s, selected" );
 __( "Required" );
 __( "Optional" );
 __( "More details follow the field." );
+__( "Select" );
 __( "Sort ascending" );
 __( "Sort descending" );
 __( "(no title)" );
 __( "Actions" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1 );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1 );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1 );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1 );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1 );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1 );
 __( "Deselect all" );
 __( "Select all" );
 __( "Cancel" );

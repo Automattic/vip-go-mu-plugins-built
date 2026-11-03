@@ -34,29 +34,45 @@ _x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
 _x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
 _x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
-__( "Previous month", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of years covered by the selected date range. */
-_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of months covered by the selected date range. */
-_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous hour", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of hours covered by the selected date range. */
 _n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous month", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months covered by the selected date range. */
+_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years covered by the selected date range. */
+_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous day", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of days covered by the selected date range. */
 _n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
+_x( "Prev. hour", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d hour", "Prev. %d hours", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. month", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d month", "Prev. %d months", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d year", "Prev. %d years", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. day", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d day", "Prev. %d days", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
 __( "Same period from last week", "jetpack-premium-analytics-pkg" );
 /* translators: %s: name of the month the comparison period starts in, e.g. "July". */
 _x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the year the comparison period starts in, e.g. "2025". */
 _x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
 __( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
+_x( "Prev. week", "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. year, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %s: an abbreviated previous period, e.g. "Prev. 8 days". The suffix says it starts on the same weekday. */
+_x( "%s, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
 /* translators: 1: Start date. 2: End date. */
 __( "%1$s – %2$s", "jetpack-premium-analytics-pkg" );
 __( "No comparison", "jetpack-premium-analytics-pkg" );
 __( "Compare", "jetpack-premium-analytics-pkg" );
 __( "Compare to", "jetpack-premium-analytics-pkg" );
 _x( "vs", "prefix naming what a report is compared against", "jetpack-premium-analytics-pkg" );
+__( "Upgrade", "jetpack-premium-analytics-pkg" );
 __( "By hours", "jetpack-premium-analytics-pkg" );
 __( "By days", "jetpack-premium-analytics-pkg" );
 __( "By weeks", "jetpack-premium-analytics-pkg" );
@@ -77,7 +93,16 @@ __( "Time period", "jetpack-premium-analytics-pkg" );
 __( "Select period", "jetpack-premium-analytics-pkg" );
 __( "Welcome to the new Stats", "jetpack-premium-analytics-pkg" );
 __( "It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.", "jetpack-premium-analytics-pkg" );
+__( "Your Woo analytics in one place", "jetpack-premium-analytics-pkg" );
+__( "Learn all about your site traffic and store performance from a single place with Analytics.", "jetpack-premium-analytics-pkg" );
+__( "Your store analytics integrated", "jetpack-premium-analytics-pkg" );
+__( "Learn all about your Woo store performance from a single place with Analytics.", "jetpack-premium-analytics-pkg" );
+/* translators: 1: current slide number, 2: total slides. */
+__( "Slide %1$d of %2$d", "jetpack-premium-analytics-pkg" );
+/* translators: 1: current slide number, 2: total slides, 3: slide title. */
+__( "Slide %1$d of %2$d: %3$s", "jetpack-premium-analytics-pkg" );
 __( "Take a quick tour", "jetpack-premium-analytics-pkg" );
+__( "Next", "jetpack-premium-analytics-pkg" );
 /* translators: 1: the current step number, 2: the number of steps in the tour. */
 __( "%1$d of %2$d", "jetpack-premium-analytics-pkg" );
 __( "Skip tour", "jetpack-premium-analytics-pkg" );
@@ -90,5 +115,13 @@ __( "Couldn't refresh. The numbers on screen may be out of date.", "jetpack-prem
 __( "Retry", "jetpack-premium-analytics-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-premium-analytics-pkg" );
-__( "Breadcrumbs", "jetpack-premium-analytics-pkg" );
+_x( "Breadcrumbs", "aria label", "jetpack-premium-analytics-pkg" );
 __( "Stats", "jetpack-premium-analytics-pkg" );
+__( "The minimum views limit is set by your current tier and usage.", "jetpack-premium-analytics-pkg" );
+/* translators: %s: a monthly price, e.g. "$20.84". */
+__( "Beyond 1 million, we’ll charge an extra %s per million views per month.", "jetpack-premium-analytics-pkg" );
+__( "Monthly views limit", "jetpack-premium-analytics-pkg" );
+__( "You’ll pay", "jetpack-premium-analytics-pkg" );
+/* translators: %1$s: a views limit, e.g. "100K"; %2$s: a monthly price, e.g. "$16.67". */
+__( "%1$s views per month, %2$s", "jetpack-premium-analytics-pkg" );
+__( "Price per month, billed yearly*", "jetpack-premium-analytics-pkg" );

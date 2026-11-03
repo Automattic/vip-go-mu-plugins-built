@@ -6,36 +6,34 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-podcast" );
 /* translators: accessibility text appended to link text */
-__( "(opens in a new tab)" );
-__( "Loading" );
-__( "More details follow the field." );
-__( "Select" );
-__( "Sections" );
-__( "Jetpack Logo", "jetpack-components" );
-__( "An Automattic Airline", "jetpack-components" );
-__( "Go back", "jetpack-components" );
-__( "Close", "jetpack-components" );
-__( "Products", "jetpack-components" );
-__( "Help", "jetpack-components" );
-__( "Jetpack", "jetpack-components" );
+__( "(opens in a new tab)", "jetpack-podcast" );
+__( "More details follow the field.", "jetpack-podcast" );
+__( "Select", "jetpack-podcast" );
+__( "Sections", "jetpack-podcast" );
+__( "An Automattic Airline", "jetpack-podcast" );
+__( "Jetpack Logo", "jetpack-podcast" );
+__( "Features", "jetpack-podcast" );
+__( "Help", "jetpack-podcast" );
+__( "Jetpack", "jetpack-podcast" );
 /* translators: %s: an error message. */
-__( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
+__( "There was an error testing Jetpack. Error: %s", "jetpack-podcast" );
 /* translators: %s: keyboard shortcut. */
-__( "Keyboard shortcut: %s" );
+__( "Keyboard shortcut: %s", "jetpack-podcast" );
 /* translators: 1: Calendar type. 2: Current month and year. */
-__( "%1$s, %2$s" );
-__( "Date calendar" );
-__( "Date range calendar" );
-__( "Navigation bar" );
+__( "%1$s, %2$s", "jetpack-podcast" );
+__( "Date calendar", "jetpack-podcast" );
+__( "Date range calendar", "jetpack-podcast" );
+__( "Navigation bar", "jetpack-podcast" );
 /* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s" );
-__( "Next month" );
-__( "Previous month" );
+__( "Today, %s", "jetpack-podcast" );
+__( "Next month", "jetpack-podcast" );
+__( "Previous month", "jetpack-podcast" );
 /* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "Today, %s, selected" );
+__( "Today, %s, selected", "jetpack-podcast" );
 /* translators: %s is the full date (e.g. "Monday, April 29, 2025") */
-__( "%s, selected" );
+__( "%s, selected", "jetpack-podcast" );
 __( "Saving…", "jetpack-podcast" );
 __( "Settings saved.", "jetpack-podcast" );
 __( "Could not save your podcast settings. Please try again.", "jetpack-podcast" );
@@ -50,6 +48,8 @@ __( "Upload a cover image at least 1400×1400 pixels.", "jetpack-podcast" );
 __( "Publish at least one episode.", "jetpack-podcast" );
 __( "Cover image must be a PNG or JPG.", "jetpack-podcast" );
 __( "Cover image must be at least 1400×1400 pixels on its smaller side.", "jetpack-podcast" );
+__( "Go back", "jetpack-podcast" );
+__( "Close", "jetpack-podcast" );
 __( "Reach listeners in every app", "jetpack-podcast" );
 __( "One feed distributes to Apple Podcasts, Spotify, Overcast, Pocket Casts, and every directory that accepts RSS.", "jetpack-podcast" );
 __( "One home for writing, email, and audio", "jetpack-podcast" );
@@ -242,196 +242,194 @@ __( "Stops publishing your podcast feed. Your show details stay saved, so you ca
 __( "Stop publishing", "jetpack-podcast" );
 __( "Stop publishing your podcast?", "jetpack-podcast" );
 __( "Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can start publishing again at any time.", "jetpack-podcast" );
-__( "Required" );
-__( "Optional" );
-__( "Sort ascending" );
-__( "Sort descending" );
-__( "(no title)" );
-__( "Actions" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1 );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1 );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1 );
-__( "Deselect all" );
-__( "Select all" );
-__( "Cancel" );
-__( "Add filter" );
-__( "Move left" );
-__( "Move right" );
-__( "Insert left" );
-__( "Insert right" );
-__( "Hide column" );
-__( "Properties" );
+__( "Required", "jetpack-podcast" );
+__( "Optional", "jetpack-podcast" );
+__( "Sort ascending", "jetpack-podcast" );
+__( "Sort descending", "jetpack-podcast" );
+__( "(no title)", "jetpack-podcast" );
+__( "Actions", "jetpack-podcast" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack-podcast" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack-podcast" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack-podcast" );
+__( "Deselect all", "jetpack-podcast" );
+__( "Select all", "jetpack-podcast" );
+__( "Add filter", "jetpack-podcast" );
+__( "Move left", "jetpack-podcast" );
+__( "Move right", "jetpack-podcast" );
+__( "Insert left", "jetpack-podcast" );
+__( "Insert right", "jetpack-podcast" );
+__( "Hide column", "jetpack-podcast" );
+__( "Properties", "jetpack-podcast" );
 /* translators: 1: The label of the field e.g. "Date". 2: The value of the field, e.g.: "May 2022". */
-__( "%1$s: %2$s" );
+__( "%1$s: %2$s", "jetpack-podcast" );
 /* translators: %d: The row number in the grid */
-__( "Row %d" );
-__( "Navigate to item" );
+__( "Row %d", "jetpack-podcast" );
+__( "Navigate to item", "jetpack-podcast" );
 /* translators: %s: The label of the field e.g. "Status". */
-__( "%s: <groupName />" );
+__( "%s: <groupName />", "jetpack-podcast" );
 /* translators: 1: current page number. 2: total number of pages. */
-__( "Page %1$d of %2$d" );
+__( "Page %1$d of %2$d", "jetpack-podcast" );
 /* translators: 1: Current page number, 2: Total number of pages. */
-_x( "<div>Page</div>%1$s<div>of %2$d</div>", "paging" );
-__( "Current page" );
-__( "Previous page" );
-__( "Next page" );
-__( "Density" );
-_x( "Comfortable", "Density option for DataView layout" );
-_x( "Balanced", "Density option for DataView layout" );
-_x( "Compact", "Density option for DataView layout" );
-__( "Original aspect ratio" );
-__( "Preview size" );
-__( "Table" );
-__( "Grid" );
-__( "List" );
-__( "Activity" );
+_x( "<div>Page</div>%1$s<div>of %2$d</div>", "paging", "jetpack-podcast" );
+__( "Current page", "jetpack-podcast" );
+__( "Previous page", "jetpack-podcast" );
+__( "Next page", "jetpack-podcast" );
+__( "Density", "jetpack-podcast" );
+_x( "Comfortable", "Density option for DataView layout", "jetpack-podcast" );
+_x( "Balanced", "Density option for DataView layout", "jetpack-podcast" );
+_x( "Compact", "Density option for DataView layout", "jetpack-podcast" );
+__( "Original aspect ratio", "jetpack-podcast" );
+__( "Preview size", "jetpack-podcast" );
+__( "Table", "jetpack-podcast" );
+__( "Grid", "jetpack-podcast" );
+__( "List", "jetpack-podcast" );
+__( "Activity", "jetpack-podcast" );
 /* translators: List of items for a filter. 1: Filter name. e.g.: "List of: Author". */
-__( "List of: %1$s" );
-__( "Search items" );
-__( "Search" );
-__( "No results found" );
-__( "No elements found" );
+__( "List of: %1$s", "jetpack-podcast" );
+__( "Search items", "jetpack-podcast" );
+__( "Search", "jetpack-podcast" );
+__( "No results found", "jetpack-podcast" );
+__( "No elements found", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Is none of" );
+__( "Is none of", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is none of: Admin, Editor". */
-__( "<Name>%1$s is none of: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is none of: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Includes" );
+__( "Includes", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is any: Admin, Editor". */
-__( "<Name>%1$s includes: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s includes: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Includes all" );
+__( "Includes all", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author includes all: Admin, Editor". */
-__( "<Name>%1$s includes all: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s includes all: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Between (inc)" );
+__( "Between (inc)", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Item count"). 2: Filter value min. 3: Filter value max. e.g.: "Item count between (inc): 10 and 180". */
-__( "<Name>%1$s between (inc): </Name><Value>%2$s and %3$s</Value>" );
+__( "<Name>%1$s between (inc): </Name><Value>%2$s and %3$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "In the past" );
+__( "In the past", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "7 days"): "Date is in the past: 7 days". */
-__( "<Name>%1$s is in the past: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is in the past: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Over" );
+__( "Over", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "7 days"): "Date is over: 7 days". */
-__( "<Name>%1$s is over: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is over: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Is" );
+__( "Is", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is: Admin". */
-__( "<Name>%1$s is: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Is not" );
+__( "Is not", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Author"). 2: Filter value (e.g. "Admin"): "Author is not: Admin". */
-__( "<Name>%1$s is not: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is not: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Less than" );
+__( "Less than", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is less than: 10". */
-__( "<Name>%1$s is less than: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is less than: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Greater than" );
+__( "Greater than", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is greater than: 10". */
-__( "<Name>%1$s is greater than: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is greater than: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Less than or equal" );
+__( "Less than or equal", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is less than or equal to: 10". */
-__( "<Name>%1$s is less than or equal to: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is less than or equal to: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Greater than or equal" );
+__( "Greater than or equal", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Count"). 2: Filter value (e.g. "10"): "Count is greater than or equal to: 10". */
-__( "<Name>%1$s is greater than or equal to: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is greater than or equal to: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Before" );
+__( "Before", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is before: 2024-01-01". */
-__( "<Name>%1$s is before: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is before: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "After" );
+__( "After", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is after: 2024-01-01". */
-__( "<Name>%1$s is after: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is after: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Before (inc)" );
+__( "Before (inc)", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is on or before: 2024-01-01". */
-__( "<Name>%1$s is on or before: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is on or before: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "After (inc)" );
+__( "After (inc)", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Date"). 2: Filter value (e.g. "2024-01-01"): "Date is on or after: 2024-01-01". */
-__( "<Name>%1$s is on or after: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s is on or after: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Contains" );
+__( "Contains", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title contains: Hello". */
-__( "<Name>%1$s contains: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s contains: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Doesn't contain" );
+__( "Doesn't contain", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title doesn't contain: Hello". */
-__( "<Name>%1$s doesn't contain: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s doesn't contain: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Starts with" );
+__( "Starts with", "jetpack-podcast" );
 /* translators: 1: Filter name (e.g. "Title"). 2: Filter value (e.g. "Hello"): "Title starts with: Hello". */
-__( "<Name>%1$s starts with: </Name><Value>%2$s</Value>" );
+__( "<Name>%1$s starts with: </Name><Value>%2$s</Value>", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "On" );
+__( "On", "jetpack-podcast" );
 /* translators: DataViews operator name */
-__( "Not on" );
-__( "Conditions" );
-__( "Reset" );
-__( "Remove" );
+__( "Not on", "jetpack-podcast" );
+__( "Conditions", "jetpack-podcast" );
+__( "Reset", "jetpack-podcast" );
 /* translators: 1: Filter name. */
-__( "Filter by: %1$s" );
+__( "Filter by: %1$s", "jetpack-podcast" );
 /* translators: 1: Filter name e.g.: "Unknown status for Author". */
-__( "Unknown status for %1$s" );
-_x( "Filter", "verb" );
-__( "No results" );
-__( "Layout" );
-__( "Sort by" );
-__( "Order" );
-__( "Items per page" );
-__( "Reset view" );
-_x( "View options", "View is used as a noun" );
-__( "Appearance" );
-__( "Unit" );
-__( "Days" );
-__( "Weeks" );
-__( "Months" );
-__( "Years" );
-__( "Days ago" );
-__( "Weeks ago" );
-__( "Months ago" );
-__( "Years ago" );
-__( "Coordinated Universal Time" );
+__( "Unknown status for %1$s", "jetpack-podcast" );
+_x( "Filter", "verb", "jetpack-podcast" );
+__( "No results", "jetpack-podcast" );
+__( "Layout", "jetpack-podcast" );
+__( "Sort by", "jetpack-podcast" );
+__( "Order", "jetpack-podcast" );
+__( "Items per page", "jetpack-podcast" );
+__( "Reset view", "jetpack-podcast" );
+_x( "View options", "View is used as a noun", "jetpack-podcast" );
+__( "Appearance", "jetpack-podcast" );
+__( "Unit", "jetpack-podcast" );
+__( "Days", "jetpack-podcast" );
+__( "Weeks", "jetpack-podcast" );
+__( "Months", "jetpack-podcast" );
+__( "Years", "jetpack-podcast" );
+__( "Days ago", "jetpack-podcast" );
+__( "Weeks ago", "jetpack-podcast" );
+__( "Months ago", "jetpack-podcast" );
+__( "Years ago", "jetpack-podcast" );
+__( "Coordinated Universal Time", "jetpack-podcast" );
 /* translators: %s: timezone detail, e.g. "(CEST) Europe/Madrid" or "UTC+3". */
-__( "Timezone: %s" );
-__( "Date time" );
-__( "Custom" );
-__( "Date" );
-__( "From" );
-__( "To" );
-__( "Today" );
-__( "Yesterday" );
-__( "Past week" );
-__( "Past month" );
-__( "Last 7 days" );
-__( "Last 30 days" );
-__( "Month to date" );
-__( "Last year" );
-__( "Year to date" );
-__( "The max. value must be greater than the min. value." );
-__( "Min." );
-__( "Max." );
-__( "The end time must be later than the start time." );
-__( "Open color picker" );
-__( "Hide password" );
-__( "Show password" );
-__( "Value must be a valid email address." );
-__( "Value must be an integer." );
-__( "Value must be a number." );
-__( "True" );
-__( "False" );
-__( "Value must be true, false, or undefined" );
-__( "Value must be an array." );
-__( "Every value must be a string." );
-__( "Value must be a valid color." );
+__( "Timezone: %s", "jetpack-podcast" );
+__( "Date time", "jetpack-podcast" );
+__( "Custom", "jetpack-podcast" );
+__( "Date", "jetpack-podcast" );
+__( "From", "jetpack-podcast" );
+__( "To", "jetpack-podcast" );
+__( "Today", "jetpack-podcast" );
+__( "Yesterday", "jetpack-podcast" );
+__( "Past week", "jetpack-podcast" );
+__( "Past month", "jetpack-podcast" );
+__( "Last 7 days", "jetpack-podcast" );
+__( "Last 30 days", "jetpack-podcast" );
+__( "Month to date", "jetpack-podcast" );
+__( "Last year", "jetpack-podcast" );
+__( "Year to date", "jetpack-podcast" );
+__( "The max. value must be greater than the min. value.", "jetpack-podcast" );
+__( "Min.", "jetpack-podcast" );
+__( "Max.", "jetpack-podcast" );
+__( "The end time must be later than the start time.", "jetpack-podcast" );
+__( "Open color picker", "jetpack-podcast" );
+__( "Hide password", "jetpack-podcast" );
+__( "Show password", "jetpack-podcast" );
+__( "Value must be a valid email address.", "jetpack-podcast" );
+__( "Value must be an integer.", "jetpack-podcast" );
+__( "Value must be a number.", "jetpack-podcast" );
+__( "True", "jetpack-podcast" );
+__( "False", "jetpack-podcast" );
+__( "Value must be true, false, or undefined", "jetpack-podcast" );
+__( "Value must be an array.", "jetpack-podcast" );
+__( "Every value must be a string.", "jetpack-podcast" );
+__( "Value must be a valid color.", "jetpack-podcast" );
 /* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 __( "Episode dashboard included with %s", "jetpack-podcast" );
 /* translators: %s is the plan name, e.g. "Growth" or "Premium". */
@@ -440,6 +438,7 @@ __( "Episode stats included with %s", "jetpack-podcast" );
 __( "Upgrade to %s to manage your podcast catalog from a unified dashboard.", "jetpack-podcast" );
 /* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 __( "Upgrade to %s to see downloads by episode, app, and country.", "jetpack-podcast" );
+__( "This feature requires a paid plan.", "jetpack-podcast" );
 /* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 __( "Upgrade to %s", "jetpack-podcast" );
 __( "No podcast episodes yet.", "jetpack-podcast" );
@@ -456,7 +455,6 @@ __( "Private", "jetpack-podcast" );
 __( "Featured image", "jetpack-podcast" );
 __( "Duration", "jetpack-podcast" );
 __( "Plays", "jetpack-podcast" );
-__( "Date", "jetpack-podcast" );
 __( "Status", "jetpack-podcast" );
 __( "Edit", "jetpack-podcast" );
 __( "View", "jetpack-podcast" );
@@ -529,49 +527,50 @@ __( "We submit your feed for you. It usually goes live within a few minutes.", "
 __( "Manual submission", "jetpack-podcast" );
 __( "Copy this URL, then submit it to each directory below yourself.", "jetpack-podcast" );
 __( "Set your post category to generate the feed URL you can submit to directories.", "jetpack-podcast" );
-__( "Last 7 days", "jetpack-podcast" );
-__( "Last 30 days", "jetpack-podcast" );
 __( "Last 90 days", "jetpack-podcast" );
 __( "Last 12 months", "jetpack-podcast" );
 __( "All time", "jetpack-podcast" );
 /* translators: %1$s: start date, %2$s: end date */
 __( "%1$s to %2$s", "jetpack-podcast" );
-__( "Today", "jetpack-podcast" );
-__( "Yesterday", "jetpack-podcast" );
-__( "Month to date", "jetpack-podcast" );
-__( "Year to date", "jetpack-podcast" );
 __( "Select a date range", "jetpack-podcast" );
 __( "Date range presets", "jetpack-podcast" );
-__( "Comparison period", "jetpack-charts" );
-__( "Reset zoom", "jetpack-charts" );
-__( "Current period", "jetpack-charts" );
-__( "Previous period", "jetpack-charts" );
-_x( "%1$s, %2$s", "legend item label and value", "jetpack-charts" );
-_x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-charts" );
-_x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-charts" );
-_x( "%s: hidden", "hidden non-interactive legend item", "jetpack-charts" );
-__( "No data", "jetpack-charts" );
-_x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-charts" );
-_x( "All segments are hidden.", "chart empty state: segments", "jetpack-charts" );
-_x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-charts" );
-_x( "All series are hidden.", "chart empty state: series", "jetpack-charts" );
-__( "View details", "jetpack-charts" );
-__( "Close", "jetpack-charts" );
-__( "No data available", "jetpack-charts" );
-__( "Invalid data", "jetpack-charts" );
-__( "Line chart", "jetpack-charts" );
-__( "Area chart", "jetpack-charts" );
-__( "Week of %s", "jetpack-charts" );
-__( "%1$s: %2$s", "jetpack-charts" );
-__( "Bar chart", "jetpack-charts" );
-__( "Loading map", "jetpack-charts" );
-__( "Less", "jetpack-charts" );
-__( "More", "jetpack-charts" );
-__( "Heatmap chart", "jetpack-charts" );
-__( "Loading…", "jetpack-charts" );
-__( "Not enough space to display data", "jetpack-charts" );
-__( "Percentage change unavailable", "jetpack-charts" );
-__( "No comparison data", "jetpack-charts" );
+__( "Comparison period", "jetpack-podcast" );
+__( "Reset zoom", "jetpack-podcast" );
+__( "Current period", "jetpack-podcast" );
+__( "Previous period", "jetpack-podcast" );
+_x( "%1$s, %2$s", "legend item label and value", "jetpack-podcast" );
+_x( "%s: visible. Toggle visibility.", "visible interactive legend item", "jetpack-podcast" );
+_x( "%s: hidden. Toggle visibility.", "hidden interactive legend item", "jetpack-podcast" );
+_x( "%s: hidden", "hidden non-interactive legend item", "jetpack-podcast" );
+__( "No data", "jetpack-podcast" );
+_x( "All segments are hidden. Click legend items to show data.", "chart empty state: interactive segments", "jetpack-podcast" );
+_x( "All segments are hidden.", "chart empty state: segments", "jetpack-podcast" );
+_x( "All series are hidden. Click legend items to show data.", "chart empty state: interactive series", "jetpack-podcast" );
+_x( "All series are hidden.", "chart empty state: series", "jetpack-podcast" );
+__( "View details", "jetpack-podcast" );
+__( "No data available", "jetpack-podcast" );
+__( "Invalid data", "jetpack-podcast" );
+__( "Line chart", "jetpack-podcast" );
+__( "Area chart", "jetpack-podcast" );
+__( "Week of %s", "jetpack-podcast" );
+__( "Bar chart", "jetpack-podcast" );
+__( "Bar list chart", "jetpack-podcast" );
+_n( "%s item", "%s items", 1, "jetpack-podcast" );
+__( "Conversion rate", "jetpack-podcast" );
+__( "Conversion funnel chart", "jetpack-podcast" );
+__( "Funnel steps", "jetpack-podcast" );
+__( "Loading map", "jetpack-podcast" );
+__( "Geo chart", "jetpack-podcast" );
+__( "Less", "jetpack-podcast" );
+__( "More", "jetpack-podcast" );
+__( "Heatmap chart", "jetpack-podcast" );
+__( "Loading…", "jetpack-podcast" );
+__( "Not enough space to display data", "jetpack-podcast" );
+__( "Leaderboard chart", "jetpack-podcast" );
+__( "Percentage change unavailable", "jetpack-podcast" );
+__( "No comparison data", "jetpack-podcast" );
+__( "Pie chart", "jetpack-podcast" );
+__( "Semi-circle chart", "jetpack-podcast" );
 __( "By app", "jetpack-podcast" );
 __( "No app data in this period.", "jetpack-podcast" );
 /* translators: 1: localized download count, 2: localized percentage. */
@@ -586,6 +585,7 @@ __( "By location", "jetpack-podcast" );
 __( "No country data in this period.", "jetpack-podcast" );
 __( "Unknown", "jetpack-podcast" );
 __( "Country", "jetpack-podcast" );
+__( "Downloads by location", "jetpack-podcast" );
 __( "Top countries", "jetpack-podcast" );
 __( "Total downloads", "jetpack-podcast" );
 __( "Top app", "jetpack-podcast" );

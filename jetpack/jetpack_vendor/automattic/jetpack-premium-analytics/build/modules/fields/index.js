@@ -20,21 +20,37 @@ _x( "Prev. year", "short comparison preset", "jetpack-premium-analytics-pkg" );
 _x( "Prev. year (weekday)", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
 _x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
-__( "Previous month", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of years covered by the selected date range. */
-_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of months covered by the selected date range. */
-_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous hour", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of hours covered by the selected date range. */
 _n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous month", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months covered by the selected date range. */
+_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years covered by the selected date range. */
+_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous day", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of days covered by the selected date range. */
 _n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
+_x( "Prev. hour", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d hour", "Prev. %d hours", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. month", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d month", "Prev. %d months", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d year", "Prev. %d years", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. day", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d day", "Prev. %d days", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
 __( "Same period from last week", "jetpack-premium-analytics-pkg" );
 /* translators: %s: name of the month the comparison period starts in, e.g. "July". */
 _x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the year the comparison period starts in, e.g. "2025". */
 _x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
 __( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
+_x( "Prev. week", "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. year, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %s: an abbreviated previous period, e.g. "Prev. 8 days". The suffix says it starts on the same weekday. */
+_x( "%s, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
 __( "Date range", "jetpack-premium-analytics-pkg" );
+__( "Chart interval", "jetpack-premium-analytics-pkg" );

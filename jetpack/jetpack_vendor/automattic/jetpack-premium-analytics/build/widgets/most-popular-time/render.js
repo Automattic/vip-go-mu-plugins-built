@@ -6,9 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+/* translators: %s: the smallest value shown at this precision, e.g. "0.1". */
+__( "< %s", "jetpack-premium-analytics-pkg" );
 /* translators: %s is a percentage, e.g. "17%". */
 __( "%s of views", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load your most popular time. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
-__( "Not enough data to determine your most popular time yet.", "jetpack-premium-analytics-pkg" );
+__( "Your busiest day and hour will show here once visitors start arriving.", "jetpack-premium-analytics-pkg" );
 __( "Best day", "jetpack-premium-analytics-pkg" );
 __( "Best hour", "jetpack-premium-analytics-pkg" );

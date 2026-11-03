@@ -6,29 +6,27 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)" );
+__( "Loading" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s" );
-__( "Loading" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)" );
 __( "We couldn’t load this page", "jetpack-seo" );
 __( "This is usually temporary. Give it another try.", "jetpack-seo" );
 __( "Try again", "jetpack-seo" );
 __( "Loading…", "jetpack-seo" );
 __( "Jetpack Logo", "jetpack-components" );
 __( "An Automattic Airline", "jetpack-components" );
-__( "Products", "jetpack-components" );
+__( "Features", "jetpack-components" );
 __( "Help", "jetpack-components" );
 __( "Jetpack", "jetpack-components" );
 __( "Sections" );
 /* translators: %s: an error message. */
 __( "There was an error testing Jetpack. Error: %s", "jetpack-components" );
-__( "What is GEO?", "jetpack-seo" );
-__( "GEO stands for generative engine optimization. These settings control how AI sees and uses your site.", "jetpack-seo" );
 __( "Overview", "jetpack-seo" );
-__( "Settings", "jetpack-seo" );
 __( "Content", "jetpack-seo" );
 _x( "GEO", "Generative Engine Optimization; the SEO dashboard tab label", "jetpack-seo" );
+__( "Settings", "jetpack-seo" );
 __( "Make your site discoverable in search and social, and control AI access.", "jetpack-seo" );
 __( "Could not enable SEO tools. Please try again.", "jetpack-seo" );
 __( "Could not disable SEO tools. Please try again.", "jetpack-seo" );
@@ -50,16 +48,17 @@ __( "%s, selected" );
 __( "Required" );
 __( "Optional" );
 __( "More details follow the field." );
+__( "Select" );
 __( "Sort ascending" );
 __( "Sort descending" );
 __( "(no title)" );
 __( "Actions" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1 );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1 );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1 );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1 );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1 );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1 );
 __( "Deselect all" );
 __( "Select all" );
 __( "Cancel" );

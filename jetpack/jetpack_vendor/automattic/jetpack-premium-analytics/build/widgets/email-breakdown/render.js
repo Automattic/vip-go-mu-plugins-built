@@ -9,10 +9,15 @@
 __( "Country", "jetpack-premium-analytics-pkg" );
 __( "Clicks", "jetpack-premium-analytics-pkg" );
 __( "Opens", "jetpack-premium-analytics-pkg" );
+__( "Devices", "jetpack-premium-analytics-pkg" );
+__( "Email clients", "jetpack-premium-analytics-pkg" );
+__( "Links", "jetpack-premium-analytics-pkg" );
+__( "Countries", "jetpack-premium-analytics-pkg" );
 __( "No device data for this email yet.", "jetpack-premium-analytics-pkg" );
 __( "No email client data for this email yet.", "jetpack-premium-analytics-pkg" );
 __( "No link clicks for this email yet.", "jetpack-premium-analytics-pkg" );
 __( "No country data for this email yet.", "jetpack-premium-analytics-pkg" );
+__( "Email breakdown", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this email's breakdown. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Select an email to see its breakdown.", "jetpack-premium-analytics-pkg" );

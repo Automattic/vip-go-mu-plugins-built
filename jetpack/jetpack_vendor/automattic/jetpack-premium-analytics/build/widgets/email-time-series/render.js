@@ -15,3 +15,4 @@ _n( "%s Open", "%s Opens", 1, "jetpack-premium-analytics-pkg" );
 __( "We couldn't load this email's timeline. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Open an email report to see its timeline here.", "jetpack-premium-analytics-pkg" );
+__( "Email performance", "jetpack-premium-analytics-pkg" );

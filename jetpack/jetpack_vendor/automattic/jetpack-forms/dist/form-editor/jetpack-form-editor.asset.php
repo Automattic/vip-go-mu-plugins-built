@@ -1,1 +1,34 @@
-<?php return array('dependencies' => array('jetpack-script-data', 'jetpack-shared-stores', 'lodash', 'react', 'react-dom', 'react-jsx-runtime', 'wp-a11y', 'wp-api-fetch', 'wp-block-editor', 'wp-blocks', 'wp-components', 'wp-compose', 'wp-core-data', 'wp-data', 'wp-date', 'wp-dom-ready', 'wp-editor', 'wp-element', 'wp-hooks', 'wp-html-entities', 'wp-i18n', 'wp-jp-i18n-loader', 'wp-notices', 'wp-plugins', 'wp-polyfill', 'wp-preferences', 'wp-primitives', 'wp-private-apis', 'wp-theme', 'wp-url'), 'version' => '6c1db8f6c09eb0c03042');
+<?php return array(
+	'dependencies' => array(
+		'jetpack-script-data',
+		'jetpack-shared-stores',
+		'lodash',
+		'react',
+		'react-dom',
+		'react-jsx-runtime',
+		'wp-a11y',
+		'wp-api-fetch',
+		'wp-block-editor',
+		'wp-blocks',
+		'wp-components',
+		'wp-compose',
+		'wp-core-data',
+		'wp-data',
+		'wp-date',
+		'wp-dom-ready',
+		'wp-editor',
+		'wp-element',
+		'wp-hooks',
+		'wp-html-entities',
+		'wp-i18n',
+		'wp-jp-i18n-loader',
+		'wp-notices',
+		'wp-plugins',
+		'wp-preferences',
+		'wp-primitives',
+		'wp-private-apis',
+		'wp-theme',
+		'wp-url'
+	),
+	'version' => '928f72addf69b2c07b9b'
+);

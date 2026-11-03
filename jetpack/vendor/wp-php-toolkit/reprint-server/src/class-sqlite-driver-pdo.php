@@ -31,7 +31,7 @@ class SqliteDriverPDO
     /** @var object The plugin's MySQL-on-SQLite driver. */
     private $driver;
 
-    /** @var PDO The raw SQLite PDO for quote() delegation. */
+    /** @var PDO Native connection for quoting, transaction checks, and the database file path. */
     private $raw_pdo;
 
     /**
@@ -42,6 +42,22 @@ class SqliteDriverPDO
     {
         $this->driver = $driver;
         $this->raw_pdo = $raw_pdo;
+    }
+
+    /** The active SQLite handle; used to check transactions and locate the database file. */
+    public function get_sqlite_pdo(): PDO
+    {
+        return $this->raw_pdo;
+    }
+
+    /** Execute a saved-user write through the same translator used for reads. */
+    public function exec(string $sql): int
+    {
+        $result = $this->driver->query($sql);
+        if ($result === false) {
+            throw new \RuntimeException('The SQLite driver rejected a saved-user write.');
+        }
+        return $result instanceof PDOStatement ? $result->rowCount() : (int) $result;
     }
 
     /**

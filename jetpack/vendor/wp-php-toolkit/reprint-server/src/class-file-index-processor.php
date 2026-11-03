@@ -2,10 +2,9 @@
 
 namespace WordPress\Reprint\Server;
 
-require_once __DIR__ . '/utils.php';
-
 use InvalidArgumentException;
 use LogicException;
+use RuntimeException;
 
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Traversal failures become API or CLI values, never HTML output.
 
@@ -58,9 +57,6 @@ final class FileIndexProcessor {
     /** @var bool Whether directory symlinks may lead outside the allowed directories. */
     private $follow_symlinks;
 
-    /** @var bool Whether generated caches and development files are included. */
-    private $include_caches;
-
     /** @var string Canonical Reprint storage path omitted from the index, or an empty string. */
     private $storage_path;
 
@@ -94,29 +90,47 @@ final class FileIndexProcessor {
     /** @var array|null Directory failure produced by the most recent step. */
     private $directory_error = null;
 
+    /**
+     * Restricts traversal to shared code and the selected site's uploads.
+     * For site 7, skip uploads/sites/8 before opening it. Null leaves the
+     * ordinary single-site traversal rules in place.
+     *
+     * @var MultisiteFileSelection|null
+     */
+    private $multisite_selection;
+
     /** @var bool Whether close() has been called. */
     private $closed = false;
 
     /**
-     * Starts a traversal at the requested root and schedules the other roots.
+     * Starts a traversal at the requested root. A configured start also
+     * schedules the other configured roots.
      *
      * @param FileIndexRoot[] $roots       Structured roots scheduled for this index.
      * @param FileIndexRoot   $start_root  Root scheduled first. It may be an
      *                                      external directory reached by a followed link.
      * @param bool            $follow_symlinks Whether directory symlinks may lead outside the allowed directories.
-     * @param bool            $include_caches Whether generated caches and development files are included.
      * @param string          $storage_path Reprint storage path omitted from the index, or an empty string.
+     * @param MultisiteFileSelection|null $multisite_selection Shared code and selected uploads allowed by the source WordPress site; null for single-site sources.
      * @return self New file-index processor.
      */
     public static function start(
         array $roots,
         array $start_root,
         bool $follow_symlinks,
-        bool $include_caches,
-        string $storage_path
+        string $storage_path,
+        ?MultisiteFileSelection $multisite_selection = null
     ): self {
         $roots = self::validate_roots($roots);
+        if ($multisite_selection !== null) {
+            foreach ($roots as $root) {
+                $multisite_selection->assert_path_allowed($root['requested_path']);
+            }
+        }
         $start_root = self::validate_root($start_root);
+        if ($multisite_selection !== null) {
+            $multisite_selection->assert_path_allowed($start_root['requested_path']);
+        }
         $start_root_is_configured = false;
         foreach ($roots as $root) {
             if ($root["requested_path"] === $start_root["requested_path"]) {
@@ -132,20 +146,25 @@ final class FileIndexProcessor {
 
         $configured_directories = self::resolved_directory_roots($roots, $follow_symlinks);
 
-        // Visit the requested directory first, followed by every other root in
-        // stable byte order. Stable ordering makes a cursor independent of the
-        // order in which configuration discovered the additional roots.
+        // The initial request starts at a configured root and visits every
+        // configured root. A request which follows an external directory
+        // symlink must visit only that target, or each link would also repeat
+        // the complete configured traversal.
         $ordered_roots = [$start_root];
-        $extra_roots = [];
-        foreach ($roots as $root) {
-            if ($root["requested_path"] !== $start_root["requested_path"]) {
-                $extra_roots[] = $root;
+        if ($start_root_is_configured) {
+            $extra_roots = [];
+            foreach ($roots as $root) {
+                if ($root["requested_path"] !== $start_root["requested_path"]) {
+                    $extra_roots[] = $root;
+                }
             }
+            // Stable ordering makes a cursor independent of the order in
+            // which configuration discovered the additional roots.
+            usort($extra_roots, static function (array $left, array $right): int {
+                return strcmp($left["requested_path"], $right["requested_path"]);
+            });
+            $ordered_roots = array_merge($ordered_roots, $extra_roots);
         }
-        usort($extra_roots, static function (array $left, array $right): int {
-            return strcmp($left["requested_path"], $right["requested_path"]);
-        });
-        $ordered_roots = array_merge($ordered_roots, $extra_roots);
 
         // A selected directory symlink has two responsibilities: emit its
         // requested link entry and traverse its resolved target. Keep the
@@ -192,12 +211,12 @@ final class FileIndexProcessor {
             $roots,
             $configured_directories,
             $follow_symlinks,
-            $include_caches,
             $storage_path,
             $directory_stack,
             $reported_index_directory,
             $initial_index_entries,
-            $pending_named_roots
+            $pending_named_roots,
+            $multisite_selection
         );
     }
 
@@ -207,18 +226,23 @@ final class FileIndexProcessor {
      * @param FileIndexRoot[] $roots   Structured roots scheduled for this index.
      * @param string          $cursor_json JSON cursor returned by the preceding request.
      * @param bool            $follow_symlinks Whether directory symlinks may lead outside the allowed directories.
-     * @param bool            $include_caches Whether generated caches and development files are included.
      * @param string          $storage_path Reprint storage path omitted from the index, or an empty string.
+     * @param MultisiteFileSelection|null $multisite_selection Current source selection, which must match the cursor's site and paths.
      * @return self Resumed file-index processor.
      */
     public static function resume(
         array $roots,
         string $cursor_json,
         bool $follow_symlinks,
-        bool $include_caches,
-        string $storage_path
+        string $storage_path,
+        ?MultisiteFileSelection $multisite_selection = null
     ): self {
         $roots = self::validate_roots($roots);
+        if ($multisite_selection !== null) {
+            foreach ($roots as $root) {
+                $multisite_selection->assert_path_allowed($root['requested_path']);
+            }
+        }
         $configured_directories = self::resolved_directory_roots($roots, $follow_symlinks);
 
         // A cursor is caller-held continuation state. Reject malformed JSON or
@@ -226,6 +250,10 @@ final class FileIndexProcessor {
         $cursor = json_decode($cursor_json, true);
         if (!is_array($cursor)) {
             throw new InvalidArgumentException("Invalid index cursor format");
+        }
+        $selection_identity = $multisite_selection === null ? null : $multisite_selection->get_identity();
+        if (( $cursor['multisite_selection'] ?? null ) !== $selection_identity) {
+            throw new InvalidArgumentException('Cannot resume file index: multisite selection changed.');
         }
         if (!isset($cursor["stack"]) || !is_array($cursor["stack"])) {
             throw new InvalidArgumentException("Index cursor missing stack");
@@ -294,12 +322,12 @@ final class FileIndexProcessor {
             $roots,
             $configured_directories,
             $follow_symlinks,
-            $include_caches,
             $storage_path,
             $directory_stack,
             $index_directory,
             [],
-            $pending_named_roots
+            $pending_named_roots,
+            $multisite_selection
         );
     }
 
@@ -335,6 +363,8 @@ final class FileIndexProcessor {
         // each step bounded and makes its cursor boundary unambiguous.
         if (!empty($this->pending_named_roots)) {
             $this->index_next_named_root();
+            // An unreadable Windows link must remain pending when inspection throws.
+            array_shift($this->pending_named_roots);
             return true;
         }
 
@@ -350,49 +380,106 @@ final class FileIndexProcessor {
         // Finishing a directory is observable so callers may stop at this
         // exact cursor before the processor returns to its parent directory.
         if ($this->current_directory_position >= count($this->current_directory_names)) {
+            $this->step_status = self::STATUS_DIRECTORY_COMPLETE;
+            // Emit empty directories here, including a selected root which
+            // has no parent entry in this traversal. Root exclusions still
+            // apply even though there were no child names to check.
+            if (
+                $this->current_directory_names === []
+                && !self::path_has_default_skipped_component($this->current_directory)
+                && ( $this->storage_path === "" || !Utils::path_is_same_as_or_descendant_of($this->current_directory, $this->storage_path) )
+            ) {
+                clearstatcache(true, $this->current_directory);
+                $stat = @Utils::source_lstat($this->current_directory);
+                if ($stat !== false) {
+                    $this->index_entries = self::index_entries_for_path($this->current_directory, $stat, false)["entries"];
+                    $this->step_status = self::STATUS_INDEXED;
+                }
+            }
             array_pop($this->directory_stack);
             $this->forget_current_directory_names();
-            $this->step_status = self::STATUS_DIRECTORY_COMPLETE;
             return true;
         }
 
         // Select exactly one name for this step. Move the cursor first so every
-        // later outcome, including omission or disappearance, settles the name.
+        // omission or disappearance settles the name. An uninspectable UNC
+        // entry below rolls this cursor back instead of claiming disappearance.
         $frame_index = count($this->directory_stack) - 1;
         $entry_name = $this->current_directory_names[$this->current_directory_position];
         ++$this->current_directory_position;
         // Set "after" before any skip or stat call. The cursor must move past
         // a cache path or a path that disappears between scandir() and lstat(),
         // or every resumed request would inspect that same name again.
+        $previous_entry_name = $this->directory_stack[$frame_index]["after"];
         $this->directory_stack[$frame_index]["after"] = $entry_name;
-        $path = wp_join_unix_paths($this->current_directory, $entry_name);
+        $path = Utils::wp_join_unix_paths($this->current_directory, $entry_name);
 
-        // Apply omissions before lstat() and before a directory can enter the
-        // stack. Omitted subtrees therefore cost no extra filesystem calls.
-        if (!$this->include_caches && self::path_is_default_skipped($path)) {
+        // Skip sibling paths before lstat() and before a directory can enter
+        // the stack. Their names came from the parent listing, but skipping
+        // them here adds no filesystem calls. Allowed paths still need a link
+        // check; includes_path() only checks strings.
+        if ($this->multisite_selection !== null && !$this->multisite_selection->includes_path($path)) {
+            $this->step_status = self::STATUS_SKIPPED;
+            return true;
+        }
+        if ($this->multisite_selection !== null) {
+            $this->multisite_selection->assert_path_allowed($path);
+        }
+        if (self::path_has_default_skipped_component($path)) {
             $this->step_status = self::STATUS_SKIPPED;
             return true;
         }
         if (
             $this->storage_path !== ""
-            && \WordPress\Reprint\Server\path_is_same_as_or_descendant_of($path, $this->storage_path)
+            && Utils::path_is_same_as_or_descendant_of($path, $this->storage_path)
         ) {
             $this->step_status = self::STATUS_SKIPPED;
             return true;
         }
 
         // A name returned by scandir() may disappear before inspection. Its
-        // cursor is already settled, so continuation moves to the next name.
+        // cursor is already settled, so continuation moves to the next name
+        // unless a UNC API limit makes disappearance impossible to infer.
         clearstatcache(true, $path);
-        $stat = @lstat($path);
-        if ($stat === false) {
-            $this->step_status = self::STATUS_PATH_UNAVAILABLE;
-            return true;
-        }
+        try {
+            $stat = @Utils::source_lstat($path);
+            if ($stat === false) {
+                if (Utils::windows_share_root($path) !== null) {
+                    // PHP may list a long UNC filename but fail to inspect it. Do
+                    // not treat that API limit as a deletion. Keep the cursor before
+                    // this entry so another attempt cannot silently skip the file.
+                    throw new RuntimeException(
+                        "Cannot inspect Windows share path: {$path}. PHP returned no file metadata. " .
+                        "Check source access; for long UNC paths, configure the source with a drive-letter path."
+                    );
+                }
+                $this->step_status = self::STATUS_PATH_UNAVAILABLE;
+                return true;
+            }
+            if (
+                self::stat_is_file($stat)
+                && self::file_name_is_default_skipped($path)
+            ) {
+                $this->step_status = self::STATUS_SKIPPED;
+                return true;
+            }
 
-        $inspected_path = self::index_entries_for_path($path, $stat, $this->follow_symlinks);
+            $inspected_path = self::index_entries_for_path($path, $stat, $this->follow_symlinks);
+        } catch (RuntimeException $error) {
+            // Names and link targets that PHP cannot inspect must fail again
+            // after resume, not disappear behind this entry's error cursor.
+            $this->directory_stack[$frame_index]["after"] = $previous_entry_name;
+            --$this->current_directory_position;
+            throw $error;
+        }
         $this->index_entries = $inspected_path["entries"];
         $type = $inspected_path["type"];
+        // The directory's own final step emits its empty entry, including when
+        // it is also a selected root. Keep uninspectable directory entries here
+        // so a later directory error does not make the path look absent.
+        if ($type === "dir" && !empty($this->index_entries[0]["empty"])) {
+            $this->index_entries = [];
+        }
         $this->step_status = self::STATUS_INDEXED;
 
         // Depth-first traversal enters a new directory before returning to the
@@ -400,10 +487,10 @@ final class FileIndexProcessor {
         // on the stack, and traversing an ancestor would expose paths outside
         // the requested tree before entering that root again.
         if ($type === "dir") {
-            $canonical_directory = realpath($path);
+            $canonical_directory = Utils::source_realpath($path);
             if (
                 $canonical_directory === false
-                || !\WordPress\Reprint\Server\path_is_same_as_or_descendant_of($this->configured_directories, $canonical_directory)
+                || !Utils::path_is_same_as_or_descendant_of($this->configured_directories, $canonical_directory)
             ) {
                 $this->directory_stack[] = [
                     "dir" => $path,
@@ -475,7 +562,11 @@ final class FileIndexProcessor {
         foreach ($this->pending_named_roots as $path_root) {
             $encoded_path_roots[] = base64_encode($path_root);
         }
-        return ["stack" => $encoded_stack, "paths" => $encoded_path_roots];
+        $cursor = ["stack" => $encoded_stack, "paths" => $encoded_path_roots];
+        if ($this->multisite_selection !== null) {
+            $cursor['multisite_selection'] = $this->multisite_selection->get_identity();
+        }
+        return $cursor;
     }
 
     /**
@@ -514,37 +605,71 @@ final class FileIndexProcessor {
     /**
      * Reports whether a path belongs to the established default skip set.
      *
-     * @param string $path Filesystem path to classify.
-     * @return bool Whether the path should be omitted unless caches are included.
+     * Keep node_modules: Weglot's Composer autoloader loads WeglotLanguages\Languages
+     * from vendor/weglot/weglot-php/node_modules/@weglot/languages/dist/Languages.php
+     * inside the plugin. Omitting that PHP file makes site requests fail with a
+     * missing-class fatal error. Copying bundled runtime files is safer than
+     * breaking the site to save transfer time and space.
+     *
+     * This does not make development dependencies portable. Native binaries may
+     * require a different OS or CPU; those projects still need dependency
+     * installation or rebuilding on the target after Reprint runs. Automating
+     * that step is separate work, not a reason to omit portable runtime files.
+     *
+     * @param string $path         Filesystem path to classify.
+     * @param bool   $path_is_file Whether the path is a regular file.
+     * @return bool Whether the path should be omitted.
      */
-    public static function path_is_default_skipped(string $path): bool
+    public static function path_is_default_skipped(
+        string $path,
+        bool $path_is_file = true
+    ): bool
+    {
+        return self::path_has_default_skipped_component($path)
+            || (
+                $path_is_file
+                && self::file_name_is_default_skipped($path)
+            );
+    }
+
+    /** Reports whether a path contains a complete default-skipped component. */
+    private static function path_has_default_skipped_component(string $path): bool
     {
         // Sentinel slashes make component matches independent of whether the
         // component appears at the beginning, middle, or end of the path.
         $path_with_boundaries = "/" . trim($path, "/") . "/";
 
-        // These generated directories are limited to wp-content. A directory
-        // named cache elsewhere may contain user files and remains included.
-        // wpcomsh-cache is wp.com Atomic's filesystem cache shadow; wflogs is
-        // Wordfence request and scan data which can grow to gigabytes.
-        static $cache_directories = [
+        // These generated directories are limited to known plugin paths. A
+        // directory with a similar name elsewhere may contain user files and
+        // remains included. wpcomsh-cache is wp.com Atomic's filesystem cache
+        // shadow; wflogs and wfcache are Wordfence runtime data.
+        static $generated_directories = [
             "/wp-content/cache/",
             "/wp-content/upgrade/",
             "/wp-content/wpcomsh-cache/",
             "/wp-content/wflogs/",
+            "/wp-content/wfcache/",
+            "/wp-content/wpvividbackups/wpvivid_log/",
+            "/wp-content/plugins/all-in-one-wp-migration/storage/",
+            "/wp-content/plugins/si-captcha-for-wordpress/temp/",
+            "/wp-content/uploads/backwpup-restore/",
+            "/wp-content/uploads/backupbuddy_temp/",
+            "/wp-content/uploads/pb_backupbuddy/",
+            "/wp-content/uploads/wc-logs/",
+            "/wp-content/uploads/wpallimport/logs/",
         ];
-        foreach ($cache_directories as $directory) {
+        foreach ($generated_directories as $directory) {
             if (strpos($path_with_boundaries, $directory) !== false) {
                 return true;
             }
         }
 
-        // Version-control metadata and local development dependencies match
-        // complete path components. Similar names such as cache-control or
-        // node_modules-backup remain included.
+        // Version-control metadata, IDE settings, and package-manager caches
+        // match complete path components. Similar names such as cache-control
+        // or .git-backup remain included. Keep node_modules: plugins and themes
+        // may bundle runtime PHP, JavaScript, and CSS dependencies there.
         static $skipped_components = [
             ".git", ".svn", ".hg", ".bzr",
-            "node_modules",
             ".idea", ".vscode",
             ".cache", ".npm", ".yarn", ".pnpm-store",
         ];
@@ -554,11 +679,61 @@ final class FileIndexProcessor {
             }
         }
 
-        // Operating-system metadata matches only the basename.
+        return false;
+    }
+
+    /** Reports whether a basename matches a default-skipped file shape. */
+    private static function file_name_is_default_skipped(string $path): bool
+    {
+        $path_with_boundaries = "/" . trim($path, "/") . "/";
         $basename = basename($path);
+
+        // Keep walking backup directories so an unrelated file placed there
+        // is still indexed. Match the file shape generated by each plugin
+        // instead of omitting the entire directory.
+        static $backup_file_patterns = [
+            "/wp-content/updraft/" => "/^backup_.*\\.(?:gz(?:\\.crypt)?|zip)$/i",
+            "/wp-content/ai1wm-backups/" => "/\\.wpress$/i",
+            "/wp-content/wpvividbackups/" => "/_wpvivid-.*_backup_.*\\.zip$/i",
+            "/wp-content/backups-dup-lite/" => "/_archive\\.(?:daf|zip)$/i",
+            "/wp-content/backups-dup-pro/" => "/_archive\\.(?:daf|zip)$/i",
+            "/wp-content/backup-db/" => "/\\.sql(?:\\.gz)?$/i",
+            "/wp-content/backup-guard/" => "/\\.sgbp$/i",
+            "/wp-content/uploads/backupbuddy_backups/" => "/^backup-.*\\.zip$/i",
+            "/wp-content/uploads/backup-guard/" => "/\\.sgbp$/i",
+            "/wp-content/uploads/wp-staging/backups/" => "/\\.wpstg$/i",
+            "/wp-content/uploads/tCapsule/backups/" => "/\\.sql(?:\\.gz)?$/i",
+            "/wp-snapshots/" => "/_archive\\.(?:daf|zip)$/i",
+        ];
+        foreach ($backup_file_patterns as $directory => $file_pattern) {
+            if (
+                strpos($path_with_boundaries, $directory) !== false
+                && preg_match($file_pattern, $basename) === 1
+            ) {
+                return true;
+            }
+        }
+        if (
+            preg_match(
+                "#/wp-content/uploads/backwpup(?:/[^/]+/backups|-[^/]+-backups)/#",
+                $path_with_boundaries
+            ) === 1
+            && preg_match("/\\.(?:tar(?:\\.bz2|\\.gz)?|tgz|zip)$/i", $basename) === 1
+        ) {
+            return true;
+        }
+        if (
+            strpos($path_with_boundaries, "/wp-content/updraft/") !== false
+            && preg_match("/^log\\.[a-z0-9]+\\.txt$/i", $basename) === 1
+        ) {
+            return true;
+        }
+
+        // Operating-system and server log metadata matches only the basename.
         static $skipped_basenames = [
             ".DS_Store", "._.DS_Store",
             "Thumbs.db", "desktop.ini", "ehthumbs.db",
+            "error_log", "php_errorlog",
         ];
         if (in_array($basename, $skipped_basenames, true)) {
             return true;
@@ -571,6 +746,9 @@ final class FileIndexProcessor {
         if (strlen($basename) >= 3 && $basename[0] === "#" && substr($basename, -1) === "#") {
             return true;
         }
+        if (preg_match("/\\.(?:log|tmp)$/i", $basename) === 1) {
+            return true;
+        }
         if (preg_match("/(?:~|\\.(?:swp|swo|swn|bak|orig|rej))$/", $basename) === 1) {
             return true;
         }
@@ -579,33 +757,51 @@ final class FileIndexProcessor {
     }
 
     /**
+     * Reports whether an inspected path is a regular file.
+     *
+     * @param array $stat lstat() result for the path.
+     */
+    private static function stat_is_file(array $stat): bool
+    {
+        return ( $stat["mode"] & self::STAT_TYPE_MASK ) === self::STAT_TYPE_FILE;
+    }
+
+    /**
      * Initializes common traversal state.
      *
      * @param array[]  $roots                Structured file-index roots.
      * @param string[] $configured_directories Canonical directories selected by the request.
      * @param bool     $follow_symlinks      Whether directory symlinks may leave the allowed directories.
-     * @param bool     $include_caches       Whether generated caches and development files are included.
      * @param string   $storage_path         Reprint storage path omitted from the index, or an empty string.
      * @param array[]  $directory_stack      Active directory stack.
      * @param string   $index_directory      Directory reported by the endpoint.
      * @param array[]  $initial_index_entries Intermediate symlinks emitted before traversal.
      * @param string[] $pending_named_roots  Requested named roots still to index, one per step.
+     * @param MultisiteFileSelection|null $multisite_selection Source selection checked against saved directories before traversal resumes.
      */
     private function __construct(
         array $roots,
         array $configured_directories,
         bool $follow_symlinks,
-        bool $include_caches,
         string $storage_path,
         array $directory_stack,
         string $index_directory,
         array $initial_index_entries,
-        array $pending_named_roots = []
+        array $pending_named_roots = [],
+        ?MultisiteFileSelection $multisite_selection = null
     ) {
+        $this->multisite_selection = $multisite_selection;
+        if ($multisite_selection !== null) {
+            foreach ($directory_stack as $frame) {
+                $multisite_selection->assert_path_allowed($frame['dir']);
+            }
+            foreach ($pending_named_roots as $remote_absolute_path) {
+                $multisite_selection->assert_path_allowed($remote_absolute_path);
+            }
+        }
         $this->roots = $roots;
         $this->configured_directories = $configured_directories;
         $this->follow_symlinks = $follow_symlinks;
-        $this->include_caches = $include_caches;
         $this->storage_path = self::canonical_storage_path($storage_path);
         $this->directory_stack = $directory_stack;
         $this->index_directory = $index_directory;
@@ -630,12 +826,15 @@ final class FileIndexProcessor {
         $frame_index = count($this->directory_stack) - 1;
         $frame = $this->directory_stack[$frame_index];
         $this->current_directory = $frame["dir"];
+        if ($this->multisite_selection !== null) {
+            $this->multisite_selection->assert_path_allowed($this->current_directory);
+        }
 
         // A directory may disappear while it waits on the stack. Remove that
         // frame so a later call continues with its parent or the next root.
         clearstatcache(true, $this->current_directory);
-        $canonical_directory = realpath($this->current_directory);
-        if ($canonical_directory === false || !is_dir($canonical_directory)) {
+        $canonical_directory = Utils::source_realpath($this->current_directory);
+        if ($canonical_directory === false || !is_dir(Utils::source_io_path($canonical_directory))) {
             array_pop($this->directory_stack);
             $this->directory_error = [
                 "error_type" => "dir_open",
@@ -646,12 +845,14 @@ final class FileIndexProcessor {
             return false;
         }
 
+        $canonical_directory = Utils::normalize_path_separators($canonical_directory, Utils::native_path_format());
+
         // When following links is disabled, every canonical directory must
         // remain inside a configured root. Reject one that crosses that
         // boundary, then continue with the remaining stack.
         if (
             !$this->follow_symlinks
-            && !\WordPress\Reprint\Server\path_is_same_as_or_descendant_of($canonical_directory, $this->configured_directories)
+            && !Utils::path_is_same_as_or_descendant_of($canonical_directory, $this->configured_directories)
         ) {
             array_pop($this->directory_stack);
             $this->directory_error = [
@@ -671,8 +872,12 @@ final class FileIndexProcessor {
         // scandir() supplies the stable byte order on which cursor resumption
         // depends. Failure settles this directory rather than retrying it on
         // every subsequent request.
+        // This reads, sorts and holds every name in this directory, including
+        // on resume. The index batch limit does not bound this allocation. For
+        // a site 7 pull, uploads/sites still lists sibling names; the selection
+        // skips their subtrees, not this parent-directory listing.
         clearstatcache(true, $canonical_directory);
-        $directory_names = @scandir($canonical_directory, SCANDIR_SORT_ASCENDING);
+        $directory_names = @scandir(Utils::source_io_path($canonical_directory), SCANDIR_SORT_ASCENDING);
         if ($directory_names === false) {
             array_pop($this->directory_stack);
             $this->directory_error = [
@@ -686,13 +891,15 @@ final class FileIndexProcessor {
 
         // Tests may change the scanned names to exercise traversal boundaries.
         // Production traversal has no hook and uses scandir() results directly.
-        if (getenv("SITE_EXPORT_TEST_MODE") && function_exists("_e2e_call_hook")) {
+        $test_mode_enabled = getenv("REPRINT_SERVER_TEST_MODE");
+        if ($test_mode_enabled && function_exists("_e2e_call_hook")) {
             $hook_arguments = [$canonical_directory, &$directory_names];
             _e2e_call_hook("test_hook_during_dir_scan", $hook_arguments);
         }
 
         // Remove the two navigation names, then seek past the last settled name.
-        // Binary search keeps continuation cheap for unusually wide directories.
+        // Binary search makes the seek cheap even in a wide directory; the full
+        // directory scan and allocation above have already happened.
         $this->current_directory_names = [];
         foreach ($directory_names as $directory_name) {
             if ($directory_name !== "." && $directory_name !== "..") {
@@ -737,8 +944,8 @@ final class FileIndexProcessor {
         if ($storage_path === "") {
             return "";
         }
-        $canonical_storage_path = realpath($storage_path);
-        return $canonical_storage_path !== false ? $canonical_storage_path : $storage_path;
+        $canonical_storage_path = Utils::source_realpath($storage_path);
+        return Utils::normalize_path_separators($canonical_storage_path !== false ? $canonical_storage_path : $storage_path, Utils::native_path_format());
     }
 
     /**
@@ -768,8 +975,9 @@ final class FileIndexProcessor {
      */
     private function index_next_named_root(): void
     {
-        // Settle the cursor first so a skipped or vanished path is not retried.
-        $requested_path = array_shift($this->pending_named_roots);
+        // The caller settles skipped, vanished, or indexed roots after return.
+        // A thrown read error keeps this named root pending for resume.
+        $requested_path = $this->pending_named_roots[0];
         $root = $this->find_root($requested_path);
         if ($root === null) {
             throw new InvalidArgumentException("Index cursor names a root absent from this request: {$requested_path}");
@@ -782,22 +990,29 @@ final class FileIndexProcessor {
 
         $path_root = $root["requested_path"];
 
-        if (!$this->include_caches && self::path_is_default_skipped($path_root)) {
+        if (self::path_has_default_skipped_component($path_root)) {
             $this->step_status = self::STATUS_SKIPPED;
             return;
         }
         if (
             $this->storage_path !== ""
-            && \WordPress\Reprint\Server\path_is_same_as_or_descendant_of($path_root, $this->storage_path)
+            && Utils::path_is_same_as_or_descendant_of($path_root, $this->storage_path)
         ) {
             $this->step_status = self::STATUS_SKIPPED;
             return;
         }
 
         clearstatcache(true, $path_root);
-        $stat = @lstat($path_root);
+        $stat = @Utils::source_lstat($path_root);
         if ($stat === false) {
             $this->step_status = self::STATUS_PATH_UNAVAILABLE;
+            return;
+        }
+        if (
+            self::stat_is_file($stat)
+            && self::file_name_is_default_skipped($path_root)
+        ) {
+            $this->step_status = self::STATUS_SKIPPED;
             return;
         }
 
@@ -806,6 +1021,14 @@ final class FileIndexProcessor {
             // Record links in the requested parent path. The inspected root may
             // add links from its own symlink target, so keep both entry sets.
             $entries = self::find_parent_symlinks(dirname($path_root));
+        }
+        // A regular file uses the spelling already returned by realpath(), just
+        // like a traversed directory. Emitting both spellings would turn a
+        // Windows lookup of HELLO.TXT into two Linux files: HELLO.TXT and hello.txt.
+        // Parent links above keep their requested paths; the file appears once
+        // at the resolved path reached through those links.
+        if ($root["type"] === "file" && $root["resolved_path"] !== null) {
+            $path_root = $root["resolved_path"];
         }
         $inspected_path = self::index_entries_for_path($path_root, $stat, $this->follow_symlinks);
         $resolved_target_was_indexed = $root["resolved_path"] !== null
@@ -822,29 +1045,15 @@ final class FileIndexProcessor {
             $this->follow_symlinks
             && $root["type"] === "symlink"
             && $root["resolved_path"] !== null
-            && !is_dir($root["resolved_path"])
+            && !is_dir(Utils::source_io_path($root["resolved_path"]))
             && !$resolved_target_was_indexed
         ) {
             clearstatcache(true, $root["resolved_path"]);
-            $target_stat = @lstat($root["resolved_path"]);
+            $target_stat = @Utils::source_lstat($root["resolved_path"]);
             if (is_array($target_stat)) {
                 $target = self::index_entries_for_path($root["resolved_path"], $target_stat, false);
                 $entries = array_merge($entries, $target["entries"]);
             }
-        }
-        if (
-            $root["type"] === "file"
-            && $root["resolved_path"] !== null
-            && $root["resolved_path"] !== $root["requested_path"]
-            && !$resolved_target_was_indexed
-        ) {
-            // A regular root reached through no link normally has identical
-            // coordinates. Keep this branch for records supplied by callers
-            // which already normalized a resolved file root.
-            $entries = array_merge(
-                $entries,
-                self::index_entries_for_path($root["resolved_path"], $stat, false)["entries"]
-            );
         }
         $this->index_entries = $entries;
         $this->step_status = self::STATUS_INDEXED;
@@ -907,7 +1116,7 @@ final class FileIndexProcessor {
         $requested_path = $root["requested_path"];
         if (
             $requested_path === ""
-            || \WordPress\Reprint\Server\normalize_path($requested_path) !== $requested_path
+            || \WordPress\Reprint\Server\Utils::normalize_path($requested_path, Utils::native_path_format()) !== $requested_path
         ) {
             throw new InvalidArgumentException("File-index root requested_path must be normalized");
         }
@@ -948,7 +1157,7 @@ final class FileIndexProcessor {
         foreach ($roots as $root) {
             if (
                 $root["type"] === "directory"
-                || ( $follow_symlinks && $root["type"] === "symlink" && $root["resolved_path"] !== null && is_dir($root["resolved_path"]) )
+                || ( $follow_symlinks && $root["type"] === "symlink" && $root["resolved_path"] !== null && is_dir(Utils::source_io_path($root["resolved_path"])) )
             ) {
                 if (!in_array($root["resolved_path"], $directories, true)) {
                     $directories[] = $root["resolved_path"];
@@ -1004,7 +1213,7 @@ final class FileIndexProcessor {
         if ($type === "dir") {
             // Actual empty directory, not a directory with all its children
             // excluded from the synchronization
-            $directory_handle = @opendir($path);
+            $directory_handle = @opendir(Utils::source_io_path($path));
             if ($directory_handle !== false) {
                 $item["empty"] = true;
                 while (true) {
@@ -1065,13 +1274,15 @@ final class FileIndexProcessor {
     {
         // Only links ending at a directory need a canonical target because only
         // directories can add more traversal work. Broken, self-referential,
-        // and file links remain ordinary link entries without a target.
+        // and file links normally remain ordinary link entries without a target.
+        // Windows lookups can throw when PHP cannot read the stored target;
+        // treating that failure as a broken link could omit readable content.
         clearstatcache(true, $path);
-        $resolved_target = @realpath($path);
+        $resolved_target = @Utils::source_realpath($path);
         if (
             $resolved_target === false
             || $resolved_target === $path
-            || !is_dir($resolved_target)
+            || !is_dir(Utils::source_io_path($resolved_target))
         ) {
             return ["target" => null, "intermediates" => []];
         }
@@ -1079,17 +1290,14 @@ final class FileIndexProcessor {
         // realpath() jumps directly to the final directory. Walk the unresolved
         // target as well so links along that path are included in the index.
         $intermediates = [];
-        $raw_target = @readlink($path);
+        $raw_target = @Utils::source_readlink($path);
         if ($raw_target !== false && $raw_target !== "") {
-            if ($raw_target[0] !== "/") {
-                $raw_target = wp_join_unix_paths(dirname($path), $raw_target);
-            }
             // Resolve only textual dot segments. realpath() would skip the
             // intermediate links that this walk must inspect.
-            $absolute_raw_target = \WordPress\Reprint\Server\normalize_path($raw_target);
+            $absolute_raw_target = Utils::resolve_symlink_target_path($path, $raw_target, Utils::native_path_format());
             if (
                 $absolute_raw_target !== ""
-                && $absolute_raw_target[0] === "/"
+                && Utils::is_absolute_path($absolute_raw_target, Utils::native_path_format())
                 && $absolute_raw_target !== $resolved_target
             ) {
                 $intermediates = self::find_parent_symlinks($absolute_raw_target);
@@ -1113,27 +1321,30 @@ final class FileIndexProcessor {
     private static function find_parent_symlinks(string $absolute_path): array
     {
         $entries = [];
-        $parts = explode("/", $absolute_path);
-        $current = "";
+        $parents = [];
+        $current = $absolute_path;
+        while (Utils::is_absolute_path($current, Utils::native_path_format())) {
+            $parents[] = $current;
+            $parent = dirname($current);
+            if ($parent === $current) {
+                break;
+            }
+            $current = $parent;
+        }
 
         // Keep the requested spelling while inspecting each parent. PHP follows
         // a parent link when checking the next component, so changing $current
         // to realpath() would turn later emitted links into resolved paths.
-        foreach ($parts as $part) {
-            if ($part === "") {
-                $current = "/";
-                continue;
-            }
-            $current = wp_join_unix_paths($current, $part);
-            if (!@is_link($current)) {
+        foreach (array_reverse($parents) as $current) {
+            if (!@Utils::source_is_link($current)) {
                 continue;
             }
 
             // Preserve the link spelling returned by readlink(); pull needs it
             // to reconstruct the same link rather than only its final directory.
-            $target = @readlink($current);
+            $target = @Utils::source_readlink($current);
             if ($target !== false && $target !== "") {
-                $stat = @lstat($current);
+                $stat = @Utils::source_lstat($current);
                 $entries[] = [
                     "path" => $current,
                     "ctime" => (int) ( is_array($stat) && isset($stat["ctime"]) ? $stat["ctime"] : 0 ),

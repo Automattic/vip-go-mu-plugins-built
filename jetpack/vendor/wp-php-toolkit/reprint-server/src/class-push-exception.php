@@ -1,5 +1,9 @@
 <?php
 
+namespace WordPress\Reprint\Server;
+
+use RuntimeException;
+
 /**
  * Reports a classified push-session failure.
  *
@@ -13,7 +17,7 @@
  * exception. An ordinary RuntimeException remains unclassified and follows the
  * endpoint's `invalid_request` handling rather than leaking an accidental code.
  */
-final class Site_Export_Push_Exception extends RuntimeException {
+final class PushException extends RuntimeException {
 
     /**
      * Stable machine-readable classification selected by the throwing class.
@@ -84,4 +88,8 @@ final class Site_Export_Push_Exception extends RuntimeException {
     public function get_context(): array {
         return $this->context;
     }
+}
+
+if (!class_exists('Site_Export_Push_Exception', false)) {
+    class_alias(PushException::class, 'Site_Export_Push_Exception');
 }

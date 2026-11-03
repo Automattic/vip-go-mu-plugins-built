@@ -6,11 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "Loading", "jetpack-forms" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-forms" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-forms" );
-__( "Loading", "jetpack-forms" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s", "jetpack-forms" );
 __( "Date calendar", "jetpack-forms" );
@@ -27,16 +27,17 @@ __( "%s, selected", "jetpack-forms" );
 __( "Required", "jetpack-forms" );
 __( "Optional", "jetpack-forms" );
 __( "More details follow the field.", "jetpack-forms" );
+__( "Select", "jetpack-forms" );
 __( "Sort ascending", "jetpack-forms" );
 __( "Sort descending", "jetpack-forms" );
 __( "(no title)", "jetpack-forms" );
 __( "Actions", "jetpack-forms" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1, "jetpack-forms" );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1, "jetpack-forms" );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack-forms" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack-forms" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack-forms" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack-forms" );
 __( "Deselect all", "jetpack-forms" );
 __( "Select all", "jetpack-forms" );
 __( "Cancel", "jetpack-forms" );
@@ -349,10 +350,10 @@ __( "You only need to do this once per form.", "jetpack-forms" );
 __( "Don't show this again", "jetpack-forms" );
 __( "Got it", "jetpack-forms" );
 __( "An Automattic Airline", "jetpack-forms" );
-__( "Products", "jetpack-forms" );
+__( "Features", "jetpack-forms" );
 __( "Help", "jetpack-forms" );
 __( "Jetpack", "jetpack-forms" );
-__( "Breadcrumbs", "jetpack-forms" );
+_x( "Breadcrumbs", "aria label", "jetpack-forms" );
 __( "Sections", "jetpack-forms" );
 __( "Could not load the form to duplicate. Please try again.", "jetpack-forms" );
 /* translators: %s: original form title */

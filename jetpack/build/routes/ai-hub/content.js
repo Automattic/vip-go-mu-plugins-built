@@ -6,11 +6,11 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
-/* translators: accessibility text appended to link text */
-__( "(opens in a new tab)", "jetpack" );
+__( "Loading", "jetpack" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack" );
-__( "Loading", "jetpack" );
+/* translators: accessibility text appended to link text */
+__( "(opens in a new tab)", "jetpack" );
 /* translators: 1: Calendar type. 2: Current month and year. */
 __( "%1$s, %2$s", "jetpack" );
 __( "Date calendar", "jetpack" );
@@ -33,12 +33,12 @@ __( "Sort ascending", "jetpack" );
 __( "Sort descending", "jetpack" );
 __( "(no title)", "jetpack" );
 __( "Actions", "jetpack" );
-/* translators: %d: number of items. */
-_n( "%d Item selected", "%d Items selected", 1, "jetpack" );
-/* translators: %d: number of items. */
-_n( "%d Item", "%d Items", 1, "jetpack" );
-/* translators: %1$d: number of items. %2$d: total number of items. */
-_n( "%1$d of %2$d Item", "%1$d of %2$d Items", 1, "jetpack" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item selected", "%s Items selected", 1, "jetpack" );
+/* translators: %s: formatted number of items. */
+_n( "%s Item", "%s Items", 1, "jetpack" );
+/* translators: %1$s: formatted number of items. %2$s: formatted total number of items. */
+_n( "%1$s of %2$s Item", "%1$s of %2$s Items", 1, "jetpack" );
 __( "Deselect all", "jetpack" );
 __( "Select all", "jetpack" );
 __( "Cancel", "jetpack" );
@@ -242,7 +242,7 @@ __( "Monthly", "jetpack" );
 __( "One time", "jetpack" );
 __( "Jetpack Logo", "jetpack" );
 __( "An Automattic Airline", "jetpack" );
-__( "Products", "jetpack" );
+__( "Features", "jetpack" );
 __( "Help", "jetpack" );
 __( "Jetpack", "jetpack" );
 __( "Sections", "jetpack" );
@@ -275,7 +275,7 @@ __( "Connect Jetpack", "jetpack" );
 __( "Jetpack AI is not available for this site.", "jetpack" );
 __( "Jetpack AI is turned off by custom code on this site.", "jetpack" );
 __( "It can’t be turned on from here.", "jetpack" );
-__( "Jetpack AI is not available in offline mode.", "jetpack" );
+__( "Jetpack AI is not available in Offline Mode.", "jetpack" );
 __( "This site is not connected to WordPress.com.", "jetpack" );
 __( "Your feature settings are saved and will apply again once the site is connected.", "jetpack" );
 __( "Your WordPress.com account isn’t connected.", "jetpack" );
@@ -306,6 +306,8 @@ __( "A user connection lets agents securely act on your behalf.", "jetpack" );
 __( "Connect AI agents to your site", "jetpack" );
 __( "Get AI-powered assistance to help you build, edit, and redesign your site with ease.", "jetpack" );
 __( "Connect your user account", "jetpack" );
+__( "Review recent actions taken by AI agents on your site.", "jetpack" );
+__( "Review recent actions on your site.", "jetpack" );
 __( "Posts", "jetpack" );
 __( "Pages", "jetpack" );
 __( "Design", "jetpack" );
@@ -345,12 +347,18 @@ __( "Write", "jetpack" );
 __( "Connect external AI agent", "jetpack" );
 __( "Get instructions for connecting your external AI agent.", "jetpack" );
 __( "Activity log", "jetpack" );
-__( "Review recent actions taken by AI agents on your site.", "jetpack" );
 __( "Other", "jetpack" );
+__( "Copied", "jetpack" );
+__( "Copy link to this tool", "jetpack" );
 __( "Show operations", "jetpack" );
 __( "Hide operations", "jetpack" );
 __( "Enable all", "jetpack" );
 __( "Turn individual tools on or off. Changes save automatically.", "jetpack" );
+__( "Site-published abilities", "jetpack" );
+__( "Choose which abilities this site’s plugins publish to external AI agents.", "jetpack" );
+__( "This site’s abilities can’t be loaded right now. The site may be unreachable or too old to publish them. Your saved settings are shown and still apply.", "jetpack" );
+__( "Search tools", "jetpack" );
+__( "No tools match your search.", "jetpack" );
 __( "No read tools available.", "jetpack" );
 __( "Other MCP client", "jetpack" );
 __( "Claude documentation", "jetpack" );
@@ -362,6 +370,7 @@ __( "MCP documentation", "jetpack" );
 __( "Choose your AI agent", "jetpack" );
 __( "Quick setup", "jetpack" );
 __( "Open the <ClaudeConnector/> page in Claude.", "jetpack" );
+__( "Claude connector", "jetpack" );
 __( "WordPress.com connector", "jetpack" );
 __( "Click \"Connect\" and follow the prompts.", "jetpack" );
 __( "Claude Code uses a different config format with type: \"http\". Use the CLI or copy the configuration below.", "jetpack" );
@@ -369,9 +378,10 @@ __( "Run in your terminal: <code/>", "jetpack" );
 __( "Or copy the configuration below and add it to your <mcpJson/> or <claudeJson/> file.", "jetpack" );
 __( "In Claude Code, run <code/> to authenticate with your WordPress.com account.", "jetpack" );
 __( "Open the <ChatGptConnector/> page in ChatGPT.", "jetpack" );
+__( "Jetpack plugin", "jetpack" );
+__( "WordPress.com plugin", "jetpack" );
 __( "Click \"Install\" and follow the prompts.", "jetpack" );
 __( "Open the <CursorPlugin/> page on the Cursor Marketplace.", "jetpack" );
-__( "WordPress.com plugin", "jetpack" );
 __( "Click \"Add to Cursor\" and follow the prompts.", "jetpack" );
 __( "Or run <code/> in the Cursor chat.", "jetpack" );
 __( "Manual setup", "jetpack" );
@@ -389,7 +399,7 @@ __( "Upgrade your plan to use video covers", "jetpack" );
 __( "Upgrade your plan to upload audio", "jetpack" );
 __( "Failed to load AI usage data.", "jetpack" );
 __( "Connect ChatGPT", "jetpack" );
-__( "Give ChatGPT access to your site by installing the connector.", "jetpack" );
+__( "Give ChatGPT access to your site by installing the plugin.", "jetpack" );
 __( "Connect Claude", "jetpack" );
 __( "Give Claude access to your site by installing the connector.", "jetpack" );
 __( "Connect your site to Claude", "jetpack" );

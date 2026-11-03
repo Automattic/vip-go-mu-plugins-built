@@ -1,21 +1,18 @@
 <?php
 
+namespace WordPress\Reprint\Server;
+
 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Push errors become authenticated API JSON, never HTML output.
 
-use function WordPress\Reprint\Server\assert_valid_relative_path;
-use function WordPress\Reprint\Server\normalize_excluded_paths;
-use function WordPress\Reprint\Server\path_is_same_as_or_descendant_of;
-use function WordPress\Reprint\Server\path_remainder_under;
-use function WordPress\Reprint\Server\relative_path_under;
-use function WordPress\Reprint\Server\trim_right_slash;
-use function WordPress\Reprint\Server\wp_join_unix_paths;
+use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
+use Throwable;
 
-require_once __DIR__ . '/utils.php';
-
-if (!class_exists('Site_Export_Multipart_Processor', false)) {
+if (!class_exists(MultipartProcessor::class, false)) {
     require_once __DIR__ . '/class-multipart-processor.php';
 }
-if (!class_exists('Site_Export_Push_Exception', false)) {
+if (!class_exists(PushException::class, false)) {
     require_once __DIR__ . '/class-push-exception.php';
 }
 
@@ -57,7 +54,7 @@ if (!class_exists('Site_Export_Push_Exception', false)) {
  *     non_recoverable_commit_failure?:array{reason:'unexpected_docroot_mutation'|'same_device',detail:string,context:array<string,mixed>}
  * }
  */
-final class Site_Export_Push_Session {
+final class PushSession {
 
     public const ERROR_LOCK_ACQUISITION_FAILURE = 'lock_acquisition_failure';
     public const ERROR_OFFSET_GAP = 'offset_gap';
@@ -111,7 +108,7 @@ final class Site_Export_Push_Session {
     private $upload_lock = null;
     /** @var resource|null */
     private $upload_input = null;
-    /** @var Site_Export_Multipart_Processor|null */
+    /** @var MultipartProcessor|null */
     private $upload_processor = null;
     /** @var bool */
     private $current_upload_part_ended = false;
@@ -138,30 +135,30 @@ final class Site_Export_Push_Session {
      *                                      must never receive, delete, or replace.
      */
     private function __construct(string $reprint_directory, string $docroot, string $push_session_id, array $excluded_paths) {
-        $this->reprint_directory = trim_right_slash($reprint_directory);
-        $this->docroot = trim_right_slash($docroot);
+        $this->reprint_directory = Utils::trim_right_slash($reprint_directory, Utils::native_path_format());
+        $this->docroot = Utils::trim_right_slash($docroot, Utils::native_path_format());
         $this->push_session_id = $push_session_id;
         if ($reprint_directory === $this->docroot) {
             throw new InvalidArgumentException('The reprint directory must not be the document root itself.');
         }
-        $relative_reprint_directory = relative_path_under($reprint_directory, $this->docroot);
+        $relative_reprint_directory = Utils::relative_path_under($reprint_directory, $this->docroot);
         if ($relative_reprint_directory !== null && $relative_reprint_directory !== '') {
             $excluded_paths[] = $relative_reprint_directory;
         }
-        $this->excluded_paths = normalize_excluded_paths($excluded_paths);
-        $push_sessions_directory = wp_join_unix_paths($this->reprint_directory, '.reprint', 'push');
-        $this->commit_state_path = wp_join_unix_paths($push_sessions_directory, 'commit-state');
-        $this->commit_state_lock_path = wp_join_unix_paths($push_sessions_directory, 'commit-state.lock');
-        $this->push_directory = wp_join_unix_paths($push_sessions_directory, $push_session_id);
-        $this->push_json_path = wp_join_unix_paths($this->push_directory, 'push.json');
-        $this->commit_json_path = wp_join_unix_paths($this->push_directory, 'commit.json');
-        $this->push_lock_path = wp_join_unix_paths($this->push_directory, 'push.lock');
-        $this->work_dir = wp_join_unix_paths($this->push_directory, 'work');
-        $this->work_files_directory = wp_join_unix_paths($this->work_dir, 'files');
-        $this->work_inflight_path = wp_join_unix_paths($this->work_dir, 'inflight.json');
-        $this->work_inflight_data_path = wp_join_unix_paths($this->work_dir, 'inflight.data');
-        $this->work_deletes_path = wp_join_unix_paths($this->work_dir, 'deletes');
-        $this->maintenance_copy_path = wp_join_unix_paths($this->work_dir, 'maintenance.php');
+        $this->excluded_paths = Utils::normalize_excluded_paths($excluded_paths);
+        $push_sessions_directory = Utils::wp_join_unix_paths($this->reprint_directory, '.reprint', 'push');
+        $this->commit_state_path = Utils::wp_join_unix_paths($push_sessions_directory, 'commit-state');
+        $this->commit_state_lock_path = Utils::wp_join_unix_paths($push_sessions_directory, 'commit-state.lock');
+        $this->push_directory = Utils::wp_join_unix_paths($push_sessions_directory, $push_session_id);
+        $this->push_json_path = Utils::wp_join_unix_paths($this->push_directory, 'push.json');
+        $this->commit_json_path = Utils::wp_join_unix_paths($this->push_directory, 'commit.json');
+        $this->push_lock_path = Utils::wp_join_unix_paths($this->push_directory, 'push.lock');
+        $this->work_dir = Utils::wp_join_unix_paths($this->push_directory, 'work');
+        $this->work_files_directory = Utils::wp_join_unix_paths($this->work_dir, 'files');
+        $this->work_inflight_path = Utils::wp_join_unix_paths($this->work_dir, 'inflight.json');
+        $this->work_inflight_data_path = Utils::wp_join_unix_paths($this->work_dir, 'inflight.data');
+        $this->work_deletes_path = Utils::wp_join_unix_paths($this->work_dir, 'deletes');
+        $this->maintenance_copy_path = Utils::wp_join_unix_paths($this->work_dir, 'maintenance.php');
     }
 
     /**
@@ -196,19 +193,19 @@ final class Site_Export_Push_Session {
             $push_session->with_commit_state_lock(function () use ($push_session): void {
                 $active_owner = $push_session->read_commit_owner();
                 if ($active_owner !== null && $active_owner !== $push_session->push_session_id) {
-                    throw new Site_Export_Push_Exception(
+                    throw new PushException(
                         self::ERROR_COMMIT_REQUIRED,
                         'Push session ' . $active_owner . ' must finish committing this document root before another push session can start.',
                         ['blocking_push_session_id' => $active_owner]
                     );
                 }
             });
-            $removing_push_directory = wp_join_unix_paths(
+            $removing_push_directory = Utils::wp_join_unix_paths(
                 $push_sessions_directory,
                 '.removing-' . $push_session_id
             );
             if (file_exists($removing_push_directory) || is_link($removing_push_directory)) {
-                throw new Site_Export_Push_Exception(
+                throw new PushException(
                     self::ERROR_LOCK_ACQUISITION_FAILURE,
                     'Push session removal is incomplete. Retry create after remove finishes.'
                 );
@@ -221,11 +218,11 @@ final class Site_Export_Push_Session {
             }
             if (!@mkdir($push_session->work_files_directory, 0700, true)) {
                 self::remove_tree($push_session->push_directory);
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create the push work directories.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not create the push work directories.');
             }
             if (@file_put_contents($push_session->push_lock_path, '') === false || @file_put_contents($push_session->work_deletes_path, '') === false) {
                 self::remove_tree($push_session->push_directory);
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create push session control files.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not create push session control files.');
             }
             try {
                 $push_session->require_same_device($push_session->work_files_directory, $push_session->docroot, 'receive', '');
@@ -331,7 +328,7 @@ final class Site_Export_Push_Session {
      * method validates that condition before any bytes are read from $input.
      *
      * @param resource $input Blocking stream containing one multipart request.
-     * @param Site_Export_Multipart_Processor $processor Parser configured with
+     * @param MultipartProcessor $processor Parser configured with
      *                                                   the request boundary.
      * @param int $maximum_part_bytes Largest Content-Length accepted for one part.
      * @param int $maximum_request_body_bytes Largest decoded request body accepted.
@@ -339,13 +336,13 @@ final class Site_Export_Push_Session {
      *
      * @throws LogicException If another upload is already open on this object.
      * @throws InvalidArgumentException If the stream or either byte limit is invalid.
-     * @throws Site_Export_Push_Exception If the push session is busy,
+     * @throws PushException If the push session is busy,
      *     malformed, unavailable, already committing, or the decoded request
      *     body exceeds its byte limit.
      */
     public function accept_upload(
         $input,
-        Site_Export_Multipart_Processor $processor,
+        MultipartProcessor $processor,
         int $maximum_part_bytes = PHP_INT_MAX,
         int $maximum_request_body_bytes = PHP_INT_MAX
     ): void {
@@ -368,7 +365,7 @@ final class Site_Export_Push_Session {
         try {
             $this->assert_push_configuration();
             if (is_file($this->commit_json_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_COMMIT_REQUIRED, 'Uploads are closed because this push session is committing.');
+                throw new PushException(self::ERROR_COMMIT_REQUIRED, 'Uploads are closed because this push session is committing.');
             }
             $this->upload_lock = $lock;
             $this->upload_input = $input;
@@ -425,7 +422,7 @@ final class Site_Export_Push_Session {
             if (!$this->next_upload_token()) {
                 return false;
             }
-            if ($this->upload_processor->get_token_type() !== Site_Export_Multipart_Processor::TOKEN_PART_START) {
+            if ($this->upload_processor->get_token_type() !== MultipartProcessor::TOKEN_PART_START) {
                 throw new LogicException('Expected a multipart part-start token before the next change.');
             }
             $headers = $this->upload_processor->get_current_headers();
@@ -565,7 +562,7 @@ final class Site_Export_Push_Session {
      *
      * @throws InvalidArgumentException If the requested path is reserved or
      *     overlaps an excluded path.
-     * @throws Site_Export_Push_Exception If the push session is busy,
+     * @throws PushException If the push session is busy,
      *     unavailable, corrupt, or no longer matches the document-root configuration.
      */
     public function get_status(?string $path = null): array {
@@ -574,7 +571,7 @@ final class Site_Export_Push_Session {
             $reported_path = null;
             if ($path !== null) {
                 $this->assert_path_does_not_overlap_excluded_paths($path);
-                $complete = wp_join_unix_paths($this->work_files_directory, $path);
+                $complete = Utils::wp_join_unix_paths($this->work_files_directory, $path);
                 $this->ensure_private_parent($complete, false);
                 $inflight = $this->read_inflight();
                 if ($inflight !== null && base64_decode($inflight['path_b64'], true) === $path) {
@@ -649,7 +646,7 @@ final class Site_Export_Push_Session {
                 // push lock so a denied request cannot race another lifecycle
                 // operation into starting a new commit.
                 if ($commit_start_denial_detail !== null) {
-                    throw new Site_Export_Push_Exception(
+                    throw new PushException(
                         self::ERROR_PUSH_DISABLED,
                         $commit_start_denial_detail
                     );
@@ -664,7 +661,7 @@ final class Site_Export_Push_Session {
                         if (is_resource($handle)) {
                             fclose($handle);
                         }
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not inspect the final work delete byte.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not inspect the final work delete byte.');
                     }
                     $last_byte = fread($handle, 1);
                     fclose($handle);
@@ -686,7 +683,7 @@ final class Site_Export_Push_Session {
                 $this->write_json($this->commit_json_path, $commit_state);
             }
             if (isset($commit_state['non_recoverable_commit_failure'])) {
-                throw new Site_Export_Push_Exception(
+                throw new PushException(
                     $commit_state['non_recoverable_commit_failure']['reason'],
                     $commit_state['non_recoverable_commit_failure']['detail'],
                     $commit_state['non_recoverable_commit_failure']['context']
@@ -705,14 +702,14 @@ final class Site_Export_Push_Session {
             $this->with_commit_state_lock(function (): void {
                 $active_owner = $this->read_commit_owner();
                 if ($active_owner !== null && $active_owner !== $this->push_session_id) {
-                    throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Another push session is already committing this document root: ' . $active_owner . '.');
+                    throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Another push session is already committing this document root: ' . $active_owner . '.');
                 }
                 $this->write_atomic_file($this->commit_state_path, $this->push_session_id . "\n", 0600);
             });
             $maintenance_docroot_path = $this->docroot_path('.maintenance');
             $maintenance_identity = $this->lstat_path($maintenance_docroot_path);
             if ($maintenance_identity !== null && !$this->maintenance_marker_is_owned($maintenance_docroot_path, $this->push_session_id)) {
-                throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'A foreign WordPress maintenance marker already exists. Retry after its owner removes it.');
+                throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'A foreign WordPress maintenance marker already exists. Retry after its owner removes it.');
             }
             $maintenance_contents = "<?php\n"
                 . "\$reprint_push_request = (isset(\$_GET['reprint-api']) || isset(\$_GET['site-export-api']))\n"
@@ -733,7 +730,7 @@ final class Site_Export_Push_Session {
                         $this->advance_installing_files($commit_state);
                     }
                 }
-            } catch (Site_Export_Push_Exception $exception) {
+            } catch (PushException $exception) {
                 if (in_array($exception->get_error_code(), [self::ERROR_UNEXPECTED_DOCROOT_MUTATION, self::ERROR_SAME_DEVICE], true)) {
                     $commit_state['non_recoverable_commit_failure'] = [
                         'reason' => $exception->get_error_code(),
@@ -765,7 +762,7 @@ final class Site_Export_Push_Session {
      */
     public function remove_push_directory(): bool {
         $push_sessions_directory = self::create_push_sessions_directory($this->reprint_directory);
-        $removing_push_directory = wp_join_unix_paths(
+        $removing_push_directory = Utils::wp_join_unix_paths(
             $push_sessions_directory,
             '.removing-' . $this->push_session_id
         );
@@ -778,13 +775,13 @@ final class Site_Export_Push_Session {
             try {
                 $commit_state = $this->read_json($this->commit_json_path);
                 if ($commit_state !== null && $commit_state['phase'] !== 'complete') {
-                    throw new Site_Export_Push_Exception(self::ERROR_COMMIT_REQUIRED, 'Document-root mutation has begun. Resume commit instead of removing this push session.');
+                    throw new PushException(self::ERROR_COMMIT_REQUIRED, 'Document-root mutation has begun. Resume commit instead of removing this push session.');
                 }
                 if (file_exists($removing_push_directory) || is_link($removing_push_directory)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'A remove tombstone already exists for push session ' . $this->push_session_id . '.');
+                    throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'A remove tombstone already exists for push session ' . $this->push_session_id . '.');
                 }
                 if (!@rename($this->push_directory, $removing_push_directory)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not move the push directory to its removal tombstone.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not move the push directory to its removal tombstone.');
                 }
             } finally {
                 flock($lock, LOCK_UN);
@@ -816,10 +813,10 @@ final class Site_Export_Push_Session {
             throw new LogicException('Multipart input closed before the current part-end token.');
         }
         $type = $this->upload_processor->get_token_type();
-        if ($type === Site_Export_Multipart_Processor::TOKEN_BODY) {
+        if ($type === MultipartProcessor::TOKEN_BODY) {
             return $this->upload_processor->get_current_body_piece();
         }
-        if ($type === Site_Export_Multipart_Processor::TOKEN_PART_END) {
+        if ($type === MultipartProcessor::TOKEN_PART_END) {
             $this->current_upload_part_ended = true;
             return null;
         }
@@ -872,7 +869,7 @@ final class Site_Export_Push_Session {
      * @return string Next bounded request-body fragment, or an empty string at EOF.
      */
     private function read_upload_request_fragment(): string {
-        $maximum_fragment_bytes = Site_Export_Multipart_Processor::MAX_INPUT_FRAGMENT_BYTES;
+        $maximum_fragment_bytes = MultipartProcessor::MAX_INPUT_FRAGMENT_BYTES;
         $remaining_request_body_bytes = PHP_INT_MAX;
         if ($this->maximum_upload_request_body_bytes !== PHP_INT_MAX) {
             $remaining_request_body_bytes = $this->maximum_upload_request_body_bytes - $this->upload_request_body_bytes_read;
@@ -880,12 +877,12 @@ final class Site_Export_Push_Session {
         }
         $bytes = fread($this->upload_input, $maximum_fragment_bytes);
         if ($bytes === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read the multipart upload request body.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not read the multipart upload request body.');
         }
         $fragment_bytes = strlen($bytes);
         if ($fragment_bytes > $remaining_request_body_bytes) {
             $observed_request_body_bytes = $this->upload_request_body_bytes_read + $fragment_bytes;
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_REQUEST_TOO_LARGE,
                 'The decoded request body reached ' . $observed_request_body_bytes
                 . ' bytes, exceeding the target post_max_size of '
@@ -945,23 +942,23 @@ final class Site_Export_Push_Session {
             return;
         }
         $path = base64_decode($inflight['path_b64'], true);
-        $work_path = wp_join_unix_paths($this->work_files_directory, $path);
+        $work_path = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $work_identity = $this->lstat_path($work_path);
         if ($inflight['type'] === 'file') {
             $data = $this->lstat_path($this->work_inflight_data_path);
             if ($data !== null) {
                 if ($data['type'] !== 'file' || $data['size'] !== $inflight['total_bytes']) {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight file completion has an invalid data size.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight file completion has an invalid data size.');
                 }
                 $this->ensure_private_parent($work_path);
                 if ($work_identity !== null) {
                     $this->remove_work_path($work_path);
                 }
                 if (!@rename($this->work_inflight_data_path, $work_path)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not move in-flight file data to its work-file path.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not move in-flight file data to its work-file path.');
                 }
             } elseif ($work_identity === null || $work_identity['type'] !== 'file' || $work_identity['size'] !== $inflight['total_bytes']) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight file completion has neither data nor a matching work file.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight file completion has neither data nor a matching work file.');
             }
         } elseif ($inflight['type'] === 'directory') {
             if ($work_identity === null) {
@@ -969,21 +966,21 @@ final class Site_Export_Push_Session {
                 // The process umask filters 0777 to the document-root mode used by normal completion.
                 // Until commit, 0700 work ancestors deny group and other traversal.
                 if (!@mkdir($work_path, 0777)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create the in-flight directory at its work-file path.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not create the in-flight directory at its work-file path.');
                 }
             } elseif ($work_identity['type'] !== 'directory') {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight directory completion found an incompatible work value.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight directory completion found an incompatible work value.');
             }
         } elseif ($work_identity === null) {
             $this->ensure_private_parent($work_path);
             if (!@symlink(base64_decode($inflight['target_b64'], true), $work_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create the in-flight symlink at its work-file path.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not create the in-flight symlink at its work-file path.');
             }
         } elseif ($work_identity['type'] !== 'symlink' || @readlink($work_path) !== base64_decode($inflight['target_b64'], true)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight symlink completion found an incompatible work value.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'In-flight symlink completion found an incompatible work value.');
         }
         if (!@unlink($this->work_inflight_path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work.');
         }
     }
 
@@ -1027,7 +1024,7 @@ final class Site_Export_Push_Session {
         }
         $this->finish_inflight_completion();
         $inflight = $this->read_inflight();
-        $complete_path = wp_join_unix_paths($this->work_files_directory, $path);
+        $complete_path = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $complete = $this->lstat_path($complete_path);
         if ($inflight === null && $complete !== null && $complete['type'] === 'file' && $complete['size'] === $total_bytes && $offset === $total_bytes && $part_bytes === 0) {
             if ($this->read_current_upload_body_piece() !== null) {
@@ -1037,20 +1034,20 @@ final class Site_Export_Push_Session {
             return;
         }
         if ($inflight === null && $offset !== 0) {
-            throw new Site_Export_Push_Exception(self::ERROR_OFFSET_GAP, 'File part for ' . base64_encode($path) . ' starts at offset ' . $offset . ', but no matching in-flight file exists. Start at offset 0.');
+            throw new PushException(self::ERROR_OFFSET_GAP, 'File part for ' . base64_encode($path) . ' starts at offset ' . $offset . ', but no matching in-flight file exists. Start at offset 0.');
         }
         if ($inflight !== null && base64_decode($inflight['path_b64'], true) !== $path) {
-            throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
+            throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
         }
         if ($inflight === null || $offset === 0) {
             if ($inflight !== null && $this->lstat_path($this->work_inflight_data_path) !== null && !@unlink($this->work_inflight_data_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not discard in-flight file data for restart.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not discard in-flight file data for restart.');
             }
             $inflight = ['phase' => 'preparing', 'path_b64' => base64_encode($path), 'type' => 'file', 'total_bytes' => $total_bytes];
             $this->write_json($this->work_inflight_path, $inflight);
             $handle = @fopen($this->work_inflight_data_path, 'wb');
             if ($handle === false) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create in-flight file data for ' . base64_encode($path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not create in-flight file data for ' . base64_encode($path) . '.');
             }
             fclose($handle);
             $inflight['phase'] = 'receiving';
@@ -1058,16 +1055,16 @@ final class Site_Export_Push_Session {
             $actual_bytes = 0;
         } else {
             if ($inflight['type'] !== 'file' || $inflight['phase'] !== 'receiving' || $inflight['total_bytes'] !== $total_bytes) {
-                throw new Site_Export_Push_Exception(self::ERROR_OFFSET_GAP, 'In-flight file ' . base64_encode($path) . ' must be restarted at offset 0.');
+                throw new PushException(self::ERROR_OFFSET_GAP, 'In-flight file ' . base64_encode($path) . ' must be restarted at offset 0.');
             }
             $actual_bytes = $this->file_size($this->work_inflight_data_path);
             if ($offset !== $actual_bytes) {
-                throw new Site_Export_Push_Exception(self::ERROR_OFFSET_GAP, 'File part for ' . base64_encode($path) . ' starts at offset ' . $offset . ', but in-flight data contains ' . $actual_bytes . ' bytes.');
+                throw new PushException(self::ERROR_OFFSET_GAP, 'File part for ' . base64_encode($path) . ' starts at offset ' . $offset . ', but in-flight data contains ' . $actual_bytes . ' bytes.');
             }
         }
         $handle = @fopen($this->work_inflight_data_path, 'ab');
         if ($handle === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open in-flight file data for ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open in-flight file data for ' . base64_encode($path) . '.');
         }
         $received = 0;
         try {
@@ -1076,7 +1073,7 @@ final class Site_Export_Push_Session {
                 $this->write_all($handle, $piece, 'in-flight file data ' . base64_encode($path));
             }
             if (!fflush($handle)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not flush in-flight file data ' . base64_encode($path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not flush in-flight file data ' . base64_encode($path) . '.');
             }
         } finally {
             fclose($handle);
@@ -1090,10 +1087,10 @@ final class Site_Export_Push_Session {
                 $this->remove_work_path($complete_path);
             }
             if (!@rename($this->work_inflight_data_path, $complete_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not move in-flight file data to the work-file path ' . base64_encode($path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not move in-flight file data to the work-file path ' . base64_encode($path) . '.');
             }
             if (!@unlink($this->work_inflight_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
             }
             $state = 'complete';
         } else {
@@ -1126,11 +1123,11 @@ final class Site_Export_Push_Session {
             throw new InvalidArgumentException('Multipart directory part must have Content-Length 0.');
         }
         $path = $this->decode_path_header($headers, 'x-directory-path');
-        $target = wp_join_unix_paths($this->work_files_directory, $path);
+        $target = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $this->finish_inflight_completion();
         $inflight = $this->read_inflight();
         if ($inflight !== null && base64_decode($inflight['path_b64'], true) !== $path) {
-            throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
+            throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
         }
         $identity = $this->lstat_path($target);
         if ($identity !== null && $identity['type'] === 'directory' && $this->first_directory_entry($target) !== null) {
@@ -1143,7 +1140,7 @@ final class Site_Export_Push_Session {
         $inflight = ['phase' => 'preparing', 'path_b64' => base64_encode($path), 'type' => 'directory'];
         $this->write_json($this->work_inflight_path, $inflight);
         if ($this->lstat_path($this->work_inflight_data_path) !== null && !@unlink($this->work_inflight_data_path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not discard stale in-flight file data.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not discard stale in-flight file data.');
         }
         if ($identity !== null) {
             $this->remove_work_path($target);
@@ -1152,10 +1149,10 @@ final class Site_Export_Push_Session {
         $this->write_json($this->work_inflight_path, $inflight);
         $this->ensure_private_parent($target);
         if (!is_dir($target) && !@mkdir($target, 0777)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not stage explicit empty directory ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not stage explicit empty directory ' . base64_encode($path) . '.');
         }
         if (!@unlink($this->work_inflight_path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
         }
         $this->current_change = ['path_b64' => base64_encode($path), 'state' => 'complete', 'type' => 'directory', 'accepted_bytes' => 0];
     }
@@ -1196,11 +1193,11 @@ final class Site_Export_Push_Session {
         if ($target_value === '' || strlen($target_value) > self::MAX_PATH_BYTES || strpos($target_value, "\0") !== false) {
             throw new InvalidArgumentException('Symlink target must contain between 1 and ' . self::MAX_PATH_BYTES . ' bytes without NUL.');
         }
-        $target = wp_join_unix_paths($this->work_files_directory, $path);
+        $target = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $this->finish_inflight_completion();
         $inflight = $this->read_inflight();
         if ($inflight !== null && base64_decode($inflight['path_b64'], true) !== $path) {
-            throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
+            throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'In-flight work already occupies the slot: ' . $inflight['path_b64'] . '.');
         }
         $identity = $this->lstat_path($target);
         if ($identity !== null && $identity['type'] === 'directory' && $this->first_directory_entry($target) !== null) {
@@ -1213,7 +1210,7 @@ final class Site_Export_Push_Session {
         $inflight = ['phase' => 'preparing', 'path_b64' => base64_encode($path), 'type' => 'symlink', 'target_b64' => base64_encode($target_value)];
         $this->write_json($this->work_inflight_path, $inflight);
         if ($this->lstat_path($this->work_inflight_data_path) !== null && !@unlink($this->work_inflight_data_path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not discard stale in-flight file data.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not discard stale in-flight file data.');
         }
         if ($identity !== null) {
             $this->remove_work_path($target);
@@ -1222,10 +1219,10 @@ final class Site_Export_Push_Session {
         $this->write_json($this->work_inflight_path, $inflight);
         $this->ensure_private_parent($target);
         if (!@symlink($target_value, $target)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not stage symlink ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not stage symlink ' . base64_encode($path) . '.');
         }
         if (!@unlink($this->work_inflight_path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not clear in-flight metadata after completing work for ' . base64_encode($path) . '.');
         }
         $this->current_change = ['path_b64' => base64_encode($path), 'state' => 'complete', 'type' => 'symlink', 'accepted_bytes' => 0];
     }
@@ -1269,16 +1266,16 @@ final class Site_Export_Push_Session {
         }
         $handle = @fopen($this->work_deletes_path, 'r+b');
         if ($handle === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open the raw work delete stream.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open the raw work delete stream.');
         }
         try {
             $delete_stat = fstat($handle);
             if (!is_array($delete_stat) || !isset($delete_stat['size'])) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not determine the actual size of work delete stream.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not determine the actual size of work delete stream.');
             }
             $stored_bytes = (int) $delete_stat['size'];
             if ($offset > $stored_bytes) {
-                throw new Site_Export_Push_Exception(
+                throw new PushException(
                     self::ERROR_OFFSET_GAP,
                     'Delete-list part starts at offset ' . $offset . ', but the work delete stream has stored ' . $stored_bytes . ' bytes.'
                 );
@@ -1289,13 +1286,13 @@ final class Site_Export_Push_Session {
             } else {
                 $suffix_bytes = min($stored_bytes, self::MAX_PATH_BYTES + 1);
                 if (fseek($handle, $stored_bytes - $suffix_bytes) !== 0) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not inspect the work delete-stream suffix.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not inspect the work delete-stream suffix.');
                 }
                 $suffix = $this->read_exact($handle, $suffix_bytes, 'work delete-stream suffix');
                 $last_nul = strrpos($suffix, "\0");
                 $trailing_path = $last_nul === false ? $suffix : substr($suffix, $last_nul + 1);
                 if ($last_nul === false && $stored_bytes > self::MAX_PATH_BYTES) {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The incomplete work delete path already exceeds ' . self::MAX_PATH_BYTES . ' bytes.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The incomplete work delete path already exceeds ' . self::MAX_PATH_BYTES . ' bytes.');
                 }
             }
             while (true) {
@@ -1307,7 +1304,7 @@ final class Site_Export_Push_Session {
                 $overlap = min(strlen($piece), max(0, $stored_bytes - $position));
                 if ($overlap > 0) {
                     if (fseek($handle, $position) !== 0) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not seek within the work delete stream for replay validation.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not seek within the work delete stream for replay validation.');
                     }
                     $stored = $this->read_exact($handle, $overlap, 'work delete replay');
                     if ($stored !== substr($piece, 0, $overlap)) {
@@ -1334,13 +1331,13 @@ final class Site_Export_Push_Session {
                         }
                     }
                     if (fseek($handle, 0, SEEK_END) !== 0) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not seek to the work delete stream end.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not seek to the work delete stream end.');
                     }
                     $this->write_all($handle, $append, 'work delete stream');
                     $stored_bytes += strlen($append);
                     $position += strlen($append);
                     if (!fflush($handle)) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not flush the work delete stream.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not flush the work delete stream.');
                     }
                 }
             }
@@ -1353,7 +1350,7 @@ final class Site_Export_Push_Session {
         if ($complete) {
             $push_metadata = $this->read_json($this->push_json_path);
             if (!is_array($push_metadata)) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata is missing while completing the delete upload.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata is missing while completing the delete upload.');
             }
             $push_metadata['work_deletes_complete'] = true;
             $this->write_json($this->push_json_path, $push_metadata);
@@ -1394,14 +1391,14 @@ final class Site_Export_Push_Session {
                 return;
             }
             if ($work_deletes_byte_offset < 0 || $work_deletes_byte_offset > $delete_size) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Delete-consumption offset ' . $work_deletes_byte_offset . ' is outside the ' . $delete_size . '-byte stream.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Delete-consumption offset ' . $work_deletes_byte_offset . ' is outside the ' . $delete_size . '-byte stream.');
             }
             $handle = @fopen($this->work_deletes_path, 'rb');
             if ($handle === false || fseek($handle, $work_deletes_byte_offset) !== 0) {
                 if (is_resource($handle)) {
                     fclose($handle);
                 }
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not seek to the confirmed delete-consumption offset.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not seek to the confirmed delete-consumption offset.');
             }
             $path = '';
             $path_bytes = 0;
@@ -1409,14 +1406,14 @@ final class Site_Export_Push_Session {
                 while ($path_bytes <= self::MAX_PATH_BYTES) {
                     $byte = fread($handle, 1);
                     if ($byte === false) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read the work delete stream.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not read the work delete stream.');
                     }
                     if ($byte === '') {
-                        throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The work delete stream ended before its NUL record terminator.');
+                        throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The work delete stream ended before its NUL record terminator.');
                     }
                     if ($byte === "\0") {
                         if ($path === '') {
-                            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The work delete stream contains an empty record at offset ' . $work_deletes_byte_offset . '.');
+                            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The work delete stream contains an empty record at offset ' . $work_deletes_byte_offset . '.');
                         }
                         $this->assert_path_does_not_overlap_excluded_paths($path);
                         $commit_state['current_delete_path'] = base64_encode($path);
@@ -1429,7 +1426,7 @@ final class Site_Export_Push_Session {
             } finally {
                 fclose($handle);
             }
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'A work delete path exceeds ' . self::MAX_PATH_BYTES . ' bytes.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'A work delete path exceeds ' . self::MAX_PATH_BYTES . ' bytes.');
         }
 
         $path = $this->decode_commit_path($commit_state['current_delete_path'], 'current delete');
@@ -1479,7 +1476,7 @@ final class Site_Export_Push_Session {
         }
         if ($identity['type'] === 'file' || $identity['type'] === 'symlink') {
             if (!@unlink($absolute_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove document-root ' . $identity['type'] . ' ' . base64_encode($relative_path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove document-root ' . $identity['type'] . ' ' . base64_encode($relative_path) . '.');
             }
             return;
         }
@@ -1489,13 +1486,13 @@ final class Site_Export_Push_Session {
         $entry = $this->first_directory_entry($absolute_path);
         if ($entry === null) {
             if (!@rmdir($absolute_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove empty document-root directory ' . base64_encode($relative_path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove empty document-root directory ' . base64_encode($relative_path) . '.');
             }
             return;
         }
-        $child_relative = wp_join_unix_paths($relative_path, $entry);
+        $child_relative = Utils::wp_join_unix_paths($relative_path, $entry);
         $this->remove_docroot_entry(
-            wp_join_unix_paths($absolute_path, $entry),
+            Utils::wp_join_unix_paths($absolute_path, $entry),
             $child_relative,
             $requested_path,
             $identity['dev']
@@ -1542,7 +1539,7 @@ final class Site_Export_Push_Session {
             if ($stack_size > 0) {
                 $work_ancestor_directory_cleanup = $this->commit_cursor_path($commit_state['commit_cursor']) === $path;
             }
-            $work_path = wp_join_unix_paths($this->work_files_directory, $path);
+            $work_path = Utils::wp_join_unix_paths($this->work_files_directory, $path);
             $work_identity = $this->lstat_path($work_path);
 
             if ($work_ancestor_directory_cleanup) {
@@ -1557,7 +1554,7 @@ final class Site_Export_Push_Session {
                         $this->throw_unexpected_docroot_mutation('install', $path, $path, 'directory', ['directory'], $docroot_identity);
                     }
                     if (!@rmdir($work_path)) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not finish work ancestor directory cleanup for ' . base64_encode($path) . '.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not finish work ancestor directory cleanup for ' . base64_encode($path) . '.');
                     }
                 } elseif ($docroot_identity === null || $docroot_identity['type'] !== 'directory') {
                     $this->throw_unexpected_docroot_mutation('install', $path, $path, 'directory', ['directory'], $docroot_identity);
@@ -1590,32 +1587,32 @@ final class Site_Export_Push_Session {
             $work_directory_path = $this->work_files_directory;
         } else {
             $parent_path = $this->commit_cursor_path($commit_state['commit_cursor']);
-            $work_directory_path = wp_join_unix_paths($this->work_files_directory, $parent_path);
+            $work_directory_path = Utils::wp_join_unix_paths($this->work_files_directory, $parent_path);
         }
         $entry = $this->first_directory_entry($work_directory_path);
         if ($entry === null) {
             if ($stack_size === 0) {
                 if ($commit_state['current_delete_path'] !== null || $commit_state['commit_cursor'] !== []) {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion with active bounded work state.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion with active bounded work state.');
                 }
                 if ( (int) $commit_state['work_deletes_byte_offset'] !== $this->file_size($this->work_deletes_path)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion before consuming the complete delete stream.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion before consuming the complete delete stream.');
                 }
                 if ($this->first_directory_entry($this->work_files_directory) !== null) {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion while work/files still contains pending values.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit reached completion while work/files still contains pending values.');
                 }
                 $maintenance_docroot_path = $this->docroot_path('.maintenance');
                 $maintenance_identity = $this->lstat_path($maintenance_docroot_path);
                 if ($maintenance_identity !== null) {
                     if (!$this->maintenance_marker_is_owned($maintenance_docroot_path, $this->push_session_id)) {
-                        throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'The push-session-owned maintenance marker was replaced by another owner.');
+                        throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'The push-session-owned maintenance marker was replaced by another owner.');
                     }
                     if (!@unlink($maintenance_docroot_path)) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove the push-session-owned WordPress maintenance marker.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove the push-session-owned WordPress maintenance marker.');
                     }
                 }
                 if ($this->lstat_path($this->maintenance_copy_path) !== null && !@unlink($this->maintenance_copy_path)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove the private maintenance ownership marker.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove the private maintenance ownership marker.');
                 }
                 $commit_state['phase'] = 'complete';
                 $this->write_json($this->commit_json_path, $commit_state);
@@ -1630,7 +1627,7 @@ final class Site_Export_Push_Session {
             $commit_state['current_work_files_descendant'] = ['path_b64' => base64_encode($parent_path), 'expected_type' => 'directory'];
             $this->write_json($this->commit_json_path, $commit_state);
             if (!@rmdir($work_directory_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not consume empty work ancestor directory ' . base64_encode($parent_path) . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not consume empty work ancestor directory ' . base64_encode($parent_path) . '.');
             }
             $commit_state['current_work_files_descendant'] = null;
             array_pop($commit_state['commit_cursor']);
@@ -1638,12 +1635,12 @@ final class Site_Export_Push_Session {
             return;
         }
 
-        $path = wp_join_unix_paths($parent_path, $entry);
+        $path = Utils::wp_join_unix_paths($parent_path, $entry);
         $this->assert_path_not_reserved($path);
-        $work_path = wp_join_unix_paths($this->work_files_directory, $path);
+        $work_path = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $identity = $this->lstat_path($work_path);
         if ($identity === null) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Selected work path disappeared before installing_files: ' . base64_encode($path) . '.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Selected work path disappeared before installing_files: ' . base64_encode($path) . '.');
         }
         if ($identity['type'] === 'directory' && $this->first_directory_entry($work_path) !== null) {
             $this->assert_path_is_not_excluded($path);
@@ -1655,7 +1652,7 @@ final class Site_Export_Push_Session {
             $docroot_identity = $this->lstat_path($docroot_value_path);
             if ($docroot_identity === null) {
                 if (!@mkdir($docroot_value_path, 0777) && !is_dir($docroot_value_path)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create document-root ancestor directory ' . base64_encode($path) . '.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not create document-root ancestor directory ' . base64_encode($path) . '.');
                 }
                 $docroot_identity = $this->lstat_path($docroot_value_path);
             }
@@ -1669,7 +1666,7 @@ final class Site_Export_Push_Session {
         }
         $this->assert_path_does_not_overlap_excluded_paths($path);
         if (!in_array($identity['type'], ['file', 'directory', 'symlink'], true)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Work path ' . base64_encode($path) . ' has unsupported type ' . $identity['type'] . '.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Work path ' . base64_encode($path) . ' has unsupported type ' . $identity['type'] . '.');
         }
         $this->install_work_value($commit_state, $path, $identity['type'], false);
     }
@@ -1706,10 +1703,10 @@ final class Site_Export_Push_Session {
      * @param bool $recovering Whether current_work_files_descendant is already durable.
      */
     private function install_work_value(array &$commit_state, string $path, string $expected_type, bool $recovering): void {
-        $work_path = wp_join_unix_paths($this->work_files_directory, $path);
+        $work_path = Utils::wp_join_unix_paths($this->work_files_directory, $path);
         $work_identity = $this->lstat_path($work_path);
         if ($work_identity === null || $work_identity['type'] !== $expected_type) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Work ' . $expected_type . ' ' . base64_encode($path) . ' is not present for installing_files.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Work ' . $expected_type . ' ' . base64_encode($path) . ' is not present for installing_files.');
         }
         $parent_device = $this->require_docroot_ancestors($path, 'install', $expected_type);
         $docroot_value_path = $this->docroot_path($path);
@@ -1740,7 +1737,7 @@ final class Site_Export_Push_Session {
             if (stripos($message, 'cross-device') !== false || stripos($message, 'exdev') !== false) {
                 $this->throw_same_device('install', $path, $work_identity['dev'], $parent_device);
             }
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_FILESYSTEM,
                 'Could not rename work ' . base64_encode($path) . ' directly into the document root'
                 . ( $message === '' ? '.' : ': ' . $message )
@@ -1760,7 +1757,7 @@ final class Site_Export_Push_Session {
     private function require_docroot_ancestors(string $path, string $operation, ?string $work_identity_type = null): ?int {
         $root = $this->lstat_path($this->docroot);
         if ($root === null || $root['type'] !== 'directory') {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The document root is no longer a real directory.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The document root is no longer a real directory.');
         }
         $work_device = $this->work_device();
         if ($root['dev'] !== $work_device) {
@@ -1772,8 +1769,8 @@ final class Site_Export_Push_Session {
         $segments = explode('/', $path);
         array_pop($segments);
         foreach ($segments as $segment) {
-            $relative = wp_join_unix_paths($relative, $segment);
-            $absolute = wp_join_unix_paths($absolute, $segment);
+            $relative = Utils::wp_join_unix_paths($relative, $segment);
+            $absolute = Utils::wp_join_unix_paths($absolute, $segment);
             $identity = $this->lstat_path($absolute);
             if ($identity === null) {
                 if ($operation === 'delete') {
@@ -1825,7 +1822,7 @@ final class Site_Export_Push_Session {
         if ($work_identity_type !== null) {
             $context['work_type'] = $work_identity_type;
         }
-        throw new Site_Export_Push_Exception(self::ERROR_UNEXPECTED_DOCROOT_MUTATION, $detail, $context);
+        throw new PushException(self::ERROR_UNEXPECTED_DOCROOT_MUTATION, $detail, $context);
     }
 
     /**
@@ -1843,7 +1840,7 @@ final class Site_Export_Push_Session {
      */
     private function throw_same_device(string $operation, string $path, int $work_device, int $docroot_device): void {
         $detail = 'The work value and document-root destination are on different filesystems. This push requires same-filesystem rename and has no copy fallback.';
-        throw new Site_Export_Push_Exception(self::ERROR_SAME_DEVICE, $detail, [
+        throw new PushException(self::ERROR_SAME_DEVICE, $detail, [
             'operation' => $operation,
             'path_b64' => base64_encode($path),
             'work_device' => $work_device,
@@ -1868,7 +1865,7 @@ final class Site_Export_Push_Session {
         $work = $this->lstat_path($work_path);
         $docroot_identity = $this->lstat_path($docroot_value_path);
         if ($work === null || $docroot_identity === null) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not determine the work and document-root filesystem devices.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not determine the work and document-root filesystem devices.');
         }
         if ($work['dev'] !== $docroot_identity['dev']) {
             $this->throw_same_device($operation, $relative_path, $work['dev'], $docroot_identity['dev']);
@@ -1887,7 +1884,7 @@ final class Site_Export_Push_Session {
     private function work_device(): int {
         $identity = $this->lstat_path($this->work_files_directory);
         if ($identity === null || $identity['type'] !== 'directory') {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'work/files is not a real work directory.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'work/files is not a real work directory.');
         }
         return $identity['dev'];
     }
@@ -1910,7 +1907,7 @@ final class Site_Export_Push_Session {
         while ($result_bytes < $bytes) {
             $piece = fread($handle, $bytes - $result_bytes);
             if ($piece === false || $piece === '') {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read complete ' . $description . '; expected ' . $bytes . ' bytes and observed ' . $result_bytes . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not read complete ' . $description . '; expected ' . $bytes . ' bytes and observed ' . $result_bytes . '.');
             }
             $result .= $piece;
             $result_bytes += strlen($piece);
@@ -1931,7 +1928,7 @@ final class Site_Export_Push_Session {
     private function first_directory_entry(string $directory): ?string {
         $handle = @opendir($directory);
         if ($handle === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read directory ' . $directory . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not read directory ' . $directory . '.');
         }
         try {
             while (true) {
@@ -1966,8 +1963,8 @@ final class Site_Export_Push_Session {
         if ($entry === null) {
             return $relative_path;
         }
-        $child_path = wp_join_unix_paths($relative_path, $entry);
-        $entry_path = wp_join_unix_paths($directory, $entry);
+        $child_path = Utils::wp_join_unix_paths($relative_path, $entry);
+        $entry_path = Utils::wp_join_unix_paths($directory, $entry);
         $identity = $this->lstat_path($entry_path);
         if ($identity !== null && $identity['type'] === 'directory') {
             return $this->first_work_files_descendant_path($entry_path, $child_path);
@@ -2006,7 +2003,7 @@ final class Site_Export_Push_Session {
                 return;
             }
             if (!@unlink($this->commit_state_path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not release the commit-state owner.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not release the commit-state owner.');
             }
         });
     }
@@ -2024,11 +2021,11 @@ final class Site_Export_Push_Session {
     private function with_commit_state_lock(callable $callback): void {
         $lock = @fopen($this->commit_state_lock_path, 'c+b');
         if ($lock === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open the commit-state lock.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open the commit-state lock.');
         }
         try {
             if (!flock($lock, LOCK_EX | LOCK_NB)) {
-                throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'The commit-state owner is busy. Retry the request.');
+                throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'The commit-state owner is busy. Retry the request.');
             }
             $callback();
         } finally {
@@ -2050,14 +2047,14 @@ final class Site_Export_Push_Session {
             return null;
         }
         if ($identity['type'] !== 'file') {
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_CORRUPTED_PUSH_STATE,
                 'Reprint cannot identify the active push commit because its commit-state marker is not a regular file.'
             );
         }
         $active_owner = @file_get_contents($this->commit_state_path);
         if (!is_string($active_owner)) {
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_FILESYSTEM,
                 'Reprint could not read the active push commit from its commit-state marker.'
             );
@@ -2066,7 +2063,7 @@ final class Site_Export_Push_Session {
         try {
             self::require_push_session_id($active_owner);
         } catch (InvalidArgumentException $exception) {
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_CORRUPTED_PUSH_STATE,
                 'Reprint cannot identify the active push commit because its commit-state marker is malformed.'
             );
@@ -2106,41 +2103,41 @@ final class Site_Export_Push_Session {
     private function acquire_push_lock() {
         $push_session_identity = $this->lstat_path($this->push_directory);
         if ($push_session_identity === null) {
-            throw new Site_Export_Push_Exception(self::ERROR_PUSH_NOT_FOUND, 'The push session does not exist: ' . $this->push_session_id . '.');
+            throw new PushException(self::ERROR_PUSH_NOT_FOUND, 'The push session does not exist: ' . $this->push_session_id . '.');
         }
         if ($push_session_identity['type'] !== 'directory') {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The push session path is not a real directory: ' . $this->push_directory . '.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The push session path is not a real directory: ' . $this->push_directory . '.');
         }
         $lock_identity = $this->lstat_path($this->push_lock_path);
         if ($lock_identity === null || $lock_identity['type'] !== 'file') {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'The push lock is missing or not regular: ' . $this->push_lock_path . '.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'The push lock is missing or not regular: ' . $this->push_lock_path . '.');
         }
 
         $lock = @fopen($this->push_lock_path, 'r+b');
         if ($lock === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open the push lock.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open the push lock.');
         }
         if (!flock($lock, LOCK_EX | LOCK_NB)) {
             fclose($lock);
-            throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Push session ' . $this->push_session_id . ' is busy. Retry the request.');
+            throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Push session ' . $this->push_session_id . ' is busy. Retry the request.');
         }
         try {
             foreach ([$this->push_directory, $this->work_dir, $this->work_files_directory] as $directory) {
                 $identity = $this->lstat_path($directory);
                 if ($identity === null || $identity['type'] !== 'directory') {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Required push directory is missing or not real: ' . $directory . '.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Required push directory is missing or not real: ' . $directory . '.');
                 }
             }
             foreach ([$this->push_json_path, $this->push_lock_path, $this->work_deletes_path] as $file) {
                 $identity = $this->lstat_path($file);
                 if ($identity === null || $identity['type'] !== 'file') {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Required push file is missing or not regular: ' . $file . '.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Required push file is missing or not regular: ' . $file . '.');
                 }
             }
             foreach ([$this->commit_json_path, $this->maintenance_copy_path, $this->work_inflight_path, $this->work_inflight_data_path] as $optional_file) {
                 $identity = $this->lstat_path($optional_file);
                 if ($identity !== null && $identity['type'] !== 'file') {
-                    throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Optional push file has an unsupported type: ' . $optional_file . '.');
+                    throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Optional push file has an unsupported type: ' . $optional_file . '.');
                 }
             }
         } catch (Throwable $exception) {
@@ -2163,22 +2160,22 @@ final class Site_Export_Push_Session {
         $push_metadata = $this->read_json($this->push_json_path);
         if (!is_array($push_metadata) || ( $push_metadata['push_session_id'] ?? null ) !== $this->push_session_id
             || !is_bool($push_metadata['work_deletes_complete'] ?? null)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata has an invalid push session ID or work-deletes completion state.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata has an invalid push session ID or work-deletes completion state.');
         }
         if (!is_string($push_metadata['docroot_b64'] ?? null) || !is_array($push_metadata['excluded_paths_b64'] ?? null)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata does not contain the configured document root and excluded paths.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata does not contain the configured document root and excluded paths.');
         }
         $docroot = base64_decode($push_metadata['docroot_b64'], true);
         $excluded = [];
         foreach ($push_metadata['excluded_paths_b64'] as $encoded) {
             $decoded = is_string($encoded) ? base64_decode($encoded, true) : false;
             if (!is_string($decoded)) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata contains an invalid excluded path.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata contains an invalid excluded path.');
             }
             $excluded[] = $decoded;
         }
         if ($docroot !== $this->docroot || $excluded !== $this->excluded_paths) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata does not match the current push configuration.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata does not match the current push configuration.');
         }
         $this->require_same_device($this->work_files_directory, $this->docroot, 'receive', '');
     }
@@ -2200,15 +2197,15 @@ final class Site_Export_Push_Session {
             return null;
         }
         if ($identity['type'] !== 'file' || $identity['size'] > self::MAX_METADATA_BYTES) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Metadata file ' . $path . ' is not a bounded regular file.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Metadata file ' . $path . ' is not a bounded regular file.');
         }
         $contents = @file_get_contents($path);
         if (!is_string($contents)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read metadata file ' . $path . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not read metadata file ' . $path . '.');
         }
         $decoded = json_decode($contents, true);
         if (!is_array($decoded)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Metadata file ' . $path . ' does not contain a JSON object.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Metadata file ' . $path . ' does not contain a JSON object.');
         }
         return $decoded;
     }
@@ -2244,10 +2241,10 @@ final class Site_Export_Push_Session {
     private function write_json(string $path, array $value): void {
         $contents = json_encode($value, JSON_UNESCAPED_SLASHES);
         if (!is_string($contents)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Could not encode bounded push metadata.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Could not encode bounded push metadata.');
         }
         if (strlen($contents) > self::MAX_METADATA_BYTES) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Encoded push metadata exceeds the maximum of ' . self::MAX_METADATA_BYTES . ' bytes.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Encoded push metadata exceeds the maximum of ' . self::MAX_METADATA_BYTES . ' bytes.');
         }
         $this->write_atomic_file($path, $contents, 0600);
     }
@@ -2267,16 +2264,16 @@ final class Site_Export_Push_Session {
     private function write_atomic_file(string $path, string $contents, int $permissions): void {
         $temporary = $path . '.tmp-' . $this->push_session_id;
         if ($this->lstat_path($temporary) !== null && !@unlink($temporary)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not clear temporary metadata file ' . $temporary . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not clear temporary metadata file ' . $temporary . '.');
         }
         $handle = @fopen($temporary, 'xb');
         if ($handle === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create temporary metadata file ' . $temporary . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not create temporary metadata file ' . $temporary . '.');
         }
         try {
             $this->write_all($handle, $contents, 'metadata file ' . $path);
             if (!fflush($handle)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not flush temporary metadata file ' . $temporary . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not flush temporary metadata file ' . $temporary . '.');
             }
         } finally {
             fclose($handle);
@@ -2284,7 +2281,7 @@ final class Site_Export_Push_Session {
         @chmod($temporary, $permissions);
         if (!@rename($temporary, $path)) {
             @unlink($temporary);
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not replace metadata file ' . $path . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not replace metadata file ' . $path . '.');
         }
     }
 
@@ -2305,7 +2302,7 @@ final class Site_Export_Push_Session {
         while ($offset < $length) {
             $written = fwrite($handle, substr($contents, $offset));
             if (!is_int($written) || $written <= 0) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not finish writing ' . $description . '; wrote ' . $offset . ' of ' . $length . ' bytes.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not finish writing ' . $description . '; wrote ' . $offset . ' of ' . $length . ' bytes.');
             }
             $offset += $written;
         }
@@ -2325,11 +2322,11 @@ final class Site_Export_Push_Session {
      */
     private function decode_commit_path($encoded, string $description): string {
         if (!is_string($encoded)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit ' . $description . ' path is not base64 text.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit ' . $description . ' path is not base64 text.');
         }
         $path = base64_decode($encoded, true);
         if (!is_string($path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit ' . $description . ' path is not valid base64.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit ' . $description . ' path is not valid base64.');
         }
         $this->assert_path_not_reserved($path);
         return $path;
@@ -2356,11 +2353,11 @@ final class Site_Export_Push_Session {
             $encoded = $frame['component_b64'] ?? null;
             $component = is_string($encoded) ? base64_decode($encoded, true) : false;
             if (!is_string($component) || $component === '' || strpos($component, '/') !== false) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit cursor frame does not contain one valid base64 path component.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit cursor frame does not contain one valid base64 path component.');
             }
-            $path = wp_join_unix_paths($path, $component);
+            $path = Utils::wp_join_unix_paths($path, $component);
             if (strlen($path) > self::MAX_PATH_BYTES) {
-                throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit cursor path exceeds the maximum of ' . self::MAX_PATH_BYTES . ' bytes.');
+                throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Commit cursor path exceeds the maximum of ' . self::MAX_PATH_BYTES . ' bytes.');
             }
         }
         if ($path !== '') {
@@ -2381,7 +2378,7 @@ final class Site_Export_Push_Session {
     private function work_deletes_are_complete(): bool {
         $push_metadata = $this->read_json($this->push_json_path);
         if (!is_array($push_metadata) || !is_bool($push_metadata['work_deletes_complete'] ?? null)) {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata has no valid work-deletes completion state.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Push metadata has no valid work-deletes completion state.');
         }
         return $push_metadata['work_deletes_complete'];
     }
@@ -2399,7 +2396,7 @@ final class Site_Export_Push_Session {
     private function assert_path_does_not_overlap_excluded_paths(string $path): void {
         $this->assert_path_is_not_excluded($path);
         foreach ($this->excluded_paths as $excluded_path) {
-            if (path_remainder_under($excluded_path, $path) !== null) {
+            if (Utils::path_remainder_under($excluded_path, $path) !== null) {
                 throw new InvalidArgumentException(
                     'Excluded document-root-relative path ' . base64_encode($excluded_path)
                     . ' is contained by the requested path, which cannot be changed: '
@@ -2428,7 +2425,7 @@ final class Site_Export_Push_Session {
                     . base64_encode($path) . '.'
                 );
             }
-            if (path_remainder_under($path, $excluded_path) !== null) {
+            if (Utils::path_remainder_under($path, $excluded_path) !== null) {
                 throw new InvalidArgumentException(
                     'Excluded document-root-relative path ' . base64_encode($excluded_path)
                     . ' contains the requested descendant, which cannot be changed: '
@@ -2456,8 +2453,8 @@ final class Site_Export_Push_Session {
                 . self::MAX_PATH_BYTES . ' bytes; observed ' . $path_bytes . '.'
             );
         }
-        assert_valid_relative_path($path, 'Document-root-relative path');
-        if (path_is_same_as_or_descendant_of($path, '.maintenance')) {
+        Utils::assert_valid_relative_path($path, 'Document-root-relative path');
+        if (Utils::path_is_same_as_or_descendant_of($path, '.maintenance')) {
             throw new InvalidArgumentException('The WordPress maintenance marker path is reserved: ' . base64_encode($path) . '.');
         }
     }
@@ -2545,7 +2542,7 @@ final class Site_Export_Push_Session {
      * @return string Absolute path in the document root.
      */
     private function docroot_path(string $relative_path): string {
-        return wp_join_unix_paths($this->docroot, $relative_path);
+        return Utils::wp_join_unix_paths($this->docroot, $relative_path);
     }
 
     /**
@@ -2561,7 +2558,7 @@ final class Site_Export_Push_Session {
      */
     private function ensure_private_parent(string $path, bool $create_missing = true): void {
         $parent = dirname($path);
-        $relative = relative_path_under($parent, $this->work_files_directory);
+        $relative = Utils::relative_path_under($parent, $this->work_files_directory);
         if ($relative === null) {
             throw new LogicException('Private work path escaped work/files.');
         }
@@ -2570,14 +2567,14 @@ final class Site_Export_Push_Session {
         }
         $current = $this->work_files_directory;
         foreach (explode('/', $relative) as $segment) {
-            $current = wp_join_unix_paths($current, $segment);
+            $current = Utils::wp_join_unix_paths($current, $segment);
             $identity = $this->lstat_path($current);
             if ($identity === null) {
                 if (!$create_missing) {
                     return;
                 }
                 if (!@mkdir($current, 0700)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create private work ancestor directory ' . $current . '.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not create private work ancestor directory ' . $current . '.');
                 }
                 continue;
             }
@@ -2650,12 +2647,12 @@ final class Site_Export_Push_Session {
                 throw new InvalidArgumentException('A work directory with descendants cannot be replaced by another logical value.');
             }
             if (!@rmdir($path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove an empty private work directory.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove an empty private work directory.');
             }
             return;
         }
         if (!@unlink($path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove a private work ' . $identity['type'] . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove a private work ' . $identity['type'] . '.');
         }
     }
 
@@ -2672,7 +2669,7 @@ final class Site_Export_Push_Session {
     private function file_size(string $path): int {
         $identity = $this->lstat_path($path);
         if ($identity === null || $identity['type'] !== 'file') {
-            throw new Site_Export_Push_Exception(self::ERROR_CORRUPTED_PUSH_STATE, 'Expected a regular file at ' . $path . '.');
+            throw new PushException(self::ERROR_CORRUPTED_PUSH_STATE, 'Expected a regular file at ' . $path . '.');
         }
         return $identity['size'];
     }
@@ -2688,9 +2685,9 @@ final class Site_Export_Push_Session {
      * @return string Canonical push sessions directory.
      */
     private static function create_push_sessions_directory(string $reprint_directory): string {
-        $push_sessions_directory = wp_join_unix_paths($reprint_directory, '.reprint', 'push');
+        $push_sessions_directory = Utils::wp_join_unix_paths($reprint_directory, '.reprint', 'push');
         if (!@mkdir($push_sessions_directory, 0700, true) && !is_dir($push_sessions_directory)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create push sessions directory ' . $push_sessions_directory . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not create push sessions directory ' . $push_sessions_directory . '.');
         }
         return self::require_directory($push_sessions_directory, 'push sessions', false);
     }
@@ -2706,13 +2703,13 @@ final class Site_Export_Push_Session {
      * @return resource Exclusively locked create/remove handle.
      */
     private static function acquire_create_remove_lock(string $push_sessions_directory, string $operation) {
-        $create_remove_lock = @fopen(wp_join_unix_paths($push_sessions_directory, 'create-remove.lock'), 'c+b');
+        $create_remove_lock = @fopen(Utils::wp_join_unix_paths($push_sessions_directory, 'create-remove.lock'), 'c+b');
         if ($create_remove_lock === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open create-remove.lock for the ' . $operation . ' request.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open create-remove.lock for the ' . $operation . ' request.');
         }
         if (!flock($create_remove_lock, LOCK_EX | LOCK_NB)) {
             fclose($create_remove_lock);
-            throw new Site_Export_Push_Exception(
+            throw new PushException(
                 self::ERROR_LOCK_ACQUISITION_FAILURE,
                 'Another create or remove request holds create-remove.lock. Retry the ' . $operation . ' request.'
             );
@@ -2735,14 +2732,14 @@ final class Site_Export_Push_Session {
         if (!is_dir($tombstone)) {
             return true;
         }
-        $push_lock_path = wp_join_unix_paths($tombstone, 'push.lock');
+        $push_lock_path = Utils::wp_join_unix_paths($tombstone, 'push.lock');
         $lock = @fopen($push_lock_path, 'r+b');
         if ($lock === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not open the push removal tombstone lock.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not open the push removal tombstone lock.');
         }
         try {
             if (!flock($lock, LOCK_EX | LOCK_NB)) {
-                throw new Site_Export_Push_Exception(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Push removal cleanup is busy. Retry remove.');
+                throw new PushException(self::ERROR_LOCK_ACQUISITION_FAILURE, 'Push removal cleanup is busy. Retry remove.');
             }
             // The push directory rename is durable before commit ownership is released.
             // Retry that release while the tombstone still preserves push state.
@@ -2757,7 +2754,7 @@ final class Site_Export_Push_Session {
             fclose($lock);
         }
         if (!@unlink($push_lock_path) || !@rmdir($tombstone)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove the completed push removal tombstone.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove the completed push removal tombstone.');
         }
         return true;
     }
@@ -2779,13 +2776,13 @@ final class Site_Export_Push_Session {
             throw new InvalidArgumentException('The ' . $description . ' must be an absolute directory; observed ' . json_encode($path) . '.');
         }
         if ($create && !is_dir($path) && !@mkdir($path, 0700, true) && !is_dir($path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not create ' . $description . ' directory ' . $path . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not create ' . $description . ' directory ' . $path . '.');
         }
         $real_path = realpath($path);
         if ($real_path === false || !is_dir($real_path) || is_link($path)) {
             throw new InvalidArgumentException('The ' . $description . ' is not a real directory: ' . $path . '.');
         }
-        return trim_right_slash($real_path);
+        return Utils::trim_right_slash($real_path, Utils::native_path_format());
     }
 
     /**
@@ -2818,7 +2815,7 @@ final class Site_Export_Push_Session {
     private static function remove_directory_entries(string $directory_path, int &$remaining_entries, bool $preserve_lock = false): bool {
         $handle = @opendir($directory_path);
         if ($handle === false) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read push removal directory: ' . $directory_path . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not read push removal directory: ' . $directory_path . '.');
         }
         try {
             while (true) {
@@ -2832,11 +2829,11 @@ final class Site_Export_Push_Session {
                 if ($remaining_entries === 0) {
                     return false;
                 }
-                $entry_path = wp_join_unix_paths($directory_path, $entry);
+                $entry_path = Utils::wp_join_unix_paths($directory_path, $entry);
                 clearstatcache(true, $entry_path);
                 $stat = @lstat($entry_path);
                 if (!is_array($stat)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Work commit remove entry disappeared during cleanup: ' . $entry_path . '.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Work commit remove entry disappeared during cleanup: ' . $entry_path . '.');
                 }
                 $type = ( (int) ( $stat['mode'] ?? 0 ) ) & 0170000;
                 if ($type === 0040000) {
@@ -2847,10 +2844,10 @@ final class Site_Export_Push_Session {
                         return false;
                     }
                     if (!@rmdir($entry_path)) {
-                        throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove push removal directory: ' . $entry_path . '.');
+                        throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove push removal directory: ' . $entry_path . '.');
                     }
                 } elseif (!@unlink($entry_path)) {
-                    throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove push removal entry: ' . $entry_path . '.');
+                    throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove push removal entry: ' . $entry_path . '.');
                 }
                 --$remaining_entries;
             }
@@ -2879,7 +2876,7 @@ final class Site_Export_Push_Session {
         if ($type === 0040000) {
             $handle = @opendir($path);
             if ($handle === false) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not read push directory for removal: ' . $path . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not read push directory for removal: ' . $path . '.');
             }
             try {
                 while (true) {
@@ -2888,19 +2885,23 @@ final class Site_Export_Push_Session {
                         break;
                     }
                     if ($entry !== '.' && $entry !== '..') {
-                        self::remove_tree(wp_join_unix_paths($path, $entry));
+                        self::remove_tree(Utils::wp_join_unix_paths($path, $entry));
                     }
                 }
             } finally {
                 closedir($handle);
             }
             if (!@rmdir($path)) {
-                throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove push directory ' . $path . '.');
+                throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove push directory ' . $path . '.');
             }
             return;
         }
         if (!@unlink($path)) {
-            throw new Site_Export_Push_Exception(self::ERROR_FILESYSTEM, 'Could not remove push entry ' . $path . '.');
+            throw new PushException(self::ERROR_FILESYSTEM, 'Could not remove push entry ' . $path . '.');
         }
     }
+}
+
+if (!class_exists('Site_Export_Push_Session', false)) {
+    class_alias(PushSession::class, 'Site_Export_Push_Session');
 }

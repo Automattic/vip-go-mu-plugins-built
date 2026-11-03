@@ -9,4 +9,4 @@
 __( "We couldn't load these comments. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "Open a post or page report to see its comments here.", "jetpack-premium-analytics-pkg" );
-__( "There are no comments yet.", "jetpack-premium-analytics-pkg" );
+__( "This post has no comments yet.", "jetpack-premium-analytics-pkg" );

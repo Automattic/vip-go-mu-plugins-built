@@ -15,3 +15,6 @@ _n( "%s Paid subscriber", "%s Paid subscribers", 1, "jetpack-premium-analytics-p
 __( "Subscriber metric", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load subscriber data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
+__( "You don’t have subscribers yet. Newsletter can help you turn readers into an audience.", "jetpack-premium-analytics-pkg" );
+__( "Learn more", "jetpack-premium-analytics-pkg" );
+__( "Subscriber summary", "jetpack-premium-analytics-pkg" );

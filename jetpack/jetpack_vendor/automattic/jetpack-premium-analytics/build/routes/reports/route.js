@@ -8,23 +8,38 @@
 
 /* translators: %s: a comparison option, e.g. "Previous 30 days". The suffix says the comparison starts on the same weekday. */
 _x( "%s (match day of week)", "weekday-aligned comparison", "jetpack-premium-analytics-pkg" );
-__( "Previous month", "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of years covered by the selected date range. */
-_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
-/* translators: %d: number of months covered by the selected date range. */
-_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous hour", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of hours covered by the selected date range. */
 _n( "Previous %d hour", "Previous %d hours", 1, "jetpack-premium-analytics-pkg" );
+__( "Previous month", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months covered by the selected date range. */
+_n( "Previous %d month", "Previous %d months", 1, "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years covered by the selected date range. */
+_n( "Previous %d year", "Previous %d years", 1, "jetpack-premium-analytics-pkg" );
 __( "Previous day", "jetpack-premium-analytics-pkg" );
 /* translators: %d: number of days covered by the selected date range. */
 _n( "Previous %d day", "Previous %d days", 1, "jetpack-premium-analytics-pkg" );
+_x( "Prev. hour", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of hours. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d hour", "Prev. %d hours", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. month", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of months. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d month", "Prev. %d months", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of years. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d year", "Prev. %d years", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. day", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %d: number of days. Repeated after each metric in a chart legend, so keep it as short as the language allows. */
+_nx( "Prev. %d day", "Prev. %d days", 1, "comparison legend label", "jetpack-premium-analytics-pkg" );
 __( "Same period from last week", "jetpack-premium-analytics-pkg" );
 /* translators: %s: name of the month the comparison period starts in, e.g. "July". */
 _x( "Same period in %s", "previous month comparison", "jetpack-premium-analytics-pkg" );
 /* translators: %s: the year the comparison period starts in, e.g. "2025". */
 _x( "Same period in %s", "previous year comparison", "jetpack-premium-analytics-pkg" );
 __( "Same period last year (match day of week)", "jetpack-premium-analytics-pkg" );
+_x( "Prev. week", "comparison legend label", "jetpack-premium-analytics-pkg" );
+_x( "Prev. year, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
+/* translators: %s: an abbreviated previous period, e.g. "Prev. 8 days". The suffix says it starts on the same weekday. */
+_x( "%s, weekday", "comparison legend label", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Previous period". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
 _x( "Prev. period", "short comparison preset", "jetpack-premium-analytics-pkg" );
 /* translators: abbreviation for "Previous period (match day of week)". Shown in a control too narrow for the full label, so keep it as short as the language allows. */
@@ -42,10 +57,9 @@ __( "Posts & Pages", "jetpack-premium-analytics-pkg" );
 __( "Earnings history", "jetpack-premium-analytics-pkg" );
 __( "Sponsored content history", "jetpack-premium-analytics-pkg" );
 __( "Adjustments history", "jetpack-premium-analytics-pkg" );
-__( "Countries", "jetpack-premium-analytics-pkg" );
-__( "Regions", "jetpack-premium-analytics-pkg" );
-__( "Cities", "jetpack-premium-analytics-pkg" );
 __( "Archives", "jetpack-premium-analytics-pkg" );
+/* translators: %s: the smallest value shown at this precision, e.g. "0.1". */
+__( "< %s", "jetpack-premium-analytics-pkg" );
 __( "Year", "jetpack-premium-analytics-pkg" );
 __( "Total posts", "jetpack-premium-analytics-pkg" );
 __( "Total comments", "jetpack-premium-analytics-pkg" );
@@ -58,7 +72,7 @@ __( "Total images", "jetpack-premium-analytics-pkg" );
 __( "Avg images per post", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load annual insights. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search annual insights", "jetpack-premium-analytics-pkg" );
-__( "Author / post", "jetpack-premium-analytics-pkg" );
+__( "Author", "jetpack-premium-analytics-pkg" );
 /* translators: %s is the author name */
 __( "Avatar of %s", "jetpack-premium-analytics-pkg" );
 __( "Views", "jetpack-premium-analytics-pkg" );
@@ -70,7 +84,7 @@ __( "URL", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load subscribers. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "All Posts", "jetpack-premium-analytics-pkg" );
 __( "Search posts", "jetpack-premium-analytics-pkg" );
-__( "Clicked URL", "jetpack-premium-analytics-pkg" );
+__( "Link", "jetpack-premium-analytics-pkg" );
 __( "Clicks", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load clicks. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search clicked URLs", "jetpack-premium-analytics-pkg" );
@@ -90,6 +104,7 @@ __( "Status", "jetpack-premium-analytics-pkg" );
 __( "%1$s (%2$s)", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load earnings. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search earnings history", "jetpack-premium-analytics-pkg" );
+__( "View in new tab", "jetpack-premium-analytics-pkg" );
 __( "Email", "jetpack-premium-analytics-pkg" );
 __( "Sent", "jetpack-premium-analytics-pkg" );
 __( "Opens", "jetpack-premium-analytics-pkg" );
@@ -98,7 +113,6 @@ __( "Click rate", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load emails. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search emails", "jetpack-premium-analytics-pkg" );
 __( "Country", "jetpack-premium-analytics-pkg" );
-__( "Location", "jetpack-premium-analytics-pkg" );
 /* translators: %s is the country name. */
 __( "Flag of %s", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load locations. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
@@ -116,13 +130,20 @@ __( "Search tags and categories", "jetpack-premium-analytics-pkg" );
 __( "Untitled video", "jetpack-premium-analytics-pkg" );
 __( "Video", "jetpack-premium-analytics-pkg" );
 __( "Poster", "jetpack-premium-analytics-pkg" );
-__( "Plays", "jetpack-premium-analytics-pkg" );
 __( "Impressions", "jetpack-premium-analytics-pkg" );
+__( "Hours watched", "jetpack-premium-analytics-pkg" );
+__( "Retention rate", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load videos. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search videos", "jetpack-premium-analytics-pkg" );
+__( "Build URL", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load UTM data. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search UTM values", "jetpack-premium-analytics-pkg" );
 __( "Referrer", "jetpack-premium-analytics-pkg" );
+/* translators: %s: The referrer domain, e.g. example.com. */
+__( "Are you sure you want to mark \"%s\" as spam?", "jetpack-premium-analytics-pkg" );
+__( "Cancel", "jetpack-premium-analytics-pkg" );
+__( "Mark as spam", "jetpack-premium-analytics-pkg" );
+__( "Mark as spam…", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load referrers. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Search referrers", "jetpack-premium-analytics-pkg" );
 __( "Annual insights", "jetpack-premium-analytics-pkg" );

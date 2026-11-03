@@ -6,4 +6,7 @@
 // translation files resolve. Never loaded at runtime: the generated PHP
 // loaders are pinned to the .min.js sibling.
 
+__( "You don’t have search terms recorded yet.", "jetpack-premium-analytics-pkg" );
+__( "Top searched terms", "jetpack-premium-analytics-pkg" );
+__( "Search terms", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load search terms. Please try again in a moment.", "jetpack-premium-analytics-pkg" );

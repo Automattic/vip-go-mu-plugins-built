@@ -1,1 +1,29 @@
-<?php return array('dependencies' => array('jetpack-script-data', 'jetpack-shared-stores', 'lodash', 'moment', 'react', 'react-jsx-runtime', 'wp-api-fetch', 'wp-blob', 'wp-block-editor', 'wp-blocks', 'wp-components', 'wp-compose', 'wp-data', 'wp-date', 'wp-dom-ready', 'wp-editor', 'wp-element', 'wp-hooks', 'wp-i18n', 'wp-keycodes', 'wp-plugins', 'wp-polyfill', 'wp-primitives', 'wp-url'), 'version' => '57be95df28ec8f3c46d2');
+<?php return array(
+	'dependencies' => array(
+		'jetpack-script-data',
+		'jetpack-shared-stores',
+		'lodash',
+		'react',
+		'react-dom',
+		'react-jsx-runtime',
+		'wp-a11y',
+		'wp-api-fetch',
+		'wp-blob',
+		'wp-block-editor',
+		'wp-blocks',
+		'wp-components',
+		'wp-compose',
+		'wp-data',
+		'wp-dom-ready',
+		'wp-editor',
+		'wp-element',
+		'wp-hooks',
+		'wp-html-entities',
+		'wp-i18n',
+		'wp-keycodes',
+		'wp-plugins',
+		'wp-primitives',
+		'wp-url'
+	),
+	'version' => 'e6824eddfb974241950f'
+);

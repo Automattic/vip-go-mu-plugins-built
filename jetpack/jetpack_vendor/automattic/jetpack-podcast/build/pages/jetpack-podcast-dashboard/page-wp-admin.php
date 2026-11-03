@@ -90,9 +90,23 @@ function jetpack_podcast_jetpack_podcast_dashboard_wp_admin_preload_data() {
 	// This must exactly match the _fields list in packages/core-data/src/entities.js,
 	// same fields in the same order, or the preload is never consumed.
 	$preload_paths = array(
+		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
 		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
 		array( '/wp/v2/settings', 'OPTIONS' ),
 	);
+
+	/**
+	 * Filters the REST API paths preloaded for this page.
+	 *
+	 * Each entry is either a string path (GET) or a `[ path, method ]` tuple.
+	 * Pages that know which requests their JS will issue on mount can add
+	 * them here so the responses are embedded in the initial HTML rather
+	 * than fetched over the network after hydration.
+	 *
+	 * @param array<string|string[]> $preload_paths Paths to preload.
+	 */
+	$preload_paths = apply_filters( 'jetpack_podcast_jetpack_podcast_dashboard_wp_admin_preload_paths', $preload_paths );
 
 	// Use rest_preload_api_request to gather the preloaded data
 	$preload_data = array_reduce(
@@ -160,7 +174,7 @@ function jetpack_podcast_jetpack_podcast_dashboard_wp_admin_enqueue_scripts( $ho
 		// 2. It initializes the boot module as an inline script.
 		wp_register_script( 'jetpack-podcast-dashboard-wp-admin-prerequisites', '', $asset['dependencies'], $asset['version'], true );
 
-		$init_modules = [];
+		$init_modules = ["@jetpack-podcast/init"];
 
 		/*
 		 * Add inline script to initialize the app using initSinglePage (no menuItems).
@@ -233,7 +247,7 @@ JS;
 		);
 
 		// Add init modules as static dependencies
-			// No init modules configured
+			$boot_dependencies[] = array( 'import' => 'static', 'id' => '@jetpack-podcast/init' );
 
 		// Add all registered routes as dependencies
 		foreach ( $routes as $route ) {

@@ -8,6 +8,9 @@
 
 /* translators: %s is the clicked link or domain label. */
 __( "View clicked links for %s", "jetpack-premium-analytics-pkg" );
+__( "Top links clicked", "jetpack-premium-analytics-pkg" );
+__( "Links", "jetpack-premium-analytics-pkg" );
+__( "You don’t have clicked links recorded yet.", "jetpack-premium-analytics-pkg" );
 __( "All clicks", "jetpack-premium-analytics-pkg" );
 __( "View all clicks", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load clicks. Please try again in a moment.", "jetpack-premium-analytics-pkg" );

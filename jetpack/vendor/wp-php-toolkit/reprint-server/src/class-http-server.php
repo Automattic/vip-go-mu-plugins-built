@@ -1,22 +1,20 @@
 <?php
 
-use WordPress\Reprint\Server\ResourceBudget;
+namespace WordPress\Reprint\Server;
 
-use function WordPress\Reprint\Server\parse_size;
-
-require_once __DIR__ . '/utils.php';
+use InvalidArgumentException;
 
 if (!class_exists('WordPress\\Reprint\\Server\\ResourceBudget', false)) {
     require_once __DIR__ . '/class-resource-budget.php';
 }
-if (!class_exists('Site_Export_Push_Configuration_Exception', false)) {
+if (!class_exists(PushConfigurationException::class, false)) {
     require_once __DIR__ . '/class-push-configuration-exception.php';
 }
 
 /**
- * HTTP dispatcher for the Site Export API.
+ * HTTP dispatcher for the Reprint Server API.
  */
-final class Site_Export_HTTP_Server {
+final class HTTPServer {
 
     private const PUSH_ENDPOINT_METHODS = [
         'push_create' => 'create',
@@ -25,6 +23,11 @@ final class Site_Export_HTTP_Server {
         'push_commit' => 'commit',
         'push_remove' => 'remove',
     ];
+
+    private const DATABASE_PUSH_ENDPOINTS = ['push_db_create', 'push_db_upload', 'push_db_status', 'push_db_commit', 'push_db_cleanup', 'push_db_discard'];
+
+    /** @var DatabasePushEndpoints|null */
+    private $database_push_endpoints;
 
     /** @var array<string, callable> */
     private $handlers;
@@ -41,10 +44,14 @@ final class Site_Export_HTTP_Server {
     /** @var string|null */
     private $default_directory;
 
-    /** @var Site_Export_Push_Endpoints|null */
+    /** @var PushEndpoints|null */
     private $push_endpoints;
 
+    /** @var array|null Trusted WordPress source metadata, never read from the request. */
+    private $multisite;
+
     public function __construct(array $options = []) {
+        $this->multisite = $options['multisite'] ?? null;
         $this->budget_factory = $options['budget_factory'] ?? [$this, 'default_budget_factory'];
         $this->body_reader = $options['body_reader'] ?? static function (): string {
             $body = file_get_contents('php://input');
@@ -58,19 +65,23 @@ final class Site_Export_HTTP_Server {
                 if (!is_array($options['push'])) {
                     throw new InvalidArgumentException('The push HTTP server option must be an array.');
                 }
-                if (!class_exists('Site_Export_Push_Endpoints', false)) {
+                if (!class_exists(PushEndpoints::class, false)) {
                     require_once __DIR__ . '/class-push-endpoints.php';
                 }
-                $this->push_endpoints = new Site_Export_Push_Endpoints($options['push']);
+                $this->push_endpoints = new PushEndpoints($options['push']);
             } catch (InvalidArgumentException $exception) {
                 // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- This rethrows a trusted configuration error; it does not render output.
-                throw new Site_Export_Push_Configuration_Exception(
+                throw new PushConfigurationException(
                     $exception->getMessage(),
                     0,
                     $exception
                 );
                 // phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
             }
+        }
+        if (isset($options['database_push'])) {
+            require_once __DIR__ . '/class-database-push-endpoints.php';
+            $this->database_push_endpoints = new DatabasePushEndpoints($options['database_push']);
         }
         $this->handlers = $options['handlers'] ?? $this->default_handlers();
     }
@@ -79,9 +90,8 @@ final class Site_Export_HTTP_Server {
         $server = $request['server'] ?? $_SERVER;
         $get = $request['get'] ?? $_GET;
         $post = $request['post'] ?? $_POST;
-        // Push parameters travel in the signed query string. push_upload streams
-        // php://input itself; reading JSON for any push endpoint would either
-        // buffer an upload or let a control request buffer an unused body.
+        // A push endpoint travels in the signed query string, and a push upload
+        // streams php://input itself, so no push body is read here.
         $endpoint = $get['endpoint'] ?? null;
         $uses_push_request_contract = is_string($endpoint) && strpos($endpoint, 'push_') === 0;
         $body = '';
@@ -172,14 +182,14 @@ final class Site_Export_HTTP_Server {
      * Equivalent to:
      *
      *     require_once __DIR__ . '/export.php';
-     *     $server = new Site_Export_HTTP_Server($options);
+     *     $server = new HTTPServer($options);
      *     $server->handle_request();
      *
      * export.php is only required once. Callers that need to run CORS
      * or their own authentication must do that before calling this method.
      *
      * @param array<string, mixed> $options Forwarded to the constructor.
-     * @throws Exception If request parsing or endpoint dispatch fails.
+     * @throws \Exception If request parsing or endpoint dispatch fails.
      */
     public static function serve(array $options = []): void {
         // endpoint_preflight is defined by export.php — use it as a
@@ -195,6 +205,8 @@ final class Site_Export_HTTP_Server {
     }
 
     /**
+     * Parses HTTP values, including raw or base64-encoded Unix and Windows paths.
+     *
      * @param array<string, mixed> $get
      * @param array<string, mixed> $post
      * @param array<string, mixed> $server
@@ -209,8 +221,19 @@ final class Site_Export_HTTP_Server {
         if ($content_type_main === 'application/json' && $body !== '') {
             $json_data = json_decode($body, true);
             if (is_array($json_data)) {
-                $params = array_merge($json_data, $params);
+                $params = array_merge($params, $json_data);
             }
+        }
+
+        // The endpoint is part of the signed request target, so the query's
+        // value wins. Released key clients send a pull endpoint in the body
+        // and sign the bare API URL. A push endpoint comes only from the query.
+        $body_endpoint = $params['endpoint'] ?? null;
+        unset($params['endpoint']);
+        if (array_key_exists('endpoint', $get)) {
+            $params = ['endpoint' => $get['endpoint']] + $params;
+        } elseif (is_string($body_endpoint) && strpos($body_endpoint, 'push_') !== 0) {
+            $params = ['endpoint' => $body_endpoint] + $params;
         }
 
         foreach ($params as $key => $value) {
@@ -237,6 +260,39 @@ final class Site_Export_HTTP_Server {
                 if (is_array($decoded)) {
                     $value = $decoded;
                 }
+            } elseif (in_array($key, ['directory', 'list_dir', 'pulled_before'], true)) {
+                $path_values = is_array($value) ? $value : [$value];
+                $decoded_paths = [];
+                foreach ($path_values as $path_key => $path_value) {
+                    // Do not decode first: PHP accepts a raw path such as /tmp
+                    // as strict base64 and turns it into unrelated bytes. Check
+                    // for an absolute root in this source host's format before decoding.
+                    if (is_string($path_value) && Utils::is_absolute_path($path_value, Utils::native_path_format())) {
+                        $decoded_path = $path_value;
+                    } else {
+                        $decoded_path = is_string($path_value)
+                            ? base64_decode($path_value, true)
+                            : false;
+                    }
+                    if (
+                        $decoded_path === false
+                        || !Utils::is_absolute_path($decoded_path, Utils::native_path_format())
+                    ) {
+                        $entry = is_array($value) ? ' entry ' . $path_key : '';
+                        $observed = is_string($path_value)
+                            ? json_encode($path_value)
+                            : gettype($path_value);
+                        // phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- The exception reports the rejected HTTP parameter and value to the API caller.
+                        throw new InvalidArgumentException(
+                            $key . $entry
+                            . ' must be an absolute path or a base64-encoded absolute path; observed '
+                            . $observed . '.'
+                        );
+                        // phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+                    }
+                    $decoded_paths[$path_key] = $decoded_path;
+                }
+                $value = is_array($value) ? $decoded_paths : reset($decoded_paths);
             }
 
             $config[$key] = $value;
@@ -251,6 +307,21 @@ final class Site_Export_HTTP_Server {
      * @return array<string, mixed>
      */
     public function normalize_config(array $config, array $server = []): array {
+        unset($config['_multisite']);
+        if ($this->multisite !== null) {
+            // This existing wire value names the selected-site export format.
+            // It does not require the client to create a multisite target.
+            if (( $config['multisite_mode'] ?? null ) !== 'one-site-network-v1') {
+                throw new InvalidArgumentException(
+                    'This source requires a Reprint client that supports exporting one selected network site. Update the client.'
+                );
+            }
+            if (!in_array($config['endpoint'] ?? '', ['preflight', 'sql_chunk', 'file_index', 'file_fetch'], true)) {
+                throw new InvalidArgumentException('This endpoint does not support a selected multisite site.');
+            }
+            $config['_multisite'] = $this->multisite;
+        }
+
         if (
             $this->default_directory !== null &&
             !isset($config['directory'])
@@ -327,7 +398,11 @@ final class Site_Export_HTTP_Server {
                 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
                 header('Pragma: no-cache');
                 header('Expires: 0');
-                header('Content-Type: application/json');
+                // Hosts such as Hostinger rewrite domains so links and assets stay on a
+                // preview domain while the stored site URL still uses the real domain.
+                // This lets users preview a site before changing DNS, but also rewrites
+                // application/json bodies. Octet-stream bypasses Hostinger's filter.
+                header('Content-Type: application/octet-stream');
                 echo json_encode([
                     'status' => 'rejected',
                     'reason' => 'push_disabled',
@@ -352,7 +427,7 @@ final class Site_Export_HTTP_Server {
 
     public static function is_push_endpoint(string $endpoint): bool {
         $push_endpoint_methods = self::PUSH_ENDPOINT_METHODS;
-        return isset($push_endpoint_methods[$endpoint]);
+        return isset($push_endpoint_methods[$endpoint]) || in_array($endpoint, self::DATABASE_PUSH_ENDPOINTS, true);
     }
 
     /**
@@ -371,6 +446,11 @@ final class Site_Export_HTTP_Server {
                 $handlers[$endpoint] = [$this->push_endpoints, $method];
             }
         }
+        if ($this->database_push_endpoints !== null) {
+            foreach (self::DATABASE_PUSH_ENDPOINTS as $endpoint) {
+                $handlers[$endpoint] = [$this->database_push_endpoints, 'handle'];
+            }
+        }
         return $handlers;
     }
 
@@ -386,10 +466,17 @@ final class Site_Export_HTTP_Server {
     private function default_budget_factory(array $config) {
         $max_execution_time = require_int_range(
             'max_execution_time',
-            (int) ($config['max_execution_time'] ?? 5),
+            (int) ($config['max_execution_time'] ?? 15),
             1,
             60
         );
+        $ini_max_execution_time = (int) ini_get('max_execution_time');
+        if ($ini_max_execution_time > 0) {
+            $max_execution_time = min(
+                $max_execution_time,
+                $ini_max_execution_time
+            );
+        }
         $memory_threshold = require_float_range(
             'memory_threshold',
             (float) ($config['memory_threshold'] ?? 0.8),
@@ -398,7 +485,7 @@ final class Site_Export_HTTP_Server {
         );
 
         $memory_limit = ini_get('memory_limit');
-        $max_memory = $memory_limit === '-1' ? PHP_INT_MAX : parse_size((string) $memory_limit);
+        $max_memory = $memory_limit === '-1' ? PHP_INT_MAX : Utils::parse_size((string) $memory_limit);
 
         return new ResourceBudget(
             microtime(true),
@@ -411,4 +498,8 @@ final class Site_Export_HTTP_Server {
     private function get_valid_endpoints_message(): string {
         return "'" . implode("', '", array_keys($this->handlers)) . "'";
     }
+}
+
+if (!class_exists('Site_Export_HTTP_Server', false)) {
+    class_alias(HTTPServer::class, 'Site_Export_HTTP_Server');
 }

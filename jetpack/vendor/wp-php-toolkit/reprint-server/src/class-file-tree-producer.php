@@ -2,8 +2,6 @@
 
 namespace WordPress\Reprint\Server;
 
-require_once __DIR__ . '/utils.php';
-
 use InvalidArgumentException;
 
 /**
@@ -40,6 +38,15 @@ class FileTreeProducer
     private $paths_sorted = false;
     /** @var bool */
     private $paths_positioned = false;
+    /**
+     * Restricts requested files to shared code and the selected site's uploads.
+     * Checked even when the client skips the index and supplies a path directly.
+     * Null leaves the ordinary single-site file rules in place.
+     *
+     * @var MultisiteFileSelection|null
+     */
+    private $multisite_selection;
+
     /** Ephemeral index into $paths; NOT stored in cursor. */
     /** @var int */
     private $paths_position = 0;
@@ -71,11 +78,17 @@ class FileTreeProducer
      *     @type int    $chunk_size Bytes per file chunk (default 5MB).
      *     @type bool   $index_only Emit index entries instead of file contents.
      *     @type string $cursor     JSON cursor string for resumption.
+     *     @type MultisiteFileSelection|null $multisite_selection Shared code and
+     *         selected uploads allowed by the source WordPress site. Default null.
      *     @type array  $paths      Paths to stream (required).
      * }
      */
     public function __construct($directories, array $options = [])
     {
+        $this->multisite_selection = $options['multisite_selection'] ?? null;
+        if ($this->multisite_selection !== null && !$this->multisite_selection instanceof MultisiteFileSelection) {
+            throw new InvalidArgumentException('multisite_selection must be a trusted MultisiteFileSelection object.');
+        }
         $this->directories = $this->normalize_directories($directories);
         $this->chunk_size = $options["chunk_size"] ?? self::DEFAULT_CHUNK_SIZE;
         $this->index_only = $options["index_only"] ?? false;
@@ -85,7 +98,10 @@ class FileTreeProducer
                 "The 'paths' option is required and must be an array"
             );
         }
-        $this->paths = $options["paths"];
+        // Sort and resume using the same spelling that file chunks carry.
+        $this->paths = array_map(static function (string $path): string {
+            return Utils::normalize_path_separators($path, Utils::native_path_format());
+        }, $options["paths"]);
 
         if (isset($options["cursor"])) {
             $this->initialize_from_cursor($options["cursor"]);
@@ -136,6 +152,12 @@ class FileTreeProducer
             );
         }
 
+        // Check before the finished-phase return: a completed cursor has no
+        // file path left to check, but it must still belong to this selection.
+        $selection_identity = $this->multisite_selection === null ? null : $this->multisite_selection->get_identity();
+        if (( $cursor['multisite_selection'] ?? null ) !== $selection_identity) {
+            throw new InvalidArgumentException('Cannot resume file fetch: multisite selection changed.');
+        }
         $this->phase = $cursor["phase"] ?? self::PHASE_STREAMING;
         $this->filesystem_root = isset($cursor["root"])
             ? base64_decode($cursor["root"])
@@ -152,6 +174,9 @@ class FileTreeProducer
         }
 
         $path = isset($cursor["path"]) ? base64_decode($cursor["path"]) : null;
+        if ($path !== null && $this->multisite_selection !== null) {
+            $this->multisite_selection->assert_path_allowed($path);
+        }
         $ctime = $cursor["ctime"] ?? null;
         $byte_offset = $cursor["bytes"] ?? 0;
 
@@ -161,7 +186,7 @@ class FileTreeProducer
         if ($path !== null && $byte_offset > 0) {
             // Resuming mid-file.
             clearstatcache(true, $path);
-            $size = @filesize($path);
+            $size = @filesize(Utils::source_io_path($path));
             if ($size === false) {
                 // File disappeared; treat as completed.
                 $this->current_file_meta = null;
@@ -189,10 +214,10 @@ class FileTreeProducer
     private function normalize_directories($directories): array
     {
         if (is_string($directories)) {
-            return [trim_right_slash($directories)];
+            return [Utils::trim_right_slash($directories, Utils::native_path_format())];
         }
         return array_map(function ($d) {
-            return trim_right_slash($d);
+            return Utils::trim_right_slash($d, Utils::native_path_format());
         }, $directories);
     }
 
@@ -301,6 +326,9 @@ class FileTreeProducer
             $path = $this->paths[$this->paths_position];
             $this->paths_position++;
 
+            if ($this->multisite_selection !== null) {
+                $this->multisite_selection->assert_path_allowed($path);
+            }
             $resolved_path = $this->resolve_path($path);
             if ($resolved_path === null) {
                 // Path doesn't exist or isn't accessible, emit as missing
@@ -319,7 +347,7 @@ class FileTreeProducer
             }
 
             if ($info["type"] === "link") {
-                $target = @readlink($resolved_path);
+                $target = @Utils::source_readlink($resolved_path);
                 $this->last_emitted_path = $resolved_path;
                 $this->last_emitted_ctime = $info["ctime"];
                 $this->current_chunk = [
@@ -375,20 +403,16 @@ class FileTreeProducer
         }
 
         clearstatcache(true, $path);
-        if ($path[0] === "/" && (file_exists($path) || is_link($path))) {
+        if (Utils::is_absolute_path($path, Utils::native_path_format()) && (file_exists(Utils::source_io_path($path)) || Utils::source_is_link($path))) {
             return $path;
         }
 
         foreach ($this->directories as $dir) {
-            $candidate = wp_join_unix_paths($dir, $path);
+            $candidate = Utils::wp_join_unix_paths($dir, $path);
             clearstatcache(true, $candidate);
-            if (file_exists($candidate) || is_link($candidate)) {
+            if (file_exists(Utils::source_io_path($candidate)) || Utils::source_is_link($candidate)) {
                 return $candidate;
             }
-        }
-
-        if ($path[0] === "/") {
-            return null;
         }
 
         return null;
@@ -401,8 +425,11 @@ class FileTreeProducer
     private function stream_file_chunk(array $file): void
     {
         if ($this->streaming_file_handle === null) {
+            if ($this->multisite_selection !== null) {
+                $this->multisite_selection->assert_path_allowed($file["path"]);
+            }
             clearstatcache(true, $file["path"]);
-            $pre_stat = @lstat($file["path"]);
+            $pre_stat = @Utils::source_lstat($file["path"]);
             if ($pre_stat === false || (($pre_stat["mode"] & 0170000) !== 0100000)) {
                 $this->streaming_file_handle = null;
                 $this->current_file_meta = null;
@@ -419,7 +446,7 @@ class FileTreeProducer
                 return;
             }
 
-            $this->streaming_file_handle = @fopen($file["path"], "r");
+            $this->streaming_file_handle = @fopen(Utils::source_io_path($file["path"]), "r");
             if (!$this->streaming_file_handle) {
                 $this->streaming_file_handle = null;
                 $this->current_file_meta = null;
@@ -486,11 +513,15 @@ class FileTreeProducer
 
         // Detect whether the file changed while we were reading it.
         clearstatcache(true, $file["path"]);
-        $stat = @stat($file["path"]);
+        $stat = @stat(Utils::source_io_path($file["path"]));
         if ($stat === false) {
             $changed = true;
             $error_type = "file_missing";
         } else {
+            // feof() can stay false until another read, even after an exact
+            // final chunk. Use the fresh size instead of emitting an empty-read
+            // error on the next step. This also works for native Windows streams.
+            $is_last = $is_last || $stat["size"] === $this->streaming_file_offset;
             $now_ctime = $stat["ctime"];
             if ($now_ctime !== $file["ctime"]) {
                 $changed = true;
@@ -568,6 +599,7 @@ class FileTreeProducer
         if ($this->phase === self::PHASE_FINISHED) {
             return json_encode([
                 "phase" => self::PHASE_FINISHED,
+                "multisite_selection" => $this->multisite_selection === null ? null : $this->multisite_selection->get_identity(),
                 "root" => base64_encode($this->filesystem_root),
             ]);
         }
@@ -577,6 +609,9 @@ class FileTreeProducer
             "root" => base64_encode($this->filesystem_root),
         ];
 
+        if ($this->multisite_selection !== null) {
+            $cursor['multisite_selection'] = $this->multisite_selection->get_identity();
+        }
         if ($this->current_file_meta !== null) {
             $cursor["path"] = base64_encode($this->current_file_meta["path"]);
             $cursor["ctime"] = $this->current_file_meta["ctime"];
@@ -632,7 +667,7 @@ class FileTreeProducer
         $low = 0;
         $high = count($entries);
         while ($low < $high) {
-            $mid = integer_divide($low + $high, 2);
+            $mid = Utils::integer_divide($low + $high, 2);
             if (strcmp($entries[$mid], $last) <= 0) {
                 $low = $mid + 1;
             } else {
@@ -650,7 +685,7 @@ class FileTreeProducer
     private function lstat_path(string $path): ?array
     {
         clearstatcache(true, $path);
-        $stat = @lstat($path);
+        $stat = @Utils::source_lstat($path);
         if ($stat === false) {
             return null;
         }

@@ -8,10 +8,10 @@
 
 __( "Jetpack Logo", "jetpack-search-pkg" );
 __( "An Automattic Airline", "jetpack-search-pkg" );
+__( "Loading", "jetpack-search-pkg" );
 /* translators: accessibility text appended to link text */
 __( "(opens in a new tab)", "jetpack-search-pkg" );
-__( "Loading", "jetpack-search-pkg" );
-__( "Products", "jetpack-search-pkg" );
+__( "Features", "jetpack-search-pkg" );
 __( "Help", "jetpack-search-pkg" );
 __( "Jetpack", "jetpack-search-pkg" );
 /* translators: %1$s is button label 1 and %2$s is button label 2 */
@@ -40,12 +40,50 @@ __( "Summary of the records", "jetpack-search-pkg" );
 __( "Record type", "jetpack-search-pkg" );
 __( "Record count", "jetpack-search-pkg" );
 __( "Indeterminate Progress Bar", "jetpack-search-pkg" );
+__( "Unavailable in <a>Offline Mode</a>", "jetpack-search-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site at %s. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t make a secure (HTTPS) connection to your site. Its SSL certificate or HTTPS setup may be invalid. Ask your hosting provider to check it.", "jetpack-search-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com couldn’t reach your site at %s to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t reach your site to verify it. Make sure your site is publicly reachable and its domain and SSL certificate are set up correctly. If they are, ask your hosting provider whether they block connections from WordPress.com.", "jetpack-search-pkg" );
+/* translators: %s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com reached your site at %s, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-search-pkg" );
+__( "WordPress.com reached your site, but the connection endpoint was not found. A security plugin or server rule may be blocking xmlrpc.php or the REST API.", "jetpack-search-pkg" );
+/* translators: %1$d is an HTTP status code, e.g. 500; %2$s is the site URL WordPress.com tried, e.g. https://example.com. */
+__( "WordPress.com got an error (HTTP %1$d) when it tried to verify your site at %2$s. Your site’s error log may show the cause.", "jetpack-search-pkg" );
+/* translators: %d is an HTTP status code, e.g. 500. */
+__( "WordPress.com got an error (HTTP %d) when it tried to verify your site. Your site’s error log may show the cause.", "jetpack-search-pkg" );
+/* translators: %1$s is the site URL WordPress.com tried, e.g. https://example.com; %2$d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site at %1$s (HTTP %2$d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-search-pkg" );
+/* translators: %d is an HTTP status code, e.g. 403. */
+__( "Something blocked WordPress.com from verifying your site (HTTP %d). Try again in a minute. If it keeps happening, a firewall or security rule is usually the cause: ask your hosting provider to allow connections from WordPress.com.", "jetpack-search-pkg" );
+__( "Your site is on a private network, so WordPress.com can’t reach it. Jetpack can only connect sites that are publicly accessible.", "jetpack-search-pkg" );
+__( "Your site’s address is on WordPress.com. Jetpack connects WordPress sites hosted elsewhere, so it can’t connect this one.", "jetpack-search-pkg" );
+__( "This site has been suspended.", "jetpack-search-pkg" );
+__( "There have been too many connection attempts from this site. Please wait an hour and try again.", "jetpack-search-pkg" );
+__( "Your site asks visitors to log in (for example password protection or a maintenance mode plugin), so WordPress.com couldn’t verify it. Turn it off while you connect.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t find your site’s domain. Check that the domain is set up correctly and points to your site.", "jetpack-search-pkg" );
+__( "WordPress.com timed out waiting for your site to answer. Your site may be slow or overloaded, or a firewall may be silently dropping the connection. Try again in a minute. If it keeps happening, ask your hosting provider to check.", "jetpack-search-pkg" );
+__( "Your site redirected WordPress.com to an address it couldn’t use. Check the WordPress Address and Site Address in Settings › General, and any redirect rules on your site or host.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t connect to your site through xmlrpc.php. A security plugin or your hosting provider may be blocking it.", "jetpack-search-pkg" );
+__( "PHP’s XML extension isn’t available on your site, and Jetpack needs it to connect. Ask your hosting provider to enable it.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t read your site’s response. Another plugin may be adding extra output to xmlrpc.php. Try deactivating other plugins.", "jetpack-search-pkg" );
+__( "The connection attempt expired or was interrupted, for example by another connection attempt at the same time. Please try again.", "jetpack-search-pkg" );
+__( "WordPress.com couldn’t register your site right now. Please try again in a few minutes, and contact support if it keeps happening.", "jetpack-search-pkg" );
+__( "The connection request got an unexpected response. Another plugin or a PHP error may be adding extra output; your site’s error log, or temporarily deactivating other plugins, can show which.", "jetpack-search-pkg" );
+__( "Your site’s REST API couldn’t be reached. A security plugin or server rule may be blocking it.", "jetpack-search-pkg" );
+__( "Your browser couldn’t complete the request to your site. A firewall, CDN or redirect may be interfering. Reload the page and try again.", "jetpack-search-pkg" );
+__( "Your session expired. Reload the page and try again.", "jetpack-search-pkg" );
+__( "A critical error stopped the connection. Your site’s error log has the details.", "jetpack-search-pkg" );
+__( "Only site administrators can connect this site. Ask an administrator to connect it.", "jetpack-search-pkg" );
+__( "Your site couldn’t reach WordPress.com. Ask your hosting provider to allow outgoing connections from your site to jetpack.wordpress.com.", "jetpack-search-pkg" );
+__( "WordPress.com is temporarily unavailable. Please try again in a minute.", "jetpack-search-pkg" );
+__( "Your site got an unexpected response from WordPress.com. If your hosting provider filters outgoing connections, ask them to allow jetpack.wordpress.com.", "jetpack-search-pkg" );
+__( "WordPress.com returned an unexpected response when registering your site. Please try again in a minute.", "jetpack-search-pkg" );
 /* translators: %s: keyboard shortcut. */
 __( "Keyboard shortcut: %s", "jetpack-search-pkg" );
 __( "Dismiss", "jetpack-search-pkg" );
-__( "Your site host is on a private network. Sites can connect to WordPress.com only on public sites.", "jetpack-search-pkg" );
-__( "This site has been suspended.", "jetpack-search-pkg" );
-__( "Unavailable in <a>Offline Mode</a>", "jetpack-search-pkg" );
 __( "An error occurred. Please try again.", "jetpack-search-pkg" );
 __( "Already have a subscription? <connectButton/>", "jetpack-search-pkg" );
 __( "Log in to get started", "jetpack-search-pkg" );
@@ -92,10 +130,6 @@ __( "Jetpack Search", "jetpack-search-pkg" );
 __( "The best WordPress search experience", "jetpack-search-pkg" );
 __( "OK", "jetpack-search-pkg" );
 __( "Cancel", "jetpack-search-pkg" );
-__( "Let AI assistants like Claude and ChatGPT answer questions from your blog’s content on behalf of WordPress.com users who have opted in.", "jetpack-search-pkg" );
-__( "Error updating AI Agent Access settings.", "jetpack-search-pkg" );
-__( "Enable AI Agent Access", "jetpack-search-pkg" );
-__( "Set guidelines", "jetpack-search-pkg" );
 __( "Upgrade your plan to use video covers", "jetpack-search-pkg" );
 __( "Upgrade your plan to upload audio", "jetpack-search-pkg" );
 __( "You are a search results summarizer for Jetpack Search. Your job is to summarize the best available successful search results in a succinct manner.", "jetpack-search-pkg" );
@@ -167,6 +201,7 @@ __( "Enable Site Chat", "jetpack-search-pkg" );
 __( "Preview", "jetpack-search-pkg" );
 __( "Site Chat requires a paid Jetpack Search plan.", "jetpack-search-pkg" );
 __( "Upgrade Jetpack Search", "jetpack-search-pkg" );
+__( "Set guidelines", "jetpack-search-pkg" );
 __( "Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.", "jetpack-search-pkg" );
 __( "Enable search suggestions", "jetpack-search-pkg" );
 __( "Offer instant search results to your visitors as soon as they start typing.", "jetpack-search-pkg" );

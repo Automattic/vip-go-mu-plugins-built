@@ -91,6 +91,8 @@ function jetpack_podcast_jetpack_podcast_dashboard_preload_data() {
 	// This must exactly match the _fields list in packages/core-data/src/entities.js,
 	// same fields in the same order, or the preload is never consumed.
 	$preload_paths = array(
+		'/?_fields=description,generate_animated_image_subsizes,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
+		// WordPress 7.1's bundled core-data requests this list, without generate_animated_image_subsizes.
 		'/?_fields=description,gmt_offset,home,image_max_bit_depth,image_sizes,image_size_threshold,image_strip_meta,name,site_icon,site_icon_url,site_logo,timezone_string,url,page_for_posts,page_on_front,show_on_front',
 		array( '/wp/v2/settings', 'OPTIONS' ),
 	);
@@ -167,7 +169,7 @@ function jetpack_podcast_jetpack_podcast_dashboard_render_page() {
 		wp_register_script( 'jetpack-podcast-dashboard-prerequisites', '', $asset['dependencies'], $asset['version'], true );
 
 		// Add inline script to initialize the app
-		$init_modules = [];
+		$init_modules = ["@jetpack-podcast/init"];
 		wp_add_inline_script(
 			'jetpack-podcast-dashboard-prerequisites',
 			sprintf(
@@ -198,7 +200,7 @@ function jetpack_podcast_jetpack_podcast_dashboard_render_page() {
 		);
 
 		// Add init modules as static dependencies
-			// No init modules configured
+			$boot_dependencies[] = array( 'import' => 'static', 'id' => '@jetpack-podcast/init' );
 
 		// Add all registered routes as dependencies
 		foreach ( $routes as $route ) {

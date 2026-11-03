@@ -13,4 +13,4 @@ __( "Comments", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load your latest post. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
 __( "Retry", "jetpack-premium-analytics-pkg" );
 __( "This author has not published a post yet.", "jetpack-premium-analytics-pkg" );
-__( "Publish a post to see its stats here.", "jetpack-premium-analytics-pkg" );
+__( "Your latest post will show here.", "jetpack-premium-analytics-pkg" );

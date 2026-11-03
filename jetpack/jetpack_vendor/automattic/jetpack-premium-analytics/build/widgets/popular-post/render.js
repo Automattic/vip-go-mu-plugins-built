@@ -11,4 +11,6 @@ __( "Views", "jetpack-premium-analytics-pkg" );
 __( "Likes", "jetpack-premium-analytics-pkg" );
 __( "Comments", "jetpack-premium-analytics-pkg" );
 __( "We couldn't load your most popular post. Please try again in a moment.", "jetpack-premium-analytics-pkg" );
+__( "Your most-read post will show here once you've published one.", "jetpack-premium-analytics-pkg" );
 __( "No post views in the last 12 months.", "jetpack-premium-analytics-pkg" );
+__( "Create post", "jetpack-premium-analytics-pkg" );
