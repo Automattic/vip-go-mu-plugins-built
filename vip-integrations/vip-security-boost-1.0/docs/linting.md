@@ -18,7 +18,7 @@ To run PHPCS, navigate to the directory where the relevant `.phpcs.xml.dist` liv
 vendor/bin/phpcs
 ```
 
-See the [PHPCS documentation](https://github.com/squizlabs/PHP_CodeSniffer/wiki/Usage) (or run `phpcs -h`) for the available command line arguments.
+See the [PHPCS documentation](https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Usage) (or run `phpcs -h`) for the available command line arguments.
 
 ## PHPStan for static analysis
 
