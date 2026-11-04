@@ -1,0 +1,28 @@
+.column-parsely-stats {
+	.parsely-post-stats {
+		cursor: default;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px 8px;
+		min-height: 54px;
+	}
+
+	.parsely-post-stats-placeholder {
+		color: #959da5;
+		letter-spacing: 2px;
+	}
+
+	.parsely-post-page-views,
+	.parsely-post-visitors,
+	.parsely-post-avg-time {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+
+		.dashicons {
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+		}
+	}
+}

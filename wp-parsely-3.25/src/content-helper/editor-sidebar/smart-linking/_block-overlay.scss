@@ -1,0 +1,73 @@
+@import "../../common/css/functions";
+
+/**
+ * Rendered in the admin document (full content overlay) and inside the Editor
+ * canvas iframe (per-block overlay). The canvas does not inherit the plugin's
+ * variable scopes, so the needed custom properties are declared locally.
+ */
+.wp-parsely-block-overlay {
+	--grid-unit-10: #{$base-unit-10};
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(255, 255, 255, 0.85);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	font-size: to_rem(18px);
+
+	.wp-parsely-block-overlay-label {
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		pointer-events: none;
+		user-select: none;
+		gap: var(--grid-unit-10);
+		width: var(--grid-unit-10);
+	}
+
+	.wp-parsely-block-overlay-cancel {
+		pointer-events: all;
+		z-index: 10;
+		user-select: none;
+		padding: 0;
+		font-size: to_rem(18px);
+
+		&:focus {
+			outline: none;
+			box-shadow: none;
+		}
+
+		// The reset above drops the wp-components focus ring. Declared after it
+		// to win at equal specificity.
+		&:focus-visible {
+			outline: 2px solid var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
+			outline-offset: 2px;
+		}
+	}
+
+	svg {
+		width: to_rem(25px);
+		height: to_rem(25px);
+	}
+
+	&.full-content-overlay {
+		z-index: 999;
+		font-size: to_rem(20px);
+
+		span {
+			margin-top: to_rem(15px);
+		}
+
+		svg {
+			width: to_rem(50px);
+			height: to_rem(50px);
+		}
+	}
+}

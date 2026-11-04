@@ -1,0 +1,51 @@
+<?php
+/**
+ * API Content Intelligence Controller
+ *
+ * @package Parsely
+ * @since   3.17.0
+ */
+
+declare(strict_types=1);
+
+namespace Parsely\REST_API\Content_Helper;
+
+use Parsely\REST_API\REST_API_Controller;
+
+/**
+ * The Content Intelligence API Controller.
+ *
+ * Used to define the namespace, version, and endpoints for the Content
+ * Intelligence API.
+ *
+ * @since 3.17.0
+ */
+class Content_Helper_Controller extends REST_API_Controller {
+	/**
+	 * Gets the prefix for this API route.
+	 *
+	 * @since 3.17.0
+	 *
+	 * @return string The namespace.
+	 */
+	public static function get_route_prefix(): string {
+		return 'content-helper';
+	}
+
+	/**
+	 * Initializes the Content Intelligence API endpoints.
+	 *
+	 * @since 3.17.0
+	 */
+	public function init(): void {
+		$endpoints = array(
+			new Endpoint_Check_Auth( $this ),
+			new Endpoint_Smart_Linking( $this ),
+			new Endpoint_Excerpt_Generator( $this ),
+			new Endpoint_Title_Suggestions( $this ),
+			new Endpoint_Traffic_Boost( $this ),
+		);
+
+		$this->register_endpoints( $endpoints );
+	}
+}

@@ -1,0 +1,39 @@
+/* Safe Publish Admin Styles */
+.safe-publish-admin-container {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 20px;
+	margin-top: 20px;
+}
+
+.safe-publish-dataviews-section {
+	grid-column: 1 / -1;
+	background: var(--safe-publish-surface-bg);
+	border: 1px solid var(--safe-publish-border-strong);
+	box-shadow: var(--safe-publish-surface-shadow);
+	padding: 20px;
+	margin-top: 20px;
+}
+
+.safe-publish-dataviews-section h2 {
+	margin-top: 0;
+	margin-bottom: 15px;
+	border-bottom: 1px solid var(--safe-publish-border);
+	padding-bottom: 10px;
+}
+
+.safe-publish-dataviews-wrapper .dataviews-wrapper {
+	margin: 20px 0;
+}
+
+/* DataViews draws no header underline. */
+.safe-publish-dataviews-wrapper .dataviews-view-table th {
+	border-bottom: 1px solid var(--safe-publish-border);
+}
+
+@media (max-width: 782px) {
+
+	.safe-publish-admin-container {
+		grid-template-columns: 1fr;
+	}
+}
