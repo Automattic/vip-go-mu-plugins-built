@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Automattic\RewriteRulesInspector\Admin;
 
+// Stop direct requests before loading WordPress internals.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 // Ensure WP_List_Table is available.
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . '/wp-admin/includes/class-wp-list-table.php';

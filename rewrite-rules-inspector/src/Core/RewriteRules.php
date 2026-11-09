@@ -34,18 +34,9 @@ final class RewriteRules {
 			$rewrite_rules = [];
 		}
 
-		// Track down which rewrite rules are associated with which methods by breaking it down.
-		$rewrite_rules_by_source = $this->generate_rules_by_source( $wp_rewrite );
-
-		// Apply the filters used in core just in case.
-		foreach ( $rewrite_rules_by_source as $source => $rules ) {
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- core hook.
-			$rewrite_rules_by_source[ $source ] = apply_filters( $source . '_rewrite_rules', $rules );
-			if ( 'post_tag' === $source ) {
-				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- core hook.
-				$rewrite_rules_by_source[ $source ] = apply_filters( 'tag_rewrite_rules', $rules );
-			}
-		}
+		// Capture source rules during the full generation needed to detect missing rules.
+		$generated = $this->generate_rules_with_sources( $wp_rewrite );
+		$rewrite_rules_by_source = $generated['sources'];
 
 		// Match rules with their sources.
 		foreach ( $rewrite_rules as $rule => $rewrite ) {
@@ -62,7 +53,7 @@ final class RewriteRules {
 		}
 
 		// Find any rewrite rules that should've been generated but weren't.
-		$maybe_missing       = $wp_rewrite->rewrite_rules();
+		$maybe_missing       = $generated['rules'];
 		$rewrite_rules_array = array_reverse( $rewrite_rules_array, true );
 		foreach ( $maybe_missing as $rule => $rewrite ) {
 			if ( ! array_key_exists( $rule, $rewrite_rules_array ) ) {
@@ -94,39 +85,47 @@ final class RewriteRules {
 	}
 
 	/**
-	 * Generate rewrite rules by source.
+	 * Generate rules once and observe the final rules for each source.
 	 *
-	 * @since 1.5.0
+	 * @since 1.6.1
 	 * @param \WP_Rewrite $wp_rewrite WordPress rewrite object.
-	 * @return array Array of rules organized by source.
+	 * @return array Generated rules and source attribution.
 	 */
-	private function generate_rules_by_source( \WP_Rewrite $wp_rewrite ): array {
-		$rewrite_rules_by_source = [];
+	private function generate_rules_with_sources( \WP_Rewrite $wp_rewrite ): array {
+		$sources = array_unique( array_merge(
+			array( 'post', 'date', 'root', 'comments', 'search', 'author', 'page' ),
+			array_keys( $wp_rewrite->extra_permastructs )
+		) );
+		$by_source = array_fill_keys( $sources, array() );
+		$callbacks = array();
+		foreach ( $sources as $source ) {
+			$callbacks[ $source . '_rewrite_rules' ] = static function ( $rules ) use ( &$by_source, $source ) {
+				$by_source[ $source ] = $rules;
+				return $rules;
+			};
+		}
 
-		// Core permastructs.
-		$rewrite_rules_by_source['post']     = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->permalink_structure, EP_PERMALINK );
-		$rewrite_rules_by_source['date']     = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->get_date_permastruct(), EP_DATE );
-		$rewrite_rules_by_source['root']     = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->root . '/', EP_ROOT );
-		$rewrite_rules_by_source['comments'] = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->root . $wp_rewrite->comments_base, EP_COMMENTS, true, true, true, false );
-		$rewrite_rules_by_source['search']   = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->get_search_permastruct(), EP_SEARCH );
-		$rewrite_rules_by_source['author']   = $wp_rewrite->generate_rewrite_rules( $wp_rewrite->get_author_permastruct(), EP_AUTHORS );
-		$rewrite_rules_by_source['page']     = $wp_rewrite->page_rewrite_rules();
+		// Observe legacy tag filters only when another plugin already uses them.
+		if ( isset( $by_source['post_tag'] ) && has_filter( 'tag_rewrite_rules' ) ) {
+			$callbacks['tag_rewrite_rules'] = static function ( $rules ) use ( &$by_source ) {
+				$by_source['post_tag'] = $rules;
+				return $rules;
+			};
+		}
 
-		// Extra permastructs including tags, categories, etc.
-		foreach ( $wp_rewrite->extra_permastructs as $permastructname => $permastruct ) {
-			if ( is_array( $permastruct ) ) {
-				// Pre 3.4 compat.
-				if ( count( $permastruct ) === 2 ) {
-					$rewrite_rules_by_source[ $permastructname ] = $wp_rewrite->generate_rewrite_rules( $permastruct[0], $permastruct[1] );
-				} else {
-					$rewrite_rules_by_source[ $permastructname ] = $wp_rewrite->generate_rewrite_rules( $permastruct['struct'], $permastruct['ep_mask'], $permastruct['paged'], $permastruct['feed'], $permastruct['forcomments'], $permastruct['walk_dirs'], $permastruct['endpoints'] );
-				}
-			} else {
-				$rewrite_rules_by_source[ $permastructname ] = $wp_rewrite->generate_rewrite_rules( $permastruct, EP_NONE );
+		foreach ( $callbacks as $hook => $callback ) {
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- Observing core hooks.
+			add_filter( $hook, $callback, PHP_INT_MAX );
+		}
+		try {
+			$rules = $wp_rewrite->rewrite_rules();
+		} finally {
+			foreach ( $callbacks as $hook => $callback ) {
+				remove_filter( $hook, $callback, PHP_INT_MAX );
 			}
 		}
 
-		return $rewrite_rules_by_source;
+		return array( 'rules' => $rules, 'sources' => $by_source );
 	}
 
 	/**
@@ -161,32 +160,12 @@ final class RewriteRules {
 	 * @return string The search path.
 	 */
 	private function get_search_path(): string {
-		$match_path = '';
-		
-		if ( ! empty( $_GET['s'] ) ) {
-			$input = sanitize_text_field( $_GET['s'] );
-			
-			// If the input doesn't start with http:// or https://, treat it as a path.
-			if ( ! preg_match( '/^https?:\/\//', $input ) ) {
-				$match_path = $input;
-			} else {
-				$match_path = wp_parse_url( esc_url( $input ), PHP_URL_PATH );
-			}
-			
-			// Ensure we have a string value.
-			if ( null === $match_path ) {
-				$match_path = '';
-			}
-			
-			$wordpress_subdir_for_site = wp_parse_url( home_url(), PHP_URL_PATH );
-			if ( ! empty( $wordpress_subdir_for_site ) ) {
-				$match_path = str_replace( $wordpress_subdir_for_site, '', $match_path );
-			}
-
-			$match_path = ltrim( $match_path, '/' );
+		if ( empty( $_GET['s'] ) ) {
+			return '';
 		}
 
-		return $match_path;
+		// Use the same path as the URL tester so filtering and testing agree.
+		return ( new UrlTester() )->get_path( sanitize_text_field( $_GET['s'] ) );
 	}
 
 	/**

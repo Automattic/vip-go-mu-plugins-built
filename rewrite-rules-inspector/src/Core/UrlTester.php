@@ -13,6 +13,28 @@ namespace Automattic\RewriteRulesInspector\Core;
 final class UrlTester {
 
 	/**
+	 * Get the path that rewrite rules match against for a URL or path.
+	 *
+	 * @since 1.6.1
+	 * @param string $url Full URL, or a path relative to the site root.
+	 * @return string Path without the query string, home directory or leading slash.
+	 */
+	public function get_path( string $url ): string {
+		$path = wp_parse_url( $url, PHP_URL_PATH );
+		if ( ! is_string( $path ) ) {
+			$path = '';
+		}
+
+		// Remove the home directory from the start of the path, as WordPress does when routing.
+		$home_path = untrailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
+		if ( '' !== $home_path && 0 === stripos( $path . '/', $home_path . '/' ) ) {
+			$path = substr( $path, strlen( $home_path ) );
+		}
+
+		return ltrim( $path, '/' );
+	}
+
+	/**
 	 * Test a URL against a specific set of rewrite rules and return detailed match information.
 	 *
 	 * @since 1.5.0
@@ -21,22 +43,7 @@ final class UrlTester {
 	 * @return array Detailed test results.
 	 */
 	public function test_url_with_rules( string $url, array $rules ): array {
-		// Parse the URL to get the path component.
-		$parsed_url = wp_parse_url( $url );
-		$path = $parsed_url['path'] ?? '/';
-		
-		// If wp_parse_url returns null for path, treat the input as a path.
-		if ( null === $parsed_url['path'] && ! preg_match( '/^https?:\/\//', $url ) ) {
-			$path = $url;
-		}
-
-		// Remove WordPress subdirectory if the site is in a subdirectory.
-		$home_path = wp_parse_url( home_url(), PHP_URL_PATH );
-		if ( ! empty( $home_path ) ) {
-			$path = str_replace( $home_path, '', $path );
-		}
-
-		$path = ltrim( $path, '/' );
+		$path = $this->get_path( $url );
 
 		// Test against each rule and collect matches.
 		$matches = [];
@@ -93,22 +100,7 @@ final class UrlTester {
 	public function test_url( string $url ): array {
 		global $wp_rewrite;
 
-		// Parse the URL to get the path component.
-		$parsed_url = wp_parse_url( $url );
-		$path = $parsed_url['path'] ?? '/';
-		
-		// If wp_parse_url returns null for path, treat the input as a path.
-		if ( null === $parsed_url['path'] && ! preg_match( '/^https?:\/\//', $url ) ) {
-			$path = $url;
-		}
-
-		// Remove WordPress subdirectory if the site is in a subdirectory.
-		$home_path = wp_parse_url( home_url(), PHP_URL_PATH );
-		if ( ! empty( $home_path ) ) {
-			$path = str_replace( $home_path, '', $path );
-		}
-
-		$path = ltrim( $path, '/' );
+		$path = $this->get_path( $url );
 
 		// Get all rewrite rules using the same method as RewriteRules service.
 		$rewrite_rules = get_option( 'rewrite_rules' );

@@ -39,11 +39,7 @@ final class FileExport {
 	 * @param array $rewrite_rules Array of rewrite rules to export.
 	 */
 	public function download_rules( array $rewrite_rules ): void {
-		// Check nonce and permissions.
-		check_admin_referer( 'download-rules' );
-		if ( ! current_user_can( $this->view_cap ) ) {
-			wp_die( esc_html__( 'You do not have permissions to perform this action.', 'rewrite-rules-inspector' ) );
-		}
+		$this->authorize_download();
 
 		// Get the rewrite rules and prompt the user to download them.
 		// File is saved as YYYYMMDD.themename.rewriterules.txt.
@@ -55,12 +51,27 @@ final class FileExport {
 	}
 
 	/**
+	 * Authorize a download before preparing its data.
+	 *
+	 * @since 1.6.1
+	 * @return void
+	 */
+	public function authorize_download(): void {
+		// Check nonce and permissions.
+		check_admin_referer( 'download-rules' );
+		if ( ! current_user_can( $this->view_cap ) ) {
+			wp_die( esc_html__( 'You do not have permissions to perform this action.', 'rewrite-rules-inspector' ) );
+		}
+	}
+
+	/**
 	 * Set HTTP headers for file download.
 	 *
 	 * @since 1.5.0
 	 * @param string $filename The filename for the download.
 	 */
 	private function set_download_headers( string $filename ): void {
+		send_nosniff_header();
 		header( 'Content-Type: text/plain' );
 		header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
 	}

@@ -240,6 +240,7 @@ final class Plugin {
 	 * @since 1.0.0
 	 */
 	public function download_rules(): void {
+		$this->file_export_service->authorize_download();
 		$rules = $this->rewrite_rules_service->get_rules();
 		$this->file_export_service->download_rules( $rules );
 	}
