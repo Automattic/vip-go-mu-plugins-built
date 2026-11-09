@@ -108,6 +108,7 @@ class Cleanup implements ModuleInterface {
 	public function run(): void {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ability_results; write, no cached copy to invalidate
 		$ability_results = $wpdb->query(
 			$wpdb->prepare(
 				'DELETE FROM %i WHERE created_at < %s',
@@ -122,6 +123,7 @@ class Cleanup implements ModuleInterface {
 		// overwrite it.
 		$ability_error = ( false === $ability_results ) ? $wpdb->last_error : '';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_workflows_events; write, no cached copy to invalidate
 		$events = $wpdb->query(
 			$wpdb->prepare(
 				'DELETE FROM %i WHERE created_at < %s',
@@ -156,6 +158,7 @@ class Cleanup implements ModuleInterface {
 	private function record( array $data ): void {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_workflows_events; write, nothing to cache
 		$wpdb->insert(
 			Schema::get_table_name( 'workflows_events' ),
 			array(

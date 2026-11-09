@@ -96,10 +96,10 @@ class EditorIntegration implements ModuleInterface {
 		$post    = get_post( $post_id );
 
 		// Get workflow info for this post.
-		$status_manager  = Plugin::get_instance()->get_status_manager();
+		$status_manager = Plugin::get_instance()->get_status_manager();
 		$sequence       = $status_manager ? $status_manager->get_sequence_for_post( $post_id ) : null;
-		$current_status  = $status_manager && $sequence ? $status_manager->get_current_status( $post_id ) : null;
-		$transitions     = $status_manager && $sequence ? $status_manager->get_available_transitions( $post_id ) : array();
+		$current_status = $status_manager && $sequence ? $status_manager->get_current_status( $post_id ) : null;
+		$transitions    = $status_manager && $sequence ? $status_manager->get_available_transitions( $post_id ) : array();
 
 		// Check if this specific post is in a workflow (has sequence assigned).
 		$has_workflow = (bool) $sequence;
@@ -118,6 +118,25 @@ class EditorIntegration implements ModuleInterface {
 
 		$roles = $this->get_available_roles();
 
+		// The status endpoint's own answer, served with the page the way core
+		// preloads its requests. The header decides from it whether core's
+		// Publish button is hidden, and asked for after the editor has painted,
+		// that answer arrived one paint late: Publish showed on every load and
+		// then vanished. A refused read leaves the store to read it on mount,
+		// as before. It is still logged: the person can edit this post, so the
+		// read should never be refused, and a refusal is worth knowing about.
+		$status_response = rest_do_request(
+			new \WP_REST_Request( 'GET', "/vip-workflows/v1/workflow/post/{$post_id}/status" )
+		);
+		$workflow_status = null;
+		if ( $status_response->is_error() ) {
+			$status_error = $status_response->as_error();
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Could not preload the workflow status for post %d; the editor will read it on mount: %s (%s)', (int) $post_id, $status_error->get_error_message(), $status_error->get_error_code() ) );
+		} else {
+			$workflow_status = rest_get_server()->response_to_data( $status_response, false );
+		}
+
 		// Inline JSON rather than wp_localize_script(): localize casts every
 		// top-level scalar to a string, which handed the editor store a string
 		// postId. Invalidating the post's entity resolution with that string is a
@@ -135,8 +154,8 @@ class EditorIntegration implements ModuleInterface {
 					'postStatus'          => $post->post_status,
 					'hasWorkflow'         => $has_workflow,
 					'showWorkflowModal'   => $show_workflow_modal,
-					'workflowEnforcement' => $enforcement_mode, // 'require', 'recommend', or false.
-					'sequence'           => $sequence ? array(
+					'workflowEnforcement' => $enforcement_mode, // The enforcement mode is either 'require', 'recommend', or off.
+					'sequence'            => $sequence ? array(
 						'id'       => $sequence->id,
 						'name'     => $sequence->name,
 						'slug'     => $sequence->slug,
@@ -147,6 +166,7 @@ class EditorIntegration implements ModuleInterface {
 					'currentUser'         => get_current_user_id(),
 					'metadataFields'      => $metadata_fields,
 					'roles'               => $roles,
+					'workflowStatus'      => $workflow_status,
 				)
 			) . ';',
 			'before'

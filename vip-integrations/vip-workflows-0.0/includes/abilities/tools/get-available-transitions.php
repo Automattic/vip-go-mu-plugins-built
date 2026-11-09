@@ -72,7 +72,7 @@ function execute_get_available_transitions( ?array $input = null ) {
  */
 function build_transition_guard_context( $status_manager, int $post_id, ?array $current_status ): array {
 	$stage_key = (string) ( $current_status['key'] ?? '' );
-	$sequence = $status_manager->get_sequence_for_post( $post_id );
+	$sequence  = $status_manager->get_sequence_for_post( $post_id );
 
 	// A null region is not a region: it can never compare equal to a target, so
 	// a consumer reading this fails closed exactly as the server predicate does.

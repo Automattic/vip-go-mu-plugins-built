@@ -70,21 +70,21 @@ class DraftBuilder {
 	 * @return string Serialized block markup.
 	 */
 	public static function markdown_to_blocks( string $markdown ): string {
-		$lines  = explode( "\n", $markdown );
-		$blocks = array();
-		$buffer = '';
-		$in_list      = false;
-		$list_items   = array();
-		$in_quote     = false;
-		$quote_lines  = array();
+		$lines       = explode( "\n", $markdown );
+		$blocks      = array();
+		$buffer      = '';
+		$in_list     = false;
+		$list_items  = array();
+		$in_quote    = false;
+		$quote_lines = array();
 
 		$flush_paragraph = function () use ( &$buffer, &$blocks ) {
-			$text = trim( $buffer );
+			$text   = trim( $buffer );
 			$buffer = '';
 			if ( empty( $text ) ) {
 				return;
 			}
-			$html = str_replace( "\n", '<br>', esc_html( $text ) );
+			$html     = str_replace( "\n", '<br>', esc_html( $text ) );
 			$blocks[] = "<!-- wp:paragraph -->\n<p>{$html}</p>\n<!-- /wp:paragraph -->";
 		};
 
@@ -96,7 +96,7 @@ class DraftBuilder {
 			foreach ( $list_items as $item ) {
 				$items_html .= '<li>' . esc_html( $item ) . '</li>';
 			}
-			$blocks[] = "<!-- wp:list -->\n<ul>{$items_html}</ul>\n<!-- /wp:list -->";
+			$blocks[]   = "<!-- wp:list -->\n<ul>{$items_html}</ul>\n<!-- /wp:list -->";
 			$list_items = array();
 			$in_list    = false;
 		};
@@ -105,14 +105,14 @@ class DraftBuilder {
 			if ( empty( $quote_lines ) ) {
 				return;
 			}
-			$text = esc_html( implode( "\n", $quote_lines ) );
-			$blocks[] = "<!-- wp:quote -->\n<blockquote class=\"wp-block-quote\"><p>{$text}</p></blockquote>\n<!-- /wp:quote -->";
+			$text        = esc_html( implode( "\n", $quote_lines ) );
+			$blocks[]    = "<!-- wp:quote -->\n<blockquote class=\"wp-block-quote\"><p>{$text}</p></blockquote>\n<!-- /wp:quote -->";
 			$quote_lines = array();
 			$in_quote    = false;
 		};
 
-		$in_block       = false;
-		$block_buffer   = array();
+		$in_block     = false;
+		$block_buffer = array();
 
 		foreach ( $lines as $line ) {
 			if ( preg_match( '/^<!-- wp:\w+/', $line ) ) {
@@ -143,8 +143,8 @@ class DraftBuilder {
 				$flush_paragraph();
 				$flush_list();
 				$flush_quote();
-				$level   = strlen( $m[1] );
-				$heading = esc_html( trim( $m[2] ) );
+				$level    = strlen( $m[1] );
+				$heading  = esc_html( trim( $m[2] ) );
 				$blocks[] = "<!-- wp:heading {\"level\":{$level}} -->\n<h{$level} class=\"wp-block-heading\">{$heading}</h{$level}>\n<!-- /wp:heading -->";
 				continue;
 			}

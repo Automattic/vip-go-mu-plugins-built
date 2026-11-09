@@ -118,7 +118,7 @@ function execute_readability( ?array $input = null ) {
 			'type'     => 'grade_too_high',
 			'message'  => sprintf(
 			/* translators: 1: Flesch-Kincaid grade, 2: Target grade */
-				__( 'Reading level (grade %1$s) is above target (grade %2$d). Content may be too complex.', 'vip-workflows' ),
+				__( 'Reading level is grade %1$s, above target grade %2$d.', 'vip-workflows' ),
 				$fk_grade,
 				$target_grade
 			),
@@ -128,18 +128,18 @@ function execute_readability( ?array $input = null ) {
 
 	// Check sentence length.
 	if ( $avg_sentence_length > 20 ) {
-		$issues[] = array(
+		$issues[]      = array(
 			'type'     => 'long_sentences',
 			'message'  => sprintf(
 			/* translators: %s: Average sentence length */
-				__( 'Average sentence length is %s words. Aim for 15-20 words.', 'vip-workflows' ),
+				__( 'Average sentence length is %s words. Aim for 15-20.', 'vip-workflows' ),
 				round( $avg_sentence_length, 1 )
 			),
 			'severity' => 'warning',
 		);
 		$suggestions[] = array(
 			'type'    => 'shorten_sentences',
-			'message' => __( 'Break long sentences into shorter ones. Use periods more often.', 'vip-workflows' ),
+			'message' => __( 'Break long sentences into shorter ones.', 'vip-workflows' ),
 		);
 	}
 
@@ -149,7 +149,7 @@ function execute_readability( ?array $input = null ) {
 			'type'     => 'complex_vocabulary',
 			'message'  => sprintf(
 			/* translators: %s: Percentage of complex words */
-				__( '%s%% of words are complex (3+ syllables). Consider simpler alternatives.', 'vip-workflows' ),
+				__( '%s%% of words have 3+ syllables.', 'vip-workflows' ),
 				round( $complex_word_pct, 1 )
 			),
 			'severity' => 'info',

@@ -76,7 +76,7 @@ class IdeationAdmin implements ModuleInterface {
 				),
 				'users'              => $this->get_assignable_users(),
 				'roles'              => $this->get_available_roles(),
-				'sequences'         => $this->get_sequences(),
+				'sequences'          => $this->get_sequences(),
 				'phaseConfig'        => $this->get_phase_config(),
 			)
 		);
@@ -132,7 +132,7 @@ class IdeationAdmin implements ModuleInterface {
 	 */
 	private function get_sequences(): array {
 		$repository = new \VIPWorkflows\Sequences\SequenceRepository();
-		$sequences = $repository->get_workflow_sequences( array( 'status' => 'active' ) );
+		$sequences  = $repository->get_workflow_sequences( array( 'status' => 'active' ) );
 
 		return array_map(
 			fn( $bp ) => array(
@@ -154,7 +154,7 @@ class IdeationAdmin implements ModuleInterface {
 	 */
 	private function get_phase_config(): ?array {
 		$repository = new \VIPWorkflows\Sequences\SequenceRepository();
-		$sequence  = $repository->get_active_phase_sequence();
+		$sequence   = $repository->get_active_phase_sequence();
 
 		if ( ! $sequence ) {
 			return null;

@@ -67,6 +67,37 @@ class Ability extends \WP_Ability {
 	}
 
 	/**
+	 * Run the ability, enforcing the enable and availability gates.
+	 *
+	 * Core's run controller invokes execute() directly, so these gates are
+	 * applied here rather than only in AbilityExecutor: a disabled or
+	 * unavailable ability is refused on every path, not just the one that
+	 * routes through the executor.
+	 *
+	 * @param  mixed $input Ability input.
+	 * @return mixed|\WP_Error
+	 */
+	public function execute( $input = null ) {
+		if ( ! AbilitySettings::get_instance()->is_enabled( $this->get_name() ) ) {
+			return new \WP_Error(
+				'vip_workflows_ability_disabled',
+				__( 'This ability is disabled.', 'vip-workflows' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		if ( ! $this->is_available() ) {
+			return new \WP_Error(
+				'vip_workflows_ability_unavailable',
+				__( 'This ability is not available.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		return parent::execute( $input );
+	}
+
+	/**
 	 * Check if the ability's runtime dependencies are met.
 	 *
 	 * @return bool True if available (or no availability_callback set).

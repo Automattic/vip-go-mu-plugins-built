@@ -16,6 +16,7 @@ use VIPWorkflows\AI\PromptRegistry;
 use VIPWorkflows\AI\AiInference;
 use VIPWorkflows\Abilities\AiAvailability;
 use VIPWorkflows\Integrations\LlmTextGenerator;
+use VIPWorkflows\Integrations\SafeUrl;
 
 /**
  * LLMAssisted WPSearch.
@@ -59,6 +60,17 @@ class LLMAssistedWPSearch implements ArchiveSearchInterface {
 		$seen       = array();
 		$candidates = array();
 
+		/*
+		 * WordPress makes a post's link and the address of its image from the
+		 * site's own settings, and on a site that is set up that way they have no
+		 * scheme or no host. A card's address is stored only when it is absolute,
+		 * so each one is completed here, where it is known to be the site's own:
+		 * a link from the address of the site's pages, an upload from the address
+		 * of WordPress.
+		 */
+		$home_url = home_url();
+		$site_url = site_url();
+
 		foreach ( $queries as $query_term ) {
 			if ( empty( $query_term ) ) {
 				continue;
@@ -87,8 +99,8 @@ class LLMAssistedWPSearch implements ArchiveSearchInterface {
 					'excerpt'   => $this->get_excerpt( $post ),
 					'date'      => $post->post_date,
 					'author'    => get_the_author_meta( 'display_name', $post->post_author ),
-					'url'       => get_permalink( $post->ID ),
-					'thumbnail' => get_the_post_thumbnail_url( $post->ID, 'medium' ) ? get_the_post_thumbnail_url( $post->ID, 'medium' ) : null,
+					'url'       => SafeUrl::site_http_or_null( get_permalink( $post->ID ), $home_url ),
+					'thumbnail' => SafeUrl::site_http_or_null( get_the_post_thumbnail_url( $post->ID, 'medium' ), $site_url ),
 				);
 
 				if ( count( $candidates ) >= self::MAX_CANDIDATES ) {

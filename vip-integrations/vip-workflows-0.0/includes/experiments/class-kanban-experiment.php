@@ -46,7 +46,7 @@ class KanbanExperiment extends Experiment {
 	 * @inheritDoc
 	 */
 	public function get_description(): string {
-		return __( 'Drag-and-drop Kanban board view of workflow posts by stage.', 'vip-workflows' );
+		return __( 'Drag posts between stages on a board.', 'vip-workflows' );
 	}
 
 	/**

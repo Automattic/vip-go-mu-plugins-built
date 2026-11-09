@@ -22,6 +22,72 @@ class Sequence {
 	public const TYPE_PHASE    = 'phase';
 
 	/**
+	 * The phase graph a phase sequence may declare, as source phase => targets.
+	 *
+	 * The lifecycle phases are not sequence data — a phase sequence configures
+	 * the hand-off between them, it does not invent them — so the adjacency has
+	 * to be written down somewhere. This is that somewhere, and the only one:
+	 * SequencesController::build_config() reads it to decide which phases and
+	 * which transitions survive a save, and `/sequences/options` publishes it so
+	 * the editor refuses on the canvas exactly what the build would drop on the
+	 * way in.
+	 *
+	 * Today the lifecycle runs Ideation → Editorial and nothing else routes a
+	 * post between phases, so that is the whole map. A phase added here becomes
+	 * drawable and savable in one edit; adding it to only one side is what this
+	 * constant exists to stop.
+	 *
+	 * @var array<string, string[]>
+	 */
+	public const PHASE_TRANSITIONS = array(
+		'ideation' => array( 'editorial' ),
+	);
+
+	/**
+	 * The lifecycle a phase sequence must declare, as source phase => targets.
+	 *
+	 * PHASE_TRANSITIONS is a permission — the hand-offs a phase sequence MAY
+	 * draw. This is an obligation: the phases it must name and the hand-offs it
+	 * must carry between them. Both endpoints of every pair here must exist in
+	 * the saved config, and the hand-off joining them must be declared, or the
+	 * sequence is refused.
+	 *
+	 * It is written out separately rather than derived from PHASE_TRANSITIONS
+	 * because the two facts grow in opposite directions. A second, optional
+	 * hand-off added to the permission graph — `'ideation' => array( 'editorial',
+	 * 'archive' )` — is a route an author may take, not one every sequence owes;
+	 * reading the obligation off the permission graph would turn that one edit
+	 * into a rule no stored sequence satisfies.
+	 *
+	 * Nothing outside a phase sequence routes a post between lifecycle phases, so
+	 * a sequence missing the hand-off is not a lifecycle with a gap in it — it is
+	 * an Ideation stage nothing can leave. The canvas refuses to save one
+	 * (`/sequences/options` publishes this so it can), and so does the write
+	 * gate — prepare_config_for_write(), which every write path reaches through
+	 * SequenceRepository — because an ability call, an import or a direct PUT
+	 * never passes the canvas, and validate-sequence predicts that gate.
+	 *
+	 * Every phase named here must also be reachable under PHASE_TRANSITIONS;
+	 * an obligation the build would strip is one no author could satisfy.
+	 *
+	 * @var array<string, string[]>
+	 */
+	public const REQUIRED_PHASES = array(
+		'ideation' => array( 'editorial' ),
+	);
+
+	/**
+	 * Capture input types that were retired: the free-text note, as `textarea`
+	 * and the older `text`.
+	 *
+	 * The only types drop_retired_note_inputs() removes. Anything else that is
+	 * not an assignment is refused by the write gate, never stripped.
+	 *
+	 * @var string[]
+	 */
+	public const RETIRED_INPUT_TYPES = array( 'textarea', 'text' );
+
+	/**
 	 * Sequence ID.
 	 *
 	 * @var int
@@ -325,9 +391,18 @@ class Sequence {
 	}
 
 	/**
-	 * Get the initial status for new posts.
+	 * Get the stage new posts start in: the one stage flagged `is_initial`.
+	 *
+	 * Stage order plays no part. The write gate (prepare_config_for_write)
+	 * guarantees exactly one flagged stage on every config it writes, and the
+	 * 2.26.0 schema migration replays stored configs through it, so a config
+	 * written before the flag existed keeps the start stage it had (its first
+	 * stage). A config with no flagged stage therefore reached the database
+	 * around both paths — a data-integrity error, never answered from the array
+	 * order, which the Sequence editor's stages list rearranges.
 	 *
 	 * @return string
+	 * @throws \InvalidArgumentException If no stage is flagged `is_initial` (data-integrity error).
 	 */
 	public function get_initial_status(): string {
 		$statuses = $this->get_statuses();
@@ -336,10 +411,18 @@ class Sequence {
 			return 'draft';
 		}
 
-		// Honor an explicit is_initial flag; otherwise fall back to the first status.
 		$flagged = $this->get_status_by_flag( 'is_initial' );
 
-		return $flagged['key'] ?? $statuses[0]['key'];
+		if ( null === $flagged ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Sequence “%s” marks no stage where new posts start — the config predates the write gate or was written around it.',
+					esc_html( $this->slug )
+				)
+			);
+		}
+
+		return (string) $flagged['key'];
 	}
 
 	/**
@@ -462,8 +545,7 @@ class Sequence {
 		$user_roles = $user->roles;
 
 		// Check if user has a role that can bypass workflow restrictions.
-		$bypass_roles     = \VIPWorkflows\Admin\Settings::get_bypass_workflow_roles();
-		$can_bypass       = ! empty( array_intersect( $user_roles, $bypass_roles ) );
+		$can_bypass       = \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( $user_id );
 		$can_bypass_tools = \VIPWorkflows\Admin\Settings::can_user_bypass_tool_checks( $user_id );
 
 		if ( $can_bypass ) {
@@ -1226,6 +1308,11 @@ class Sequence {
 	 * - Every used region has exactly one `region_entry: true` checkpoint. None
 	 *   marked → the first stage (array order) in the region is auto-assigned;
 	 *   more than one → throws.
+	 * - Exactly one stage carries `is_initial: true`: the stage new posts start
+	 *   in. None marked → the first stage (array order) is flagged, which is the
+	 *   stage a flagless config always started posts in; more than one, or a
+	 *   non-boolean value → throws. The Sequence editor writes the flag on every
+	 *   save, so reordering its stages list never moves the start stage.
 	 * - Every transition target references a defined stage. A dangling target (a
 	 *   typo, or a core status like `future` that is not a workflow stage) would
 	 *   let is_transition_allowed() pass while get_stage_status() has nothing to
@@ -1247,21 +1334,186 @@ class Sequence {
 	 * Phase sequences use a `phases` graph rather than `statuses` and are exempt
 	 * from the stage rules above. The exemption is keyed on the sequence TYPE, not
 	 * the presence of a `phases` key — otherwise a workflow config could smuggle in a
-	 * stray `phases` key to skip validation of an invalid `statuses` graph.
+	 * stray `phases` key to skip validation of an invalid `statuses` graph. What a
+	 * phase config is held to instead is the lifecycle (REQUIRED_PHASES), here
+	 * rather than in the REST controller, so a repository call, an import and the
+	 * validate-sequence dry run refuse exactly what a save through the editor does.
+	 * The config is returned unchanged: which phases and hand-offs it may carry is
+	 * filtered when it is built (SequencesController::build_phase_config()).
+	 *
+	 * Stored phase rows are not replayed through this by any migration (the
+	 * replay selects stage-based rows only), so a row written before the rule is
+	 * refused on its next config write or activation, not rewritten.
 	 *
 	 * @param  array  $config Sequence config array.
 	 * @param  string $type   Sequence type (workflow/pitch/phase).
 	 * @return array The normalized config to persist.
-	 * @throws \InvalidArgumentException If the config has no stages, an empty or duplicate stage key, an invalid stage status region, more than one region entry per region, or a transition to an undefined stage.
+	 * @throws \InvalidArgumentException If the config has no stages, an empty or duplicate stage key, an invalid stage status region, more than one region entry per region, more than one start stage, or a transition to an undefined stage; or, for a phase sequence, if it is missing a required phase or the hand-off between two of them.
 	 */
 	public static function prepare_config_for_write( array $config, string $type = self::TYPE_WORKFLOW ): array {
+		// PostTypeManager uses each value as an array key during init. Reject
+		// malformed mappings before persistence or activation, not while reading.
+		if ( array_key_exists( 'post_types', $config ) ) {
+			if ( ! is_array( $config['post_types'] ) || ! array_is_list( $config['post_types'] ) ) {
+				throw new \InvalidArgumentException(
+					esc_html__( 'post_types must be a list of non-empty strings.', 'vip-workflows' )
+				);
+			}
+
+			foreach ( $config['post_types'] as $post_type ) {
+				if ( ! is_string( $post_type ) || '' === trim( $post_type ) ) {
+					throw new \InvalidArgumentException(
+						esc_html__( 'post_types must be a list of non-empty strings.', 'vip-workflows' )
+					);
+				}
+			}
+		}
+
 		// Phase sequences carry a `phases` graph, not `statuses`; the stage rules
-		// below don't apply to them.
+		// below don't apply to them, the lifecycle does.
 		if ( self::TYPE_PHASE === $type ) {
+			self::require_phase_lifecycle( $config );
+
 			return $config;
 		}
 
 		return self::normalize_stages( $config );
+	}
+
+	/**
+	 * A phase adjacency, flattened into edges.
+	 *
+	 * @param  array<string, string[]> $graph Phase adjacency, source => targets.
+	 * @return array List of { from, to } pairs.
+	 */
+	public static function phase_edges( array $graph ): array {
+		$edges = array();
+
+		foreach ( $graph as $from => $targets ) {
+			foreach ( $targets as $to ) {
+				$edges[] = array(
+					'from' => $from,
+					'to'   => $to,
+				);
+			}
+		}
+
+		return $edges;
+	}
+
+	/**
+	 * Refuse a phase sequence that does not carry the lifecycle.
+	 *
+	 * The obligation is the hand-off, not the pair of phases: a sequence holding
+	 * Ideation and Editorial with nothing joining them is not a lifecycle missing
+	 * a line on a canvas, it is an Ideation phase a post cannot leave. The phases
+	 * are checked first only so the error names the simpler problem when both are
+	 * true.
+	 *
+	 * A `phases` list that is absent, or an entry without a string key or with a
+	 * non-list `transitions`, is malformed rather than incomplete, and is refused
+	 * as such: SequencesController::build_phase_config() never produces one. So is
+	 * a transition that is not an object naming its target phase, a phase key
+	 * declared twice, or two transitions from one phase to the same target —
+	 * shapes a direct repository write could otherwise store and the hand-off
+	 * would trip over at runtime.
+	 *
+	 * @param  array $config Phase sequence config.
+	 * @return void
+	 * @throws \InvalidArgumentException If the config is malformed (including a malformed transition, a duplicate phase key or a duplicate target), or a required phase or hand-off is missing.
+	 */
+	private static function require_phase_lifecycle( array $config ): void {
+		if ( ! isset( $config['phases'] ) || ! is_array( $config['phases'] ) ) {
+			throw new \InvalidArgumentException(
+				esc_html__( 'A phase sequence must declare its phases as a list.', 'vip-workflows' )
+			);
+		}
+
+		$declared = array();
+		foreach ( $config['phases'] as $phase ) {
+			if ( ! is_array( $phase ) || ! isset( $phase['key'] ) || ! is_string( $phase['key'] ) || '' === $phase['key'] || ! isset( $phase['transitions'] ) || ! is_array( $phase['transitions'] ) ) {
+				throw new \InvalidArgumentException(
+					esc_html__( 'Every phase in a phase sequence must have a key and a list of transitions.', 'vip-workflows' )
+				);
+			}
+
+			$key = $phase['key'];
+
+			// One entry per phase. Two under one key disagree at runtime: this
+			// check would read the last, get_phase_transition() reads the first.
+			if ( isset( $declared[ $key ] ) ) {
+				throw new \InvalidArgumentException(
+					sprintf(
+						/* translators: %s: phase key, e.g. "ideation". */
+						esc_html__( 'A phase sequence may declare the “%s” phase only once.', 'vip-workflows' ),
+						esc_html( $key )
+					)
+				);
+			}
+
+			// Each transition is read as an object with a string `to` at runtime
+			// (get_phase_transition()), so a scalar entry or a missing target is
+			// refused here rather than skipped: a skipped entry would let the
+			// lifecycle check pass on a later valid one and the hand-off fail.
+			$targets = array();
+			foreach ( $phase['transitions'] as $transition ) {
+				if ( ! is_array( $transition ) || ! isset( $transition['to'] ) || ! is_string( $transition['to'] ) || '' === $transition['to'] ) {
+					throw new \InvalidArgumentException(
+						sprintf(
+							/* translators: %s: phase key, e.g. "ideation". */
+							esc_html__( 'Every transition on the “%s” phase must name the phase it goes to.', 'vip-workflows' ),
+							esc_html( $key )
+						)
+					);
+				}
+
+				// One transition per target, for the same reason as one entry per
+				// phase: the readers would disagree about which copy governs.
+				if ( in_array( $transition['to'], $targets, true ) ) {
+					throw new \InvalidArgumentException(
+						sprintf(
+							/* translators: 1: source phase key, 2: target phase key. */
+							esc_html__( 'The “%1$s” phase may hand off to “%2$s” only once.', 'vip-workflows' ),
+							esc_html( $key ),
+							esc_html( $transition['to'] )
+						)
+					);
+				}
+
+				$targets[] = $transition['to'];
+			}
+
+			$declared[ $key ] = $targets;
+		}
+
+		$required = self::phase_edges( self::REQUIRED_PHASES );
+
+		foreach ( $required as $edge ) {
+			foreach ( array( $edge['from'], $edge['to'] ) as $key ) {
+				if ( ! isset( $declared[ $key ] ) ) {
+					throw new \InvalidArgumentException(
+						sprintf(
+							/* translators: %s: phase key, e.g. "ideation". */
+							esc_html__( 'A phase sequence must declare the “%s” phase.', 'vip-workflows' ),
+							esc_html( $key )
+						)
+					);
+				}
+			}
+		}
+
+		foreach ( $required as $edge ) {
+			if ( ! in_array( $edge['to'], $declared[ $edge['from'] ], true ) ) {
+				throw new \InvalidArgumentException(
+					sprintf(
+						/* translators: 1: source phase key, 2: target phase key. */
+						esc_html__( 'A phase sequence must declare the hand-off from “%1$s” to “%2$s”.', 'vip-workflows' ),
+						esc_html( $edge['from'] ),
+						esc_html( $edge['to'] )
+					)
+				);
+			}
+		}
 	}
 
 	/**
@@ -1360,6 +1612,18 @@ class Sequence {
 				$stage['region_entry'] = true;
 			}
 
+			// Start marker: the same boolean-only rule, for the same reason.
+			if ( array_key_exists( 'is_initial', $stage ) && null !== $stage['is_initial'] && ! is_bool( $stage['is_initial'] ) ) {
+				throw new \InvalidArgumentException(
+					sprintf( 'Stage “%s” has an is_initial value that is not true or false.', esc_html( $key ) )
+				);
+			}
+			if ( empty( $stage['is_initial'] ) ) {
+				unset( $stage['is_initial'] );
+			} else {
+				$stage['is_initial'] = true;
+			}
+
 			// Transitions, when present, must be an array of transition objects,
 			// each naming a target stage as a string. Anything else (a bare string,
 			// a string entry, a non-string `to`) would slip past the dangling-target
@@ -1389,6 +1653,12 @@ class Sequence {
 					$transition['to'] = sanitize_key( $transition['to'] );
 
 					$transition = self::normalize_transition_inputs( $transition, $key );
+
+					// The retired restrict-to-assignee gate. Nothing reads it, so a
+					// copy left in the config would show a restriction nothing
+					// enforces — in GET, export, and validate-sequence. Dropped here
+					// rather than by each write path, so import cannot carry it in.
+					unset( $transition['requires_assignment'] );
 
 					// One transition per target, per stage. A duplicate is not a
 					// harmless extra row: every runtime read of a transition
@@ -1457,8 +1727,8 @@ class Sequence {
 
 		// Every used region designates exactly one entry checkpoint: more than one
 		// is ambiguous; none auto-assigns the first stage (array order) in the region.
-		$region_entries      = array();
-		$region_first_stage  = array();
+		$region_entries     = array();
+		$region_first_stage = array();
 		foreach ( $normalized as $index => $stage ) {
 			$region = $stage['status'];
 			if ( ! isset( $region_first_stage[ $region ] ) ) {
@@ -1478,6 +1748,29 @@ class Sequence {
 			if ( 0 === $entries ) {
 				$normalized[ $first_index ]['region_entry'] = true;
 			}
+		}
+
+		// Exactly one stage is where new posts start. More than one is ambiguous.
+		// None flags the first stage (array order) — the stage a config without
+		// the flag has always started posts in, so a write that predates the flag
+		// keeps its behavior. Once flagged, order no longer decides it.
+		$initial_keys = array();
+		foreach ( $normalized as $stage ) {
+			if ( ! empty( $stage['is_initial'] ) ) {
+				$initial_keys[] = $stage['key'];
+			}
+		}
+		if ( count( $initial_keys ) > 1 ) {
+			throw new \InvalidArgumentException(
+				sprintf(
+					'Only one stage can be where new posts start, but “%1$s” and “%2$s” are both marked.',
+					esc_html( $initial_keys[0] ),
+					esc_html( $initial_keys[1] )
+				)
+			);
+		}
+		if ( empty( $initial_keys ) ) {
+			$normalized[0]['is_initial'] = true;
 		}
 
 		// Every transition must target a stage defined in this same sequence.
@@ -1553,6 +1846,103 @@ class Sequence {
 	}
 
 	/**
+	 * Remove the retired free-text note inputs from every transition.
+	 *
+	 * An assignment is the only input a transition captures. Free-text notes
+	 * (`textarea`, or the older `text`) were retired from the editor, and the
+	 * write gate refuses any input that is not an assignment. A note is already
+	 * inert — the editor passes it over when the transition is taken — so
+	 * removing one changes nothing an author or editor sees. Two callers meet
+	 * configs written before the retirement: the stored-config replay (the 2.25.0
+	 * migration) and import, which reads files exported by older versions. Both
+	 * run this ahead of the gate, so an old row and an old file upgrade the same
+	 * way.
+	 *
+	 * Deliberately narrow: only the KNOWN retired types in RETIRED_INPUT_TYPES are
+	 * removed. An input of any other type, an input with no type, `inputs` that is
+	 * not a list, or an entry that is not an object is left in place for the gate
+	 * to refuse loudly — guessing that an unknown entry is safe to discard would
+	 * be a silent repair. Both shapes are covered, because the oldest configs
+	 * still carry the singular `input` key: a singular note is removed outright.
+	 * The singular `none` sentinel (or a typeless singular input, which the gate
+	 * reads as `none`) is not a note and is left for the gate, which turns it
+	 * into no inputs.
+	 *
+	 * The retired `requires_assignment` key needs nothing here: the gate drops it
+	 * from every transition it normalizes.
+	 *
+	 * @param  array $config Sequence config (stage-based).
+	 * @return array{config: array, dropped: array<int, array{from: string, to: string, count: int}>}
+	 *               `dropped` names each transition that lost a note, by the stage
+	 *               holding it and its target, with how many notes it lost.
+	 */
+	public static function drop_retired_note_inputs( array $config ): array {
+		$dropped = array();
+
+		if ( empty( $config['statuses'] ) || ! is_array( $config['statuses'] ) ) {
+			return array(
+				'config'  => $config,
+				'dropped' => $dropped,
+			);
+		}
+
+		$is_note = static function ( $input ): bool {
+			return is_array( $input ) && in_array( $input['type'] ?? null, self::RETIRED_INPUT_TYPES, true );
+		};
+
+		foreach ( $config['statuses'] as &$stage ) {
+			if ( ! is_array( $stage ) || empty( $stage['transitions'] ) || ! is_array( $stage['transitions'] ) ) {
+				continue;
+			}
+
+			foreach ( $stage['transitions'] as &$transition ) {
+				if ( ! is_array( $transition ) ) {
+					continue;
+				}
+
+				$count = 0;
+
+				if ( isset( $transition['input'] ) && $is_note( $transition['input'] ) ) {
+					unset( $transition['input'] );
+					++$count;
+				}
+
+				if ( isset( $transition['inputs'] ) && is_array( $transition['inputs'] ) ) {
+					$kept = array();
+					foreach ( $transition['inputs'] as $input ) {
+						if ( $is_note( $input ) ) {
+							++$count;
+							continue;
+						}
+						$kept[] = $input;
+					}
+
+					// Rewritten only when a note was removed, so a config with none
+					// re-encodes byte-identically and the replay's no-op check holds.
+					if ( $count ) {
+						$transition['inputs'] = $kept;
+					}
+				}
+
+				if ( $count ) {
+					$dropped[] = array(
+						'from'  => is_string( $stage['key'] ?? null ) ? $stage['key'] : '',
+						'to'    => is_string( $transition['to'] ?? null ) ? $transition['to'] : '',
+						'count' => $count,
+					);
+				}
+			}
+			unset( $transition );
+		}
+		unset( $stage );
+
+		return array(
+			'config'  => $config,
+			'dropped' => $dropped,
+		);
+	}
+
+	/**
 	 * A transition's capture inputs, in the one shape every reader walks.
 	 *
 	 * A transition captures a list of inputs. It used to capture exactly one, held
@@ -1571,16 +1961,21 @@ class Sequence {
 	 * this plugin owns, only from hand-written import JSON, and the two disagree
 	 * about what the transition captures — there is no answer to infer.
 	 *
-	 * At most one input may be an assignment: it is the one slot the editor
-	 * collects an assignee for when the transition is taken. Other inputs — a
-	 * retired note a stored sequence may still carry — are not counted, and the
-	 * editor no longer collects them. Collapsing a second would discard an
-	 * assignment an author configured, so it is refused on write instead.
+	 * An assignment is the only input a transition captures: it is the one slot
+	 * the editor collects an assignee for when the transition is taken. Any other
+	 * type — the retired free-text note (`textarea`, or the older `text`) — is
+	 * refused, so no write path can store an input the editor would pass over
+	 * without a word. Stored rows and imported files written before the rule
+	 * have their notes removed ahead of this, by drop_retired_note_inputs(); a
+	 * note is not tolerated here.
+	 *
+	 * At most one input may be an assignment. Collapsing a second would discard
+	 * an assignment an author configured, so it is refused on write instead.
 	 *
 	 * @param  array  $transition A transition, with `to` already sanitized.
 	 * @param  string $stage_key  The stage holding it, for error messages.
 	 * @return array The transition, carrying `inputs` or no input key at all.
-	 * @throws \InvalidArgumentException If the transition carries both input keys, if `inputs` is not a list of objects, or if more than one input is an assignment.
+	 * @throws \InvalidArgumentException If the transition carries both input keys, if `inputs` is not a list of objects, if an input is not an assignment, or if more than one input is an assignment.
 	 */
 	private static function normalize_transition_inputs( array $transition, string $stage_key ): array {
 		// A JSON null reads as absent here, the same way `transitions` and
@@ -1637,9 +2032,19 @@ class Sequence {
 				);
 			}
 
-			if ( 'assignment' === ( $input['type'] ?? '' ) ) {
-				++$assignments;
+			$type = $input['type'] ?? '';
+
+			if ( 'assignment' !== $type ) {
+				throw new \InvalidArgumentException(
+					sprintf(
+						'A transition on stage "%1$s" declares a "%2$s" input; a transition may capture only an "assignment".',
+						esc_html( $stage_key ),
+						esc_html( is_scalar( $type ) ? (string) $type : gettype( $type ) )
+					)
+				);
 			}
+
+			++$assignments;
 		}
 
 		if ( $assignments > 1 ) {

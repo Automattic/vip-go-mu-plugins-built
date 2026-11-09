@@ -68,12 +68,14 @@ class SequenceRepository {
 
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; read-through cached in CACHE_GROUP
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->get_table()} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$this->get_table()} WHERE id = %d",
 				$id
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		$sequence = $row ? Sequence::from_row( $row ) : null;
 		wp_cache_set( $cache_key, $sequence ? $sequence : '', self::CACHE_GROUP );
@@ -104,7 +106,7 @@ class SequenceRepository {
 
 		foreach ( $ids as $id ) {
 			$cache_key = self::cache_key( 'sequence_' . $id );
-			$cached = $cached_sequences[ $cache_key ];
+			$cached    = $cached_sequences[ $cache_key ];
 			if ( false !== $cached ) {
 				if ( $cached instanceof Sequence ) {
 					$result[ $id ] = $cached;
@@ -117,24 +119,25 @@ class SequenceRepository {
 		if ( ! empty( $uncached ) ) {
 			global $wpdb;
 
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- custom table vip_sequences; read-through cached in CACHE_GROUP; $placeholders is a list of %d built via array_fill above, so PHPCS cannot count the replacements.
 			$placeholders = implode( ',', array_fill( 0, count( $uncached ), '%d' ) );
 			$rows         = $wpdb->get_results(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a list of %d built via array_fill above.
 					"SELECT * FROM %i WHERE id IN ({$placeholders})",
 					$this->get_table(),
 					...$uncached
 				)
 			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 			$found_ids     = array();
 			$cache_entries = array();
 			foreach ( $rows as $row ) {
-				$sequence                                  = Sequence::from_row( $row );
-				$cache_key                                 = self::cache_key( 'sequence_' . $sequence->id );
-				$result[ $sequence->id ]                   = $sequence;
-				$found_ids[]                               = $sequence->id;
-				$cache_entries[ $cache_key ]               = $sequence;
+				$sequence                    = Sequence::from_row( $row );
+				$cache_key                   = self::cache_key( 'sequence_' . $sequence->id );
+				$result[ $sequence->id ]     = $sequence;
+				$found_ids[]                 = $sequence->id;
+				$cache_entries[ $cache_key ] = $sequence;
 			}
 
 			foreach ( $uncached as $id ) {
@@ -158,12 +161,14 @@ class SequenceRepository {
 	public function find_by_uuid( string $uuid ): ?Sequence {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; a live read is fine here: only the sequences admin REST routes and the seeder call it, never a front-end page (find(), preload() and get_all() are the cached reads)
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->get_table()} WHERE uuid = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$this->get_table()} WHERE uuid = %s",
 				$uuid
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $row ? Sequence::from_row( $row ) : null;
 	}
@@ -177,12 +182,14 @@ class SequenceRepository {
 	public function find_by_slug( string $slug ): ?Sequence {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; a live read is fine here: only the sequences admin REST routes and the seeder call it, never a front-end page (find(), preload() and get_all() are the cached reads)
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->get_table()} WHERE slug = %s AND status = 'active' ORDER BY version DESC LIMIT 1", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$this->get_table()} WHERE slug = %s AND status = 'active' ORDER BY version DESC LIMIT 1",
 				$slug
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $row ? Sequence::from_row( $row ) : null;
 	}
@@ -201,13 +208,15 @@ class SequenceRepository {
 	public function slug_exists( string $slug, string $type ): bool {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; a live read is fine here: only the sequences admin REST routes and the seeder call it, never a front-end page (find(), preload() and get_all() are the cached reads)
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$this->get_table()} WHERE slug = %s AND type = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$this->get_table()} WHERE slug = %s AND type = %s",
 				$slug,
 				$type
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return (int) $count > 0;
 	}
@@ -222,13 +231,15 @@ class SequenceRepository {
 	public function find_version( string $slug, int $version ): ?Sequence {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; a live read is fine here: only the sequences admin REST routes and the seeder call it, never a front-end page (find(), preload() and get_all() are the cached reads)
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->get_table()} WHERE slug = %s AND version = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$this->get_table()} WHERE slug = %s AND version = %d",
 				$slug,
 				$version
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return $row ? Sequence::from_row( $row ) : null;
 	}
@@ -250,11 +261,11 @@ class SequenceRepository {
 		global $wpdb;
 
 		$defaults = array(
-			'type'         => null, // Filter by type (workflow, phase).
-			'status'       => null,
-			'latest_only'  => true, // Only return the latest version of each sequence.
-			'orderby'      => 'name',
-			'order'        => 'ASC',
+			'type'        => null, // Filter by type (workflow, phase).
+			'status'      => null,
+			'latest_only' => true, // Only return the latest version of each sequence.
+			'orderby'     => 'name',
+			'order'       => 'ASC',
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -313,7 +324,7 @@ class SequenceRepository {
 		$query          .= " ORDER BY b.{$orderby} {$order}";
 
 		$rows = empty( $prepare_values )
-			? $wpdb->get_results( $query ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- No placeholders: every fragment above is a literal or allowlisted identifier.
+			? $wpdb->get_results( $query ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- no placeholders, since every fragment above is a literal or allowlisted identifier; custom table vip_sequences, read-through cached in CACHE_GROUP
 			: $wpdb->get_results( $wpdb->prepare( $query, $prepare_values ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query is placeholders-only; values bind here.
 
 		$sequences = array_map( array( Sequence::class, 'from_row' ), $rows );
@@ -407,6 +418,7 @@ class SequenceRepository {
 			'updated_at'  => $now,
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- custom table vip_sequences; write, flush_cache() invalidates the group
 		$result = $wpdb->insert( $this->get_table(), $data );
 
 		if ( $result ) {
@@ -452,6 +464,7 @@ class SequenceRepository {
 			$update_data['status'] = $data['status'];
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table vip_sequences; write, flush_cache() invalidates the group
 		$result = $wpdb->update(
 			$this->get_table(),
 			$update_data,
@@ -563,6 +576,7 @@ class SequenceRepository {
 	public function archive( int $id ): bool {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table vip_sequences; write, flush_cache() invalidates the group
 		$result = $wpdb->update(
 			$this->get_table(),
 			array(
@@ -588,6 +602,7 @@ class SequenceRepository {
 	public function delete( int $id ): bool {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table vip_sequences; write, flush_cache() invalidates the group
 		$result = $wpdb->delete(
 			$this->get_table(),
 			array( 'id' => $id ),
@@ -706,12 +721,14 @@ class SequenceRepository {
 	public function get_versions( string $slug ): array {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table vip_sequences; a live read is fine here: only the sequences admin REST routes and the seeder call it, never a front-end page (find(), preload() and get_all() are the cached reads)
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$this->get_table()} WHERE slug = %s ORDER BY version DESC", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$this->get_table()} WHERE slug = %s ORDER BY version DESC",
 				$slug
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array_map( array( Sequence::class, 'from_row' ), $rows );
 	}

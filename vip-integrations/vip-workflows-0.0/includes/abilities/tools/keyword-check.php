@@ -126,7 +126,7 @@ function execute_keyword_check( ?array $input = null ) {
 		}
 
 		if ( $found ) {
-			$analysis['matches_found']++;
+			++$analysis['matches_found'];
 			$analysis['matches'][] = array(
 				'word'  => $word,
 				'count' => $count,
@@ -190,7 +190,7 @@ function execute_keyword_check( ?array $input = null ) {
 	if ( ! empty( $issues ) ) {
 		$suggestions[] = array(
 			'type'    => 'review_content',
-			'message' => __( 'Review and remove or replace the flagged words before publishing.', 'vip-workflows' ),
+			'message' => __( 'Replace or remove the flagged words.', 'vip-workflows' ),
 		);
 	}
 
@@ -316,9 +316,9 @@ function register_keyword_check(): void {
 						'enforceable' => true,
 					),
 					'case_sensitive' => array(
-						'type'        => 'boolean',
-						'default'     => false,
-						'label'       => __( 'Case-sensitive matching', 'vip-workflows' ),
+						'type'    => 'boolean',
+						'default' => false,
+						'label'   => __( 'Case-sensitive matching', 'vip-workflows' ),
 					),
 					'match_partial'  => array(
 						'type'        => 'boolean',

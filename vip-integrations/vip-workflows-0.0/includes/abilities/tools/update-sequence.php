@@ -131,25 +131,25 @@ function execute_update_sequence( ?array $input = null ) {
 		'sequence.updated',
 		UPDATE_SEQUENCE_ABILITY_ID,
 		array(
-			'sequence_id'    => (int) $data['id'],
-			'sequence_name'  => (string) $data['name'],
-			'sequence_slug'  => (string) $data['slug'],
-			'sequence_type'  => (string) $data['type'],
+			'sequence_id'     => (int) $data['id'],
+			'sequence_name'   => (string) $data['name'],
+			'sequence_slug'   => (string) $data['slug'],
+			'sequence_type'   => (string) $data['type'],
 			'statuses_count'  => (int) $data['statuses_count'],
 			'sequence_status' => (string) $data['status'],
 		)
 	);
 
 	return array(
-		'sequence_id'     => (int) $data['id'],
-		'name'            => (string) $data['name'],
-		'slug'            => (string) $data['slug'],
-		'type'            => (string) $data['type'],
-		'status'          => (string) $data['status'],
-		'status_changed'  => $previous_status !== (string) $data['status'],
-		'statuses_count'  => (int) $data['statuses_count'],
-		'warnings'        => $warnings,
-		'success'         => true,
+		'sequence_id'    => (int) $data['id'],
+		'name'           => (string) $data['name'],
+		'slug'           => (string) $data['slug'],
+		'type'           => (string) $data['type'],
+		'status'         => (string) $data['status'],
+		'status_changed' => $previous_status !== (string) $data['status'],
+		'statuses_count' => (int) $data['statuses_count'],
+		'warnings'       => $warnings,
+		'success'        => true,
 	);
 }
 
@@ -165,7 +165,7 @@ function register_update_sequence(): void {
 		UPDATE_SEQUENCE_ABILITY_ID,
 		array(
 			'label'               => __( 'Update sequence', 'vip-workflows' ),
-			'description'         => __( 'Replaces the configuration of an existing workflow sequence — its statuses, transitions, required tools, role permissions and metadata fields. This is a full replacement, not a patch: any field you omit is cleared, so read the sequence first (Validate Sequence returns its stored configuration). Cannot change whether the sequence is active; use Activate Sequence for that.', 'vip-workflows' ),
+			'description'         => __( 'Replaces the configuration of an existing workflow sequence — its statuses, transitions, required tools, role permissions and metadata fields. Takes a FLAT body: name and statuses at the top level, plus optional description, post_types, settings, metadata_fields — not the WRAPPED {type,name,config} shape. Unlike create-sequence it accepts no type and no status. This is a full replacement, not a patch: any field you omit is cleared, so read the sequence first (Validate Sequence returns its stored configuration). Cannot change whether the sequence is active; use Activate Sequence for that.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -209,7 +209,7 @@ function register_update_sequence(): void {
 								),
 								'is_initial'     => array(
 									'type'        => 'boolean',
-									'description' => __( 'Whether this is the initial status.', 'vip-workflows' ),
+									'description' => __( 'Marks the stage new posts start in. At most one stage; when none is marked, the first stage is. Stage order does not decide it, so keep the flag on its stage when reordering.', 'vip-workflows' ),
 								),
 								'is_dead_end'    => array(
 									'type'        => 'boolean',
@@ -225,7 +225,7 @@ function register_update_sequence(): void {
 								),
 								'status'         => array(
 									'type'        => 'string',
-									'description' => __( 'Core status region this stage lives in. Defaults to "draft".', 'vip-workflows' ),
+									'description' => __( 'Core status region this stage lives in: one of "draft", "pending", "private", "publish". Defaults to "draft"; a value outside these is rejected.', 'vip-workflows' ),
 									'enum'        => Sequence::EDITORIAL_STATUSES,
 								),
 								'region_entry'   => array(
@@ -239,34 +239,31 @@ function register_update_sequence(): void {
 										'type'       => 'object',
 										'required'   => array( 'to' ),
 										'properties' => array(
-											'to'                  => array(
-												'type'        => 'string',
+											'to'     => array(
+												'type' => 'string',
 												'description' => __( 'Target status key.', 'vip-workflows' ),
 											),
-											'label'               => array(
-												'type'        => 'string',
+											'label'  => array(
+												'type' => 'string',
 												'description' => __( 'Transition label.', 'vip-workflows' ),
 											),
-											'required_tools'      => array(
-												'type'        => 'array',
+											'required_tools' => array(
+												'type' => 'array',
 												'description' => __( 'Ability IDs required before this transition.', 'vip-workflows' ),
 											),
-											'allowed_roles'       => array(
-												'type'        => 'array',
+											'allowed_roles' => array(
+												'type' => 'array',
 												'description' => __( 'Roles permitted to perform this transition.', 'vip-workflows' ),
 											),
-											'notifications'       => array(
-												'type'        => 'array',
+											'notifications' => array(
+												'type' => 'array',
 												'description' => __( 'Notification channel keys to fire on this transition.', 'vip-workflows' ),
 											),
-											'show_in_queue'       => array(
-												'type'        => 'boolean',
+											'show_in_queue' => array(
+												'type' => 'boolean',
 												'description' => __( 'Whether to surface this transition in the queue.', 'vip-workflows' ),
 											),
-											'inputs'              => array(
-												'type'        => 'array',
-												'description' => __( 'Inputs collected during this transition. Only "assignment" inputs are collected, at most one per transition.', 'vip-workflows' ),
-											),
+											'inputs' => \VIPWorkflows\API\SequencesController::get_transition_inputs_schema(),
 										),
 									),
 								),
@@ -284,7 +281,7 @@ function register_update_sequence(): void {
 										),
 										'routing'    => array(
 											'type'        => 'object',
-											'description' => __( 'Maps agent outcomes to destination status keys. Each target must be a configured transition of this status. "error" is required.', 'vip-workflows' ),
+											'description' => __( 'Maps agent outcomes to destination status keys. Each target must be a configured transition of this status. Every outcome is optional: an outcome with no target falls back to the "error" destination, and without that the post stays at this status.', 'vip-workflows' ),
 											'properties'  => array(
 												'pass'  => array( 'type' => 'string' ),
 												'fail'  => array( 'type' => 'string' ),

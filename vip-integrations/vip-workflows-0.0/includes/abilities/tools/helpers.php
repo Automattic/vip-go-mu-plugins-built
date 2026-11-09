@@ -31,6 +31,24 @@ function require_post_edit_permission( int $post_id ): ?\WP_Error {
 }
 
 /**
+ * Read an integer input and keep it between two bounds.
+ *
+ * The tool's input schema states the same bounds, so a value outside them is
+ * refused by WP_Ability::execute() before the tool runs. This is for a PHP
+ * caller that calls the tool's function directly, which the schema never sees.
+ *
+ * @param array  $input    Ability input.
+ * @param string $key      Input key.
+ * @param int    $fallback Value used when the key is absent or null.
+ * @param int    $min      Lowest value returned.
+ * @param int    $max      Highest value returned.
+ * @return int
+ */
+function bounded_int( array $input, string $key, int $fallback, int $min, int $max ): int {
+	return max( $min, min( $max, (int) ( $input[ $key ] ?? $fallback ) ) );
+}
+
+/**
  * Record a configuration-scoped audit event attributed to the acting ability.
  *
  * A sequence write has no post, so it cannot go through

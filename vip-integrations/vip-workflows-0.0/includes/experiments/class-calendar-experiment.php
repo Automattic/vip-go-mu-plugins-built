@@ -46,7 +46,7 @@ class CalendarExperiment extends Experiment {
 	 * @inheritDoc
 	 */
 	public function get_description(): string {
-		return __( 'Calendar view of scheduled and published workflow posts.', 'vip-workflows' );
+		return __( 'Scheduled and published posts by date.', 'vip-workflows' );
 	}
 
 	/**

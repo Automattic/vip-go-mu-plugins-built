@@ -10,6 +10,89 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Abilities\Tools;
 
 /**
+ * Count the prose blocks in a post.
+ *
+ * A prose block is a run of visible text that is not a heading, list, table
+ * or other structural element. It approximates what wpautop() would wrap in
+ * a `<p>`, and it is deliberately not stricter than that: a standalone
+ * blockquote, or a table row on its own line, counts. This is an example
+ * check, so the user-facing wording says "prose blocks" rather than
+ * "paragraphs" instead of matching wpautop()'s full block-level tag list.
+ *
+ * HTML comments are removed first: they show nothing, and Gutenberg's block
+ * delimiters are comments, so a `<p>` inside one is not a block and a
+ * block's delimiter does not hide the block-level element that follows it.
+ *
+ * Then two kinds of block are counted, and added together, because a post
+ * can hold both:
+ *
+ * - `<p>` elements, which is how block content stores a paragraph. The tag
+ *   pattern reads quoted attribute values, so a `>` inside one does not end
+ *   the tag early.
+ * - Text outside those elements, counted the way wpautop() would wrap classic
+ *   content: split on blank lines, leaving out chunks that open with a
+ *   heading, list, table, figure, preformatted block, rule or wrapper `<div>`.
+ *
+ * Either kind counts only if it has visible text, so an empty block, a lone
+ * `&nbsp;`, an image on its own line or a leftover closing tag is not one.
+ *
+ * A pattern that hits a PCRE limit (a very long post with an unclosed `<p>`,
+ * say) leaves the count unknown, not zero: it is logged and null is
+ * returned, so the caller does not report "0 prose blocks" as a fact.
+ *
+ * @param string $content Post content.
+ * @return int|null Prose block count, or null when it could not be counted.
+ */
+function count_paragraphs( string $content ): ?int {
+	$content   = preg_replace( '/<!--.*?-->/s', '', $content );
+	$count     = 0;
+	$remainder = null === $content ? null : preg_replace_callback(
+		'/<p\b(?:[^>"\']++|"[^"]*+"|\'[^\']*+\')*+>(.*?)<\/p\s*>/is',
+		static function ( array $paragraph ) use ( &$count ): string {
+			if ( has_visible_text( $paragraph[1] ) ) {
+				++$count;
+			}
+
+			// A paragraph break, so text on either side stays two chunks.
+			return "\n\n";
+		},
+		$content
+	);
+
+	$chunks = null === $remainder ? false : preg_split( '/\R\s*\R/', $remainder );
+	if ( false === $chunks ) {
+		// A pattern hit a PCRE limit, so any count would be a guess.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[VIP Workflows] SEO check could not count prose blocks: ' . preg_last_error_msg() );
+		return null;
+	}
+
+	foreach ( $chunks as $chunk ) {
+		if ( preg_match( '/^\s*<(?:h[1-6]|ul|ol|dl|table|figure|pre|hr|div)\b/i', $chunk ) ) {
+			continue;
+		}
+
+		if ( has_visible_text( $chunk ) ) {
+			++$count;
+		}
+	}
+
+	return $count;
+}
+
+/**
+ * Whether markup shows any text once its tags and entities are gone.
+ *
+ * @param string $markup HTML fragment.
+ * @return bool
+ */
+function has_visible_text( string $markup ): bool {
+	$text = html_entity_decode( wp_strip_all_tags( $markup ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+
+	return '' !== trim( $text, " \t\n\r\0\x0B\u{00A0}" );
+}
+
+/**
  * Execute the SEO check.
  *
  * @param  array|null $input Input parameters.
@@ -61,13 +144,13 @@ function execute_seo_check( ?array $input = null ) {
 	// Check 1: Content length.
 	$min_words = $settings['min_words'] ?? 300;
 	if ( $word_count < $min_words ) {
-		$score   -= 15;
-		$issues[] = array(
+		$score        -= 15;
+		$issues[]      = array(
 			'type'      => 'content_length',
 			'check_key' => 'min_words',
 			'message'   => sprintf(
 			/* translators: 1: Current word count, 2: Minimum word count */
-				__( 'Content is short (%1$d words). Aim for at least %2$d words for better SEO.', 'vip-workflows' ),
+				__( 'Content is %1$d words. Aim for at least %2$d.', 'vip-workflows' ),
 				$word_count,
 				$min_words
 			),
@@ -75,7 +158,43 @@ function execute_seo_check( ?array $input = null ) {
 		);
 		$suggestions[] = array(
 			'type'    => 'add_content',
-			'message' => __( 'Expand the content with more details, examples, or related information.', 'vip-workflows' ),
+			'message' => __( 'Add detail, examples, or related information.', 'vip-workflows' ),
+		);
+	}
+
+	// Check 1b: Prose block count. Shown to people as "prose blocks"; the
+	// setting and check key stay `min_paragraphs`, and the analysis key
+	// `paragraph_count`, because stored settings and Soft/Hard check modes are
+	// keyed by them.
+	$paragraph_count             = count_paragraphs( $content );
+	$analysis['paragraph_count'] = $paragraph_count;
+
+	$min_paragraphs = $settings['min_paragraphs'] ?? 3;
+	if ( null === $paragraph_count ) {
+		// Unknown is not zero. Say the check could not run; `error` makes the
+		// gate treat it as a failure to reach a verdict, not a pass.
+		$issues[] = array(
+			'type'      => 'paragraph_count',
+			'check_key' => 'min_paragraphs',
+			'message'   => __( 'Prose blocks could not be counted for this post.', 'vip-workflows' ),
+			'severity'  => 'error',
+		);
+	} elseif ( $paragraph_count < $min_paragraphs ) {
+		$score        -= 10;
+		$issues[]      = array(
+			'type'      => 'paragraph_count',
+			'check_key' => 'min_paragraphs',
+			'message'   => sprintf(
+			/* translators: 1: Current prose block count, 2: Minimum prose block count */
+				_n( 'Content has %1$d prose block. Aim for at least %2$d.', 'Content has %1$d prose blocks. Aim for at least %2$d.', $paragraph_count, 'vip-workflows' ),
+				$paragraph_count,
+				$min_paragraphs
+			),
+			'severity'  => 'warning',
+		);
+		$suggestions[] = array(
+			'type'    => 'split_paragraphs',
+			'message' => __( 'Break long passages into shorter blocks of text.', 'vip-workflows' ),
 		);
 	}
 
@@ -94,7 +213,7 @@ function execute_seo_check( ?array $input = null ) {
 		$score   -= 5;
 		$issues[] = array(
 			'type'     => 'title_long',
-			'message'  => __( 'Title may be truncated in search results (over 60 characters).', 'vip-workflows' ),
+			'message'  => __( 'Title may be truncated (over 60 characters).', 'vip-workflows' ),
 			'severity' => 'info',
 		);
 	}
@@ -105,10 +224,10 @@ function execute_seo_check( ?array $input = null ) {
 	$analysis['headings'] = $heading_counts;
 
 	if ( empty( $heading_counts ) ) {
-		$score   -= 10;
-		$issues[] = array(
+		$score        -= 10;
+		$issues[]      = array(
 			'type'     => 'no_headings',
-			'message'  => __( 'No headings found. Use H2-H4 tags to structure content.', 'vip-workflows' ),
+			'message'  => __( 'No headings found. Use H2-H4 to structure content.', 'vip-workflows' ),
 			'severity' => 'warning',
 		);
 		$suggestions[] = array(
@@ -124,7 +243,7 @@ function execute_seo_check( ?array $input = null ) {
 
 	foreach ( $images[0] ?? array() as $img ) {
 		if ( ! preg_match( '/alt=["\'][^"\']+["\']/i', $img ) ) {
-			$images_without_alt++;
+			++$images_without_alt;
 		}
 	}
 
@@ -137,7 +256,7 @@ function execute_seo_check( ?array $input = null ) {
 		$issues[] = array(
 			'type'      => 'no_images',
 			'check_key' => 'min_images',
-			'message'   => __( 'No images found. Adding relevant images can improve engagement.', 'vip-workflows' ),
+			'message'   => __( 'No images found. Add relevant images.', 'vip-workflows' ),
 			'severity'  => 'info',
 		);
 	}
@@ -149,7 +268,7 @@ function execute_seo_check( ?array $input = null ) {
 			'check_key' => 'min_images',
 			'message'   => sprintf(
 			/* translators: %d: Number of images missing alt text */
-				__( '%d image(s) missing alt text. Alt text improves accessibility and SEO.', 'vip-workflows' ),
+				__( '%d image(s) missing alt text.', 'vip-workflows' ),
 				$images_without_alt
 			),
 			'severity'  => 'warning',
@@ -164,9 +283,9 @@ function execute_seo_check( ?array $input = null ) {
 
 	foreach ( $links[1] ?? array() as $href ) {
 		if ( strpos( $href, $site_url ) === 0 || strpos( $href, '/' ) === 0 ) {
-			$internal_links++;
+			++$internal_links;
 		} else {
-			$external_links++;
+			++$external_links;
 		}
 	}
 
@@ -196,7 +315,7 @@ function execute_seo_check( ?array $input = null ) {
 			$issues[] = array(
 				'type'      => 'no_meta_description',
 				'check_key' => 'check_meta',
-				'message'   => __( 'No meta description set. This appears in search results.', 'vip-workflows' ),
+				'message'   => __( 'No meta description set. Add one for search results.', 'vip-workflows' ),
 				'severity'  => 'warning',
 			);
 		} elseif ( $meta_length < 120 ) {
@@ -258,7 +377,7 @@ function execute_seo_check( ?array $input = null ) {
 			$score   -= 5;
 			$issues[] = array(
 				'type'     => 'keyword_density_low',
-				'message'  => __( 'Keyword density is low. Consider using the keyword more naturally.', 'vip-workflows' ),
+				'message'  => __( 'Keyword density is low. Use the keyword more often.', 'vip-workflows' ),
 				'severity' => 'info',
 			);
 		}
@@ -341,7 +460,7 @@ function register_seo_check(): void {
 					),
 					'min_paragraphs' => array(
 						'type'        => 'integer',
-						'description' => __( 'Minimum paragraph count.', 'vip-workflows' ),
+						'description' => __( 'Minimum number of prose blocks (paragraphs and other runs of text).', 'vip-workflows' ),
 					),
 					'min_images'     => array(
 						'type'        => 'integer',
@@ -407,7 +526,7 @@ function register_seo_check(): void {
 					'min_paragraphs' => array(
 						'type'        => 'integer',
 						'default'     => 3,
-						'label'       => __( 'Minimum paragraph count', 'vip-workflows' ),
+						'label'       => __( 'Minimum prose blocks', 'vip-workflows' ),
 						'minimum'     => 1,
 						'maximum'     => 50,
 						'enforceable' => true,

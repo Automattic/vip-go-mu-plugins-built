@@ -173,7 +173,12 @@ class Settings {
 	}
 
 	/**
-	 * Check if the current user can bypass workflow lock.
+	 * Check if a user holds a workflow override role.
+	 *
+	 * The override grants three things: every transition is offered regardless
+	 * of its `allowed_roles`, empty required fields do not block a move into
+	 * the publish region, and the publish-boundary veto on a direct status
+	 * change becomes a confirm.
 	 *
 	 * @param  int|null $user_id User ID. Default current user.
 	 * @return bool

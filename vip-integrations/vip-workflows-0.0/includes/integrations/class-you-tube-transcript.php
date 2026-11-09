@@ -155,9 +155,9 @@ class YouTubeTranscript {
 		$any_auto         = null;
 
 		foreach ( $tracks as $track ) {
-			$lang          = $track['languageCode'] ?? '';
-			$is_auto       = isset( $track['kind'] ) && 'asr' === $track['kind'];
-			$lang_matches  = str_starts_with( $lang, $lang_pref );
+			$lang         = $track['languageCode'] ?? '';
+			$is_auto      = isset( $track['kind'] ) && 'asr' === $track['kind'];
+			$lang_matches = str_starts_with( $lang, $lang_pref );
 
 			if ( $lang_matches && ! $is_auto && ! $preferred_manual ) {
 				$preferred_manual = $track['baseUrl'] ?? null;

@@ -77,7 +77,7 @@ class PostsColumns {
 		// so get_post_types() falls back to `post` and would register the
 		// workflow column and Quick Edit picker on every post screen.
 		$repository = new \VIPWorkflows\Sequences\SequenceRepository();
-		$sequences = $repository->get_workflow_sequences( array( 'status' => 'active' ) );
+		$sequences  = $repository->get_workflow_sequences( array( 'status' => 'active' ) );
 		foreach ( $sequences as $sequence ) {
 			foreach ( $sequence->get_post_types() as $pt ) {
 				if ( post_type_exists( $pt ) ) {
@@ -267,7 +267,7 @@ class PostsColumns {
 	 * preflight is contractually request-free — it runs over every selected row
 	 * in Bulk Edit — so the map is rendered into the row data rather than
 	 * fetched. Its React twin is `getEntryStageLabels()` in
-	 * src/entries/confirm-workflow-side-effect.js, which builds the same shape
+	 * src/common/confirm-workflow-side-effect.js, which builds the same shape
 	 * from the status endpoint's `all_statuses`.
 	 *
 	 * A region is absent when Sequence::get_region_entry_stage() gives no
@@ -354,7 +354,7 @@ class PostsColumns {
 	 * @param string $column_name Column name.
 	 * @param string $post_type   Post type.
 	 */
-	public function add_quick_edit_workflow( string $column_name, string $post_type ): void {
+	public function add_quick_edit_workflow( string $column_name, string $post_type ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- required by quick_edit_custom_box action
 		if ( 'workflow_status' !== $column_name ) {
 			return;
 		}
@@ -391,8 +391,8 @@ class PostsColumns {
 		AdminStyles::enqueue_classic();
 
 		// The shared warn/veto decision table and its copy
-		// (src/entries/confirm-workflow-side-effect.js), built as its own
-		// webpack entry. It is framework-free precisely so that this classic
+		// (src/common/confirm-workflow-side-effect.js), published by its own
+		// webpack entry (src/entries/side-effect.js). It is framework-free precisely so that this classic
 		// inline script can consume it — through the `vipWorkflowsSideEffect`
 		// global — exactly as the React surfaces import it. Quick Edit, Bulk Edit
 		// and the block editor must never reach different answers, or use
@@ -427,7 +427,7 @@ class PostsColumns {
 		}
 
 		// Inline script.
-		$nonce = wp_create_nonce( 'wp_rest' );
+		$nonce   = wp_create_nonce( 'wp_rest' );
 		$api_url = rest_url( 'vip-workflows/v1' );
 
 		// The same default swatch the server renders with, handed to the script
@@ -446,9 +446,9 @@ class PostsColumns {
 					// direction-aware: a user un-publishing was never trying to
 					// publish, and telling them they can't would be a non-sequitur.
 					/* translators: %1$s: number of affected posts, %2$s: number of selected posts, %3$s: comma-separated post titles. */
-					'bulkVetoPublish'    => __( '%1$s of the %2$s selected posts are in workflows and can’t be published directly: %3$s. Deselect them, or remove them from their workflows first.', 'vip-workflows' ),
+					'bulkVetoPublish'    => __( '%1$s of %2$s selected posts can’t be published while in workflows: %3$s. Deselect them to continue.', 'vip-workflows' ),
 					/* translators: %1$s: number of affected posts, %2$s: number of selected posts, %3$s: comma-separated post titles. */
-					'bulkVetoUnpublish'  => __( '%1$s of the %2$s selected posts are published and in workflows, so their published status can’t be changed directly: %3$s. Deselect them, or remove them from their workflows first.', 'vip-workflows' ),
+					'bulkVetoUnpublish'  => __( '%1$s of %2$s selected posts can’t be unpublished while in workflows: %3$s. Deselect them to continue.', 'vip-workflows' ),
 					// DECISION: Bulk Edit stays region-level and names no stage,
 					// unlike the single-post surfaces. One apply spans N posts
 					// across up to N sequences, each with its own stage names
@@ -461,12 +461,12 @@ class PostsColumns {
 					// new stage, which is false for any post already seated in
 					// the target region or whose workflow models no stage there.
 					/* translators: %1$s: number of affected posts, %2$s: number of selected posts, %3$s: comma-separated post titles. */
-					'bulkWarn'           => __( '%1$s of the %2$s selected posts are in workflows: %3$s. Changing their status moves each one to its workflow’s entry stage for the new status, or leaves it where it is if its workflow has no stage there, and stops any AI agent working on them. Continue?', 'vip-workflows' ),
-					'guardUnavailable'   => __( 'VIP Workflows could not check what this status change would do to the workflow, so the change was not applied. Reload the page and try again.', 'vip-workflows' ),
+					'bulkWarn'           => __( 'Changing the status may move %1$s of %2$s selected posts to new stages and stop their agents: %3$s. Continue?', 'vip-workflows' ),
+					'guardUnavailable'   => __( 'Could not check the workflow, so nothing changed. Reload the page and try again.', 'vip-workflows' ),
 					// A stage with no region is a broken sequence, not a
 					// transient failure — reloading re-renders the same broken
 					// config, so the copy names the real cause instead.
-					'stageMisconfigured' => __( 'This post’s workflow stage is misconfigured, so VIP Workflows cannot tell what a status change would do to it. The change was not applied — ask an administrator to fix the workflow’s configuration.', 'vip-workflows' ),
+					'stageMisconfigured' => __( 'This post’s workflow stage is misconfigured, so nothing changed. Ask an administrator to fix it.', 'vip-workflows' ),
 					'quickEditWorking'   => __( 'Working…', 'vip-workflows' ),
 					'quickEditNoMoves'   => __( 'No moves available from this stage.', 'vip-workflows' ),
 					'quickEditLoadError' => __( 'Could not load the moves for this post. Reload the page to try again.', 'vip-workflows' ),
@@ -482,8 +482,8 @@ class PostsColumns {
 	var guard = {$guard};
 
 	// The shared decision table and copy
-	// (src/entries/confirm-workflow-side-effect.js), published as a global for
-	// the classic list-table surfaces. Never reimplemented here — a second copy
+	// (src/common/confirm-workflow-side-effect.js), published as a global for
+	// the classic list-table surfaces by src/entries/side-effect.js. Never reimplemented here — a second copy
 	// of the region math, or of the words, is exactly how the surfaces drift.
 	function guardApi() {
 		var api = window.vipWorkflowsSideEffect;
@@ -670,7 +670,8 @@ class PostsColumns {
 				? api.getOrphanedWorkflowMessage({ title: titleFor(row, postId) })
 				: api.getPublishVetoMessage({
 					title: titleFor(row, postId),
-					workflowName: data.dataset.sequenceName
+					workflowName: data.dataset.sequenceName,
+					targetStatus: targetStatus
 				}));
 			return false;
 		}

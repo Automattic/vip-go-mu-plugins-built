@@ -110,15 +110,15 @@ function register_transition_post(): void {
 				'additionalProperties' => false,
 				'required'             => array( 'post_id', 'to_status' ),
 				'properties'           => array(
-					'post_id'   => array(
+					'post_id'              => array(
 						'type'        => 'integer',
 						'description' => __( 'The post ID to transition.', 'vip-workflows' ),
 					),
-					'to_status' => array(
+					'to_status'            => array(
 						'type'        => 'string',
 						'description' => __( 'The target workflow status key.', 'vip-workflows' ),
 					),
-					'comment'   => array(
+					'comment'              => array(
 						'type'        => 'string',
 						'description' => __( 'Optional transition comment for the audit trail.', 'vip-workflows' ),
 					),
@@ -132,19 +132,19 @@ function register_transition_post(): void {
 				'type'                 => 'object',
 				'additionalProperties' => false,
 				'properties'           => array(
-					'post_id'     => array(
+					'post_id'          => array(
 						'type'        => 'integer',
 						'description' => __( 'The post ID.', 'vip-workflows' ),
 					),
-					'from_status' => array(
+					'from_status'      => array(
 						'type'        => 'string',
 						'description' => __( 'The previous status.', 'vip-workflows' ),
 					),
-					'to_status'   => array(
+					'to_status'        => array(
 						'type'        => 'string',
 						'description' => __( 'The new status.', 'vip-workflows' ),
 					),
-					'success'     => array(
+					'success'          => array(
 						'type'        => 'boolean',
 						'description' => __( 'Whether the transition succeeded. False when warnings_pending is true.', 'vip-workflows' ),
 					),
@@ -152,7 +152,7 @@ function register_transition_post(): void {
 						'type'        => 'boolean',
 						'description' => __( 'True when unacknowledged warnings held back the transition; nothing was committed.', 'vip-workflows' ),
 					),
-					'warnings'    => array(
+					'warnings'         => array(
 						'type'        => 'array',
 						'description' => __( 'The warnings requiring acknowledgement, when warnings_pending is true. Each has a `type` (e.g. agent_in_progress) and a `message`.', 'vip-workflows' ),
 					),

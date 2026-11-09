@@ -11,6 +11,8 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Abilities\Tools;
 
+require_once __DIR__ . '/helpers.php';
+
 /**
  * Execute the stale posts query.
  *
@@ -19,9 +21,9 @@ namespace VIPWorkflows\Abilities\Tools;
  */
 function execute_get_stale_posts( ?array $input = null ) {
 	$input          = $input ?? array();
-	$threshold_days = max( 1, (int) ( $input['threshold_days'] ?? 3 ) );
+	$threshold_days = bounded_int( $input, 'threshold_days', 3, 1, 365 );
 	$status         = $input['status'] ?? null;
-	$limit          = min( (int) ( $input['limit'] ?? 20 ), 50 );
+	$limit          = bounded_int( $input, 'limit', 20, 1, 50 );
 
 	$threshold_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$threshold_days} days" ) );
 
@@ -96,8 +98,10 @@ function register_get_stale_posts(): void {
 				'properties'           => array(
 					'threshold_days' => array(
 						'type'        => 'integer',
-						'description' => __( 'Number of days without modification to be considered stale (default 3).', 'vip-workflows' ),
+						'description' => __( 'Number of days without modification to be considered stale (default 3, minimum 1, maximum 365).', 'vip-workflows' ),
 						'default'     => 3,
+						'minimum'     => 1,
+						'maximum'     => 365,
 					),
 					'status'         => array(
 						'type'        => 'string',
@@ -105,8 +109,10 @@ function register_get_stale_posts(): void {
 					),
 					'limit'          => array(
 						'type'        => 'integer',
-						'description' => __( 'Maximum number of results (default 20, max 50).', 'vip-workflows' ),
+						'description' => __( 'Maximum number of results (default 20, minimum 1, maximum 50).', 'vip-workflows' ),
 						'default'     => 20,
+						'minimum'     => 1,
+						'maximum'     => 50,
 					),
 				),
 			),

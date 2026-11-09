@@ -105,8 +105,8 @@ class WorkflowEvents implements ModuleInterface {
 			'to_label'         => $to_config['label'] ?? $new_status,
 			'author_id'        => $post ? $post->post_author : 0,
 			'author_name'      => $author ? $author->display_name : '',
-			'sequence_id'     => $sequence->uuid ?? '',
-			'sequence_name'   => $sequence->name ?? '',
+			'sequence_id'      => $sequence->uuid ?? '',
+			'sequence_name'    => $sequence->name ?? '',
 			'cause'            => $cause,
 			'committed_status' => $committed_status,
 			'previous_status'  => $previous_status,
@@ -183,7 +183,7 @@ class WorkflowEvents implements ModuleInterface {
 		}
 
 		$status_manager = Plugin::get_instance()->get_status_manager();
-		$sequence      = $status_manager ? $status_manager->get_sequence_for_post( $post->ID ) : null;
+		$sequence       = $status_manager ? $status_manager->get_sequence_for_post( $post->ID ) : null;
 		if ( ! $sequence ) {
 			// Sequence meta exists but the sequence no longer resolves — a
 			// data-integrity condition; log it rather than emitting a half-formed event.
@@ -206,8 +206,8 @@ class WorkflowEvents implements ModuleInterface {
 				'cause'            => 'core',
 				'author_id'        => $post->post_author,
 				'author_name'      => $author ? $author->display_name : '',
-				'sequence_id'     => $sequence->uuid ?? '',
-				'sequence_name'   => $sequence->name ?? '',
+				'sequence_id'      => $sequence->uuid ?? '',
+				'sequence_name'    => $sequence->name ?? '',
 			),
 			array( 'post_id' => $post->ID )
 		);

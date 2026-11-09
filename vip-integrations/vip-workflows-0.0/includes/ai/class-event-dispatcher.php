@@ -48,11 +48,11 @@ class EventDispatcher implements EventDispatcherInterface {
 		$model = $event->getModel();
 
 		$log_data = array(
-			'timestamp' => current_time( 'mysql' ),
-			'user_id'   => get_current_user_id(),
-			'provider'  => $model->providerMetadata()->getId(),
-			'model'     => $model->metadata()->getId(),
-			'messages'  => $event->getMessages(),
+			'timestamp'  => current_time( 'mysql' ),
+			'user_id'    => get_current_user_id(),
+			'provider'   => $model->providerMetadata()->getId(),
+			'model'      => $model->metadata()->getId(),
+			'messages'   => $event->getMessages(),
 			'capability' => $event->getCapability() ? $event->getCapability()->value : null,
 		);
 
@@ -75,8 +75,8 @@ class EventDispatcher implements EventDispatcherInterface {
 	 * @param AfterGenerateResultEvent $event Event object.
 	 */
 	private function log_result( AfterGenerateResultEvent $event ): void {
-		$result = $event->getResult();
-		$usage  = $result->getTokenUsage();
+		$result     = $event->getResult();
+		$usage      = $result->getTokenUsage();
 		$candidates = $result->getCandidates();
 
 		try {
@@ -86,12 +86,12 @@ class EventDispatcher implements EventDispatcherInterface {
 		}
 
 		$log_data = array(
-			'timestamp'        => current_time( 'mysql' ),
-			'raw_output'       => $raw_output,
-			'tokens_prompt'    => $usage ? $usage->getPromptTokens() : null,
+			'timestamp'         => current_time( 'mysql' ),
+			'raw_output'        => $raw_output,
+			'tokens_prompt'     => $usage ? $usage->getPromptTokens() : null,
 			'tokens_completion' => $usage ? $usage->getCompletionTokens() : null,
-			'tokens_total'     => $usage ? $usage->getTotalTokens() : null,
-			'finish_reason'    => ! empty( $candidates ) ? $candidates[0]->getFinishReason()->value : null,
+			'tokens_total'      => $usage ? $usage->getTotalTokens() : null,
+			'finish_reason'     => ! empty( $candidates ) ? $candidates[0]->getFinishReason()->value : null,
 		);
 
 		/**

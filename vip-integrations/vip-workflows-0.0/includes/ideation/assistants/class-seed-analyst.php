@@ -99,7 +99,7 @@ class SeedAnalyst {
 		if ( empty( $seed ) ) {
 			return array(
 				'status' => 'failed',
-				'error' => 'No seed text provided.',
+				'error'  => 'No seed text provided.',
 			);
 		}
 
@@ -108,7 +108,7 @@ class SeedAnalyst {
 			if ( is_wp_error( $analysis ) ) {
 				return array(
 					'status' => 'failed',
-					'error' => $analysis->get_error_message(),
+					'error'  => $analysis->get_error_message(),
 				);
 			}
 
@@ -133,7 +133,7 @@ class SeedAnalyst {
 		} catch ( \Exception $e ) {
 			return array(
 				'status' => 'failed',
-				'error' => $e->getMessage(),
+				'error'  => $e->getMessage(),
 			);
 		}
 	}
@@ -152,10 +152,10 @@ class SeedAnalyst {
 		// News angle card (the editorial insight, should be prominent on the board).
 		if ( ! empty( $analysis['news_angle'] ) ) {
 			$cards[] = array(
-				'type'       => 'news-angle',
-				'title'      => __( 'News angle', 'vip-workflows' ),
-				'content'    => $analysis['news_angle'],
-				'source'     => 'seed-analyst',
+				'type'    => 'news-angle',
+				'title'   => __( 'News angle', 'vip-workflows' ),
+				'content' => $analysis['news_angle'],
+				'source'  => 'seed-analyst',
 			);
 		}
 

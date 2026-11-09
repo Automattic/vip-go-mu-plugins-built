@@ -90,7 +90,7 @@ class WebResearcher {
 				RequirementGroup::all(
 					RequirementFactory::dependency(
 						'dependency:search-provider',
-						__( 'No web search provider is registered, so there is nothing to search with.', 'vip-workflows' ),
+						__( 'No web search provider is registered.', 'vip-workflows' ),
 						__( 'Web search is not available on this site.', 'vip-workflows' ),
 						$source
 					)

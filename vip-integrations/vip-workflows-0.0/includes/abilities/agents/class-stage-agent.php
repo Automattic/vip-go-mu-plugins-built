@@ -16,6 +16,7 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Abilities\Agents;
 
 use VIPWorkflows\AI\AiInference;
+use VIPWorkflows\Integrations\HourlyLimit;
 use VIPWorkflows\Integrations\LlmTextGenerator;
 use WordPress\AiClient\Providers\Http\DTO\RequestOptions;
 
@@ -105,6 +106,11 @@ class StageAgent {
 	 * @return string|\WP_Error Generated text (trimmed) or error.
 	 */
 	public static function generate( string $prompt, int $max_tokens = 6000 ) {
+		$rate_limited = self::check_rate_limit();
+		if ( is_wp_error( $rate_limited ) ) {
+			return $rate_limited;
+		}
+
 		$request_options = new RequestOptions();
 		$request_options->setTimeout( self::REQUEST_TIMEOUT );
 
@@ -143,6 +149,31 @@ class StageAgent {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Hold interactive AI runs to an optional per-user hourly ceiling.
+	 *
+	 * The ceiling is off by default: interactive runs are uncapped unless a
+	 * site opts in. Each generate() call spends the operator's configured
+	 * provider budget, so a site that wants a runaway guard filters
+	 * `vip_workflows_ai_hourly_limit` to a positive number of runs per user
+	 * per hour; the default of 0 (any value of 0 or less) leaves runs uncapped.
+	 * Unattended stage-agent runs (cron) are always exempt: they are bounded by
+	 * the workflow that scheduled them.
+	 *
+	 * @return true|\WP_Error True when uncapped or under the ceiling, WP_Error at the limit.
+	 */
+	private static function check_rate_limit() {
+		if ( wp_doing_cron() ) {
+			return true;
+		}
+
+		return HourlyLimit::spend(
+			'ai',
+			0,
+			__( 'This account has reached its hourly limit for AI runs.', 'vip-workflows' )
+		);
 	}
 
 	/**
@@ -428,6 +459,11 @@ class StageAgent {
 	 * impersonates a capable user (who may hold unfiltered_html), and
 	 * machine-generated markup must never ride that capability.
 	 *
+	 * The concurrent-edit check reads the post fresh from the database, so a
+	 * save made by anyone else while the agent was waiting on the model is
+	 * caught. It is not atomic with the write: a save landing in the moment
+	 * between the check and the update can still be overwritten.
+	 *
 	 * @param  int         $post_id           Post ID.
 	 * @param  string      $new_content       New post content.
 	 * @param  string|null $expected_modified post_modified_gmt captured by read_post();
@@ -447,6 +483,18 @@ class StageAgent {
 	 * @return true|\WP_Error
 	 */
 	public static function write_content( int $post_id, string $new_content, ?string $expected_modified = null, bool $sanitize = true ) {
+		/*
+		 * Drop this request's copy of the post before checking or writing.
+		 *
+		 * read_post() ran earlier in the same request, so without this the
+		 * get_post() below hands back that same object: the comparison checks
+		 * the timestamp against itself and always passes, however long the
+		 * model call took and whoever saved in the meantime. wp_update_post()
+		 * also fills every field the agent does not set (title, excerpt, …)
+		 * from that object, so a stale copy would revert those fields too.
+		 */
+		clean_post_cache( $post_id );
+
 		if ( null !== $expected_modified ) {
 			$current = get_post( $post_id );
 			if ( ! $current ) {
@@ -756,7 +804,7 @@ class StageAgent {
 				}
 			)
 		);
-		$anchors = self::anchor_index_by_note_id( $blocks );
+		$anchors  = self::anchor_index_by_note_id( $blocks );
 
 		// Anchor-aware idempotent no-op: both the body and the block it anchors
 		// to must already match, so re-flagging the same claim on a different
@@ -981,20 +1029,20 @@ class StageAgent {
 	 * or clean up the note — so a failed meta write deletes the comment and errors
 	 * rather than leaving an orphaned, unmarked note anchored in the content.
 	 *
-	 * @param  int    $post_id Post ID.
-	 * @param  int    $parent  Parent comment ID (0 for a top-level note).
-	 * @param  string $body    Note body (already label-prefixed).
-	 * @param  string $marker  Comment-meta key tagging this agent's notes.
+	 * @param  int    $post_id   Post ID.
+	 * @param  int    $parent_id Parent comment ID (0 for a top-level note).
+	 * @param  string $body      Note body (already label-prefixed).
+	 * @param  string $marker    Comment-meta key tagging this agent's notes.
 	 * @return int|\WP_Error New comment ID or error.
 	 */
-	private static function insert_note( int $post_id, int $parent, string $body, string $marker ) {
+	private static function insert_note( int $post_id, int $parent_id, string $body, string $marker ) {
 		$user = wp_get_current_user();
 
 		$comment_id = wp_insert_comment(
 			array(
 				'comment_post_ID'  => $post_id,
 				'comment_type'     => 'note',
-				'comment_parent'   => $parent,
+				'comment_parent'   => $parent_id,
 				'comment_content'  => wp_strip_all_tags( $body ),
 				'user_id'          => $user ? (int) $user->ID : 0,
 				'comment_author'   => $user ? (string) $user->display_name : '',
@@ -1327,18 +1375,18 @@ class StageAgent {
 	 * reply is left untouched. Human replies are never touched. Used to update a
 	 * finding after re-checking a claim against the editor's context.
 	 *
-	 * @param  int    $post_id Post ID.
-	 * @param  int    $parent  Parent note ID.
-	 * @param  string $label   Agent label prefix.
-	 * @param  string $body    Reply body.
-	 * @param  string $marker  Comment-meta key tagging this agent's notes.
+	 * @param  int    $post_id   Post ID.
+	 * @param  int    $parent_id Parent note ID.
+	 * @param  string $label     Agent label prefix.
+	 * @param  string $body      Reply body.
+	 * @param  string $marker    Comment-meta key tagging this agent's notes.
 	 * @return null|\WP_Error
 	 */
-	public static function append_agent_reply( int $post_id, int $parent, string $label, string $body, string $marker ) {
+	public static function append_agent_reply( int $post_id, int $parent_id, string $label, string $body, string $marker ) {
 		$labeled  = self::label_note_body( $label, $body );
 		$children = get_comments(
 			array(
-				'parent' => $parent,
+				'parent' => $parent_id,
 				'type'   => 'note',
 				'status' => 'all',
 				'number' => 0,
@@ -1360,7 +1408,7 @@ class StageAgent {
 			$stale[] = $cid;
 		}
 
-		$inserted = self::insert_note( $post_id, $parent, $labeled, $marker );
+		$inserted = self::insert_note( $post_id, $parent_id, $labeled, $marker );
 		if ( is_wp_error( $inserted ) ) {
 			return $inserted;
 		}

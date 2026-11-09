@@ -290,11 +290,11 @@ class NotificationDispatcher implements ModuleInterface {
 		$notification->post_id = (int) ( $data['post_id'] ?? 0 );
 
 		$templates = array(
-			'published' => array(
+			'published'  => array(
 				'severity' => 'success',
 				'title'    => __( 'Published', 'vip-workflows' ),
 				/* translators: %1$s: post title, %2$s: author name. */
-				'message'  => __( '"%1$s" published by %2$s', 'vip-workflows' ),
+				'message'  => __( '“%1$s” published by %2$s', 'vip-workflows' ),
 				'args'     => array( 'post_title', 'author_name' ),
 				'color'    => '#00a32a',
 				'icon'     => '✅',
@@ -303,7 +303,7 @@ class NotificationDispatcher implements ModuleInterface {
 				'severity' => 'info',
 				'title'    => __( 'Stage changed', 'vip-workflows' ),
 				/* translators: %1$s: post title, %2$s: previous workflow status label, %3$s: new workflow status label. */
-				'message'  => __( '"%1$s" moved from %2$s to %3$s', 'vip-workflows' ),
+				'message'  => __( '“%1$s” moved from %2$s to %3$s', 'vip-workflows' ),
 				'args'     => array( 'post_title', 'from_label', 'to_label' ),
 				'color'    => '#2271b1',
 				'icon'     => '📝',
@@ -554,7 +554,7 @@ class NotificationDispatcher implements ModuleInterface {
 			}
 
 			$notification = $this->build_notification( $event_type, $data );
-			$sent = $channel->send( $notification );
+			$sent         = $channel->send( $notification );
 
 			if ( $sent ) {
 				$this->update_rate_limit( $channel_id, $event_type, $data );
@@ -580,7 +580,7 @@ class NotificationDispatcher implements ModuleInterface {
 		$events = array(
 			// Go-live is a system event (core transition_post_status), not a
 			// per-transition one, so it routes through the global matrix.
-			'published'    => __( 'Published', 'vip-workflows' ),
+			'published' => __( 'Published', 'vip-workflows' ),
 		);
 
 		return apply_filters( 'vip_workflows_notification_events', $events );

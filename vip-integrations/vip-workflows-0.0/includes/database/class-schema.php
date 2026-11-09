@@ -21,7 +21,7 @@ class Schema {
 	/**
 	 * Database version.
 	 */
-	public const VERSION = '2.24.0';
+	public const VERSION = '2.27.0';
 
 	/**
 	 * Option name for storing DB version.
@@ -73,12 +73,68 @@ class Schema {
 	public const REGION_REVIEW_OPTION = 'vip_workflows_sequences_need_region_review';
 
 	/**
+	 * Where the pending-assignee backfill has got to: the last post ID done,
+	 * or ASSIGNEE_BACKFILL_COMPLETE once it has finished.
+	 *
+	 * Kept after the backfill finishes, so a request that started the upgrade
+	 * before another finished it does nothing. A later migration that wants to
+	 * rebuild this index has to delete this option first, or the backfill will
+	 * see itself as done.
+	 */
+	public const ASSIGNEE_BACKFILL_CURSOR_OPTION = 'vip_workflows_assignee_index_backfill_cursor';
+
+	/**
+	 * The cursor value that records a finished backfill.
+	 */
+	public const ASSIGNEE_BACKFILL_COMPLETE = 'complete';
+
+	/**
+	 * Option naming the one request allowed to write the backfill, as
+	 * "<token>|<expiry timestamp>".
+	 */
+	public const ASSIGNEE_BACKFILL_LEASE_OPTION = 'vip_workflows_assignee_index_backfill_lease';
+
+	/**
+	 * Seconds a backfill lease lasts without renewal. The owner renews it
+	 * before every page, which takes well under a second, so only an owner
+	 * that has died lets it run out.
+	 */
+	public const ASSIGNEE_BACKFILL_LEASE_TTL = 120;
+
+	/**
+	 * Seconds of backfill work one request does before it stops and leaves the
+	 * rest to the next request.
+	 *
+	 * The upgrade runs on an ordinary request, so a site with many assigned
+	 * posts would otherwise spend a visitor's whole request, and its time
+	 * limit, on the backfill. Static so the tests can shorten it.
+	 *
+	 * @var float
+	 */
+	private static float $assignee_backfill_budget = 10.0;
+
+	/**
+	 * Posts per backfill page. Static so the tests can shorten it.
+	 *
+	 * @var int
+	 */
+	private static int $assignee_backfill_page_size = 500;
+
+	/**
 	 * Install or upgrade database tables.
 	 */
 	public function install(): void {
 		$current_version = get_option( self::VERSION_OPTION, '0.0.0' );
 
 		if ( version_compare( $current_version, self::VERSION, '>=' ) ) {
+			return;
+		}
+
+		// Another request is backfilling the pending-assignee index, and bumps
+		// the version when it finishes. Running the upgrade here would only
+		// re-check every table and then stop at the lease, on every request
+		// for as long as the backfill takes, and log each time.
+		if ( self::assignee_backfill_running_elsewhere() ) {
 			return;
 		}
 
@@ -101,6 +157,7 @@ class Schema {
 	 *      IF NOT EXISTS guards on all DDL statements.
 	 *
 	 * @param string $from_version Installed DB version before this upgrade run.
+	 * @throws MigrationDeferred When a migration stopped short and resumes on a later request.
 	 * @throws \RuntimeException When a migration query fails.
 	 * @throws \InvalidArgumentException If a migration definition is invalid.
 	 */
@@ -118,6 +175,10 @@ class Schema {
 
 				try {
 					( $migration['run'] )();
+				} catch ( MigrationDeferred $e ) {
+					// Not a failure: the migration resumes on a later request, and
+					// the version stays unbumped until it finishes.
+					throw $e;
 				} catch ( \Throwable $e ) {
 					$message = sprintf( 'VIP Workflows schema migration to %s threw: %s', $migration['version'], $e->getMessage() );
                     // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -162,14 +223,14 @@ class Schema {
 				'run'     => function (): void {
 					global $wpdb;
 
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_claim_queue; runs once per schema version
 					$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}vip_claim_queue" );
 
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_sequences; runs once per schema version
 					$wpdb->query( "DELETE FROM {$wpdb->prefix}vip_sequences WHERE type = 'pitch'" );
 
 					// Delete vip_pitch posts and their orphaned postmeta.
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration deleting retired post types and their postmeta from the core posts and postmeta tables, which no API can do in one statement; runs once per schema version, and the deleted posts' object-cache entries are left to expire rather than flushed
 					$wpdb->query(
 						"DELETE p, pm FROM {$wpdb->prefix}posts p
 						LEFT JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID
@@ -186,7 +247,7 @@ class Schema {
 					global $wpdb;
 
 					// Delete vip_workflows_note posts and their orphaned postmeta.
-                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration deleting retired post types and their postmeta from the core posts and postmeta tables, which no API can do in one statement; runs once per schema version, and the deleted posts' object-cache entries are left to expire rather than flushed
 					$wpdb->query(
 						"DELETE p, pm FROM {$wpdb->prefix}posts p
 						LEFT JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID
@@ -355,12 +416,13 @@ class Schema {
 					//
 					// Table names cannot be bound as parameters; every name here is
 					// built from $wpdb->prefix and a literal, never from input.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration check for plugin table vip_blueprints; runs once per schema version
 					$has_old = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_table ) ) === $old_table;
 
 					if ( $has_old ) {
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_sequences; runs once per schema version
 						$new_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$new_table}`" );
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_blueprints; runs once per schema version
 						$old_rows = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$old_table}`" );
 
 						// Rows on both sides is not a state this can reconcile — the new
@@ -386,7 +448,7 @@ class Schema {
 						// nothing enforces that.
 						$columns = '`id`, `uuid`, `type`, `name`, `slug`, `description`, `version`, `status`, `config`, `created_by`, `created_at`, `updated_at`';
 
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_sequences; runs once per schema version
 						$wpdb->query( "INSERT INTO `{$new_table}` ({$columns}) SELECT {$columns} FROM `{$old_table}`" );
 
 						// The copy has to prove itself here. $wpdb->last_error cannot do it:
@@ -395,7 +457,7 @@ class Schema {
 						// invisible by the time it is checked, and the version would be
 						// written as complete. Count the rows and throw, which is what
 						// run_migrations() does catch.
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_sequences; runs once per schema version
 						$copied = (int) $wpdb->get_var( "SELECT COUNT(*) FROM `{$new_table}`" );
 
 						if ( $copied !== $old_rows ) {
@@ -412,11 +474,12 @@ class Schema {
 							);
 						}
 
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_blueprints; runs once per schema version
 						$wpdb->query( "DROP TABLE `{$old_table}`" );
 					}
 
 					// Re-runnable by construction: a second pass matches no rows.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration renaming a meta key across all posts, which no meta API can do in one statement; runs once per schema version, and affected posts' meta caches are not flushed here
 					$wpdb->update(
 						$wpdb->postmeta,
 						array( 'meta_key' => '_vip_workflows_sequence_id' ),
@@ -437,26 +500,27 @@ class Schema {
 					// that does not exist sets $wpdb->last_error, and run_migrations()
 					// turns any last_error into a thrown RuntimeException. Without this
 					// guard, installing the plugin fresh fails here.
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration check for plugin table vip_automation_flows; runs once per schema version
 					$has_flows_table = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $flows ) ) === $flows;
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_automation_flows; runs once per schema version
 					$has_old_column = $has_flows_table && (bool) $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM `{$flows}` LIKE %s", 'blueprint_id' ) );
 
 					if ( $has_old_column ) {
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_automation_flows; runs once per schema version
 						$wpdb->query( "UPDATE `{$flows}` SET sequence_id = blueprint_id WHERE sequence_id IS NULL" );
 
 						// The indexes naming the old column have to go before it can.
 						foreach ( array( 'blueprint_id', 'status_blueprint_priority' ) as $index ) {
-							// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+							// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_automation_flows; runs once per schema version
 							$exists = $wpdb->get_var( $wpdb->prepare( "SHOW INDEX FROM `{$flows}` WHERE Key_name = %s", $index ) );
 							if ( $exists ) {
-								// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+								// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_automation_flows; runs once per schema version
 								$wpdb->query( "ALTER TABLE `{$flows}` DROP INDEX `{$index}`" );
 							}
 						}
 
-						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_automation_flows; runs once per schema version
 						$wpdb->query( "ALTER TABLE `{$flows}` DROP COLUMN blueprint_id" );
 					}
 
@@ -490,16 +554,412 @@ class Schema {
 				'run'     => function (): void {
 					global $wpdb;
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_automation_executions; runs once per schema version
 					$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}vip_automation_executions" );
 
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- migration on plugin table vip_automation_flows; runs once per schema version
 					$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}vip_automation_flows" );
 
 					self::drop_retired_event_routing();
 				},
 			),
+			// Clear two retired transition fields off stored rows, in one replay.
+			//
+			// The restrict-to-assignee gate, `requires_assignment`: nothing has
+			// read it since the gate was removed, and the write gate now strips
+			// it. Stored rows still carry it, and GET and export re-emit it as a
+			// restriction nothing enforces.
+			//
+			// Free-text notes (`textarea`, or the older `text`): the editor
+			// stopped collecting them, and the write gate now refuses any input
+			// that is not an assignment, so a stored note is a row nothing reads
+			// and no save can carry.
+			//
+			// The gate strips `requires_assignment` itself. Notes are dropped
+			// ahead of the gate by drop_retired_transition_inputs(), which every
+			// replay runs, so earlier replays on a fresh upgrade do not reject a
+			// note-bearing row either. Only the known note types are dropped; an
+			// unknown input type is left for the gate, so its row is recorded for
+			// review rather than silently changed. Import runs the same cleanup.
+			//
+			// Idempotent: a replayed row carries neither field, so a second pass
+			// produces byte-identical JSON and writes nothing.
+			array(
+				'version' => '2.25.0',
+				'run'     => function (): void {
+					self::replay_stored_stage_configs( true );
+				},
+			),
+			// Flag the stage new posts start in.
+			//
+			// The start stage used to be read from array order: the stage marked
+			// `is_initial`, or else the first stage. The Sequence editor's stages
+			// list saves its order as that array, so dragging a later stage to the
+			// top quietly changed where new posts start. The write gate now
+			// guarantees exactly one flagged stage, and the read path no longer
+			// consults order at all — so every stored row has to carry the flag.
+			//
+			// The replay stamps it where the old rule would have put new posts:
+			// on a row with no flag, the first stage. Nothing about where posts
+			// start changes on upgrade; only a later reorder stops changing it.
+			// A row that already flags exactly one stage is a byte-identical
+			// no-op, and a row that flags two is rejected and recorded for the
+			// admin notice like any other row the gate refuses.
+			array(
+				'version' => '2.26.0',
+				'run'     => function (): void {
+					self::replay_stored_stage_configs( true );
+				},
+			),
+			// My Work finds a user's pending assignments through an index
+			// that every assignment write now keeps in step. Assignments made
+			// before it existed have no index rows, so build them once.
+			array(
+				'version' => '2.27.0',
+				'run'     => function (): void {
+					self::backfill_pending_assignee_index();
+				},
+			),
 		);
+	}
+
+	/**
+	 * Build the pending-assignee index for every post that has an assignment.
+	 *
+	 * Only the request holding the backfill lease writes (see
+	 * acquire_backfill_lease()); another request running the upgrade at the
+	 * same time stops without writing, and the holder bumps the schema
+	 * version when it finishes. A finished backfill is recorded, so a request
+	 * that starts after it does nothing.
+	 *
+	 * It runs on an ordinary request after the upgrade, so it does a page at a
+	 * time: one read of a page of posts' assignment rows, one delete and one
+	 * multi-row insert, rather than several queries per post. Each page is
+	 * read back after it is written, which settles a live assignment made
+	 * between the read and the write (see settle_pending_assignee_page()), and
+	 * only then is the page's last post ID saved, so an owner that dies
+	 * mid-page leaves that page to be redone, from a fresh read, by the next
+	 * owner once its lease expires.
+	 *
+	 * A request works for a few seconds at most ($assignee_backfill_budget),
+	 * then releases the lease and throws MigrationDeferred, so no visitor's
+	 * request carries the whole backfill; the next request resumes at the
+	 * cursor.
+	 *
+	 * Malformed slots are logged and left out, as
+	 * AssignmentManager::pending_user_ids_from_slots() describes.
+	 *
+	 * @throws MigrationDeferred When this request's time budget ran out. The
+	 *                           helpers it calls also throw MigrationDeferred
+	 *                           when another request holds the lease, and
+	 *                           RuntimeException when the lease is lost or the
+	 *                           rows cannot be read or written.
+	 */
+	private static function backfill_pending_assignee_index(): void {
+		$lease = self::acquire_backfill_lease();
+
+		try {
+			$cursor = self::read_option_from_primary( self::ASSIGNEE_BACKFILL_CURSOR_OPTION );
+			if ( self::ASSIGNEE_BACKFILL_COMPLETE === $cursor ) {
+				// Another request finished it after this one decided to upgrade.
+				return;
+			}
+
+			if ( ! self::write_backfill_pages( $lease, (int) $cursor ) ) {
+				// The time budget ran out. The cursor marks where the next
+				// request picks up; the lease is released below so it can.
+				throw new MigrationDeferred( 'The pending-assignee backfill used its time budget and resumes on the next request.' );
+			}
+
+			// Still the owner when recording the finish, or a request that took
+			// over could be told there is nothing left to do.
+			$lease = self::renew_backfill_lease( $lease );
+			self::write_option_to_primary( self::ASSIGNEE_BACKFILL_CURSOR_OPTION, self::ASSIGNEE_BACKFILL_COMPLETE );
+		} finally {
+			self::release_backfill_lease( $lease );
+		}
+	}
+
+	/**
+	 * Write the backfill a page at a time, from the post after $last_id.
+	 *
+	 * @param string $lease   This request's lease value, by reference: each
+	 *                        renewal changes it, and the caller releases the
+	 *                        lease by its latest value.
+	 * @param int    $last_id Last post ID already done.
+	 * @return bool True when every assigned post is done; false when the time
+	 *              budget ran out first.
+	 * @throws \RuntimeException When the rows cannot be read or written, or the lease was lost.
+	 */
+	private static function write_backfill_pages( string &$lease, int $last_id ): bool {
+		global $wpdb;
+
+		$index_key = \VIPWorkflows\Workflow\AssignmentManager::PENDING_ASSIGNEE_INDEX_KEY;
+		$like      = $wpdb->esc_like( \VIPWorkflows\Workflow\AssignmentManager::STORAGE_PREFIX ) . '%';
+		$page_size = self::$assignee_backfill_page_size;
+		$deadline  = microtime( true ) + self::$assignee_backfill_budget;
+
+		do {
+			$post_ids = array_map(
+				'intval',
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off backfill over postmeta, paged by post ID; runs once per schema version
+				$wpdb->get_col(
+					$wpdb->prepare(
+						'SELECT DISTINCT post_id FROM %i WHERE meta_key LIKE %s AND post_id > %d ORDER BY post_id ASC LIMIT %d',
+						$wpdb->postmeta,
+						$like,
+						$last_id,
+						$page_size
+					)
+				)
+			);
+
+			if ( '' !== $wpdb->last_error ) {
+				throw new \RuntimeException( esc_html( 'Could not read assigned posts to index: ' . $wpdb->last_error ) );
+			}
+
+			if ( $post_ids ) {
+				// Still the owner, or stop before writing: a request whose lease
+				// ran out and was taken over must not write a page it read
+				// before the takeover.
+				$lease = self::renew_backfill_lease( $lease );
+
+				// Integers only, so the list is safe to inline.
+				$in = implode( ', ', $post_ids );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off backfill; $in holds only integers.
+				$rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ( {$in} ) AND meta_key LIKE %s", $like ) );
+				if ( null === $rows || '' !== $wpdb->last_error ) {
+					throw new \RuntimeException( esc_html( 'Could not read assignments to index: ' . $wpdb->last_error ) );
+				}
+
+				$slots = array();
+				foreach ( $rows as $row ) {
+					$slots[ (int) $row->post_id ][ (string) $row->meta_key ] = $row->meta_value;
+				}
+
+				$values = array();
+				foreach ( $post_ids as $post_id ) {
+					$user_ids = \VIPWorkflows\Workflow\AssignmentManager::pending_user_ids_from_slots( $post_id, $slots[ $post_id ] ?? array() );
+					foreach ( $user_ids as $user_id ) {
+						$values[] = $wpdb->prepare( '( %d, %s, %s )', $post_id, $index_key, (string) $user_id );
+					}
+				}
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off backfill; $in holds only integers.
+				$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN ( {$in} )", $index_key ) );
+				if ( $values && '' === $wpdb->last_error ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- one-off backfill; every row in $values was prepared above.
+					$wpdb->query( "INSERT INTO {$wpdb->postmeta} ( post_id, meta_key, meta_value ) VALUES " . implode( ', ', $values ) );
+				}
+				if ( '' !== $wpdb->last_error ) {
+					throw new \RuntimeException( esc_html( 'Could not write the pending-assignee index: ' . $wpdb->last_error ) );
+				}
+
+				foreach ( $post_ids as $post_id ) {
+					wp_cache_delete( $post_id, 'post_meta' );
+				}
+
+				self::settle_pending_assignee_page( $post_ids, $in, $like, $index_key );
+
+				// Saved only after the page is read back and settled, so an owner
+				// that dies before then leaves the page to be redone, from a fresh
+				// read, by the next owner.
+				$last_id = (int) end( $post_ids );
+				self::write_option_to_primary( self::ASSIGNEE_BACKFILL_CURSOR_OPTION, (string) $last_id );
+			}
+
+			$done = count( $post_ids ) < $page_size;
+		} while ( ! $done && microtime( true ) < $deadline );
+
+		return $done;
+	}
+
+	/**
+	 * Whether another request holds a live backfill lease.
+	 *
+	 * A cheap check before the upgrade starts, not the guard: it is a plain
+	 * read, which HyperDB may answer from a replica, so two requests can both
+	 * see no lease. The lease claim in acquire_backfill_lease() decides which
+	 * of them writes.
+	 *
+	 * @return bool
+	 */
+	private static function assignee_backfill_running_elsewhere(): bool {
+		$held = self::read_option_from_primary( self::ASSIGNEE_BACKFILL_LEASE_OPTION );
+
+		return null !== $held && (int) substr( (string) strrchr( $held, '|' ), 1 ) >= time();
+	}
+
+	/**
+	 * Take the backfill lease, or throw because another request holds it.
+	 *
+	 * Two requests can run the schema upgrade at once. Two backfill writers
+	 * could then leave a stale page behind: one finishes and marks the schema
+	 * current, the other overwrites a page from an older read and dies before
+	 * reading it back, and nothing runs the backfill again. So only the lease
+	 * holder writes. The lease is an option row inserted with INSERT IGNORE, so
+	 * exactly one request creates it; a write, it goes to the primary under
+	 * HyperDB, unlike a SELECT GET_LOCK. A lease past its expiry belonged to a
+	 * request that died, and is taken over with a compare-and-set.
+	 *
+	 * It throws MigrationDeferred, which is not logged as a failure, and leaves
+	 * the schema version unbumped for this request, which is right: the holder
+	 * bumps it when it finishes.
+	 *
+	 * @return string This request's lease value.
+	 * @throws MigrationDeferred When another request holds a live lease.
+	 * @throws \RuntimeException When the claim fails in the database.
+	 */
+	private static function acquire_backfill_lease(): string {
+		global $wpdb;
+
+		$lease = wp_generate_uuid4() . '|' . ( time() + self::ASSIGNEE_BACKFILL_LEASE_TTL );
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- an atomic claim on a unique option name; the options API would overwrite an existing row.
+		$claimed = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO {$wpdb->options} ( option_name, option_value, autoload ) VALUES ( %s, %s, 'off' )", self::ASSIGNEE_BACKFILL_LEASE_OPTION, $lease ) );
+		if ( false === $claimed ) {
+			throw new \RuntimeException( esc_html( 'Could not claim the pending-assignee backfill lease: ' . $wpdb->last_error ) );
+		}
+		if ( 1 === $claimed ) {
+			return $lease;
+		}
+
+		$held = (string) self::read_option_from_primary( self::ASSIGNEE_BACKFILL_LEASE_OPTION );
+		if ( (int) substr( (string) strrchr( $held, '|' ), 1 ) < time() ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- compare-and-set takeover of an expired lease.
+			$taken = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value = %s", $lease, self::ASSIGNEE_BACKFILL_LEASE_OPTION, $held ) );
+			if ( 1 === $taken ) {
+				return $lease;
+			}
+		}
+
+		throw new MigrationDeferred( 'The pending-assignee backfill is running in another request.' );
+	}
+
+	/**
+	 * Extend this request's lease, or throw because it was taken over.
+	 *
+	 * @param string $lease This request's lease value.
+	 * @return string The renewed lease value.
+	 * @throws \RuntimeException When the lease is no longer this request's.
+	 */
+	private static function renew_backfill_lease( string $lease ): string {
+		global $wpdb;
+
+		$token   = strtok( $lease, '|' );
+		$renewed = $token . '|' . ( time() + self::ASSIGNEE_BACKFILL_LEASE_TTL );
+
+		// Matched on the token, which is this request's, not on the whole
+		// value, whose expiry moves with every renewal.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- compare-and-set renewal of this request's own lease.
+		$rows = $wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s AND option_value LIKE %s", $renewed, self::ASSIGNEE_BACKFILL_LEASE_OPTION, $wpdb->esc_like( $token . '|' ) . '%' ) );
+
+		// MySQL counts changed rows, so a renewal in the same second as the
+		// last one changes nothing and reports 0. Read the row to tell that
+		// apart from a takeover, which replaces the token.
+		if ( 1 !== $rows && strtok( (string) self::read_option_from_primary( self::ASSIGNEE_BACKFILL_LEASE_OPTION ), '|' ) !== $token ) {
+			throw new \RuntimeException( 'The pending-assignee backfill lease was taken over; stopping before writing.' );
+		}
+
+		return $renewed;
+	}
+
+
+	/**
+	 * Give the lease back, if it is still this request's.
+	 *
+	 * Matched on the token, so a value whose expiry has moved since it was
+	 * claimed is still released, and a lease another request took over is not.
+	 *
+	 * @param string $lease This request's lease value.
+	 */
+	private static function release_backfill_lease( string $lease ): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- deletes only this request's own lease row.
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value LIKE %s", self::ASSIGNEE_BACKFILL_LEASE_OPTION, $wpdb->esc_like( strtok( $lease, '|' ) . '|' ) . '%' ) );
+	}
+
+
+	/**
+	 * Read an option row straight from the database, past every cache.
+	 *
+	 * Used after this request has written to the options table, so HyperDB
+	 * sends it to the primary.
+	 *
+	 * @param string $name Option name.
+	 * @return string|null The stored value, or null when there is none.
+	 */
+	private static function read_option_from_primary( string $name ): ?string {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the backfill's own coordination rows, read past the cache.
+		return $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $name ) );
+	}
+
+	/**
+	 * Write an option row straight to the database, and drop its cache entry.
+	 *
+	 * @param string $name  Option name.
+	 * @param string $value Value.
+	 */
+	private static function write_option_to_primary( string $name, string $value ): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- the backfill's own coordination row.
+		$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->options} ( option_name, option_value, autoload ) VALUES ( %s, %s, 'off' ) ON DUPLICATE KEY UPDATE option_value = VALUES( option_value )", $name, $value ) );
+		wp_cache_delete( $name, 'options' );
+	}
+
+	/**
+	 * Check a backfilled page against its slots as stored now, and rebuild
+	 * any post that disagrees.
+	 *
+	 * The page was read before it was written, so a live assignment made in
+	 * between, or another upgrade request backfilling the same page, can leave
+	 * a post with a stale or doubled row. Reading the page again after the
+	 * write sees those, and AssignmentManager::sync_pending_assignee_index(),
+	 * which checks its own work, settles each post that disagrees.
+	 *
+	 * @param int[]  $post_ids  The page's post IDs.
+	 * @param string $in        Those IDs as an inlined integer list.
+	 * @param string $like      LIKE pattern for assignment slot keys.
+	 * @param string $index_key The index meta key.
+	 * @throws \RuntimeException When the page cannot be read back.
+	 */
+	private static function settle_pending_assignee_page( array $post_ids, string $in, string $like, string $index_key ): void {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off backfill; $in holds only integers.
+		$slot_rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ( {$in} ) AND meta_key LIKE %s", $like ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off backfill; $in holds only integers.
+		$index_rows = $wpdb->get_results( $wpdb->prepare( "SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = %s AND post_id IN ( {$in} )", $index_key ) );
+		if ( null === $slot_rows || null === $index_rows || '' !== $wpdb->last_error ) {
+			throw new \RuntimeException( esc_html( 'Could not read back the pending-assignee index: ' . $wpdb->last_error ) );
+		}
+
+		$slots = array();
+		foreach ( $slot_rows as $row ) {
+			$slots[ (int) $row->post_id ][ (string) $row->meta_key ] = $row->meta_value;
+		}
+		$indexed = array();
+		foreach ( $index_rows as $row ) {
+			$indexed[ (int) $row->post_id ][] = (int) $row->meta_value;
+		}
+
+		$manager = new \VIPWorkflows\Workflow\AssignmentManager();
+		foreach ( $post_ids as $post_id ) {
+			$expected = \VIPWorkflows\Workflow\AssignmentManager::pending_user_ids_from_slots( $post_id, $slots[ $post_id ] ?? array(), false );
+			$actual   = $indexed[ $post_id ] ?? array();
+			sort( $expected );
+			sort( $actual );
+
+			if ( $expected !== $actual ) {
+				// The page pass above already logged this post's malformed slots.
+				$manager->sync_pending_assignee_index( $post_id, false );
+			}
+		}
 	}
 
 	/**
@@ -530,6 +990,7 @@ class Schema {
 		);
 
 		foreach ( $type_map as $old_type => $new_type ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_workflows_events; runs once per schema version
 			$updated = $wpdb->update(
 				$events_table,
 				array( 'event_type' => $new_type ),
@@ -608,6 +1069,7 @@ class Schema {
 					throw new \RuntimeException( esc_html( sprintf( 'Could not encode migrated workflow event %d.', (int) $row->id ) ) );
 				}
 
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- migration on plugin table vip_workflows_events; runs once per schema version
 				$updated = $wpdb->update(
 					$events_table,
 					array( 'event_data' => $encoded ),
@@ -717,13 +1179,16 @@ class Schema {
 			$routing = array();
 		}
 
-		$prefix       = 'vip_workflows_channel_';
+		$prefix = 'vip_workflows_channel_';
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- one-off migration listing options by prefix; options API cannot do this in one statement; runs once per schema version
 		$option_names = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
 				$wpdb->esc_like( $prefix ) . '%'
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		$collected = array();
 		foreach ( (array) $option_names as $option_name ) {
@@ -800,6 +1265,13 @@ class Schema {
 	 * Idempotent: the gate is a pure normalization, so a second replay of an
 	 * already-normalized config produces byte-identical JSON and the row is skipped.
 	 *
+	 * Each write is conditional on the row still holding the config this pass read
+	 * (see write_normalized_config()). The upgrade runs on `init`, so a REST save can
+	 * land between the read and the write; an unconditional write by id would put
+	 * the pre-save config back and lose that save. A row that changed is read again
+	 * and normalized from what it holds now, once. A row that changes again is
+	 * logged and recorded for review, and the loop moves on.
+	 *
 	 * @since 0.0.1
 	 *
 	 * @param bool $collapse_duplicate_transitions Whether a row the gate rejects gets
@@ -841,118 +1313,207 @@ class Schema {
 		);
 
 		foreach ( (array) $rows as $row ) {
-			$config = json_decode( (string) $row->config, true );
+			$encoded = self::normalize_stored_row( $row, $collapse_duplicate_transitions );
 
-			if ( ! is_array( $config ) ) {
-				// Unparseable stored JSON is beyond the gate's reach. Recorded and
-				// moved past: throwing here would abort the migration and re-run it
-				// on every subsequent request, and skipping in silence would leave
-				// an operator with a sequence that is broken and never mentioned.
-				self::record_sequence_needing_review(
-					self::unrepairable_record( (int) $row->id, (string) $row->name, 'The stored configuration is not valid JSON.' )
-				);
-
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"): its stored config is not valid JSON.', (int) $row->id, (string) $row->slug ) );
+			if ( null === $encoded || self::write_normalized_config( $row, $encoded ) ) {
 				continue;
 			}
 
-			$config = self::drop_core_status_transition_targets( $config, (int) $row->id, (string) $row->slug );
-
-			$assigned = self::assign_regions_from_legacy_flags( $config, (int) $row->id, (string) $row->slug );
-			$config   = $assigned['config'];
-
-			$repair = array( 'dropped' => array() );
-
-			try {
-				$normalized = Sequence::prepare_config_for_write( $config, (string) $row->type );
-			} catch ( \InvalidArgumentException $rejected ) {
-				// Malformed beyond normalization (duplicate stage keys, a dangling
-				// transition target, two checkpoints in one region). Only the author
-				// can resolve those in the Sequence editor.
-				//
-				// The row is left exactly as stored — which means it keeps no
-				// regions and stays fatal on read — so it is recorded for the admin
-				// notice rather than logged and forgotten. A repair that goes silent
-				// about the rows it could not repair is the silent behavior this
-				// whole migration exists to end.
-				if ( ! $collapse_duplicate_transitions ) {
-					self::record_sequence_needing_review(
-						self::unrepairable_record( (int) $row->id, (string) $row->name, $rejected->getMessage() )
-					);
-
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"); it needs manual repair in the Sequence editor: %s', (int) $row->id, (string) $row->slug, $rejected->getMessage() ) );
-					continue;
-				}
-
-				// One gate rule has an inferable repair, and it was added after these
-				// rows were written: a second transition to a target the stage already
-				// reaches collapses onto the first. That is not a guess — the target
-				// stays reachable either way — and it is reported below rather than
-				// applied quietly.
-				try {
-					$repair     = Sequence::collapse_duplicate_transitions( $config, (string) $row->type );
-					$normalized = Sequence::prepare_config_for_write( $repair['config'], (string) $row->type );
-				} catch ( \InvalidArgumentException $unrepairable ) {
-					self::record_sequence_needing_review(
-						self::unrepairable_record( (int) $row->id, (string) $row->name, $unrepairable->getMessage() )
-					);
-
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"); it needs manual repair in the Sequence editor: %s', (int) $row->id, (string) $row->slug, $unrepairable->getMessage() ) );
-					continue;
-				}
-
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( sprintf( '[VIP Workflows] Sequence %d ("%s"): removed %d transition(s) that would have left a stage holding two to one target. Originally rejected as: %s', (int) $row->id, (string) $row->slug, count( $repair['dropped'] ), $rejected->getMessage() ) );
-			}
-
-			// A sequence whose regions were inferred rather than declared, or whose
-			// transitions had to be removed, needs a human to confirm the result.
-			// Recorded so the admin notice can name it — the migration silently
-			// reshaping a workflow would be the same broken promise this repair
-			// exists to end.
-			//
-			// Recorded before the write, and independent of whether the row actually
-			// changed, so a re-run after a partial failure still reports every
-			// affected sequence. This stays idempotent on its own terms: once a row
-			// carries regions and one transition per target, nothing is inferred or
-			// removed, so an already-migrated row contributes nothing and a dismissed
-			// notice does not come back.
-			if ( ! empty( $assigned['defaulted'] ) || ! empty( $repair['dropped'] ) ) {
-				self::record_sequence_needing_review(
-					array(
-						'id'              => (int) $row->id,
-						'name'            => (string) $row->name,
-						'stage_keys'      => $assigned['defaulted'],
-						'reaches_publish' => self::config_reaches_publish_region( $normalized ),
-						'dropped'         => $repair['dropped'],
-						'error'           => null,
-					)
-				);
-			}
-
-			$encoded = wp_json_encode( $normalized );
-
-			if ( false === $encoded || $encoded === $row->config ) {
-				continue;
-			}
-
+			// The row changed after it was read: a save landed in between. Read it
+			// again and normalize what it holds now, so the save is kept and the
+			// cleanup still applies to it.
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->update(
-				$wpdb->prefix . 'vip_sequences',
-				array(
-					'config'     => $encoded,
-					'updated_at' => current_time( 'mysql' ),
-				),
-				array( 'id' => (int) $row->id )
+			$current = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT id, name, slug, type, config FROM {$wpdb->prefix}vip_sequences WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+					(int) $row->id
+				)
 			);
+
+			if ( null === $current ) {
+				// Deleted in between. There is nothing left to clean or to review.
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[VIP Workflows] Sequence %d ("%s") was deleted while the upgrade was normalizing it; nothing was written.', (int) $row->id, (string) $row->slug ) );
+				continue;
+			}
+
+			$encoded = self::normalize_stored_row( $current, $collapse_duplicate_transitions );
+
+			if ( null === $encoded || self::write_normalized_config( $current, $encoded ) ) {
+				continue;
+			}
+
+			// It changed again. Leave it as the latest save wrote it, and name it
+			// for review rather than retrying without end or overwriting a save.
+			self::record_sequence_needing_review(
+				self::unrepairable_record( (int) $current->id, (string) $current->name, 'It changed while the upgrade was updating it, so the upgrade left it as it was. Check it in the Sequence editor.' )
+			);
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"): it changed twice while the upgrade was writing it. It was left as last saved and recorded for review.', (int) $current->id, (string) $current->slug ) );
 		}
 
 		// Direct SQL bypassed the repository, so its cached reads would otherwise
 		// keep serving the pre-migration configs.
 		wp_cache_flush_group( SequenceRepository::CACHE_GROUP );
+	}
+
+	/**
+	 * Normalize one stored sequence row, and say what to write.
+	 *
+	 * Records and logs what the row needs reviewed as it goes, exactly as the
+	 * replay always has. Recording happens before any write, so a run that dies
+	 * between the two still names the sequence.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param  object $row                            Row with id, name, slug, type and config.
+	 * @param  bool   $collapse_duplicate_transitions See replay_stored_stage_configs().
+	 * @return string|null The normalized JSON to store, or null when nothing is
+	 *                     written: the row could not be normalized (and was
+	 *                     recorded), or it is already normalized.
+	 */
+	private static function normalize_stored_row( object $row, bool $collapse_duplicate_transitions ): ?string {
+		$config = json_decode( (string) $row->config, true );
+
+		if ( ! is_array( $config ) ) {
+			// Unparseable stored JSON is beyond the gate's reach. Recorded and
+			// moved past: throwing here would abort the migration and re-run it
+			// on every subsequent request, and skipping in silence would leave
+			// an operator with a sequence that is broken and never mentioned.
+			self::record_sequence_needing_review(
+				self::unrepairable_record( (int) $row->id, (string) $row->name, 'The stored configuration is not valid JSON.' )
+			);
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"): its stored config is not valid JSON.', (int) $row->id, (string) $row->slug ) );
+			return null;
+		}
+
+		$config = self::drop_core_status_transition_targets( $config, (int) $row->id, (string) $row->slug );
+		$config = self::drop_retired_transition_inputs( $config, (int) $row->id, (string) $row->slug );
+
+		$assigned = self::assign_regions_from_legacy_flags( $config, (int) $row->id, (string) $row->slug );
+		$config   = $assigned['config'];
+
+		$repair = array( 'dropped' => array() );
+
+		try {
+			$normalized = Sequence::prepare_config_for_write( $config, (string) $row->type );
+		} catch ( \InvalidArgumentException $rejected ) {
+			// Malformed beyond normalization (duplicate stage keys, a dangling
+			// transition target, two checkpoints in one region). Only the author
+			// can resolve those in the Sequence editor.
+			//
+			// The row is left exactly as stored — which means it keeps no
+			// regions and stays fatal on read — so it is recorded for the admin
+			// notice rather than logged and forgotten. A repair that goes silent
+			// about the rows it could not repair is the silent behavior this
+			// whole migration exists to end.
+			if ( ! $collapse_duplicate_transitions ) {
+				self::record_sequence_needing_review(
+					self::unrepairable_record( (int) $row->id, (string) $row->name, $rejected->getMessage() )
+				);
+
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"); it needs manual repair in the Sequence editor: %s', (int) $row->id, (string) $row->slug, $rejected->getMessage() ) );
+				return null;
+			}
+
+			// One gate rule has an inferable repair, and it was added after these
+			// rows were written: a second transition to a target the stage already
+			// reaches collapses onto the first. That is not a guess — the target
+			// stays reachable either way — and it is reported below rather than
+			// applied quietly.
+			try {
+				$repair     = Sequence::collapse_duplicate_transitions( $config, (string) $row->type );
+				$normalized = Sequence::prepare_config_for_write( $repair['config'], (string) $row->type );
+			} catch ( \InvalidArgumentException $unrepairable ) {
+				self::record_sequence_needing_review(
+					self::unrepairable_record( (int) $row->id, (string) $row->name, $unrepairable->getMessage() )
+				);
+
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"); it needs manual repair in the Sequence editor: %s', (int) $row->id, (string) $row->slug, $unrepairable->getMessage() ) );
+				return null;
+			}
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Sequence %d ("%s"): removed %d transition(s) that would have left a stage holding two to one target. Originally rejected as: %s', (int) $row->id, (string) $row->slug, count( $repair['dropped'] ), $rejected->getMessage() ) );
+		}
+
+		// A sequence whose regions were inferred rather than declared, or whose
+		// transitions had to be removed, needs a human to confirm the result.
+		// Recorded so the admin notice can name it — the migration silently
+		// reshaping a workflow would be the same broken promise this repair
+		// exists to end.
+		//
+		// Recorded before the write, and independent of whether the row actually
+		// changed, so a re-run after a partial failure still reports every
+		// affected sequence. This stays idempotent on its own terms: once a row
+		// carries regions and one transition per target, nothing is inferred or
+		// removed, so an already-migrated row contributes nothing and a dismissed
+		// notice does not come back.
+		if ( ! empty( $assigned['defaulted'] ) || ! empty( $repair['dropped'] ) ) {
+			self::record_sequence_needing_review(
+				array(
+					'id'              => (int) $row->id,
+					'name'            => (string) $row->name,
+					'stage_keys'      => $assigned['defaulted'],
+					'reaches_publish' => self::config_reaches_publish_region( $normalized ),
+					'dropped'         => $repair['dropped'],
+					'error'           => null,
+				)
+			);
+		}
+
+		$encoded = wp_json_encode( $normalized );
+
+		if ( false === $encoded || $encoded === $row->config ) {
+			return null;
+		}
+
+		return $encoded;
+	}
+
+	/**
+	 * Store a normalized config, only if the row still holds the config that was read.
+	 *
+	 * The comparison is on HEX(config) rather than `config = %s`. The column uses
+	 * the site collation, which is usually case-insensitive, so a plain comparison
+	 * treats a save that only changed a label's case as no change and overwrites
+	 * it. HEX() compares the stored bytes, and works on MySQL and on SQLite.
+	 *
+	 * Callers skip rows that need no change, so the new config always differs from
+	 * the one read. Zero affected rows therefore means the WHERE did not match: the
+	 * row changed or was deleted. It never means "nothing to change".
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param  object $row     The row as read, with id and config.
+	 * @param  string $encoded The normalized config JSON to store.
+	 * @return bool True when the row was written; false when it changed after it was read.
+	 * @throws \RuntimeException When the update query fails.
+	 */
+	private static function write_normalized_config( object $row, string $encoded ): bool {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$affected = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->prefix}vip_sequences SET config = %s, updated_at = %s WHERE id = %d AND HEX(config) = %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$encoded,
+				current_time( 'mysql' ),
+				(int) $row->id,
+				strtoupper( bin2hex( (string) $row->config ) )
+			)
+		);
+
+		if ( false === $affected ) {
+			throw new \RuntimeException( esc_html( sprintf( 'Could not update sequence %d: %s', (int) $row->id, (string) $wpdb->last_error ) ) );
+		}
+
+		return $affected > 0;
 	}
 
 	/**
@@ -1029,7 +1590,7 @@ class Schema {
 	protected static function repair_fabricated_stage_labels(): int {
 		global $wpdb;
 
-		$events_table     = self::get_table_name( 'workflows_events' );
+		$events_table    = self::get_table_name( 'workflows_events' );
 		$sequences_table = $wpdb->prefix . 'vip_sequences';
 
 		// `_` is a single-character LIKE wildcard, so this only narrows the scan;
@@ -1091,7 +1652,7 @@ class Schema {
 			}
 
 			$sequence_name = (string) ( $data['sequence_name'] ?? '' );
-			$stage_labels   = $labels_by_name[ $sequence_name ] ?? null;
+			$stage_labels  = $labels_by_name[ $sequence_name ] ?? null;
 
 			if ( null === $stage_labels ) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -1371,6 +1932,35 @@ class Schema {
 	}
 
 	/**
+	 * Drop the capture inputs a transition no longer collects, and log each drop.
+	 *
+	 * The cleanup itself is Sequence::drop_retired_note_inputs(), shared with
+	 * import so an old stored row and an old exported file upgrade the same way.
+	 * It removes only the known retired note types (`textarea`, `text`). Every
+	 * replay runs this, so earlier replays on a fresh upgrade do not reject a
+	 * note-bearing row either.
+	 *
+	 * An input of any other non-assignment type, or one with no type, is left in
+	 * place: the gate then refuses the row, and the replay records it for the
+	 * sequences-needing-review notice like any other row it cannot normalize.
+	 *
+	 * @param  array  $config Stored sequence config.
+	 * @param  int    $id     Sequence ID, for logging.
+	 * @param  string $slug   Sequence slug, for logging.
+	 * @return array Config with every retired note input removed.
+	 */
+	private static function drop_retired_transition_inputs( array $config, int $id, string $slug ): array {
+		$result = Sequence::drop_retired_note_inputs( $config );
+
+		foreach ( $result['dropped'] as $drop ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Sequence %d ("%s"): dropped %d retired capture input(s) from the transition on stage "%s" to "%s"; a transition captures only an assignment.', $id, $slug, $drop['count'], $drop['from'], $drop['to'] ) );
+		}
+
+		return $result['config'];
+	}
+
+	/**
 	 * Create all database tables.
 	 */
 	private function create_tables(): void {
@@ -1613,7 +2203,7 @@ class Schema {
 		global $wpdb;
 
 		foreach ( self::get_owned_tables() as $table_name ) {
-			$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->query( "DROP TABLE IF EXISTS {$table_name}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- uninstall drops each plugin-owned table; one-off, nothing to cache
 		}
 
 		delete_option( self::VERSION_OPTION );

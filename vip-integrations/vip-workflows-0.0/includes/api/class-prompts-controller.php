@@ -156,7 +156,7 @@ class PromptsController extends WP_REST_Controller {
 		if ( ! PromptSettings::get_instance()->set_override( $id, $prompt ) ) {
 			return new WP_Error(
 				'save_failed',
-				__( 'Failed to save the prompt override.', 'vip-workflows' ),
+				__( 'Could not save the prompt override. Try again.', 'vip-workflows' ),
 				array( 'status' => 500 )
 			);
 		}

@@ -112,18 +112,18 @@ class LlmTextGenerator {
 	 */
 	public const MODEL_OUTPUT_CAPS = array(
 		// Verified end to end; see docs/reference/ai-supported-models.md.
-		'claude-sonnet-5'           => 128000,
-		'gpt-4o'                    => 16384,
+		'claude-sonnet-5'         => 128000,
+		'gpt-4o'                  => 16384,
 
 		// Below the largest ceiling here, so a request from this repo is refused
 		// outright unless it is clamped.
-		'gpt-4o-mini'               => 16384,
-		'gpt-4'                     => 8192,
-		'gpt-4-turbo'               => 4096,
-		'gpt-3.5-turbo'             => 4096,
-		'claude-3-haiku-20240307'   => 4096,
-		'gemini-1.5-pro'            => 8192,
-		'gemini-1.5-flash'          => 8192,
+		'gpt-4o-mini'             => 16384,
+		'gpt-4'                   => 8192,
+		'gpt-4-turbo'             => 4096,
+		'gpt-3.5-turbo'           => 4096,
+		'claude-3-haiku-20240307' => 4096,
+		'gemini-1.5-pro'          => 8192,
+		'gemini-1.5-flash'        => 8192,
 	);
 
 	/**
@@ -269,7 +269,7 @@ class LlmTextGenerator {
 				'no_candidates',
 				sprintf(
 					/* translators: %s: what was being generated, e.g. "AI agent". */
-					__( 'The %s returned no response at all. Re-running it may succeed; if it keeps happening, the AI provider is not answering.', 'vip-workflows' ),
+					__( 'The %s got no response from the AI provider. Try again.', 'vip-workflows' ),
 					$context
 				)
 			);
@@ -283,12 +283,12 @@ class LlmTextGenerator {
 				null === $max_tokens
 					? sprintf(
 						/* translators: %s: what was being generated, e.g. "AI agent". */
-						__( 'The %s stopped at its token limit before it finished. That ceiling is a setting, not a problem with your content — ask an administrator to raise it for this step.', 'vip-workflows' ),
+						__( 'The %s hit its token limit. Ask an administrator to raise it for this step.', 'vip-workflows' ),
 						$context
 					)
 					: sprintf(
 						/* translators: 1: what was being generated, e.g. "AI agent". 2: the configured token ceiling. */
-						__( 'The %1$s used its entire %2$d-token limit before it finished, so it produced nothing usable. That ceiling is a setting, not a problem with your content — ask an administrator to raise it for this step.', 'vip-workflows' ),
+						__( 'The %1$s hit its %2$d-token limit. Ask an administrator to raise it for this step.', 'vip-workflows' ),
 						$context,
 						$max_tokens
 					)
@@ -300,7 +300,7 @@ class LlmTextGenerator {
 				'content_filtered',
 				sprintf(
 					/* translators: %s: what was being generated, e.g. "AI agent". */
-					__( 'The %s was stopped by the AI provider’s content filter, so it returned nothing. Re-running it will not help until the wording that triggered the filter changes.', 'vip-workflows' ),
+					__( 'The AI provider’s content filter blocked the %s. Change the wording before retrying.', 'vip-workflows' ),
 					$context
 				)
 			);

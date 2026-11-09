@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
+class ComposerStaticInitf8bdcea51f97b63dcbdc7123accf53c6
 {
     public static $files = array (
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
@@ -141,6 +141,7 @@ class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
         'VIPWorkflows\\Assistants\\AssistantRegistry' => __DIR__ . '/../..' . '/includes/assistants/class-assistant-registry.php',
         'VIPWorkflows\\Automation\\EventBus' => __DIR__ . '/../..' . '/includes/automation/class-event-bus.php',
         'VIPWorkflows\\Automation\\EventRegistry' => __DIR__ . '/../..' . '/includes/automation/class-event-registry.php',
+        'VIPWorkflows\\Database\\MigrationDeferred' => __DIR__ . '/../..' . '/includes/database/class-migration-deferred.php',
         'VIPWorkflows\\Database\\Schema' => __DIR__ . '/../..' . '/includes/database/class-schema.php',
         'VIPWorkflows\\Database\\Seeder' => __DIR__ . '/../..' . '/includes/database/class-seeder.php',
         'VIPWorkflows\\Discovery\\DiscoveryModule' => __DIR__ . '/../..' . '/includes/discovery/class-discovery-module.php',
@@ -176,11 +177,13 @@ class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
         'VIPWorkflows\\Integrations\\ContentExtractor' => __DIR__ . '/../..' . '/includes/integrations/class-content-extractor.php',
         'VIPWorkflows\\Integrations\\DraftBuilder' => __DIR__ . '/../..' . '/includes/integrations/class-draft-builder.php',
         'VIPWorkflows\\Integrations\\GuidelineContextProvider' => __DIR__ . '/../..' . '/includes/integrations/class-guideline-context-provider.php',
+        'VIPWorkflows\\Integrations\\HourlyLimit' => __DIR__ . '/../..' . '/includes/integrations/class-hourly-limit.php',
         'VIPWorkflows\\Integrations\\LlmJsonGenerator' => __DIR__ . '/../..' . '/includes/integrations/class-llm-json-generator.php',
         'VIPWorkflows\\Integrations\\LlmJsonParser' => __DIR__ . '/../..' . '/includes/integrations/class-llm-json-parser.php',
         'VIPWorkflows\\Integrations\\LlmTextGenerator' => __DIR__ . '/../..' . '/includes/integrations/class-llm-text-generator.php',
         'VIPWorkflows\\Integrations\\Markdown' => __DIR__ . '/../..' . '/includes/integrations/class-markdown.php',
         'VIPWorkflows\\Integrations\\MediaProcessor' => __DIR__ . '/../..' . '/includes/integrations/class-media-processor.php',
+        'VIPWorkflows\\Integrations\\SafeUrl' => __DIR__ . '/../..' . '/includes/integrations/class-safe-url.php',
         'VIPWorkflows\\Integrations\\SsrfGuard' => __DIR__ . '/../..' . '/includes/integrations/class-ssrf-guard.php',
         'VIPWorkflows\\Integrations\\UploadsPathGuard' => __DIR__ . '/../..' . '/includes/integrations/class-uploads-path-guard.php',
         'VIPWorkflows\\Integrations\\UrlMetaExtractor' => __DIR__ . '/../..' . '/includes/integrations/class-url-meta-extractor.php',
@@ -196,9 +199,11 @@ class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
         'VIPWorkflows\\Sequences\\Sequence' => __DIR__ . '/../..' . '/includes/sequences/class-sequence.php',
         'VIPWorkflows\\Sequences\\SequenceRepository' => __DIR__ . '/../..' . '/includes/sequences/class-sequence-repository.php',
         'VIPWorkflows\\Story\\Story' => __DIR__ . '/../..' . '/includes/story/class-story.php',
+        'VIPWorkflows\\Telemetry\\Tracker' => __DIR__ . '/../..' . '/includes/telemetry/class-tracker.php',
         'VIPWorkflows\\Workflow\\Actor' => __DIR__ . '/../..' . '/includes/workflow/class-actor.php',
         'VIPWorkflows\\Workflow\\AgentRunner' => __DIR__ . '/../..' . '/includes/workflow/class-agent-runner.php',
         'VIPWorkflows\\Workflow\\AssignmentManager' => __DIR__ . '/../..' . '/includes/workflow/class-assignment-manager.php',
+        'VIPWorkflows\\Workflow\\CoEditing' => __DIR__ . '/../..' . '/includes/workflow/class-co-editing.php',
         'VIPWorkflows\\Workflow\\PostTypeManager' => __DIR__ . '/../..' . '/includes/workflow/class-post-type-manager.php',
         'VIPWorkflows\\Workflow\\PublishBoundaryGuard' => __DIR__ . '/../..' . '/includes/workflow/class-publish-boundary-guard.php',
         'VIPWorkflows\\Workflow\\StageAgentRunner' => __DIR__ . '/../..' . '/includes/workflow/class-stage-agent-runner.php',
@@ -215,10 +220,10 @@ class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd::$prefixDirsPsr4;
-            $loader->prefixesPsr0 = ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd::$prefixesPsr0;
-            $loader->classMap = ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitf8bdcea51f97b63dcbdc7123accf53c6::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitf8bdcea51f97b63dcbdc7123accf53c6::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInitf8bdcea51f97b63dcbdc7123accf53c6::$prefixesPsr0;
+            $loader->classMap = ComposerStaticInitf8bdcea51f97b63dcbdc7123accf53c6::$classMap;
 
         }, null, ClassLoader::class);
     }

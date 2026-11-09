@@ -12,8 +12,11 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\API;
 
+use VIPWorkflows\Assistants\AssistantRegistry;
 use VIPWorkflows\Discovery\DiscoveryProviderRegistry;
 use VIPWorkflows\Ideation\Assistants\IdeationOrchestrator;
+use VIPWorkflows\Integrations\HourlyLimit;
+use VIPWorkflows\Integrations\SafeUrl;
 use WP_REST_Controller;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -24,6 +27,19 @@ use WP_Error;
  * Discovery Controller.
  */
 class DiscoveryController extends WP_REST_Controller {
+
+	/**
+	 * Most characters in a search text.
+	 */
+	private const MAX_SEARCH_TEXT_LENGTH = 500;
+
+	/**
+	 * Searches an account may send to a provider in an hour, by default.
+	 *
+	 * Only a search the cache cannot answer counts. The filter
+	 * `vip_workflows_discovery_search_hourly_limit` changes it; 0 switches it off.
+	 */
+	private const DEFAULT_SEARCHES_PER_HOUR = 120;
 
 	/**
 	 * REST namespace.
@@ -104,11 +120,15 @@ class DiscoveryController extends WP_REST_Controller {
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'text' => array(
+					'text'     => array(
 						'type'              => 'string',
+						'maxLength'         => self::MAX_SEARCH_TEXT_LENGTH,
 						'sanitize_callback' => 'sanitize_text_field',
+						// A `sanitize_callback` switches off the default validation,
+						// which is what applies `maxLength`.
+						'validate_callback' => 'rest_validate_request_arg',
 					),
-					'filters' => array(
+					'filters'  => array(
 						'type' => 'string',
 					),
 				),
@@ -145,7 +165,7 @@ class DiscoveryController extends WP_REST_Controller {
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
-					'prompt' => array(
+					'prompt'   => array(
 						'type'     => 'object',
 						'required' => true,
 					),
@@ -217,7 +237,8 @@ class DiscoveryController extends WP_REST_Controller {
 
 			$config    = $this->get_provider_config( $slug );
 			$cache_ttl = ( (int) ( $config['cache_minutes'] ?? 30 ) ) * MINUTE_IN_SECONDS;
-			$cache_key = 'vip_discovery_recommend_' . $slug . '_' . md5( (string) wp_json_encode( $provider ) );
+			$gen       = AssistantRegistry::discovery_cache_generation( $slug );
+			$cache_key = 'vip_discovery_recommend_' . $slug . '_' . $gen . '_' . md5( (string) wp_json_encode( $provider ) );
 			$cached    = get_transient( $cache_key );
 
 			if ( false !== $cached ) {
@@ -235,9 +256,9 @@ class DiscoveryController extends WP_REST_Controller {
 			if ( ! empty( $prompts ) ) {
 				$grouped[] = array(
 					'provider' => array(
-						'slug'  => $slug,
-						'label' => $provider['label'],
-						'icon'  => $provider['icon'],
+						'slug'     => $slug,
+						'label'    => $provider['label'],
+						'icon'     => $provider['icon'],
 
 						/*
 						 * The screen needs these to know which affordances a
@@ -247,7 +268,7 @@ class DiscoveryController extends WP_REST_Controller {
 						 */
 						'features' => $provider['features'],
 					),
-					'prompts' => $prompts,
+					'prompts'  => $prompts,
 				);
 			}
 		}
@@ -295,11 +316,23 @@ class DiscoveryController extends WP_REST_Controller {
 
 		$config    = $this->get_provider_config( $slug );
 		$cache_ttl = ( (int) ( $config['cache_minutes'] ?? 30 ) ) * MINUTE_IN_SECONDS;
-		$cache_key = 'vip_discovery_search_' . $slug . '_' . md5( $text . wp_json_encode( $filters ) );
+		$gen       = AssistantRegistry::discovery_cache_generation( $slug );
+		$cache_key = 'vip_discovery_search_' . $slug . '_' . $gen . '_' . md5( $text . wp_json_encode( $filters ) );
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {
 			return new WP_REST_Response( $cached );
+		}
+
+		// A search the cache cannot answer calls the provider and leaves a
+		// cache entry, so each account gets so many of them an hour.
+		$allowed = HourlyLimit::spend(
+			'discovery_search',
+			self::DEFAULT_SEARCHES_PER_HOUR,
+			__( 'This account has reached its hourly limit for discovery searches.', 'vip-workflows' )
+		);
+		if ( is_wp_error( $allowed ) ) {
+			return $allowed;
 		}
 
 		try {
@@ -335,7 +368,8 @@ class DiscoveryController extends WP_REST_Controller {
 			return new WP_REST_Response( array() );
 		}
 
-		$cache_key = 'vip_discovery_filters_' . $slug;
+		$gen       = AssistantRegistry::discovery_cache_generation( $slug );
+		$cache_key = 'vip_discovery_filters_' . $slug . '_' . $gen;
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {
@@ -364,8 +398,7 @@ class DiscoveryController extends WP_REST_Controller {
 	 * @param WP_REST_Request $request REST request.
 	 */
 	public function select_prompt( WP_REST_Request $request ): WP_REST_Response|WP_Error {
-		$slug   = $request->get_param( 'provider' );
-		$prompt = $request->get_param( 'prompt' );
+		$slug = $request->get_param( 'provider' );
 
 		if ( ! $this->registry->get( $slug ) ) {
 			return new WP_Error( 'invalid_provider', __( 'Unknown discovery provider.', 'vip-workflows' ), array( 'status' => 400 ) );
@@ -374,6 +407,10 @@ class DiscoveryController extends WP_REST_Controller {
 		if ( ! $this->registry->is_available( $slug ) ) {
 			return new WP_Error( 'provider_unavailable', __( 'This provider is not configured.', 'vip-workflows' ), array( 'status' => 400 ) );
 		}
+
+		// Checked before the provider's seed callback or the project sees it, so
+		// the seed text and the stored prompt are both built from the checked value.
+		$prompt = self::prompt_with_web_urls( $request->get_param( 'prompt' ), $slug );
 
 		try {
 			$seed = $this->registry->execute( $slug, 'seed', $prompt );
@@ -392,13 +429,21 @@ class DiscoveryController extends WP_REST_Controller {
 			return $project_id;
 		}
 
+		/*
+		 * Slashed, because `update_post_meta()` removes backslashes from the value
+		 * it is given. Unslashed JSON loses the escape on every double quote: the
+		 * text after a quote in any field is then read as more keys of the prompt,
+		 * and a later `url` key replaces the one that was checked above.
+		 */
 		update_post_meta(
 			$project_id,
 			'_vip_discovery_prompt',
-			wp_json_encode(
-				array(
-					'provider' => $slug,
-					'prompt'   => $prompt,
+			wp_slash(
+				wp_json_encode(
+					array(
+						'provider' => $slug,
+						'prompt'   => $prompt,
+					)
 				)
 			)
 		);
@@ -406,6 +451,67 @@ class DiscoveryController extends WP_REST_Controller {
 		$state = $this->orchestrator->get_state( $project_id );
 
 		return new WP_REST_Response( $state, 201 );
+	}
+
+	/**
+	 * A story prompt with only web addresses in its link fields.
+	 *
+	 * The prompt is taken from the request body: the screen sends back what a
+	 * provider returned, and the route accepts any object. `url` is stored and
+	 * later shown as a link beside the post the project led to. `meta.links` is
+	 * stored with it; nothing reads the stored list today, and it is checked so
+	 * that a reader added later does not have to. One that is not an `http` or
+	 * `https` address is emptied; the rest of the prompt is kept as sent.
+	 *
+	 * An empty string is how a provider writes "no link". It is not an address
+	 * that failed the check, so it is left as the provider sent it.
+	 *
+	 * Says so in the log when it removed something, once and without the
+	 * addresses: the stored prompt shows a missing link the same way whether the
+	 * provider sent none or sent one that was not kept.
+	 *
+	 * Nothing about the shape is assumed, because the body is whatever the
+	 * client sent.
+	 *
+	 * @param  mixed  $prompt Prompt from the request.
+	 * @param  string $slug   Slug of the provider the prompt was selected from.
+	 * @return mixed
+	 */
+	private static function prompt_with_web_urls( $prompt, string $slug ) {
+		if ( ! is_array( $prompt ) ) {
+			return $prompt;
+		}
+
+		$removed = 0;
+
+		if ( isset( $prompt['url'] ) && '' !== $prompt['url'] ) {
+			$prompt['url'] = SafeUrl::http_or_null( $prompt['url'] );
+			$removed      += null === $prompt['url'] ? 1 : 0;
+		}
+
+		$links = $prompt['meta']['links'] ?? null;
+
+		foreach ( is_array( $links ) ? $links : array() as $index => $link ) {
+			if ( is_array( $link ) && isset( $link['url'] ) && '' !== $link['url'] ) {
+				$checked  = SafeUrl::http_or_null( $link['url'] );
+				$removed += null === $checked ? 1 : 0;
+
+				$prompt['meta']['links'][ $index ]['url'] = $checked;
+			}
+		}
+
+		if ( $removed > 0 ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- a provider's addresses were not kept; worth surfacing.
+			error_log(
+				sprintf(
+					'[VIP Workflows] Removed %d address(es) that are not http or https from a selected story prompt (provider %s).',
+					$removed,
+					$slug
+				)
+			);
+		}
+
+		return $prompt;
 	}
 
 	/**

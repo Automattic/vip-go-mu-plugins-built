@@ -60,7 +60,7 @@ final class RequirementFactory {
 				Requirement::KIND_MISSING_CREDENTIAL,
 				sprintf(
 					/* translators: %s: service display name, e.g. "My Source". */
-					__( '%s is not connected. VIP Workflows does not manage this service’s credentials, so the plugin that provides it must supply its own configuration.', 'vip-workflows' ),
+					__( '%s is not connected. Set it up in its own plugin.', 'vip-workflows' ),
 					$service_label
 				),
 				sprintf(
@@ -95,7 +95,7 @@ final class RequirementFactory {
 			$destination = Destination::none(
 				sprintf(
 					/* translators: %s: PHP constant name, e.g. "VIP_WORKFLOWS_TAVILY_KEY". */
-					__( 'This site has no credential screen, so set the %s constant in wp-config.php.', 'vip-workflows' ),
+					__( 'Set the %s constant in wp-config.php.', 'vip-workflows' ),
 					$credentials->constant_name( $service )
 				)
 			);

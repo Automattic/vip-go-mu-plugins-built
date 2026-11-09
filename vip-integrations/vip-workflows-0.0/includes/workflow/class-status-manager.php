@@ -16,6 +16,7 @@ use VIPWorkflows\Database\Schema;
 use VIPWorkflows\Abilities\AbilityExecutor;
 use VIPWorkflows\Abilities\AbilitySettings;
 use VIPWorkflows\Workflow\AssignmentManager;
+use VIPWorkflows\Telemetry\Tracker;
 
 /**
  * Manages workflow status transitions for posts.
@@ -71,7 +72,7 @@ class StatusManager {
 		?PostTypeManager $post_type_manager = null
 	) {
 		$this->sequence_repository = $sequence_repository ?? new SequenceRepository();
-		$this->post_type_manager    = $post_type_manager ?? new PostTypeManager();
+		$this->post_type_manager   = $post_type_manager ?? new PostTypeManager();
 	}
 
 	/**
@@ -169,8 +170,11 @@ class StatusManager {
 			return false;
 		}
 
-		$queued_at = strtotime( (string) ( $job['queued_at'] ?? '' ) );
-		if ( ! $queued_at || ( current_time( 'timestamp' ) - $queued_at ) > StageAgentRunner::PENDING_TTL ) {
+		// queued_at is stamped with current_time( 'mysql' ), site-local time;
+		// convert it to a real UTC timestamp so it compares against time().
+		$raw       = (string) ( $job['queued_at'] ?? '' );
+		$queued_at = '' === $raw ? 0 : (int) get_gmt_from_date( $raw, 'U' );
+		if ( ! $queued_at || ( time() - $queued_at ) > StageAgentRunner::PENDING_TTL ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( sprintf( 'VIP Workflows: agent job for post %d at stage "%s" timed out (queued_at: %s).', $post_id, $stage, (string) ( $job['queued_at'] ?? '' ) ) );
 
@@ -293,7 +297,7 @@ class StatusManager {
 		}
 
 		$sequence_ids = $this->post_type_manager->get_sequences_for_post( $post );
-		$sequences = array();
+		$sequences    = array();
 
 		foreach ( $sequence_ids as $id ) {
 			$sequence = $this->sequence_repository->find( $id );
@@ -553,9 +557,8 @@ class StatusManager {
 					'required_tools' => $transition['required_tools'] ?? array(),
 				);
 
-				// What the transition captures, as stored. The editor collects its
-				// assignment before the move and passes over anything else — a
-				// retired note a stored sequence may still carry.
+				// What the transition captures, as stored: at most one
+				// assignment, which the editor collects before the move.
 				if ( ! empty( $transition['inputs'] ) ) {
 					$mapped['inputs'] = $transition['inputs'];
 				}
@@ -679,10 +682,8 @@ class StatusManager {
 
 				if ( ! in_array( $to_status, $routing, true ) ) {
 					$message = __( 'This stage belongs to an AI agent; only the destinations its outcomes route to can be taken.', 'vip-workflows' );
-				} elseif ( StageAgentRunner::publish_setting_fixes_route( $routing, $to_status ) ) {
-					$message = __( 'This stage belongs to an AI agent, and its route to this destination publishes. This sequence doesn’t allow AI stages to publish, so the route stays closed while the agent owns this stage. Edit the sequence to route that outcome to a stage before publishing, or turn on "Let AI stages publish".', 'vip-workflows' );
 				} else {
-					$message = __( 'This stage belongs to an AI agent, and its route to this destination publishes. This sequence doesn’t allow AI stages to publish, so the route stays closed while the agent owns this stage. Edit the sequence to route that outcome to a stage before publishing.', 'vip-workflows' );
+					$message = __( 'This stage is run by an agent, and Sequence settings don’t allow AI stages to publish. Move the post to another stage first.', 'vip-workflows' );
 				}
 
 				return new \WP_Error( 'unrouted_agent_exit', $message, array( 'status' => 403 ) );
@@ -729,7 +730,7 @@ class StatusManager {
 				'stage_region_missing',
 				sprintf(
 					/* translators: %s: the underlying reason, naming the stage. */
-					__( 'This workflow cannot be used until its stages have status regions: %s Open the sequence and assign the missing ones.', 'vip-workflows' ),
+					__( 'Some stages have no status: %s Assign them in the sequence editor.', 'vip-workflows' ),
 					$e->getMessage()
 				),
 				array( 'status' => 409 )
@@ -739,6 +740,39 @@ class StatusManager {
 		// A failed-agent revert may have no matching authored edge and does not
 		// collect assignment inputs.
 		$transition_config = $sequence->get_transition( $current_stage, $to_status );
+
+		// Accept only the input keys this edge declares. Every accepted key is
+		// stored in transition meta and logged as a labelled note, so a client
+		// cannot attach arbitrary free text to the post's history by naming keys
+		// the transition never asked for. An undeclared key fails the request
+		// rather than being dropped, so the client knows it was not saved.
+		$assignment_manager = new AssignmentManager();
+		if ( ! empty( $options['input_data'] ) ) {
+			$input_keys_check = $assignment_manager->check_transition_input_keys( $transition_config, $options['input_data'] );
+			if ( is_wp_error( $input_keys_check ) ) {
+				return $input_keys_check;
+			}
+		}
+
+		// A self-edge writes no stage, so the stage compare-and-swap below does
+		// not stop two of them racing on the same slot: both would validate
+		// against the slot as it is now, and the later write would replace the
+		// earlier one while both report success. Read the slots this edge will
+		// write now, from the same meta read as $current_stage, and write each
+		// only if it still holds this value.
+		//
+		// A stage-changing edge needs no such check. Its slot key is unique to
+		// the edge (SequencesController::validate_assignment_keys()), so a
+		// concurrent writer of the slot is a concurrent taker of the edge, and
+		// the stage compare-and-swap already refuses the loser before it writes
+		// its assignment. A snapshot here would also be wrong for it: other
+		// transitions may take the post out of this stage and back before the
+		// swap, legitimately rewriting the slot on the way.
+		$is_self_edge  = $current_stage === $to_status;
+		$slot_snapshot = null;
+		if ( $is_self_edge && is_array( $transition_config ) ) {
+			$slot_snapshot = $assignment_manager->get_transition_slots( $post_id, $transition_config, $options['input_data'] ?? array() );
+		}
 
 		/*
 		 * An agent run executes at uid 0 under cron, so it names the identity it
@@ -806,7 +840,6 @@ class StatusManager {
 		// Reject incomplete assignments before tools run or any post state changes.
 		// A failed-agent revert does not collect inputs, even if an authored edge
 		// happens to connect the same stages.
-		$assignment_manager = new AssignmentManager();
 		if ( ! $is_revert && is_array( $transition_config ) ) {
 			$assignment_validation = $assignment_manager->validate_transition_input( $transition_config, $options['input_data'] ?? array() );
 			if ( is_wp_error( $assignment_validation ) ) {
@@ -818,10 +851,37 @@ class StatusManager {
 
 		// Reject invalid targets before tools run or post/stage changes commit.
 		if ( is_array( $transition_config ) ) {
-			$assignee_validation = ( new AssignmentManager() )->validate_transition_assignees( $transition_config, $options['input_data'] ?? array() );
+			$assignee_validation = $assignment_manager->validate_transition_assignees( $transition_config, $options['input_data'] ?? array() );
 			if ( is_wp_error( $assignee_validation ) ) {
 				return $assignee_validation;
 			}
+
+			// An assignee who cannot read the post would never see it in My Work.
+			// The assignment lives on the post after the move, so access is
+			// judged against the status this transition will commit.
+			$assignee_access = $assignment_manager->validate_assignee_access(
+				$post_id,
+				$transition_config,
+				$options['input_data'] ?? array(),
+				$this->status_after_transition( $post, $from_region, $to_region )
+			);
+			if ( is_wp_error( $assignee_access ) ) {
+				return $assignee_access;
+			}
+		}
+
+		// A stage agent writes the post on the server, out of sight of a shared
+		// editing session, so a person may not start one while anyone else has
+		// the post open (see CoEditing). Checked here because every surface comes
+		// through here; StageAgentRunner checks again when the run starts, for
+		// agent-to-agent hops and anyone who joined in between.
+		$to_config = $sequence->get_status( $to_status );
+		if ( ! $is_agent_actor && ! empty( $to_config['agent']['ability_id'] ) && CoEditing::is_shared( $post_id ) ) {
+			return new \WP_Error(
+				'co_editing',
+				__( 'More than one person is editing this post. Try the AI stage again, once they have closed it.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
 		}
 
 		// Interrupting a running stage agent is a confirm, not a block.
@@ -926,14 +986,49 @@ class StatusManager {
 			$metadata_check = $this->check_required_metadata( $post_id, $sequence );
 
 			if ( is_wp_error( $metadata_check ) ) {
+				$missing = $metadata_check->get_error_data()['hard_failures'] ?? array();
+				$this->record_gate(
+					array(
+						'gate'       => 'required_metadata',
+						'result'     => 'blocked',
+						'hard_count' => count( $missing ),
+					)
+				);
 				$this->log_blocked_transition( $post_id, $current_stage, $to_status, $metadata_check );
 				return $metadata_check;
 			}
+
+			// A pass is not recorded. The editor locks an edge while a required
+			// field is empty, so most blocks never reach here and a pass count is
+			// no denominator for them; and a move with tool warnings passes this
+			// gate twice, once per request.
+		} elseif ( Sequence::crosses_into_publish( $from_region, $to_region ) && ! $is_agent_actor && ! $is_revert && ! $acknowledge_warnings && $this->reports_metadata_gate( $sequence ) ) {
+			// Only a bypass role reaches here. Not on the request that confirms tool
+			// warnings: the request that raised them already recorded the bypass.
+			$this->record_gate(
+				array(
+					'gate'   => 'required_metadata',
+					'result' => 'bypassed',
+				)
+			);
+		}
+
+		// Who an agent's gate events are recorded as: the person who started the
+		// run, else the user the agent acts for. A person's are recorded as them.
+		$telemetry_user = $is_agent_actor ? (int) ( $options['telemetry_user'] ?? 0 ) : 0;
+		if ( $is_agent_actor && $telemetry_user <= 0 ) {
+			$telemetry_user = (int) ( $options['agent_actor_user'] ?? 0 );
 		}
 
 		// Run required tools and check for hard failures (unless user can bypass).
 		if ( ! \VIPWorkflows\Admin\Settings::can_user_bypass_tool_checks() ) {
-			$tool_check = $this->run_transition_tools( $post_id, $transition_config, $acknowledge_warnings );
+			$tool_check = $this->run_transition_tools(
+				$post_id,
+				$transition_config,
+				$acknowledge_warnings,
+				$is_agent_actor ? 'agent' : 'user',
+				$telemetry_user
+			);
 
 			if ( is_wp_error( $tool_check ) ) {
 				$this->log_blocked_transition( $post_id, $current_stage, $to_status, $tool_check );
@@ -943,6 +1038,16 @@ class StatusManager {
 			if ( is_array( $tool_check ) && ! empty( $tool_check['warnings_pending'] ) ) {
 				return $tool_check;
 			}
+		} elseif ( ! empty( $transition_config['required_tools'] ) ) {
+			$this->record_gate(
+				array(
+					'gate'           => 'tools',
+					'result'         => 'bypassed',
+					'tools_required' => is_array( $transition_config['required_tools'] ) ? count( $transition_config['required_tools'] ) : 0,
+				),
+				$is_agent_actor ? 'agent' : 'user',
+				$telemetry_user
+			);
 		}
 
 		// The committed post_status BEFORE this transition writes anything —
@@ -985,10 +1090,60 @@ class StatusManager {
 			}
 		}
 
+		// The post has left its stage, so the user and role assignments made for
+		// that stage are done. Runs before this edge captures its own assignment,
+		// which belongs to the stage being entered. A self-edge stays put. A
+		// failed-agent revert is not the work moving on: it undoes a move whose
+		// agent run failed, so the assignments it finds stay pending.
+		if ( $current_stage !== $to_status && ! $is_revert ) {
+			$assignment_manager->complete_on_stage_exit( $post_id );
+		}
+
 		// Process submitted assignment input for an authored edge. A failed-agent
-		// revert supplies no inputs, so existing assignments remain untouched.
+		// revert supplies no inputs, so it captures no new assignment.
 		if ( is_array( $transition_config ) ) {
-			$assignment_manager->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array() );
+			$assigned_slots = $assignment_manager->process_transition_input( $post_id, $transition_config, $options['input_data'] ?? array(), $slot_snapshot );
+
+			// Only a self-edge writes conditionally, and it has written nothing
+			// before this point: no status, no stage, no completed slots. So the
+			// refusal is the whole outcome, the same as a lost stage swap.
+			if ( is_wp_error( $assigned_slots ) ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log(
+					sprintf(
+						'[VIP Workflows] Post %d: transition "%s" -> "%s" was abandoned; assignment slot "%s" was not written (%s).',
+						$post_id,
+						$current_stage,
+						$to_status,
+						(string) ( $assigned_slots->get_error_data()['meta_key'] ?? '' ),
+						$assigned_slots->get_error_code()
+					)
+				);
+				return $assigned_slots;
+			}
+
+			// The stage compare-and-swap above does not cover this assignment
+			// write. A concurrent transition can move the post on in between: it
+			// writes the stage, then completes the pending assignments it finds,
+			// and this one may not have existed yet. Re-reading the stage AFTER
+			// the assignment write closes that gap. Either the other transition
+			// saw this assignment and completed it, or this read sees its stage.
+			if ( $assigned_slots ) {
+				$stage_now = $this->read_stage_uncached( $post_id );
+				if ( $stage_now !== $to_status ) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					error_log(
+						sprintf(
+							'[VIP Workflows] Post %d: moved to "%s" while transition "%s" -> "%s" was writing its assignment; completing it.',
+							$post_id,
+							$stage_now,
+							$current_stage,
+							$to_status
+						)
+					);
+					$assignment_manager->complete_slots_for_left_stage( $post_id, $assigned_slots );
+				}
+			}
 		}
 
 		// Store transition input data if provided.
@@ -1015,6 +1170,51 @@ class StatusManager {
 		$this->dispatch_stage_change( $post_id, $to_status, $current_stage, $sequence, $context );
 
 		return true;
+	}
+
+	/**
+	 * Read a post's workflow stage from the database, not the meta cache.
+	 *
+	 * Another request may have written the stage since this one primed its
+	 * cache, and the caller needs to see that write.
+	 *
+	 * @param  int $post_id Post ID.
+	 * @return string The stored stage key, or '' when none is stored.
+	 */
+	private function read_stage_uncached( int $post_id ): string {
+		wp_cache_delete( $post_id, 'post_meta' );
+
+		return (string) get_post_meta( $post_id, self::STAGE_META_KEY, true );
+	}
+
+	/**
+	 * The core status a transition will leave the post in.
+	 *
+	 * A same-region move writes no status, so the post keeps the one it holds
+	 * (pending, future or whatever core set). A region crossing writes the
+	 * target region through commit_post_status(), where core turns `publish`
+	 * into `future` for a post dated at least a minute ahead, as
+	 * wp_insert_post() does. A post with no GMT date is date-floating:
+	 * wp_update_post() dates it now, so it publishes.
+	 *
+	 * @param  \WP_Post $post        Post being transitioned.
+	 * @param  string   $from_region Source stage's region.
+	 * @param  string   $to_region   Target stage's region.
+	 * @return string Core post status.
+	 */
+	private function status_after_transition( \WP_Post $post, string $from_region, string $to_region ): string {
+		if ( $from_region === $to_region ) {
+			return (string) get_post_status( $post->ID );
+		}
+
+		if ( 'publish' === $to_region ) {
+			$post_date_gmt = (string) $post->post_date_gmt;
+			if ( '0000-00-00 00:00:00' !== $post_date_gmt && strtotime( $post_date_gmt ) - time() >= MINUTE_IN_SECONDS ) {
+				return 'future';
+			}
+		}
+
+		return $to_region;
 	}
 
 	/**
@@ -1120,7 +1320,7 @@ class StatusManager {
 				'transition_conflict',
 				sprintf(
 					/* translators: 1: stage the transition started from, 2: stage the post is in now. */
-					__( 'This post moved to another stage while your change was being applied: it started at "%1$s" and is now at "%2$s". Reload and try again.', 'vip-workflows' ),
+					__( 'This post moved from “%1$s” to “%2$s” in the meantime. Reload and try again.', 'vip-workflows' ),
 					$expected_stage,
 					$actual_stage
 				),
@@ -1284,7 +1484,7 @@ class StatusManager {
 
 			// Get current user info.
 		$user_id = get_current_user_id();
-		$user = get_userdata( $user_id );
+		$user    = get_userdata( $user_id );
 
 			// Append new entry to history.
 		$existing[ $status ][] = array(
@@ -1359,6 +1559,11 @@ class StatusManager {
 		$previous_status = (string) get_post_status( $post->ID );
 
 		update_post_meta( $post->ID, self::STAGE_META_KEY, $entry_stage );
+
+		// A reseat leaves the current stage, which finishes its assignments.
+		if ( $entry_stage !== $current_stage ) {
+			( new AssignmentManager() )->complete_on_stage_exit( $post->ID );
+		}
 
 		$context = array(
 			'cause'            => 'core',
@@ -1612,12 +1817,15 @@ class StatusManager {
 		// method replaces cleared it; keep doing so.
 		delete_post_meta( $post_id, '_vip_workflows_assigned_to' );
 
+		// Leaving the workflow leaves the stage, which finishes its assignments.
+		( new AssignmentManager() )->complete_on_stage_exit( $post_id );
+
 		$this->log_workflow_event(
 			$post_id,
 			'workflow.removed',
 			array(
-				'sequence_id'        => (int) $sequence_id,
-				'sequence_name'      => $sequence ? $sequence->name : '',
+				'sequence_id'         => (int) $sequence_id,
+				'sequence_name'       => $sequence ? $sequence->name : '',
 				'removed_stage'       => $removed_stage,
 				// A dangling sequence reference (logged above) is the one case
 				// where no label can be proven; null rather than a fabrication.
@@ -1831,8 +2039,8 @@ class StatusManager {
 
 				// Get the display name if available.
 				$name_key = $key . '__name';
-				$label = isset( $options['input_data'][ $name_key ] ) ? $options['input_data'][ $name_key ] : $key;
-				$notes[] = array(
+				$label    = isset( $options['input_data'][ $name_key ] ) ? $options['input_data'][ $name_key ] : $key;
+				$notes[]  = array(
 					'label' => $label,
 					'value' => $value,
 				);
@@ -1847,6 +2055,7 @@ class StatusManager {
 		$agent_actor = isset( $options['agent_actor'] ) ? (string) $options['agent_actor'] : '';
 		$is_agent    = '' !== $agent_actor;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_workflows_events; write, nothing to cache
 		$wpdb->insert(
 			Schema::get_table_name( 'workflows_events' ),
 			array(
@@ -1854,12 +2063,12 @@ class StatusManager {
 				'event_type' => 'status_transition',
 				'event_data' => wp_json_encode(
 					array(
-						'from_status'    => $from_status,
-						'to_status'      => $to_status,
-						'from_label'     => self::snapshot_stage_label( $sequence, $from_status ),
-						'to_label'       => self::snapshot_stage_label( $sequence, $to_status ),
-						'post_title'     => $post ? $post->post_title : '',
-						'sequence_name'  => $sequence ? $sequence->name : '',
+						'from_status'     => $from_status,
+						'to_status'       => $to_status,
+						'from_label'      => self::snapshot_stage_label( $sequence, $from_status ),
+						'to_label'        => self::snapshot_stage_label( $sequence, $to_status ),
+						'post_title'      => $post ? $post->post_title : '',
+						'sequence_name'   => $sequence ? $sequence->name : '',
 						'comment'         => $options['comment'] ?? null,
 						'notes'           => $notes,
 						'cause'           => $context['cause'],
@@ -1907,14 +2116,16 @@ class StatusManager {
 
 		$table = Schema::get_table_name( 'workflows_events' );
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin table vip_workflows_events; live read, not cached
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM {$table} WHERE post_id = %d AND event_type = 'status_transition' ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT * FROM {$table} WHERE post_id = %d AND event_type = 'status_transition' ORDER BY created_at DESC, id DESC LIMIT %d OFFSET %d",
 				$post_id,
 				$limit,
 				$offset
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		return array_map(
 			function ( $row ) {
@@ -1945,12 +2156,14 @@ class StatusManager {
 
 		$table = Schema::get_table_name( 'workflows_events' );
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- plugin table vip_workflows_events; live read, not cached
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND event_type = 'status_transition'", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT COUNT(*) FROM {$table} WHERE post_id = %d AND event_type = 'status_transition'",
 				$post_id
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	/**
@@ -2039,15 +2252,15 @@ class StatusManager {
 	 */
 	public static function event_type_label( string $event_type ): string {
 		$labels = array(
-			'status_transition'     => __( 'Stage changed', 'vip-workflows' ),
-			'transition_blocked'    => __( 'Transition blocked', 'vip-workflows' ),
-			'tool_warnings'         => __( 'Tool warnings', 'vip-workflows' ),
-			'workflow.assigned'     => __( 'Workflow assigned', 'vip-workflows' ),
-			'workflow.removed'      => __( 'Workflow removed', 'vip-workflows' ),
-			'post.claimed'          => __( 'Post claimed', 'vip-workflows' ),
-			'post.released'         => __( 'Post released', 'vip-workflows' ),
-			'ability.executed'      => __( 'Tool executed', 'vip-workflows' ),
-			'ability.failed'        => __( 'Tool failed', 'vip-workflows' ),
+			'status_transition'    => __( 'Stage changed', 'vip-workflows' ),
+			'transition_blocked'   => __( 'Transition blocked', 'vip-workflows' ),
+			'tool_warnings'        => __( 'Tool warnings', 'vip-workflows' ),
+			'workflow.assigned'    => __( 'Workflow assigned', 'vip-workflows' ),
+			'workflow.removed'     => __( 'Workflow removed', 'vip-workflows' ),
+			'post.claimed'         => __( 'Post claimed', 'vip-workflows' ),
+			'post.released'        => __( 'Post released', 'vip-workflows' ),
+			'ability.executed'     => __( 'Tool executed', 'vip-workflows' ),
+			'ability.failed'       => __( 'Tool failed', 'vip-workflows' ),
 			// Configuration events. These carry no post, which the response shape
 			// already allows (`post_id` is a nullable column and `post` is null here).
 			'sequence.updated'     => __( 'Sequence updated', 'vip-workflows' ),
@@ -2137,7 +2350,7 @@ class StatusManager {
 				'unmodeled_post_status',
 				sprintf(
 					/* translators: 1: sequence name. 2: post status label, e.g. "Pending Review". */
-					__( 'The "%1$s" sequence has no stage with the %2$s status, so it cannot be started on this post. Change the post’s status, or choose a sequence that covers it.', 'vip-workflows' ),
+					__( 'The “%1$s” sequence has no %2$s stage. Change the post’s status, or choose another sequence.', 'vip-workflows' ),
 					$sequence->name,
 					$region_label
 				),
@@ -2148,8 +2361,9 @@ class StatusManager {
 		// The committed status before the assignment writes anything, and the
 		// previous workflow identity (a re-assignment may replace an existing
 		// workflow; the previous stage, if any, is the stage being exited).
-		$previous_status = (string) get_post_status( $post_id );
-		$previous_stage  = (string) get_post_meta( $post_id, self::STAGE_META_KEY, true );
+		$previous_status   = (string) get_post_status( $post_id );
+		$previous_stage    = (string) get_post_meta( $post_id, self::STAGE_META_KEY, true );
+		$previous_sequence = (int) get_post_meta( $post_id, self::SEQUENCE_META_KEY, true );
 
 		// The seat is inside the post's own region by construction — the entry
 		// stage is selected from that region's stages — so no post_status write
@@ -2158,13 +2372,21 @@ class StatusManager {
 		update_post_meta( $post_id, self::SEQUENCE_META_KEY, $sequence_id );
 		update_post_meta( $post_id, self::STAGE_META_KEY, $stage_key );
 
+		// Replacing a workflow leaves the previous stage, which finishes its
+		// assignments. Re-seating the same sequence at the stage the post is
+		// already in leaves nothing, so its assignments stay pending.
+		$left_stage = $previous_sequence !== $sequence_id || $previous_stage !== $stage_key;
+		if ( '' !== $previous_stage && $left_stage ) {
+			( new AssignmentManager() )->complete_on_stage_exit( $post_id );
+		}
+
 		// Log the assignment.
 		$this->log_workflow_event(
 			$post_id,
 			'workflow.assigned',
 			array(
-				'sequence_id'        => $sequence_id,
-				'sequence_name'      => $sequence->name,
+				'sequence_id'         => $sequence_id,
+				'sequence_name'       => $sequence->name,
 				'initial_stage'       => $stage_key,
 				'initial_stage_label' => self::snapshot_stage_label( $sequence, $stage_key ),
 				'cause'               => 'workflow',
@@ -2255,12 +2477,14 @@ class StatusManager {
 	/**
 	 * Run required tools for a transition and check for hard failures.
 	 *
-	 * @param  int   $post_id              Post ID.
-	 * @param  array $transition_config    Transition configuration from sequence.
-	 * @param  bool  $acknowledge_warnings Whether user has acknowledged warnings.
+	 * @param  int    $post_id              Post ID.
+	 * @param  array  $transition_config    Transition configuration from sequence.
+	 * @param  bool   $acknowledge_warnings Whether user has acknowledged warnings.
+	 * @param  string $initiator            'user' or 'agent', for telemetry.
+	 * @param  int    $as_user              User to record telemetry as, or 0 for the current user.
 	 * @return true|array|\WP_Error True if all pass, array with warnings_pending, or WP_Error if blocked.
 	 */
-	private function run_transition_tools( int $post_id, ?array $transition_config, bool $acknowledge_warnings = false ) {
+	private function run_transition_tools( int $post_id, ?array $transition_config, bool $acknowledge_warnings = false, string $initiator = 'user', int $as_user = 0 ) {
 		// No transition config or no required tools = pass.
 		if ( ! $transition_config || empty( $transition_config['required_tools'] ) ) {
 			return true;
@@ -2269,6 +2493,7 @@ class StatusManager {
 		$required_tools = $transition_config['required_tools'];
 		$executor       = new AbilityExecutor();
 		$settings       = AbilitySettings::get_instance();
+		$started        = microtime( true );
 
 		/*
 		 * Only pass schema-valid input to abilities. Transition-eligible abilities
@@ -2283,9 +2508,10 @@ class StatusManager {
 			'post_id' => $post_id,
 		);
 
-		$hard_failures  = array();
-		$soft_warnings  = array();
-		$all_results    = array();
+		$hard_failures = array();
+		$soft_warnings = array();
+		$all_results   = array();
+		$tools_errored = 0; // Tools that reached no verdict, each with exactly one hard failure.
 
 		foreach ( $required_tools as $tool_id ) {
 			try {
@@ -2299,6 +2525,7 @@ class StatusManager {
 						'message'  => __( 'This required check is switched off. Re-enable it, or remove it from this transition.', 'vip-workflows' ),
 						'severity' => 'hard',
 					);
+					++$tools_errored;
 
 					continue;
 				}
@@ -2321,6 +2548,7 @@ class StatusManager {
 						'message'  => '' !== $reason ? $reason : __( 'Check could not be completed', 'vip-workflows' ),
 						'severity' => 'hard',
 					);
+					++$tools_errored;
 
 					continue;
 				}
@@ -2338,21 +2566,21 @@ class StatusManager {
 							// 2. Or issue has severity 'error' or 'hard' (fallback for dynamic checks like checklist items).
 						$issue_severity = $issue['severity'] ?? 'warning';
 						$is_hard        = $settings->is_hard_check( $tool_id, $check_key )
-						 || 'error' === $issue_severity
-						 || 'hard' === $issue_severity;
+						|| 'error' === $issue_severity
+						|| 'hard' === $issue_severity;
 
 						if ( $is_hard ) {
 							$hard_failures[] = array(
-								'tool'    => $tool_id,
-								'key'     => $check_key,
-								'message' => $issue['message'] ?? $issue['description'] ?? __( 'Check failed', 'vip-workflows' ),
+								'tool'     => $tool_id,
+								'key'      => $check_key,
+								'message'  => $issue['message'] ?? $issue['description'] ?? __( 'Check failed', 'vip-workflows' ),
 								'severity' => 'hard',
 							);
 						} else {
 							$soft_warnings[] = array(
-								'tool'    => $tool_id,
-								'key'     => $check_key,
-								'message' => $issue['message'] ?? $issue['description'] ?? __( 'Check warning', 'vip-workflows' ),
+								'tool'     => $tool_id,
+								'key'      => $check_key,
+								'message'  => $issue['message'] ?? $issue['description'] ?? __( 'Check warning', 'vip-workflows' ),
 								'severity' => 'soft',
 							);
 						}
@@ -2369,11 +2597,14 @@ class StatusManager {
 					'message'  => $e->getMessage(),
 					'severity' => 'hard',
 				);
+				++$tools_errored;
 			}
 		}
 
 		// If there are hard failures, block the transition.
 		if ( ! empty( $hard_failures ) ) {
+			$this->record_tool_gate( 'blocked', $required_tools, $hard_failures, $soft_warnings, $tools_errored, $started, $initiator, $as_user );
+
 			return new \WP_Error(
 				'tool_check_failed',
 				__( 'Transition blocked by required checks.', 'vip-workflows' ),
@@ -2387,6 +2618,8 @@ class StatusManager {
 
 		// If only soft warnings and user hasn't acknowledged them, return for confirmation.
 		if ( ! empty( $soft_warnings ) && ! $acknowledge_warnings ) {
+			$this->record_tool_gate( 'warnings_pending', $required_tools, $hard_failures, $soft_warnings, $tools_errored, $started, $initiator, $as_user );
+
 			return array(
 				'warnings_pending' => true,
 				'soft_warnings'    => $soft_warnings,
@@ -2398,7 +2631,74 @@ class StatusManager {
 			$this->log_tool_warnings( $post_id, $transition_config['to'] ?? 'unknown', $soft_warnings );
 		}
 
+		$this->record_tool_gate( empty( $soft_warnings ) ? 'passed' : 'warnings_acknowledged', $required_tools, $hard_failures, $soft_warnings, $tools_errored, $started, $initiator, $as_user );
+
 		return true;
+	}
+
+	/**
+	 * Record the outcome of a required-tools gate, as counts.
+	 *
+	 * @param string $result         passed | blocked | warnings_pending | warnings_acknowledged.
+	 * @param mixed  $required_tools The transition's required tool ids, as stored.
+	 * @param array  $hard_failures  The gate's blocking failures.
+	 * @param array  $soft_warnings  The gate's warnings.
+	 * @param int    $tools_errored  Tools that broke or were switched off. Each has one entry in $hard_failures.
+	 * @param float  $started        microtime( true ) when the gate began.
+	 * @param string $initiator      'user' or 'agent'.
+	 * @param int    $as_user        User to record telemetry as, or 0 for the current user.
+	 */
+	private function record_tool_gate( string $result, $required_tools, array $hard_failures, array $soft_warnings, int $tools_errored, float $started, string $initiator, int $as_user ): void {
+		if ( ! Tracker::is_available() ) {
+			return;
+		}
+
+		// Counted by where each failure came from, not by its key: a tool's own
+		// issue can carry the key `execution_error` too.
+		$this->record_gate(
+			array(
+				'gate'           => 'tools',
+				'result'         => $result,
+				'hard_count'     => count( $hard_failures ) - $tools_errored,
+				'soft_count'     => count( $soft_warnings ),
+				'tools_required' => is_array( $required_tools ) ? count( $required_tools ) : 0,
+				'tools_errored'  => $tools_errored,
+				'duration_ms'    => (int) ( ( microtime( true ) - $started ) * 1000 ),
+			),
+			$initiator,
+			$as_user
+		);
+	}
+
+	/**
+	 * Whether the required-fields gate should be recorded: telemetry is loaded and the sequence requires a field.
+	 *
+	 * @param  Sequence $sequence The sequence the post is seated in.
+	 * @return bool
+	 */
+	private function reports_metadata_gate( Sequence $sequence ): bool {
+		if ( ! Tracker::is_available() ) {
+			return false;
+		}
+
+		foreach ( $sequence->get_metadata_fields() as $field ) {
+			if ( ! empty( $field['required'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Record a transition gate event.
+	 *
+	 * @param array  $properties Event properties.
+	 * @param string $initiator  'user' or 'agent'.
+	 * @param int    $as_user    User to record telemetry as, or 0 for the current user.
+	 */
+	private function record_gate( array $properties, string $initiator = 'user', int $as_user = 0 ): void {
+		Tracker::record( 'transition_gate_finished', array_merge( $properties, array( 'initiator' => $initiator ) ), $as_user > 0 ? $as_user : null );
 	}
 
 	/**
@@ -2413,8 +2713,9 @@ class StatusManager {
 		global $wpdb;
 
 		$error_data = $error->get_error_data();
-		$sequence  = $this->get_sequence_for_post( $post_id );
+		$sequence   = $this->get_sequence_for_post( $post_id );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_workflows_events; write, nothing to cache
 		$wpdb->insert(
 			Schema::get_table_name( 'workflows_events' ),
 			array(
@@ -2450,6 +2751,7 @@ class StatusManager {
 
 		$sequence = $this->get_sequence_for_post( $post_id );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_workflows_events; write, nothing to cache
 		$wpdb->insert(
 			Schema::get_table_name( 'workflows_events' ),
 			array(
@@ -2479,6 +2781,7 @@ class StatusManager {
 	private function log_workflow_event( int $post_id, string $event_type, array $event_data ): void {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_workflows_events; write, nothing to cache
 		$wpdb->insert(
 			Schema::get_table_name( 'workflows_events' ),
 			array(

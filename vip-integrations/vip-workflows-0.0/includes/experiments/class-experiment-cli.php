@@ -86,7 +86,7 @@ class ExperimentCLI {
 	 * @param array $args       Positional args.
 	 * @param array $assoc_args Named args.
 	 */
-	public function enable( array $args, array $assoc_args ): void {
+	public function enable( array $args, array $assoc_args ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- required by WP-CLI command callback
 		$experiment_id = $args[0];
 		$registry      = $this->get_registry();
 
@@ -119,7 +119,7 @@ class ExperimentCLI {
 	 * @param array $args       Positional args.
 	 * @param array $assoc_args Named args.
 	 */
-	public function disable( array $args, array $assoc_args ): void {
+	public function disable( array $args, array $assoc_args ): void { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed -- required by WP-CLI command callback
 		$experiment_id = $args[0];
 		$registry      = $this->get_registry();
 

@@ -18,7 +18,7 @@ namespace VIPWorkflows\Abilities\Tools;
  * @return array|\WP_Error Result data or error.
  */
 function execute_get_workflow_summary( ?array $input = null ) {
-	$input        = $input ?? array();
+	$input       = $input ?? array();
 	$sequence_id = $input['sequence_id'] ?? null;
 
 	$repository = new \VIPWorkflows\Sequences\SequenceRepository();

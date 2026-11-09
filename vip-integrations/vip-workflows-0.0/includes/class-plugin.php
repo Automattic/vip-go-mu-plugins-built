@@ -351,6 +351,9 @@ final class Plugin {
 
 		// Register post meta.
 		add_action( 'init', array( $this, 'register_meta' ) );
+
+		// My Work's lookup of a user's pending assignments.
+		\VIPWorkflows\Workflow\AssignmentManager::register_index_hooks();
 	}
 
 	/**
@@ -405,7 +408,7 @@ final class Plugin {
 	 */
 	private function register_metadata_fields(): void {
 		$repository = new SequenceRepository();
-		$sequences = $repository->get_all( array( 'status' => 'active' ) );
+		$sequences  = $repository->get_all( array( 'status' => 'active' ) );
 
 		$targeted_post_types = array();
 
@@ -625,6 +628,7 @@ final class Plugin {
 
 		// WP HTTP API defaults to 5s; AI generation needs more headroom, for
 		// every provider (not just OpenAI).
+		// phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.http_request_timeout -- AI generation calls to configured hosts need extended timeout; other requests are unchanged
 		add_filter( 'http_request_timeout', array( self::class, 'extend_ai_request_timeout' ), 10, 2 );
 	}
 

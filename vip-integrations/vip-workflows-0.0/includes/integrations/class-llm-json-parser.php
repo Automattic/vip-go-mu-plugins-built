@@ -85,7 +85,7 @@ class LlmJsonParser {
 				'incomplete_response',
 				sprintf(
 					/* translators: 1: what was being parsed, e.g. "mentor response". 2: response length in characters. 3: JSON decoder error message. */
-					__( 'Incomplete %1$s: the response opens a JSON structure but never closes it, ending after %2$d characters (%3$s).', 'vip-workflows' ),
+					__( 'Incomplete %1$s: the response was cut off after %2$d characters (%3$s).', 'vip-workflows' ),
 					$context,
 					$length,
 					$json_error

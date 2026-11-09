@@ -65,13 +65,13 @@ class AbilitySettings {
 	 * @return array Settings with 'enabled', 'options', 'check_modes', 'show_in_commands', and 'transition_eligible' keys.
 	 */
 	public function get( string $ability_id ): array {
-		$all = $this->get_all();
+		$all      = $this->get_all();
 		$defaults = array(
 			'enabled'             => true,
 			'options'             => array(),
 			'check_modes'         => array(), // Per-option check modes: 'soft' or 'hard'.
-			'show_in_commands'    => null, // null = use ability meta default (false if unset).
-			'transition_eligible' => null, // null = use ability meta default (false if unset).
+			'show_in_commands'    => null, // When unset, the ability's own meta default applies, or off if it has none.
+			'transition_eligible' => null, // When unset, the ability's own meta default applies, or off if it has none.
 		);
 		return array_merge( $defaults, $all[ $ability_id ] ?? array() );
 	}
@@ -106,7 +106,7 @@ class AbilitySettings {
 	 * @return array List of option keys that are hard checks.
 	 */
 	public function get_hard_checks( string $ability_id ): array {
-		$settings = $this->get( $ability_id );
+		$settings    = $this->get( $ability_id );
 		$hard_checks = array();
 		foreach ( $settings['check_modes'] as $key => $mode ) {
 			if ( 'hard' === $mode ) {
@@ -190,7 +190,7 @@ class AbilitySettings {
 		}
 
 		$all[ $ability_id ] = $existing;
-		$this->settings = $all;
+		$this->settings     = $all;
 
 		return update_option( self::OPTION_NAME, $all );
 	}

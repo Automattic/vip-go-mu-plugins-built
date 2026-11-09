@@ -101,7 +101,7 @@ function execute_update_post_fields( ?array $input = null ) {
 	if ( ! $confirmed ) {
 		$preview = array();
 		foreach ( $sanitized as $field_name => $new_value ) {
-			$wp_key  = $allowed_fields[ $field_name ];
+			$wp_key                 = $allowed_fields[ $field_name ];
 			$preview[ $field_name ] = array(
 				'current' => $post->$wp_key,
 				'new'     => $new_value,

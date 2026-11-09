@@ -101,8 +101,7 @@ class YouTubeVideoProvider implements MediaProviderInterface, MediaProviderRequi
 			self::SEARCH_URL
 		);
 
-		// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- editor-initiated ideation assistant request expected to take time.
-		$response = wp_remote_get( $search_url, array( 'timeout' => 15 ) );
+		$response = $this->remote_get( $search_url );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -166,6 +165,24 @@ class YouTubeVideoProvider implements MediaProviderInterface, MediaProviderRequi
 	}
 
 	/**
+	 * GET a YouTube API URL. On VIP this goes through vip_safe_wp_remote_get(),
+	 * which caps the timeout at 5 seconds and stops calling a host that keeps
+	 * timing out; elsewhere (local, Playground, self-hosted) it falls back to
+	 * wp_remote_get() with the same timeout.
+	 *
+	 * @param  string $url The request URL.
+	 * @return array|\WP_Error The response, or WP_Error on failure.
+	 */
+	private function remote_get( string $url ) {
+		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+			return vip_safe_wp_remote_get( $url, '', 3, 5, 20 );
+		}
+
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_remote_get_wp_remote_get, WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- fallback where the VIP helpers are not loaded; same 5s timeout as on VIP.
+		return wp_remote_get( $url, array( 'timeout' => 5 ) );
+	}
+
+	/**
 	 * Fetch video details (duration, description, channel) in a single batch.
 	 *
 	 * @param array  $video_ids YouTube video IDs.
@@ -186,8 +203,7 @@ class YouTubeVideoProvider implements MediaProviderInterface, MediaProviderRequi
 			self::VIDEOS_URL
 		);
 
-		// phpcs:ignore WordPressVIPMinimum.Performance.RemoteRequestTimeout.timeout_timeout -- editor-initiated ideation assistant request expected to take time.
-		$response = wp_remote_get( $url, array( 'timeout' => 10 ) );
+		$response = $this->remote_get( $url );
 		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
 			return array();
 		}

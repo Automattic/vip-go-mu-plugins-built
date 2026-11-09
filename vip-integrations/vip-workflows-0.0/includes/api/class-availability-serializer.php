@@ -250,19 +250,19 @@ final class AvailabilitySerializer {
 												),
 												'url'   => array(
 													'description' => __( 'Absolute URL. Empty unless the kind is admin_url.', 'vip-workflows' ),
-													'type'        => 'string',
+													'type' => 'string',
 												),
 												'label' => array(
 													'description' => __( 'Link label. Empty when there is no URL.', 'vip-workflows' ),
-													'type'        => 'string',
+													'type' => 'string',
 												),
 												'hint'  => array(
 													'description' => __( 'Instruction shown when there is nowhere to link.', 'vip-workflows' ),
-													'type'        => 'string',
+													'type' => 'string',
 												),
 												'credentials_url' => array(
 													'description' => __( 'External URL where the credentials can be obtained. Empty when the service does not name one.', 'vip-workflows' ),
-													'type'        => 'string',
+													'type' => 'string',
 												),
 											),
 										),

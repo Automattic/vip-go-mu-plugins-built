@@ -222,7 +222,7 @@ final class AiAvailability {
 						self::ENVIRONMENT_ID_PREFIX . $provider,
 						sprintf(
 							/* translators: %s: AI provider display name, e.g. "OpenAI". */
-							__( 'The %s provider is not registered with this site’s WordPress AI Client, so text generation cannot run through it.', 'vip-workflows' ),
+							__( '%s is not registered with the WordPress AI Client.', 'vip-workflows' ),
 							$label
 						),
 						__( 'AI text generation is not available on this site.', 'vip-workflows' ),
@@ -309,7 +309,7 @@ final class AiAvailability {
 			self::PROVIDER_ID,
 			Requirement::KIND_DEPENDENCY,
 			__( 'No AI provider is selected.', 'vip-workflows' ),
-			__( 'AI text generation has no provider selected. Ask an administrator to finish setting it up.', 'vip-workflows' ),
+			__( 'No AI provider selected. Ask an administrator to choose one.', 'vip-workflows' ),
 			Destination::admin_url(
 				admin_url( self::SETTINGS_PAGE ),
 				__( 'VIP Workflows → Settings', 'vip-workflows' ),
@@ -343,7 +343,7 @@ final class AiAvailability {
 			),
 			sprintf(
 				/* translators: %s: AI provider display name, e.g. "Anthropic". */
-				__( '%s has no model chosen. Ask an administrator to finish setting it up.', 'vip-workflows' ),
+				__( '%s has no model. Ask an administrator to choose one.', 'vip-workflows' ),
 				$label
 			),
 			Destination::admin_url(

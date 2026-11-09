@@ -74,12 +74,12 @@ class Notification {
 	/**
 	 * Get a data value with fallback.
 	 *
-	 * @param  string $key     Data key.
-	 * @param  mixed  $default Default value.
+	 * @param  string $key      Data key.
+	 * @param  mixed  $fallback Default value.
 	 * @return mixed
 	 */
-	public function get( string $key, $default = null ) {
-		return $this->data[ $key ] ?? $default;
+	public function get( string $key, $fallback = null ) {
+		return $this->data[ $key ] ?? $fallback;
 	}
 
 	/**
@@ -105,7 +105,7 @@ class Notification {
 
 		$post_title = $this->get( 'post_title' );
 		if ( $post_title ) {
-			$url = $this->get_post_url();
+			$url      = $this->get_post_url();
 			$fields[] = array(
 				'title' => __( 'Post', 'vip-workflows' ),
 				'value' => $url ? "<{$url}|{$post_title}>" : $post_title,

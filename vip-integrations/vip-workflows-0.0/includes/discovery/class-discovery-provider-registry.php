@@ -116,7 +116,7 @@ class DiscoveryProviderRegistry {
 			}
 		}
 
-		$features = (array) $args['features'];
+		$features  = (array) $args['features'];
 		$callbacks = (array) $args['callbacks'];
 
 		if ( in_array( 'recommend', $features, true ) && ! is_callable( $callbacks['recommend'] ?? null ) ) {

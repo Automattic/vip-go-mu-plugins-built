@@ -111,12 +111,12 @@ class TavilyVideoProvider implements MediaProviderInterface, MediaProviderRequir
 					'headers' => array( 'Content-Type' => 'application/json' ),
 					'body'    => wp_json_encode(
 						array(
-							'api_key'           => $api_key,
-							'query'             => $video_query,
-							'max_results'       => 5,
-							'include_images'    => true,
-							'search_depth'      => 'basic',
-							'include_domains'   => self::VIDEO_DOMAINS,
+							'api_key'         => $api_key,
+							'query'           => $video_query,
+							'max_results'     => 5,
+							'include_images'  => true,
+							'search_depth'    => 'basic',
+							'include_domains' => self::VIDEO_DOMAINS,
 						)
 					),
 				)

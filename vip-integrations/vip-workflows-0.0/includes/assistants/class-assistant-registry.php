@@ -190,8 +190,8 @@ class AssistantRegistry {
 			$entry_abilities = array();
 			foreach ( $manifest['ability_ids'] as $id ) {
 				if ( isset( $abilities[ $id ] ) ) {
-					$entry_abilities[ $id ]  = $abilities[ $id ];
-					$claimed_ability_ids[]   = $id;
+					$entry_abilities[ $id ] = $abilities[ $id ];
+					$claimed_ability_ids[]  = $id;
 				}
 			}
 
@@ -618,23 +618,23 @@ class AssistantRegistry {
 		$first_ability_id = $abilities ? array_key_first( $abilities ) : null;
 
 		return array(
-			'slug'            => $slug,
-			'label'           => $manifest['label'],
-			'description'     => $manifest['description'],
-			'icon'            => $manifest['icon'],
-			'capabilities'    => $capabilities,
+			'slug'                  => $slug,
+			'label'                 => $manifest['label'],
+			'description'           => $manifest['description'],
+			'icon'                  => $manifest['icon'],
+			'capabilities'          => $capabilities,
 			'available_in_ai_stage' => in_array( 'stage', $capabilities, true ),
-			'ability_ids'     => array_keys( $abilities ),
-			'provider_slugs'  => array_keys( $providers ),
-			'enabled'         => empty( $enabled_values ) ? true : ! in_array( false, $enabled_values, true ),
-			'available'       => empty( $available_values ) ? true : ! in_array( false, $available_values, true ),
-			'availability'         => $this->aggregate_availability( $availabilities ),
-			'availability_sources' => $sources,
-			'availability_state'   => $this->derive_availability_state( $sources ),
-			'options'         => $options,
-			'settings_schema' => $settings_schema,
-			'display_order'   => $display_order,
-			'origin'          => $first_ability_id && str_starts_with( $first_ability_id, 'vip-workflows/' ) ? 'built-in' : 'plugin',
+			'ability_ids'           => array_keys( $abilities ),
+			'provider_slugs'        => array_keys( $providers ),
+			'enabled'               => empty( $enabled_values ) ? true : ! in_array( false, $enabled_values, true ),
+			'available'             => empty( $available_values ) ? true : ! in_array( false, $available_values, true ),
+			'availability'          => $this->aggregate_availability( $availabilities ),
+			'availability_sources'  => $sources,
+			'availability_state'    => $this->derive_availability_state( $sources ),
+			'options'               => $options,
+			'settings_schema'       => $settings_schema,
+			'display_order'         => $display_order,
+			'origin'                => $first_ability_id && str_starts_with( $first_ability_id, 'vip-workflows/' ) ? 'built-in' : 'plugin',
 		);
 	}
 
@@ -909,27 +909,52 @@ class AssistantRegistry {
 	}
 
 	/**
+	 * Read a discovery provider's cache generation.
+	 *
+	 * The discovery routes put this number in every cache key. Bumping it makes
+	 * the old keys unreachable, so they simply expire.
+	 *
+	 * @param string $slug Provider slug.
+	 * @return int Generation, 0 until the provider's cache is first cleared.
+	 */
+	public static function discovery_cache_generation( string $slug ): int {
+		$generations = get_option( 'vip_discovery_cache_generation', array() );
+
+		if ( ! is_array( $generations ) ) {
+			return 0;
+		}
+
+		return (int) ( $generations[ sanitize_key( $slug ) ] ?? 0 );
+	}
+
+	/**
+	 * Move a discovery provider to its next cache generation.
+	 *
+	 * Stored without autoload: only the discovery routes read it.
+	 *
+	 * @param string $slug Provider slug.
+	 */
+	public static function bump_discovery_cache_generation( string $slug ): void {
+		$generations = get_option( 'vip_discovery_cache_generation', array() );
+		$generations = is_array( $generations ) ? $generations : array();
+		$key         = sanitize_key( $slug );
+
+		$generations[ $key ] = (int) ( $generations[ $key ] ?? 0 ) + 1;
+
+		update_option( 'vip_discovery_cache_generation', $generations, false );
+	}
+
+	/**
 	 * Clear all discovery caches for a provider (recommend, search, filters).
+	 *
+	 * Bumps the provider's cache generation rather than deleting transients.
+	 * The generation is part of every discovery cache key, so the old entries
+	 * stop being read on any host, including those where transients live in a
+	 * persistent object cache and not in `wp_options`.
 	 *
 	 * @param string $provider_slug Provider slug.
 	 */
 	private function clear_discovery_cache( string $provider_slug ): void {
-		global $wpdb;
-
-		$slug = sanitize_key( $provider_slug );
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_vip_discovery_recommend_' . $slug ) . '%',
-				$wpdb->esc_like( '_transient_vip_discovery_search_' . $slug ) . '%'
-			)
-		);
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like( '_transient_timeout_vip_discovery_recommend_' . $slug ) . '%',
-				$wpdb->esc_like( '_transient_timeout_vip_discovery_search_' . $slug ) . '%'
-			)
-		);
+		self::bump_discovery_cache_generation( $provider_slug );
 	}
 }

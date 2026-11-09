@@ -75,6 +75,7 @@ class AssignableUsersController extends WP_REST_Controller {
 							'minimum'           => 1,
 							'maximum'           => self::MAX_PER_PAGE,
 							'sanitize_callback' => 'absint',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 						'roles'    => array(
 							'description'       => 'Comma-separated role slugs to filter by.',

@@ -205,7 +205,7 @@ class AuditLogController extends WP_REST_Controller {
 		if ( ! empty( $values ) ) {
 			$count_sql = $wpdb->prepare( $count_sql, $values ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 		}
-		$total = (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$total = (int) $wpdb->get_var( $count_sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_workflows_events; live read, not cached
 
 		// Get events.
 		$offset = ( $page - 1 ) * $per_page;
@@ -215,9 +215,11 @@ class AuditLogController extends WP_REST_Controller {
 		$query_values[] = $per_page;
 		$query_values[] = $offset;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- plugin table vip_workflows_events; live read, not cached
 		$events = $wpdb->get_results(
-			$wpdb->prepare( $sql, $query_values ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->prepare( $sql, $query_values )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
 		// Enrich events with additional data.
 		$enriched_events = array_map( array( $this, 'enrich_event' ), $events );
@@ -259,12 +261,14 @@ class AuditLogController extends WP_REST_Controller {
 		$clauses[] = $exclusion['sql'];
 		$values    = array_merge( $values, $exclusion['values'] );
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- plugin table vip_workflows_events; live read, not cached; the placeholders come from the $clauses list joined with implode() at runtime, with matching $values, so PHPCS cannot see them
 		$types = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT event_type FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY event_type', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				"SELECT DISTINCT event_type FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY event_type',
 				$values
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		$labeled_types = array_map(
 			function ( $type ) {
@@ -305,12 +309,14 @@ class AuditLogController extends WP_REST_Controller {
 		$clauses[] = $exclusion['sql'];
 		$values    = array_merge( $values, $exclusion['values'] );
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- plugin table vip_workflows_events; live read, not cached; the placeholders come from the $clauses list joined with implode() at runtime, with matching $values, so PHPCS cannot see them
 		$user_ids = $wpdb->get_col(
 			$wpdb->prepare(
-				"SELECT DISTINCT actor_id FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY actor_id', // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
+				"SELECT DISTINCT actor_id FROM {$table} WHERE " . implode( ' AND ', $clauses ) . ' ORDER BY actor_id',
 				$values
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
 		$users = array_map(
 			function ( $user_id ) {
@@ -373,14 +379,14 @@ class AuditLogController extends WP_REST_Controller {
 		}
 
 		return array(
-			'id'              => (int) $event->id,
-			'event_type'      => $event->event_type,
+			'id'               => (int) $event->id,
+			'event_type'       => $event->event_type,
 			'event_type_label' => $this->get_event_type_label( $event->event_type ),
-			'event_data'      => $event_data,
-			'actor'           => $actor,
-			'post'            => $post,
-			'created_at'      => $event->created_at,
-			'created_at_human' => human_time_diff( strtotime( $event->created_at ), current_time( 'timestamp' ) ) . ' ' . __( 'ago', 'vip-workflows' ),
+			'event_data'       => $event_data,
+			'actor'            => $actor,
+			'post'             => $post,
+			'created_at'       => $event->created_at,
+			'created_at_human' => human_time_diff( (int) get_gmt_from_date( $event->created_at, 'U' ), time() ) . ' ' . __( 'ago', 'vip-workflows' ),
 		);
 	}
 

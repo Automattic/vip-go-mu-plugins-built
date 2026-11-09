@@ -49,14 +49,14 @@ class ArchiveScout {
 					return current_user_can( 'edit_posts' );
 				},
 				'meta'                => array(
-					'type'                  => 'research',
-					'display_order'         => 10,
-					'show_in_rest'          => true,
-					'show_in_commands'      => false,
-					'transition_eligible'   => false,
-					'icon'                  => 'archive',
-					'thinking_message'      => __( 'Searching your archive…', 'vip-workflows' ),
-					'success_message'       => __( 'Archive search complete.', 'vip-workflows' ),
+					'type'                => 'research',
+					'display_order'       => 10,
+					'show_in_rest'        => true,
+					'show_in_commands'    => false,
+					'transition_eligible' => false,
+					'icon'                => 'archive',
+					'thinking_message'    => __( 'Searching your archive…', 'vip-workflows' ),
+					'success_message'     => __( 'Archive search complete.', 'vip-workflows' ),
 				),
 			)
 		);

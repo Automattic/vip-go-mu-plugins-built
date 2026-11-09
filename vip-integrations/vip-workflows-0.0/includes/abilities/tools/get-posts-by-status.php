@@ -11,6 +11,8 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Abilities\Tools;
 
+require_once __DIR__ . '/helpers.php';
+
 /**
  * Execute the posts-by-status query.
  *
@@ -21,7 +23,7 @@ function execute_get_posts_by_status( ?array $input = null ) {
 	$input     = $input ?? array();
 	$status    = $input['status'] ?? null;
 	$post_type = $input['post_type'] ?? 'post';
-	$limit     = min( (int) ( $input['limit'] ?? 20 ), 50 );
+	$limit     = bounded_int( $input, 'limit', 20, 1, 50 );
 
 	if ( empty( $status ) ) {
 		return new \WP_Error( 'missing_status', __( 'The "status" parameter is required.', 'vip-workflows' ) );
@@ -49,18 +51,18 @@ function execute_get_posts_by_status( ?array $input = null ) {
 			continue;
 		}
 
-		$author       = get_userdata( (int) $post->post_author );
+		$author      = get_userdata( (int) $post->post_author );
 		$sequence_id = get_post_meta( $post->ID, '_vip_workflows_sequence_id', true );
 
 		$posts[] = array(
-			'post_id'      => $post->ID,
-			'title'        => $post->post_title,
-			'post_type'    => $post->post_type,
-			'status'       => $post->post_status,
-			'author'       => $author ? $author->display_name : __( 'Unknown', 'vip-workflows' ),
-			'modified'     => $post->post_modified,
-			'sequence_id'  => $sequence_id ? (int) $sequence_id : null,
-			'edit_url'     => get_edit_post_link( $post->ID, 'raw' ) ? get_edit_post_link( $post->ID, 'raw' ) : '',
+			'post_id'     => $post->ID,
+			'title'       => $post->post_title,
+			'post_type'   => $post->post_type,
+			'status'      => $post->post_status,
+			'author'      => $author ? $author->display_name : __( 'Unknown', 'vip-workflows' ),
+			'modified'    => $post->post_modified,
+			'sequence_id' => $sequence_id ? (int) $sequence_id : null,
+			'edit_url'    => get_edit_post_link( $post->ID, 'raw' ) ? get_edit_post_link( $post->ID, 'raw' ) : '',
 		);
 	}
 
@@ -100,8 +102,10 @@ function register_get_posts_by_status(): void {
 					),
 					'limit'     => array(
 						'type'        => 'integer',
-						'description' => __( 'Maximum number of results (default 20, max 50).', 'vip-workflows' ),
+						'description' => __( 'Maximum number of results (default 20, minimum 1, maximum 50).', 'vip-workflows' ),
 						'default'     => 20,
+						'minimum'     => 1,
+						'maximum'     => 50,
 					),
 				),
 			),

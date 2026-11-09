@@ -19,6 +19,7 @@ namespace VIPWorkflows\Workflow;
 use VIPWorkflows\Abilities\AbilityExecutor;
 use VIPWorkflows\Sequences\Sequence;
 use VIPWorkflows\ModuleInterface;
+use VIPWorkflows\Telemetry\Tracker;
 
 /**
  * Dispatches and runs stage-owned AI agents.
@@ -121,6 +122,13 @@ class StageAgentRunner implements ModuleInterface {
 	private const PUBLICATION_REGIONS = array( 'publish', 'private' );
 
 	/**
+	 * Longest token log_token() writes to a log line.
+	 *
+	 * @var int
+	 */
+	private const LOG_TOKEN_MAX = 100;
+
+	/**
 	 * The ability id currently executing a stage agent, or '' when none is.
 	 *
 	 * Static because the impersonation it shadows (wp_set_current_user) is itself
@@ -131,6 +139,17 @@ class StageAgentRunner implements ModuleInterface {
 	 * @var string
 	 */
 	private static string $acting_ability_id = '';
+
+	/**
+	 * The person who started the run whose exit transition is in progress.
+	 *
+	 * An agent's exit transition runs with nobody logged in, and its job marker is
+	 * cleared before it, so a next AI stage dispatched by that transition reads its
+	 * starter from here. Set around the exit transition only.
+	 *
+	 * @var int
+	 */
+	private static int $exiting_run_started_by = 0;
 
 	/**
 	 * Ability executor used to run stage agents. Injectable for testing.
@@ -225,6 +244,13 @@ class StageAgentRunner implements ModuleInterface {
 			delete_post_meta( $post_id, self::CHAIN_META );
 		}
 
+		// Who caused this run, for telemetry: the person whose move entered the
+		// stage, or, for an agent-to-agent hop, whoever started the chain.
+		$started_by = get_current_user_id();
+		if ( $started_by <= 0 ) {
+			$started_by = self::$exiting_run_started_by;
+		}
+
 		update_post_meta(
 			$post_id,
 			self::JOB_META,
@@ -235,6 +261,7 @@ class StageAgentRunner implements ModuleInterface {
 				'queued_at'  => current_time( 'mysql' ),
 				'cause'      => (string) ( $context['cause'] ?? 'workflow' ),
 				'from_stage' => $old_status,
+				'started_by' => $started_by,
 			)
 		);
 
@@ -257,7 +284,15 @@ class StageAgentRunner implements ModuleInterface {
 			$message = is_wp_error( $scheduled )
 				? $scheduled->get_error_message()
 				: __( 'The agent run could not be scheduled.', 'vip-workflows' );
-			$this->fail_in_place( $post_id, $new_status, $status['agent']['ability_id'], $message, $old_status );
+			$this->fail_in_place(
+				$post_id,
+				$new_status,
+				$status['agent']['ability_id'],
+				$message,
+				$old_status,
+				array( 'stop_reason' => 'dispatch_failed' ),
+				is_wp_error( $scheduled ) ? (string) $scheduled->get_error_code() : ''
+			);
 		}
 	}
 
@@ -281,9 +316,9 @@ class StageAgentRunner implements ModuleInterface {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log(
 			sprintf(
-				'VIP Workflows: agent run for post %d at stage "%s" already queued; the existing event will serve the new pending job.',
+				'[VIP Workflows] Agent run already queued; the existing event serves the new pending job: post=%d stage=%s',
 				$post_id,
-				$stage_key
+				self::log_token( $stage_key )
 			)
 		);
 	}
@@ -309,7 +344,7 @@ class StageAgentRunner implements ModuleInterface {
 	 */
 	public function run_stage_agent( int $post_id, string $stage_key ): void {
 		$status_manager = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
-		$sequence      = $status_manager->get_sequence_for_post( $post_id );
+		$sequence       = $status_manager->get_sequence_for_post( $post_id );
 		if ( ! $sequence ) {
 			$this->clear_job_for_stage( $post_id, $stage_key );
 			return;
@@ -334,6 +369,9 @@ class StageAgentRunner implements ModuleInterface {
 		// Carried through every fail-in-place so the marker a human sees still
 		// knows the way back.
 		$from_stage = is_array( $job_at_dispatch ) ? (string) ( $job_at_dispatch['from_stage'] ?? '' ) : '';
+
+		// Who the run's telemetry is recorded as. See maybe_dispatch().
+		$started_by = is_array( $job_at_dispatch ) ? (int) ( $job_at_dispatch['started_by'] ?? 0 ) : 0;
 
 		$status = $sequence->get_status( $stage_key );
 		$agent  = $status['agent'] ?? null;
@@ -378,7 +416,34 @@ class StageAgentRunner implements ModuleInterface {
 				$stage_key,
 				$ability_id,
 				__( 'Stopped after too many consecutive agent transitions (possible workflow loop).', 'vip-workflows' ),
-				$from_stage
+				$from_stage,
+				array(
+					'stop_reason' => 'loop_guard',
+					'chain'       => $chain,
+					'started_by'  => $started_by,
+				)
+			);
+			return;
+		}
+
+		// The agent writes the post on the server, which a shared editing session
+		// never hears about, so its changes and theirs would overwrite each
+		// other (see CoEditing). transition() refuses a person's move in while
+		// the post is shared; this catches agent-to-agent hops and anyone who
+		// opened the post after the move. In place, so Re-run works once they
+		// have left.
+		if ( CoEditing::is_shared( $post_id ) ) {
+			$this->fail_in_place(
+				$post_id,
+				$stage_key,
+				$ability_id,
+				__( 'The AI agent did not run because more than one person had this post open. Re-run it once only one person is editing.', 'vip-workflows' ),
+				$from_stage,
+				array(
+					'stop_reason' => 'co_editing',
+					'chain'       => $chain,
+					'started_by'  => $started_by,
+				)
 			);
 			return;
 		}
@@ -403,8 +468,13 @@ class StageAgentRunner implements ModuleInterface {
 				$post_id,
 				$stage_key,
 				$ability_id,
-				__( 'This post’s author cannot edit posts, so the AI agent was not run. Reassign the post to a user who can edit it, or move it back to the previous stage.', 'vip-workflows' ),
-				$from_stage
+				__( 'The author cannot edit posts, so the agent didn’t run. Reassign the post or move it back.', 'vip-workflows' ),
+				$from_stage,
+				array(
+					'stop_reason' => 'no_actor',
+					'chain'       => $chain,
+					'started_by'  => $started_by,
+				)
 			);
 			return;
 		}
@@ -424,7 +494,23 @@ class StageAgentRunner implements ModuleInterface {
 				return;
 			}
 
-			$this->resolve_error( $post_id, $stage_key, $ability_id, $e->getMessage(), $routing, $from_stage, $chain, $actor_user );
+			$this->resolve_error(
+				$post_id,
+				$stage_key,
+				$ability_id,
+				$e->getMessage(),
+				get_class( $e ),
+				$routing,
+				$from_stage,
+				$chain,
+				$actor_user,
+				array(
+					'started_by'  => $started_by,
+					'chain'       => $chain,
+					'outcome'     => 'error',
+					'stop_reason' => 'execution_error',
+				)
+			);
 			return;
 		}
 
@@ -445,6 +531,15 @@ class StageAgentRunner implements ModuleInterface {
 
 		$outcome = $this->outcome_from_result( $result );
 
+		// What telemetry reports about this run, carried to wherever it concludes.
+		$run = array(
+			'started_by'  => $started_by,
+			'chain'       => $chain,
+			'outcome'     => $outcome,
+			'duration_ms' => empty( $result->unmet_requirements ) ? (int) $result->duration_ms : null,
+			'stop_reason' => 'error' === $outcome ? 'execution_error' : null,
+		);
+
 		// An execution error (WP_Error / unrecognized result) follows the
 		// stage's error route when the sequence configures one, and fails in
 		// place otherwise — the error path is opt-in, per stage. A pass/fail
@@ -453,7 +548,14 @@ class StageAgentRunner implements ModuleInterface {
 			$message = ! empty( $result->error )
 				? $result->error
 				: __( 'The agent returned an unrecognized result.', 'vip-workflows' );
-			$this->resolve_error( $post_id, $stage_key, $ability_id, $message, $routing, $from_stage, $chain, $actor_user );
+			// A failure the ability built itself carries no code; a successful run
+			// with no recognized verdict is a contract violation, not a failure.
+			if ( ! empty( $result->error_code ) ) {
+				$error_code = $result->error_code;
+			} else {
+				$error_code = empty( $result->success ) ? 'ability_failure' : 'unrecognized_result';
+			}
+			$this->resolve_error( $post_id, $stage_key, $ability_id, $message, $error_code, $routing, $from_stage, $chain, $actor_user, $run );
 			return;
 		}
 
@@ -469,15 +571,21 @@ class StageAgentRunner implements ModuleInterface {
 				$ability_id,
 				sprintf(
 					/* translators: %s: agent outcome key (pass or fail). */
-					__( 'This stage routes no destination for the "%s" outcome, so the post stopped here. Route it in the sequence editor, or move the post back.', 'vip-workflows' ),
+					__( 'No route for the “%s” outcome. Add one in the sequence editor, or move the post back.', 'vip-workflows' ),
 					$outcome
 				),
-				$from_stage
+				$from_stage,
+				array_merge( $run, array( 'stop_reason' => 'unrouted_outcome' ) )
 			);
 			return;
 		}
 
-		$this->finish( $post_id, $stage_key, $ability_id, $target, $outcome, $chain, $actor_user, $from_stage );
+		// A verdict with no route of its own fell back to the error route (see
+		// route()), and is reported as error-routed even though its outcome is not
+		// `error`.
+		$run['error_routed'] = empty( $routing[ $outcome ] );
+
+		$this->finish( $post_id, $stage_key, $ability_id, $target, $outcome, $chain, $actor_user, $from_stage, '', $run );
 	}
 
 	/**
@@ -498,18 +606,20 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param string $stage_key  Stage the agent ran (or was to run) in.
 	 * @param string $ability_id Agent ability ID.
 	 * @param string $message    The error.
+	 * @param string $error_code Machine-readable cause (WP_Error code or exception class), for logs.
 	 * @param array  $routing    The stage's routing map.
 	 * @param string $from_stage Stage the post entered from ('' when unknown).
 	 * @param int    $chain      Chain length this run represents.
 	 * @param int    $actor_user User the routed exit transition acts for.
+	 * @param array  $run        Telemetry details for the run. See run_stage_agent().
 	 */
-	private function resolve_error( int $post_id, string $stage_key, string $ability_id, string $message, array $routing, string $from_stage, int $chain, int $actor_user ): void {
+	private function resolve_error( int $post_id, string $stage_key, string $ability_id, string $message, string $error_code, array $routing, string $from_stage, int $chain, int $actor_user, array $run = array() ): void {
 		if ( ! empty( $routing['error'] ) ) {
-			$this->finish( $post_id, $stage_key, $ability_id, $routing['error'], 'error', $chain, $actor_user, $from_stage, $message );
+			$this->finish( $post_id, $stage_key, $ability_id, $routing['error'], 'error', $chain, $actor_user, $from_stage, $message, $run, $error_code );
 			return;
 		}
 
-		$this->fail_in_place( $post_id, $stage_key, $ability_id, $message, $from_stage );
+		$this->fail_in_place( $post_id, $stage_key, $ability_id, $message, $from_stage, $run, $error_code );
 	}
 
 	/**
@@ -557,12 +667,11 @@ class StageAgentRunner implements ModuleInterface {
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		error_log(
 			sprintf(
-				'VIP Workflows: agent run for post %d abandoned — dispatched for stage "%s" but %s mid-execution; the run\'s outcome was discarded.',
+				'[VIP Workflows] Agent run abandoned mid-execution, outcome discarded: post=%d stage=%s reason=%s current=%s',
 				$post_id,
-				$stage_key,
-				$superseded
-					? 'a newer run was queued for the same stage'
-					: sprintf( 'the post moved to stage "%s"', (string) $current_stage )
+				self::log_token( $stage_key ),
+				$superseded ? 'superseded' : 'stage_moved',
+				self::log_token( (string) $current_stage )
 			)
 		);
 
@@ -754,17 +863,30 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param  string $from_key  Stage the post is seated in.
 	 * @param  string $to_key    Stage the agent routed to.
 	 * @param  string $outcome   Outcome that chose the route.
-	 * @param  string $error     Underlying error on an error-routed run, '' otherwise.
-	 * @return string Message for the editor, or '' to proceed.
+	 * @param  string $error_code Machine-readable cause on an error-routed run (WP_Error
+	 *                            code or exception class), '' otherwise. Never the
+	 *                            message: that text comes from extensions and
+	 *                            providers, and is not fit for the server log.
+	 * @param  string $error      The error an errored run reported, '' otherwise. The
+	 *                            same text fail_in_place() stores in the job marker
+	 *                            for an errored run with no route, so a held error
+	 *                            route tells the editor as much as an unrouted one.
+	 *                            Shown to the editor, never logged.
+	 * @return array{message: string, reason: string}|null Message for the editor and a stop
+	 *               reason for telemetry (publish_held, left_workflow or
+	 *               unreadable_region), or null to proceed.
 	 */
-	private function publication_hold( int $post_id, string $from_key, string $to_key, string $outcome, string $error ): string {
+	private function publication_hold( int $post_id, string $from_key, string $to_key, string $outcome, string $error_code, string $error = '' ): ?array {
 		$status_manager = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
 		$sequence       = $status_manager->get_sequence_for_post( $post_id );
 
 		if ( ! $sequence ) {
 			// The post left the workflow mid-run. transition() has nothing to move it
 			// against either; refusing here keeps the boundary owned by this method.
-			return __( 'This post is no longer in a workflow, so the agent could not complete its move.', 'vip-workflows' );
+			return array(
+				'message' => __( 'This post is no longer in a workflow, so the agent could not complete its move.', 'vip-workflows' ),
+				'reason'  => 'left_workflow',
+			);
 		}
 
 		try {
@@ -774,68 +896,89 @@ class StageAgentRunner implements ModuleInterface {
 			// non-publishing. Held rather than passed through: the check belongs to
 			// this method, not to whatever the transition happens to refuse next.
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( sprintf( '[VIP Workflows] Agent stage "%s" on post %d routes to "%s", whose region could not be read: %s', $from_key, $post_id, $to_key, $e->getMessage() ) );
+			error_log(
+				sprintf(
+					'[VIP Workflows] Agent route held, destination region unreadable: post=%d stage=%s target=%s outcome=%s code=%s',
+					$post_id,
+					self::log_token( $from_key ),
+					self::log_token( $to_key ),
+					self::log_token( $outcome ),
+					self::log_token( get_class( $e ) )
+				)
+			);
 
-			return sprintf(
-				/* translators: %s: destination stage key. */
-				__( 'The agent routed this post to "%s", a stage the sequence does not define a region for, so it stopped here. Fix the stage in the sequence editor, or move the post back.', 'vip-workflows' ),
-				$to_key
+			return array(
+				'message' => sprintf(
+					/* translators: %s: destination stage key. */
+					__( 'Stage “%s” has no status. Fix it in the sequence editor, or move the post back.', 'vip-workflows' ),
+					$to_key
+				),
+				'reason'  => 'unreadable_region',
 			);
 		}
 
 		if ( ! $held ) {
-			return '';
+			return null;
+		}
+
+		// Only the code is logged: the message is free-form text from an extension
+		// or provider and may carry secrets or line breaks. It goes to the editor
+		// in the hold message below instead.
+		if ( 'error' === $outcome && '' !== $error_code ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+					'[VIP Workflows] Agent error route held at publish boundary: post=%d stage=%s target=%s outcome=%s code=%s',
+					$post_id,
+					self::log_token( $from_key ),
+					self::log_token( $to_key ),
+					self::log_token( $outcome ),
+					self::log_token( $error_code )
+				)
+			);
 		}
 
 		// Points at the sequence, not at a manual move: a held route is withheld
 		// from people while the agent owns the stage
 		// (StatusManager::agent_routed_targets), so "transition it yourself" named
 		// something nobody could reach.
+		//
+		// An errored run did not complete, and saying it did hides the failure
+		// the editor has to fix. It gets its own message, carrying the error the
+		// run reported — the one place that error reaches the editor, since the
+		// hold replaces the message an unrouted error would have stored.
 		if ( 'error' === $outcome ) {
-			return sprintf(
-				/* translators: 1: destination stage key, 2: the error the run reported. */
-				__( 'The agent run failed, and this stage routes errors to "%1$s", which publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to route errors to a stage before publishing. The agent reported: %2$s', 'vip-workflows' ),
-				$to_key,
-				'' !== $error ? $error : __( 'no detail given', 'vip-workflows' )
-			);
+			$message = '' !== $error
+				? sprintf(
+					/* translators: %s: the error the agent run reported. */
+					__( 'The agent run failed, and its error route would publish this post. AI stages are not permitted to publish. Error: %s', 'vip-workflows' ),
+					$error
+				)
+				: __( 'The agent run failed, and its error route would publish this post. AI stages are not permitted to publish.', 'vip-workflows' );
+		} else {
+			$message = __( 'The agent run completed, but attempted to publish this post. AI stages are not permitted to publish.', 'vip-workflows' );
 		}
 
-		$routing = $sequence->get_status( $from_key )['agent']['routing'] ?? array();
-
-		if ( is_array( $routing ) && self::publish_setting_fixes_route( $routing, $to_key ) ) {
-			return sprintf(
-				/* translators: 1: agent outcome key (pass or fail), 2: destination stage key. */
-				__( 'The AI agent returned "%1$s", which routes to "%2$s" — a stage that publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to turn on "Let AI stages publish", or route "%1$s" to a stage before publishing.', 'vip-workflows' ),
-				$outcome,
-				$to_key
-			);
-		}
-
-		return sprintf(
-			/* translators: 1: agent outcome key (pass or fail), 2: destination stage key. */
-			__( 'The AI agent returned "%1$s", which routes to "%2$s" — a stage that publishes. This sequence doesn’t allow AI stages to publish, so the post stopped here. Edit the sequence to route "%1$s" to a stage before publishing.', 'vip-workflows' ),
-			$outcome,
-			$to_key
+		return array(
+			'message' => $message,
+			'reason'  => 'publish_held',
 		);
 	}
 
 	/**
-	 * Whether turning on `allow_agent_publish` is advice worth giving for a held route.
+	 * Reduce a value to a bounded token that is safe in a server log line.
 	 *
-	 * Only when a pass verdict is the one thing that reaches the destination. With
-	 * a fail or error route there too — a fail with no route of its own falls back
-	 * to the error route — the setting would publish failed and errored runs, the
-	 * cheap way around the boundary the threat model warns about, so those get the
-	 * reroute advice alone.
+	 * Keeps letters, digits, `_`, `.`, `-`, `\` (namespaced class names) and `/`
+	 * (ability IDs) and caps the length, so nothing written through it can break
+	 * the line, forge another entry or carry prose.
 	 *
-	 * @param  array  $routing The AI stage's outcome routing.
-	 * @param  string $to_key  The held destination.
-	 * @return bool
+	 * @param  string $value Identifier-like value: a key, an error code, an ability ID or a class name.
+	 * @return string The token, or `-` when nothing safe remains.
 	 */
-	public static function publish_setting_fixes_route( array $routing, string $to_key ): bool {
-		return ( $routing['pass'] ?? '' ) === $to_key
-			&& ( $routing['fail'] ?? '' ) !== $to_key
-			&& ( $routing['error'] ?? '' ) !== $to_key;
+	public static function log_token( string $value ): string {
+		$token = substr( (string) preg_replace( '#[^A-Za-z0-9_.\\\\/-]#', '', $value ), 0, self::LOG_TOKEN_MAX );
+
+		return '' === $token ? '-' : $token;
 	}
 
 	/**
@@ -859,16 +1002,18 @@ class StageAgentRunner implements ModuleInterface {
 	 *                           checks are evaluated against them.
 	 * @param string $from_stage Stage the post entered from, kept for a fail-in-place fallback.
 	 * @param string $comment    Audit comment for the exit transition — the error message on an error-routed run, '' otherwise.
+	 * @param array  $run        Telemetry details for the run. See run_stage_agent().
+	 * @param string $error_code Machine-readable cause on an error-routed run, '' otherwise.
 	 */
-	private function finish( int $post_id, string $stage_key, string $ability_id, string $target, string $outcome, int $chain, int $actor_user, string $from_stage = '', string $comment = '' ): void {
+	private function finish( int $post_id, string $stage_key, string $ability_id, string $target, string $outcome, int $chain, int $actor_user, string $from_stage = '', string $comment = '', array $run = array(), string $error_code = '' ): void {
 		// Before anything is cleared or counted: a move that makes the post
 		// readable waits for a person. Checked here rather than at the call sites
 		// because every agent-driven move arrives through this method — a routed
 		// error is an exit transition like any other, and routing one at a
 		// publishing stage must not be the cheap way around the boundary.
-		$hold = $this->publication_hold( $post_id, $stage_key, $target, $outcome, $comment );
-		if ( '' !== $hold ) {
-			$this->fail_in_place( $post_id, $stage_key, $ability_id, $hold, $from_stage );
+		$hold = $this->publication_hold( $post_id, $stage_key, $target, $outcome, $error_code, 'error' === $outcome ? $comment : '' );
+		if ( null !== $hold ) {
+			$this->fail_in_place( $post_id, $stage_key, $ability_id, $hold['message'], $from_stage, array_merge( $run, array( 'stop_reason' => $hold['reason'] ) ) );
 			return;
 		}
 
@@ -894,7 +1039,7 @@ class StageAgentRunner implements ModuleInterface {
 		// via `agent_actor`, so an agent's own exit transition still cannot warn
 		// about itself and deadlock the stage.
 		$options = array(
-			'agent_actor' => $ability_id,
+			'agent_actor'      => $ability_id,
 
 			/*
 			 * The identity this run acts for. The previous user is restored before
@@ -905,6 +1050,9 @@ class StageAgentRunner implements ModuleInterface {
 			 * can_user_bypass_tool_checks() — one escalation traded for another.
 			 */
 			'agent_actor_user' => $actor_user,
+
+			// Who the transition's gate events are recorded as. See maybe_dispatch().
+			'telemetry_user'   => (int) ( $run['started_by'] ?? 0 ),
 		);
 
 		// An error-routed exit carries its error as the transition's audit
@@ -914,8 +1062,13 @@ class StageAgentRunner implements ModuleInterface {
 			$options['comment'] = $comment;
 		}
 
-		$status_manager = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
-		$transitioned   = $status_manager->transition( $post_id, $target, $options );
+		$status_manager               = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
+		self::$exiting_run_started_by = (int) ( $run['started_by'] ?? 0 );
+		try {
+			$transitioned = $status_manager->transition( $post_id, $target, $options );
+		} finally {
+			self::$exiting_run_started_by = 0;
+		}
 
 		// transition() answers with a warnings array rather than a WP_Error when
 		// it stops for soft warnings, so `true` is the only success. Treating any
@@ -929,7 +1082,8 @@ class StageAgentRunner implements ModuleInterface {
 				$target,
 				$outcome,
 				is_array( $transitioned ) ? $transitioned : array(),
-				$comment
+				$comment,
+				$run
 			);
 			return;
 		}
@@ -939,7 +1093,7 @@ class StageAgentRunner implements ModuleInterface {
 			// sees it and can act, rather than leaving it silently stranded. Always
 			// in place, even for a stage with an error route: the error route is an
 			// exit transition too, and this exit just refused.
-			$this->fail_in_place( $post_id, $stage_key, $ability_id, $transitioned->get_error_message(), $from_stage );
+			$this->fail_in_place( $post_id, $stage_key, $ability_id, $transitioned->get_error_message(), $from_stage, array_merge( $run, array( 'stop_reason' => 'exit_refused' ) ), (string) $transitioned->get_error_code() );
 			return;
 		}
 
@@ -957,6 +1111,8 @@ class StageAgentRunner implements ModuleInterface {
 		);
 
 		do_action( 'vip_workflows_agent_completed', $post_id, $ability_id, $outcome );
+
+		$this->record_run( $post_id, 'error' === $outcome || ! empty( $run['error_routed'] ) ? 'error_routed' : 'routed', $run );
 	}
 
 	/**
@@ -974,17 +1130,18 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param string $outcome     Outcome (pass|fail|error) for the held action.
 	 * @param array  $transitioned Warning payload from StatusManager::transition().
 	 * @param string $comment     Audit comment to preserve for the human transition.
+	 * @param array  $run         Telemetry details for the run. See run_stage_agent().
 	 */
-	private function hold_for_warnings( int $post_id, string $stage_key, string $ability_id, string $target, string $outcome, array $transitioned, string $comment ): void {
+	private function hold_for_warnings( int $post_id, string $stage_key, string $ability_id, string $target, string $outcome, array $transitioned, string $comment, array $run = array() ): void {
 		$existing = get_post_meta( $post_id, self::JOB_META, true );
 		if ( is_array( $existing ) && ( $existing['stage_key'] ?? '' ) !== '' && ( $existing['stage_key'] ?? '' ) !== $stage_key ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log(
 				sprintf(
-					'VIP Workflows: suppressed stale warning marker for post %d at stage "%s" — stage "%s" owns the current job marker.',
+					'[VIP Workflows] Stale warning marker suppressed, another stage owns the job: post=%d stage=%s owner=%s',
 					$post_id,
-					$stage_key,
-					(string) $existing['stage_key']
+					self::log_token( $stage_key ),
+					self::log_token( (string) $existing['stage_key'] )
 				)
 			);
 			return;
@@ -1004,6 +1161,8 @@ class StageAgentRunner implements ModuleInterface {
 				'held_at'       => current_time( 'mysql' ),
 			)
 		);
+
+		$this->record_run( $post_id, 'held_for_warnings', $run );
 	}
 
 	/**
@@ -1021,10 +1180,24 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param string $ability_id Agent ability ID.
 	 * @param string $message    Failure message.
 	 * @param string $from_stage Stage the post entered from ('' when unknown).
+	 * @param array  $run        Telemetry details for the run, including why it stopped.
+	 * @param string $error_code Machine-readable cause (WP_Error code or exception class), for logs.
 	 */
-	private function fail_in_place( int $post_id, string $stage_key, string $ability_id, string $message, string $from_stage = '' ): void {
+	private function fail_in_place( int $post_id, string $stage_key, string $ability_id, string $message, string $from_stage = '', array $run = array(), string $error_code = '' ): void {
+		// Identifiers only. The message is free-form text from an extension, a
+		// provider or a WP_Error and may carry secrets or line breaks; it stays
+		// in the job marker for the editor, not in the server log.
 		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( sprintf( 'VIP Workflows: agent "%s" failed for post %d at stage "%s": %s', $ability_id, $post_id, $stage_key, $message ) );
+		error_log(
+			sprintf(
+				'[VIP Workflows] Agent stopped in place: post=%d stage=%s agent=%s reason=%s code=%s',
+				$post_id,
+				self::log_token( $stage_key ),
+				self::log_token( $ability_id ),
+				self::log_token( (string) ( $run['stop_reason'] ?? '' ) ),
+				self::log_token( $error_code )
+			)
+		);
 
 		// A stale run must not clobber a job a newer stage already owns (e.g. a
 		// checkpoint reseat or a bypass admin moved the post on and its next
@@ -1036,10 +1209,10 @@ class StageAgentRunner implements ModuleInterface {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log(
 				sprintf(
-					'VIP Workflows: suppressed stale failure marker for post %d at stage "%s" — stage "%s" owns the current job marker.',
+					'[VIP Workflows] Stale failure marker suppressed, another stage owns the job: post=%d stage=%s owner=%s',
 					$post_id,
-					$stage_key,
-					(string) $existing['stage_key']
+					self::log_token( $stage_key ),
+					self::log_token( (string) $existing['stage_key'] )
 				)
 			);
 			return;
@@ -1059,6 +1232,42 @@ class StageAgentRunner implements ModuleInterface {
 		);
 
 		do_action( 'vip_workflows_agent_failed', $post_id, $ability_id, $message );
+
+		$this->record_run( $post_id, 'stopped_in_place', $run );
+	}
+
+	/**
+	 * Record an agent run that concluded.
+	 *
+	 * Recorded as the person who started the run. Failing that, as whoever is
+	 * logged in, and under cron as the post's author.
+	 *
+	 * @param int    $post_id     Post ID.
+	 * @param string $disposition routed | error_routed | stopped_in_place | held_for_warnings.
+	 * @param array  $run         started_by, chain, outcome, duration_ms and stop_reason, each optional.
+	 */
+	private function record_run( int $post_id, string $disposition, array $run ): void {
+		if ( ! Tracker::is_available() ) {
+			return;
+		}
+
+		$as_user = (int) ( $run['started_by'] ?? 0 );
+		if ( $as_user <= 0 && get_current_user_id() <= 0 ) {
+			$as_user = (int) get_post_field( 'post_author', $post_id );
+		}
+
+		Tracker::record(
+			'agent_run_finished',
+			array(
+				'outcome'      => $run['outcome'] ?? null,
+				'disposition'  => $disposition,
+				'stop_reason'  => 'stopped_in_place' === $disposition ? ( $run['stop_reason'] ?? null ) : null,
+				'duration_ms'  => $run['duration_ms'] ?? null,
+				'chain_length' => $run['chain'] ?? null,
+				'initiator'    => 'agent',
+			),
+			$as_user > 0 ? $as_user : null
+		);
 	}
 
 	/**

@@ -11,6 +11,8 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Abilities\Tools;
 
+require_once __DIR__ . '/helpers.php';
+
 /**
  * Execute the assignments query.
  *
@@ -21,7 +23,7 @@ function execute_get_my_assignments( ?array $input = null ) {
 	$input   = $input ?? array();
 	$user_id = get_current_user_id();
 	$status  = $input['status'] ?? null;
-	$limit   = min( (int) ( $input['limit'] ?? 20 ), 50 );
+	$limit   = bounded_int( $input, 'limit', 20, 1, 50 );
 
 	if ( ! $user_id ) {
 		return new \WP_Error( 'not_logged_in', __( 'User must be logged in.', 'vip-workflows' ) );
@@ -57,17 +59,17 @@ function execute_get_my_assignments( ?array $input = null ) {
 		}
 
 		$sequence_id = get_post_meta( $post->ID, '_vip_workflows_sequence_id', true );
-		$stage_key    = get_post_meta( $post->ID, '_vip_workflows_current_stage_key', true );
+		$stage_key   = get_post_meta( $post->ID, '_vip_workflows_current_stage_key', true );
 
 		$posts[] = array(
-			'post_id'       => $post->ID,
-			'title'         => $post->post_title,
-			'post_type'     => $post->post_type,
-			'status'        => $post->post_status,
-			'stage'         => $stage_key ? $stage_key : null,
-			'sequence_id'   => $sequence_id ? (int) $sequence_id : null,
-			'modified'      => $post->post_modified,
-			'edit_url'      => get_edit_post_link( $post->ID, 'raw' ) ? get_edit_post_link( $post->ID, 'raw' ) : '',
+			'post_id'     => $post->ID,
+			'title'       => $post->post_title,
+			'post_type'   => $post->post_type,
+			'status'      => $post->post_status,
+			'stage'       => $stage_key ? $stage_key : null,
+			'sequence_id' => $sequence_id ? (int) $sequence_id : null,
+			'modified'    => $post->post_modified,
+			'edit_url'    => get_edit_post_link( $post->ID, 'raw' ) ? get_edit_post_link( $post->ID, 'raw' ) : '',
 		);
 	}
 
@@ -100,8 +102,10 @@ function register_get_my_assignments(): void {
 					),
 					'limit'  => array(
 						'type'        => 'integer',
-						'description' => __( 'Maximum number of results (default 20, max 50).', 'vip-workflows' ),
+						'description' => __( 'Maximum number of results (default 20, minimum 1, maximum 50).', 'vip-workflows' ),
 						'default'     => 20,
+						'minimum'     => 1,
+						'maximum'     => 50,
 					),
 				),
 			),

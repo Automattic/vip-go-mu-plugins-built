@@ -49,7 +49,7 @@ function execute_remove_from_workflow( ?array $input = null ) {
 	// out of. A dangling sequence id (the row was deleted) still resolves to a
 	// name of null here, which is exactly the case removal exists to clean up.
 	$sequence      = $status_manager->get_sequence_for_post( $post_id );
-	$removed_stage  = (string) get_post_meta( $post_id, \VIPWorkflows\Workflow\StatusManager::STAGE_META_KEY, true );
+	$removed_stage = (string) get_post_meta( $post_id, \VIPWorkflows\Workflow\StatusManager::STAGE_META_KEY, true );
 
 	// StatusManager::remove_sequence() is the sole authority: it deletes the
 	// sequence + stage + claim meta, writes NO post_status (the post stays
@@ -64,12 +64,12 @@ function execute_remove_from_workflow( ?array $input = null ) {
 	}
 
 	return array(
-		'post_id'        => $post_id,
-		'post_title'     => $post->post_title,
-		'workflow_name'  => $sequence ? $sequence->name : '',
-		'removed_stage'  => $removed_stage,
-		'post_status'    => (string) get_post_status( $post_id ),
-		'success'        => true,
+		'post_id'       => $post_id,
+		'post_title'    => $post->post_title,
+		'workflow_name' => $sequence ? $sequence->name : '',
+		'removed_stage' => $removed_stage,
+		'post_status'   => (string) get_post_status( $post_id ),
+		'success'       => true,
 	);
 }
 

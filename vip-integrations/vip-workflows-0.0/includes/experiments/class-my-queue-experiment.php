@@ -47,7 +47,7 @@ class MyQueueExperiment extends Experiment {
 	 * @inheritDoc
 	 */
 	public function get_description(): string {
-		return __( 'The My Dashboard tab listing posts a reviewer can act on next.', 'vip-workflows' );
+		return __( 'Adds a My Dashboard tab of posts you can act on.', 'vip-workflows' );
 	}
 
 	/**

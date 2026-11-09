@@ -45,8 +45,8 @@ class AgentRunner implements ModuleInterface {
 		$agents = $this->get_registered_agents();
 
 		if ( ! isset( $agents[ $agent_id ] ) ) {
-         // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( "VIP Workflows: Unknown agent '{$agent_id}'" );
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Unknown agent: post=%d agent=%s', $post_id, StageAgentRunner::log_token( $agent_id ) ) );
 			return;
 		}
 
@@ -80,9 +80,9 @@ class AgentRunner implements ModuleInterface {
 			return;
 		}
 
-		$agent            = $agents[ $agent_id ];
+		$agent              = $agents[ $agent_id ];
 		$assignment_manager = new AssignmentManager();
-		$meta_key         = $config['meta_key'] ?? $agent_id;
+		$meta_key           = $config['meta_key'] ?? $agent_id;
 
 		try {
 			// Execute agent handler.

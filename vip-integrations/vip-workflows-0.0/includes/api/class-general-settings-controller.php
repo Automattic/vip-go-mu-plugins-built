@@ -83,24 +83,24 @@ class GeneralSettingsController extends WP_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'workflow_enforcement'         => $settings['workflow_enforcement'] ?? false,
-				'workflow_enforcement_mode'    => $settings['workflow_enforcement_mode'] ?? 'require',
-				'allow_self_review'            => $settings['allow_self_review'] ?? false,
-				'bypass_workflow_roles'        => $settings['bypass_workflow_roles'] ?? array( 'administrator' ),
-				'bypass_tool_check_roles'      => $settings['bypass_tool_check_roles'] ?? array( 'administrator' ),
-				'audit_log_roles'              => $settings['audit_log_roles'] ?? array( 'administrator', 'editor' ),
-				'audit_log_full_access_roles'  => $settings['audit_log_full_access_roles'] ?? array( 'administrator' ),
+				'workflow_enforcement'        => $settings['workflow_enforcement'] ?? false,
+				'workflow_enforcement_mode'   => $settings['workflow_enforcement_mode'] ?? 'require',
+				'allow_self_review'           => $settings['allow_self_review'] ?? false,
+				'bypass_workflow_roles'       => $settings['bypass_workflow_roles'] ?? array( 'administrator' ),
+				'bypass_tool_check_roles'     => $settings['bypass_tool_check_roles'] ?? array( 'administrator' ),
+				'audit_log_roles'             => $settings['audit_log_roles'] ?? array( 'administrator', 'editor' ),
+				'audit_log_full_access_roles' => $settings['audit_log_full_access_roles'] ?? array( 'administrator' ),
 				// General AI provider + model (media/ideation/research), distinct
 				// from the AI Agent's own model. Stored in their own options via
 				// Credentials. `ai_provider` may be derived from a lone credential
 				// rather than chosen, and may be '' when nothing resolves, so the
 				// client is told which — a derived selection is unsaved, and the
 				// form has to show it as such and let one click pin it.
-				'ai_provider'                  => Credentials::get_instance()->provider(),
-				'ai_provider_selected'         => Credentials::get_instance()->has_explicit_provider(),
-				'ai_providers'                 => Credentials::get_instance()->available_providers(),
-				'ai_model'                     => Credentials::get_instance()->model(),
-				'ai_models'                    => self::provider_model_map(),
+				'ai_provider'                 => Credentials::get_instance()->provider(),
+				'ai_provider_selected'        => Credentials::get_instance()->has_explicit_provider(),
+				'ai_providers'                => Credentials::get_instance()->available_providers(),
+				'ai_model'                    => Credentials::get_instance()->model(),
+				'ai_models'                   => self::provider_model_map(),
 			)
 		);
 	}

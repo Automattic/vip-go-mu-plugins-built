@@ -83,17 +83,17 @@ class EditorialMentor {
 			if ( is_wp_error( $guidance ) ) {
 				return array(
 					'status' => 'failed',
-					'error' => $guidance->get_error_message(),
+					'error'  => $guidance->get_error_message(),
 				);
 			}
 
 			$cards = array(
 				array(
-					'type'       => 'mentor-guidance',
-					'title'      => __( 'Editorial guidance', 'vip-workflows' ),
-					'guidance'   => $guidance['guidance'],
-					'readiness'  => $guidance['readiness'],
-					'source'     => 'editorial-mentor',
+					'type'      => 'mentor-guidance',
+					'title'     => __( 'Editorial guidance', 'vip-workflows' ),
+					'guidance'  => $guidance['guidance'],
+					'readiness' => $guidance['readiness'],
+					'source'    => 'editorial-mentor',
 				),
 			);
 
@@ -110,7 +110,7 @@ class EditorialMentor {
 		} catch ( \Exception $e ) {
 			return array(
 				'status' => 'failed',
-				'error' => $e->getMessage(),
+				'error'  => $e->getMessage(),
 			);
 		}
 	}
@@ -258,7 +258,7 @@ class EditorialMentor {
 	private function build_pinned_breakdown( array $pinned_cards ): string {
 		$counts = array();
 		foreach ( $pinned_cards as $card ) {
-			$type = $card['source_type'] ?? $card['type'] ?? 'article';
+			$type            = $card['source_type'] ?? $card['type'] ?? 'article';
 			$counts[ $type ] = ( $counts[ $type ] ?? 0 ) + 1;
 		}
 

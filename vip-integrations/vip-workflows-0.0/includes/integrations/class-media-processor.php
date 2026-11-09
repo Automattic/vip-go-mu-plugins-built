@@ -134,9 +134,9 @@ class MediaProcessor {
 				->generateText();
 
 			return array(
-				'type'        => 'image',
-				'content'     => $analysis,
-				'summary'     => $this->extract_first_paragraph( $analysis ),
+				'type'         => 'image',
+				'content'      => $analysis,
+				'summary'      => $this->extract_first_paragraph( $analysis ),
 				'processed_at' => current_time( 'mysql' ),
 			);
 
@@ -180,9 +180,9 @@ class MediaProcessor {
 		$summary = $this->summarize_text( $transcript, 'audio/video transcript' );
 
 		return array(
-			'type'        => 'transcript',
-			'content'     => $transcript,
-			'summary'     => is_wp_error( $summary ) ? null : $summary,
+			'type'         => 'transcript',
+			'content'      => $transcript,
+			'summary'      => is_wp_error( $summary ) ? null : $summary,
 			'processed_at' => current_time( 'mysql' ),
 		);
 	}
@@ -262,6 +262,7 @@ class MediaProcessor {
 		$body .= '--' . $boundary . "\r\n";
 		$body .= 'Content-Disposition: form-data; name="file"; filename="' . basename( $file_path ) . '"' . "\r\n";
 		$body .= 'Content-Type: ' . mime_content_type( $file_path ) . "\r\n\r\n";
+		// phpcs:ignore WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- local uploaded media file for transcription
 		$body .= file_get_contents( $file_path ) . "\r\n";
 		$body .= '--' . $boundary . '--' . "\r\n";
 
@@ -305,7 +306,7 @@ class MediaProcessor {
 			'media/text-summary',
 			array( 'content_type' => $content_type )
 		);
-		$prompt = apply_filters(
+		$prompt      = apply_filters(
 			'vip_workflows_ai_summary_prompt',
 			$instruction . "\n\nContent:\n" . $text,
 			$content_type

@@ -99,8 +99,8 @@ class RestController {
 		);
 
 		foreach ( $required_tables as $table ) {
-			$full_name = $wpdb->prefix . $table;
-			$exists    = $wpdb->get_var(
+			$full_name              = $wpdb->prefix . $table;
+			$exists                 = $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin tables from $required_tables; live existence check for the status report, not cached
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $full_name ) )
 			) === $full_name;
 			$tables_exist[ $table ] = $exists;
@@ -109,6 +109,7 @@ class RestController {
 		// Count records.
 		$sequence_count = 0;
 		if ( $tables_exist['vip_sequences'] ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_sequences; live read, not cached
 			$sequence_count = (int) $wpdb->get_var(
 				$wpdb->prepare( 'SELECT COUNT(*) FROM %i', $wpdb->prefix . 'vip_sequences' )
 			);
@@ -116,10 +117,10 @@ class RestController {
 
 		return new \WP_REST_Response(
 			array(
-				'status'          => 'ok',
-				'version'         => VIP_WORKFLOWS_VERSION,
-				'db_version'      => get_option( 'vip_workflows_db_version', 'not installed' ),
-				'tables_exist'    => $tables_exist,
+				'status'         => 'ok',
+				'version'        => VIP_WORKFLOWS_VERSION,
+				'db_version'     => get_option( 'vip_workflows_db_version', 'not installed' ),
+				'tables_exist'   => $tables_exist,
 				'sequence_count' => $sequence_count,
 			)
 		);

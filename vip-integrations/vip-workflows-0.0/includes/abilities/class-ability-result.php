@@ -90,6 +90,15 @@ class AbilityResult {
 	public ?string $error = null;
 
 	/**
+	 * Machine-readable cause of a failure: the WP_Error code or the exception
+	 * class. Kept in memory only, for logs that must not carry the free-form
+	 * error message.
+	 *
+	 * @var string|null
+	 */
+	public ?string $error_code = null;
+
+	/**
 	 * Execution duration in milliseconds.
 	 *
 	 * @var int

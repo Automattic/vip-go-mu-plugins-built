@@ -60,6 +60,7 @@ class AbilityResultRepository {
 			'created_at'  => $result->created_at ? $result->created_at : current_time( 'mysql' ),
 		);
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_ability_results; write, nothing to cache
 		$wpdb->insert( $this->get_table(), $data );
 		$result->id = (int) $wpdb->insert_id;
 
@@ -88,9 +89,11 @@ class AbilityResultRepository {
 		$sql     .= ' ORDER BY created_at DESC LIMIT %d';
 		$params[] = $limit;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- plugin table vip_ability_results; live read, not cached
 		$rows = $wpdb->get_results(
-			$wpdb->prepare( $sql, ...$params ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->prepare( $sql, ...$params )
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
 
 		return array_map( array( $this, 'hydrate' ), $rows ? $rows : array() );
 	}
@@ -104,6 +107,7 @@ class AbilityResultRepository {
 	public function find( int $id ): ?AbilityResult {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ability_results; live read, not cached
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
 				'SELECT * FROM %i WHERE id = %d',
@@ -124,6 +128,7 @@ class AbilityResultRepository {
 	public function cleanup( int $days_old = 30 ): int {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ability_results; write, no cached copy to invalidate
 		return (int) $wpdb->query(
 			$wpdb->prepare(
 				'DELETE FROM %i WHERE created_at < DATE_SUB(NOW(), INTERVAL %d DAY)',
@@ -157,7 +162,7 @@ class AbilityResultRepository {
 		$result->error              = $decoded['_error'] ?? null;
 		$result->unmet_requirements = (array) ( $decoded['_unmet_requirements'] ?? array() );
 		unset( $decoded['_error'], $decoded['_unmet_requirements'] );
-		$result->output             = $decoded;
+		$result->output = $decoded;
 
 		return $result;
 	}

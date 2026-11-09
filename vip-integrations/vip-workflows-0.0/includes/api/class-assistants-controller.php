@@ -183,7 +183,7 @@ class AssistantsController extends WP_REST_Controller {
 		if ( ! $saved ) {
 			return new WP_Error(
 				'save_failed',
-				__( 'Failed to save agent settings.', 'vip-workflows' ),
+				__( 'Could not save agent settings. Try again.', 'vip-workflows' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -357,7 +357,7 @@ class AssistantsController extends WP_REST_Controller {
 					'context'              => array( 'view', 'edit' ),
 					'additionalProperties' => true,
 				),
-				'settings_schema'        => array(
+				'settings_schema'       => array(
 					'description'          => __( 'Field definitions the card renders, keyed by field name.', 'vip-workflows' ),
 					'type'                 => 'object',
 					'context'              => array( 'view', 'edit' ),

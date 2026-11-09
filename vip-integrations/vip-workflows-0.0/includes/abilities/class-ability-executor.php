@@ -11,6 +11,7 @@ namespace VIPWorkflows\Abilities;
 
 use VIPWorkflows\API\AvailabilitySerializer;
 use VIPWorkflows\Automation\EventBus;
+use VIPWorkflows\Telemetry\Tracker;
 
 /**
  * Executes abilities and stores results.
@@ -86,11 +87,13 @@ class AbilityExecutor {
 	 * @param  string $ability_name Ability name/ID.
 	 * @param  array  $input        Input parameters.
 	 * @param  string $context      Surface this run was invoked from. See above.
+	 * @param  string $source       For a direct run, the client that asked for it, for telemetry:
+	 *                              `command_palette`, or `rest` for any other caller.
 	 * @return AbilityResult
 	 * @throws \InvalidArgumentException If ability not found.
 	 * @throws \RuntimeException If ability is disabled.
 	 */
-	public function execute( string $ability_name, array $input = array(), string $context = '' ): AbilityResult {
+	public function execute( string $ability_name, array $input = array(), string $context = '', string $source = 'rest' ): AbilityResult {
 		$ability = wp_get_ability( $ability_name );
 
 		if ( ! $ability ) {
@@ -127,6 +130,7 @@ class AbilityExecutor {
 				$result->unmet_requirements = AvailabilitySerializer::to_persistable( $availability );
 				$result->post_id            = $this->resolve_post_id( $input );
 				$this->repository->save( $result );
+				$this->record_direct_run( $context, $source, $result, true );
 				return $result;
 			}
 		}
@@ -154,7 +158,8 @@ class AbilityExecutor {
 				 * array — for example, one containing a REST status — but that data
 				 * describes the error; it does not make the result successful.
 				 */
-				$result = AbilityResult::failure( $ability_name, $raw_result->get_error_message() );
+				$result             = AbilityResult::failure( $ability_name, $raw_result->get_error_message() );
+				$result->error_code = (string) $raw_result->get_error_code();
 			} elseif ( $raw_result instanceof AbilityResult ) {
 				$result = $raw_result;
 			} elseif ( is_array( $raw_result ) ) {
@@ -163,7 +168,8 @@ class AbilityExecutor {
 				$result = AbilityResult::success( $ability_name, array( 'data' => $raw_result ) );
 			}
 		} catch ( \Exception $e ) {
-			$result = AbilityResult::failure( $ability_name, $e->getMessage() );
+			$result             = AbilityResult::failure( $ability_name, $e->getMessage() );
+			$result->error_code = get_class( $e );
 		} finally {
 			self::$current_context = $previous_context;
 		}
@@ -185,7 +191,37 @@ class AbilityExecutor {
 			array( 'post_id' => $result->post_id )
 		);
 
+		$this->record_direct_run( $context, $source, $result, false );
+
 		return $result;
+	}
+
+	/**
+	 * Record a tool run directly by a person (not from a gate or an agent).
+	 *
+	 * @param string        $context     Surface the run was invoked from.
+	 * @param string        $source      Client that asked for the run. See execute().
+	 * @param AbilityResult $result      The run's result.
+	 * @param bool          $unavailable Whether the ability was not configured, so never ran.
+	 */
+	private function record_direct_run( string $context, string $source, AbilityResult $result, bool $unavailable ): void {
+		if ( '' !== $context || ! Tracker::is_available() ) {
+			return;
+		}
+
+		$issues = $result->output['issues'] ?? array();
+
+		Tracker::record(
+			'tool_run_finished',
+			array(
+				'success'     => $result->success,
+				'unavailable' => $unavailable,
+				'issue_count' => is_array( $issues ) ? count( $issues ) : 0,
+				'duration_ms' => $unavailable ? null : $result->duration_ms,
+				'surface'     => $source,
+				'initiator'   => 'user',
+			)
+		);
 	}
 
 	/**

@@ -12,6 +12,7 @@ namespace VIPWorkflows\API;
 use VIPWorkflows\Ideation\Assistants\IdeationOrchestrator;
 use VIPWorkflows\Ideation\Research\IdeationAnalyzer;
 use VIPWorkflows\Ideation\Research\IdeationPostTypes;
+use VIPWorkflows\Integrations\SafeUrl;
 use VIPWorkflows\Integrations\UrlMetaExtractor;
 use WP_Error;
 use WP_REST_Controller;
@@ -51,10 +52,14 @@ class IdeationSourcesController extends WP_REST_Controller {
 				'callback'            => array( $this, 'add_source' ),
 				'permission_callback' => array( $this, 'edit_permissions_check' ),
 				'args'                => array(
+					// No `esc_url_raw()` here: it rewrites the addresses it accepts,
+					// and the source's identity is derived from its address. The
+					// handler reduces the value with SafeUrl, as a research card's
+					// address is reduced, so one address gives one identity on both
+					// paths.
 					'url'   => array(
-						'type'              => 'string',
-						'required'          => true,
-						'sanitize_callback' => 'esc_url_raw',
+						'type'     => 'string',
+						'required' => true,
 					),
 					'title' => array(
 						'type'              => 'string',
@@ -177,12 +182,30 @@ class IdeationSourcesController extends WP_REST_Controller {
 		global $wpdb;
 
 		$project_id = (int) $request->get_param( 'id' );
-		$url        = (string) $request->get_param( 'url' );
+		$param_url  = (string) $request->get_param( 'url' );
 
-		if ( '' === trim( $url ) ) {
+		if ( '' === trim( $param_url ) ) {
 			return new WP_Error(
 				'rest_invalid_param',
 				__( 'URL is required.', 'vip-workflows' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		/*
+		 * The address is checked before anything is derived from it. One that is
+		 * not an absolute `http` or `https` address with a host (`https://`,
+		 * `ftp://example.com`, `javascript:...`) is refused here, so it neither
+		 * matches a stored source nor reaches the fetch below. The checked form is
+		 * the one used from here on: it is what the identity is derived from, what
+		 * is fetched, and what is stored.
+		 */
+		$url = SafeUrl::http_or_null( $param_url );
+
+		if ( null === $url ) {
+			return new WP_Error(
+				'rest_invalid_param',
+				__( 'Enter a web address that starts with http:// or https:// and names a site.', 'vip-workflows' ),
 				array( 'status' => 400 )
 			);
 		}
@@ -234,26 +257,27 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_ideation_sources; write, nothing to cache
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'project_id'    => $project_id,
-				'source_id'     => $source_id,
-				'url'           => $url,
-				'title'         => '' !== $title ? $title : null,
-				'domain'        => $domain,
-				'favicon'       => null,
-				'image'         => ! empty( $meta['image'] ) ? (string) $meta['image'] : null,
-				'published_at'  => $published_at,
-				'author'        => ! empty( $meta['author'] ) ? (string) $meta['author'] : null,
-				'excerpt'       => '' !== $description ? $description : null,
-				'content'       => '' !== $description ? $description : null,
-				'source_type'   => 'article',
-				'origin'        => 'manual',
-				'notes'         => '' !== $notes ? $notes : null,
-				'added_by'      => $user_id,
-				'added_at'      => $now,
-				'updated_at'    => $now,
+				'project_id'   => $project_id,
+				'source_id'    => $source_id,
+				'url'          => $url,
+				'title'        => '' !== $title ? $title : null,
+				'domain'       => $domain,
+				'favicon'      => null,
+				'image'        => ! empty( $meta['image'] ) ? (string) $meta['image'] : null,
+				'published_at' => $published_at,
+				'author'       => ! empty( $meta['author'] ) ? (string) $meta['author'] : null,
+				'excerpt'      => '' !== $description ? $description : null,
+				'content'      => '' !== $description ? $description : null,
+				'source_type'  => 'article',
+				'origin'       => 'manual',
+				'notes'        => '' !== $notes ? $notes : null,
+				'added_by'     => $user_id,
+				'added_at'     => $now,
+				'updated_at'   => $now,
 			),
 			array(
 				'%d',
@@ -431,23 +455,24 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- plugin table vip_ideation_sources; write, nothing to cache
 		$inserted = $wpdb->insert(
 			$table,
 			array(
-				'project_id'          => $project_id,
-				'source_id'           => $source_id,
-				'url'                 => $attach_url ? $attach_url : null,
-				'title'               => $attachment->post_title,
-				'domain'              => null,
-				'source_type'         => 'document',
-				'origin'              => 'manual',
-				'attachment_id'       => $attachment_id,
-				'file_type'           => $attachment->post_mime_type,
-				'file_size'           => $file_size,
-				'processing_status'   => 'pending',
-				'added_by'            => $user_id,
-				'added_at'            => $now,
-				'updated_at'          => $now,
+				'project_id'        => $project_id,
+				'source_id'         => $source_id,
+				'url'               => $attach_url ? $attach_url : null,
+				'title'             => $attachment->post_title,
+				'domain'            => null,
+				'source_type'       => 'document',
+				'origin'            => 'manual',
+				'attachment_id'     => $attachment_id,
+				'file_type'         => $attachment->post_mime_type,
+				'file_size'         => $file_size,
+				'processing_status' => 'pending',
+				'added_by'          => $user_id,
+				'added_at'          => $now,
+				'updated_at'        => $now,
 			),
 			array(
 				'%d',
@@ -517,6 +542,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; write, no cached copy to invalidate
 		$deleted = $wpdb->delete(
 			$table,
 			array(
@@ -572,7 +598,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 		$notes_param = $request->get_param( 'notes' );
 		$tags_param  = $request->get_param( 'tags' );
 
-		$data = array(
+		$data    = array(
 			'updated_at' => current_time( 'mysql' ),
 		);
 		$formats = array( '%s' );
@@ -593,6 +619,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; write, no cached copy to invalidate
 		$updated = $wpdb->update(
 			$table,
 			$data,
@@ -665,6 +692,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; write, no cached copy to invalidate
 		$wpdb->update(
 			$table,
 			array(
@@ -690,9 +718,9 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'summary'    => $result['summary'],
+				'summary'     => $result['summary'],
 				'analyzed_at' => $result['analyzed_at'],
-				'source'     => $this->format_source_row( $fresh ),
+				'source'      => $this->format_source_row( $fresh ),
 			)
 		);
 	}
@@ -730,12 +758,13 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; write, no cached copy to invalidate
 		$wpdb->update(
 			$table,
 			array(
 				'processing_status' => 'pending',
-				'ai_analysis'     => wp_json_encode( $ai_analysis ),
-				'updated_at'      => current_time( 'mysql' ),
+				'ai_analysis'       => wp_json_encode( $ai_analysis ),
+				'updated_at'        => current_time( 'mysql' ),
 			),
 			array(
 				'project_id' => $project_id,
@@ -775,6 +804,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 
 		$table = $wpdb->prefix . 'vip_ideation_sources';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; live read, not cached
 		$row = $wpdb->get_row(
 			$wpdb->prepare(
 				'SELECT * FROM %i WHERE project_id = %d AND source_id = %s',
@@ -796,7 +826,7 @@ class IdeationSourcesController extends WP_REST_Controller {
 	 */
 	private function format_source_row( array $row ): array {
 		if ( isset( $row['ai_analysis'] ) && is_string( $row['ai_analysis'] ) && '' !== $row['ai_analysis'] ) {
-			$decoded = json_decode( $row['ai_analysis'], true );
+			$decoded            = json_decode( $row['ai_analysis'], true );
 			$row['ai_analysis'] = is_array( $decoded ) ? $decoded : null;
 		}
 

@@ -87,6 +87,7 @@ class EmailChannel extends NotificationChannel {
 
 		$success = true;
 		foreach ( $recipients as $email ) {
+			// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- transactional notification to workflow assignees
 			if ( ! wp_mail( $email, $subject, $body, $headers ) ) {
 				$success = false;
 			}
@@ -108,9 +109,10 @@ class EmailChannel extends NotificationChannel {
 		$body    = '<p>' . esc_html__( 'VIP Workflows email notifications are working!', 'vip-workflows' ) . '</p>';
 		$headers = array( 'Content-Type: text/html; charset=UTF-8' );
 
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.wp_mail_wp_mail -- transactional test email sent to admin only
 		$success = wp_mail( $admin_email, $subject, $body, $headers );
 
-		return $success ? true : new WP_Error( 'send_failed', __( 'Failed to send test email.', 'vip-workflows' ) );
+		return $success ? true : new WP_Error( 'send_failed', __( 'Could not send the test email. Check the site’s mail setup.', 'vip-workflows' ) );
 	}
 
 	/**
@@ -119,13 +121,13 @@ class EmailChannel extends NotificationChannel {
 	 * @param array $input Input data.
 	 */
 	public function sanitize_settings( array $input ): array {
-		$sanitized                   = array();
-		$sanitized['notify_author']  = ! empty( $input['notify_author'] );
-		$sanitized['notify_admins']  = ! empty( $input['notify_admins'] );
+		$sanitized                  = array();
+		$sanitized['notify_author'] = ! empty( $input['notify_author'] );
+		$sanitized['notify_admins'] = ! empty( $input['notify_admins'] );
 
 		if ( ! empty( $input['additional_recipients'] ) ) {
-			$lines  = explode( "\n", $input['additional_recipients'] );
-			$emails = array_filter(
+			$lines                              = explode( "\n", $input['additional_recipients'] );
+			$emails                             = array_filter(
 				array_map(
 					function ( $line ) {
 							$email = sanitize_email( trim( $line ) );
@@ -163,7 +165,7 @@ class EmailChannel extends NotificationChannel {
 		if ( ! empty( $settings['notify_admins'] ) ) {
 			$admins = get_users(
 				array(
-					'role' => 'administrator',
+					'role'   => 'administrator',
 					'fields' => array( 'user_email' ),
 				)
 			);
@@ -228,7 +230,7 @@ class EmailChannel extends NotificationChannel {
 				<p style="margin-top: 20px; font-size: 12px; color: #666;">
 		<?php
 		printf(
-		 /* translators: %s: site name */
+		/* translators: %s: site name */
 			esc_html__( 'Sent by VIP Workflows on %s', 'vip-workflows' ),
 			esc_html( get_bloginfo( 'name' ) )
 		);

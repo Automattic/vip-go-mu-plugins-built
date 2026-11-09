@@ -268,6 +268,14 @@ rather than adding a duplicate. Two consequences for your agent:
   `content`. Cards with no URL are identified by title plus body, so two
   generated cards that differ only in a field you left out will collapse into
   one and the second will be silently dropped.
+- Return absolute `http://` or `https://` addresses in `url`, `image` and
+  `thumbnail`. Any other value in those fields — a relative path, a
+  protocol-relative `//host/path`, `mailto:`, `data:` — is not stored: the
+  field becomes `null` and the card is kept without it. A card that loses its
+  `url` this way is identified like any card with no URL, by title plus body.
+  Use `''` or `null` when a card has no link or no image; both are left as
+  they are. When a field is dropped, one line in the PHP error log names your
+  agent and counts the fields.
 
 Optional grouping: if your agent returns related cards (e.g., an article + its comments), give them the same `group_id` string. The mood board will render them as a linked pair.
 
@@ -551,6 +559,8 @@ Every prompt **must** include:
 - `title` — display title
 
 Recommended: `description`, `url`, `date`, `date_end`, `tags`, `importance`, `meta`.
+
+`url` and each `meta.links[].url` must be absolute `http://` or `https://` addresses. When an editor selects a prompt, any other value in those fields becomes `null` before your `seed` callback receives the prompt and before the prompt is stored; an empty string is left as it is. Read them in `seed` as values that can be `null`: `(string) ( $prompt['url'] ?? '' )`.
 
 `importance` is provider-defined. The UI renders badges based on it (`key_event`, `top_story`, `normal`) but does not enforce a universal scale. `meta` is freeform and provider-specific — use it for structured data your seed generation or settings UI needs (event types, regions, contacts, embargo info, etc.).
 

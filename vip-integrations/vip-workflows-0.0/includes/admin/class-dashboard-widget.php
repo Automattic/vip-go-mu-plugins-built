@@ -66,7 +66,7 @@ class DashboardWidget {
 		// Workflow sequences only: the widget counts posts per stage, and phase
 		// sequences have no stages.
 		$sequences      = $repository->get_workflow_sequences( array( 'status' => 'active' ) );
-		$status_manager  = Plugin::get_instance()->get_status_manager();
+		$status_manager = Plugin::get_instance()->get_status_manager();
 
 		if ( empty( $sequences ) || ! $status_manager ) {
 			?>
@@ -104,9 +104,9 @@ class DashboardWidget {
 				$status = $status_manager->get_current_status( $post->ID );
 				if ( $status ) {
 					$workflow_posts[] = array(
-						'post'      => $post,
+						'post'     => $post,
 						'sequence' => $sequence,
-						'status'    => $status,
+						'status'   => $status,
 					);
 				}
 			}

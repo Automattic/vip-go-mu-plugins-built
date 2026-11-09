@@ -82,16 +82,16 @@ class Admin implements ModuleInterface {
 			return;
 		}
 
-		$parts        = explode( ':', $selection, 2 );
+		$parts       = explode( ':', $selection, 2 );
 		$sequence_id = (int) $parts[0];
-		$status_key   = isset( $parts[1] ) ? sanitize_key( $parts[1] ) : '';
+		$status_key  = isset( $parts[1] ) ? sanitize_key( $parts[1] ) : '';
 
 		if ( ! $sequence_id ) {
 			return;
 		}
 
 		$repository = new SequenceRepository();
-		$sequence  = $repository->find( $sequence_id );
+		$sequence   = $repository->find( $sequence_id );
 
 		if ( ! $sequence ) {
 			return;
@@ -107,7 +107,7 @@ class Admin implements ModuleInterface {
 			if ( ! is_array( $existing ) ) {
 				$existing = array();
 			}
-			$args = \VIPWorkflows\Workflow\StageQuery::in_any_workflow( $sequence, array( 'meta_query' => $existing ) );
+			$args = \VIPWorkflows\Workflow\StageQuery::in_any_workflow( $sequence, array( 'meta_query' => $existing ) ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- a post's workflow sequence and stage are stored in post meta (_vip_workflows_sequence_id, _vip_workflows_current_stage_key), so filtering by stage has to use meta_query, here scoped to the sequence by StageQuery::in_any_workflow().
 			$query->set( 'meta_query', $args['meta_query'] );
 		}
 	}
@@ -128,7 +128,7 @@ class Admin implements ModuleInterface {
 		// and inherit the `post` post-type default, so they would render as an
 		// empty optgroup here.
 		$repository = new SequenceRepository();
-		$sequences = array_filter(
+		$sequences  = array_filter(
 			$repository->get_workflow_sequences( array( 'status' => 'active' ) ),
 			fn( $bp ) => in_array( $screen->post_type, $bp->get_post_types(), true )
 		);
@@ -392,7 +392,7 @@ class Admin implements ModuleInterface {
 			'vip-workflows-calendar'      => 12,
 			'vip-workflows-ideation'      => 13,
 			// System.
-			'vip-workflows-sequences'    => 30,
+			'vip-workflows-sequences'     => 30,
 			'vip-workflows-notifications' => 31,
 			'vip-workflows-agents'        => 32,
 			'vip-workflows-tools'         => 33,
@@ -423,6 +423,44 @@ class Admin implements ModuleInterface {
 	}
 
 	/**
+	 * The screens whose page carries the skill bodies.
+	 *
+	 * A skill's SKILL.md is inlined into the page it is offered from, so only the
+	 * screens that render an install button pay for it. Every entry here has a
+	 * screen that passes a `skillType` to HowToModal, and every such screen needs
+	 * an entry: InstallSkillButton renders nothing at all when its content is
+	 * missing, so a screen left out loses the download with no error anywhere.
+	 *
+	 * @var string[]
+	 */
+	private const SKILL_SCREENS = array(
+		'vip-workflows-tools',
+		'vip-workflows-agents',
+		'vip-workflows-sequences',
+		'vip-workflows-notifications',
+	);
+
+	/**
+	 * Whether this admin screen offers a skill download.
+	 *
+	 * Matched the way enqueue_scripts() matches the plugin's own pages: a submenu
+	 * hook is `workflows_page_vip-workflows-*`, so the slug is a substring rather
+	 * than the whole suffix.
+	 *
+	 * @param  string $hook_suffix Current page hook.
+	 * @return bool True when the page should receive the skill bodies.
+	 */
+	public static function screen_carries_skills( string $hook_suffix ): bool {
+		foreach ( self::SKILL_SCREENS as $screen ) {
+			if ( str_contains( $hook_suffix, $screen ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Enqueue admin scripts and styles.
 	 * Loads on all VIP Workflows pages, including plugin-registered submenus.
 	 *
@@ -446,12 +484,12 @@ class Admin implements ModuleInterface {
 			),
 			'roles'       => $this->get_available_roles(),
 			'experiments' => $this->get_experiment_flags(),
+			'myWork'      => array(
+				'windowDays' => \VIPWorkflows\API\WorkflowController::MY_WORK_WINDOW_DAYS,
+			),
 		);
 
-		if (
-			str_contains( $hook_suffix, 'vip-workflows-tools' )
-			|| str_contains( $hook_suffix, 'vip-workflows-agents' )
-		) {
+		if ( self::screen_carries_skills( $hook_suffix ) ) {
 			$localize_data['skills'] = $this->load_skill_files();
 		}
 
@@ -593,7 +631,7 @@ class Admin implements ModuleInterface {
 		<div class="notice notice-error">
 			<p>
 				<strong><?php esc_html_e( 'VIP Workflows:', 'vip-workflows' ); ?></strong>
-				<?php esc_html_e( 'These sequences could not be upgraded and are not usable until someone fixes them in the Sequence editor. Their stages still have no status region, so any post that reaches one will fail.', 'vip-workflows' ); ?>
+				<?php esc_html_e( 'These sequences could not be upgraded and are unusable. Fix them in the Sequence editor.', 'vip-workflows' ); ?>
 			</p>
 			<ul style="list-style: disc; margin-left: 2em;">
 				<?php foreach ( $failed as $sequence ) : ?>
@@ -612,7 +650,7 @@ class Admin implements ModuleInterface {
 		<div class="notice notice-warning">
 			<p>
 				<strong><?php esc_html_e( 'VIP Workflows:', 'vip-workflows' ); ?></strong>
-					<?php esc_html_e( 'This upgrade gave every workflow stage a status region, and made a stage hold at most one transition per target. These sequences had to be changed to fit. The changes are safe, but they change how the sequences behave — confirm them in the Sequence editor.', 'vip-workflows' ); ?>
+					<?php esc_html_e( 'This upgrade changed how these sequences behave. Confirm them in the Sequence editor.', 'vip-workflows' ); ?>
 			</p>
 			<ul style="list-style: disc; margin-left: 2em;">
 				<?php foreach ( $changed as $sequence ) : ?>
@@ -640,7 +678,7 @@ class Admin implements ModuleInterface {
 							echo esc_html(
 								sprintf(
 									/* translators: %s: comma-separated transitions. */
-									__( 'Transitions removed, because the sequence was stored with a stage holding two to the same target. Their roles, required tools and notifications went with them: %s.', 'vip-workflows' ),
+									__( 'Duplicate transitions removed, with their roles, required tools and notifications: %s.', 'vip-workflows' ),
 									implode( ', ', array_map( array( self::class, 'describe_dropped_transition' ), $dropped ) )
 								)
 							);
@@ -737,12 +775,13 @@ class Admin implements ModuleInterface {
 			'agent'                => 'skills/create-agent/SKILL.md',
 			'tool'                 => 'skills/create-tool/SKILL.md',
 			'notification-channel' => 'skills/create-notification-channel/SKILL.md',
+			'sequence'             => 'skills/create-sequence/SKILL.md',
 		);
 
 		foreach ( $map as $type => $relative_path ) {
 			$path = VIP_WORKFLOWS_PLUGIN_DIR . $relative_path;
 			if ( file_exists( $path ) ) {
-				$skills[ $type ] = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$skills[ $type ] = file_get_contents( $path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPressVIPMinimum.Performance.FetchingRemoteData.FileGetContentsUnknown -- local file bundled in plugin directory
 			}
 		}
 

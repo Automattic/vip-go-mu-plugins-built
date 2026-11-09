@@ -97,8 +97,8 @@ class IdeationAnalyzer {
 				->generateText();
 
 			return array(
-				'summary'    => trim( $result ),
-				'source_id'  => $source['source_id'] ?? null,
+				'summary'     => trim( $result ),
+				'source_id'   => $source['source_id'] ?? null,
 				'analyzed_at' => current_time( 'mysql' ),
 			);
 
@@ -152,10 +152,10 @@ class IdeationAnalyzer {
 			$parsed = $this->parse_project_summary( $result );
 
 			return array(
-				'summary'     => $parsed['summary'],
-				'key_points'  => $parsed['key_points'],
+				'summary'      => $parsed['summary'],
+				'key_points'   => $parsed['key_points'],
 				'source_count' => count( $sources ),
-				'analyzed_at' => current_time( 'mysql' ),
+				'analyzed_at'  => current_time( 'mysql' ),
 			);
 
 		} catch ( \Exception $e ) {
@@ -229,10 +229,10 @@ class IdeationAnalyzer {
 			$source_text .= "\n{$content}\n\n";
 
 			if ( $used + mb_strlen( $source_text ) > $max_chars ) {
-				$remaining    = $max_chars - $used - 200;
+				$remaining = $max_chars - $used - 200;
 				if ( $remaining > 500 ) {
-					$truncated    = mb_substr( $content, 0, $remaining ) . '... [truncated]';
-					$source_text  = "---\nSource: {$title}";
+					$truncated   = mb_substr( $content, 0, $remaining ) . '... [truncated]';
+					$source_text = "---\nSource: {$title}";
 					if ( $domain ) {
 						$source_text .= " ({$domain})";
 					}

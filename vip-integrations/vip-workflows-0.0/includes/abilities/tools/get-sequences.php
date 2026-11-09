@@ -33,8 +33,8 @@ function execute_get_sequences( ?array $input = null ) {
 	$result = array();
 
 	foreach ( $sequences as $sequence ) {
-		$data       = $sequence->to_array();
-		$statuses   = $sequence->get_statuses();
+		$data        = $sequence->to_array();
+		$statuses    = $sequence->get_statuses();
 		$status_list = array();
 
 		foreach ( $statuses as $status ) {

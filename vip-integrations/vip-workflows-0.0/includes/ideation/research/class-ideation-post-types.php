@@ -80,22 +80,22 @@ class IdeationPostTypes implements ModuleInterface {
 		);
 
 		$args = array(
-			'labels'              => $labels,
-			'public'              => false,
-			'publicly_queryable'  => false,
-			'show_ui'             => false,
-			'show_in_menu'        => false,
-			'query_var'           => false,
-			'rewrite'             => false,
-			'capability_type'     => 'post',
-			'capabilities'        => $this->get_capabilities(),
-			'map_meta_cap'        => true,
-			'has_archive'         => false,
-			'hierarchical'        => false,
-			'supports'            => array( 'title', 'editor', 'author' ),
-			'show_in_rest'        => true,
-			'rest_base'           => 'vip-ideation',
-			'rest_namespace'      => 'vip-workflows/v1',
+			'labels'             => $labels,
+			'public'             => false,
+			'publicly_queryable' => false,
+			'show_ui'            => false,
+			'show_in_menu'       => false,
+			'query_var'          => false,
+			'rewrite'            => false,
+			'capability_type'    => 'post',
+			'capabilities'       => $this->get_capabilities(),
+			'map_meta_cap'       => true,
+			'has_archive'        => false,
+			'hierarchical'       => false,
+			'supports'           => array( 'title', 'editor', 'author' ),
+			'show_in_rest'       => true,
+			'rest_base'          => 'vip-ideation',
+			'rest_namespace'     => 'vip-workflows/v1',
 		);
 
 		register_post_type( self::POST_TYPE, $args );
@@ -146,9 +146,11 @@ class IdeationPostTypes implements ModuleInterface {
 		global $wpdb;
 
 		$sources_table = $wpdb->prefix . 'vip_ideation_sources';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_sources; write, no cached copy to invalidate
 		$wpdb->delete( $sources_table, array( 'project_id' => $post_id ), array( '%d' ) );
 
 		$analyses_table = $wpdb->prefix . 'vip_ideation_analyses';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- plugin table vip_ideation_analyses; write, no cached copy to invalidate
 		$wpdb->delete( $analyses_table, array( 'project_id' => $post_id ), array( '%d' ) );
 
 		// Attachments go a page at a time. A project's media has no ceiling, and

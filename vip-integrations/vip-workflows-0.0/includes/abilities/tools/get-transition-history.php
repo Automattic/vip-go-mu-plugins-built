@@ -11,6 +11,8 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Abilities\Tools;
 
+require_once __DIR__ . '/helpers.php';
+
 /**
  * Execute the transition history query.
  *
@@ -20,7 +22,7 @@ namespace VIPWorkflows\Abilities\Tools;
 function execute_get_transition_history( ?array $input = null ) {
 	$input   = $input ?? array();
 	$post_id = (int) ( $input['post_id'] ?? 0 );
-	$limit   = min( (int) ( $input['limit'] ?? 20 ), 50 );
+	$limit   = bounded_int( $input, 'limit', 20, 1, 50 );
 
 	if ( ! $post_id ) {
 		return new \WP_Error( 'missing_post_id', __( 'The "post_id" parameter is required.', 'vip-workflows' ) );
@@ -83,8 +85,10 @@ function register_get_transition_history(): void {
 					),
 					'limit'   => array(
 						'type'        => 'integer',
-						'description' => __( 'Maximum number of entries (default 20, max 50).', 'vip-workflows' ),
+						'description' => __( 'Maximum number of entries (default 20, minimum 1, maximum 50).', 'vip-workflows' ),
 						'default'     => 20,
+						'minimum'     => 1,
+						'maximum'     => 50,
 					),
 				),
 			),

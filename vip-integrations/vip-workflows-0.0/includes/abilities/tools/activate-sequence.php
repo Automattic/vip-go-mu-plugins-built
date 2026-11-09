@@ -49,7 +49,7 @@ function execute_activate_sequence( ?array $input = null ) {
 	$target_status = $active ? 'active' : 'draft';
 
 	$repository = new SequenceRepository();
-	$sequence  = $repository->find( $sequence_id );
+	$sequence   = $repository->find( $sequence_id );
 
 	if ( ! $sequence ) {
 		return new \WP_Error( 'sequence_not_found', __( 'Sequence not found.', 'vip-workflows' ) );
@@ -93,10 +93,10 @@ function execute_activate_sequence( ?array $input = null ) {
 		$active ? 'sequence.activated' : 'sequence.deactivated',
 		ACTIVATE_SEQUENCE_ABILITY_ID,
 		array(
-			'sequence_id'    => $sequence->id,
-			'sequence_name'  => $sequence->name,
-			'sequence_slug'  => $sequence->slug,
-			'sequence_type'  => $sequence->type,
+			'sequence_id'     => $sequence->id,
+			'sequence_name'   => $sequence->name,
+			'sequence_slug'   => $sequence->slug,
+			'sequence_type'   => $sequence->type,
 			'previous_status' => $previous_status,
 			'sequence_status' => $target_status,
 		)

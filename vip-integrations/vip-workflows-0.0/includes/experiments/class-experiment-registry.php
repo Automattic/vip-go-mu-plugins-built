@@ -61,7 +61,7 @@ class ExperimentRegistry {
 		}
 
 		$this->experiments[ $id ] = $experiment;
-		$this->resolved_enabled = null;
+		$this->resolved_enabled   = null;
 	}
 
 	/**
