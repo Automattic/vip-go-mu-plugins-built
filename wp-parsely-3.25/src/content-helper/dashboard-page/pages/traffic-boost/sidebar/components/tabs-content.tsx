@@ -3,7 +3,6 @@
  */
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 
 /**
@@ -11,6 +10,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import { ContentHelperError, ContentHelperErrorCode } from '../../../../../common/content-helper-error';
 import { ContentHelperErrorMessage } from '../../../../../common/content-helper-error-message';
+import { escapeTranslation } from '../../../../../common/utils/i18n';
 import { TrafficBoostLink } from '../../provider';
 import { TrafficBoostSidebarTabs, TrafficBoostStore } from '../../store';
 import InboundLinksTab from './tabs/inbound-links-tab';
@@ -91,7 +91,7 @@ export const TabsContent = ( {
 			);
 
 			const message = sprintf(
-				escapeHTML(
+				escapeTranslation(
 					/* translators: %1$s: Lobby Post link, %2$s: VIP Documentation link */
 					__(
 						'%1$s is currently not enabled for your Site ID. Information about requesting access to Engagement Boost can be found %2$s.',

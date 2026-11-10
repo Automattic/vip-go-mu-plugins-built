@@ -332,7 +332,7 @@ export const PostExcerptSuggestions = (): React.JSX.Element => {
 		return sprintf(
 			// Translators: %1$s the number of words in the excerpt.
 			_n( '%1$s word', '%1$s words', wordCount, 'wp-parsely' ),
-			wordCount
+			wordCount.toString()
 		);
 	}, [ excerpt ] );
 

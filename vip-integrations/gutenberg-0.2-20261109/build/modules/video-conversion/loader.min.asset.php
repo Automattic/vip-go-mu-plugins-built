@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array(), 'module_dependencies' => array(array('id' => '@wordpress/video-conversion/worker', 'import' => 'dynamic')), 'version' => '88a6cde8c52d309dfa3e');

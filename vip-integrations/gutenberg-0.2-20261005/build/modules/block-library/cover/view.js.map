@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../packages/block-library/src/cover/view.js"],
-  "sourcesContent": ["import { getContext, store } from '@wordpress/interactivity';\nimport { prefersReducedMotion } from '@wordpress/a11y';\n\nstore(\n\t'core/cover',\n\t{\n\t\tstate: {\n\t\t\tget videoSrc() {\n\t\t\t\tconst { src, reducedMotionSrc } = getContext();\n\n\t\t\t\t// The server renders the autoplaying source, so it is only\n\t\t\t\t// replaced for a visitor who has asked for reduced motion.\n\t\t\t\tif ( reducedMotionSrc && prefersReducedMotion() ) {\n\t\t\t\t\treturn reducedMotionSrc;\n\t\t\t\t}\n\n\t\t\t\treturn src;\n\t\t\t},\n\t\t},\n\t},\n\t{ lock: true }\n);\n"],
-  "mappings": ";AAAA,SAAS,YAAY,aAAa;AAClC,SAAS,4BAA4B;AAErC;EACC;EACA;IACC,OAAO;MACN,IAAI,WAAW;AACd,cAAM,EAAE,KAAK,iBAAiB,IAAI,WAAW;AAI7C,YAAK,oBAAoB,qBAAqB,GAAI;AACjD,iBAAO;QACR;AAEA,eAAO;MACR;IACD;EACD;EACA,EAAE,MAAM,KAAK;AACd;",
-  "names": []
-}

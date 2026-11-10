@@ -275,7 +275,7 @@ export const SmartLinkingPanel = ( {
 			createNotice(
 				'success',
 				/* translators: %s: number of smart links applied */
-				sprintf( __( '%s Smart Links successfully applied.', 'wp-parsely' ), numAddedLinks ),
+				sprintf( __( '%s Smart Links successfully applied.', 'wp-parsely' ), numAddedLinks.toString() ),
 				{
 					type: 'snackbar',
 				},
@@ -706,7 +706,7 @@ export const SmartLinkingPanel = ( {
 						{ sprintf(
 							/* translators: %s: number of smart links generated */
 							__( 'Successfully added %s Smart Links.', 'wp-parsely' ),
-							numAddedLinks > 0 ? numAddedLinks : suggestedLinks.length,
+							( numAddedLinks > 0 ? numAddedLinks : suggestedLinks.length ).toString(),
 						) }
 					</Notice>
 				) }

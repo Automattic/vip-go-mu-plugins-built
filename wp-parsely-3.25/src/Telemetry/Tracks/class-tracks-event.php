@@ -167,7 +167,7 @@ class Tracks_Event {
 		// Users in the VIP environment.
 		if ( defined( 'VIP_GO_APP_ID' ) ) {
 			$app_id = constant( 'VIP_GO_APP_ID' );
-			if ( is_integer( $app_id ) && 0 < $app_id ) {
+			if ( is_int( $app_id ) && 0 < $app_id ) {
 				$event->_ui = $app_id . '_' . $wp_user_id;
 				$event->_ut = 'vip_go_app_wp_user';
 

@@ -141,7 +141,7 @@ abstract class Telemetry_System {
 					// If it's VIP environment, add the VIP user ID to the script params.
 					if ( defined( 'VIP_GO_APP_ID' ) ) {
 						$app_id = constant( 'VIP_GO_APP_ID' );
-						if ( is_integer( $app_id ) && 0 < $app_id ) {
+						if ( is_int( $app_id ) && 0 < $app_id ) {
 							$script_params['user'] = array(
 								'type' => 'vip_go_app_wp_user',
 								'id'   => $app_id . '_' . $wp_user_id,

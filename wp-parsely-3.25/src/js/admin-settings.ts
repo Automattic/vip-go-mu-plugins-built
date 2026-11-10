@@ -12,6 +12,7 @@ import {
 	ContentHelperErrorCode,
 } from '../content-helper/common/content-helper-error';
 import { CheckAuthProvider } from '../content-helper/common/providers/check-auth-provider';
+import { escapeTranslation } from '../content-helper/common/utils/i18n';
 
 document.addEventListener( 'DOMContentLoaded', (): void => {
 	displayContentHelperSectionMessages();
@@ -278,12 +279,12 @@ async function displayContentHelperSectionMessages(): Promise<void> {
 			if ( 200 !== authResponse.api.code ) {
 				const requestAccessLink = sprintf( '<a href="%1$s" target="_blank" rel="noopener">%2$s</a>', 'https://wpvip.com/content-helper/#content-helper-form', __( 'Request access here', 'wp-parsely' ) );
 				/* translators: %s: Link to request access to Content Intelligence AI functionality. */
-				const messageWithAccessLink = sprintf( escapeHTML( __( 'All Content Intelligence AI functionality is disabled for this website. %s.', 'wp-parsely' ) ), requestAccessLink );
+				const messageWithAccessLink = sprintf( escapeTranslation( __( 'All Content Intelligence AI functionality is disabled for this website. %s.', 'wp-parsely' ) ), requestAccessLink );
 				message = sprintf( '<p><strong>%s</strong></p>', messageWithAccessLink );
 			} else if ( 200 === authResponse.api.code && 200 !== authResponse.traffic_boost.code ) {
 				const contactSupportLink = sprintf( '<a href="%1$s">%2$s</a>', 'mailto:support@parsely.com', 'support@parsely.com' );
 				/* translators: %s: Link to request access to Content Intelligence AI functionality. */
-				const messageWithAccessLink = sprintf( escapeHTML( __( 'Engagement Boost functionality is disabled for this website. To enable it, contact %s.', 'wp-parsely' ) ), contactSupportLink );
+				const messageWithAccessLink = sprintf( escapeTranslation( __( 'Engagement Boost functionality is disabled for this website. To enable it, contact %s.', 'wp-parsely' ) ), contactSupportLink );
 				message = sprintf( '<p><strong>%s</strong></p>', messageWithAccessLink );
 			}
 		}
