@@ -1,0 +1,256 @@
+{
+    "packages": [
+        {
+            "name": "smalot/pdfparser",
+            "version": "v2.12.5",
+            "version_normalized": "2.12.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/smalot/pdfparser.git",
+                "reference": "2cfa0d92bd557875c9f52a75fde0e8392302a354"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/smalot/pdfparser/zipball/2cfa0d92bd557875c9f52a75fde0e8392302a354",
+                "reference": "2cfa0d92bd557875c9f52a75fde0e8392302a354",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "ext-zlib": "*",
+                "php": ">=7.1",
+                "symfony/polyfill-mbstring": "^1.18"
+            },
+            "time": "2026-04-17T11:37:58+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-0": {
+                    "Smalot\\PdfParser\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastien MALOT",
+                    "email": "sebastien@malot.fr"
+                }
+            ],
+            "description": "Pdf parser library. Can read and extract information from pdf file.",
+            "homepage": "https://www.pdfparser.org",
+            "keywords": [
+                "extract",
+                "parse",
+                "parser",
+                "pdf",
+                "text"
+            ],
+            "support": {
+                "issues": "https://github.com/smalot/pdfparser/issues",
+                "source": "https://github.com/smalot/pdfparser/tree/v2.12.5"
+            },
+            "install-path": "../smalot/pdfparser"
+        },
+        {
+            "name": "symfony/polyfill-mbstring",
+            "version": "v1.38.2",
+            "version_normalized": "1.38.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-mbstring.git",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": ">=7.2"
+            },
+            "provide": {
+                "ext-mbstring": "*"
+            },
+            "suggest": {
+                "ext-mbstring": "For best performance"
+            },
+            "time": "2026-05-27T06:59:30+00:00",
+            "type": "library",
+            "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                }
+            },
+            "installation-source": "dist",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ],
+                "psr-4": {
+                    "Symfony\\Polyfill\\Mbstring\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill for the Mbstring extension",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "mbstring",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "support": {
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
+            },
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/nicolas-grekas",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "install-path": "../symfony/polyfill-mbstring"
+        },
+        {
+            "name": "woocommerce/action-scheduler",
+            "version": "3.9.3",
+            "version_normalized": "3.9.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/woocommerce/action-scheduler.git",
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/woocommerce/action-scheduler/zipball/c58cdbab17651303d406cd3b22cf9d75c71c986c",
+                "reference": "c58cdbab17651303d406cd3b22cf9d75c71c986c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5",
+                "woocommerce/woocommerce-sniffs": "0.1.0",
+                "wp-cli/wp-cli": "~2.5.0",
+                "yoast/phpunit-polyfills": "^2.0"
+            },
+            "time": "2025-07-15T09:32:30+00:00",
+            "type": "wordpress-plugin",
+            "extra": {
+                "scripts-description": {
+                    "test": "Run unit tests",
+                    "phpcs": "Analyze code against the WordPress coding standards with PHP_CodeSniffer",
+                    "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
+                }
+            },
+            "installation-source": "dist",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "description": "Action Scheduler for WordPress and WooCommerce",
+            "homepage": "https://actionscheduler.org/",
+            "support": {
+                "issues": "https://github.com/woocommerce/action-scheduler/issues",
+                "source": "https://github.com/woocommerce/action-scheduler/tree/3.9.3"
+            },
+            "install-path": "../woocommerce/action-scheduler"
+        },
+        {
+            "name": "wordpress/openai-ai-provider",
+            "version": "1.0.0",
+            "version_normalized": "1.0.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/WordPress/openai-ai-provider.git",
+                "reference": "5db93179e52e9b63ce94c2a339a9cf46d6d51a32"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/WordPress/openai-ai-provider/zipball/5db93179e52e9b63ce94c2a339a9cf46d6d51a32",
+                "reference": "5db93179e52e9b63ce94c2a339a9cf46d6d51a32",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "phpcompatibility/php-compatibility": "dev-develop",
+                "phpstan/phpstan": "~2.1",
+                "slevomat/coding-standard": "^8.20",
+                "squizlabs/php_codesniffer": "^3.7 || ^4.0",
+                "wordpress/php-ai-client": "^0.4 || dev-trunk"
+            },
+            "suggest": {
+                "wordpress/php-ai-client": "Required. The core PHP AI Client SDK that this provider extends."
+            },
+            "time": "2026-02-12T05:23:02+00:00",
+            "type": "wordpress-plugin",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "WordPress\\OpenAiAiProvider\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "WordPress AI Team",
+                    "homepage": "https://make.wordpress.org/ai/"
+                }
+            ],
+            "description": "OpenAI provider for the PHP AI Client SDK. Works as both a Composer package and WordPress plugin.",
+            "homepage": "https://github.com/WordPress/openai-ai-provider",
+            "keywords": [
+                "ai",
+                "gpt",
+                "llm",
+                "openai",
+                "wordpress"
+            ],
+            "support": {
+                "issues": "https://github.com/WordPress/openai-ai-provider/issues",
+                "source": "https://github.com/WordPress/openai-ai-provider"
+            },
+            "install-path": "../wordpress/openai-ai-provider"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

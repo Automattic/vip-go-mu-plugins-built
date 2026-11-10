@@ -1,0 +1,45 @@
+{
+	"name": "Editorial Basic",
+	"type": "workflow",
+	"post_types": [ "post" ],
+	"settings": {
+		"allow_skip": false
+	},
+	"statuses": [
+		{
+			"key": "draft",
+			"label": "Draft",
+			"status": "draft",
+			"region_entry": true,
+			"transitions": [
+				{ "to": "review", "label": "Submit for review" }
+			]
+		},
+		{
+			"key": "review",
+			"label": "In review",
+			"status": "draft",
+			"transitions": [
+				{ "to": "published", "label": "Approve" },
+				{ "to": "draft", "label": "Request changes" }
+			]
+		},
+		{
+			"key": "published",
+			"label": "Published",
+			"status": "publish",
+			"region_entry": true,
+			"is_terminal": true,
+			"transitions": []
+		}
+	],
+	"metadata_fields": [
+		{
+			"key": "seo_focus_keyword",
+			"label": "SEO focus keyword",
+			"type": "text",
+			"required": false,
+			"searchable": true
+		}
+	]
+}
