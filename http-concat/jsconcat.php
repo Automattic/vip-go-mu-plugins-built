@@ -160,8 +160,8 @@ class WPcom_JS_Concat extends WP_Scripts {
 
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1) {
 					$paths = array_map( function( $url ) { return ABSPATH . $url; }, $js_array['paths'] );
-					$mtime = max( array_map( 'filemtime', $paths ) );
-					$path_str = implode( ',', $js_array['paths'] ) . "?m={$mtime}j";
+					$version = WPCOM_Concat_Utils::get_version( $paths );
+					$path_str = implode( ',', $js_array['paths'] ) . "?m={$version}j";
 
 					if ( $this->allow_gzip_compression ) {
 						$path_64 = base64_encode( gzcompress( $path_str ) );
@@ -238,12 +238,10 @@ class WPcom_JS_Concat extends WP_Scripts {
 
 		$file = WPCOM_Concat_Utils::realpath( $url, $siteurl );
 
-		$mtime = false;
-		if ( file_exists( $file ) )
-			$mtime = filemtime( $file );
-
-		if ( ! $mtime )
+		if ( ! file_exists( $file ) )
 			return $url;
+
+		$version = WPCOM_Concat_Utils::get_version( array( $file ) );
 
 		if ( false === strpos( $url, '?' ) ) {
 			$q = '';
@@ -253,7 +251,7 @@ class WPcom_JS_Concat extends WP_Scripts {
 				$q = '&amp;' . $q;
 		}
 
-		return "$url?m={$mtime}g{$q}";
+		return "$url?m={$version}g{$q}";
 	}
 
 	function __isset( $key ) {

@@ -118,8 +118,14 @@ if ( '-' == $args[0] ) {
 
 // /foo/bar.css,/foo1/bar/baz.css?m=293847g
 $version_string_pos = strpos( $args, '?' );
-if ( false !== $version_string_pos )
+$requested_version = null;
+if ( false !== $version_string_pos ) {
+	// m= is the group version when the page was rendered; see WPCOM_Concat_Utils::get_version().
+	// Older pages carry the newest mtime instead, which can't be checked, so they are left as before.
+	if ( preg_match( '/^m=([0-9a-f]{12})(?![0-9a-f])/', substr( $args, $version_string_pos + 1 ), $version_match ) )
+		$requested_version = $version_match[1];
 	$args = substr( $args, 0, $version_string_pos );
+}
 
 // /foo/bar.css,/foo1/bar/baz.css
 $args = explode( ',', $args );
@@ -141,6 +147,7 @@ if ( $_static_index > 0 ) {
 unset( $request_path, $_static_index );
 
 $last_modified = 0;
+$hashes = array();
 $pre_output = '';
 $output = '';
 
@@ -174,6 +181,10 @@ foreach ( $args as $uri ) {
 	$buf = file_get_contents( $fullpath );
 	if ( false === $buf )
 		concat_http_status_exit( 500 );
+
+	// Hashed from the bytes read, before the changes below, so the version check
+	// matches the files this response is built from even if a deploy replaces one.
+	$hashes[] = md5( $buf );
 
 	if ( 'text/css' == $mime_type ) {
 		$dirpath = $subdir_path_prefix . dirname( $uri );
@@ -240,7 +251,18 @@ foreach ( $args as $uri ) {
 		$output .= "$buf";
 }
 
-header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT' );
+// A version that does not match these files means the page was rendered from other
+// files: HTML cached before a deploy, or a server the deploy has not reached yet. Let
+// caches keep this response only briefly, rather than store these files under that
+// version. A short max-age instead of no-store keeps cached HTML from sending every
+// such request to origin until it expires. Last-Modified is left out too: the newest
+// mtime can stay the same when the files change, so a cache revalidating with it
+// could get a 304 and keep this response.
+if ( null !== $requested_version && $requested_version !== WPCOM_Concat_Utils::get_version_from_hashes( $hashes ) )
+	header( 'Cache-Control: max-age=60' );
+else
+	header( 'Last-Modified: ' . gmdate( 'D, d M Y H:i:s', $last_modified ) . ' GMT' );
+
 header( 'Content-Length: ' . ( strlen( $pre_output ) + strlen( $output ) ) );
 header( "Content-Type: $mime_type" );
 

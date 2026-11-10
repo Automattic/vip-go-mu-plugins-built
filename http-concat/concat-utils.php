@@ -7,6 +7,27 @@ class WPCOM_Concat_Utils {
 		return self::$concat_max;
 	}
 
+	/**
+	 * Version of a concat group or single file, sent as its m= argument: a
+	 * digest of every file's contents, in URL order, so the URL changes
+	 * whenever the bytes served under it do. File times can't promise that:
+	 * the newest mtime stays the same when a member changes to an older-dated
+	 * file (e.g. a submodule or WordPress version switch), and two versions of
+	 * a file can share an mtime and size, so caches would keep serving the
+	 * previous files under the same URL. This reads every file on each page
+	 * render that prints them.
+	 * ngx-http-concat.php relies on the 12-character length to tell it from the
+	 * older mtime versions.
+	 */
+	public static function get_version( array $paths ) {
+		return self::get_version_from_hashes( array_map( 'md5_file', $paths ) );
+	}
+
+	// get_version() from each file's md5, for callers that already hold the contents.
+	public static function get_version_from_hashes( array $hashes ) {
+		return substr( md5( implode( ',', $hashes ) ), 0, 12 );
+	}
+
 	public static function is_internal_url( $test_url, $site_url ) {
 		$test_url_parsed = parse_url( is_string( $test_url ) ? $test_url : '' );
 		$site_url_parsed = parse_url( $site_url );

@@ -125,8 +125,8 @@ class WPcom_CSS_Concat extends WP_Styles {
 					continue;
 				} elseif ( count( $css ) > 1) {
 					$paths = array_map( function( $url ) { return ABSPATH . $url; }, $css );
-					$mtime = max( array_map( 'filemtime', $paths ) );
-					$path_str = implode( ',', $css ) . "?m={$mtime}";
+					$version = WPCOM_Concat_Utils::get_version( $paths );
+					$path_str = implode( ',', $css ) . "?m={$version}";
 
 					if ( $this->allow_gzip_compression ) {
 						$path_64 = base64_encode( gzcompress( $path_str ) );
@@ -157,12 +157,10 @@ class WPcom_CSS_Concat extends WP_Styles {
 
 		$file = WPCOM_Concat_Utils::realpath( $url, $siteurl );
 
-		$mtime = false;
-		if ( file_exists( $file ) )
-			$mtime = filemtime( $file );
-
-		if ( ! $mtime )
+		if ( ! file_exists( $file ) )
 			return $url;
+
+		$version = WPCOM_Concat_Utils::get_version( array( $file ) );
 
 		if ( false === strpos( $url, '?' ) ) {
 			$q = '';
@@ -172,7 +170,7 @@ class WPcom_CSS_Concat extends WP_Styles {
 				$q = '&amp;' . $q;
 		}
 
-		return "$url?m={$mtime}g{$q}";
+		return "$url?m={$version}g{$q}";
 	}
 
 	function __isset( $key ) {
