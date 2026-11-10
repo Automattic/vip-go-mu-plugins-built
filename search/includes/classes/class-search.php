@@ -634,13 +634,6 @@ class Search {
 		// Do not show the above compat notice since VIP Search will support whatever Elasticsearch version we're running
 		add_filter( 'pre_option_ep_hide_es_above_compat_notice', '__return_true' );
 
-		// If protected content is enabled, ensure that the attachment post type is an indexable post type.
-		// Set the priority to 9999 so customers can unset it if needed.
-		// The current usages of this filter have priority 10 in ElasticPress. May need to be adjusted if this changes.
-		if ( false !== $this->is_protected_content_enabled() ) {
-			add_filter( 'ep_indexable_post_types', array( $this, 'add_attachment_to_ep_indexable_post_types' ), 9999 );
-		}
-
 		add_filter( 'vip_search_post_meta_allow_list', array( $this, 'filter__vip_search_post_meta_allow_list_defaults' ) );
 
 		// Limit the max result window on index settings
@@ -865,6 +858,20 @@ class Search {
 	}
 
 	/**
+	 * Delete the cached index_exists response for an index
+	 *
+	 * @param string $option_name Name of the option holding the cached response
+	 */
+	private function delete_index_exists_option( $option_name ) {
+		delete_site_option( $option_name );
+
+		// Ensure the cache for the option was actually deleted.
+		if ( false !== wp_cache_get( $option_name, 'options' ) ) {
+			wp_cache_delete( $option_name, 'options' );
+		}
+	}
+
+	/**
 	 * Filter to intercept EP remote requests.
 	 *
 	 * @param  array|WP_Error $request  New remote request response
@@ -899,14 +906,9 @@ class Search {
 				if ( 'index_exists' === $type && in_array( $cached_index_exists_response_code, $valid_index_exists_response_codes, true ) ) {
 					// Return cached index_exists option.
 					return $cached_index_exists_request;
-				} else {
-					// Invalidate index_exists caching on certain actions.
-					delete_site_option( $index_exists_option_name );
-
-					// Ensure the cache for the option was actually deleted.
-					if ( false !== wp_cache_get( $index_exists_option_name, 'options' ) ) {
-						wp_cache_delete( $index_exists_option_name, 'options' );
-					}
+				} elseif ( 'bulk_index' !== $type ) {
+					// Invalidate index_exists caching on certain actions (bulks are handled after the request).
+					$this->delete_index_exists_option( $index_exists_option_name );
 				}
 			}
 		}
@@ -1072,6 +1074,15 @@ class Search {
 						],
 					) );
 				}
+			}
+		}
+
+		// A bulk can create a missing index (ES auto-creates it), and a failed one may mean the index was deleted outside
+		// WordPress. Either makes the cached index_exists stale; a successful bulk into an existing index doesn't.
+		if ( 'bulk_index' === $type && false !== $cached_index_exists_request ) {
+			$bulk_failed = is_wp_error( $response ) || $response_code >= 400 || ! empty( $response_body['errors'] );
+			if ( $bulk_failed || 404 === $cached_index_exists_response_code ) {
+				$this->delete_index_exists_option( $index_exists_option_name );
 			}
 		}
 
@@ -2367,26 +2378,6 @@ class Search {
 		$dc = strtolower( $dc );
 
 		return $dc;
-	}
-
-	/**
-	 * Since we've established that enabling the protected content feature causes attachments
-	 * to be indexed, we should ensure that 'attachment' is in the indexable post types if
-	 * protected content is enabled.
-	 *
-	 * @param array $indexable_post_types Current list indexable post types in VIP Search.
-	 * @return array New list of indexable post types in VIP Search.
-	 */
-	public function add_attachment_to_ep_indexable_post_types( $indexable_post_types ) {
-		if ( ! is_array( $indexable_post_types ) ) {
-			return $indexable_post_types;
-		}
-
-		if ( ! isset( $indexable_post_types['attachment'] ) ) {
-			$indexable_post_types['attachment'] = 'attachment';
-		}
-
-		return $indexable_post_types;
 	}
 
 	/**
