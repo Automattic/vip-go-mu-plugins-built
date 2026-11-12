@@ -22,6 +22,19 @@ class Validator {
 	public const INVALID_API_CREDENTIALS = 'invalid_api_credentials';
 
 	/**
+	 * Sanitizes the passed Site ID.
+	 *
+	 * @since 3.3.0
+	 * @since 3.25.0 Moved from Settings_Page.
+	 *
+	 * @param string $site_id The Site ID to be sanitized.
+	 * @return string The sanitized Site ID.
+	 */
+	public static function sanitize_site_id( string $site_id ): string {
+		return strtolower( sanitize_text_field( $site_id ) );
+	}
+
+	/**
 	 * Validates the passed Metadata Secret.
 	 *
 	 * Currently, the Metadata Secret is considered valid if it is exactly 10

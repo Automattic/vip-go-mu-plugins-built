@@ -195,6 +195,7 @@ class ComposerStaticInite12b2cf12ec9ec741d5e9323329c8f28
         'Parsely\\REST_API\\Content_Helper\\Validations\\Validate_Url_Exclusion_List' => __DIR__ . '/../..' . '/src/rest-api/content-helper/validations/class-validate-url-exclusion-list.php',
         'Parsely\\REST_API\\REST_API_Controller' => __DIR__ . '/../..' . '/src/rest-api/class-rest-api-controller.php',
         'Parsely\\REST_API\\Settings\\Base_Settings_Endpoint' => __DIR__ . '/../..' . '/src/rest-api/settings/class-base-settings-endpoint.php',
+        'Parsely\\REST_API\\Settings\\Endpoint_Credentials_Settings' => __DIR__ . '/../..' . '/src/rest-api/settings/class-endpoint-credentials-settings.php',
         'Parsely\\REST_API\\Settings\\Endpoint_Dashboard_Widget_Settings' => __DIR__ . '/../..' . '/src/rest-api/settings/class-endpoint-dashboard-widget-settings.php',
         'Parsely\\REST_API\\Settings\\Endpoint_Editor_Sidebar_Settings' => __DIR__ . '/../..' . '/src/rest-api/settings/class-endpoint-editor-sidebar-settings.php',
         'Parsely\\REST_API\\Settings\\Endpoint_Headline_Testing_Settings' => __DIR__ . '/../..' . '/src/rest-api/settings/class-endpoint-headline-testing-settings.php',

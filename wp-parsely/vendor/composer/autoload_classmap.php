@@ -172,6 +172,7 @@ return array(
     'Parsely\\REST_API\\Content_Helper\\Validations\\Validate_Url_Exclusion_List' => $baseDir . '/src/rest-api/content-helper/validations/class-validate-url-exclusion-list.php',
     'Parsely\\REST_API\\REST_API_Controller' => $baseDir . '/src/rest-api/class-rest-api-controller.php',
     'Parsely\\REST_API\\Settings\\Base_Settings_Endpoint' => $baseDir . '/src/rest-api/settings/class-base-settings-endpoint.php',
+    'Parsely\\REST_API\\Settings\\Endpoint_Credentials_Settings' => $baseDir . '/src/rest-api/settings/class-endpoint-credentials-settings.php',
     'Parsely\\REST_API\\Settings\\Endpoint_Dashboard_Widget_Settings' => $baseDir . '/src/rest-api/settings/class-endpoint-dashboard-widget-settings.php',
     'Parsely\\REST_API\\Settings\\Endpoint_Editor_Sidebar_Settings' => $baseDir . '/src/rest-api/settings/class-endpoint-editor-sidebar-settings.php',
     'Parsely\\REST_API\\Settings\\Endpoint_Headline_Testing_Settings' => $baseDir . '/src/rest-api/settings/class-endpoint-headline-testing-settings.php',

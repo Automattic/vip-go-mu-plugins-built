@@ -42,6 +42,7 @@ class Settings_Controller extends REST_API_Controller {
 			new Endpoint_Editor_Sidebar_Settings( $this ),
 			new Endpoint_Traffic_Boost_Settings( $this ),
 			new Endpoint_Headline_Testing_Settings( $this ),
+			new Endpoint_Credentials_Settings( $this ),
 		);
 
 		$this->register_endpoints( $endpoints );

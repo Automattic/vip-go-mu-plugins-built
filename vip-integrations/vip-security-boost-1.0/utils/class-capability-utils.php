@@ -15,12 +15,19 @@ class Capability_Utils {
 	
 	/**
 	 * Track recursion state per user ID to prevent infinite loops.
-	 * Uses user ID as key to handle concurrent checks for different users.
+	 * Keyed by user ID because a nested check can be for a different user.
 	 * 
 	 * @var array<int, bool>
 	 */
 	private static $checking_capability = [];
-	const LOG_FEATURE_NAME              = 'sb_capability_utils';
+
+	/**
+	 * User IDs a recursion notice has already been queued for during this request.
+	 *
+	 * @var array<int, bool>
+	 */
+	private static $pending_recursion_logs = [];
+	const LOG_FEATURE_NAME                 = 'sb_capability_utils';
 
 	/**
 	 * Check if a user has elevated permissions based on capabilities or roles.
@@ -28,9 +35,11 @@ class Capability_Utils {
 	 * @param \WP_User|false|null $user The user to check.
 	 * @param array $capabilities Array of capabilities to check (OR logic).
 	 * @param array $roles Array of roles to check if no capabilities configured.
+	 * @param bool  $resolve_capabilities False skips user_can(), for callers that run while the
+	 *                                    current user is still being resolved.
 	 * @return bool True if user has elevated permissions, false otherwise.
 	 */
-	public static function user_has_elevated_permissions( $user, $capabilities = [], $roles = [] ): bool {
+	public static function user_has_elevated_permissions( $user, $capabilities = [], $roles = [], bool $resolve_capabilities = true ): bool {
 		if ( ! ( $user instanceof \WP_User ) || ! $user->exists() ) {
 			return false;
 		}
@@ -43,8 +52,14 @@ class Capability_Utils {
 		$roles        = self::normalize_roles_input( $roles );
 		
 		if ( ! empty( $capabilities ) ) {
-			// Always use full resolution for capabilities (detects dynamic grants)
-			return self::user_has_any_capability_full( $user, $capabilities );
+			if ( $resolve_capabilities ) {
+				// Always use full resolution for capabilities (detects dynamic grants)
+				return self::user_has_any_capability_full( $user, $capabilities );
+			}
+
+			// A filter-granted capability is invisible without resolution, so check roles too
+			// rather than report a privileged user as unprivileged.
+			return self::user_has_any_capability( $user, $capabilities ) || self::user_has_any_role( $user, $roles );
 		}
 		
 		return self::user_has_any_role( $user, $roles );
@@ -69,11 +84,9 @@ class Capability_Utils {
 		// Check if we're already checking capabilities for this user
 		if ( isset( self::$checking_capability[ $user->ID ] ) && self::$checking_capability[ $user->ID ] ) {
 			// We're in a recursive call - fall back to allcaps check
-			Logger::error(
-				self::LOG_FEATURE_NAME,
-				'Recursion detected in user_has_any_capability_full for user ID ' . $user->ID
-			);
-				return self::user_has_any_capability( $user, $capabilities );
+			self::defer_recursion_log( $user->ID );
+
+			return self::user_has_any_capability( $user, $capabilities );
 		}
 		
 		// Set recursion guard
@@ -101,6 +114,31 @@ class Capability_Utils {
 		return $has_capability;
 	}
 	
+	/**
+	 * Log a recursion notice on shutdown instead of inline, once per user per request.
+	 *
+	 * Logger::error() reaches log2logstash(), which defaults user_id to get_current_user_id().
+	 * Called while the current user is still being resolved, that restarts resolution and
+	 * trips this guard again until the request runs out of memory.
+	 *
+	 * @param int $user_id The user the recursion was detected for.
+	 * @return void
+	 */
+	private static function defer_recursion_log( int $user_id ): void {
+		if ( isset( self::$pending_recursion_logs[ $user_id ] ) ) {
+			return;
+		}
+
+		self::$pending_recursion_logs[ $user_id ] = true;
+
+		add_action( 'shutdown', function () use ( $user_id ) {
+			Logger::error(
+				self::LOG_FEATURE_NAME,
+				'Recursion detected in user_has_any_capability_full for user ID ' . $user_id
+			);
+		} );
+	}
+
 	/**
 	 * Check if a user has any of the specified capabilities (OR logic).
 	 * 

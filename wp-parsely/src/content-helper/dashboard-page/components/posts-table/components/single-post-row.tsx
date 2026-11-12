@@ -152,7 +152,7 @@ export const SinglePostRow = ( {
 									<div className="metric-boost-percentage">
 										{
 										/* translators: %f is the boost percentage */
-											sprintf( __( '%f%% BOOSTED', 'wp-parsely' ), trafficBoostPercentage.toFixed( 1 ) )
+											sprintf( __( '%f%% BOOSTED', 'wp-parsely' ), Number( trafficBoostPercentage.toFixed( 1 ) ) )
 										}
 									</div>
 								) }

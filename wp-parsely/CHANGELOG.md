@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.25.1](https://github.com/Parsely/wp-parsely/compare/3.25.0...3.25.1) - 2026-11-10
+
+### Fixed
+
+- Fix a PHP 8.6 deprecation notice in telemetry on WordPress VIP ([#4793](https://github.com/Parsely/wp-parsely/pull/4793))
+
+### Dependency Updates
+
+- The list of all dependency updates for this release is available [here](https://github.com/Parsely/wp-parsely/pulls?q=is%3Apr+is%3Amerged+milestone%3A3.25.1+label%3ADeps).
+
+## [3.25.0](https://github.com/Parsely/wp-parsely/compare/3.24.4...3.25.0) - 2026-11-04
+
+### Added
+
+- Add a REST endpoint to set the Site ID ([#4752](https://github.com/Parsely/wp-parsely/pull/4752))
+
 ## [3.24.4](https://github.com/Parsely/wp-parsely/compare/3.24.3...3.24.4) - 2026-10-27
 
 ### Fixed

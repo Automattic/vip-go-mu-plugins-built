@@ -1515,8 +1515,9 @@ final class Settings_Page {
 			$input['apikey']     = '';
 			$input['api_secret'] = '';
 		} else {
-			$site_id    = $this->sanitize_site_id( $input['apikey'] );
-			$api_secret = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
+			$site_id         = Validator::sanitize_site_id( $input['apikey'] );
+			$input['apikey'] = $site_id;
+			$api_secret      = $this->get_unobfuscated_value( $input['api_secret'], $this->parsely->get_api_secret() );
 
 			$valid_credentials = Validator::validate_api_credentials( $this->parsely, $site_id, $api_secret );
 
@@ -1952,18 +1953,6 @@ final class Settings_Page {
 		}
 
 		return $input;
-	}
-
-	/**
-	 * Sanitizes the passed Site ID.
-	 *
-	 * @since 3.3.0
-	 *
-	 * @param string $site_id The Site ID to be sanitized.
-	 * @return string
-	 */
-	private function sanitize_site_id( string $site_id ): string {
-		return strtolower( sanitize_text_field( $site_id ) );
 	}
 
 	/**

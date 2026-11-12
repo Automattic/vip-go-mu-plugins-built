@@ -33,6 +33,14 @@ class Inactive_Users {
 	 */
 	private static $application_password_authentication_error;
 
+	/**
+	 * User IDs whose application password inactivity check is in progress. Keyed by user ID
+	 * because a nested check can be for a different user.
+	 *
+	 * @var array<int, bool>
+	 */
+	private static $checking_application_password_auth = [];
+
 	public static function init() {
 		$inactive_user_configs = Configs::get_module_configs( 'inactive-users' );
 
@@ -194,11 +202,18 @@ class Inactive_Users {
 	/**
 	 * Return error on REST authentication, active only when BLOCK mode is enabled
 	 *
-	 * @param \WP_Error $status The authentication status.
+	 * @param \WP_Error|true|null $status The authentication status from the rest_authentication_errors filter.
+	 * @return \WP_Error|true|null
 	 */
 	public static function maybe_return_error_on_rest_auth( $status ) {
 		if ( is_wp_error( self::$application_password_authentication_error ) ) {
 			return self::$application_password_authentication_error;
+		}
+
+		// The app password check ran while the current user was still being resolved, so it
+		// couldn't see a capability that only a filter grants. The user is resolved by now.
+		if ( ! is_wp_error( $status ) && rest_get_authenticated_app_password() && self::is_considered_inactive( get_current_user_id() ) ) {
+			return new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ), array( 'status' => 403 ) );
 		}
 
 		return $status;
@@ -217,13 +232,42 @@ class Inactive_Users {
 			return false;
 		}
 
-		if ( self::is_considered_inactive( $user->ID ) ) {
-			self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ), array( 'status' => 403 ) );
+		// Nested call: a check for this user is already running further up the stack. Leave
+		// $available untouched and let the outer call decide; it records the 403 if the user
+		// is inactive.
+		if ( self::is_checking_application_password_auth( $user ) ) {
+			return $available;
+		}
 
-			return false;
+		// While set, user_has_elevated_permissions() skips user_can(). This filter runs inside
+		// determine_current_user, so a map_meta_cap callback that calls wp_get_current_user()
+		// would otherwise restart resolution and recurse here until the request runs out of memory.
+		self::$checking_application_password_auth[ $user->ID ] = true;
+
+		try {
+			if ( self::is_considered_inactive( $user->ID ) ) {
+				self::$application_password_authentication_error = new \WP_Error( 'inactive_account', __( 'Your account has been flagged as inactive. Please contact your site Administrator.', 'wpvip' ), array( 'status' => 403 ) );
+
+				return false;
+			}
+		} finally {
+			unset( self::$checking_application_password_auth[ $user->ID ] );
 		}
 
 		return $available;
+	}
+
+	/**
+	 * Whether the application password inactivity check is already running for a user.
+	 *
+	 * @param \WP_User|false|null $user The user to check.
+	 */
+	private static function is_checking_application_password_auth( $user ): bool {
+		if ( ! ( $user instanceof \WP_User ) ) {
+			return false;
+		}
+
+		return ! empty( self::$checking_application_password_auth[ $user->ID ] );
 	}
 
 	/**
@@ -982,7 +1026,11 @@ class Inactive_Users {
 		 */
 		$elevated_roles = apply_filters( 'vip_security_boost_inactive_users_elevated_roles', self::$elevated_roles );
 
-		return Capability_Utils::user_has_elevated_permissions( $user, $elevated_capabilities, $elevated_roles );
+		// user_can() is unsafe while the current user is still being resolved; see
+		// maybe_block_inactive_user_on_app_password_auth().
+		$resolve_capabilities = ! self::is_checking_application_password_auth( $user );
+
+		return Capability_Utils::user_has_elevated_permissions( $user, $elevated_capabilities, $elevated_roles, $resolve_capabilities );
 	}
 }
 
