@@ -340,9 +340,31 @@ class hyperdb extends wpdb {
 	 * @return bool
 	 */
 	public function is_write_query( $q ) {
-		// Quick and dirty: only SELECT statements are considered read-only.
 		$q = ltrim( $q, "\r\n\t (" );
-		return ! preg_match( '/^(?:SELECT|SHOW|DESCRIBE|DESC|EXPLAIN)\s/i', $q );
+
+		// Quick and dirty: only SELECT statements are considered read-only.
+		if ( ! preg_match( '/^(?:SELECT|SHOW|DESCRIBE|DESC|EXPLAIN)\s/i', $q ) ) {
+			return true;
+		}
+
+		// A SELECT that locks rows (FOR UPDATE, FOR SHARE, LOCK IN SHARE MODE) counts as a
+		// write: the locks only mean something on a writable server.
+		//
+		// Quick and dirty again. To ignore those words inside a string value, such as
+		//     WHERE title = 'for update'
+		// only the text after the last quote character is searched. That gets two kinds
+		// of query wrong, both on purpose:
+		//
+		//     SELECT ... /* for update */                 no lock, but treated as a write
+		//     SELECT ... FOR UPDATE /* don't remove */    real lock, but treated as a read
+		//
+		// The first costs a query on the master. The second needs a quote somewhere after
+		// the lock clause, and is routed the way every locking read was before this check.
+		$tail = substr( $q, (int) max( strrpos( $q, "'" ), strrpos( $q, '"' ) ) );
+
+		// preg_match() returns false if the regex engine gives up, which is not known to
+		// happen here. If it ever does we cannot tell, so assume a write.
+		return 0 !== preg_match( '/\b(?:FOR\s+UPDATE|FOR\s+SHARE|LOCK\s+IN\s+SHARE\s+MODE)\b/i', $tail );
 	}
 
 	/**
