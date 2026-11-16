@@ -147,6 +147,27 @@ class WorkflowController extends WP_REST_Controller {
 			)
 		);
 
+		// POST /workflow/post/{id}/agent-rerun - Run a post's failed stage agent
+		// again, in place, as the person asking.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/post/(?P<id>[\d]+)/agent-rerun',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'rerun_agent_stage' ),
+					'permission_callback' => array( $this, 'transition_permissions_check' ),
+					'args'                => array(
+						'id' => array(
+							'description' => 'Post ID.',
+							'type'        => 'integer',
+							'required'    => true,
+						),
+					),
+				),
+			)
+		);
+
 		// GET /workflow/post/{id}/history - Get transition history.
 		//
 		// Gated on `edit_post` for this post (get_post_status_permissions_check),
@@ -492,9 +513,9 @@ class WorkflowController extends WP_REST_Controller {
 				$assigned_to['is_current'] = 'user' === $current_assignment['assignment']['type']
 					&& get_current_user_id() === $assigned_to['id'];
 				// Which assignment slot this came from. Served but not yet
-				// read: the sidebar's Release button posts to /unclaim,
-				// which clears the claim meta rather than an assignment, so
-				// nothing consumes this today.
+				// read: the sidebar offers no release for an assignment —
+				// its Release button belongs to the claim (`claimed_by`)
+				// and posts to /unclaim, which clears only the claim meta.
 				$assigned_to['slot'] = $current_assignment['meta_key'];
 			}
 		}
@@ -719,7 +740,7 @@ class WorkflowController extends WP_REST_Controller {
 	 * @return array|null
 	 */
 	private function get_agent_job_state( int $post_id, string $stage ): ?array {
-		$job = get_post_meta( $post_id, \VIPWorkflows\Workflow\StageAgentRunner::JOB_META, true );
+		$job = \VIPWorkflows\Workflow\StageAgentRunner::read_job_marker( $post_id );
 		if ( ! is_array( $job ) || ( $job['stage_key'] ?? '' ) !== $stage ) {
 			return null;
 		}
@@ -744,8 +765,16 @@ class WorkflowController extends WP_REST_Controller {
 			$status_manager = Plugin::get_instance()->get_status_manager();
 			$revert_stage   = $status_manager->get_agent_revert_stage( $post_id );
 
+			// Run again in place (rerun_agent_stage()). This method is only
+			// reached for the current stage's job, so the other conditions
+			// StageAgentRunner::rerun() holds are that the stage still has an
+			// agent and that the sequence's role rules let this person in.
+			$sequence           = $status_manager->get_sequence_for_post( $post_id );
+			$stage_config       = $sequence ? $sequence->get_status( $stage ) : null;
+			$state['can_rerun'] = ! empty( $stage_config['agent']['ability_id'] )
+				&& \VIPWorkflows\Workflow\StageAgentRunner::user_can_rerun( $sequence, $stage, (string) ( $job['from_stage'] ?? '' ), get_current_user_id() );
+
 			if ( null !== $revert_stage ) {
-				$sequence      = $status_manager->get_sequence_for_post( $post_id );
 				$revert_config = $sequence ? $sequence->get_status( $revert_stage ) : null;
 
 				$state['revert_to'] = array(
@@ -788,9 +817,8 @@ class WorkflowController extends WP_REST_Controller {
 	/**
 	 * Return a post whose stage agent failed in place to the stage it came from.
 	 *
-	 * The failed state's one action. Going forward again through the AI stage is
-	 * how a run is retried — entry re-dispatches the agent — so there is no
-	 * separate re-run.
+	 * The way out of a failed AI stage when the agent should not simply run
+	 * again. Retrying in place is rerun_agent_stage().
 	 *
 	 * @param  WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
@@ -815,6 +843,37 @@ class WorkflowController extends WP_REST_Controller {
 		$response->set_data( $data );
 
 		return $response;
+	}
+
+	/**
+	 * Run a post's failed stage agent again, in place.
+	 *
+	 * The run is started by the person asking, so it acts as them when they can
+	 * edit the post (StageAgentRunner::resolve_run_as_user()). That is what lets
+	 * a re-run fix a failure the previous identity could not get past.
+	 *
+	 * @param  WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function rerun_agent_stage( $request ) {
+		$post_id = (int) $request->get_param( 'id' );
+
+		$sequence = Plugin::get_instance()->get_status_manager()->get_sequence_for_post( $post_id );
+		$runner   = Plugin::get_instance()->get_module( 'stage-agent-runner' );
+		if ( ! $sequence || ! $runner instanceof \VIPWorkflows\Workflow\StageAgentRunner ) {
+			return new WP_Error(
+				'no_agent_rerun',
+				__( 'This post has no failed AI agent to run again.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		$result = $runner->rerun( $post_id, $sequence );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return $this->get_post_status( $request );
 	}
 
 	/**
@@ -1051,7 +1110,18 @@ class WorkflowController extends WP_REST_Controller {
 		$current_assignee = get_post_meta( $post_id, '_vip_workflows_assigned_to', true );
 		$current_user_id  = get_current_user_id();
 
-		if ( $current_assignee && (int) $current_assignee !== $current_user_id && ! current_user_can( 'manage_options' ) ) {
+		// Nothing to release. Answering success here would tell the caller a
+		// claim was cleared when none existed, and a Release that changes
+		// nothing would look like it worked.
+		if ( ! $current_assignee ) {
+			return new WP_Error(
+				'post_not_claimed',
+				__( 'This post is not claimed, so there is nothing to release.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( (int) $current_assignee !== $current_user_id && ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'cannot_unclaim',
 				__( 'You can only release posts you have claimed.', 'vip-workflows' ),
@@ -1059,8 +1129,17 @@ class WorkflowController extends WP_REST_Controller {
 			);
 		}
 
-		// Release the post.
-		delete_post_meta( $post_id, '_vip_workflows_assigned_to' );
+		// Release the post: delete exactly the claim read above. Of two releases
+		// racing, only one deletes a row; the other finds nothing to release and
+		// says so, rather than reporting (and logging) a release that did not
+		// happen.
+		if ( ! delete_post_meta( $post_id, '_vip_workflows_assigned_to', $current_assignee ) ) {
+			return new WP_Error(
+				'post_not_claimed',
+				__( 'This post is not claimed, so there is nothing to release.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
 
 		// Log the event.
 		$this->log_event(

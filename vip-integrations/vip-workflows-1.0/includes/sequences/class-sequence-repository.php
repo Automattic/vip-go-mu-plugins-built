@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Sequences;
 
 use VIPWorkflows\Database\Schema;
+use VIPWorkflows\Workflow\StageQuery;
 
 /**
  * Repository for sequence database operations.
@@ -25,6 +26,11 @@ class SequenceRepository {
 	 * the same group instead of hardcoding the name a second time.
 	 */
 	public const CACHE_GROUP = 'vip_sequences';
+
+	/**
+	 * How many affected posts a refused write lists (the total is always exact).
+	 */
+	public const STRANDED_POSTS_LIMIT = 20;
 
 	/**
 	 * Key holding the cache generation, bumped to invalidate the group.
@@ -431,9 +437,22 @@ class SequenceRepository {
 	/**
 	 * Update a sequence in place.
 	 *
+	 * A config change that removes (or re-keys) a stage any post sits at is
+	 * refused before anything is written: those posts would point at a stage
+	 * that no longer exists, and the publish boundary would then refuse every
+	 * status change for them. The check lives here, not in a REST controller,
+	 * so every writer that goes through the repository gets it — REST,
+	 * abilities, the region repair, and extension installers alike. The one
+	 * writer that does not, the upgrade's stored-config replay, writes with
+	 * direct SQL and applies the same rule itself (see
+	 * Schema::stage_keys_with_posts_the_write_would_drop()).
+	 *
 	 * @param  int   $id   Sequence ID.
 	 * @param  array $data Data to update.
 	 * @return int|false Sequence ID or false on failure.
+	 * @throws \InvalidArgumentException When the config fails the write gate.
+	 * @throws StrandedPostsException    When the config removes a stage posts sit at.
+	 * @throws StrandCheckFailedException When the affected posts cannot be checked.
 	 */
 	public function update( int $id, array $data ): int|false {
 		global $wpdb;
@@ -458,7 +477,13 @@ class SequenceRepository {
 			// the normalized config to persist. Type comes from the existing row — a
 			// sequence's type is immutable, so an update can't switch a workflow into
 			// a phase to skip the stage-graph rules.
-			$update_data['config'] = wp_json_encode( Sequence::prepare_config_for_write( $data['config'], $existing->type ) );
+			$config = Sequence::prepare_config_for_write( $data['config'], $existing->type );
+
+			// Compared after the gate, so a legacy key the gate re-keys counts as
+			// removed: the posts at the old key would be stranded just the same.
+			$this->assert_no_stranded_stages( $existing, $config );
+
+			$update_data['config'] = wp_json_encode( $config );
 		}
 		if ( isset( $data['status'] ) ) {
 			$update_data['status'] = $data['status'];
@@ -550,6 +575,20 @@ class SequenceRepository {
 				'id'      => $updated,
 				'dropped' => $repair['dropped'],
 			);
+		} catch ( StrandedPostsException $e ) {
+			// Normalizing a legacy row can re-key a stage posts sit at. That is a
+			// refusal, not a malformed config, so it keeps its own 409.
+			return $e->to_wp_error();
+		} catch ( StrandCheckFailedException $e ) {
+			// The strand check could not read the posts. Refuse rather than write
+			// unchecked.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( '[VIP Workflows] ' . $e->getMessage() );
+			return new \WP_Error(
+				'sequence_strand_check_failed',
+				__( 'Could not check which posts are in this sequence, so nothing was changed. Try again.', 'vip-workflows' ),
+				array( 'status' => 500 )
+			);
 		} catch ( \InvalidArgumentException $e ) {
 			// The config is malformed in a way no repair can infer — the author has
 			// to fix it in the editor. The gate's message names the offending stage
@@ -565,6 +604,61 @@ class SequenceRepository {
 				array( 'status' => 400 )
 			);
 		}
+	}
+
+	/**
+	 * Refuse a config that removes a stage any post sits at.
+	 *
+	 * Only stages removed by *this* write count. A post already at a key the
+	 * stored config doesn't define was stranded before this save; counting it
+	 * would block every save of the sequence until someone repaired the data.
+	 *
+	 * Phase sequences are exempt: their stage keys are fixed by
+	 * Sequence::PHASE_TRANSITIONS, so a write cannot remove one.
+	 *
+	 * @param  Sequence $existing The stored sequence.
+	 * @param  array    $config   The normalized config about to be written.
+	 * @throws StrandedPostsException When posts sit at a removed stage.
+	 */
+	private function assert_no_stranded_stages( Sequence $existing, array $config ): void {
+		if ( Sequence::TYPE_WORKFLOW !== $existing->type ) {
+			return;
+		}
+
+		$new_keys = array_map( 'strval', array_column( $config['statuses'] ?? array(), 'key' ) );
+		$removed  = array();
+
+		foreach ( $existing->get_statuses() as $status ) {
+			$key = (string) ( $status['key'] ?? '' );
+			if ( '' !== $key && ! in_array( $key, $new_keys, true ) ) {
+				$removed[ $key ] = (string) ( $status['label'] ?? $key );
+			}
+		}
+
+		if ( empty( $removed ) ) {
+			return;
+		}
+
+		$holding = StageQuery::posts_holding_sequence( (int) $existing->id, array_keys( $removed ), self::STRANDED_POSTS_LIMIT );
+		if ( 0 === $holding['total'] ) {
+			return;
+		}
+
+		// Name every removed stage that holds posts, and only those. The counts
+		// come from all affected posts, not the capped list.
+		$occupied = array_intersect_key( $removed, $holding['stages'] );
+		if ( empty( $occupied ) ) {
+			// Cannot happen when the count is above zero, but an empty list would
+			// read as a delete refusal, so fall back to every removed stage.
+			$occupied = $removed;
+		}
+
+		throw new StrandedPostsException(
+			(int) $existing->id,
+			$occupied,
+			$holding['total'],
+			$holding['posts']
+		);
 	}
 
 	/**
@@ -596,11 +690,22 @@ class SequenceRepository {
 	/**
 	 * Delete a sequence.
 	 *
+	 * Refused while any post still holds the sequence, in any status including
+	 * Trash: the post would keep pointing at a sequence that no longer exists.
+	 * A StrandCheckFailedException from the check (the posts could not be read)
+	 * is left to propagate, so an unreadable answer never lets the delete through.
+	 *
 	 * @param  int $id Sequence ID.
 	 * @return bool
+	 * @throws StrandedPostsException When posts still hold the sequence.
 	 */
 	public function delete( int $id ): bool {
 		global $wpdb;
+
+		$holding = StageQuery::posts_holding_sequence( $id, array(), self::STRANDED_POSTS_LIMIT );
+		if ( $holding['total'] > 0 ) {
+			throw new StrandedPostsException( $id, array(), $holding['total'], $holding['posts'] );
+		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table vip_sequences; write, flush_cache() invalidates the group
 		$result = $wpdb->delete(

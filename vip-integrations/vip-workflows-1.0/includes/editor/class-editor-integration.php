@@ -167,6 +167,7 @@ class EditorIntegration implements ModuleInterface {
 					'metadataFields'      => $metadata_fields,
 					'roles'               => $roles,
 					'workflowStatus'      => $workflow_status,
+					'tracks'              => \VIPWorkflows\Telemetry\Tracker::get_client_properties(),
 				)
 			) . ';',
 			'before'

@@ -222,7 +222,7 @@ class StatusManager {
 			return null;
 		}
 
-		$job = get_post_meta( $post_id, StageAgentRunner::JOB_META, true );
+		$job = StageAgentRunner::read_job_marker( $post_id );
 		if (
 			! is_array( $job )
 			|| 'failed' !== ( $job['status'] ?? '' )
@@ -250,13 +250,15 @@ class StatusManager {
 	 *
 	 * Human intervention resets the agent-loop guard, exactly as a human
 	 * transition into an AI stage does — going back and forward again IS the
-	 * re-run. The failed marker is cleared compare-and-delete after the move, so
-	 * a job the origin stage's own dispatch just queued (the origin can itself
-	 * be an AI stage) is never touched.
+	 * re-run. The failed marker is taken by compare-and-swap before the move, so
+	 * Go back and Run again can't both win, and a job the origin stage's own
+	 * dispatch queues during the move (the origin can itself be an AI stage) is
+	 * never touched.
 	 *
 	 * @param  int $post_id Post ID.
 	 * @return bool|array|\WP_Error True on success, transition()'s warnings array
 	 *                              if one surfaces, WP_Error otherwise.
+	 * @throws \Throwable Whatever transition() throws, once the failed state is back.
 	 */
 	public function revert_failed_agent_stage( int $post_id ): bool|array|\WP_Error {
 		$revert_to = $this->get_agent_revert_stage( $post_id );
@@ -268,18 +270,60 @@ class StatusManager {
 			);
 		}
 
+		// Take the failed marker before moving anything, by swapping it for a
+		// `reverting` one. Run again replaces the same failed marker by
+		// compare-and-swap, so of the two racing, exactly one wins and the
+		// other is refused: a Go back that loses must not move the post, or it
+		// would leave it at the origin with a pending run queued for the stage
+		// it just left. Swapped rather than deleted, so a late run event that
+		// fires during the move still finds a resolved marker and doesn't run.
+		// Stamped, so a request that dies before putting it back leaves a
+		// marker read_job_marker() can tell has been abandoned.
 		$failed_job = get_post_meta( $post_id, StageAgentRunner::JOB_META, true );
+		$reverting  = is_array( $failed_job )
+			? array_merge(
+				$failed_job,
+				array(
+					'status'       => 'reverting',
+					'reverting_at' => time(),
+				)
+			)
+			: array();
+		if (
+			! is_array( $failed_job )
+			|| 'failed' !== ( $failed_job['status'] ?? '' )
+			|| ! StageAgentRunner::take_job_marker( $post_id, $failed_job, $reverting )
+		) {
+			return new \WP_Error(
+				'agent_revert_conflict',
+				__( 'This agent run changed while you were going back. Reload the post to see where it is now.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
 
 		delete_post_meta( $post_id, StageAgentRunner::CHAIN_META );
 
-		$result = $this->transition( $post_id, $revert_to, array( 'agent_revert' => true ) );
+		try {
+			$result = $this->transition( $post_id, $revert_to, array( 'agent_revert' => true ) );
+		} catch ( \Throwable $e ) {
+			// The move threw, so it didn't finish: put the failed state back
+			// before letting the error through, or Run again and Go back would
+			// both refuse until read_job_marker() times the marker out.
+			StageAgentRunner::take_job_marker( $post_id, $reverting, $failed_job );
+			throw $e;
+		}
+
 		if ( true !== $result ) {
+			// The move didn't happen (refused, or held for soft warnings), so
+			// put the failed state back, unless something else has written a
+			// marker since.
+			StageAgentRunner::take_job_marker( $post_id, $reverting, $failed_job );
 			return $result;
 		}
 
-		if ( is_array( $failed_job ) ) {
-			delete_post_meta( $post_id, StageAgentRunner::JOB_META, $failed_job );
-		}
+		// Clear it, unless the move's own dispatch (the origin can itself be an
+		// AI stage) has already written a new marker over it.
+		StageAgentRunner::take_job_marker( $post_id, $reverting );
 
 		return true;
 	}
@@ -651,6 +695,23 @@ class StatusManager {
 		// change core must permit them. Internal-only, same as agent_actor: no
 		// REST surface forwards it.
 		$is_revert = ! $is_agent_actor && ! empty( $options['agent_revert'] );
+
+		// A person confirming a stage agent's move that was held for soft
+		// warnings keeps the agent's summary as the move's comment unless they
+		// bring their own. Here rather than in one surface, so REST, the
+		// transition-post ability and MCP all keep it.
+		if ( ! $is_agent_actor && ! empty( $options['acknowledge_warnings'] ) && '' === trim( (string) ( $options['comment'] ?? '' ) ) ) {
+			$held = get_post_meta( $post_id, StageAgentRunner::JOB_META, true );
+			if (
+				is_array( $held )
+				&& 'warnings_pending' === ( $held['status'] ?? '' )
+				&& ( $held['stage_key'] ?? '' ) === $current_stage
+				&& ( $held['to_status'] ?? '' ) === $to_status
+				&& '' !== (string) ( $held['comment'] ?? '' )
+			) {
+				$options['comment'] = (string) $held['comment'];
+			}
+		}
 
 		// Validate transition is allowed in sequence.
 		if ( ! $is_revert && ! $sequence->is_transition_allowed( $current_stage, $to_status ) ) {

@@ -136,6 +136,10 @@ function register_transition_post(): void {
 						'type'        => 'integer',
 						'description' => __( 'The post ID.', 'vip-workflows' ),
 					),
+					'post_title'       => array(
+						'type'        => 'string',
+						'description' => __( 'The post title.', 'vip-workflows' ),
+					),
 					'from_status'      => array(
 						'type'        => 'string',
 						'description' => __( 'The previous status.', 'vip-workflows' ),

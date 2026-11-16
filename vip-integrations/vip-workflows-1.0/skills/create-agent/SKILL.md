@@ -13,7 +13,7 @@ An **agent** is a standalone WordPress plugin that extends VIP Workflows. All ag
 - **Discovery** — runs *before* an editor has a seed, on the ideation landing page. Returns story prompts that editors can click to spawn a new project.
 - **Stage** — runs when a post enters an AI-owned workflow stage. Returns a pass/fail verdict the stage's routing map turns into an exit transition; execution errors follow the stage's optional error route or fail in place.
 
-A single plugin can provide research only, discovery only, stage only, or a combination. See `docs/specs/shipped/unified-assistants-tab.md` for the underlying architecture.
+A single plugin can provide research only, discovery only, stage only, or a combination. See the Ideation section of `docs/SPEC.md` for the underlying architecture.
 
 ## Decide the Shape First
 
@@ -42,7 +42,7 @@ A stage agent is a normal ability plus an agent manifest. It has different requi
 2. **Stage metadata** — set `meta.stage_eligible => true` and include `'stage'` in `meta.supports` alongside `'workflow'`. The Sequence editor's agent picker and `/vip-workflows/v1/abilities?context=stage` only list abilities with both signals.
 3. **Agent manifest** — register on `vip_workflows_register_assistant_meta` with `capabilities => array( 'stage' )`. This marks the card as **Available in AI stage** only when the referenced ability is also stage-eligible.
 4. **Output contract** — return `{ status, summary, ... }` where `status` is either `pass` or `fail`. Stage agents make a binary editorial judgment: return `pass` when the post is safe to continue on the success path, or `fail` (with a clear `summary`/`issues` payload) when it should not. Return a `WP_Error` on failure; the runner routes that through the stage's `error` destination.
-5. **Mutability contract** — read-only agents should declare `annotations.readonly => true`. Mutating agents must write through `StageAgent`: use `StageAgent::write_content()` to rewrite the body, or `StageAgent::write_block_notes()` to annotate blocks with native editorial notes (`comment_type => 'note'`, anchored via the block's `metadata.noteId`). Both sanitize content and attribute the change to the acting user. A note-writing agent is not read-only (`annotations.readonly => false`). Native notes render in the editor's Comments panel for post types that declare `editor => notes` support (`post`/`page` do by default; a custom type needs `add_post_type_support( $type, 'notes' )`).
+5. **Mutability contract** — read-only agents should declare `annotations.readonly => true`. Mutating agents must write through `StageAgent`: to rewrite the body, ask for the reply with `StageAgent::generate_json()` and `rewrite_reply_schema()`, validate it with `parse_rewrite_reply()`, refuse anything `copy_edit_violations()` reports for the `measure_rewrite()` result (fail with `describe_rewrite()` as the summary), and write the report's `content` with `StageAgent::write_content( $post_id, $content, $modified, false )` (see `workflow-agent-copy-edit`). Use `StageAgent::write_block_notes()` to annotate blocks with native editorial notes (`comment_type => 'note'`, anchored via the block's `metadata.noteId`). Both sanitize content and attribute the change to the acting user. A note-writing agent is not read-only (`annotations.readonly => false`). Native notes render in the editor's Comments panel for post types that declare `editor => notes` support (`post`/`page` do by default; a custom type needs `add_post_type_support( $type, 'notes' )`).
 
 **Routing** (authored on the stage, not the agent): `agent.routing = { pass, fail, error }`, where each value is a status key that must be one of that stage's configured transitions. Every key is optional, `error` included: when `error` is routed, the runner sends a `WP_Error`, an invalid contract result, or any unrouted outcome there; without it, an errored run fails in place and the editor offers a "go back to the previous stage" action. The engine (`StageAgentRunner`) runs the agent asynchronously on stage entry, gates human transitions while it runs (and while it sits failed with a go-back available), and performs the exit transition as the agent — humans can only ever take the routed destinations.
 
@@ -816,7 +816,7 @@ Cache external API responses server-side using WordPress transients:
 - `output_schema` must require `status` and `summary`, with `status` limited to `pass` and `fail`
 - Hook into `vip_workflows_register_abilities` so core stage helpers are already loaded
 - Register a manifest on `vip_workflows_register_assistant_meta` with `capabilities => array( 'stage' )` so the Agents card is marked available in AI stages when the ability metadata also qualifies
-- Read-only agents should declare `annotations.readonly => true`; mutating agents must write through `StageAgent::write_content()` (rewrite the body) or `StageAgent::write_block_notes()` (attach native block notes), and declare `annotations.readonly => false`
+- Read-only agents should declare `annotations.readonly => true`; mutating agents must write through `StageAgent::write_content()` (rewrite the body, after the structured reply and copy-edit-size checks) or `StageAgent::write_block_notes()` (attach native block notes), and declare `annotations.readonly => false`
 
 ## Testing
 

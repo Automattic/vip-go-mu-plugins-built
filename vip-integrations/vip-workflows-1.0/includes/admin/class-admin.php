@@ -487,6 +487,7 @@ class Admin implements ModuleInterface {
 			'myWork'      => array(
 				'windowDays' => \VIPWorkflows\API\WorkflowController::MY_WORK_WINDOW_DAYS,
 			),
+			'tracks'      => \VIPWorkflows\Telemetry\Tracker::get_client_properties(),
 		);
 
 		if ( self::screen_carries_skills( $hook_suffix ) ) {

@@ -11,6 +11,7 @@ namespace VIPWorkflows\Database;
 
 use VIPWorkflows\Sequences\Sequence;
 use VIPWorkflows\Sequences\SequenceRepository;
+use VIPWorkflows\Workflow\StageQuery;
 
 /**
  * Handles database table creation and migrations.
@@ -1442,6 +1443,27 @@ class Schema {
 			error_log( sprintf( '[VIP Workflows] Sequence %d ("%s"): removed %d transition(s) that would have left a stage holding two to one target. Originally rejected as: %s', (int) $row->id, (string) $row->slug, count( $repair['dropped'] ), $rejected->getMessage() ) );
 		}
 
+		// The gate sanitizes stage keys, so a legacy key such as "Legal" comes
+		// back as "legal". Writing that would leave every post at the old key
+		// pointing at a stage that no longer exists — the stranding that
+		// SequenceRepository::update() refuses for every other writer. This pass
+		// writes with direct SQL, so it applies the same rule itself: the row is
+		// left as stored and named for review, like any row it cannot repair.
+		$stranded = self::stage_keys_with_posts_the_write_would_drop( $row, $config, $normalized );
+		if ( ! empty( $stranded ) ) {
+			self::record_sequence_needing_review(
+				self::unrepairable_record(
+					(int) $row->id,
+					(string) $row->name,
+					sprintf( 'Posts are in stages whose keys the upgrade would rename (%s). Remove them from the workflow.', implode( ', ', $stranded ) )
+				)
+			);
+
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Cannot normalize sequence %d ("%s"): it would rename stage keys posts are at (%s). Left as stored and recorded for review.', (int) $row->id, (string) $row->slug, implode( ', ', $stranded ) ) );
+			return null;
+		}
+
 		// A sequence whose regions were inferred rather than declared, or whose
 		// transitions had to be removed, needs a human to confirm the result.
 		// Recorded so the admin notice can name it — the migration silently
@@ -1474,6 +1496,42 @@ class Schema {
 		}
 
 		return $encoded;
+	}
+
+	/**
+	 * Stage keys the normalized config drops that posts still sit at.
+	 *
+	 * Normalization never removes a stage, but it can re-key one (the gate
+	 * sanitizes keys), which strands the posts at the old key just the same.
+	 *
+	 * @since 0.0.1
+	 *
+	 * @param  object $row        Row with id.
+	 * @param  array  $stored     The config as read, before the gate.
+	 * @param  array  $normalized The config the gate returned.
+	 * @return string[] Dropped stage keys that hold posts; empty when the write is safe.
+	 * @throws \VIPWorkflows\Sequences\StrandCheckFailedException When the posts
+	 *         cannot be checked. The migration runner retries a migration that
+	 *         throws, which is safer than writing unchecked.
+	 */
+	private static function stage_keys_with_posts_the_write_would_drop( object $row, array $stored, array $normalized ): array {
+		$new_keys = array_map( 'strval', array_column( $normalized['statuses'] ?? array(), 'key' ) );
+		$dropped  = array();
+
+		foreach ( (array) ( $stored['statuses'] ?? array() ) as $status ) {
+			$key = is_array( $status ) ? (string) ( $status['key'] ?? '' ) : '';
+			if ( '' !== $key && ! in_array( $key, $new_keys, true ) ) {
+				$dropped[] = $key;
+			}
+		}
+
+		if ( empty( $dropped ) ) {
+			return array();
+		}
+
+		$holding = StageQuery::posts_holding_sequence( (int) $row->id, $dropped, 0 );
+
+		return array_values( array_map( 'strval', array_keys( $holding['stages'] ) ) );
 	}
 
 	/**

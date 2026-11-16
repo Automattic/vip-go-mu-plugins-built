@@ -11,7 +11,10 @@ namespace VIPWorkflows\API;
 
 use VIPWorkflows\Sequences\Sequence;
 use VIPWorkflows\Sequences\SequenceRepository;
+use VIPWorkflows\Sequences\StrandCheckFailedException;
+use VIPWorkflows\Sequences\StrandedPostsException;
 use VIPWorkflows\Plugin;
+use VIPWorkflows\Workflow\StageQuery;
 use VIPWorkflows\Workflow\StagePalette;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -417,7 +420,7 @@ class SequencesController extends WP_REST_Controller {
 			);
 		}
 
-		return new WP_REST_Response( $this->prepare_sequence_response( $sequence ) );
+		return new WP_REST_Response( $this->with_stage_post_counts( $this->prepare_sequence_response( $sequence ), $sequence ) );
 	}
 
 	/**
@@ -471,6 +474,61 @@ class SequencesController extends WP_REST_Controller {
 	}
 
 	/**
+	 * Add how many posts hold the sequence, in all and at each stage, so the
+	 * editor can lock what a write would refuse: deleting the sequence (see
+	 * SequenceRepository::delete()) and removing or re-keying an occupied stage
+	 * (see SequenceRepository::update()).
+	 *
+	 * `post_count` is the same set the delete check counts, including posts at a
+	 * stage the config no longer defines. `stage_post_counts` leaves out empty
+	 * stages and is empty for a phase sequence, whose stages are fixed.
+	 *
+	 * Only on single-sequence responses: the list would pay queries per row for
+	 * numbers it never shows. Only for users with `manage_options`, who are the
+	 * ones who can write the sequence; others get neither field. Both are null
+	 * when the count can't be taken; the editor then locks nothing and the
+	 * repository's own check still refuses. Read through
+	 * StageQuery::held_post_counts(), which is cached; the repository's checks
+	 * are not.
+	 *
+	 * @param  array                            $data     Prepared response.
+	 * @param  \VIPWorkflows\Sequences\Sequence $sequence Sequence.
+	 * @return array
+	 */
+	private function with_stage_post_counts( array $data, $sequence ): array {
+		// Only for the people who can change the sequence: the counts span every
+		// author's posts, trash and auto-drafts included, and the route itself
+		// is open to anyone who can edit posts.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $data;
+		}
+
+		$counts = StageQuery::held_post_counts( (int) $sequence->id );
+		if ( null === $counts ) {
+			$data['post_count']        = null;
+			$data['stage_post_counts'] = null;
+			return $data;
+		}
+
+		$stages = array();
+		if ( Sequence::TYPE_WORKFLOW === $sequence->type ) {
+			// Only the stages the config defines. Keys compared as strings: '0'
+			// is a valid stage key.
+			foreach ( $sequence->config['statuses'] ?? array() as $status ) {
+				$key = (string) ( $status['key'] ?? '' );
+				if ( '' !== $key && isset( $counts['stages'][ $key ] ) ) {
+					$stages[ $key ] = $counts['stages'][ $key ];
+				}
+			}
+		}
+
+		$data['post_count']        = $counts['total'];
+		$data['stage_post_counts'] = (object) $stages;
+
+		return $data;
+	}
+
+	/**
 	 * Check if user can list sequences.
 	 *
 	 * @param  WP_REST_Request $request Request object.
@@ -518,7 +576,13 @@ class SequencesController extends WP_REST_Controller {
 			);
 		}
 
-		$deleted = $this->repository->delete( $id );
+		try {
+			$deleted = $this->repository->delete( $id );
+		} catch ( StrandedPostsException $e ) {
+			return $e->to_wp_error();
+		} catch ( StrandCheckFailedException $e ) {
+			return $this->strand_check_failed( $e );
+		}
 
 		if ( ! $deleted ) {
 			return new WP_Error(
@@ -533,6 +597,26 @@ class SequencesController extends WP_REST_Controller {
 				'deleted' => true,
 				'id'      => $id,
 			)
+		);
+	}
+
+	/**
+	 * The error for a write refused because its strand check could not run.
+	 *
+	 * The check guards against stranding posts, so a failed read refuses the
+	 * write rather than letting it through unchecked.
+	 *
+	 * @param  StrandCheckFailedException $e The failure.
+	 * @return WP_Error
+	 */
+	private function strand_check_failed( StrandCheckFailedException $e ): WP_Error {
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[VIP Workflows] ' . $e->getMessage() );
+
+		return new WP_Error(
+			'rest_sequence_strand_check_failed',
+			__( 'Could not check which posts are in this sequence, so nothing was changed. Try again.', 'vip-workflows' ),
+			array( 'status' => 500 )
 		);
 	}
 
@@ -918,6 +1002,10 @@ class SequencesController extends WP_REST_Controller {
 			}
 
 			$new_id = $this->repository->update( $id, $update_data );
+		} catch ( StrandedPostsException $e ) {
+			return $e->to_wp_error();
+		} catch ( StrandCheckFailedException $e ) {
+			return $this->strand_check_failed( $e );
 		} catch ( \InvalidArgumentException $e ) {
 			return new WP_Error(
 				'rest_sequence_invalid_config',
@@ -936,7 +1024,7 @@ class SequencesController extends WP_REST_Controller {
 
 		$sequence = $this->repository->find( $new_id );
 
-		return new WP_REST_Response( $this->prepare_sequence_response( $sequence ) );
+		return new WP_REST_Response( $this->with_stage_post_counts( $this->prepare_sequence_response( $sequence ), $sequence ) );
 	}
 
 	/**

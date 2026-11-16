@@ -198,6 +198,8 @@ class ComposerStaticInit8aa7a773b4b55d0970d4aa53662c1dbd
         'VIPWorkflows\\Plugin' => __DIR__ . '/../..' . '/includes/class-plugin.php',
         'VIPWorkflows\\Sequences\\Sequence' => __DIR__ . '/../..' . '/includes/sequences/class-sequence.php',
         'VIPWorkflows\\Sequences\\SequenceRepository' => __DIR__ . '/../..' . '/includes/sequences/class-sequence-repository.php',
+        'VIPWorkflows\\Sequences\\StrandCheckFailedException' => __DIR__ . '/../..' . '/includes/sequences/class-strand-check-failed-exception.php',
+        'VIPWorkflows\\Sequences\\StrandedPostsException' => __DIR__ . '/../..' . '/includes/sequences/class-stranded-posts-exception.php',
         'VIPWorkflows\\Story\\Story' => __DIR__ . '/../..' . '/includes/story/class-story.php',
         'VIPWorkflows\\Telemetry\\Tracker' => __DIR__ . '/../..' . '/includes/telemetry/class-tracker.php',
         'VIPWorkflows\\Workflow\\Actor' => __DIR__ . '/../..' . '/includes/workflow/class-actor.php',

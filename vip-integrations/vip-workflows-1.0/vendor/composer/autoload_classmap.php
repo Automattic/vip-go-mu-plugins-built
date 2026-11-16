@@ -161,6 +161,8 @@ return array(
     'VIPWorkflows\\Plugin' => $baseDir . '/includes/class-plugin.php',
     'VIPWorkflows\\Sequences\\Sequence' => $baseDir . '/includes/sequences/class-sequence.php',
     'VIPWorkflows\\Sequences\\SequenceRepository' => $baseDir . '/includes/sequences/class-sequence-repository.php',
+    'VIPWorkflows\\Sequences\\StrandCheckFailedException' => $baseDir . '/includes/sequences/class-strand-check-failed-exception.php',
+    'VIPWorkflows\\Sequences\\StrandedPostsException' => $baseDir . '/includes/sequences/class-stranded-posts-exception.php',
     'VIPWorkflows\\Story\\Story' => $baseDir . '/includes/story/class-story.php',
     'VIPWorkflows\\Telemetry\\Tracker' => $baseDir . '/includes/telemetry/class-tracker.php',
     'VIPWorkflows\\Workflow\\Actor' => $baseDir . '/includes/workflow/class-actor.php',

@@ -18,11 +18,17 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Workflow;
 
 use VIPWorkflows\Sequences\Sequence;
+use VIPWorkflows\Sequences\StrandCheckFailedException;
 
 /**
  * Builds WP_Query arguments that select posts by their workflow stage.
  */
 class StageQuery {
+
+	/**
+	 * Object cache group for held_post_counts().
+	 */
+	public const CACHE_GROUP = 'vip_workflows_stage_counts';
 
 	/**
 	 * WP_Query args selecting posts currently at a single stage of a sequence.
@@ -211,13 +217,13 @@ class StageQuery {
 			$wpdb->prepare(
 				"SELECT stage.meta_value AS stage_key, COUNT(*) AS cnt
 				FROM {$wpdb->posts} p
-				INNER JOIN {$wpdb->postmeta} bp ON bp.post_id = p.ID AND bp.meta_key = %s AND bp.meta_value = %d
+				INNER JOIN {$wpdb->postmeta} bp ON bp.post_id = p.ID AND bp.meta_key = %s AND bp.meta_value = %s
 				INNER JOIN {$wpdb->postmeta} stage ON stage.post_id = p.ID AND stage.meta_key = %s
 				WHERE p.post_type IN ({$type_placeholders})
 				AND p.post_status NOT IN ( 'trash', 'auto-draft', 'inherit' ){$author_clause}
 				GROUP BY stage.meta_value",
 				...array_merge(
-					array( StatusManager::SEQUENCE_META_KEY, $sequence->id, StatusManager::STAGE_META_KEY ),
+					array( StatusManager::SEQUENCE_META_KEY, (string) $sequence->id, StatusManager::STAGE_META_KEY ),
 					$post_types,
 					null === $author_scope ? array() : array( $author_scope )
 				)
@@ -243,6 +249,201 @@ class StageQuery {
 				$counts[ $stage_key ] = (int) ( $row->cnt ?? 0 );
 			}
 		}
+
+		return $counts;
+	}
+
+	/**
+	 * Every post that holds a sequence, optionally narrowed to some of its stages.
+	 *
+	 * This answers "would this sequence write strand anybody?", so it is
+	 * deliberately wider than every other query here:
+	 *
+	 * - No post type filter. A post whose type was later dropped from the
+	 *   sequence, or whose type is no longer registered at all, still carries
+	 *   the meta and would still be stranded.
+	 * - Every status except `inherit`. Trash counts, because a restored post
+	 *   comes back carrying its meta. Auto-drafts count, because the
+	 *   workflow-required modal seats a brand-new post in a sequence before its
+	 *   first save. Only revisions are excluded, and they never carry this meta.
+	 *
+	 * That is why this is raw SQL rather than a WP_Query builder: WP_Query's
+	 * `'any'` post type and status both silently skip anything registered with
+	 * `exclude_from_search`, and an unregistered type cannot be named at all.
+	 *
+	 * @param  int      $sequence_id Sequence ID.
+	 * @param  string[] $stage_keys  Stage keys to narrow to; empty for every stage.
+	 * @param  int      $limit       How many posts to list (the total is always exact).
+	 * @return array{total: int, posts: array<int, array{id: int, title: string, status: string, stage: string}>, stages: array<string, int>}
+	 *               `stages` maps each occupied requested stage key to its post
+	 *               count; it is empty when no stage keys were given.
+	 * @throws StrandCheckFailedException When a query fails. The caller is guarding a
+	 *                           write, so an unreadable answer must not pass as
+	 *                           "nobody is affected".
+	 */
+	public static function posts_holding_sequence( int $sequence_id, array $stage_keys = array(), int $limit = 20 ): array {
+		global $wpdb;
+
+		$stage_keys   = array_values( array_unique( array_map( 'strval', $stage_keys ) ) );
+		$stage_clause = '';
+		// The sequence id is compared as a string: meta_value is text, and a
+		// numeric comparison can't use the meta_value index.
+		$params = array( StatusManager::SEQUENCE_META_KEY, (string) $sequence_id, StatusManager::STAGE_META_KEY );
+
+		if ( ! empty( $stage_keys ) ) {
+			$stage_clause = ' AND stage.meta_value IN (' . implode( ',', array_fill( 0, count( $stage_keys ), '%s' ) ) . ')';
+			$params       = array_merge( $params, $stage_keys );
+		}
+
+		// A post with the sequence meta but no stage meta is still held by the
+		// sequence (deleting it would strand the post), so the stage join is a
+		// LEFT JOIN unless the caller narrowed to stages.
+		$stage_join = empty( $stage_keys ) ? 'LEFT JOIN' : 'INNER JOIN';
+
+		$from = self::held_posts_from( $stage_join ) . $stage_clause;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- write guard; must read live rows. $from holds only table names and a %s placeholder list built via array_fill, with matching values spread in from $params.
+		$total = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(DISTINCT p.ID) {$from}", ...$params ) );
+
+		// Checked through last_error, not the return value: on an SQL error
+		// get_var() answers null and get_results() answers an empty array, both
+		// of which also mean "nothing found".
+		if ( '' !== (string) $wpdb->last_error ) {
+			throw new StrandCheckFailedException(
+				esc_html( sprintf( 'Could not check which posts hold sequence %d: %s', $sequence_id, $wpdb->last_error ) )
+			);
+		}
+
+		$total = (int) $total;
+		$posts = array();
+
+		if ( $total > 0 && $limit > 0 ) {
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT p.ID AS id, p.post_title AS title, p.post_status AS status, MAX(stage.meta_value) AS stage {$from} GROUP BY p.ID ORDER BY p.ID ASC LIMIT %d",
+					...array_merge( $params, array( $limit ) )
+				)
+			);
+
+			if ( null === $rows || '' !== (string) $wpdb->last_error ) {
+				throw new StrandCheckFailedException(
+					esc_html( sprintf( 'Could not list the posts holding sequence %d: %s', $sequence_id, $wpdb->last_error ) )
+				);
+			}
+
+			foreach ( $rows as $row ) {
+				$posts[] = array(
+					'id'     => (int) $row->id,
+					'title'  => (string) $row->title,
+					'status' => (string) $row->status,
+					'stage'  => (string) ( $row->stage ?? '' ),
+				);
+			}
+		}
+
+		// Which of the requested stages are occupied, counted over every post, not
+		// just the capped list: a refusal that names only the stages in the first N
+		// posts sends the admin round again for the stage it left out.
+		$stages = array();
+
+		if ( $total > 0 && ! empty( $stage_keys ) ) {
+			$stage_rows = $wpdb->get_results(
+				$wpdb->prepare( "SELECT stage.meta_value AS stage, COUNT(DISTINCT p.ID) AS cnt {$from} GROUP BY stage.meta_value", ...$params )
+			);
+
+			if ( null === $stage_rows || '' !== (string) $wpdb->last_error ) {
+				throw new StrandCheckFailedException(
+					esc_html( sprintf( 'Could not count the stages holding sequence %d: %s', $sequence_id, $wpdb->last_error ) )
+				);
+			}
+
+			foreach ( $stage_rows as $row ) {
+				$stages[ (string) $row->stage ] = (int) $row->cnt;
+			}
+		}
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		return array(
+			'total'  => $total,
+			'posts'  => $posts,
+			'stages' => $stages,
+		);
+	}
+
+	/**
+	 * The FROM and WHERE that define "the posts holding a sequence", shared by
+	 * the write guard (posts_holding_sequence()) and the display counts
+	 * (held_post_counts()), so the editor's locks and the refusals they
+	 * predict can't drift apart.
+	 *
+	 * Placeholders, in order: the sequence meta key, the sequence id (as a
+	 * string; meta_value is text, and a numeric comparison can't use its
+	 * index), and the stage meta key.
+	 *
+	 * @param  string $stage_join `LEFT JOIN` to keep posts with no stage meta, or `INNER JOIN`.
+	 * @return string
+	 */
+	private static function held_posts_from( string $stage_join ): string {
+		global $wpdb;
+
+		return "FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->postmeta} seq ON seq.post_id = p.ID AND seq.meta_key = %s AND seq.meta_value = %s
+			{$stage_join} {$wpdb->postmeta} stage ON stage.post_id = p.ID AND stage.meta_key = %s
+			WHERE p.post_status <> 'inherit'";
+	}
+
+	/**
+	 * How many posts hold a sequence, in all and at each stage, for display.
+	 *
+	 * The read-side counterpart of posts_holding_sequence(), over the same set
+	 * of posts (every type, every status but `inherit`, with or without a stage
+	 * meta row), in one query, cached until any post or post meta changes.
+	 * Each post counts once, at its stage. Only for showing the numbers: the
+	 * write guards call posts_holding_sequence(), which always reads live rows.
+	 *
+	 * @param  int $sequence_id Sequence ID.
+	 * @return array{total: int, stages: array<string, int>}|null Null when the query fails.
+	 */
+	public static function held_post_counts( int $sequence_id ): ?array {
+		global $wpdb;
+
+		$cache_key = 'held_post_counts:' . $sequence_id . ':' . wp_cache_get_last_changed( 'posts' );
+		$cached    = wp_cache_get( $cache_key, self::CACHE_GROUP );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- one aggregate, cached below against the posts last_changed key, which WordPress bumps on every post and post meta write. held_posts_from() holds only table names and placeholders.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT held.stage AS stage, COUNT(*) AS cnt FROM (SELECT p.ID, MAX(stage.meta_value) AS stage '
+					. self::held_posts_from( 'LEFT JOIN' )
+					. ' GROUP BY p.ID) held GROUP BY held.stage',
+				StatusManager::SEQUENCE_META_KEY,
+				(string) $sequence_id,
+				StatusManager::STAGE_META_KEY
+			)
+		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
+		if ( null === $rows || '' !== (string) $wpdb->last_error ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Post counts for sequence %d could not be read: %s', $sequence_id, $wpdb->last_error ) );
+			return null;
+		}
+
+		$counts = array(
+			'total'  => 0,
+			'stages' => array(),
+		);
+		foreach ( $rows as $row ) {
+			$counts['total'] += (int) $row->cnt;
+			if ( null !== $row->stage ) {
+				$counts['stages'][ (string) $row->stage ] = (int) $row->cnt;
+			}
+		}
+
+		wp_cache_set( $cache_key, $counts, self::CACHE_GROUP );
 
 		return $counts;
 	}

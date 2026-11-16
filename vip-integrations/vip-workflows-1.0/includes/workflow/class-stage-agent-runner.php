@@ -81,6 +81,18 @@ class StageAgentRunner implements ModuleInterface {
 	public const PENDING_TTL = 15 * 60;
 
 	/**
+	 * How long a Go back may hold the marker as `reverting` (seconds).
+	 *
+	 * Go back holds it only for the length of one request. A `reverting`
+	 * marker older than this belongs to a request that died before it could
+	 * put the failed state back (a fatal in a hooked callback, a timeout), so
+	 * read_job_marker() reads it as the failure it was.
+	 *
+	 * @var int
+	 */
+	public const REVERTING_TTL = 5 * 60;
+
+	/**
 	 * Post meta recording the last agent run that resolved and moved the post:
 	 * the stage it ran in, which of pass/fail/error fired, the stage it routed
 	 * to, and when.
@@ -129,6 +141,16 @@ class StageAgentRunner implements ModuleInterface {
 	private const LOG_TOKEN_MAX = 100;
 
 	/**
+	 * Longest fail summary carried into a transition's audit comment.
+	 *
+	 * A summary is extension-written and may echo model output, so it is
+	 * bounded before it lands in the history every reviewer reads.
+	 *
+	 * @var int
+	 */
+	private const FAIL_SUMMARY_MAX = 500;
+
+	/**
 	 * The ability id currently executing a stage agent, or '' when none is.
 	 *
 	 * Static because the impersonation it shadows (wp_set_current_user) is itself
@@ -141,15 +163,17 @@ class StageAgentRunner implements ModuleInterface {
 	private static string $acting_ability_id = '';
 
 	/**
-	 * The person who started the run whose exit transition is in progress.
+	 * The run whose exit transition is in progress: its post and its starter.
 	 *
-	 * An agent's exit transition runs with nobody logged in, and its job marker is
-	 * cleared before it, so a next AI stage dispatched by that transition reads its
-	 * starter from here. Set around the exit transition only.
+	 * A next AI stage that exit dispatches for the SAME post takes its starter
+	 * from here. Keyed by post, because a callback inside that transition can
+	 * move another post into an AI stage, and that post's run belongs to nobody
+	 * the exiting run vouches for. Set around the exit transition only; null
+	 * otherwise. A starter of 0 (nobody) is carried as nobody.
 	 *
-	 * @var int
+	 * @var array{post_id:int,started_by:int}|null
 	 */
-	private static int $exiting_run_started_by = 0;
+	private static ?array $exiting_run = null;
 
 	/**
 	 * Ability executor used to run stage agents. Injectable for testing.
@@ -226,16 +250,13 @@ class StageAgentRunner implements ModuleInterface {
 			return;
 		}
 
-		// Re-entrancy guard: never schedule a second job while one is already
-		// pending for this same post + stage.
-		$existing = get_post_meta( $post_id, self::JOB_META, true );
-		if (
-			is_array( $existing )
-			&& 'pending' === ( $existing['status'] ?? '' )
-			&& ( $existing['stage_key'] ?? '' ) === $new_status
-		) {
-			return;
-		}
+		// Every real entry writes a fresh marker, even when a pending one for this
+		// stage is still there (a person confirmed a move out before the run
+		// fired, and the post has now come back). The marker carries who the run
+		// acts as and where Go back leads, and both belong to this entry, not the
+		// abandoned one. Only the cron event is deduplicated: an identical queued
+		// event serves the new marker (see dispatch()), and a run already in
+		// flight sees the new queued_at and abandons (abandon_if_superseded()).
 
 		// Reset the loop-guard chain when a human (non-agent) stage moved the post
 		// in; only consecutive agent→agent hops accumulate toward MAX_CHAIN.
@@ -244,36 +265,212 @@ class StageAgentRunner implements ModuleInterface {
 			delete_post_meta( $post_id, self::CHAIN_META );
 		}
 
-		// Who caused this run, for telemetry: the person whose move entered the
-		// stage, or, for an agent-to-agent hop, whoever started the chain.
-		$started_by = get_current_user_id();
-		if ( $started_by <= 0 ) {
-			$started_by = self::$exiting_run_started_by;
+		// Who caused this run: the person whose move entered the stage, or, for an
+		// agent-to-agent hop, whoever started the chain. Nobody (0) when no person
+		// is behind it — cron, a scheduled publish, a reseat with no one logged in.
+		// The run acts as this person when they can still edit the post (see
+		// resolve_run_as_user()), and its telemetry is recorded as them.
+		$started_by = $this->dispatching_person( $post_id );
+
+		$this->dispatch(
+			$post_id,
+			$new_status,
+			(string) $status['agent']['ability_id'],
+			$old_status,
+			(string) ( $context['cause'] ?? 'workflow' ),
+			$started_by
+		);
+	}
+
+	/**
+	 * Who a dispatch for this post belongs to.
+	 *
+	 * The starter an agent's own exit carries, for that post's next stage.
+	 * Otherwise the logged-in person whose request moved the post — but never
+	 * under cron, where nobody moved anything: a user present there (cron run
+	 * with `--user`, or one an earlier callback left set) authorized nothing.
+	 *
+	 * @param  int $post_id Post being dispatched.
+	 * @return int User ID, or 0 for nobody.
+	 */
+	private function dispatching_person( int $post_id ): int {
+		if ( null !== self::$exiting_run && self::$exiting_run['post_id'] === $post_id ) {
+			return self::$exiting_run['started_by'];
 		}
 
-		update_post_meta(
+		if ( wp_doing_cron() ) {
+			return 0;
+		}
+
+		return get_current_user_id();
+	}
+
+	/**
+	 * Run a failed stage agent again, in place, as the person asking.
+	 *
+	 * The failed state's direct retry: the post stays at its AI stage and the
+	 * agent is dispatched afresh, started by the current user. Because a run
+	 * acts as the person who started it when they can edit the post (see
+	 * resolve_run_as_user()), a re-run fixes the failures a different identity
+	 * can fix, such as an author who cannot edit posts, without moving the post
+	 * out of the stage and back in.
+	 *
+	 * Only a run that failed at the post's current stage can be run again, and
+	 * only while that stage still has an agent. The loop-guard chain restarts,
+	 * as it does whenever a person moves a post into an AI stage.
+	 *
+	 * @param  int      $post_id  Post ID.
+	 * @param  Sequence $sequence Sequence for the post.
+	 * @return true|\WP_Error True once the run is dispatched (a dispatch that
+	 *                        cannot be scheduled fails in place, as on entry).
+	 */
+	public function rerun( int $post_id, Sequence $sequence ): true|\WP_Error {
+		$stage_key = (string) get_post_meta( $post_id, StatusManager::STAGE_META_KEY, true );
+		$status    = $sequence->get_status( $stage_key );
+		$job       = self::read_job_marker( $post_id );
+
+		if (
+			empty( $status['agent']['ability_id'] )
+			|| ! is_array( $job )
+			|| 'failed' !== ( $job['status'] ?? '' )
+			|| ( $job['stage_key'] ?? '' ) !== $stage_key
+		) {
+			return new \WP_Error(
+				'no_agent_rerun',
+				__( 'This post has no failed AI agent to run again.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		if ( ! self::user_can_rerun( $sequence, $stage_key, (string) ( $job['from_stage'] ?? '' ), get_current_user_id() ) ) {
+			return new \WP_Error(
+				'forbidden_transition',
+				__( 'Your role cannot move posts into this stage, so you cannot run its agent again.', 'vip-workflows' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Replace exactly the failed marker validated above, or nothing. Two
+		// people pressing Run again at once, or Run again racing Go back, must
+		// not both win: the loser finds the marker changed and is refused.
+		$dispatched = $this->dispatch(
 			$post_id,
-			self::JOB_META,
-			array(
-				'stage_key'  => $new_status,
-				'ability_id' => $status['agent']['ability_id'],
-				'status'     => 'pending',
-				'queued_at'  => current_time( 'mysql' ),
-				'cause'      => (string) ( $context['cause'] ?? 'workflow' ),
-				'from_stage' => $old_status,
-				'started_by' => $started_by,
-			)
+			$stage_key,
+			(string) $status['agent']['ability_id'],
+			(string) ( $job['from_stage'] ?? '' ),
+			'rerun',
+			get_current_user_id(),
+			$job
+		);
+		if ( ! $dispatched ) {
+			return new \WP_Error(
+				'agent_rerun_conflict',
+				__( 'This agent run changed while you were starting it. Reload the post to see where it is now.', 'vip-workflows' ),
+				array( 'status' => 409 )
+			);
+		}
+
+		delete_post_meta( $post_id, self::CHAIN_META );
+
+		return true;
+	}
+
+	/**
+	 * Whether a person may run a failed stage agent again.
+	 *
+	 * Run again starts a run that acts as the person who presses it, so it is
+	 * held to the sequence's role rules for entering the stage. When the post
+	 * came in along an authored transition, they must be allowed to take that
+	 * one. When it didn't (a reseat or a sequence assign put it here, so the
+	 * recorded origin has no edge into the stage, or there is no origin), any
+	 * authored move into the stage they may take will do. A stage no authored
+	 * transition leads into has no role rule for entering it, so nothing is
+	 * held back. The bypass list skips role rules here as everywhere.
+	 *
+	 * Role rules only. Core capabilities are checked separately: the route
+	 * requires `edit_post`, and the run re-checks it when it fires.
+	 *
+	 * @param  Sequence $sequence   Sequence for the post.
+	 * @param  string   $stage_key  The failed AI stage.
+	 * @param  string   $from_stage The stage the job records the post entering from.
+	 * @param  int      $user_id    The person asking.
+	 * @return bool
+	 */
+	public static function user_can_rerun( Sequence $sequence, string $stage_key, string $from_stage, int $user_id ): bool {
+		if ( $user_id <= 0 ) {
+			return false;
+		}
+
+		if ( \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( $user_id ) ) {
+			return true;
+		}
+
+		$incoming = array();
+		foreach ( $sequence->get_statuses() as $status ) {
+			$key = (string) ( $status['key'] ?? '' );
+			if ( '' !== $key && $sequence->is_transition_allowed( $key, $stage_key ) ) {
+				$incoming[] = $key;
+			}
+		}
+
+		if ( empty( $incoming ) ) {
+			return true;
+		}
+
+		$origins = in_array( $from_stage, $incoming, true ) ? array( $from_stage ) : $incoming;
+
+		foreach ( $origins as $origin ) {
+			foreach ( $sequence->get_role_permitted_transitions( $origin, $user_id ) as $transition ) {
+				if ( ( $transition['to'] ?? '' ) === $stage_key ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Write a pending job marker and schedule the run that serves it.
+	 *
+	 * @param int        $post_id    Post ID.
+	 * @param string     $stage_key  The AI stage the run belongs to.
+	 * @param string     $ability_id The stage's agent ability.
+	 * @param string     $from_stage The stage the post entered from, kept for go-back.
+	 * @param string     $cause      What dispatched it: workflow, core or rerun.
+	 * @param int        $started_by The person who started the run, or 0.
+	 * @param array|null $replacing  The marker this one may only replace: when
+	 *                               given, the write is conditional on the stored
+	 *                               marker still being exactly this one.
+	 * @return bool False only when `$replacing` no longer matched, and nothing
+	 *              was written or scheduled.
+	 */
+	private function dispatch( int $post_id, string $stage_key, string $ability_id, string $from_stage, string $cause, int $started_by, ?array $replacing = null ): bool {
+		$marker = array(
+			'stage_key'  => $stage_key,
+			'ability_id' => $ability_id,
+			'status'     => 'pending',
+			'queued_at'  => current_time( 'mysql' ),
+			'cause'      => $cause,
+			'from_stage' => $from_stage,
+			'started_by' => $started_by,
 		);
 
-		$scheduled = wp_schedule_single_event( time(), self::RUN_HOOK, array( $post_id, $new_status ), true );
+		if ( null === $replacing ) {
+			update_post_meta( $post_id, self::JOB_META, $marker );
+		} elseif ( ! $this->replace_job_marker( $post_id, $replacing, $marker ) ) {
+			return false;
+		}
+
+		$scheduled = wp_schedule_single_event( time(), self::RUN_HOOK, array( $post_id, $stage_key ), true );
 		if ( true !== $scheduled ) {
 			// An identical event (same hook + args = same post + stage) is already
 			// queued — e.g. a reseat round-trip (A→B→A) re-entered this stage while
 			// its original run event was still pending. That queued event will serve
 			// the freshly written pending marker when it fires: success, not failure.
 			if ( $this->is_duplicate_event_error( $scheduled ) ) {
-				$this->log_duplicate_event( $post_id, $new_status );
-				return;
+				$this->log_duplicate_event( $post_id, $stage_key );
+				return true;
 			}
 
 			// The run was never queued — a pending marker with no scheduled event
@@ -286,14 +483,132 @@ class StageAgentRunner implements ModuleInterface {
 				: __( 'The agent run could not be scheduled.', 'vip-workflows' );
 			$this->fail_in_place(
 				$post_id,
-				$new_status,
-				$status['agent']['ability_id'],
+				$stage_key,
+				$ability_id,
 				$message,
-				$old_status,
+				$from_stage,
 				array( 'stop_reason' => 'dispatch_failed' ),
 				is_wp_error( $scheduled ) ? (string) $scheduled->get_error_code() : ''
 			);
 		}
+
+		return true;
+	}
+
+	/**
+	 * Replace the job marker, only where it is still exactly `$expected`.
+	 *
+	 * Not update_post_meta()'s `$prev_value`: when the row is missing
+	 * altogether, core adds it rather than failing, and a stale caller (one
+	 * that read a marker a Go back has since deleted) would then queue a run
+	 * for a stage the post has left.
+	 *
+	 * @param  int   $post_id  Post ID.
+	 * @param  array $expected The marker the caller read and validated.
+	 * @param  array $marker   The marker to write in its place.
+	 * @return bool True when this caller replaced it.
+	 */
+	private function replace_job_marker( int $post_id, array $expected, array $marker ): bool {
+		return self::swap_job_marker( $post_id, $expected, $marker );
+	}
+
+	/**
+	 * Take the job marker, only where it is still exactly `$expected`: replace
+	 * it with `$replacement`, or delete it when that is null.
+	 *
+	 * Go back's half of the compare-and-swap Run again uses
+	 * (replace_job_marker()), so when both race for the same failed marker,
+	 * exactly one of them takes it and the other finds it changed.
+	 *
+	 * @param  int        $post_id     Post ID.
+	 * @param  array      $expected    The marker the caller read and validated.
+	 * @param  array|null $replacement The marker to write in its place, or null to delete it.
+	 * @return bool True when this caller changed it.
+	 */
+	public static function take_job_marker( int $post_id, array $expected, ?array $replacement = null ): bool {
+		return self::swap_job_marker( $post_id, $expected, $replacement );
+	}
+
+	/**
+	 * Read the job marker, putting a Go back that never finished back to failed.
+	 *
+	 * Go back swaps the failed marker for a `reverting` one while it moves the
+	 * post, and swaps it back if the move doesn't happen. A request that dies
+	 * in between leaves `reverting` behind, and nothing else clears it: Run
+	 * again and Go back both need `failed`, and only `pending` times out. Once
+	 * it is older than REVERTING_TTL, this swaps it back to the failed marker
+	 * by compare-and-swap, so a Go back still in flight is never overwritten
+	 * by a stale reader.
+	 *
+	 * Every reader that decides whether a failed run can be retried or
+	 * reverted goes through here.
+	 *
+	 * @param  int $post_id Post ID.
+	 * @return mixed The JOB_META value, as get_post_meta() returns it.
+	 */
+	public static function read_job_marker( int $post_id ): mixed {
+		$job = get_post_meta( $post_id, self::JOB_META, true );
+		if ( ! is_array( $job ) || 'reverting' !== ( $job['status'] ?? '' ) ) {
+			return $job;
+		}
+
+		$since = (int) ( $job['reverting_at'] ?? 0 );
+		if ( $since > 0 && ( time() - $since ) <= self::REVERTING_TTL ) {
+			return $job;
+		}
+
+		$failed = $job;
+		unset( $failed['reverting_at'] );
+		$failed['status'] = 'failed';
+
+		if ( ! self::swap_job_marker( $post_id, $job, $failed ) ) {
+			// Someone else changed it first; read what they wrote.
+			return get_post_meta( $post_id, self::JOB_META, true );
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf( '[VIP Workflows] Go back never finished; failed state restored: post=%d stage=%s', $post_id, self::log_token( (string) ( $job['stage_key'] ?? '' ) ) ) );
+
+		return $failed;
+	}
+
+	/**
+	 * Replace or delete the job marker, only where it is still exactly `$expected`.
+	 *
+	 * One UPDATE or DELETE whose WHERE names the expected value, so of two
+	 * concurrent callers exactly one changes the row.
+	 *
+	 * @param  int        $post_id  Post ID.
+	 * @param  array      $expected The marker the caller read and validated.
+	 * @param  array|null $marker   The marker to write in its place, or null to delete it.
+	 * @return bool True when this caller changed the row.
+	 */
+	private static function swap_job_marker( int $post_id, array $expected, ?array $marker ): bool {
+		global $wpdb;
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- a compare-and-swap on one post's job marker, found by post_id (indexed); the post's meta cache is cleared below.
+		$where        = array(
+			'post_id'    => $post_id,
+			'meta_key'   => self::JOB_META,
+			'meta_value' => maybe_serialize( $expected ),
+		);
+		$where_format = array( '%d', '%s', '%s' );
+
+		$changed = null === $marker
+			? $wpdb->delete( $wpdb->postmeta, $where, $where_format )
+			: $wpdb->update( $wpdb->postmeta, array( 'meta_value' => maybe_serialize( $marker ) ), $where, array( '%s' ), $where_format );
+		// phpcs:enable
+
+		wp_cache_delete( $post_id, 'post_meta' );
+
+		// false is a failed query, not a lost race: say so in the log, since
+		// the caller can only report both to the author as a conflict.
+		if ( false === $changed ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( sprintf( '[VIP Workflows] Agent job marker write failed: post=%d db_error=%s', $post_id, self::log_token( (string) $wpdb->last_error ) ) );
+		}
+
+		return 1 === $changed;
 	}
 
 	/**
@@ -358,19 +673,34 @@ class StageAgentRunner implements ModuleInterface {
 			return;
 		}
 
+		// A marker for this stage that has already resolved (failed, held for
+		// warnings, or being gone back from) has no run left to serve. Every entry writes a fresh
+		// marker and relies on cron to deduplicate the event, but cron only
+		// matches events within about ten minutes of each other, so a late cron
+		// can hold two events for one post and stage. The second must not
+		// execute the agent again against the first one's outcome.
+		$job_at_dispatch = get_post_meta( $post_id, self::JOB_META, true );
+		if (
+			is_array( $job_at_dispatch )
+			&& ( $job_at_dispatch['stage_key'] ?? '' ) === $stage_key
+			&& 'pending' !== ( $job_at_dispatch['status'] ?? '' )
+		) {
+			return;
+		}
+
 		// This run's identity, read before the ability executes: the queued_at of
 		// the marker it is serving. abandon_if_superseded() compares it afterwards
 		// so an A→B→A round trip (which re-enters the SAME stage with a fresh job)
 		// is not mistaken for "nothing moved".
-		$job_at_dispatch = get_post_meta( $post_id, self::JOB_META, true );
-		$run_token       = is_array( $job_at_dispatch ) ? (string) ( $job_at_dispatch['queued_at'] ?? '' ) : '';
+		$run_token = is_array( $job_at_dispatch ) ? (string) ( $job_at_dispatch['queued_at'] ?? '' ) : '';
 
 		// Where the post came from — the failed state's go-back destination.
 		// Carried through every fail-in-place so the marker a human sees still
 		// knows the way back.
 		$from_stage = is_array( $job_at_dispatch ) ? (string) ( $job_at_dispatch['from_stage'] ?? '' ) : '';
 
-		// Who the run's telemetry is recorded as. See maybe_dispatch().
+		// Who started the run, if anyone: who it acts as and who its telemetry is
+		// recorded as. See maybe_dispatch().
 		$started_by = is_array( $job_at_dispatch ) ? (int) ( $job_at_dispatch['started_by'] ?? 0 ) : 0;
 
 		$status = $sequence->get_status( $stage_key );
@@ -450,16 +780,20 @@ class StageAgentRunner implements ModuleInterface {
 
 		// Stage agents run in an async (cron) context with no logged-in user, so
 		// the ability's permission_callback (typically current_user_can('edit_posts'))
-		// would fail. Execute as the capable post author and restore afterward.
-		// The impersonated human owns the write for capability purposes, so any
-		// revision the agent produces is natively
-		// authored by them; self::$acting_ability_id lets stamp_agent_revision()
-		// tag that revision with the agent that actually made the edit, and the
-		// revisions UI is relabelled from there.
+		// would fail. Execute as a capable person and restore afterward: the
+		// person who moved the post in, else its author (resolve_run_as_user()).
+		//
+		// The impersonated person owns the write for capability purposes, so any
+		// revision the agent produces is natively authored by them. That is
+		// deliberate: when an editor moves someone else's post into an AI stage,
+		// the revision is the editor's, because the editor is who asked for it.
+		// self::$acting_ability_id lets stamp_agent_revision() tag that revision
+		// with the agent that actually made the edit, and the revisions UI is
+		// relabelled from there.
 		$previous_user = get_current_user_id();
-		$actor_user    = $this->resolve_agent_user( $post_id );
+		$actor_user    = $this->resolve_run_as_user( $post_id, $started_by );
 
-		// No capable owner means no identity this run may legitimately borrow.
+		// No capable person means no identity this run may legitimately borrow.
 		// Stop in place regardless of the configured error route: an error-route
 		// transition would require the same missing actor and would replace this
 		// actionable failure with a generic transition error.
@@ -468,7 +802,11 @@ class StageAgentRunner implements ModuleInterface {
 				$post_id,
 				$stage_key,
 				$ability_id,
-				__( 'The author cannot edit posts, so the agent didn’t run. Reassign the post or move it back.', 'vip-workflows' ),
+				// Why, not what to do: the failed state offers Run again, which
+				// acts as whoever presses it.
+				$started_by > 0
+					? __( 'The person who moved this post here can no longer edit it, and neither can its author.', 'vip-workflows' )
+					: __( 'This post moved here automatically, and its author can’t edit posts, so the agent had no one to run as.', 'vip-workflows' ),
 				$from_stage,
 				array(
 					'stop_reason' => 'no_actor',
@@ -563,17 +901,31 @@ class StageAgentRunner implements ModuleInterface {
 		// error: it takes the error route when one exists (see route()) and
 		// otherwise stops here — the post stays put with a visible, actionable
 		// message rather than being moved to a destination nobody configured.
+		// A fail verdict carries its reason to whoever picks the post up next:
+		// as the transition's audit comment when it routes, and inside the
+		// failed marker when it cannot. Without this the reason lived only in
+		// the ability-results table, which no reviewer surface reads.
+		$fail_summary = 'fail' === $outcome ? self::fail_summary( $result ) : '';
+
 		$target = $this->route( $outcome, $routing );
 		if ( null === $target ) {
+			$no_route = sprintf(
+				/* translators: %s: agent outcome key (pass or fail). */
+				__( 'No route for the “%s” outcome. Add one in the sequence editor, or move the post back.', 'vip-workflows' ),
+				$outcome
+			);
 			$this->fail_in_place(
 				$post_id,
 				$stage_key,
 				$ability_id,
-				sprintf(
-					/* translators: %s: agent outcome key (pass or fail). */
-					__( 'No route for the “%s” outcome. Add one in the sequence editor, or move the post back.', 'vip-workflows' ),
-					$outcome
-				),
+				'' !== $fail_summary
+					? sprintf(
+						/* translators: 1: the no-route message. 2: the agent's reason for failing. */
+						__( '%1$s The agent reported: %2$s', 'vip-workflows' ),
+						$no_route,
+						$fail_summary
+					)
+					: $no_route,
 				$from_stage,
 				array_merge( $run, array( 'stop_reason' => 'unrouted_outcome' ) )
 			);
@@ -585,7 +937,31 @@ class StageAgentRunner implements ModuleInterface {
 		// `error`.
 		$run['error_routed'] = empty( $routing[ $outcome ] );
 
-		$this->finish( $post_id, $stage_key, $ability_id, $target, $outcome, $chain, $actor_user, $from_stage, '', $run );
+		$this->finish( $post_id, $stage_key, $ability_id, $target, $outcome, $chain, $actor_user, $from_stage, $fail_summary, $run );
+	}
+
+	/**
+	 * The audit-comment form of a fail verdict's summary.
+	 *
+	 * Plain single-line text, because the history renders a comment as one
+	 * quoted line; bounded, because the summary is extension-written and may
+	 * echo model output.
+	 *
+	 * @param \VIPWorkflows\Abilities\AbilityResult $result Ability result.
+	 * @return string Sanitized summary, or '' when the result carries none.
+	 */
+	private static function fail_summary( $result ): string {
+		$summary = $result->output['summary'] ?? '';
+		if ( ! is_string( $summary ) ) {
+			return '';
+		}
+
+		$summary = sanitize_text_field( $summary );
+		if ( mb_strlen( $summary ) > self::FAIL_SUMMARY_MAX ) {
+			$summary = rtrim( mb_substr( $summary, 0, self::FAIL_SUMMARY_MAX - 1 ) ) . '…';
+		}
+
+		return $summary;
 	}
 
 	/**
@@ -679,11 +1055,38 @@ class StageAgentRunner implements ModuleInterface {
 	}
 
 	/**
-	 * Resolve a capable user to run the agent as, in the user-less cron context.
+	 * Resolve who a run acts as, in the user-less cron context.
+	 *
+	 * The person who started the run, when there is one and they can still edit
+	 * this post. Re-checked here rather than trusted from dispatch, because
+	 * capabilities can change between the move and the run. Running as them is
+	 * not an escalation: they authorized the move into this stage, and the
+	 * check proves they hold the rights for this post right now.
+	 *
+	 * Otherwise the post author, as resolve_agent_user() decides. That is the
+	 * only path for a run nobody started (cron, a scheduled publish, a reseat
+	 * with no one logged in), which has no person whose rights it could borrow.
+	 *
+	 * @param  int $post_id    Post ID.
+	 * @param  int $started_by The person who started the run, or 0.
+	 * @return int User ID, or 0 when neither can run the agent.
+	 */
+	private function resolve_run_as_user( int $post_id, int $started_by ): int {
+		if ( $started_by > 0 && user_can( $started_by, 'edit_post', $post_id ) ) {
+			return $started_by;
+		}
+
+		return $this->resolve_agent_user( $post_id );
+	}
+
+	/**
+	 * Resolve the post author as the user to run the agent as, when no capable
+	 * person started the run.
 	 *
 	 * The post author, and only the post author — they own the content, so the
 	 * revision the agent produces is attributed to the right person and the
-	 * agent can do nothing they could not have done by hand.
+	 * agent can do nothing they could not have done by hand. Never a substitute
+	 * for a person who started the run; see resolve_run_as_user().
 	 *
 	 * This used to fall back to the first administrator when the author could
 	 * not edit posts, which inverted the intent: the run gained privilege
@@ -724,7 +1127,10 @@ class StageAgentRunner implements ModuleInterface {
 			return;
 		}
 
-		update_post_meta( $revision_id, self::AGENT_REVISION_META, self::$acting_ability_id );
+		// update_metadata(), not update_post_meta(): the latter silently redirects a
+		// revision ID to its parent post, so the tag would land on the post and the
+		// revision would never be labelled.
+		update_metadata( 'post', $revision_id, self::AGENT_REVISION_META, self::$acting_ability_id );
 	}
 
 	/**
@@ -732,7 +1138,7 @@ class StageAgentRunner implements ModuleInterface {
 	 *
 	 * Hooked on `wp_prepare_revision_for_js` (the data source for the revisions
 	 * browser and the compare-revisions screen). When the revision carries the
-	 * agent tag, its author label is replaced with the agent's name — resolved
+	 * agent tag, its author's name is replaced with the agent's name — resolved
 	 * the same way as the audit trail — marked "(agent)" so it reads distinctly
 	 * from a human author. Untagged revisions are returned unchanged.
 	 *
@@ -753,8 +1159,15 @@ class StageAgentRunner implements ModuleInterface {
 			)
 		);
 
-		/* translators: %s: agent name. */
-		$data['author'] = sprintf( __( '%s (agent)', 'vip-workflows' ), $agent_name );
+		// Core serves the author as an object (id, avatar, name) and its
+		// template reads `author.name`, so only the name changes.
+		$author         = is_array( $data['author'] ?? null ) ? $data['author'] : array();
+		$author['name'] = sprintf(
+			/* translators: %s: agent name. */
+			__( '%s (agent)', 'vip-workflows' ),
+			$agent_name
+		);
+		$data['author'] = $author;
 
 		return $data;
 	}
@@ -1001,7 +1414,10 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param int    $actor_user User the run acts for; the transition's capability
 	 *                           checks are evaluated against them.
 	 * @param string $from_stage Stage the post entered from, kept for a fail-in-place fallback.
-	 * @param string $comment    Audit comment for the exit transition — the error message on an error-routed run, '' otherwise.
+	 * @param string $comment    Audit comment for the exit transition: the error message on an error-routed run,
+	 *                           the sanitized summary on a `fail` verdict (see fail_summary()), '' otherwise.
+	 *                           The publication hold below takes only the error register; a held, refused or
+	 *                           abandoned exit fails in place with its own message and drops a fail summary.
 	 * @param array  $run        Telemetry details for the run. See run_stage_agent().
 	 * @param string $error_code Machine-readable cause on an error-routed run, '' otherwise.
 	 */
@@ -1055,19 +1471,22 @@ class StageAgentRunner implements ModuleInterface {
 			'telemetry_user'   => (int) ( $run['started_by'] ?? 0 ),
 		);
 
-		// An error-routed exit carries its error as the transition's audit
-		// comment — the destination's reviewer reads WHY the post arrived from
-		// the same history entry that says it did.
+		// An error-routed exit carries its error, and a fail verdict its summary,
+		// as the transition's audit comment — the destination's reviewer reads
+		// WHY the post arrived from the same history entry that says it did.
 		if ( '' !== $comment ) {
 			$options['comment'] = $comment;
 		}
 
-		$status_manager               = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
-		self::$exiting_run_started_by = (int) ( $run['started_by'] ?? 0 );
+		$status_manager    = \VIPWorkflows\Plugin::get_instance()->get_status_manager();
+		self::$exiting_run = array(
+			'post_id'    => $post_id,
+			'started_by' => (int) ( $run['started_by'] ?? 0 ),
+		);
 		try {
 			$transitioned = $status_manager->transition( $post_id, $target, $options );
 		} finally {
-			self::$exiting_run_started_by = 0;
+			self::$exiting_run = null;
 		}
 
 		// transition() answers with a warnings array rather than a WP_Error when
@@ -1129,7 +1548,8 @@ class StageAgentRunner implements ModuleInterface {
 	 * @param string $target      Destination status key.
 	 * @param string $outcome     Outcome (pass|fail|error) for the held action.
 	 * @param array  $transitioned Warning payload from StatusManager::transition().
-	 * @param string $comment     Audit comment to preserve for the human transition.
+	 * @param string $comment     Audit comment to preserve for the human transition: an error-routed run's
+	 *                            error, a `fail` verdict's summary, or ''.
 	 * @param array  $run         Telemetry details for the run. See run_stage_agent().
 	 */
 	private function hold_for_warnings( int $post_id, string $stage_key, string $ability_id, string $target, string $outcome, array $transitioned, string $comment, array $run = array() ): void {

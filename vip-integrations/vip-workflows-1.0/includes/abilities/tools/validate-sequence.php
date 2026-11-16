@@ -11,8 +11,11 @@
  * assignment wiring — which create_item(), update_item() and import_sequence()
  * all run, for every sequence type — and then Sequence::prepare_config_for_write(),
  * a pure function (static, no database access, returns the normalized config,
- * throws on a malformed graph). Anything this reports valid is what the repository
- * would accept, by construction. Retired note inputs are removed first, as import
+ * throws on a malformed graph). Anything this reports valid passes every config
+ * check the repository applies, by construction. One refusal is not about the
+ * config: an update that removes (or re-keys) a stage posts sit at is refused while
+ * they are there. Pass "update_of" with a proposed config, or "sequence_id" for a
+ * stored one, and `would_strand` reports that too. Retired note inputs are removed first, as import
  * removes them, and each removal is reported in `notes`.
  *
  * Every independent check runs and contributes, so a config that breaks more than
@@ -31,6 +34,8 @@ namespace VIPWorkflows\Abilities\Tools;
 use VIPWorkflows\API\SequencesController;
 use VIPWorkflows\Sequences\Sequence;
 use VIPWorkflows\Sequences\SequenceRepository;
+use VIPWorkflows\Sequences\StrandCheckFailedException;
+use VIPWorkflows\Workflow\StageQuery;
 
 const VALIDATE_SEQUENCE_ABILITY_ID = 'vip-workflows/validate-sequence';
 
@@ -46,6 +51,8 @@ function execute_validate_sequence( ?array $input = null ) {
 	$input       = $input ?? array();
 	$sequence_id = isset( $input['sequence_id'] ) ? (int) $input['sequence_id'] : 0;
 	$config      = $input['config'] ?? null;
+	$update_of   = isset( $input['update_of'] ) ? (int) $input['update_of'] : 0;
+	$target      = null;
 
 	// Exactly one source. Accepting both would leave it ambiguous which one was
 	// actually validated, and accepting neither has nothing to validate.
@@ -76,6 +83,9 @@ function execute_validate_sequence( ?array $input = null ) {
 		$config    = $sequence->config;
 		$type      = $sequence->type;
 		$source_id = $sequence->id;
+		// A stored config can still strand posts if the gate would re-key a
+		// legacy stage key, so the stored sequence is its own target.
+		$target = $sequence;
 	} else {
 		if ( ! is_array( $config ) ) {
 			return new \WP_Error(
@@ -86,6 +96,20 @@ function execute_validate_sequence( ?array $input = null ) {
 
 		$type      = isset( $input['type'] ) ? (string) $input['type'] : Sequence::TYPE_WORKFLOW;
 		$source_id = null;
+
+		if ( $update_of > 0 ) {
+			$target = ( new SequenceRepository() )->find( $update_of );
+
+			if ( ! $target ) {
+				return new \WP_Error(
+					'sequence_not_found',
+					__( 'Sequence not found.', 'vip-workflows' )
+				);
+			}
+
+			// An update keeps the stored type, so the proposal is checked as that.
+			$type = $target->type;
+		}
 	}
 
 	// A file exported by an older version may carry retired free-text note inputs.
@@ -179,6 +203,8 @@ function execute_validate_sequence( ?array $input = null ) {
 			// Withheld on rejection for the same reason as the stage path below:
 			// a config a controller check refused is not one a caller may write.
 			'normalized_config'     => empty( $errors ) ? $built_config : null,
+			// Phase stage keys are fixed, so an update cannot remove one.
+			'would_strand'          => null,
 			'notes'                 => array(
 				__( 'Phase sequences are exempt from the stage graph rules; they are checked for the lifecycle hand-offs they must declare, after phases and hand-offs outside the phase graph are dropped.', 'vip-workflows' ),
 			),
@@ -216,6 +242,20 @@ function execute_validate_sequence( ?array $input = null ) {
 	// would be named twice in the same words. One sentence per rule broken.
 	$errors = array_values( array_unique( $errors ) );
 
+	// Whether the update would be refused for stranding posts. Kept out of
+	// `valid` and `errors`: the config itself is fine, and the same save goes
+	// through once the posts are moved.
+	$would_strand = null;
+	$strand_notes = array();
+
+	if ( null !== $target && null !== $normalized_config && Sequence::TYPE_WORKFLOW === $target->type ) {
+		try {
+			$would_strand = describe_would_strand( $target, $normalized_config );
+		} catch ( StrandCheckFailedException $e ) {
+			$strand_notes[] = __( 'Could not check which posts are in this sequence, so “would_strand” is empty. Try again.', 'vip-workflows' );
+		}
+	}
+
 	// What the gate would write is offered only once nothing rejects the config: a
 	// normalized config that still carries a rejected metadata field or agent is
 	// not something a caller may write. The normalization list stays, because it
@@ -231,7 +271,56 @@ function execute_validate_sequence( ?array $input = null ) {
 		'stages_missing_region' => $stages_missing_region,
 		'regions_missing_entry' => $regions_missing_entry,
 		'normalized_config'     => empty( $errors ) ? $normalized_config : null,
-		'notes'                 => describe_retired_note_removal( $retired_notes ),
+		'would_strand'          => $would_strand,
+		'notes'                 => array_merge( describe_retired_note_removal( $retired_notes ), $strand_notes ),
+	);
+}
+
+/**
+ * Which posts an update to the target would strand, as the repository would see it.
+ *
+ * Mirrors SequenceRepository::update(): the stages the target stores that the
+ * normalized config no longer has, and the posts still at them.
+ *
+ * @since 0.0.1
+ *
+ * @param  Sequence $target     The stored sequence the config would replace.
+ * @param  array    $normalized The config as the write gate normalized it.
+ * @return array{total: int, stages: array<int, array{key: string, label: string, posts: int}>}
+ * @throws StrandCheckFailedException When the posts cannot be read.
+ */
+function describe_would_strand( Sequence $target, array $normalized ): array {
+	$new_keys = array_map( 'strval', array_column( $normalized['statuses'] ?? array(), 'key' ) );
+	$removed  = array();
+
+	foreach ( $target->get_statuses() as $status ) {
+		$key = (string) ( $status['key'] ?? '' );
+		if ( '' !== $key && ! in_array( $key, $new_keys, true ) ) {
+			$removed[ $key ] = (string) ( $status['label'] ?? $key );
+		}
+	}
+
+	if ( empty( $removed ) ) {
+		return array(
+			'total'  => 0,
+			'stages' => array(),
+		);
+	}
+
+	$holding = StageQuery::posts_holding_sequence( (int) $target->id, array_keys( $removed ), 0 );
+	$stages  = array();
+
+	foreach ( $holding['stages'] as $key => $count ) {
+		$stages[] = array(
+			'key'   => (string) $key,
+			'label' => $removed[ $key ] ?? (string) $key,
+			'posts' => (int) $count,
+		);
+	}
+
+	return array(
+		'total'  => $holding['total'],
+		'stages' => $stages,
 	);
 }
 
@@ -349,6 +438,10 @@ function register_validate_sequence(): void {
 						'type'        => 'object',
 						'description' => __( 'Validate a proposed sequence configuration (a "statuses" array, plus any other config keys). Mutually exclusive with "sequence_id".', 'vip-workflows' ),
 					),
+					'update_of'   => array(
+						'type'        => 'integer',
+						'description' => __( 'With "config": the sequence this config would replace. Also reports in "would_strand" any posts the update would strand.', 'vip-workflows' ),
+					),
 					'type'        => array(
 						'type'        => 'string',
 						'description' => __( 'Sequence type the proposed config is for. Only meaningful with "config"; a stored sequence uses its own type. Defaults to "workflow".', 'vip-workflows' ),
@@ -396,6 +489,10 @@ function register_validate_sequence(): void {
 					'normalized_config'     => array(
 						'type'        => array( 'object', 'null' ),
 						'description' => __( 'The configuration as it would be persisted, or null when any category rejected it.', 'vip-workflows' ),
+					),
+					'would_strand'          => array(
+						'type'        => array( 'object', 'null' ),
+						'description' => __( 'With "update_of" or "sequence_id": posts at stages the update would remove, as "total" and per-stage "stages". An update is refused while "total" is above zero. Null when there is no target or the check could not run.', 'vip-workflows' ),
 					),
 					'notes'                 => array(
 						'type'        => 'array',

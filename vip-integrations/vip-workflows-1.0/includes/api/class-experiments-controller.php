@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace VIPWorkflows\API;
 
 use VIPWorkflows\Plugin;
+use VIPWorkflows\Telemetry\Tracker;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Request;
@@ -112,10 +113,28 @@ class ExperimentsController extends WP_REST_Controller {
 			);
 		}
 
+		$was_enabled = $registry->is_enabled( $id );
+
 		if ( $enabled ) {
 			$registry->enable( $id );
 		} else {
 			$registry->disable( $id );
+		}
+
+		// The vip_workflows_experiments filter can pin an experiment on or off
+		// whatever was requested, so compare the effective state before and after.
+		$is_enabled = $registry->is_enabled( $id );
+
+		// Recorded here rather than in the browser: the Settings screen reloads
+		// as soon as its save resolves, which would drop an event still queued.
+		if ( $was_enabled !== $is_enabled ) {
+			Tracker::record(
+				'settings_experiment_toggled',
+				array(
+					'experiment_id' => $id,
+					'enabled'       => $is_enabled,
+				)
+			);
 		}
 
 		return new WP_REST_Response( $registry->to_array() );

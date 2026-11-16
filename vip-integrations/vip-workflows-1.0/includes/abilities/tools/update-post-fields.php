@@ -190,15 +190,31 @@ function register_update_post_fields(): void {
 				'type'                 => 'object',
 				'additionalProperties' => false,
 				'properties'           => array(
-					'post_id' => array(
+					'post_id'               => array(
 						'type'        => 'integer',
 						'description' => __( 'The post ID.', 'vip-workflows' ),
 					),
-					'updated' => array(
+					'post_title'            => array(
+						'type'        => 'string',
+						'description' => __( 'The post title. Returned with the preview.', 'vip-workflows' ),
+					),
+					'preview'               => array(
+						'type'        => 'object',
+						'description' => __( 'Each requested field with its current and new value, when the call was not confirmed. Nothing was changed.', 'vip-workflows' ),
+					),
+					'requires_confirmation' => array(
+						'type'        => 'boolean',
+						'description' => __( 'True when the response is a preview. Call again with confirmed=true to apply it.', 'vip-workflows' ),
+					),
+					'message'               => array(
+						'type'        => 'string',
+						'description' => __( 'Instructions for confirming the preview.', 'vip-workflows' ),
+					),
+					'updated'               => array(
 						'type'        => 'object',
 						'description' => __( 'The fields that were updated with their new values.', 'vip-workflows' ),
 					),
-					'success' => array(
+					'success'               => array(
 						'type'        => 'boolean',
 						'description' => __( 'Whether the update succeeded.', 'vip-workflows' ),
 					),
