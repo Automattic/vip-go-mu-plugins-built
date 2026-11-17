@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -eu
+
+# Do not install into a parent repository when this plugin is nested inside it.
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+if [ "$(cd "$repo_root" && pwd -P)" != "$(pwd -P)" ]; then
+	exit 0
+fi
+
+if [ -n "$(git config --get core.hooksPath || true)" ]; then
+	echo 'Existing core.hooksPath configuration left unchanged.' >&2
+	exit 0
+fi
+
+hook_path=$(git rev-parse --git-path hooks/pre-commit)
+
+# Leave hooks installed by someone else alone. The previous npm dependency
+# marked its generated hook with SKIP_SIMPLE_GIT_HOOKS.
+if [ -f "$hook_path" ] && \
+	! grep -q 'Installed by vip-governance-plugin' "$hook_path" && \
+	! grep -q 'SKIP_SIMPLE_GIT_HOOKS' "$hook_path"; then
+	echo "Existing pre-commit hook left unchanged: $hook_path" >&2
+	exit 0
+fi
+
+mkdir -p "$(dirname "$hook_path")"
+cat > "$hook_path" <<'HOOK'
+#!/bin/sh
+# Installed by vip-governance-plugin/bin/install-hook.
+
+exec sh bin/pre-commit "$@"
+HOOK
+chmod +x "$hook_path"

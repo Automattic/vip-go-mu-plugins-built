@@ -346,6 +346,8 @@ describe( 'blockUtils', () => {
 		} );
 
 		it( 'only expands the first wildcard for compatibility', () => {
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/*-*' ) ).toBeTruthy();
+			expect( doesBlockNameMatchBlockWildcard( 'core/heading', 'core/*ad*ng' ) ).toBeFalsy();
 			expect( () => doesBlockNameMatchBlockWildcard( 'core/heading', 'core/**' ) ).toThrow(
 				SyntaxError
 			);

@@ -10,8 +10,10 @@ export function doesBlockNameMatchBlockWildcard(
 	if ( rule.includes( '*' ) ) {
 		// Keep compatibility with existing rules: only the first wildcard is expanded,
 		// other regular-expression syntax remains active, and matching is not anchored.
+		// This transforms trusted configuration, not untrusted input sanitization.
+		// Expanding every '*' would change which blocks existing rules allow.
 		// eslint-disable-next-line security/detect-non-literal-regexp
-		return blockName.match( new RegExp( rule.replace( '*', '.*' ) ) );
+		return blockName.match( new RegExp( rule.replace( '*', '.*' ) ) ); // codeql[js/incomplete-sanitization]
 	}
 
 	return rule === blockName;

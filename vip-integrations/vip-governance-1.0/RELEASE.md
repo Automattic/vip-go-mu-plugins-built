@@ -2,13 +2,9 @@
 
 ## 1. Bump plugin version
 
-1. From a clean `trunk` checkout, run `npm run release -- patch`, replacing `patch` with `minor` or `major` as needed. The command:
-   - creates `release/<version>`;
-   - updates `package.json`, `package-lock.json`, the plugin header, and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`;
-   - stages only those version files; and
-   - commits them as `<version>`.
-2. Run `npm ci`, `composer install`, `npm run build`, and the relevant checks. Commit any intentional changes to the tracked `build/` and production `vendor/` files; the release ZIP is made from tracked files and the release workflow does not rebuild the bundle.
-3. Push the release branch manually and submit the PR. When the plugin header version change reaches `trunk`, the release workflow verifies it against `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`, creates the version tag and ZIP, and publishes a GitHub release.
+1. Run the **Create release PR** GitHub Actions workflow on `trunk` and choose `patch`, `minor`, or `major`. It creates `release/v<version>`, updates `package.json`, `package-lock.json`, the plugin header, and `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`, then opens a PR for review.
+2. Review the PR and run the relevant checks. The PR checks build the plugin and verify that tracked `build/` files match. If a version bump changes the build output, commit the updated `build/` files to the release branch before merging. Commit any intentional production `vendor/` changes as well.
+3. Merge the release PR into `trunk`. The release workflow verifies the plugin header against `WPCOMVIP__GOVERNANCE__PLUGIN_VERSION`, creates the version tag and ZIP, and publishes a GitHub release.
 
 ## 2. Update integrations
 

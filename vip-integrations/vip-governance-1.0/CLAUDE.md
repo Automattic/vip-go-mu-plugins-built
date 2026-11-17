@@ -42,4 +42,4 @@ Read `AGENTS.md` in this repository for a comprehensive overview of the project 
 - JS follows `@automattic/eslint-plugin-wpvip` rules
 - PHP 8.2+ required; WordPress 6.8+ required
 - Plugin uses opt-in model: only explicitly allowed blocks are available
-- Pre-commit hook runs `lint-staged` automatically
+- Pre-commit hook runs the checks in `bin/pre-commit` automatically after `npm install`

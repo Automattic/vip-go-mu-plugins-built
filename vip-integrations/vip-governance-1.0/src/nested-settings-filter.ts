@@ -17,8 +17,7 @@ interface ResolveForBlockNamesOptions {
 }
 
 interface ResolveNestedSettingOptions
-	extends Omit< ResolveForBlockNamesOptions, 'blockNames' >,
-		BlockEditorSelectors {
+	extends Omit< ResolveForBlockNamesOptions, 'blockNames' >, BlockEditorSelectors {
 	clientId: ClientId;
 	currentBlockName?: BlockName;
 }

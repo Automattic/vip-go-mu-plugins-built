@@ -1,0 +1,28 @@
+#!/bin/sh
+# Installed by vip-governance-plugin/bin/install-hook.
+
+set -eu
+
+if [ "${SKIP_SIMPLE_GIT_HOOKS:-}" = '1' ]; then
+	exit 0
+fi
+
+# The npm scripts scan the whole repository. Run only the checks relevant to
+# staged files, as the previous lint-staged hook did.
+if ! git diff --cached --quiet --diff-filter=ACMR -- \
+	'*.js' '*.jsx' '*.ts' '*.tsx' \
+	':(exclude)vendor/**' ':(exclude)node_modules/**'; then
+	npm run lint:js
+fi
+
+if ! git diff --cached --quiet --diff-filter=ACMR -- \
+	'*.php' \
+	':(exclude)vendor/**' ':(exclude)node_modules/**'; then
+	npm run lint:php
+fi
+
+if ! git diff --cached --quiet --diff-filter=ACMR -- \
+	'*.js' '*.json' '*.jsx' '*.md' '*.ts' '*.tsx' '*.yml' '*.yaml' \
+	':(exclude)vendor/**' ':(exclude)node_modules/**'; then
+	npm run format:check
+fi
