@@ -1,0 +1,12 @@
+{
+	"topic_title": "What actor was perfectly cast as a Marvel movie or TV show villain?",
+	"host_name": "Taylor Chen",
+	"invitation_slug": "abc123",
+	"network": "Instagram",
+	"pct": "35",
+	"invitation_url": "{site_url}/{invitation_prefix}/{invitation_slug}/",
+	"invitation_short_url": {
+		"template": "{short_url_base}/{invitation_slug}/",
+		"fallback": "{invitation_url}"
+	}
+}
