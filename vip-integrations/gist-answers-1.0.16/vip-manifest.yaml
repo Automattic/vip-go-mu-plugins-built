@@ -1,0 +1,49 @@
+# Handoff manifest for Gist Answers.
+#
+# WordPress VIP registers and loads the integration from this file alone; it
+# ships in the release zip. Check it with:
+#
+#   npx @automattic/vip-integration validate <path to the built plugin>
+#
+# Validate a prepared release copy, not the source: plugin_version and
+# changelog hold build-time placeholders that prepare-release.php and
+# .github/scripts/prepare-ci-release.php replace.
+#
+# Schema: https://automattic.github.io/vip-integration/vip-manifest.schema.json
+# Schema documentation: https://github.com/Automattic/vip-integrations-starter-kit/blob/main/docs/manifest.md
+
+manifest_version: 2
+manifest_kind: vip-integration-handoff
+
+integration:
+  slug: gist-answers
+  display_name: Gist Answers
+  summary: Connects WordPress to Gist.ai for AI answer widgets, content ingestion, reporting, website settings, and multisite management.
+  partner:
+    name: ProrataAI
+    support_contact: support@gist.ai
+
+documentation:
+  public_url: https://gist.ai/support/ga/wpuserguide
+  support_url: https://gist.ai/support/ga/wpsetup
+
+runtime:
+  wordpress_plugin:
+    folder: gist-answers
+    entry_file: gist-answers.php
+    php_namespace: GistAnswers
+    scope: network
+
+runtime_config:
+  fields:
+    - key: api_token
+      label: Gist API token
+      type: secret
+      required: true
+      help: The API token for your Gist.ai partner account, from answers@gist.ai.
+
+release:
+  plugin_version: 1.0.16
+  version_strategy: semantic_versioning
+  migration_required: false
+  changelog: "Fix four high-severity and five medium severity issues"

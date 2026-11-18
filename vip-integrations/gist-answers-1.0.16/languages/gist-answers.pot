@@ -1,0 +1,629 @@
+# Copyright (C) 2026 ProRata.AI
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Gist Answers 1.0.16\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/gist-answers\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-05T01:35:58+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: gist-answers\n"
+
+#. Plugin Name of the plugin
+#: gist-answers.php
+#: includes/Admin/AdminMain.php:654
+#: includes/Admin/MenuItems/DividerHeading.php:61
+#: includes/Admin/MenuItems/MenuSubitem.php:65
+#: includes/Admin/NetworkMenu.php:64
+#: includes/Admin/NetworkMenu.php:65
+#: includes/Admin/SidebarMenu.php:68
+#: includes/Admin/SidebarMenu.php:69
+#: includes/Plugin/CommonMain.php:125
+msgid "Gist Answers"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: gist-answers.php
+msgid "https://gist.ai/"
+msgstr ""
+
+#. Description of the plugin
+#: gist-answers.php
+msgid "Integrates Gist.ai with WordPress to sync publisher content, configure answer experiences, and display AI-powered Gist answer widgets on your site."
+msgstr ""
+
+#. Author of the plugin
+#: gist-answers.php
+msgid "ProRata.AI"
+msgstr ""
+
+#. Author URI of the plugin
+#: gist-answers.php
+msgid "https://prorata.ai/"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:392
+msgid "There was an error activating your site. Please try again later."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:398
+msgid "Site activation error"
+msgstr ""
+
+#. translators: %s: The label of the "Activate website" button.
+#: includes/Admin/AdminMain.php:417
+#, php-format
+msgid "Your site was added to Gist Answers, but could not be linked to this WordPress site. Please click \"%s\" again and choose it from the list."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:418
+#: templates/partials/activation-modal.php:25
+#: templates/partials/admin-site-card.php:50
+msgid "Activate website"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:473
+msgid "There was an error associating your site with the selected website. Please try again later."
+msgstr ""
+
+#. translators: %s is the URL to the Gist Answers "Dashboard" page.
+#: includes/Admin/AdminMain.php:518
+#, php-format
+msgid "Plugin activated successfully! Visit the Gist Answers <a href=\"%s\">Dashboard</a> to connect your site to the Gist Answers Console."
+msgstr ""
+
+#. translators: %s is the URL to the Network Hub.
+#: includes/Admin/AdminMain.php:549
+#, php-format
+msgid "Plugin activated successfully! Visit the Gist Answers <a href=\"%s\">Network Dashboard</a> to connect your sites to the Gist Answers Console."
+msgstr ""
+
+#. translators: %s is the URL to the Gist Answers admin menu page.
+#: includes/Admin/AdminMain.php:588
+#, php-format
+msgid "There is a problem with your Gist Answers integration. Visit the Gist Answers <a href=\"%s\">Dashboard</a> to review the status of your Gist API connection."
+msgstr ""
+
+#. translators: %s is the URL to the Gist Answers admin menu page.
+#: includes/Admin/AdminMain.php:627
+#, php-format
+msgid "There is a problem with your Gist Answers integration. Visit the Gist Answers <a href=\"%s\">Network Dashboard</a> to review the status of your Gist API connection."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:667
+msgid "Question Widget"
+msgstr ""
+
+#. translators: %s is the VIP config constant name.
+#: includes/Admin/AdminMain.php:1197
+#, php-format
+msgid "This site's Gist API token is managed by WordPress VIP (%s). To change it, update the Gist Answers integration's configuration in the VIP Dashboard."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1557
+msgid "URL added manually via admin"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1564
+msgid "Shortcode in page content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1566
+msgid "Gutenberg block in page content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1568
+msgid "Gist Answers HTML in page content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1570
+msgid "Unknown source in page content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1576
+msgid "Shortcode in post content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1578
+msgid "Gutenberg block in post content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1580
+msgid "Gist Answers HTML in post content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1582
+msgid "Unknown source in post content"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1806
+msgid "Sorry, only network admins are allowed to perform this action."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1807
+#: includes/Admin/AdminMain.php:2505
+msgid "Error"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:1855
+msgid "Sorry, you are not allowed to do that."
+msgstr ""
+
+#. translators: 1: The number of feeds being ingested, 2: The total number of feeds.
+#: includes/Admin/AdminMain.php:2364
+#, php-format
+msgid "Ingestion active (%1$d of %2$d feeds)"
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2676
+msgid "The embed token has expired. Please refresh the page and try again."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2690
+msgid "Missing required parameter 'target_url' when creating the answer page."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2704
+msgid "A page already exists at this location. The answer page could not be created."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2716
+msgid "The parent page of this location does not exist. The answer page could not be created."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2744
+msgid "Sorry, you are not allowed to publish pages on this site. The answer page could not be created."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2763
+msgid "The answer page was successfully created."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2772
+msgid "Missing required parameter 'target_url' when updating the answer page."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2782
+msgid "The domain of the target URL does not match the previous target URL."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2796
+msgid "A page already exists at this location. The answer page could not be updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2808
+msgid "The parent page of this location does not exist. The answer page could not be updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2818
+msgid "Missing required parameter 'prev_target_url' when updating the answer page."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2833
+msgid "The previous answer page could not be found. The answer page could not be updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2846
+msgid "The page at the previous location is not an answer page. The answer page could not be updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2848
+msgid "Sorry, you are not allowed to edit the answer page. The answer page could not be updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2880
+msgid "The answer page was successfully updated."
+msgstr ""
+
+#: includes/Admin/AdminMain.php:2888
+msgid "Invalid action for creating or updating the answer page."
+msgstr ""
+
+#. translators: %1$s is the VIP config constant name; %2$s is a comma-separated list of missing config field names.
+#: includes/Admin/ConnectionWizard.php:107
+#, php-format
+msgid "This site's Gist API connection is managed by WordPress VIP, but its configuration (%1$s) is incomplete. Missing: %2$s. Finish setting up the Gist Answers integration in the VIP Dashboard."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:118
+msgid "The API token you entered is not valid. Please enter a new token."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:138
+msgid "The API token provided by WordPress VIP is no longer valid. Update the Gist Answers integration's configuration in the VIP Dashboard."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:145
+msgid "The API token stored in your server environment is no longer valid. Please contact your server administrator to update the token."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:152
+msgid "The API token stored in your WordPress configuration is no longer valid. Please contact your site administrator to update the token."
+msgstr ""
+
+#. translators: %s is the URL to the Network Hub.
+#: includes/Admin/ConnectionWizard.php:164
+#, php-format
+msgid "The stored API token is no longer valid. Please visit the <a href=\"%s\">Network Dashboard</a> to update your API token."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:168
+msgid "The stored API token is no longer valid.  Please contact your network administrator to update the API token."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:174
+msgid "The stored API token is no longer valid. Please enter your new token below."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:186
+msgid "The Gist API server is currently unreachable. Please try again later."
+msgstr ""
+
+#. translators: %d is the HTTP status code returned by the Gist API server.
+#: includes/Admin/ConnectionWizard.php:191
+#, php-format
+msgid "Status code: %d"
+msgstr ""
+
+#. translators: %s is the URL to the Gist Answers "Dashboard" page.
+#: includes/Admin/ConnectionWizard.php:231
+#, php-format
+msgid "This site has not been activated. Visit the Gist Answers <a href=\"%s\">Dashboard</a> to activate your site"
+msgstr ""
+
+#. translators: %s is the URL to the Network Hub.
+#: includes/Admin/ConnectionWizard.php:250
+#, php-format
+msgid "Please visit the <a href=\"%s\">Network Dashboard</a> to enter your API token."
+msgstr ""
+
+#: includes/Admin/ConnectionWizard.php:254
+msgid "Please contact your network administrator to add your API token."
+msgstr ""
+
+#: includes/Admin/MenuItems.php:308
+#: includes/Admin/MenuItems/Dashboard.php:61
+msgid "Dashboard"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:309
+msgid "Widgets"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:310
+msgid "Questions"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:311
+msgctxt "noun"
+msgid "Sandbox"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:312
+msgid "Website Settings"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:313
+msgctxt "plural noun"
+msgid "Answers"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:314
+msgid "Content Usage"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:315
+msgid "Revenue"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:316
+msgid "Tools & Options"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:335
+msgid "Manage"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:336
+msgctxt "plural noun"
+msgid "Reports"
+msgstr ""
+
+#: includes/Admin/MenuItems.php:337
+#: includes/Admin/MenuItems/ToolsOptions.php:93
+msgid "Developer"
+msgstr ""
+
+#: includes/Admin/MenuItems/Dashboard.php:62
+#: includes/Admin/NetworkMenu.php:180
+msgid "Welcome to Gist Answers"
+msgstr ""
+
+#. translators: %s is a mailto link to the Gist Answers support email address.
+#: includes/Admin/MenuItems/Dashboard.php:69
+#: includes/Admin/NetworkMenu.php:205
+#, php-format
+msgid "When you activate your WordPress site, Gist Answers will start ingesting its content. Contact %s with any questions."
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:202
+msgid "Log API responses"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:208
+msgid "Log API backtraces"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:220
+msgid "Count API requests"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:226
+msgid "Simulate API server error"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:232
+msgid "Simulate API token expiration"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:248
+msgid "Delete the API token from the database"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:254
+msgid "Move pages & posts containing Gist widgets to the Trash"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:260
+msgid "Delete Gist widgets from sidebars"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:266
+msgid "Delete all Gist Answers database options"
+msgstr ""
+
+#: includes/Admin/MenuItems/ToolsOptions.php:276
+msgid "Delete the Gist Answers plugin"
+msgstr ""
+
+#: includes/Admin/NetworkMenu.php:179
+msgid "Network Dashboard"
+msgstr ""
+
+#: includes/Plugin/CommonMain.php:366
+msgid "Auto-detect (recommended)"
+msgstr ""
+
+#: includes/Plugin/CommonMain.php:367
+msgid "Select a widget"
+msgstr ""
+
+#: includes/Plugin/CommonMain.php:382
+msgid "No widgets available"
+msgstr ""
+
+#: includes/Plugin/SidebarWidget.php:54
+msgid "Gist Answer Widget"
+msgstr ""
+
+#: includes/Plugin/SidebarWidget.php:55
+msgid "Gist Question Widget"
+msgstr ""
+
+#: includes/Plugin/SidebarWidget.php:58
+msgid "Displays a Gist Answer Widget."
+msgstr ""
+
+#: includes/Plugin/SidebarWidget.php:59
+msgid "Displays a Gist Question Widget."
+msgstr ""
+
+#: includes/Plugin/SidebarWidget.php:135
+msgid "Widget"
+msgstr ""
+
+#: templates/admin-menu/tools-options.php:34
+msgid "Detected Answer Pages"
+msgstr ""
+
+#: templates/admin-menu/tools-options.php:42
+msgid "No answer pages detected"
+msgstr ""
+
+#: templates/forms/gist-connection.php:30
+msgid "Gist API token"
+msgstr ""
+
+#: templates/forms/gist-connection.php:36
+msgid "Enter API token"
+msgstr ""
+
+#: templates/forms/gist-connection.php:54
+msgid "Invalid API token"
+msgstr ""
+
+#: templates/forms/gist-connection.php:63
+msgid "Continue"
+msgstr ""
+
+#: templates/network-menu.php:72
+msgid "You do not have access to any public sites on this network. Please consult your network administrator."
+msgstr ""
+
+#: templates/partials/activation-modal.php:22
+msgid "Select an existing test website"
+msgstr ""
+
+#. translators: %d: The HTTP status code of the failed request.
+#: templates/partials/activation-modal.php:23
+#, php-format
+msgid "Error %d: unable to look up websites in Gist Answers. Please try again later."
+msgstr ""
+
+#: templates/partials/activation-modal.php:32
+#: templates/partials/alert-modal.php:36
+msgid "Close"
+msgstr ""
+
+#: templates/partials/activation-modal.php:40
+msgid "If this is a test website and you haven't yet activated a corresponding production website in your Gist Answers account, close this window and do that first so we can ingest the correct web content."
+msgstr ""
+
+#: templates/partials/activation-modal.php:41
+msgid "You won't need to add widgets to your production site until you're ready."
+msgstr ""
+
+#: templates/partials/activation-modal.php:54
+msgid "This is a test website linked to:"
+msgstr ""
+
+#: templates/partials/activation-modal.php:64
+msgid "Production website"
+msgstr ""
+
+#: templates/partials/activation-modal.php:83
+msgid "This is not a test website"
+msgstr ""
+
+#: templates/partials/activation-modal.php:90
+msgid "Activate it as a new website at:"
+msgstr ""
+
+#: templates/partials/activation-modal.php:101
+msgid "Cancel"
+msgstr ""
+
+#: templates/partials/activation-modal.php:102
+msgid "Submit"
+msgstr ""
+
+#: templates/partials/admin-form-field.php:73
+msgid "Select an option"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:34
+msgid "View widgets"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:42
+msgid "Set up widgets"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:86
+#: templates/partials/network-hub-list.php:82
+#: templates/partials/network-hub-list.php:102
+msgid "Content ingestion"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:98
+#: templates/partials/network-hub-list.php:94
+#: templates/partials/network-hub-list.php:114
+msgid "Use the toggle to temporarily pause content ingestion. (New content won't be available for answers.)"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:106
+msgid "Ingestion paused"
+msgstr ""
+
+#: templates/partials/admin-site-card.php:106
+msgid "Ingestion queued"
+msgstr ""
+
+#. translators: %s is a mailto link to the Gist Answers support email address.
+#: templates/partials/connection-wizard.php:57
+#, php-format
+msgid "Connect your WordPress installation to your Gist Answers account. To get started, obtain an API token from %s and enter your API token below."
+msgstr ""
+
+#: templates/partials/network-hub-list.php:62
+msgid "Site title"
+msgstr ""
+
+#: templates/partials/network-hub-list.php:70
+#: templates/partials/network-hub-list.php:75
+msgid "Status"
+msgstr ""
+
+#: templates/partials/network-hub-list.php:149
+msgid "No sites were found matching your search criteria. Please try another search."
+msgstr ""
+
+#: templates/partials/network-hub-pagination.php:36
+msgctxt "for pagination, as in 1 of 2"
+msgid "of"
+msgstr ""
+
+#: templates/partials/network-hub-search.php:22
+#: templates/partials/network-hub-search.php:28
+msgid "Search site titles"
+msgstr ""
+
+#: templates/partials/refresh-statuses-button.php:20
+#: templates/partials/refresh-statuses-button.php:21
+msgid "Refresh ingestion status"
+msgstr ""
+
+#: templates/partials/tools-options-danger-zone.php:28
+msgid "Danger zone"
+msgstr ""
+
+#: templates/partials/tools-options-danger-zone.php:37
+msgid "This section allows you to delete or reset some or all of the Gist Answers plugin data. Note that actions taken here will affect <strong>ALL</strong> sites on a WordPress multisite network. Use with caution: <strong>These actions cannot be undone!</strong>"
+msgstr ""
+
+#: templates/partials/tools-options-danger-zone.php:48
+msgid "Reset plugin data"
+msgstr ""
+
+#: templates/partials/tools-options-developer.php:46
+msgid "Log entries are written to the server's PHP error log, with credentials redacted."
+msgstr ""
+
+#: templates/partials/tools-options-developer.php:67
+msgid "Save settings"
+msgstr ""
+
+#: templates/partials/widget-placeholder.php:20
+msgid "Gist Answer Widget (placeholder)"
+msgstr ""
+
+#: templates/partials/widget-placeholder.php:24
+msgid "Gist Question Widget (placeholder)"
+msgstr ""
+
+#: templates/partials/widget-placeholder.php:28
+msgid "Gist Widget (placeholder)"
+msgstr ""
+
+#: templates/partials/widget-placeholder.php:56
+msgid "Ask a follow up"
+msgstr ""
+
+#: templates/partials/widget-placeholder.php:58
+msgid "Ask AI anything"
+msgstr ""
+
+#: blocks/answer-widget/block.json
+msgctxt "block title"
+msgid "Gist Answer Widget"
+msgstr ""
+
+#: blocks/answer-widget/block.json
+msgctxt "block description"
+msgid "Displays a Gist Answer Widget."
+msgstr ""
+
+#: blocks/question-widget/block.json
+msgctxt "block title"
+msgid "Gist Question Widget"
+msgstr ""
+
+#: blocks/question-widget/block.json
+msgctxt "block description"
+msgid "Displays a Gist Question Widget."
+msgstr ""

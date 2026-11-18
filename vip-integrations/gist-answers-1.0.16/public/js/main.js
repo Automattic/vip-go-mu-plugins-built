@@ -1,0 +1,1 @@
+window.gistAnswersMain=window.gistAnswersMain||{},window.gistAnswersMain.addTwoNumbers=(e,t)=>e+t;
