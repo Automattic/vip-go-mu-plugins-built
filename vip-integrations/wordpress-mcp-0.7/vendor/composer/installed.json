@@ -2,17 +2,17 @@
     "packages": [
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "v6.0.1",
-            "version_normalized": "6.0.1.0",
+            "version": "v6.0.3",
+            "version_normalized": "6.0.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-autoloader.git",
-                "reference": "a399be1b3e6eb198abbb5bea481161d7a6c09b1e"
+                "reference": "315cc2c3392bf5d1f54d4868384279c75a320b66"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/a399be1b3e6eb198abbb5bea481161d7a6c09b1e",
-                "reference": "a399be1b3e6eb198abbb5bea481161d7a6c09b1e",
+                "url": "https://api.github.com/repos/Automattic/jetpack-autoloader/zipball/315cc2c3392bf5d1f54d4868384279c75a320b66",
+                "reference": "315cc2c3392bf5d1f54d4868384279c75a320b66",
                 "shasum": ""
             },
             "require": {
@@ -20,15 +20,14 @@
                 "php": ">=7.4"
             },
             "require-dev": {
-                "automattic/phpunit-select-config": "^1.0.11",
+                "automattic/phpunit-select-config": "^1.0.12",
                 "composer/composer": "^2.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
-            "time": "2026-09-23T19:25:11+00:00",
+            "time": "2026-11-02T18:05:06+00:00",
             "type": "composer-plugin",
             "extra": {
                 "class": "Automattic\\Jetpack\\Autoloader\\CustomAutoloaderPlugin",
-                "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-autoloader",
                 "branch-alias": {
                     "dev-trunk": "6.0.x-dev"
@@ -63,7 +62,7 @@
                 "wordpress"
             ],
             "support": {
-                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v6.0.1"
+                "source": "https://github.com/Automattic/jetpack-autoloader/tree/v6.0.3"
             },
             "install-path": "../automattic/jetpack-autoloader"
         },

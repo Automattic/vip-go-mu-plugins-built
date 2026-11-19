@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'wordpress/mcp-adapter',
-        'pretty_version' => 'v0.7.1',
-        'version' => '0.7.1.0',
+        'pretty_version' => 'v0.7.2',
+        'version' => '0.7.2.0',
         'reference' => null,
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
@@ -11,17 +11,17 @@
     ),
     'versions' => array(
         'automattic/jetpack-autoloader' => array(
-            'pretty_version' => 'v6.0.1',
-            'version' => '6.0.1.0',
-            'reference' => 'a399be1b3e6eb198abbb5bea481161d7a6c09b1e',
+            'pretty_version' => 'v6.0.3',
+            'version' => '6.0.3.0',
+            'reference' => '315cc2c3392bf5d1f54d4868384279c75a320b66',
             'type' => 'composer-plugin',
             'install_path' => __DIR__ . '/../automattic/jetpack-autoloader',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
         'wordpress/mcp-adapter' => array(
-            'pretty_version' => 'v0.7.1',
-            'version' => '0.7.1.0',
+            'pretty_version' => 'v0.7.2',
+            'version' => '0.7.2.0',
             'reference' => null,
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',

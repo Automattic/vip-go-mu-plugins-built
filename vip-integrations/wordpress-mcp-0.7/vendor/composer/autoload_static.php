@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41
+class ComposerStaticInit522dfaad198acb1d2410bd4313418447
 {
     public static $prefixLengthsPsr4 = array (
         'W' =>
@@ -67,6 +67,7 @@ class ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41
         'WP\\MCP\\Domain\\Tools\\McpToolCallContext' => __DIR__ . '/../..' . '/includes/Domain/Tools/McpToolCallContext.php',
         'WP\\MCP\\Domain\\Tools\\RegisterAbilityAsMcpTool' => __DIR__ . '/../..' . '/includes/Domain/Tools/RegisterAbilityAsMcpTool.php',
         'WP\\MCP\\Domain\\Utils\\AbilityArgumentNormalizer' => __DIR__ . '/../..' . '/includes/Domain/Utils/AbilityArgumentNormalizer.php',
+        'WP\\MCP\\Domain\\Utils\\AbilityPermissionChecker' => __DIR__ . '/../..' . '/includes/Domain/Utils/AbilityPermissionChecker.php',
         'WP\\MCP\\Domain\\Utils\\ContentBlockHelper' => __DIR__ . '/../..' . '/includes/Domain/Utils/ContentBlockHelper.php',
         'WP\\MCP\\Domain\\Utils\\McpAbilityMeta' => __DIR__ . '/../..' . '/includes/Domain/Utils/McpAbilityMeta.php',
         'WP\\MCP\\Domain\\Utils\\McpAnnotationMapper' => __DIR__ . '/../..' . '/includes/Domain/Utils/McpAnnotationMapper.php',
@@ -308,9 +309,9 @@ class ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit45eca4518f9908e5edf3b41517a9bc41::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit522dfaad198acb1d2410bd4313418447::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit522dfaad198acb1d2410bd4313418447::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit522dfaad198acb1d2410bd4313418447::$classMap;
 
         }, null, ClassLoader::class);
     }

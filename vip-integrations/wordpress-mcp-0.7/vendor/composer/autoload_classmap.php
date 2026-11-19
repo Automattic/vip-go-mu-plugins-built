@@ -39,6 +39,7 @@ return array(
     'WP\\MCP\\Domain\\Tools\\McpToolCallContext' => $baseDir . '/includes/Domain/Tools/McpToolCallContext.php',
     'WP\\MCP\\Domain\\Tools\\RegisterAbilityAsMcpTool' => $baseDir . '/includes/Domain/Tools/RegisterAbilityAsMcpTool.php',
     'WP\\MCP\\Domain\\Utils\\AbilityArgumentNormalizer' => $baseDir . '/includes/Domain/Utils/AbilityArgumentNormalizer.php',
+    'WP\\MCP\\Domain\\Utils\\AbilityPermissionChecker' => $baseDir . '/includes/Domain/Utils/AbilityPermissionChecker.php',
     'WP\\MCP\\Domain\\Utils\\ContentBlockHelper' => $baseDir . '/includes/Domain/Utils/ContentBlockHelper.php',
     'WP\\MCP\\Domain\\Utils\\McpAbilityMeta' => $baseDir . '/includes/Domain/Utils/McpAbilityMeta.php',
     'WP\\MCP\\Domain\\Utils\\McpAnnotationMapper' => $baseDir . '/includes/Domain/Utils/McpAnnotationMapper.php',
