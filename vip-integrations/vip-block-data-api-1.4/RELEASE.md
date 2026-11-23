@@ -2,8 +2,12 @@
 
 ## 1. Bump plugin version
 
-1. When the version is ready for release, bump the version number in `vip-block-data-api.php`. Change plugin header and `WPCOMVIP__BLOCK_DATA_API__PLUGIN_VERSION` to match new version.
-2. PR version changes (e.g. "Release 1.2.3") and merge to `trunk`. When a version change is detected, the `release` workflow will generate a new tag and release ZIP.
+1. Run the **Create release PR** workflow from GitHub Actions, selecting `trunk` and a `patch`, `minor`, or `major` version bump.
+2. Review the generated PR and approve its checks if GitHub prompts you. Merging it to `trunk` creates the tag and release ZIP.
+
+To prepare a release locally, run `bash bin/release patch` from the repository root on a clean `trunk` checkout. The script creates the branch and commits the version bump. Push the branch and open a PR when ready.
+
+If the workflow pushes a branch but fails to open the PR, check for an existing PR or open one from that branch.
 
 ## 2. Update integrations
 

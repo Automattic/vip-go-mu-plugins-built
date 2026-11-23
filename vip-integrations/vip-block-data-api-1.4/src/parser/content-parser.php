@@ -23,6 +23,30 @@ use function parse_blocks;
  */
 class ContentParser {
 	/**
+	 * Records which block attributes core resolved from a binding with a non-null
+	 * value. Used in apply_sourced_attributes() to preserve the binding value,
+	 * including empty strings, zero, false, and values matching the default.
+	 *
+	 * An entry such as $resolved_bindings[ $block ]['content'] === true means use
+	 * the bound content. Without that entry, source saved HTML or the default.
+	 * Records are shared across parsers expanding synced patterns. Weak keys
+	 * remove each record when its block instance is freed.
+	 *
+	 * @var \WeakMap<WP_Block, array<string, true>>|null
+	 */
+	private static ?\WeakMap $resolved_bindings = null;
+
+	/**
+	 * Synced patterns currently being expanded, keyed by pattern post ID
+	 * (e.g. [ 27 => true, 31 => true ]). Add a pattern on entry and restore
+	 * the previous ancestors on exit. If a reference is already an ancestor,
+	 * stop expanding it to prevent a direct or indirect cycle.
+	 *
+	 * @var array
+	 */
+	private $ancestor_pattern_ids = [];
+
+	/**
 	 * Block registry instance
 	 *
 	 * @var WP_Block_Type_Registry
@@ -189,7 +213,13 @@ class ContentParser {
 				// sourced attribute logic.
 				$rendered_block = $this->render_parsed_block( $block, $post_id );
 
-				return $this->source_block( $rendered_block, $filter_options );
+				$previous_ancestor_pattern_ids = $this->ancestor_pattern_ids;
+				$this->ancestor_pattern_ids    = [];
+				try {
+					return $this->source_block( $rendered_block, $filter_options );
+				} finally {
+					$this->ancestor_pattern_ids = $previous_ancestor_pattern_ids;
+				}
 			}, $blocks );
 
 			$sourced_blocks = array_values( array_filter( $sourced_blocks ) );
@@ -269,8 +299,24 @@ class ContentParser {
 
 		$context = apply_filters( 'render_block_context', $context, $parsed_block, null );
 
-		$block_instance = new WP_Block( $parsed_block, $context, $this->block_registry );
-		$block_instance->render();
+		$block_instance            = new WP_Block( $parsed_block, $context, $this->block_registry );
+		self::$resolved_bindings ??= new \WeakMap();
+		$capture_binding           = static function ( $value, $source, $args, $block, $attribute ) {
+			$resolved = self::$resolved_bindings[ $block ] ?? [];
+			if ( null === $value ) {
+				unset( $resolved[ $attribute ] );
+			} else {
+				$resolved[ $attribute ] = true;
+			}
+			self::$resolved_bindings[ $block ] = $resolved;
+			return $value;
+		};
+		add_filter( 'block_bindings_source_value', $capture_binding, PHP_INT_MAX, 5 );
+		try {
+			$block_instance->render();
+		} finally {
+			remove_filter( 'block_bindings_source_value', $capture_binding, PHP_INT_MAX );
+		}
 
 		return $block_instance;
 	}
@@ -308,20 +354,35 @@ class ContentParser {
 			$inner_blocks = iterator_to_array( $block->inner_blocks );
 		}
 
-		/**
-		 * Filters a block's inner blocks before recursive iteration.
-		 *
-		 * @param array  $inner_blocks An array of inner block (WP_Block) instances.
-		 * @param string|null $block_name Name of the parsed block, or null for non-block content.
-		 * @param int    $post_id      Post ID associated with the parsed block.
-		 * @param array  $parsed_block Result of parse_blocks() for this block.
-		 */
-		$inner_blocks = apply_filters( 'vip_block_data_api__sourced_block_inner_blocks', $inner_blocks, $block_name, $this->post_id, $block->parsed_block );
+		$pattern_ref = 'core/block' === $block_name ? ( $block->attributes['ref'] ?? null ) : null;
+		if ( null !== $pattern_ref && isset( $this->ancestor_pattern_ids[ $pattern_ref ] ) ) {
+			// Do not reopen a pattern after core's render-time recursion guard unwinds.
+			$sourced_inner_blocks = [];
+		} else {
+			$previous_ancestor_pattern_ids = $this->ancestor_pattern_ids;
+			if ( null !== $pattern_ref ) {
+				$this->ancestor_pattern_ids[ $pattern_ref ] = true;
+			}
 
-		// Recursively iterate over inner blocks.
-		$sourced_inner_blocks = array_values( array_filter( array_map( function ( $inner_block ) use ( $filter_options ) {
-			return $this->source_block( $inner_block, $filter_options );
-		}, $inner_blocks ) ) );
+			try {
+				/**
+				 * Filters a block's inner blocks before recursive iteration.
+				 *
+				 * @param array  $inner_blocks An array of inner block (WP_Block) instances.
+				 * @param string|null $block_name Name of the parsed block, or null for non-block content.
+				 * @param int    $post_id      Post ID associated with the parsed block.
+				 * @param array  $parsed_block Result of parse_blocks() for this block.
+				 */
+				$inner_blocks = apply_filters( 'vip_block_data_api__sourced_block_inner_blocks', $inner_blocks, $block_name, $this->post_id, $block->parsed_block );
+
+				// Recursively iterate over inner blocks.
+				$sourced_inner_blocks = array_values( array_filter( array_map( function ( $inner_block ) use ( $filter_options ) {
+					return $this->source_block( $inner_block, $filter_options );
+				}, $inner_blocks ) ) );
+			} finally {
+				$this->ancestor_pattern_ids = $previous_ancestor_pattern_ids;
+			}
+		}
 
 		// Only set innerBlocks if entries are present to match prior version behavior.
 		if ( ! empty( $sourced_inner_blocks ) ) {
@@ -357,12 +418,14 @@ class ContentParser {
 		$block_definition_attributes = $block_definition->attributes ?? [];
 		$block_attributes            = $block->attributes;
 
+		$crawler = null;
+
 		foreach ( $block_definition_attributes as $block_attribute_name => $block_attribute_definition ) {
 			$attribute_source        = $block_attribute_definition['source'] ?? null;
 			$attribute_default_value = $block_attribute_definition['default'] ?? null;
 
 			// If the attribute was resolved from a block binding, skip.
-			if ( $this->has_successful_block_binding( $block_attribute_name, $block_attributes, $attribute_default_value ) ) {
+			if ( isset( self::$resolved_bindings[ $block ][ $block_attribute_name ] ) ) {
 				continue;
 			}
 
@@ -387,13 +450,19 @@ class ContentParser {
 				}
 			}
 
-			// Specify a manual doctype so that the parser will use the HTML5 parser.
-			$crawler = new Crawler( sprintf( '<!doctype html><html><body>%s</body></html>', $block->inner_html ) );
+			if ( 'meta' === $attribute_source ) {
+				$attribute_value = $this->source_block_meta( $block_attribute_definition ) ?? $attribute_default_value;
+			} else {
+				if ( null === $crawler ) {
+					// Specify a manual doctype so that the parser will use the HTML5 parser.
+					$crawler = new Crawler( sprintf( '<!doctype html><html><body>%s</body></html>', $block->inner_html ) );
 
-			// Enter the <body> tag for block parsing.
-			$crawler = $crawler->filter( 'body' )->children();
+					// Enter the <body> tag for block parsing.
+					$crawler = $crawler->filter( 'body' )->children();
+				}
 
-			$attribute_value = $this->source_attribute( $crawler, $block_attribute_definition );
+				$attribute_value = $this->source_attribute( $crawler, $block_attribute_definition );
+			}
 
 			if ( null !== $attribute_value ) {
 				$block_attributes[ $block_attribute_name ] = $attribute_value;
@@ -404,31 +473,6 @@ class ContentParser {
 		ksort( $block_attributes );
 
 		return $block_attributes;
-	}
-
-	/**
-	 * Inspect the attribute to determine if it was resolved from a block binding.
-	 *
-	 * @param string $attribute_name Attribute name.
-	 * @param array  $attributes     Block attributes.
-	 * @param mixed  $default_value  Default value of the attribute.
-	 */
-	protected function has_successful_block_binding( string $attribute_name, array $attributes, mixed $default_value ): bool {
-		// No bindings defined.
-		if ( ! isset( $attributes['metadata']['bindings'] ) ) {
-			return false;
-		}
-
-		$attribute_value = $attributes[ $attribute_name ] ?? null;
-		$bindings        = $attributes['metadata']['bindings'];
-
-		// If the attribute is empty or matches the default value, it was not resolved
-		// from a block binding.
-		if ( empty( $attribute_value ) || $attribute_value === $default_value ) {
-			return false;
-		}
-
-		return isset( $bindings[ $attribute_name ]['source'] ) || isset( $bindings['__default']['source'] );
 	}
 
 	/**

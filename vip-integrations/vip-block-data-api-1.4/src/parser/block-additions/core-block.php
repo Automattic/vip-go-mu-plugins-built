@@ -34,7 +34,11 @@ class CoreBlock {
 	 * @access private
 	 */
 	public static function init(): void {
-		add_filter( 'vip_block_data_api__sourced_block_inner_blocks', [ __CLASS__, 'get_inner_blocks' ], 5, 5 );
+		// WordPress 6.9+ expands synced patterns into retained inner blocks.
+		// On 6.8, load and render their children ourselves to extract attributes.
+		if ( version_compare( $GLOBALS['wp_version'], '6.9', '<' ) ) {
+			add_filter( 'vip_block_data_api__sourced_block_inner_blocks', [ __CLASS__, 'get_inner_blocks' ], 5, 4 );
+		}
 		add_filter( 'vip_block_data_api__sourced_block_result', [ __CLASS__, 'remove_content_array' ], 5, 2 );
 	}
 
@@ -42,7 +46,7 @@ class CoreBlock {
 	 * Get the inner blocks of a synced pattern / reusable block. Intended for use
 	 * with the `vip_block_data_api__sourced_block_inner_blocks` filter.
 	 *
-	 * Synced patterns are dynamic blocks, and core's method of rendering dynamic
+	 * On WordPress 6.8, synced patterns are dynamic blocks, and rendering dynamic
 	 * blocks severs the connection between the parent block and its inner blocks:
 	 *
 	 * https://github.com/WordPress/WordPress/blob/6.6.1/wp-includes/class-wp-block.php#L519
@@ -67,6 +71,12 @@ class CoreBlock {
 		// Not a synced pattern? Return the inner blocks unchanged.
 		if ( self::$block_name !== $block_name || ! isset( $parsed_block['attrs']['ref'] ) ) {
 			return $inner_blocks;
+		}
+
+		// Match core's numeric ref validation before get_post() can coerce a
+		// rejected value such as "27abc" into a post ID and reopen a cycle.
+		if ( ! is_numeric( $parsed_block['attrs']['ref'] ) ) {
+			return [];
 		}
 
 		$context = [];

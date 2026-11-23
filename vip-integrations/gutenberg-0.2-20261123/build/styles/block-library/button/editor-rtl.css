@@ -1,0 +1,21 @@
+.wp-block[data-align=center] > .wp-block-button {
+  text-align: center;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.wp-block[data-align=right] > .wp-block-button {
+  text-align: right;
+}
+
+.wp-block-button {
+  position: relative;
+  cursor: text;
+}
+.wp-block-button[data-rich-text-placeholder]::after {
+  opacity: 0.8;
+}
+
+div[data-type="core/button"] {
+  display: table;
+}

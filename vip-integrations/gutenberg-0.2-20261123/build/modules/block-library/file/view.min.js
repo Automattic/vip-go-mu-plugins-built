@@ -1,0 +1,2 @@
+import{store as e}from"@wordpress/interactivity";const t=()=>window.navigator.pdfViewerEnabled?!0:!(window.navigator.userAgent.indexOf(`Mobi`)>-1||window.navigator.userAgent.indexOf(`Android`)>-1||window.navigator.userAgent.indexOf(`Macintosh`)>-1&&window.navigator.maxTouchPoints&&window.navigator.maxTouchPoints>2||(window.ActiveXObject||`ActiveXObject`in window)&&!(n(`AcroPDF.PDF`)||n(`PDF.PdfCtrl`))),n=e=>{let t;try{t=new window.ActiveXObject(e)}catch{t=void 0}return t};e(`core/file`,{state:{get hasPdfPreview(){return t()}}},{lock:!0});
+//# sourceMappingURL=view.min.js.map

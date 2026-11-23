@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array('react', 'react-jsx-runtime', 'wp-private-apis'), 'version' => 'f82ca19a4d7ae9dbd525');

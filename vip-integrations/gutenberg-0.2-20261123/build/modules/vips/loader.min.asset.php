@@ -1,0 +1,1 @@
+<?php return array('dependencies' => array(), 'module_dependencies' => array(array('id' => '@wordpress/vips/worker', 'import' => 'dynamic')), 'version' => 'f7af7e83999fd843a306');

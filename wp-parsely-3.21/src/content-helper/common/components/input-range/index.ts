@@ -1,1 +1,0 @@
-export { InputRange } from './component';
