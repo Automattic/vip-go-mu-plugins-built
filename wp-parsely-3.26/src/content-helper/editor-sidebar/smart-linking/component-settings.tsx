@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance, getBlockType } from '@wordpress/blocks';
+import { getBlockType } from '@wordpress/blocks';
 import {
 	Disabled,
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -15,6 +14,7 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { BlockInstance } from '../../../@types/gutenberg/types';
 import { InputRange } from '../../common/components/input-range';
 import { SmartLinkingSettings as Settings } from '../../common/settings';
 import { ALLOWED_BLOCKS, DEFAULT_MAX_LINKS } from './smart-linking';

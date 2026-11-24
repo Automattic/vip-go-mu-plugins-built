@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance, getBlockType } from '@wordpress/blocks';
+import { getBlockType } from '@wordpress/blocks';
 import {
 	Button,
 	Dashicon,
@@ -30,7 +29,7 @@ import {
 /**
  * Internal dependencies
  */
-import { GutenbergFunction } from '../../../../@types/gutenberg/types';
+import { BlockInstance, GutenbergFunction } from '../../../../@types/gutenberg/types';
 import { Thumbnail } from '../../../common/components/thumbnail';
 import { getSmartShortDate } from '../../../common/utils/date';
 import { formatToImpreciseNumber } from '../../../common/utils/number';

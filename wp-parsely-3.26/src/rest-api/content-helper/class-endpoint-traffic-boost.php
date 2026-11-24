@@ -638,12 +638,10 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function discard_suggestion( WP_REST_Request $request ) {
-		/**
-		 * The inbound smart link.
-		 *
-		 * @var Inbound_Smart_Link $inbound_link
-		 */
-		$inbound_link = $request->get_param( 'inbound_link' );
+		$inbound_link = $this->get_request_inbound_link( $request );
+		if ( is_wp_error( $inbound_link ) ) {
+			return $inbound_link;
+		}
 
 		$source_post_access = $this->validate_source_post_access(
 			$inbound_link->source_post_id
@@ -668,12 +666,10 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function delete_inbound( WP_REST_Request $request ) {
-		/**
-		 * The inbound smart link.
-		 *
-		 * @var Inbound_Smart_Link $inbound_link
-		 */
-		$inbound_link = $request->get_param( 'inbound_link' );
+		$inbound_link = $this->get_request_inbound_link( $request );
+		if ( is_wp_error( $inbound_link ) ) {
+			return $inbound_link;
+		}
 
 		/**
 		 * Whether to restore the original link.
@@ -717,12 +713,10 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function update_inbound( WP_REST_Request $request ) {
-		/**
-		 * The inbound smart link.
-		 *
-		 * @var Inbound_Smart_Link $inbound_link
-		 */
-		$inbound_link = $request->get_param( 'inbound_link' );
+		$inbound_link = $this->get_request_inbound_link( $request );
+		if ( is_wp_error( $inbound_link ) ) {
+			return $inbound_link;
+		}
 
 		/**
 		 * The text of the smart link.
@@ -791,12 +785,10 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	 * @return WP_REST_Response|WP_Error The response object.
 	 */
 	public function accept_suggestion( WP_REST_Request $request ) {
-		/**
-		 * The inbound smart link.
-		 *
-		 * @var Inbound_Smart_Link $inbound_link
-		 */
-		$inbound_link = $request->get_param( 'inbound_link' );
+		$inbound_link = $this->get_request_inbound_link( $request );
+		if ( is_wp_error( $inbound_link ) ) {
+			return $inbound_link;
+		}
 
 		/**
 		 * The text of the smart link.
@@ -918,16 +910,31 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 	/**
 	 * Validates a smart link ID.
 	 *
+	 * Only checks the type, as validation runs for every request. The handlers
+	 * look up the Smart Link.
+	 *
 	 * @since 3.19.0
 	 *
 	 * @param array<mixed>|scalar|null $smart_link_id The raw parameter value.
-	 * @param WP_REST_Request          $request The request object.
-	 * @return bool|WP_Error True if the smart link ID is valid, false or WP_Error on failure.
+	 * @param WP_REST_Request          $request       The request object.
+	 * @return bool Whether the smart link ID is valid.
 	 */
-	public function validate_smart_link_id( $smart_link_id, WP_REST_Request $request ) {
-		if ( ! rest_is_integer( $smart_link_id ) ) {
-			return false;
-		}
+	public function validate_smart_link_id( $smart_link_id, WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
+		return rest_is_integer( $smart_link_id );
+	}
+
+	/**
+	 * Returns the inbound Smart Link that the request refers to.
+	 *
+	 * @since 3.26.1
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return Inbound_Smart_Link|WP_Error The inbound Smart Link, or WP_Error if it
+	 *                                     doesn't exist or doesn't link to the post.
+	 */
+	private function get_request_inbound_link( WP_REST_Request $request ) {
+		/** @var array<mixed>|scalar|null $smart_link_id */
+		$smart_link_id = $request->get_param( 'smart_link_id' );
 
 		/** @var Inbound_Smart_Link|false $inbound_link */
 		$inbound_link = Inbound_Smart_Link::get_smart_link_by_id( intval( $smart_link_id ) );
@@ -935,7 +942,8 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		if ( false === $inbound_link ) {
 			return new WP_Error(
 				'parsely_smart_link_not_found',
-				__( 'Smart Link not found', 'wp-parsely' )
+				__( 'Smart Link not found', 'wp-parsely' ),
+				array( 'status' => 404 )
 			);
 		}
 
@@ -943,9 +951,6 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		if ( null === $inbound_link->get_context() ) {
 			$inbound_link->set_context( $this->get_pch_feature_name() );
 		}
-
-		// Set the inbound link in the request.
-		$request->set_param( 'inbound_link', $inbound_link );
 
 		// Validate if the smart link is associated with the post.
 		/** @var array<mixed>|scalar|null $post_id */
@@ -955,10 +960,11 @@ class Endpoint_Traffic_Boost extends Base_Endpoint {
 		if ( $inbound_link->destination_post_id !== $post_id ) {
 			return new WP_Error(
 				'parsely_invalid_smart_link',
-				__( 'Smart Link is not associated with this post', 'wp-parsely' )
+				__( 'Smart Link is not associated with this post', 'wp-parsely' ),
+				array( 'status' => 404 )
 			);
 		}
 
-		return true;
+		return $inbound_link;
 	}
 }

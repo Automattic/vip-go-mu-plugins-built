@@ -251,6 +251,7 @@ export const PerformanceStats = (
 			>
 				<div className="panel-settings">
 					<SelectControl
+						// @ts-ignore __unstable-large is no longer in the component types.
 						size="__unstable-large"
 						value={ settings.PerformanceStats.Period }
 						prefix={

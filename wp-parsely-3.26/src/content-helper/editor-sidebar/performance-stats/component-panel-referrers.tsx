@@ -85,7 +85,7 @@ export const PerformanceReferrersPanel = ( {
 						}
 
 						/* translators: %s: Percentage value, %%: Escaped percent sign */
-						const ariaLabel = sprintf( __( '%s%%', 'wp-parsely' ), value.viewsPercentage ); // eslint-disable-line @wordpress/valid-sprintf
+						const ariaLabel = sprintf( __( '%s%%', 'wp-parsely' ), value.viewsPercentage );
 
 						return (
 							<div key={ key } className="referrers-row">

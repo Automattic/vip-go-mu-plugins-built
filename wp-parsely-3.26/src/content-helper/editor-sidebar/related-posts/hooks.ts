@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
 import { store as coreStore, Taxonomy, User } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
@@ -61,7 +60,6 @@ export function usePostData(): PostData {
 	 *               has been resolved.
 	 */
 	const postAttributes = useSelect( ( select ) => {
-		// @ts-ignore `hasFinishedResolution` and `isResolving` are not part of the core-data store type.
 		const { getEntityRecords, hasFinishedResolution, isResolving } = select( coreStore );
 
 		const editor = select( 'core/editor' ) as GutenbergFunction;

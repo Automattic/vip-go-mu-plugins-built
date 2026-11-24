@@ -8,7 +8,6 @@
  *
  * @see https://make.wordpress.org/core/2024/06/18/editor-unified-extensibility-apis-in-6-6/
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import type { ComponentType } from 'react';
 
 // Import the original Gutenberg components.

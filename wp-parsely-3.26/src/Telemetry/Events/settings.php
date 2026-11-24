@@ -10,6 +10,10 @@ declare(strict_types=1);
 
 namespace Parsely\Telemetry;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /**
  * Records an event whenever the Parsely option gets updated. The changed
  * values are included in the event.

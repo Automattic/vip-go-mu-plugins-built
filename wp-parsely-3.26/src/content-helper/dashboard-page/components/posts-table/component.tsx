@@ -25,6 +25,13 @@ import { DashboardProvider } from '../../provider';
 import { SinglePostRow } from './components/single-post-row';
 
 /**
+ * The ways a user can change the PostsTable page.
+ *
+ * @since 3.26.1
+ */
+export type PageChangeMethod = 'previous' | 'next' | 'input';
+
+/**
  * TablePagination component.
  *
  * Represents the pagination controls for the PostsTable.
@@ -38,6 +45,7 @@ import { SinglePostRow } from './components/single-post-row';
  * @param {number}   props.totalPages     The total number of pages.
  * @param {Function} props.onPrevious     The function to handle the previous button click.
  * @param {Function} props.onNext         The function to handle the next button click.
+ * @param {Function} props.onPageChange   Optional. Called when the user changes the page.
  */
 const TablePagination = ( {
 	isLoading,
@@ -46,6 +54,7 @@ const TablePagination = ( {
 	totalPages,
 	onPrevious,
 	onNext,
+	onPageChange,
 }: {
 	isLoading: boolean;
 	currentPage: number;
@@ -53,6 +62,7 @@ const TablePagination = ( {
 	totalPages: number;
 	onPrevious: () => void;
 	onNext: () => void;
+	onPageChange?: ( method: PageChangeMethod ) => void;
 } ): React.JSX.Element => {
 	return (
 		<div className="posts-table-pagination-controls">
@@ -71,6 +81,10 @@ const TablePagination = ( {
 						}
 
 						setCurrentPage( selectedPage );
+
+						if ( selectedPage !== currentPage ) {
+							onPageChange?.( 'input' );
+						}
 					} }
 					min={ 1 }
 					max={ totalPages }
@@ -104,6 +118,8 @@ type PostsTableType = {
 	noResultsMessage?: React.ReactNode;
 	className?: string;
 	onPostClick?: ( post: HydratedPost ) => void;
+	onPageChange?: ( method: PageChangeMethod ) => void;
+	onPostsLoaded?: ( search: string, totalItems: number ) => void;
 };
 
 /**
@@ -128,6 +144,8 @@ export const PostsTable = ( {
 	noResultsMessage = __( 'No posts found.', 'wp-parsely' ),
 	className,
 	onPostClick,
+	onPageChange,
+	onPostsLoaded,
 }: PostsTableType ): React.JSX.Element => {
 	// TODO: Add a global state to store the posts for faster loading.
 	const [ posts, setPosts ] = useState<HydratedPost[]>( [] );
@@ -143,12 +161,21 @@ export const PostsTable = ( {
 
 	const didFirstSearch = useRef( false );
 
+	// The latest onPostsLoaded, so a new callback doesn't refetch the posts.
+	const onPostsLoadedRef = useRef( onPostsLoaded );
+	onPostsLoadedRef.current = onPostsLoaded;
+
 	/**
 	 * Fetches posts from the API, using the query and pagination.
 	 *
 	 * @since 3.19.0
 	 */
 	useEffect( () => {
+		// Set false on cleanup, so a response that resolves after unmount (or
+		// after a newer query replaces this one) neither updates the table nor
+		// reports a search the user never saw.
+		let isActive = true;
+
 		const fetchPosts = async () => {
 			try {
 				const fetchedPosts = await DashboardProvider.getInstance().getPosts( {
@@ -158,16 +185,34 @@ export const PostsTable = ( {
 					page: currentPage,
 				} );
 
-				if ( ! hideStats ) {
+				if ( ! isActive ) {
+					return;
+				}
+
+				// Reported before the stats request, so a search is known about even
+				// when stats fail.
+				onPostsLoadedRef.current?.( query.search ?? '', fetchedPosts.total_items );
+
+				let fetchedStats: PostStats[] = [];
+
+				if ( ! hideStats && fetchedPosts.data.length > 0 ) {
 					// Fetch the stats for the posts.
-					const fetchedStats = await StatsProvider.getInstance().getStatsForPosts( fetchedPosts.data, {
+					fetchedStats = await StatsProvider.getInstance().getStatsForPosts( fetchedPosts.data, {
 						limit: fetchedPosts.data.length,
 						period_start: '30d',
 						page: 1,
 						campaign_id: 'wp-parsely',
 						campaign_medium: 'smart-link',
 					} );
+				}
 
+				// A newer query may have superseded this one while the stats
+				// request was in flight, so re-check before applying results.
+				if ( ! isActive ) {
+					return;
+				}
+
+				if ( ! hideStats ) {
 					setStats( fetchedStats );
 				}
 
@@ -175,8 +220,16 @@ export const PostsTable = ( {
 				setPosts( fetchedPosts.data );
 				setTotalPages( fetchedPosts.total_pages );
 				didFirstSearch.current = true;
+
+				// Cleared on success, not when a request starts, since the posts
+				// from before an error are still set and would show while it loads.
+				setError( undefined );
 			} catch ( fetchError: unknown ) {
 				console.error( fetchError ); // eslint-disable-line no-console
+
+				if ( ! isActive ) {
+					return;
+				}
 
 				if ( fetchError instanceof ContentHelperError ) {
 					setError( fetchError );
@@ -189,8 +242,10 @@ export const PostsTable = ( {
 					);
 				}
 			} finally {
-				setIsLoading( false );
-				setIsLoadingStats( false );
+				if ( isActive ) {
+					setIsLoading( false );
+					setIsLoadingStats( false );
+				}
 			}
 		};
 
@@ -198,6 +253,10 @@ export const PostsTable = ( {
 		setIsLoadingStats( true );
 
 		fetchPosts();
+
+		return () => {
+			isActive = false;
+		};
 	}, [ currentPage, itemsPerPage, query, hideStats ] );
 
 	/**
@@ -236,6 +295,7 @@ export const PostsTable = ( {
 	 */
 	const handlePrevious = () => {
 		setCurrentPage( ( prev ) => Math.max( prev - 1, 1 ) );
+		onPageChange?.( 'previous' );
 	};
 
 	/**
@@ -245,6 +305,7 @@ export const PostsTable = ( {
 	 */
 	const handleNext = () => {
 		setCurrentPage( ( prev ) => prev + 1 );
+		onPageChange?.( 'next' );
 	};
 
 	/**
@@ -347,6 +408,7 @@ export const PostsTable = ( {
 					totalPages={ totalPages }
 					onPrevious={ handlePrevious }
 					onNext={ handleNext }
+					onPageChange={ onPageChange }
 				/>
 			) }
 		</div>

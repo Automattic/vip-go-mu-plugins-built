@@ -107,7 +107,7 @@ export const PerformanceCategoriesPanel = ( {
 							return (
 								<Tooltip
 									/* translators: %s: percentage value */
-									text={ `${ getKeyTitle( key ) } - ${ sprintf( __( '%s%%', 'wp-parsely' ), value.viewsPercentage ) }` } // eslint-disable-line @wordpress/valid-sprintf
+									text={ `${ getKeyTitle( key ) } - ${ sprintf( __( '%s%%', 'wp-parsely' ), value.viewsPercentage ) }` }
 									delay={ 150 }
 									key={ key }
 								>

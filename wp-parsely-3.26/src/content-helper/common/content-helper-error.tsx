@@ -196,7 +196,7 @@ export class ContentHelperError extends Error {
 	 * @param {string} hint The hint to display
 	 */
 	protected Hint( hint: string ): string {
-		return `<p className="content-helper-error-message-hint" data-testid="content-helper-error-message-hint"><strong>${ __( 'Hint:', 'wp-parsely' ) }</strong> ${ hint }</p>`;
+		return `<p class="content-helper-error-message-hint" data-testid="content-helper-error-message-hint"><strong>${ __( 'Hint:', 'wp-parsely' ) }</strong> ${ hint }</p>`;
 	}
 
 	/**

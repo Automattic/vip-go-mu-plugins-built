@@ -1,6 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 globalThis.TextDecoder = require( 'node:util' ).TextDecoder;
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 globalThis.TextEncoder = require( 'node:util' ).TextEncoder;
 
 // The tones and personas Editor_Sidebar injects, mirroring Suggestion_Defaults.

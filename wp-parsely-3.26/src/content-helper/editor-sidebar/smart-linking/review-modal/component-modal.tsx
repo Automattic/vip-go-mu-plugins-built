@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance, getBlockContent } from '@wordpress/blocks';
+import { getBlockContent } from '@wordpress/blocks';
 import { Button, Modal } from '@wordpress/components';
 import { select, useDispatch, useSelect } from '@wordpress/data';
 import { memo, useCallback, useEffect, useState } from '@wordpress/element';
@@ -11,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { dispatchCoreBlockEditor, dispatchCoreEditor } from '../../../../@types/gutenberg/types';
+import { BlockInstance, dispatchCoreBlockEditor, dispatchCoreEditor } from '../../../../@types/gutenberg/types';
 import { Telemetry } from '../../../../js/telemetry/telemetry';
 import { getEditorCanvasDocument } from '../../../common/utils/functions';
 import { SmartLink } from '../provider';

@@ -4,7 +4,7 @@
 import { Panel, PanelBody } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { pinSmall } from '@wordpress/icons';
+import { pin } from '@wordpress/icons';
 
 /**
  * Internal dependencies
@@ -53,7 +53,7 @@ export const PinnedTitleSuggestions = ( {
 		<Panel className="wp-parsely-pinned-suggestions">
 			<PanelBody
 				className="wp-parsely-collapsible-panel"
-				icon={ pinSmall }
+				icon={ pin }
 				title={ __( 'Pinned', 'wp-parsely' ) }
 				onToggle={ toggleCollapse }
 				opened={ isCollapsed }>

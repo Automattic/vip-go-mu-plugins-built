@@ -1,8 +1,6 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance } from '@wordpress/blocks';
 import { debounce } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef } from '@wordpress/element';
@@ -10,7 +8,7 @@ import { useEffect, useRef } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { GutenbergFunction } from '../../../@types/gutenberg/types';
+import { BlockInstance, GutenbergFunction } from '../../../@types/gutenberg/types';
 
 /**
  * Defines the structure of a block change.
@@ -59,8 +57,11 @@ const checkBlocks = (
 			if ( JSON.stringify( block ) !== JSON.stringify( prevBlocks[ index ] ) ) {
 				const prevBlock = prevBlocks[ index ];
 
+				// `content` is typed `any`, and any falsy value should parse as an empty document.
+				/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 				const blockDOM = domParser.parseFromString( block.attributes.content || '', 'text/html' );
 				const prevBlockDOM = domParser.parseFromString( prevBlock?.attributes.content || '', 'text/html' );
+				/* eslint-enable @typescript-eslint/prefer-nullish-coalescing */
 
 				// Get all smart links in the block and previous block.
 				const smartLinks = Array.from( blockDOM.querySelectorAll( 'a[data-smartlink]' ) ) as HTMLAnchorElement[];

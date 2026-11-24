@@ -66,6 +66,7 @@ const VerticalMoreMenu = ( {
 	};
 
 	return (
+		// @ts-ignore iconSize is not in the DropdownMenu types.
 		<DropdownMenu icon={ moreVertical } iconSize={ 24 } label={ __( 'Actions', 'wp-parsely' ) }>
 			{ ( { onClose } ) => (
 				<MenuGroup>

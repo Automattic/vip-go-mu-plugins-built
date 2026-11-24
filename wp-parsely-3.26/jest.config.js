@@ -1,4 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const baseConfig = require( '@wordpress/scripts/config/jest-unit.config' );
 
 module.exports = {
@@ -7,7 +7,10 @@ module.exports = {
 	verbose: true,
 	globals: { TextEncoder, TextDecoder },
 	setupFiles: [ './jest.setup.js' ],
+	transform: {
+		'\\.mjs$': 'babel-jest',
+	},
 	transformIgnorePatterns: [
-		'node_modules/(?!(client-zip|parsel-js)/)',
+		'node_modules/(?!(.+/node_modules/)?(client-zip|marked|parsel-js|uuid|@wordpress/theme)/)',
 	],
 };

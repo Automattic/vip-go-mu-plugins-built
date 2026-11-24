@@ -158,7 +158,7 @@ export const initSmartLinking = (): void => {
 		const smartLinkValue = urlParams.get( 'smart-link' );
 
 		if ( smartLinkValue ) {
-			isEditorReady().then( async () => {
+			void isEditorReady().then( async () => {
 				const linkElement = await waitForEditorCanvasElement(
 					`a[data-smartlink="${ smartLinkValue }"]`
 				);

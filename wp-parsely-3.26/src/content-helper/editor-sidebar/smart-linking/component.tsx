@@ -2,7 +2,6 @@
  * WordPress dependencies
  */
 import { getBlockContent } from '@wordpress/blocks';
-// eslint-disable-next-line import/named
 import { Button, Notice, PanelRow } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { select, useDispatch, useSelect } from '@wordpress/data';

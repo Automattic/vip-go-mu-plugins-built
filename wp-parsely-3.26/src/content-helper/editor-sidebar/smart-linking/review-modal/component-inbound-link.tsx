@@ -1,8 +1,7 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance, parse } from '@wordpress/blocks';
+import { parse } from '@wordpress/blocks';
 import { Button, __experimentalDivider as Divider, KeyboardShortcuts, Tooltip } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +11,7 @@ import { Telemetry } from '../../../../js/telemetry/telemetry';
 /**
  * Internal dependencies
  */
+import { BlockInstance } from '../../../../@types/gutenberg/types';
 import { InboundSmartLink } from '../provider';
 import { BlockPreview } from './component-block-preview';
 

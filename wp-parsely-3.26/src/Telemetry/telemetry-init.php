@@ -11,6 +11,10 @@ declare(strict_types=1);
 use Parsely\Telemetry\Telemetry_System;
 use Parsely\Telemetry\Tracks;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 require_once __DIR__ . '/class-telemetry-system.php';
 
 // If in a VIP environment, prevent logging duplicate Tracks events.

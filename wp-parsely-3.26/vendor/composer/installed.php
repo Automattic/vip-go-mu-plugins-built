@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'parsely/wp-parsely',
-        'pretty_version' => 'dev-develop',
-        'version' => 'dev-develop',
-        'reference' => '09009aff09a357204f43640cd33cc4bdf464b222',
+        'pretty_version' => 'dev-trunk',
+        'version' => 'dev-trunk',
+        'reference' => '6bc9c9a537882e9de802222764ba40145400bbf8',
         'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -29,9 +29,9 @@
             'dev_requirement' => false,
         ),
         'parsely/wp-parsely' => array(
-            'pretty_version' => 'dev-develop',
-            'version' => 'dev-develop',
-            'reference' => '09009aff09a357204f43640cd33cc4bdf464b222',
+            'pretty_version' => 'dev-trunk',
+            'version' => 'dev-trunk',
+            'reference' => '6bc9c9a537882e9de802222764ba40145400bbf8',
             'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

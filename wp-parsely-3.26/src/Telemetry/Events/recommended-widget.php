@@ -12,6 +12,10 @@ namespace Parsely\Telemetry;
 
 use WP_Widget;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /**
  * This is determined by the value passed to the `WP_Widget` constructor.
  *

@@ -1,6 +1,13 @@
-// eslint-disable-next-line import/named
-import { BlockInstance } from '@wordpress/blocks';
+import { Block } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
+
+/**
+ * Defines a block instance with loosely typed attributes, like the
+ * `BlockInstance` type of the `@types/wordpress__blocks` package.
+ *
+ * @since 3.26.1
+ */
+export type BlockInstance = Block<Record<string, any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /**
  * Defines typings for core/block-editor functions, to avoid intellisense errors

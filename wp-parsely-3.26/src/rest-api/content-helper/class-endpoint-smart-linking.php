@@ -28,6 +28,14 @@ use WP_REST_Response;
  * Provides an endpoint for generating smart links for the given content.
  *
  * @since 3.17.0
+ *
+ * @phpstan-type Smart_Link_Params array{
+ *   uid: string,
+ *   href: array{raw: string},
+ *   title: string,
+ *   text: string,
+ *   offset: int|float|string,
+ * }
  */
 class Endpoint_Smart_Linking extends Base_Endpoint {
 	use Content_Helper_Feature;
@@ -308,11 +316,16 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 */
 	public function add_smart_link( WP_REST_Request $request ): WP_REST_Response {
 		/**
-		 * The Smart Link model.
+		 * The Smart Link parameters.
 		 *
-		 * @var Smart_Link $smart_link
+		 * @var Smart_Link_Params $link_params
 		 */
-		$smart_link    = $request->get_param( 'smart_link' );
+		$link_params = $request->get_param( 'link' );
+
+		/** @var int|string $post_id */
+		$post_id = $request->get_param( 'post_id' );
+
+		$smart_link    = $this->get_smart_link_from_params( $link_params, (int) $post_id );
 		$should_update = $request->get_param( 'update' ) === true;
 
 		if ( $smart_link->exists() && ! $should_update ) {
@@ -335,7 +348,6 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			$smart_link->set_context( $this->get_pch_feature_name() );
 		}
 
-		// The smart link properties are set in the validate callback.
 		$saved = $smart_link->save();
 		if ( ! $saved ) {
 			return new WP_REST_Response(
@@ -372,11 +384,20 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 */
 	public function add_multiple_smart_links( WP_REST_Request $request ): WP_REST_Response {
 		/**
-		 * Array of Smart Link models.
+		 * The parameters of each Smart Link.
 		 *
-		 * @var Smart_Link[] $smart_links
+		 * @var array<Smart_Link_Params> $links_params
 		 */
-		$smart_links   = $request->get_param( 'smart_links' );
+		$links_params = $request->get_param( 'links' );
+
+		/** @var int|string $post_id */
+		$post_id = $request->get_param( 'post_id' );
+
+		$smart_links = array();
+		foreach ( $links_params as $link_params ) {
+			$smart_links[] = $this->get_smart_link_from_params( $link_params, (int) $post_id );
+		}
+
 		$should_update = $request->get_param( 'update' ) === true;
 
 		$added_links   = array();
@@ -394,7 +415,6 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			// Mark as applied.
 			$smart_link->set_status( Smart_Link_Status::APPLIED );
 
-			// The smart link properties are set in the validate callback.
 			$saved = $smart_link->save();
 
 			if ( ! $saved ) {
@@ -461,11 +481,16 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 		}
 
 		/**
-		 * Array of Smart Link models provided in the request.
+		 * The parameters of each Smart Link provided in the request.
 		 *
-		 * @var Smart_Link[] $smart_links
+		 * @var array<Smart_Link_Params> $links_params
 		 */
-		$smart_links = $request->get_param( 'smart_links' );
+		$links_params = $request->get_param( 'links' );
+
+		$smart_links = array();
+		foreach ( $links_params as $link_params ) {
+			$smart_links[] = $this->get_smart_link_from_params( $link_params, $post->ID );
+		}
 
 		// Get the current stored smart links.
 		$existing_links = Smart_Link::get_outbound_smart_links( $post->ID, Smart_Link_Status::APPLIED );
@@ -496,7 +521,6 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			// Mark as applied.
 			$smart_link->set_status( Smart_Link_Status::APPLIED );
 
-			// The smart link properties are set in the validate callback.
 			$saved = $smart_link->save();
 
 			if ( ! $saved ) {
@@ -567,7 +591,8 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	/**
 	 * Validates the smart link parameters.
 	 *
-	 * The callback sets the smart link object in the request object if the parameters are valid.
+	 * Only checks the fields, as validation runs for every request. The handlers
+	 * look up or build the Smart Link.
 	 *
 	 * @since 3.16.0
 	 * @since 3.24.2 Rejects non-arrays.
@@ -577,7 +602,7 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 	 * @param WP_REST_Request $request The request object.
 	 * @return bool Whether the parameters are valid.
 	 */
-	public function validate_smart_link_params( $params, WP_REST_Request $request ): bool {
+	public function validate_smart_link_params( $params, WP_REST_Request $request ): bool { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter.FoundAfterLastUsed
 		if ( ! is_array( $params ) ) {
 			return false;
 		}
@@ -598,16 +623,7 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			return false;
 		}
 
-		// Form-encoded requests send the offset as a string.
-		$params['offset'] = intval( $params['offset'] );
-
-		$encoded_data = wp_json_encode( $params );
-		if ( false === $encoded_data ) {
-			return false;
-		}
-
-		$post_id = $request->get_param( 'post_id' );
-		if ( ! is_numeric( $post_id ) ) {
+		if ( false === wp_json_encode( $params ) ) {
 			return false;
 		}
 
@@ -627,39 +643,11 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			return false;
 		}
 
-		// Try to get the smart link from the UID.
-		$smart_link = Smart_Link::get_smart_link( $params['uid'], intval( $post_id ) );
-		if ( $smart_link->exists() ) {
-			// Update the smart link with the new data.
-			$smart_link->set_href( $params['href']['raw'] );
-			$smart_link->title  = $params['title'];
-			$smart_link->text   = $params['text'];
-			$smart_link->offset = $params['offset'];
-		} else {
-			/**
-			 * The Smart Link model.
-			 *
-			 * @var Smart_Link $smart_link
-			 */
-			$smart_link = Smart_Link::deserialize( $encoded_data );
-			$smart_link->set_source_post_id( intval( $post_id ) );
-		}
-
-		// If the context is not set, set it to Smart Linking.
-		if ( null === $smart_link->get_context() ) {
-			$smart_link->set_context( $this->get_pch_feature_name() );
-		}
-
-		// Set the smart link attribute in the request.
-		$request->set_param( 'smart_link', $smart_link );
-
 		return true;
 	}
 
 	/**
 	 * Validates the multiple smart link parameters.
-	 *
-	 * The callback sets the smart links object in the request object if the parameters are valid.
 	 *
 	 * @since 3.16.0
 	 * @since 3.24.2 Rejects non-arrays.
@@ -674,20 +662,58 @@ class Endpoint_Smart_Linking extends Base_Endpoint {
 			return false;
 		}
 
-		$smart_links = array();
-
 		foreach ( $param as $link ) {
-			if ( $this->validate_smart_link_params( $link, $request ) ) {
-				$smart_link    = $request->get_param( 'smart_link' );
-				$smart_links[] = $smart_link;
-			} else {
+			if ( ! $this->validate_smart_link_params( $link, $request ) ) {
 				return false;
 			}
 		}
-		$request->set_param( 'smart_link', null );
-		$request->set_param( 'smart_links', $smart_links );
 
 		return true;
+	}
+
+	/**
+	 * Returns the Smart Link that the passed parameters describe.
+	 *
+	 * Applies the parameters to the post's stored Smart Link with the same UID,
+	 * or builds a new one from them. Doesn't save it.
+	 *
+	 * @since 3.26.1
+	 *
+	 * @param Smart_Link_Params $params  The Smart Link parameters.
+	 * @param int               $post_id The ID of the post containing the link.
+	 * @return Smart_Link The Smart Link.
+	 */
+	private function get_smart_link_from_params( $params, int $post_id ): Smart_Link {
+		// Form-encoded requests send the offset as a string.
+		$params['offset'] = intval( $params['offset'] );
+
+		// Try to get the smart link from the UID.
+		$smart_link = Smart_Link::get_smart_link( $params['uid'], $post_id );
+		if ( $smart_link->exists() ) {
+			// Update the smart link with the new data.
+			$smart_link->set_href( $params['href']['raw'] );
+			$smart_link->title  = $params['title'];
+			$smart_link->text   = $params['text'];
+			$smart_link->offset = $params['offset'];
+		} else {
+			// Validation checked that the parameters can be encoded.
+			$encoded_data = (string) wp_json_encode( $params );
+
+			/**
+			 * The Smart Link model.
+			 *
+			 * @var Smart_Link $smart_link
+			 */
+			$smart_link = Smart_Link::deserialize( $encoded_data );
+			$smart_link->set_source_post_id( $post_id );
+		}
+
+		// If the context is not set, set it to Smart Linking.
+		if ( null === $smart_link->get_context() ) {
+			$smart_link->set_context( $this->get_pch_feature_name() );
+		}
+
+		return $smart_link;
 	}
 
 	/**

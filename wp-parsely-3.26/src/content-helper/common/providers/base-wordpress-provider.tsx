@@ -1,10 +1,8 @@
 /**
  * WordPress dependencies
  */
-/* eslint-disable import/named */
 import apiFetch, { APIFetchOptions } from '@wordpress/api-fetch';
 import { Post as CorePost, Taxonomy as CoreTaxonomy, User } from '@wordpress/core-data';
-/* eslint-enable import/named */
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 

@@ -113,7 +113,6 @@ export function getPeriodDescription(
 
 	let description: string = __( 'Unknown Period', 'wp-parsely' );
 
-	/* eslint-disable @wordpress/valid-sprintf */
 	switch ( timeUnit ) {
 		case 'm':
 			if ( 1 === timeValue ) {
@@ -146,7 +145,6 @@ export function getPeriodDescription(
 			);
 			break;
 	}
-	/* eslint-enable @wordpress/valid-sprintf */
 
 	if ( lowercase ) {
 		return description.toLocaleLowerCase();

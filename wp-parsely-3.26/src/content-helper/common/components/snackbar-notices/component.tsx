@@ -9,7 +9,7 @@ import type { MouseEventHandler } from 'react';
 import { SnackbarList } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
-import { WPNotice } from '@wordpress/notices/build-types/store/selectors';
+import { Notice as WPNotice } from '@wordpress/notices/build-types/store/types';
 
 interface SnackbarNoticesProps {
 	className?: string; // Additional class name to be added to the base class.

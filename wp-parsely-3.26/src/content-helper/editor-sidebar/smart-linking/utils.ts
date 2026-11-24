@@ -1,14 +1,13 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
-import { BlockInstance, getBlockContent } from '@wordpress/blocks';
+import { getBlockContent } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import { dispatchCoreBlockEditor } from '../../../@types/gutenberg/types';
+import { BlockInstance, dispatchCoreBlockEditor } from '../../../@types/gutenberg/types';
 import { addITMParamsToURL, escapeRegExp, removeITMParamsFromURL } from '../../common/utils/functions';
 import { InboundSmartLink, SmartLink } from './provider';
 import { ALLOWED_BLOCKS } from './smart-linking';

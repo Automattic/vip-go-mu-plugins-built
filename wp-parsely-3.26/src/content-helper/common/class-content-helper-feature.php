@@ -220,7 +220,7 @@ abstract class Content_Helper_Feature {
 			$default_message
 		);
 
-		// Remove unnecessary whitespace to avoid broken output.
+		// Remove unnecessary whitespace.
 		$message = str_replace( array( "\r", "\n", "\t" ), '', $message );
 
 		return wp_kses_post( $message );

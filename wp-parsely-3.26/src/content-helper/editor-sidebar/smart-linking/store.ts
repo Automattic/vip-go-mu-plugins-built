@@ -389,7 +389,6 @@ export const SmartLinkingStore = createReduxStore( 'wp-parsely/smart-linking', {
 				const smartLinks = state.smartLinks[ action.smartLinkType ];
 				const newSmartLinks = [ ...smartLinks ];
 				action.smartLinks.forEach( ( link ) => {
-					// eslint-disable-next-line @typescript-eslint/no-shadow
 					const existingIndex = smartLinks.findIndex( ( l ) => l.uid === link.uid );
 					if ( existingIndex !== -1 ) {
 						newSmartLinks[ existingIndex ] = { ...newSmartLinks[ existingIndex ], ...link };

@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-// eslint-disable-next-line import/named
 import apiFetch, { APIFetchOptions } from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 
@@ -52,7 +51,7 @@ export abstract class BaseProvider {
 	 *
 	 * @since 3.15.0
 	 */
-	protected constructor() {} // eslint-disable-line no-useless-constructor
+	protected constructor() {}
 
 	/**
 	 * Cancels the fetch request.

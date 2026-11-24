@@ -13,6 +13,10 @@ namespace Parsely;
 
 use Parsely\UI\Settings_Page;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
 /* translators: %s: Plugin version */
 $parsely_version_string = sprintf( __( 'Version %s', 'wp-parsely' ), Parsely::VERSION );
 

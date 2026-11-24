@@ -97,7 +97,8 @@ class GraphQL_Metadata extends Metadata_Endpoint {
 						$json_ld = self::get_rendered_meta( 'json_ld' );
 
 						if ( isset( $args['removeWrappingTag'] ) && true === $args['removeWrappingTag'] ) {
-							// phpcs:ignore WordPressVIPMinimum.Functions.StripTags.StripTagsOneParameter
+							// strip_tags() is intentional: wp_strip_all_tags() would also remove the JSON-LD inside the <script> wrapper.
+							// phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags, WordPressVIPMinimum.Functions.StripTags.StripTagsOneParameter
 							$json_ld = strip_tags( $json_ld );
 							$json_ld = trim( $json_ld );
 						}

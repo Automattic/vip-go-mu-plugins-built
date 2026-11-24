@@ -325,6 +325,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 			<div className="related-posts-body">
 				<div className="related-posts-settings">
 					<SelectControl
+						// @ts-ignore __unstable-large is no longer in the component types.
 						size="__unstable-large"
 						onChange={ ( value ) => onMetricChange( value ) }
 						prefix={
@@ -339,6 +340,7 @@ export const RelatedPostsPanel = (): React.JSX.Element => {
 						) ) }
 					</SelectControl>
 					<SelectControl
+						// @ts-ignore __unstable-large is no longer in the component types.
 						size="__unstable-large"
 						value={ period }
 						prefix={

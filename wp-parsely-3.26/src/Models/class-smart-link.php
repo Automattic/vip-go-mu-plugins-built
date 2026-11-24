@@ -194,7 +194,7 @@ class Smart_Link extends Base_Model {
 	 * @return int The ID of the smart link post object.
 	 */
 	private function get_smart_link_object_by_uid( string $uid ): int {
-		$cache_key = self::get_uid_to_smart_link_cache_key( $uid );
+		$cache_key = self::get_uid_to_smart_link_cache_key( $uid, $this->source_post_id );
 		$cached    = wp_cache_get( $cache_key, PARSELY_CACHE_GROUP );
 
 		if ( false !== $cached && is_numeric( $cached ) ) {
@@ -360,7 +360,7 @@ class Smart_Link extends Base_Model {
 			$this->smart_link_id = $post_id;
 			$this->exists        = true;
 			wp_cache_set(
-				self::get_uid_to_smart_link_cache_key( $this->uid ),
+				self::get_uid_to_smart_link_cache_key( $this->uid, $this->source_post_id ),
 				$post_id,
 				PARSELY_CACHE_GROUP,
 				WEEK_IN_SECONDS
@@ -752,8 +752,7 @@ class Smart_Link extends Base_Model {
 	 * Invalid hrefs are ignored. Callers accepting user input should validate
 	 * with `is_valid_href()` first, to report the rejection.
 	 *
-	 * No canonical URL is stored, as this runs during REST argument
-	 * validation, which must not have side effects.
+	 * No canonical URL is stored.
 	 *
 	 * @since 3.16.0
 	 * @since 3.24.2 Invalid hrefs are ignored, and no canonical URL is stored.
@@ -1204,7 +1203,7 @@ class Smart_Link extends Base_Model {
 	 */
 	protected function flush_cache(): void {
 		// Delete the cache for the smart link UID to post ID association.
-		$cache_key = self::get_uid_to_smart_link_cache_key( $this->uid );
+		$cache_key = self::get_uid_to_smart_link_cache_key( $this->uid, $this->source_post_id );
 		wp_cache_delete( $cache_key, PARSELY_CACHE_GROUP );
 	}
 
@@ -1228,13 +1227,17 @@ class Smart_Link extends Base_Model {
 	/**
 	 * Generates a cache key for the smart link.
 	 *
+	 * Smart Links are looked up by UID within their source post, so the key
+	 * includes the post ID.
+	 *
 	 * @since 3.19.0
 	 *
-	 * @param string $uid The unique identifier for the cache key.
+	 * @param string $uid     The unique identifier for the cache key.
+	 * @param int    $post_id The ID of the post containing the link.
 	 * @return string The cache key.
 	 */
-	protected static function get_uid_to_smart_link_cache_key( string $uid ): string {
-		return sprintf( 'smart-link-uid-map-%s', $uid );
+	protected static function get_uid_to_smart_link_cache_key( string $uid, int $post_id ): string {
+		return sprintf( 'smart-link-post-%d-uid-%s', $post_id, $uid );
 	}
 
 	/**

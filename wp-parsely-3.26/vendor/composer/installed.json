@@ -28,6 +28,7 @@
                 "symfony/process": "^5 || ^6 || ^7"
             },
             "time": "2024-06-24T20:46:46+00:00",
+            "published-time": "2024-06-24T21:01:36+00:00",
             "type": "composer-plugin",
             "extra": {
                 "class": "Composer\\Installers\\Plugin",
@@ -173,6 +174,7 @@
                 "phpunit/phpunit": "^6 || ^7 || ^8 || ^9 || ^10"
             },
             "time": "2026-10-25T08:57:58+00:00",
+            "published-time": "2026-10-25T08:58:48+00:00",
             "type": "library",
             "extra": {
                 "branch-alias": {

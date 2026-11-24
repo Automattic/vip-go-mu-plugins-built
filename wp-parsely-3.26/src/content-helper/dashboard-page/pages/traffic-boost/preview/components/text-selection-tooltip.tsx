@@ -5,7 +5,7 @@ import { Button } from '@wordpress/components';
 import { debounce } from '@wordpress/compose';
 import { createRoot, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { cautionFilled, link } from '@wordpress/icons';
+import { caution, link } from '@wordpress/icons';
 import { useWordpressComponentStyles } from '../hooks/use-wordpress-component-styles';
 import { getContentArea } from '../utils';
 
@@ -222,7 +222,7 @@ const TextSelectionPopover = ( { onSelect, iframeDocument, selection, onErrorCli
 			<Button
 				variant="primary"
 				className="parsely-traffic-boost-iframe-popover-error"
-				icon={ cautionFilled }
+				icon={ caution }
 				onClick={ onErrorClick }
 			>
 				{ error }

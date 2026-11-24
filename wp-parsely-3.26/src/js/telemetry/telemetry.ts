@@ -145,15 +145,14 @@ export class Telemetry {
 	 * It first checks if the telemetry is enabled, and if not, it bails.
 	 * Then, ensures that the telemetry library is loaded by calling `waitUntilLoaded`.
 	 * Finally, it calls the `trackEvent` method on the singleton instance of the Telemetry class.
+	 * If the library doesn't load in time, the event is dropped.
 	 *
 	 * @since 3.12.0
 	 *
 	 * @param {string}     eventName  The name of the event to track.
 	 * @param {EventProps} properties The properties of the event to track.
-	 *
-	 * @return {Promise<void>}        A Promise that resolves when the event has been tracked.
 	 */
-	public static async trackEvent( eventName: string, properties: EventProps = {} ): Promise<void> {
+	public static trackEvent( eventName: string, properties: EventProps = {} ): void {
 		const telemetry: Telemetry = Telemetry.getInstance();
 
 		// If telemetry is not enabled, bail.
@@ -161,8 +160,12 @@ export class Telemetry {
 			return;
 		}
 
-		await Telemetry.waitUntilLoaded();
-		telemetry.trackEvent( eventName, properties );
+		Telemetry.waitUntilLoaded().then(
+			() => telemetry.trackEvent( eventName, properties ),
+			() => {
+				// The library didn't load in time, so the event is dropped.
+			}
+		);
 	}
 
 	/**

@@ -204,7 +204,7 @@ export const TitleSuggestionsPanel = (): React.JSX.Element => {
 		}
 
 		error.createErrorSnackbar();
-	}, [ error ] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ error ] );
 
 	return (
 		<PanelRow>

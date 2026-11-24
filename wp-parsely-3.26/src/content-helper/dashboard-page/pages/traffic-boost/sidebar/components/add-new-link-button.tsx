@@ -4,14 +4,14 @@
 import { Button, Dropdown, SearchControl } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import { HydratedPost } from '../../../../../common/providers/base-wordpress-provider';
+import { HydratedPost, QueryParams } from '../../../../../common/providers/base-wordpress-provider';
 import { PostsTable } from '../../../../components/posts-table/component';
 import { TrafficBoostLink } from '../../provider';
 import { TrafficBoostStore } from '../../store';
@@ -40,6 +40,9 @@ export const AddNewLinkButton = ( {
 	suggestions,
 }: AddNewLinkButtonProps ): React.JSX.Element => {
 	const [ searchInput, setSearchInput ] = useState<string>( '' );
+	// SearchControl doesn't report edits that match its value, so it gets the
+	// typed text rather than the debounced search.
+	const [ searchValue, setSearchValue ] = useState<string>( '' );
 	const searchInputRef = useRef<HTMLInputElement>( null );
 	const debouncedSetSearchInput = useDebounce( setSearchInput, 300 );
 	const [ suggestionsPostIds, setSuggestionsPostIds ] = useState<number[]>( [] );
@@ -61,11 +64,24 @@ export const AddNewLinkButton = ( {
 		setSuggestionsPostIds( postIds );
 	}, [ suggestions, currentPost ] );
 
+	// Memoized, so the re-render on each keystroke doesn't refetch the posts.
+	const postsQuery = useMemo<QueryParams>( () => ( {
+		status: 'publish',
+		per_page: 5,
+		search: searchInput,
+		search_columns: [ 'post_title', 'post_excerpt' ],
+		exclude: suggestionsPostIds,
+		context: 'edit',
+	} ), [ searchInput, suggestionsPostIds ] );
+
 	return (
 		<Dropdown
 			contentClassName="wp-parsely-traffic-boost-add-new-link-popover"
 			onClose={ () => {
+				// Otherwise a pending search would apply after the reset.
+				debouncedSetSearchInput.cancel();
 				setSearchInput( '' );
+				setSearchValue( '' );
 			} }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
@@ -89,8 +105,11 @@ export const AddNewLinkButton = ( {
 						<SearchControl
 							__nextHasNoMarginBottom
 							ref={ searchInputRef }
-							value={ searchInput }
-							onChange={ debouncedSetSearchInput }
+							value={ searchValue }
+							onChange={ ( value ) => {
+								setSearchValue( value );
+								debouncedSetSearchInput( value );
+							} }
 						/>
 					</div>
 					{ searchInput && (
@@ -98,14 +117,7 @@ export const AddNewLinkButton = ( {
 							currentPage={ 1 }
 							setCurrentPage={ () => {} }
 							className="traffic-boost-add-link-table"
-							query={ {
-								status: 'publish',
-								per_page: 5,
-								search: searchInput,
-								search_columns: [ 'post_title', 'post_excerpt' ],
-								exclude: suggestionsPostIds,
-								context: 'edit',
-							} }
+							query={ postsQuery }
 							hideHeader={ true }
 							hidePagination={ true }
 							compact={ true }

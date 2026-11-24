@@ -59,6 +59,7 @@ export const InputRange = ( {
 					disabled={ disabled }
 					value={ value }
 					suffix={ <InputControlSuffixWrapper>{ suffix }</InputControlSuffixWrapper> }
+					// @ts-ignore __unstable-large is no longer in the component types.
 					size={ size ?? '__unstable-large' }
 					min={ min }
 					max={ max }

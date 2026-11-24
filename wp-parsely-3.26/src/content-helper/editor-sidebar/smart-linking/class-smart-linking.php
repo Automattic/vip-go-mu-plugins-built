@@ -198,10 +198,5 @@ class Smart_Linking extends Editor_Sidebar_Feature {
 		}
 
 		wp_reset_postdata();
-
-		// Remove any source and destination terms that have the post ID.
-		wp_delete_term( $post_id, 'smart_link_source' );
-		wp_delete_term( $post_id, 'smart_link_destination' );
-		wp_delete_term( $post_id, 'smart_link_status' );
 	}
 }
