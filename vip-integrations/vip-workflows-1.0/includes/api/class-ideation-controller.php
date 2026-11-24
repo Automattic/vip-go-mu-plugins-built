@@ -72,10 +72,6 @@ class IdeationController extends WP_REST_Controller {
 	 * copy-edit agent was given for the same reason: it is the other caller whose
 	 * reply has to reproduce a whole article body.
 	 *
-	 * Named rather than inlined because `create_draft` records the ceiling it ran
-	 * under in `vip_draft_ai_context`. That was a second copy of the literal, so the
-	 * audit trail could silently disagree with the request it claims to describe.
-	 *
 	 * @since 0.0.1
 	 *
 	 * @var int
@@ -895,13 +891,18 @@ class IdeationController extends WP_REST_Controller {
 
 		$blocks = DraftBuilder::markdown_to_blocks( $body );
 
+		// wp_insert_post() unslashes what it's given, so slash it first.
+		// Unslashed, every backslash in the drafted title and body is lost: a
+		// code sample's `C:\Users\tom` is saved as `C:Userstom`.
 		$post_id = wp_insert_post(
-			array(
-				'post_type'    => 'post',
-				'post_title'   => $title,
-				'post_content' => $blocks,
-				'post_status'  => 'draft',
-				'post_author'  => get_current_user_id(),
+			wp_slash(
+				array(
+					'post_type'    => 'post',
+					'post_title'   => $title,
+					'post_content' => $blocks,
+					'post_status'  => 'draft',
+					'post_author'  => get_current_user_id(),
+				)
 			),
 			true
 		);
@@ -930,27 +931,6 @@ class IdeationController extends WP_REST_Controller {
 			$story->add_object( $post_id, 'post' );
 			$story->transition( Story::STATUS_EDITORIAL );
 		}
-
-		update_post_meta(
-			$post_id,
-			'vip_draft_ai_context',
-			wp_json_encode(
-				array(
-					'provider'      => 'openai',
-					'model'         => $model_name,
-					'temperature'   => 0.7,
-					'max_tokens'    => self::DRAFT_MAX_TOKENS,
-					'word_count'    => $word_count,
-					'system_prompt' => $system_prompt,
-					'user_prompt'   => $user_prompt,
-					'project_id'    => $project_id,
-					'project_title' => $project_name,
-					'source'        => 'ideation',
-					'generated_by'  => get_current_user_id(),
-					'generated_at'  => current_time( 'mysql', true ),
-				)
-			)
-		);
 
 		if ( $category_id > 0 ) {
 			wp_set_post_categories( $post_id, array( $category_id ) );

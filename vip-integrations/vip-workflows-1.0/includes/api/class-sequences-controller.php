@@ -10,6 +10,7 @@ declare( strict_types=1 );
 namespace VIPWorkflows\API;
 
 use VIPWorkflows\Sequences\Sequence;
+use VIPWorkflows\Sequences\SequenceAudit;
 use VIPWorkflows\Sequences\SequenceRepository;
 use VIPWorkflows\Sequences\StrandCheckFailedException;
 use VIPWorkflows\Sequences\StrandedPostsException;
@@ -170,7 +171,7 @@ class SequencesController extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'export_sequence' ),
-					'permission_callback' => array( $this, 'get_item_permissions_check' ),
+					'permission_callback' => array( $this, 'export_item_permissions_check' ),
 					'args'                => array(
 						'id' => array(
 							'description' => 'Sequence ID.',
@@ -549,6 +550,20 @@ class SequencesController extends WP_REST_Controller {
 	}
 
 	/**
+	 * Check if user can export a sequence.
+	 *
+	 * Stricter than viewing one because each served export writes an audit row:
+	 * only users who manage sequences can add those rows. Reading the same config
+	 * through GET /sequences/{id} still needs only edit_posts.
+	 *
+	 * @param  WP_REST_Request $request Request object.
+	 * @return bool|WP_Error
+	 */
+	public function export_item_permissions_check( $request ) {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
 	 * Check if user can delete a sequence.
 	 *
 	 * @param  WP_REST_Request $request Request object.
@@ -591,6 +606,15 @@ class SequencesController extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		// Named from the read before the delete, so the row still says which
+		// sequence it was once the sequence is gone.
+		SequenceAudit::record(
+			'sequence.deleted',
+			$sequence,
+			array( 'statuses_count' => SequenceAudit::stage_count( $sequence ) ),
+			$this->acting_ability( $request )
+		);
 
 		return new WP_REST_Response(
 			array(
@@ -934,6 +958,18 @@ class SequencesController extends WP_REST_Controller {
 
 		$sequence = $this->repository->find( $id );
 
+		// One row whatever the initial status: the draft follow-up above is part
+		// of creating the sequence, not a second change.
+		SequenceAudit::record(
+			'sequence.created',
+			$sequence,
+			array(
+				'sequence_status' => $sequence->status,
+				'statuses_count'  => SequenceAudit::stage_count( $sequence ),
+			),
+			$this->acting_ability( $request )
+		);
+
 		return new WP_REST_Response( $this->prepare_sequence_response( $sequence ), 201 );
 	}
 
@@ -1024,7 +1060,140 @@ class SequencesController extends WP_REST_Controller {
 
 		$sequence = $this->repository->find( $new_id );
 
+		$this->record_update( $request, $existing, $sequence );
+
 		return new WP_REST_Response( $this->with_stage_post_counts( $this->prepare_sequence_response( $sequence ), $sequence ) );
+	}
+
+	/**
+	 * Record what an update changed: one row for a config change, one for a
+	 * status change, both when a save did both, and none when it did neither.
+	 *
+	 * Two rows rather than one keeps the Audit Log's type filter truthful:
+	 * filtering for activations finds every activation, including one made in
+	 * the same save as an edit.
+	 *
+	 * @param WP_REST_Request $request  Request.
+	 * @param Sequence        $existing The sequence before the write.
+	 * @param Sequence        $sequence The sequence after the write.
+	 * @return void
+	 */
+	private function record_update( $request, Sequence $existing, Sequence $sequence ): void {
+		$ability_id = $this->acting_ability( $request );
+		$changes    = SequenceAudit::change_summary( $existing, $sequence );
+
+		if ( ! empty( $changes ) ) {
+			SequenceAudit::record(
+				'sequence.updated',
+				$sequence,
+				array(
+					'statuses_count' => SequenceAudit::stage_count( $sequence ),
+					'changes'        => $changes,
+				),
+				$ability_id
+			);
+		}
+
+		if ( $existing->status !== $sequence->status ) {
+			$this->record_status_change( $existing->status, $sequence, $ability_id );
+		}
+	}
+
+	/**
+	 * Record an activation or a deactivation.
+	 *
+	 * @param string      $previous_status Lifecycle state before the write.
+	 * @param Sequence    $sequence        The sequence after the write.
+	 * @param string|null $ability_id      Acting ability, if any.
+	 * @return void
+	 */
+	private function record_status_change( string $previous_status, Sequence $sequence, ?string $ability_id ): void {
+		SequenceAudit::record(
+			'active' === $sequence->status ? 'sequence.activated' : 'sequence.deactivated',
+			$sequence,
+			array(
+				'previous_status' => $previous_status,
+				'sequence_status' => $sequence->status,
+			),
+			$ability_id
+		);
+	}
+
+	/**
+	 * Put a sequence live, or take it back to draft, and nothing else.
+	 *
+	 * No route: the sequence editor activates through the `status` field of
+	 * `PUT /sequences/{id}`. This is for vip-workflows/activate-sequence, which
+	 * checks the stored config is sound before it calls this, so the change is
+	 * recorded here like every other sequence write. A request for the status the
+	 * sequence already has writes nothing and records nothing.
+	 *
+	 * @param  WP_REST_Request $request Request with `id` and `status` (`active` or `draft`).
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function set_status( $request ) {
+		$id     = (int) $request->get_param( 'id' );
+		$status = $request->get_param( 'status' );
+
+		if ( ! in_array( $status, array( 'active', 'draft' ), true ) ) {
+			return new WP_Error(
+				'rest_sequence_invalid_status',
+				__( 'Status must be "active" or "draft".', 'vip-workflows' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$existing = $this->repository->find( $id );
+		if ( ! $existing ) {
+			return new WP_Error(
+				'rest_sequence_not_found',
+				__( 'Sequence not found.', 'vip-workflows' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		if ( $existing->status === $status ) {
+			return new WP_REST_Response( $this->prepare_sequence_response( $existing ) );
+		}
+
+		if ( ! $this->repository->update( $id, array( 'status' => $status ) ) ) {
+			return new WP_Error(
+				'rest_sequence_update_failed',
+				__( 'Could not update the sequence. Try again.', 'vip-workflows' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		$sequence = $this->repository->find( $id );
+		if ( ! $sequence ) {
+			return new WP_Error(
+				'rest_sequence_not_found',
+				__( 'Sequence not found.', 'vip-workflows' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$this->record_status_change( $existing->status, $sequence, $this->acting_ability( $request ) );
+
+		return new WP_REST_Response( $this->prepare_sequence_response( $sequence ) );
+	}
+
+	/**
+	 * The sequence ability that made this call, if one did.
+	 *
+	 * Read from a request attribute, which a sequence ability sets on the request
+	 * it builds. A request dispatched over HTTP has its attributes replaced by the
+	 * matched route handler, so a client can't set it. Only the known sequence
+	 * abilities are accepted.
+	 *
+	 * @param  WP_REST_Request $request Request.
+	 * @return string|null Ability id, or null for the editor and REST clients.
+	 */
+	private function acting_ability( $request ): ?string {
+		$attributes = $request->get_attributes();
+		$ability_id = is_array( $attributes ) ? ( $attributes[ SequenceAudit::REQUEST_ATTRIBUTE ] ?? null ) : null;
+
+		return in_array( $ability_id, SequenceAudit::ABILITY_IDS, true ) ? $ability_id : null;
 	}
 
 	/**
@@ -1315,6 +1484,11 @@ class SequencesController extends WP_REST_Controller {
 			'config'      => $sequence->config,
 		);
 
+		// An export changes nothing, but it is recorded so the Audit Log shows who
+		// took a copy of the sequence. Only a served export is: a missing sequence
+		// returned above, and a refused request never reaches this callback.
+		SequenceAudit::record( 'sequence.exported', $sequence, array(), $this->acting_ability( $request ) );
+
 		return new WP_REST_Response( $export );
 	}
 
@@ -1362,6 +1536,9 @@ class SequencesController extends WP_REST_Controller {
 	public function repair_stage_regions( $request ) {
 		$id = (int) $request->get_param( 'id' );
 
+		// Read before the repair, so the row can say which regions it set.
+		$before = $this->repository->find( $id );
+
 		$repaired = $this->repository->repair_stage_regions( $id );
 
 		if ( is_wp_error( $repaired ) ) {
@@ -1383,6 +1560,23 @@ class SequencesController extends WP_REST_Controller {
 				'rest_sequence_not_found',
 				__( 'Sequence not found.', 'vip-workflows' ),
 				array( 'status' => 404 )
+			);
+		}
+
+		// A repair changes the editorial process, so it is an update. The
+		// duplicates it collapsed share a (from, to) pair with the transition kept,
+		// so the diff can't see them; the repository's own list names them, the
+		// same list the editor shows the author.
+		if ( $before ) {
+			SequenceAudit::record(
+				'sequence.updated',
+				$sequence,
+				array(
+					'statuses_count' => SequenceAudit::stage_count( $sequence ),
+					'changes'        => SequenceAudit::change_summary( $before, $sequence, $repaired['dropped'] ),
+					'repair'         => true,
+				),
+				$this->acting_ability( $request )
 			);
 		}
 
@@ -1565,7 +1759,11 @@ class SequencesController extends WP_REST_Controller {
 			);
 		}
 
-		return $this->imported_sequence_response( $sequence_id );
+		return $this->imported_sequence_response(
+			$sequence_id,
+			$request,
+			$name !== $sequence_json['name'] ? (string) $sequence_json['name'] : null
+		);
 	}
 
 	/**
@@ -1595,10 +1793,12 @@ class SequencesController extends WP_REST_Controller {
 	/**
 	 * Mark a freshly imported sequence as a draft and build the import response.
 	 *
-	 * @param  int|false $sequence_id ID returned by the repository create.
+	 * @param  int|false       $sequence_id ID returned by the repository create.
+	 * @param  WP_REST_Request $request     The import request.
+	 * @param  string|null     $source_name The file's name, when the import was renamed.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private function imported_sequence_response( $sequence_id ) {
+	private function imported_sequence_response( $sequence_id, $request, ?string $source_name ) {
 		if ( ! $sequence_id ) {
 			return new WP_Error(
 				'sequence_import_failed',
@@ -1619,6 +1819,16 @@ class SequencesController extends WP_REST_Controller {
 				array( 'status' => 500 )
 			);
 		}
+
+		$extra = array(
+			'sequence_status' => $sequence->status,
+			'statuses_count'  => SequenceAudit::stage_count( $sequence ),
+		);
+		if ( null !== $source_name ) {
+			$extra['source_name'] = $source_name;
+		}
+
+		SequenceAudit::record( 'sequence.imported', $sequence, $extra, $this->acting_ability( $request ) );
 
 		return new WP_REST_Response(
 			array(

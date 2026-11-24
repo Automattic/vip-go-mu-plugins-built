@@ -173,12 +173,46 @@ class Settings {
 	}
 
 	/**
+	 * Display names of the workflow override roles: who to ask.
+	 *
+	 * The one answer every "ask someone with…" sentence uses — the publish
+	 * veto, the refused removal or replacement, and the `override_roles` list
+	 * the editor and list-table clients build the same sentences from — so the
+	 * server and the client name the same people.
+	 *
+	 * Translated, in the configured order. A slug that names no registered
+	 * role on this site is skipped rather than shown raw; an empty list means
+	 * no role holds the override, and the sentences then name nobody.
+	 *
+	 * @return string[] Role display names.
+	 */
+	public static function get_override_role_names(): array {
+		$role_names = wp_roles()->role_names;
+		$names      = array();
+
+		foreach ( self::get_bypass_workflow_roles() as $slug ) {
+			if ( ! is_string( $slug ) || ! isset( $role_names[ $slug ] ) ) {
+				continue;
+			}
+
+			$names[] = translate_user_role( $role_names[ $slug ] );
+		}
+
+		return $names;
+	}
+
+	/**
 	 * Check if a user holds a workflow override role.
 	 *
-	 * The override grants three things: every transition is offered regardless
+	 * The override grants six things: every transition is offered regardless
 	 * of its `allowed_roles`, empty required fields do not block a move into
-	 * the publish region, and the publish-boundary veto on a direct status
-	 * change becomes a confirm.
+	 * the publish region, the publish-boundary veto on a direct status change
+	 * becomes a confirm, a direct status change that would move the post to
+	 * another stage is not held to that transition's rules, only an override
+	 * user can remove a post from its workflow or replace the workflow it is in
+	 * (StatusManager::remove_sequence(), StatusManager::assign_sequence()),
+	 * and a post with no workflow can be published when the enforcement mode
+	 * is "require" (WorkflowRequirementGuard).
 	 *
 	 * @param  int|null $user_id User ID. Default current user.
 	 * @return bool

@@ -12,6 +12,10 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Admin;
 
+use VIPWorkflows\Abilities\Requirement;
+use VIPWorkflows\Abilities\RequirementFactory;
+use VIPWorkflows\API\AvailabilitySerializer;
+use VIPWorkflows\Integrations\MediaProcessor;
 use VIPWorkflows\ModuleInterface;
 use VIPWorkflows\Workflow\StatusManager;
 
@@ -59,25 +63,31 @@ class IdeationAdmin implements ModuleInterface {
 			'vip-workflows-admin',
 			'vipWorkflowsIdeation',
 			array(
-				'restUrl'            => rest_url( 'vip-workflows/v1/' ),
-				'nonce'              => wp_create_nonce( 'wp_rest' ),
-				'currentUserId'      => get_current_user_id(),
-				'currentUser'        => array(
+				'restUrl'                     => rest_url( 'vip-workflows/v1/' ),
+				'nonce'                       => wp_create_nonce( 'wp_rest' ),
+				'currentUserId'               => get_current_user_id(),
+				'currentUser'                 => array(
 					'id'     => get_current_user_id(),
 					'name'   => wp_get_current_user()->display_name,
 					'avatar' => get_avatar_url( get_current_user_id(), array( 'size' => 32 ) ),
 				),
-				'canManage'          => current_user_can( 'edit_others_posts' ),
-				'canEditOthersPosts' => current_user_can( 'edit_others_posts' ),
-				'urgencyLevels'      => array(
+				'canManage'                   => current_user_can( 'edit_others_posts' ),
+				'canEditOthersPosts'          => current_user_can( 'edit_others_posts' ),
+				'urgencyLevels'               => array(
 					'normal'   => __( 'Normal', 'vip-workflows' ),
 					'urgent'   => __( 'Urgent', 'vip-workflows' ),
 					'breaking' => __( 'Breaking', 'vip-workflows' ),
 				),
-				'users'              => $this->get_assignable_users(),
-				'roles'              => $this->get_available_roles(),
-				'sequences'          => $this->get_sequences(),
-				'phaseConfig'        => $this->get_phase_config(),
+				'users'                       => $this->get_assignable_users(),
+				'roles'                       => $this->get_available_roles(),
+				'sequences'                   => $this->get_sequences(),
+				'phaseConfig'                 => $this->get_phase_config(),
+				// Audio and video are transcribed by OpenAI, so they need its key
+				// whatever provider is selected. Without one they still upload,
+				// but aren't transcribed; this lets the screen warn before anyone
+				// uploads one.
+				'transcriptionAvailable'      => MediaProcessor::transcription_available(),
+				'transcriptionKeyDestination' => $this->transcription_key_destination(),
 			)
 		);
 	}
@@ -195,5 +205,31 @@ class IdeationAdmin implements ModuleInterface {
 			'active'      => true,
 			'transitions' => $transitions,
 		);
+	}
+
+	/**
+	 * Where the OpenAI key goes, for a reader who can add it.
+	 *
+	 * The pre-upload warning tells an administrator where to fix a missing key;
+	 * everyone else gets the warning alone. The register is decided here, with
+	 * the same capability every other credential notice uses, and the
+	 * destination comes from `RequirementFactory::missing_credential()`, so it is
+	 * Settings → Connectors on that backend and the `wp-config.php` constant on
+	 * an install with no credential screen.
+	 *
+	 * @return array<string, string>|null The serialized destination, or null for
+	 *                                    a reader who can't add the key, or when
+	 *                                    the key is already set.
+	 */
+	private function transcription_key_destination(): ?array {
+		if ( MediaProcessor::transcription_available() ) {
+			return null;
+		}
+
+		if ( Requirement::REGISTER_ADMIN !== AvailabilitySerializer::register_for_current_user() ) {
+			return null;
+		}
+
+		return RequirementFactory::missing_credential( 'openai', 'OpenAI' )->get_destination()->to_array();
 	}
 }

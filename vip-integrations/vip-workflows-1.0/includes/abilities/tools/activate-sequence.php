@@ -19,9 +19,10 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Abilities\Tools;
 
 use VIPWorkflows\Sequences\Sequence;
+use VIPWorkflows\Sequences\SequenceAudit;
 use VIPWorkflows\Sequences\SequenceRepository;
 
-const ACTIVATE_SEQUENCE_ABILITY_ID = 'vip-workflows/activate-sequence';
+const ACTIVATE_SEQUENCE_ABILITY_ID = SequenceAudit::ACTIVATE_ABILITY_ID;
 
 /**
  * Execute the sequence activation state change.
@@ -83,24 +84,18 @@ function execute_activate_sequence( ?array $input = null ) {
 		}
 	}
 
-	$result = $repository->update( $sequence_id, array( 'status' => $target_status ) );
+	// The controller writes the status and records the change, as this ability,
+	// from the attribute.
+	$request = new \WP_REST_Request( 'PUT', '/vip-workflows/v1/sequences/' . $sequence_id );
+	$request->set_attributes( array( SequenceAudit::REQUEST_ATTRIBUTE => ACTIVATE_SEQUENCE_ABILITY_ID ) );
+	$request->set_param( 'id', $sequence_id );
+	$request->set_param( 'status', $target_status );
 
-	if ( ! $result ) {
+	$result = ( new \VIPWorkflows\API\SequencesController() )->set_status( $request );
+
+	if ( is_wp_error( $result ) ) {
 		return new \WP_Error( 'activation_failed', __( 'Failed to change the sequence lifecycle state.', 'vip-workflows' ) );
 	}
-
-	log_configuration_event(
-		$active ? 'sequence.activated' : 'sequence.deactivated',
-		ACTIVATE_SEQUENCE_ABILITY_ID,
-		array(
-			'sequence_id'     => $sequence->id,
-			'sequence_name'   => $sequence->name,
-			'sequence_slug'   => $sequence->slug,
-			'sequence_type'   => $sequence->type,
-			'previous_status' => $previous_status,
-			'sequence_status' => $target_status,
-		)
-	);
 
 	return array(
 		'sequence_id'     => $sequence->id,

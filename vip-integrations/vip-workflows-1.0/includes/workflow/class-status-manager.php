@@ -255,12 +255,20 @@ class StatusManager {
 	 * dispatch queues during the move (the origin can itself be an AI stage) is
 	 * never touched.
 	 *
-	 * @param  int $post_id Post ID.
+	 * A move held for soft warnings puts the failed state back and returns the
+	 * warnings; the caller confirms by asking again with `acknowledge_warnings`.
+	 *
+	 * @param  int   $post_id Post ID.
+	 * @param  array $options {
+	 *     Optional. Only `acknowledge_warnings` is honored; every other key is ignored.
+	 *
+	 *     @type bool $acknowledge_warnings Proceed despite soft warnings on the edge back.
+	 * }
 	 * @return bool|array|\WP_Error True on success, transition()'s warnings array
 	 *                              if one surfaces, WP_Error otherwise.
 	 * @throws \Throwable Whatever transition() throws, once the failed state is back.
 	 */
-	public function revert_failed_agent_stage( int $post_id ): bool|array|\WP_Error {
+	public function revert_failed_agent_stage( int $post_id, array $options = array() ): bool|array|\WP_Error {
 		$revert_to = $this->get_agent_revert_stage( $post_id );
 		if ( null === $revert_to ) {
 			return new \WP_Error(
@@ -301,15 +309,25 @@ class StatusManager {
 			);
 		}
 
+		// The loop guard starts again from the origin, but only a move that
+		// happens may reset it: one held or refused gets its count back.
+		$chain = get_post_meta( $post_id, StageAgentRunner::CHAIN_META, true );
 		delete_post_meta( $post_id, StageAgentRunner::CHAIN_META );
 
+		// `agent_revert` is only ever set here, inside the server process.
+		$transition_options = array( 'agent_revert' => true );
+		if ( ! empty( $options['acknowledge_warnings'] ) ) {
+			$transition_options['acknowledge_warnings'] = true;
+		}
+
 		try {
-			$result = $this->transition( $post_id, $revert_to, array( 'agent_revert' => true ) );
+			$result = $this->transition( $post_id, $revert_to, $transition_options );
 		} catch ( \Throwable $e ) {
 			// The move threw, so it didn't finish: put the failed state back
 			// before letting the error through, or Run again and Go back would
 			// both refuse until read_job_marker() times the marker out.
 			StageAgentRunner::take_job_marker( $post_id, $reverting, $failed_job );
+			$this->restore_agent_chain( $post_id, $chain );
 			throw $e;
 		}
 
@@ -318,6 +336,7 @@ class StatusManager {
 			// put the failed state back, unless something else has written a
 			// marker since.
 			StageAgentRunner::take_job_marker( $post_id, $reverting, $failed_job );
+			$this->restore_agent_chain( $post_id, $chain );
 			return $result;
 		}
 
@@ -326,6 +345,22 @@ class StatusManager {
 		StageAgentRunner::take_job_marker( $post_id, $reverting );
 
 		return true;
+	}
+
+	/**
+	 * Put back the agent loop guard a Go back cleared, when the move didn't happen.
+	 *
+	 * Added only if absent, so a count something else has written since is
+	 * left as it is.
+	 *
+	 * @param int   $post_id Post ID.
+	 * @param mixed $chain   The guard's value before the move, '' if none.
+	 */
+	private function restore_agent_chain( int $post_id, $chain ): void {
+		if ( '' === $chain || false === $chain ) {
+			return;
+		}
+		add_post_meta( $post_id, StageAgentRunner::CHAIN_META, $chain, true );
 	}
 
 	/**
@@ -1018,8 +1053,10 @@ class StatusManager {
 		// writing the stage meta directly and never comes through here: a
 		// scheduled post going live, or a status changed in Quick Edit, lands in
 		// its new region with required fields still empty. That is the
-		// core-owned-status invariant, not an oversight — the workflow reconciles
-		// to what core did, it does not veto it.
+		// core-owned-status invariant, not an oversight. The save layer holds a
+		// reseat to the edge's other rules (core_status_change_refusal()), but not
+		// to this one: a non-override user's move into publish is refused there
+		// by the publish boundary already.
 		//
 		// `bypass_tool_check_roles` does NOT apply. A required tool check can fail
 		// for reasons the author cannot reach — a service that is down, a
@@ -1819,12 +1856,193 @@ class StatusManager {
 	}
 
 	/**
-	 * Remove a post from its workflow — the escape hatch behind the publish veto.
+	 * Why a core status change that would reseat the stage is refused, if it is.
+	 *
+	 * A reseat moves the post from its current stage to the target region's
+	 * entry stage, which is the same move as the transition between those two
+	 * stages. So a status change that reseats is held to that transition's
+	 * rules, asked of the same authorities transition() asks, in its order:
+	 *
+	 * 1. `edge`    — the sequence defines a transition from the current stage
+	 *                to the entry stage (Sequence::is_transition_allowed()).
+	 * 2. `routing` — on an AI stage, the entry stage is one of the agent's
+	 *                routed destinations (agent_routed_targets()).
+	 * 3. `role`    — the user's roles pass the edge's `allowed_roles`
+	 *                (Sequence::can_user_transition()).
+	 * 4. `tools`   — the edge declares no `required_tools`, or the user is on
+	 *                the tool-check list. Tools are not run here: a status save
+	 *                can't wait on them or acknowledge their warnings, so a
+	 *                move that needs them goes through the workflow panel.
+	 * 5. `inputs`  — the edge requires no assignment, which a status change
+	 *                can't supply (AssignmentManager::validate_transition_input()
+	 *                with no input).
+	 *
+	 * Required metadata is not checked here. It applies only to a move into the
+	 * publish region, and the publish boundary refuses every such status change
+	 * for a user this method would check, before this method is asked.
+	 *
+	 * Nothing is checked, and null comes back, when nothing would reseat: the
+	 * same resolve_reseat_stage() decision on_status_transition() acts on, so
+	 * "would reseat" and "is checked" cannot drift. That covers overlays,
+	 * a target region the stage already lives in, a region the sequence
+	 * does not model (the stage stays put), a post with no workflow and a
+	 * post whose stage does not resolve. Null too for a user in the override
+	 * roles, and for no user at all (a system actor).
+	 *
+	 * It logs no refusal and no unmodeled region, so the guard payloads can ask
+	 * it once per region; the caller that refuses a write logs the refusal, and
+	 * on_status_transition() logs an unmodeled region when a move really
+	 * happens. Broken workflow state still logs. The routing check passes the
+	 * post, as transition() does, so a released AI stage (a failed run) offers
+	 * the same routes here as in the workflow panel, and an expired agent-job
+	 * marker is settled here the same way a workflow panel read settles it.
+	 *
+	 * @param  int    $post_id       Post ID.
+	 * @param  string $target_status Core status the change would write.
+	 * @param  int    $user_id       User making the change.
+	 * @return \WP_Error|null 403 `vip_workflows_status_change_rules` naming the failed check in its data, or null when the change is allowed.
+	 */
+	public function core_status_change_refusal( int $post_id, string $target_status, int $user_id ): ?\WP_Error {
+		if ( $user_id <= 0 || \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( $user_id ) ) {
+			return null;
+		}
+
+		$managed = $this->resolve_managed_stage( $post_id );
+		if ( null === $managed ) {
+			return null;
+		}
+
+		list( $sequence, $current_stage ) = $managed;
+
+		$entry_stage = $this->resolve_reseat_stage( $post_id, $target_status, $sequence, $current_stage, false );
+		if ( null === $entry_stage ) {
+			return null;
+		}
+
+		$failed = null;
+
+		if ( ! $sequence->is_transition_allowed( $current_stage, $entry_stage ) ) {
+			$failed = 'edge';
+		}
+
+		if ( null === $failed ) {
+			$routed_targets = $this->agent_routed_targets( $sequence, $sequence->get_status( $current_stage ), $post_id );
+			if ( null !== $routed_targets && ! in_array( $entry_stage, $routed_targets, true ) ) {
+				$failed = 'routing';
+			}
+		}
+
+		if ( null === $failed && ! $sequence->can_user_transition( $current_stage, $entry_stage, $user_id ) ) {
+			$failed = 'role';
+		}
+
+		$edge = null === $failed ? $sequence->get_transition( $current_stage, $entry_stage ) : null;
+
+		if ( null === $failed && ! empty( $edge['required_tools'] )
+			&& ! \VIPWorkflows\Admin\Settings::can_user_bypass_tool_checks( $user_id ) ) {
+			$failed = 'tools';
+		}
+
+		if ( null === $failed && is_array( $edge )
+			&& is_wp_error( ( new AssignmentManager() )->validate_transition_input( $edge, array() ) ) ) {
+			$failed = 'inputs';
+		}
+
+		if ( null === $failed ) {
+			return null;
+		}
+
+		$entry_config = $sequence->get_status( $entry_stage );
+		$post         = get_post( $post_id );
+
+		return new \WP_Error(
+			'vip_workflows_status_change_rules',
+			self::status_change_rules_message(
+				$post ? (string) $post->post_title : '',
+				(string) $sequence->name,
+				(string) ( $entry_config['label'] ?? $entry_stage )
+			),
+			array(
+				'status'     => 403,
+				'post_id'    => $post_id,
+				'check'      => $failed,
+				'from_stage' => $current_stage,
+				'to_stage'   => $entry_stage,
+			)
+		);
+	}
+
+	/**
+	 * The editorial regions a core status change would be refused into, for a user.
+	 *
+	 * The client half of core_status_change_refusal(): the editor and the
+	 * list-table preflights refuse a status change into one of these regions
+	 * before the request, instead of confirming a move the server refuses.
+	 * Only the regions a status change can reseat into without crossing the
+	 * publish boundary are asked; the publish side is the boundary's. A trashed
+	 * post never lists `draft`: leaving the Trash for `draft` is never refused
+	 * (PublishBoundaryGuard::resolve_veto()).
+	 *
+	 * @param  int $post_id Post ID.
+	 * @param  int $user_id User the answer is for.
+	 * @return string[] Region slugs among draft, pending and private, in that order.
+	 */
+	public function refused_status_regions( int $post_id, int $user_id ): array {
+		if ( $user_id <= 0 || \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( $user_id ) ) {
+			return array();
+		}
+
+		$regions = 'trash' === get_post_status( $post_id )
+			? array( 'pending', 'private' )
+			: array( 'draft', 'pending', 'private' );
+
+		$refused = array();
+
+		foreach ( $regions as $region ) {
+			if ( null !== $this->core_status_change_refusal( $post_id, $region, $user_id ) ) {
+				$refused[] = $region;
+			}
+		}
+
+		return $refused;
+	}
+
+	/**
+	 * The sentence a refused core status change shows, on the server and the client.
+	 *
+	 * Same words as the client's getStatusChangeRefusedMessage(), to the
+	 * character, so the two share .pot entries. Two sentences so each stays
+	 * within the copy standard's length.
+	 *
+	 * @param  string $post_title    Post title.
+	 * @param  string $workflow_name Workflow (sequence) name.
+	 * @param  string $stage_label   Label of the stage the change would move the post to.
+	 * @return string
+	 */
+	public static function status_change_rules_message( string $post_title, string $workflow_name, string $stage_label ): string {
+		return sprintf(
+			/* translators: 1: post title, 2: workflow (sequence) name, 3: workflow stage label. */
+			__( '“%1$s” is in the “%2$s” workflow, and this status change would move it to “%3$s”.', 'vip-workflows' ),
+			$post_title,
+			$workflow_name,
+			$stage_label
+		) . ' ' . __( 'You can’t make that move from here. Use the workflow panel instead.', 'vip-workflows' );
+	}
+
+	/**
+	 * Remove a post from its workflow.
 	 *
 	 * Deletes the workflow identity (sequence + stage meta) and writes NO
 	 * post_status: removal takes the post out of the workflow and leaves it
-	 * exactly where core has it, so the user can then publish normally,
-	 * unguarded, because the post is no longer workflow-managed.
+	 * exactly where core has it, after which the publish veto no longer applies
+	 * because the post is no longer workflow-managed.
+	 *
+	 * That is why removal is limited to the workflow override roles: for anyone
+	 * else, leaving the workflow would be a way to publish without it. A
+	 * logged-in user outside those roles gets a 403 naming who to ask
+	 * (workflow_change_refusal()), and nothing is written or audited. A write
+	 * with no logged-in user is a trusted system actor and proceeds, the same
+	 * rule PublishBoundaryGuard::resolve_veto() applies.
 	 *
 	 * Any in-flight stage-agent job is cancelled by the SAME mechanism a
 	 * checkpoint reseat uses, not a second one: StageAgentRunner re-checks the
@@ -1838,7 +2056,7 @@ class StatusManager {
 	 * ordinary assign flow and seats the post at the region's checkpoint.
 	 *
 	 * @param  int $post_id Post ID.
-	 * @return bool|\WP_Error True on success; WP_Error when the post does not exist or is not in a workflow.
+	 * @return bool|\WP_Error True on success; WP_Error when the post does not exist, is not in a workflow, or the user is not in an override role.
 	 */
 	public function remove_sequence( int $post_id ): bool|\WP_Error {
 		$post = get_post( $post_id );
@@ -1855,6 +2073,11 @@ class StatusManager {
 				__( 'No workflow sequence for this post.', 'vip-workflows' ),
 				array( 'status' => 409 )
 			);
+		}
+
+		$refusal = $this->workflow_change_refusal( $post_id, 'remove' );
+		if ( $refusal ) {
+			return $refusal;
 		}
 
 		$removed_stage = (string) get_post_meta( $post_id, self::STAGE_META_KEY, true );
@@ -1899,6 +2122,67 @@ class StatusManager {
 	}
 
 	/**
+	 * Refuse removing or replacing a post's workflow for a user outside the override roles.
+	 *
+	 * The one rule behind both remove_sequence() and a replacing
+	 * assign_sequence(): every surface (REST, the remove-from-workflow
+	 * ability and so MCP, the editor, any extension) reaches those two
+	 * methods, so the limit lives here rather than in each caller.
+	 *
+	 * A write with no logged-in user is a trusted system actor (cron, a
+	 * seeder, `wp` without `--user`) and is never refused. WP-CLI run with
+	 * `--user` is checked as that user.
+	 *
+	 * A refusal changes nothing, so it is logged rather than audited: the
+	 * audit log records what happened to a post.
+	 *
+	 * @param  int    $post_id Post ID.
+	 * @param  string $action  `remove` or `replace`, for the log line.
+	 * @return \WP_Error|null A 403 naming who to ask, or null when allowed.
+	 */
+	private function workflow_change_refusal( int $post_id, string $action ): ?\WP_Error {
+		$user_id = get_current_user_id();
+		if ( ! $user_id || \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( $user_id ) ) {
+			return null;
+		}
+
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf( '[VIP Workflows] Refused to %s the workflow of post %d for user %d: only the workflow override roles can.', $action, $post_id, $user_id ) );
+
+		return new \WP_Error(
+			'vip_workflows_removal_restricted',
+			self::workflow_change_restricted_message( \VIPWorkflows\Admin\Settings::get_override_role_names() ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * The sentence for a refused removal or replacement: who can do it.
+	 *
+	 * @param  string[] $role_names Override role display names (Settings::get_override_role_names()).
+	 * @return string
+	 */
+	public static function workflow_change_restricted_message( array $role_names ): string {
+		if ( empty( $role_names ) ) {
+			return __( 'You can’t remove a post from its workflow or change its workflow.', 'vip-workflows' );
+		}
+
+		if ( 1 === count( $role_names ) ) {
+			return sprintf(
+				/* translators: %s: role name, e.g. "Administrator". */
+				__( 'Only someone with the %s role can remove a post from its workflow or change its workflow.', 'vip-workflows' ),
+				$role_names[0]
+			);
+		}
+
+		return sprintf(
+			/* translators: %s: comma-separated role names, e.g. "Editor, Administrator". */
+			__( 'Only someone with one of these roles can remove a post from its workflow or change its workflow: %s.', 'vip-workflows' ),
+			implode( ', ', $role_names )
+		);
+	}
+
+	/**
 	 * Resolve the sequence and validated current stage of a workflow post.
 	 *
 	 * The shared entry guard for every consumer that reasons about a post's
@@ -1940,9 +2224,10 @@ class StatusManager {
 	 * @param  string   $target_status Status the post is (or would be) moved to.
 	 * @param  Sequence $sequence     Sequence managing the post.
 	 * @param  string   $current_stage The post's current stage key.
+	 * @param  bool     $log_unmodeled Whether to log a target region the sequence doesn't model. False when only predicting a move.
 	 * @return string|null Entry stage to re-seat at, or null when nothing moves.
 	 */
-	private function resolve_reseat_stage( int $post_id, string $target_status, Sequence $sequence, string $current_stage ): ?string {
+	private function resolve_reseat_stage( int $post_id, string $target_status, Sequence $sequence, string $current_stage, bool $log_unmodeled = true ): ?string {
 		// Overlays have no regions: trash suspends the workflow in place; `future`
 		// is "in transit" (publish, delayed). Leave the stage.
 		if ( in_array( $target_status, Sequence::OVERLAY_STATUSES, true ) ) {
@@ -1973,8 +2258,10 @@ class StatusManager {
 		if ( null === $entry_stage ) {
 			// The sequence does not model this region (e.g. core set `pending` and
 			// the sequence has no pending-region stage). Tolerated: the stage stays.
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			error_log( sprintf( '[VIP Workflows] Post %d moved to status "%s", a region sequence "%s" does not model; stage "%s" left in place.', $post_id, $target_status, $sequence->slug, $current_stage ) );
+			if ( $log_unmodeled ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[VIP Workflows] Post %d moved to status "%s", a region sequence "%s" does not model; stage "%s" left in place.', $post_id, $target_status, $sequence->slug, $current_stage ) );
+			}
 			return null;
 		}
 
@@ -2324,9 +2611,13 @@ class StatusManager {
 			'ability.failed'       => __( 'Tool failed', 'vip-workflows' ),
 			// Configuration events. These carry no post, which the response shape
 			// already allows (`post_id` is a nullable column and `post` is null here).
+			'sequence.created'     => __( 'Sequence created', 'vip-workflows' ),
+			'sequence.imported'    => __( 'Sequence imported', 'vip-workflows' ),
 			'sequence.updated'     => __( 'Sequence updated', 'vip-workflows' ),
 			'sequence.activated'   => __( 'Sequence activated', 'vip-workflows' ),
 			'sequence.deactivated' => __( 'Sequence deactivated', 'vip-workflows' ),
+			'sequence.deleted'     => __( 'Sequence deleted', 'vip-workflows' ),
+			'sequence.exported'    => __( 'Sequence exported', 'vip-workflows' ),
 			// Maintenance. Carries no post and no actor: the nightly prune runs
 			// on cron and belongs to no one.
 			'maintenance.cleanup'  => __( 'Cleanup run', 'vip-workflows' ),
@@ -2360,18 +2651,47 @@ class StatusManager {
 	 * for itself. The author changes the status, or picks a sequence that covers
 	 * it.
 	 *
+	 * Giving an unassigned post its first workflow is open to anyone who can
+	 * edit it. Replacing a post's workflow, or re-seating it in the same one,
+	 * is limited to the workflow override roles like removal is: otherwise it
+	 * would move a post to a looser workflow, or back to its entry stage, by
+	 * another name. A post whose sequence row was deleted still carries a
+	 * sequence id, so it counts as assigned. That limit is checked before the
+	 * target sequence or its stages, so a user outside the override roles is
+	 * told who to ask rather than what is wrong with a sequence they could not
+	 * apply anyway.
+	 *
 	 * @param  int $post_id      Post ID.
 	 * @param  int $sequence_id Sequence ID.
-	 * @return bool|\WP_Error True on success, WP_Error when the sequence models no stage in the post's status region, false on error.
+	 * @return bool|\WP_Error True on success, WP_Error when the sequence models no stage in the post's status region or the user may not replace the post's workflow, false on error.
 	 */
 	public function assign_sequence( int $post_id, int $sequence_id ) {
-		$sequence = $this->sequence_repository->find( $sequence_id );
-		if ( ! $sequence ) {
+		$post = get_post( $post_id );
+		if ( ! $post ) {
 			return false;
 		}
 
-		$post = get_post( $post_id );
-		if ( ! $post ) {
+		// Replacing or re-seating an existing workflow is limited to the
+		// override roles; a first assignment is not. A dangling sequence id
+		// (its row deleted) still counts as an existing workflow, and so does
+		// a stored value that is not a number: presence is read from the raw
+		// value, the same test remove_sequence() uses, never from the cast.
+		//
+		// This runs before anything about the target sequence or stage is
+		// checked. A user who may not change this post's workflow gets the
+		// one answer that helps them, the 403 naming who to ask, rather than
+		// a 400 about a stage or region they could fix only to be refused
+		// anyway.
+		$stored_sequence = get_post_meta( $post_id, self::SEQUENCE_META_KEY, true );
+		if ( $stored_sequence ) {
+			$refusal = $this->workflow_change_refusal( $post_id, 'replace' );
+			if ( $refusal ) {
+				return $refusal;
+			}
+		}
+
+		$sequence = $this->sequence_repository->find( $sequence_id );
+		if ( ! $sequence ) {
 			return false;
 		}
 
@@ -2424,7 +2744,7 @@ class StatusManager {
 		// workflow; the previous stage, if any, is the stage being exited).
 		$previous_status   = (string) get_post_status( $post_id );
 		$previous_stage    = (string) get_post_meta( $post_id, self::STAGE_META_KEY, true );
-		$previous_sequence = (int) get_post_meta( $post_id, self::SEQUENCE_META_KEY, true );
+		$previous_sequence = (int) $stored_sequence;
 
 		// The seat is inside the post's own region by construction — the entry
 		// stage is selected from that region's stages — so no post_status write

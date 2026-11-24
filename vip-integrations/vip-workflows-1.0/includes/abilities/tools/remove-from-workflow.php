@@ -2,14 +2,13 @@
 /**
  * Remove From Workflow ability.
  *
- * The Abilities-API half of the publish veto's escape hatch.
+ * The Abilities-API counterpart of the editor's "Remove from workflow".
  *
- * A non-bypass user's status change across the publish boundary is refused at
- * the save layer, and the refusal names exactly two ways through: move the post
- * through the workflow to a published stage, or take it out of the workflow —
- * which is recorded. Both were reachable from the UI; only the first was
- * reachable from an ability, so an agent asked to "remove this from its workflow
- * and publish it" could not do the thing the veto itself told it to do.
+ * Removal is limited to the workflow override roles, the same people the
+ * publish veto tells everyone else to ask. The limit is
+ * StatusManager::remove_sequence()'s, not this ability's: any other user with
+ * edit access gets that method's 403 naming who to ask, so an agent acting for
+ * them learns the same thing the editor would tell them.
  *
  * @package VIPWorkflows
  */
@@ -83,7 +82,7 @@ function register_remove_from_workflow(): void {
 		'vip-workflows/remove-from-workflow',
 		array(
 			'label'               => __( 'Remove from workflow', 'vip-workflows' ),
-			'description'         => __( 'Takes a post out of its workflow, leaving its published status exactly as it is. The removal is recorded in the workflow log and cannot be undone: re-assigning a workflow later starts the post at the first stage of its region. This is the audited escape from the publish guard — prefer moving the post through the workflow to a published stage where that is possible.', 'vip-workflows' ),
+			'description'         => __( 'Takes a post out of its workflow, leaving its published status exactly as it is. The removal is recorded in the workflow log and cannot be undone: re-assigning a workflow later starts the post at the first stage of its region. Only users in a workflow override role can remove a post; anyone else gets an error naming the roles to ask. Prefer moving the post through the workflow to a published stage.', 'vip-workflows' ),
 			'category'            => 'vip-workflows',
 			'input_schema'        => array(
 				'type'                 => 'object',

@@ -18,6 +18,9 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Abilities\Tools;
 
 use VIPWorkflows\Sequences\Sequence;
+use VIPWorkflows\Sequences\SequenceAudit;
+
+const CREATE_SEQUENCE_ABILITY_ID = SequenceAudit::CREATE_ABILITY_ID;
 
 /**
  * Execute the sequence creation.
@@ -40,7 +43,9 @@ function execute_create_sequence( ?array $input = null ) {
 
 	// Map the ability input onto a REST request and delegate to the controller,
 	// reusing its validation, slug dedup, config building, and draft handling.
+	// The attribute tells the controller which ability to record the change as.
 	$request = new \WP_REST_Request( 'POST', '/vip-workflows/v1/sequences' );
+	$request->set_attributes( array( SequenceAudit::REQUEST_ATTRIBUTE => CREATE_SEQUENCE_ABILITY_ID ) );
 	foreach ( array( 'name', 'description', 'type', 'status', 'statuses', 'post_types', 'settings', 'metadata_fields' ) as $key ) {
 		if ( array_key_exists( $key, $input ) ) {
 			$request->set_param( $key, $input[ $key ] );
@@ -108,7 +113,7 @@ function execute_create_sequence( ?array $input = null ) {
  */
 function register_create_sequence(): void {
 	wp_register_ability(
-		'vip-workflows/create-sequence',
+		CREATE_SEQUENCE_ABILITY_ID,
 		array(
 			'label'               => __( 'New sequence', 'vip-workflows' ),
 			'description'         => __( 'Creates a new workflow sequence from a FLAT body: name and statuses at the top level (plus optional post_types, settings, metadata_fields). This is not the WRAPPED {type,name,config} shape that import-sequence takes. Defaults to active; pass status:draft to stage it.', 'vip-workflows' ),

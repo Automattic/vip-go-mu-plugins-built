@@ -111,7 +111,7 @@ Call `vip-workflows/validate-sequence` (read-only, idempotent) with your propose
 
 From PHP (`wp eval-file`, an activation hook, a migration) call the same abilities with `wp_get_ability( 'vip-workflows/create-sequence' )->execute( $config )`. The plugin source carries a worked example at `vip-workflows/tests/fixtures/import-ai-copy-desk.php`.
 
-The create, update, import, activate and validate abilities all require `manage_options` (validate is read-only but returns the full stored configuration); export and options require only `edit_posts`.
+The create, update, import, activate and validate abilities all require `manage_options` (validate is read-only but returns the full stored configuration); exporting requires it too, and options requires only `edit_posts`.
 
 ## 8. Verify
 

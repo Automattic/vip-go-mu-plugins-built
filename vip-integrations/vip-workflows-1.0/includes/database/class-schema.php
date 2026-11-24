@@ -22,7 +22,7 @@ class Schema {
 	/**
 	 * Database version.
 	 */
-	public const VERSION = '2.27.0';
+	public const VERSION = '2.28.0';
 
 	/**
 	 * Option name for storing DB version.
@@ -120,6 +120,26 @@ class Schema {
 	 * @var int
 	 */
 	private static int $assignee_backfill_page_size = 500;
+
+	/**
+	 * Post meta key Create Draft used to write and no longer does.
+	 */
+	private const RETIRED_DRAFT_RECORD_META_KEY = 'vip_draft_ai_context';
+
+	/**
+	 * Seconds of retired-record cleanup one request does before it stops and
+	 * leaves the rest to the next request. Static so the tests can shorten it.
+	 *
+	 * @var float
+	 */
+	private static float $draft_record_cleanup_budget = 10.0;
+
+	/**
+	 * Meta rows deleted per cleanup page. Static so the tests can shorten it.
+	 *
+	 * @var int
+	 */
+	private static int $draft_record_cleanup_page_size = 500;
 
 	/**
 	 * Install or upgrade database tables.
@@ -621,7 +641,81 @@ class Schema {
 					self::backfill_pending_assignee_index();
 				},
 			),
+			// Create Draft used to write a record of its AI call to post meta.
+			// The record was unused and inaccurate, and nothing reads it, so
+			// Create Draft no longer writes it and existing copies are deleted.
+			array(
+				'version' => '2.28.0',
+				'run'     => function (): void {
+					self::delete_retired_draft_records();
+				},
+			),
 		);
+	}
+
+	/**
+	 * Delete every copy of the retired Create Draft record from post meta.
+	 *
+	 * Deletes a page of rows at a time, by meta_id, until a read finds none,
+	 * and clears each affected post's meta cache so a persistent object cache
+	 * stops serving the deleted value. Deleting is idempotent, so two requests
+	 * running the upgrade at once need no lease: each deletes what it finds,
+	 * and a row already gone is simply not found.
+	 *
+	 * It runs on an ordinary request after the upgrade, so it stops after
+	 * $draft_record_cleanup_budget seconds and throws MigrationDeferred. The
+	 * schema version then stays unbumped, and the next request carries on
+	 * from whatever rows remain.
+	 *
+	 * @throws MigrationDeferred When this request's time budget ran out.
+	 * @throws \RuntimeException When the rows cannot be read or deleted.
+	 */
+	private static function delete_retired_draft_records(): void {
+		global $wpdb;
+
+		$page_size = self::$draft_record_cleanup_page_size;
+		$deadline  = microtime( true ) + self::$draft_record_cleanup_budget;
+
+		do {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-off cleanup over postmeta by the indexed meta_key, paged; runs once per schema version
+			$rows = $wpdb->get_results(
+				$wpdb->prepare(
+					'SELECT meta_id, post_id FROM %i WHERE meta_key = %s ORDER BY meta_id ASC LIMIT %d',
+					$wpdb->postmeta,
+					self::RETIRED_DRAFT_RECORD_META_KEY,
+					$page_size
+				)
+			);
+			if ( null === $rows || '' !== $wpdb->last_error ) {
+				throw new \RuntimeException( esc_html( 'Could not read retired draft records: ' . $wpdb->last_error ) );
+			}
+
+			if ( $rows ) {
+				$meta_ids = array_map( static fn ( $row ): int => (int) $row->meta_id, $rows );
+				$post_ids = array_unique( array_map( static fn ( $row ): int => (int) $row->post_id, $rows ) );
+
+				// Integers only, so the list is safe to inline.
+				$in = implode( ', ', $meta_ids );
+
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- one-off cleanup; $in holds only integers.
+				$wpdb->query( $wpdb->prepare( "DELETE FROM %i WHERE meta_key = %s AND meta_id IN ( {$in} )", $wpdb->postmeta, self::RETIRED_DRAFT_RECORD_META_KEY ) );
+				if ( '' !== $wpdb->last_error ) {
+					throw new \RuntimeException( esc_html( 'Could not delete retired draft records: ' . $wpdb->last_error ) );
+				}
+
+				foreach ( $post_ids as $post_id ) {
+					wp_cache_delete( $post_id, 'post_meta' );
+				}
+			}
+
+			// Only an empty read ends the run, not a short page, so a row
+			// written between this page's read and its delete is still found.
+			$done = ! $rows;
+		} while ( ! $done && microtime( true ) < $deadline );
+
+		if ( ! $done ) {
+			throw new MigrationDeferred( 'The retired draft record cleanup used its time budget and resumes on the next request.' );
+		}
 	}
 
 	/**

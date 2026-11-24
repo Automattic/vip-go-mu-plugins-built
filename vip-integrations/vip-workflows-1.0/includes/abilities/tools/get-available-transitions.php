@@ -92,9 +92,11 @@ function build_transition_guard_context( $status_manager, int $post_id, ?array $
 	}
 
 	return array(
-		'current_region' => $current_region,
-		'can_bypass'     => \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( get_current_user_id() ),
-		'agent_pending'  => $status_manager->has_pending_agent_job( $post_id, $stage_key ),
+		'current_region'  => $current_region,
+		'can_bypass'      => \VIPWorkflows\Admin\Settings::can_user_bypass_workflow( get_current_user_id() ),
+		'agent_pending'   => $status_manager->has_pending_agent_job( $post_id, $stage_key ),
+		'override_roles'  => \VIPWorkflows\Admin\Settings::get_override_role_names(),
+		'refused_regions' => $status_manager->refused_status_regions( $post_id, get_current_user_id() ),
 	);
 }
 
@@ -145,7 +147,7 @@ function register_get_available_transitions(): void {
 					),
 					'guard'          => array(
 						'type'        => 'object',
-						'description' => __( 'What performing one of these transitions would set off. `current_region` is the editorial region (draft/pending/private/publish) of the post’s stage, or null when it cannot be resolved; a move whose target region differs, with either side being publish, is refused for a user whose `can_bypass` is false. `agent_pending` is true when an AI agent is mid-run on this post, in which case any transition out of the stage stops it and must be confirmed with transition-post’s acknowledge_warnings.', 'vip-workflows' ),
+						'description' => __( 'What performing one of these transitions would set off. `current_region` is the editorial region (draft/pending/private/publish) of the post’s stage, or null when it cannot be resolved; a move whose target region differs, with either side being publish, is refused for a user whose `can_bypass` is false. `agent_pending` is true when an AI agent is mid-run on this post, in which case any transition out of the stage stops it and must be confirmed with transition-post’s acknowledge_warnings. `override_roles` names the roles that can skip these rules and that alone can remove the post from its workflow or change its workflow: who to ask when `can_bypass` is false. `refused_regions` lists the regions (draft/pending/private) a core status change into would be refused, because the stage it moves the post to is a transition this user can’t take; move the post with transition-post instead.', 'vip-workflows' ),
 					),
 				),
 			),

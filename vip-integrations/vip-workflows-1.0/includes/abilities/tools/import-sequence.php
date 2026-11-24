@@ -15,6 +15,10 @@ declare( strict_types=1 );
 
 namespace VIPWorkflows\Abilities\Tools;
 
+use VIPWorkflows\Sequences\SequenceAudit;
+
+const IMPORT_SEQUENCE_ABILITY_ID = SequenceAudit::IMPORT_ABILITY_ID;
+
 /**
  * Execute the sequence import.
  *
@@ -29,7 +33,9 @@ function execute_import_sequence( ?array $input = null ) {
 		return new \WP_Error( 'missing_sequence_json', __( 'The "sequence_json" parameter is required and must be the exported sequence object.', 'vip-workflows' ) );
 	}
 
+	// The attribute tells the controller which ability to record the change as.
 	$request = new \WP_REST_Request( 'POST', '/vip-workflows/v1/sequences/import' );
+	$request->set_attributes( array( SequenceAudit::REQUEST_ATTRIBUTE => IMPORT_SEQUENCE_ABILITY_ID ) );
 	$request->set_param( 'sequence_json', $sequence_json );
 	if ( array_key_exists( 'name', $input ) ) {
 		$request->set_param( 'name', $input['name'] );
@@ -69,7 +75,7 @@ function execute_import_sequence( ?array $input = null ) {
  */
 function register_import_sequence(): void {
 	wp_register_ability(
-		'vip-workflows/import-sequence',
+		IMPORT_SEQUENCE_ABILITY_ID,
 		array(
 			'label'               => __( 'Import sequence', 'vip-workflows' ),
 			'description'         => __( 'Imports a workflow sequence from a WRAPPED envelope passed as the sequence_json parameter: {type, name, description, config} with the stages under config.statuses (the phases under config.phases for a phase sequence), the shape the export endpoint emits, not the FLAT create-sequence body. The imported sequence is created as a draft; activate it afterwards.', 'vip-workflows' ),

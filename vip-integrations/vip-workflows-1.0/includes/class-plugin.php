@@ -18,6 +18,7 @@ use VIPWorkflows\Workflow\AgentRunner;
 use VIPWorkflows\Workflow\StageAgentRunner;
 use VIPWorkflows\Workflow\PostTypeManager;
 use VIPWorkflows\Workflow\PublishBoundaryGuard;
+use VIPWorkflows\Workflow\WorkflowRequirementGuard;
 use VIPWorkflows\Workflow\StatusManager;
 use VIPWorkflows\Workflow\WorkflowEvents;
 use VIPWorkflows\Maintenance\Cleanup;
@@ -148,6 +149,10 @@ final class Plugin {
 		// of the publish region on a workflow post is refused, with the audited
 		// "remove from workflow" escape as the way through.
 		( new PublishBoundaryGuard( $this->status_manager ) )->init();
+
+		// Save-layer required workflow: when the site requires a workflow, a
+		// non-override user can't publish a post that has none.
+		( new WorkflowRequirementGuard( $this->status_manager, $this->post_type_manager ) )->init();
 
 		if ( function_exists( 'wp_register_ability' ) ) {
 			add_action( 'wp_abilities_api_categories_init', array( $this, 'register_ability_categories' ) );
@@ -381,18 +386,21 @@ final class Plugin {
 				'single'            => true,
 
 				/*
-				 * Workflow state, not a field. Supplying an auth_callback
-				 * overrides core's is_protected_meta() default-deny, so this was
-				 * readable anonymously and writable by any edit_post holder — and
-				 * zeroing it is how a post leaves the workflow, silently, where
-				 * DELETE /workflow/post/{id}/sequence does the same job audited.
+				 * Workflow state, not a field. StatusManager alone writes it,
+				 * through assignment and removal, both audited. Registering any
+				 * auth_callback replaces core's protected-meta default deny for
+				 * this leading-underscore key, so this one denies: no site role,
+				 * administrators included, holds add_post_meta, edit_post_meta
+				 * or delete_post_meta on it, which keeps it off REST, XML-RPC
+				 * custom_fields and the Custom Fields box, like the unregistered
+				 * stage key beside it. A refused key maps to the meta capability
+				 * itself, not do_not_allow, so on multisite a super admin still
+				 * holds all three, as for every protected key. Don't change it to
+				 * an edit_post check. update_post_meta() and delete_post_meta()
+				 * never consult it.
 				 */
 				'show_in_rest'      => false,
-				'auth_callback'     => function ( $allowed, $meta_key, $post_id ) {
-					// Object-scoped: writing this post's sequence requires edit
-					// rights on that post, not a bare edit_posts capability.
-					return current_user_can( 'edit_post', $post_id );
-				},
+				'auth_callback'     => '__return_false',
 				'sanitize_callback' => 'absint',
 			)
 		);

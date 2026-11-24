@@ -123,7 +123,10 @@ function execute_update_post_fields( ?array $input = null ) {
 		$update_args[ $allowed_fields[ $field_name ] ] = $value;
 	}
 
-	$result = wp_update_post( $update_args, true );
+	// wp_update_post() unslashes what it's given, so slash it first.
+	// Unslashed, every backslash in a title or excerpt is lost: `C:\temp`
+	// is saved as `C:temp`. `$sanitized` stays unslashed for the response.
+	$result = wp_update_post( wp_slash( $update_args ), true );
 
 	if ( is_wp_error( $result ) ) {
 		return $result;

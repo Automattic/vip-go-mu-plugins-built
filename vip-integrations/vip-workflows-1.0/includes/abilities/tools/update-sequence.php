@@ -27,9 +27,10 @@ declare( strict_types=1 );
 namespace VIPWorkflows\Abilities\Tools;
 
 use VIPWorkflows\Sequences\Sequence;
+use VIPWorkflows\Sequences\SequenceAudit;
 use VIPWorkflows\Sequences\SequenceRepository;
 
-const UPDATE_SEQUENCE_ABILITY_ID = 'vip-workflows/update-sequence';
+const UPDATE_SEQUENCE_ABILITY_ID = SequenceAudit::UPDATE_ABILITY_ID;
 
 /**
  * Fields this ability may hand to SequencesController::update_item().
@@ -81,8 +82,10 @@ function execute_update_sequence( ?array $input = null ) {
 	$previous_status = $existing->status;
 
 	// Map the ability input onto a REST request and delegate to the controller,
-	// reusing its validation, config building and write gate.
+	// reusing its validation, config building and write gate. The controller
+	// records the change, as this ability, from the attribute.
 	$request = new \WP_REST_Request( 'PUT', '/vip-workflows/v1/sequences/' . $sequence_id );
+	$request->set_attributes( array( SequenceAudit::REQUEST_ATTRIBUTE => UPDATE_SEQUENCE_ABILITY_ID ) );
 	$request->set_param( 'id', $sequence_id );
 	foreach ( UPDATE_SEQUENCE_FIELDS as $key ) {
 		if ( array_key_exists( $key, $input ) ) {
@@ -126,19 +129,6 @@ function execute_update_sequence( ?array $input = null ) {
 			$warnings[] = __( 'This workflow sequence now has no valid post types configured, so it is not attached to any content type and cannot be used. An update replaces the whole configuration — pass "post_types" (e.g. ["post"]) to keep the attachment.', 'vip-workflows' );
 		}
 	}
-
-	log_configuration_event(
-		'sequence.updated',
-		UPDATE_SEQUENCE_ABILITY_ID,
-		array(
-			'sequence_id'     => (int) $data['id'],
-			'sequence_name'   => (string) $data['name'],
-			'sequence_slug'   => (string) $data['slug'],
-			'sequence_type'   => (string) $data['type'],
-			'statuses_count'  => (int) $data['statuses_count'],
-			'sequence_status' => (string) $data['status'],
-		)
-	);
 
 	return array(
 		'sequence_id'    => (int) $data['id'],

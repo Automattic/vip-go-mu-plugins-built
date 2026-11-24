@@ -256,7 +256,13 @@ class PostsColumns {
 			$stage_region  = '';
 		}
 
-		$this->render_row_data( $sequence->id, $sequence->name, $post_status, $stage_region, $seated_region, $entry_stages, $current_status, $color );
+		// The regions a status change would be refused into for this user,
+		// because the reseat it causes is a transition they can't take. Asked
+		// only for managed rows whose stage resolved, and answered empty
+		// without a sequence read for an override user.
+		$refused_regions = $status_manager->refused_status_regions( $post_id, get_current_user_id() );
+
+		$this->render_row_data( $sequence->id, $sequence->name, $post_status, $stage_region, $seated_region, $entry_stages, $current_status, $color, false, $refused_regions );
 	}
 
 	/**
@@ -329,10 +335,11 @@ class PostsColumns {
 	 * @param array|null            $current_status The post's current stage, or null when it does not resolve.
 	 * @param string                $color          Stage color already resolved by the caller, so the rendered dot and the Quick Edit dot cannot disagree.
 	 * @param bool                  $orphaned       Whether the named sequence no longer exists.
+	 * @param string[]              $refused_regions Regions a status change would be refused into for the current user (StatusManager::refused_status_regions()).
 	 */
-	private function render_row_data( int $sequence_id, string $sequence_name, string $post_status, string $stage_region, string $seated_region, array $entry_stages, ?array $current_status, string $color, bool $orphaned = false ): void {
+	private function render_row_data( int $sequence_id, string $sequence_name, string $post_status, string $stage_region, string $seated_region, array $entry_stages, ?array $current_status, string $color, bool $orphaned = false, array $refused_regions = array() ): void {
 		printf(
-			'<input type="hidden" class="vip-workflows-data" data-workflow="1" data-orphaned="%s" data-sequence-id="%d" data-sequence-name="%s" data-status-key="%s" data-status-label="%s" data-status-color="%s" data-stage-region="%s" data-seated-region="%s" data-entry-stages="%s" data-post-status="%s" />',
+			'<input type="hidden" class="vip-workflows-data" data-workflow="1" data-orphaned="%s" data-sequence-id="%d" data-sequence-name="%s" data-status-key="%s" data-status-label="%s" data-status-color="%s" data-stage-region="%s" data-seated-region="%s" data-entry-stages="%s" data-post-status="%s" data-refused-regions="%s" />',
 			esc_attr( $orphaned ? '1' : '' ),
 			esc_attr( (string) $sequence_id ),
 			esc_attr( $sequence_name ),
@@ -344,7 +351,8 @@ class PostsColumns {
 			// Cast so an empty map renders as an object rather than PHP's `[]`:
 			// the client indexes it by region.
 			esc_attr( (string) wp_json_encode( (object) $entry_stages ) ),
-			esc_attr( $post_status )
+			esc_attr( $post_status ),
+			esc_attr( (string) wp_json_encode( array_values( $refused_regions ) ) )
 		);
 	}
 
@@ -440,8 +448,11 @@ class PostsColumns {
 		// the fail-closed message shown when the guard itself cannot answer.
 		$guard = wp_json_encode(
 			array(
-				'canBypass' => Settings::can_user_bypass_workflow(),
-				'strings'   => array(
+				'canBypass'     => Settings::can_user_bypass_workflow(),
+				// Who to ask: the shared module's veto sentences name these, and
+				// must say what the server says.
+				'overrideRoles' => Settings::get_override_role_names(),
+				'strings'       => array(
 					// The publish boundary is symmetric, so the veto copy is
 					// direction-aware: a user un-publishing was never trying to
 					// publish, and telling them they can't would be a non-sequitur.
@@ -449,6 +460,10 @@ class PostsColumns {
 					'bulkVetoPublish'    => __( '%1$s of %2$s selected posts can’t be published while in workflows: %3$s. Deselect them to continue.', 'vip-workflows' ),
 					/* translators: %1$s: number of affected posts, %2$s: number of selected posts, %3$s: comma-separated post titles. */
 					'bulkVetoUnpublish'  => __( '%1$s of %2$s selected posts can’t be unpublished while in workflows: %3$s. Deselect them to continue.', 'vip-workflows' ),
+					// A status change that would move a post to a stage through a
+					// transition the user can't take (refused_regions on the row).
+					/* translators: %1$s: number of affected posts, %2$s: number of selected posts, %3$s: comma-separated post titles. */
+					'bulkRefused'        => __( '%1$s of %2$s selected posts can’t change to that status outside their workflows: %3$s. Deselect them to continue.', 'vip-workflows' ),
 					// DECISION: Bulk Edit stays region-level and names no stage,
 					// unlike the single-post surfaces. One apply spans N posts
 					// across up to N sequences, each with its own stage names
@@ -493,6 +508,8 @@ class PostsColumns {
 			typeof api.statusToRegion !== 'function' ||
 			typeof api.getPublishVetoMessage !== 'function' ||
 			typeof api.getOrphanedWorkflowMessage !== 'function' ||
+			typeof api.isTransitionRulesRefusal !== 'function' ||
+			typeof api.getStatusChangeRefusedMessage !== 'function' ||
 			typeof api.getTransitionWarningsMessage !== 'function' ||
 			typeof api.getStatusChangeWarning !== 'function'
 		) {
@@ -540,6 +557,39 @@ class PostsColumns {
 		}
 	}
 
+	// The regions a status change on this row would be refused into, because
+	// the reseat it causes is a transition this user can't take
+	// (StatusManager::refused_status_regions()). An unreadable list is logged
+	// and read as empty: the change is then confirmed rather than refused, and
+	// the server, which is the authority, still refuses it.
+	function refusedRegionsFor(data) {
+		var raw = data.dataset.refusedRegions;
+		if (!raw) return [];
+
+		try {
+			var parsed = JSON.parse(raw);
+			return Array.isArray(parsed) ? parsed : [];
+		} catch (e) {
+			console.error('[VIP Workflows] A workflow row carries an unreadable refused-regions list: ' + e.message);
+			return [];
+		}
+	}
+
+	// The shared module's input for one row and target. The committed status
+	// goes with it because a trashed post is judged differently: leaving the
+	// Trash for draft is never refused, and leaving it for another
+	// non-publish status skips the boundary check and follows only the
+	// transition rules, as on the server.
+	function guardInputFor(data, targetStatus) {
+		return {
+			currentRegion: data.dataset.stageRegion,
+			targetStatus: targetStatus,
+			canBypass: guard.canBypass,
+			refusedRegions: refusedRegionsFor(data),
+			currentStatus: data.dataset.postStatus || undefined
+		};
+	}
+
 	function titleFor(row, postId) {
 		var titleEl = row.querySelector('.row-title');
 		if (!titleEl) {
@@ -559,15 +609,16 @@ class PostsColumns {
 		// would block the one person able to fix the sequence, and in Bulk Edit
 		// one broken row would cancel the apply for every healthy one. They fall
 		// through to the shared table, which warns on an unresolved region.
-		if (!region && !guard.canBypass) {
+		//
+		// A post leaving the Trash for a non-publish status is the exception: the
+		// server never reads its region for that change, so neither does this.
+		var leavingTrash = data.dataset.postStatus === 'trash' &&
+			api.statusToRegion(targetStatus) !== 'publish';
+		if (!region && !guard.canBypass && !leavingTrash) {
 			console.error('[VIP Workflows] A workflow row carries no stage region; refusing the status change.');
 			return null;
 		}
-		return api.evaluateStatusChange({
-			currentRegion: region,
-			targetStatus: targetStatus,
-			canBypass: guard.canBypass
-		});
+		return api.evaluateStatusChange(guardInputFor(data, targetStatus));
 	}
 
 	// Only a genuine status CHANGE can cross a region boundary. This mirrors the
@@ -666,13 +717,28 @@ class PostsColumns {
 			// An orphaned row is refused for a different reason — its sequence
 			// was deleted, so there is no workflow left to move the post through
 			// and no name to call it by. Same guard, different sentence.
-			window.alert(data.dataset.orphaned
-				? api.getOrphanedWorkflowMessage({ title: titleFor(row, postId) })
-				: api.getPublishVetoMessage({
+			if (data.dataset.orphaned) {
+				window.alert(api.getOrphanedWorkflowMessage({
+					title: titleFor(row, postId),
+					overrideRoles: guard.overrideRoles
+				}));
+			} else if (api.isTransitionRulesRefusal(guardInputFor(data, targetStatus))) {
+				// Not a publish-boundary crossing: the stage this change would
+				// move the post to is a transition the user can't take.
+				var refusedStages = entryStagesFor(data) || {};
+				window.alert(api.getStatusChangeRefusedMessage({
 					title: titleFor(row, postId),
 					workflowName: data.dataset.sequenceName,
-					targetStatus: targetStatus
+					stageLabel: refusedStages[targetStatus] || targetStatus
 				}));
+			} else {
+				window.alert(api.getPublishVetoMessage({
+					title: titleFor(row, postId),
+					workflowName: data.dataset.sequenceName,
+					targetStatus: targetStatus,
+					overrideRoles: guard.overrideRoles
+				}));
+			}
 			return false;
 		}
 
@@ -722,6 +788,7 @@ class PostsColumns {
 
 		var checked = document.querySelectorAll('#the-list input[name="post[]"]:checked');
 		var vetoed = [];
+		var refused = [];
 		var warned = [];
 		var api = null;
 
@@ -744,7 +811,9 @@ class PostsColumns {
 			var decision = evaluateRow(api, data, targetStatus);
 			if (decision === null) return blockMisconfigured();
 
-			if (decision === 'veto') {
+			if (decision === 'veto' && !data.dataset.orphaned && api.isTransitionRulesRefusal(guardInputFor(data, targetStatus))) {
+				refused.push(titleFor(row, postId));
+			} else if (decision === 'veto') {
 				vetoed.push(titleFor(row, postId));
 			} else if (decision === 'warn') {
 				warned.push(titleFor(row, postId));
@@ -761,6 +830,11 @@ class PostsColumns {
 				? guard.strings.bulkVetoPublish
 				: guard.strings.bulkVetoUnpublish;
 			window.alert(format(vetoMessage, [vetoed.length, checked.length, vetoed.join(', ')]));
+			return false;
+		}
+
+		if (refused.length) {
+			window.alert(format(guard.strings.bulkRefused, [refused.length, checked.length, refused.join(', ')]));
 			return false;
 		}
 
@@ -1012,6 +1086,10 @@ class PostsColumns {
 					// post_status — and it is what tells the next confirm
 					// whether a change re-seats the post or leaves it put.
 					dataInput.dataset.seatedRegion = resp.current.status || '';
+
+					// Which regions are refused depends on the stage, so the
+					// list moves with it too.
+					dataInput.dataset.refusedRegions = JSON.stringify((resp.guard && resp.guard.refused_regions) || []);
 
 					if (resp.current.wp_status) {
 						dataInput.dataset.postStatus = resp.current.wp_status;

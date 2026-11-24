@@ -16,5 +16,5 @@
 		'wp-private-apis',
 		'wp-theme'
 	),
-	'version' => 'f2f21aad4858e86f12cd'
+	'version' => '17fff92e87c628a957ce'
 );
