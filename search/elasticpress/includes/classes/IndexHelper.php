@@ -490,8 +490,7 @@ class IndexHelper {
 		}
 
 		$args = [
-			'per_page'   => absint( $per_page ),
-			'ep_sync_id' => uniqid(),
+			'per_page' => absint( $per_page ),
 		];
 
 		if ( ! $indexable->support_indexing_advanced_pagination || 'offset' === $this->index_meta['pagination_method'] ) {
